@@ -1,0 +1,11 @@
+.idea
+.vscode
+.DS_Store
+
+*.pyc
+*.ipynb
+*.env.*
+
+# client
+client/.DS_Store
+client/node_modules/
