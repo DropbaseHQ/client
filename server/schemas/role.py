@@ -8,6 +8,7 @@ from pydantic import BaseModel
 class BaseRole(BaseModel):
     user_id: UUID
     workspace_id: UUID
+    role: str
 
 
 class ReadRole(BaseRole):

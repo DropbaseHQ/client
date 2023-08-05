@@ -4,6 +4,7 @@
 
 *.pyc
 *.ipynb
+.env
 *.env.*
 
 # client

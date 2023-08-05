@@ -10,8 +10,9 @@ class User(Base):
 
     name = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
+    hashed_password = Column(String)
     active = Column(Boolean, default=False)
-    trial_eligible = Column(Boolean)
+    trial_eligible = Column(Boolean, default=True)
 
     date = Column(TIMESTAMP, server_default=func.now())
 
