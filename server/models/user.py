@@ -10,16 +10,8 @@ class User(Base):
 
     name = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
-    hashed_password = Column(String)
     active = Column(Boolean, default=False)
     trial_eligible = Column(Boolean)
-    confirmation_token = Column(String)
-
-    # Stripe
-    customer_id = Column(String)
-    subscription_id = Column(String)
-    status = Column(String)
-    plan = Column(String)
 
     date = Column(TIMESTAMP, server_default=func.now())
 

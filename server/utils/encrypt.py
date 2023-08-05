@@ -8,7 +8,7 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-from server.credentials import ENCRYPT_SECRET
+from server.constants import ENCRYPT_SECRET
 
 
 def _create_fernet(workspace_id):
