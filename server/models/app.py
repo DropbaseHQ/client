@@ -9,7 +9,7 @@ class App(Base):
     id = Column(UUID(as_uuid=True), server_default=text("uuid_generate_v4()"), primary_key=True)
 
     name = Column(String, nullable=False)
-    workspace_id = Column(UUID, ForeignKey("workspace.id", ondelete="CASCADE"))
+    workspace_id = Column(UUID(as_uuid=True), ForeignKey("workspace.id", ondelete="CASCADE"))
 
     date = Column(TIMESTAMP, server_default=func.now())
 

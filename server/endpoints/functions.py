@@ -17,12 +17,12 @@ def get_functions(functions_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/")
 def create_functions(request: CreateFunctions, db: Session = Depends(get_db)):
-    return crud.functions.create(db, request)
+    return crud.functions.create(db, obj_in=request)
 
 
 @router.put("/{functions_id}")
 def update_functions(functions_id: UUID, request: UpdateFunctions, db: Session = Depends(get_db)):
-    return crud.functions.update_by_pk(db, functions_id, request)
+    return crud.functions.update_by_pk(db=db, pk=functions_id, obj_in=request)
 
 
 @router.delete("/{functions_id}")

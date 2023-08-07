@@ -12,7 +12,7 @@ class Source(Base):
     description = Column(String)
     type = Column(String, nullable=False)
     creds = Column(String, nullable=False)
-    workspace_id = Column(UUID, ForeignKey("workspace.id", ondelete="CASCADE"))
+    workspace_id = Column(UUID(as_uuid=True), ForeignKey("workspace.id", ondelete="CASCADE"))
 
     date = Column(TIMESTAMP, server_default=func.now())
 

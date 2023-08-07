@@ -17,12 +17,12 @@ def get_sqls(sqls_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/")
 def create_sqls(request: CreateSQLs, db: Session = Depends(get_db)):
-    return crud.sqls.create(db, request)
+    return crud.sqls.create(db, obj_in=request)
 
 
 @router.put("/{sqls_id}")
 def update_sqls(sqls_id: UUID, request: UpdateSQLs, db: Session = Depends(get_db)):
-    return crud.sqls.update_by_pk(db, sqls_id, request)
+    return crud.sqls.update_by_pk(db=db, pk=sqls_id, obj_in=request)
 
 
 @router.delete("/{sqls_id}")

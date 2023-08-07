@@ -35,3 +35,28 @@ dry run:
 ```
 pre-commit run --all-files
 ```
+
+## Pytest
+
+run all tests:
+
+```
+pytest -s
+```
+
+<i>-s for print statements</i>
+
+run specific test:
+
+```
+pytest server/tests/test_components.py -s
+```
+
+make sure to install pytest and httpx
+
+```
+pip install pytest
+pip install httpx
+```
+
+https://fastapi.tiangolo.com/tutorial/testing/
