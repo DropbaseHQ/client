@@ -12,7 +12,7 @@ load_dotenv()
 
 app = FastAPI()
 
-app.middleware("http")(catch_exceptions_middleware)
+# app.middleware("http")(catch_exceptions_middleware)
 
 origins = ["https://dropbase.io"]
 # origins.extend(["*"])
@@ -36,6 +36,7 @@ app.include_router(endpoints.app_router)
 app.include_router(endpoints.sqls_router)
 app.include_router(endpoints.functions_router)
 app.include_router(endpoints.components_router)
+app.include_router(endpoints.table_router)
 
 
 @app.get("/")

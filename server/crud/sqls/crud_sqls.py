@@ -9,7 +9,8 @@ from server.schemas.sqls import CreateSQLs, UpdateSQLs
 
 
 class CRUDSQLs(CRUDBase[SQLs, CreateSQLs, UpdateSQLs]):
-    pass
+    def get_app_sqls(self, db: Session, app_id: UUID) -> List[SQLs]:
+        return db.query(SQLs).filter(SQLs.app_id == str(app_id)).all()
 
 
 sqls = CRUDSQLs(SQLs)
