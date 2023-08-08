@@ -22,3 +22,8 @@ class CreateComponents(BaseComponents):
 class UpdateComponents(BaseModel):
     code: Optional[str]
     app_id: Optional[UUID]
+
+
+class ConvertComponents(BaseModel):
+    code: str
+    app_id: UUID
