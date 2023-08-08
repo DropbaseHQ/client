@@ -7,7 +7,7 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 			<Flex h="full">
 				<nav>navbar</nav>
 
-				<Box overflowY="auto" flex="1" p="6">
+				<Box overflowY="auto" flex="1" p="0">
 					{children}
 				</Box>
 			</Flex>
