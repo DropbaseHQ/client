@@ -8,10 +8,15 @@ export const useSqlMonaco = (completionData: CompletionData) => {
 		model: monacoLib.editor.ITextModel,
 		position: monacoLib.Position,
 	) => {
+		const lineUpToPosition = model.getValueInRange({
+			startLineNumber: position.lineNumber,
+			startColumn: 1,
+			endLineNumber: position.lineNumber,
+			endColumn: position.column,
+		});
 		return {
 			suggestions: completePhrase(
-				model,
-				position,
+				lineUpToPosition,
 				completionData,
 			) as monacoLib.languages.CompletionItem[],
 		};

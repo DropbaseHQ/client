@@ -10,29 +10,24 @@ const countChars = (str: string, char: string) => {
 };
 
 export const completePhrase = (
-	model: monacoLib.editor.ITextModel,
-	position: monacoLib.Position,
+	lineUpToCursor: string,
 	completionData: CompletionData,
 ): CompletionSuggestion[] => {
-	const lineUpToPosition = model.getValueInRange({
-		startLineNumber: position.lineNumber,
-		startColumn: 1,
-		endLineNumber: position.lineNumber,
-		endColumn: position.column,
-	});
-
-	const [currentWord, prevWord, prevPrevWord] = lineUpToPosition.split(' ').reverse();
-
+	const [currentWord, prevWord, prevPrevWord] = lineUpToCursor.split(' ').reverse();
+	const cleanedCurrentWord = currentWord.replace(/^("|\.)+|("|\.)+$/g, '');
+	const [curSchema, curTable] = cleanedCurrentWord.split('.');
 	const suggestions: CompletionSuggestion[] = [];
 	if (prevWord?.toLowerCase() === 'from') {
 		// populate all possible tables
 		Object.keys(completionData).forEach((schema) => {
 			Object.keys(completionData[schema]).forEach((table) => {
-				suggestions.push({
-					label: `${schema}.${table}`,
-					kind: CompletionItemKind.Property,
-					insertText: `${schema}.${table}`,
-				});
+				if (`${schema}.${table}`.includes(cleanedCurrentWord)) {
+					suggestions.push({
+						label: `${schema}.${table}`,
+						kind: CompletionItemKind.Property,
+						insertText: `${schema}.${table}`,
+					});
+				}
 			});
 		});
 		return suggestions;
@@ -75,7 +70,6 @@ export const completePhrase = (
 	});
 
 	// strip leading/trailing punctuation
-	const [curSchema, curTable] = currentWord.replace(/^("|\.)+|("|\.)+$/g, '').split('.');
 	if (curTable) {
 		completionData[curSchema][curTable].forEach((col) => {
 			if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord.endsWith(` ${col}`)) {
