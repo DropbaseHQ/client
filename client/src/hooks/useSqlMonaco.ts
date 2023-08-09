@@ -149,12 +149,10 @@ export const useSqlMonaco = (completionData: CompletionData) => {
 		monaco.languages.setMonarchTokensProvider('sql', MONARCH_TOKENIZER as any);
 		monaco.editor.defineTheme('sql', SqlTheme as any);
 		monaco.editor.setTheme('sql');
-
-		monaco.languages.registerCompletionItemProvider('sql', {
+		const { dispose } = monaco.languages.registerCompletionItemProvider('sql', {
 			triggerCharacters: ['.', '"'],
 			provideCompletionItems,
 		});
 	};
-
 	return { setupMonaco };
 };
