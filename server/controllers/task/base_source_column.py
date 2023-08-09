@@ -3,7 +3,6 @@ from typing import Any
 from pydantic import BaseModel
 
 
-# @dataclass
 class SourceColumn(BaseModel):
 
     name: str
@@ -19,7 +18,7 @@ class SourceColumn(BaseModel):
 
     # table display specific
     editable: bool = False
-    visible: bool = True
+    hidden: bool = False
 
     class Config:
         orm_mode = True

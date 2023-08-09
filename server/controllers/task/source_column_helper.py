@@ -1,9 +1,12 @@
-def update_column_meta_with_filters(column_model, filters: list):
+from server.controllers.task.base_source_column import SourceColumn
+
+
+def update_column_meta_with_filters(column_model: SourceColumn, filters: list):
     for filter in filters:
         if filter == "_protected":
             column_model.editable = False
         elif filter == "_hidden":
-            column_model.visible = False
+            column_model.hidden = True
     return column_model
 
 
@@ -11,7 +14,7 @@ from sqlalchemy import create_engine
 
 
 def connect_to_user_db():
-    print("connecting to user db")
+    # NOTE: faking connect to user db
     POSTGRES_DB_HOST = "localhost"
     POSTGRES_DB_NAME = "postgres"
     POSTGRES_DB_USER = "postgres"

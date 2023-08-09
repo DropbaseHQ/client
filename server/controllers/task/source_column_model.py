@@ -1,60 +1,70 @@
+from typing import List
+
+from sqlalchemy import engine
+
 from server.controllers.task.postgres_source_column import parse_postgres_column_model
-from server.controllers.task.source_column_helper import update_column_meta_with_filters
-from server.controllers.task.stripe_source_columns import stripe_columns
+from server.controllers.task.stripe_source_columns import parse_stripe_column_model
 
 
-def get_regrouped_schema(col_names):
+def get_regrouped_schema(col_names: List[str]):
+    """
+    convert a list of column names into a nested dictionary with the following structure:
+    {
+        "schema_name": {
+            "table_name": {
+                "column_name": {
+                    "filters": ["filter1", "filter2", ...]
+                }
+            }
+        }
+    }
+
+    used to query the user's database for the column metadata by schema and table
+    """
     regrouped_schema = {}
+    parsed_column_names = []
     for col_name in col_names:
-
+        # extract column metadata
         col_name_arr = col_name.split(".")
-        schema_name = col_name_arr[0]
-        table_name = col_name_arr[1]
-        column_name = col_name_arr[2]
+        schema = col_name_arr[0]
+        table = col_name_arr[1]
+        column = col_name_arr[2]
 
-        if schema_name not in regrouped_schema:
-            regrouped_schema[schema_name] = {}
+        # will be used to display table columns
+        parsed_column_names.append({"schema": schema, "table": table, "column": column})
 
-        if table_name not in regrouped_schema[schema_name]:
-            regrouped_schema[schema_name][table_name] = {}
+        if schema not in regrouped_schema:
+            regrouped_schema[schema] = {}
 
-        regrouped_schema[schema_name][table_name][column_name] = {"filters": []}
+        if table not in regrouped_schema[schema]:
+            regrouped_schema[schema][table] = {}
 
+        regrouped_schema[schema][table][column] = {"filters": []}
+
+        # add filters if present
         if len(col_name_arr) > 3:
             for filter in col_name_arr[3:]:
-                regrouped_schema[schema_name][table_name][column_name]["filters"].append(filter)
+                regrouped_schema[schema][table][column]["filters"].append(filter)
 
-    return regrouped_schema
+    return regrouped_schema, parsed_column_names
 
 
-# for postgres only
-def get_parsed_schema(user_db_engine, regrouped_schema):
+def get_parsed_schema(user_db_engine: engine, regrouped_schema: dict):
     new_schema = {}
-    for schema_name in regrouped_schema.keys():
-        if schema_name not in new_schema:
-            new_schema[schema_name] = {}
+    for schema in regrouped_schema.keys():
+        # add schema to new schema if not present
+        new_schema[schema] = {} if schema not in new_schema else None
 
-        for table_name in regrouped_schema[schema_name].keys():
-
-            if table_name not in new_schema[schema_name]:
-                new_schema[schema_name][table_name] = {}
+        for table in regrouped_schema[schema].keys():
+            # add table to schema if not present
+            new_schema[schema][table] = {} if table not in new_schema[schema] else None
 
             # get table column models from sqlalchemy
-            if schema_name == "public":
+            if schema == "public":
                 new_schema = parse_postgres_column_model(
-                    user_db_engine, regrouped_schema, schema_name, table_name, new_schema
+                    user_db_engine, regrouped_schema, schema, table, new_schema
                 )
-            elif schema_name == "stripe":
-                for column in regrouped_schema[schema_name][table_name].keys():
-                    source_column = stripe_columns[table_name][column]
-                    filters = regrouped_schema[schema_name][table_name][column]["filters"]
-                    if len(filters) > 0:
-                        source_column = update_column_meta_with_filters(source_column, filters)
-                    new_schema[schema_name][table_name][column] = source_column.dict()
+            elif schema == "stripe":
+                new_schema = parse_stripe_column_model(regrouped_schema, schema, table, new_schema)
 
     return new_schema
-
-
-def get_header_schema(user_db_engine, col_names):
-    regrouped_schema = get_regrouped_schema(col_names)
-    return get_parsed_schema(user_db_engine, regrouped_schema)

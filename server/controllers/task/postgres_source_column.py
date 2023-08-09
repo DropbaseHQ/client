@@ -1,10 +1,10 @@
-from sqlalchemy import text
+from sqlalchemy import engine, text
 
 from server.controllers.task.base_source_column import SourceColumn
 from server.controllers.task.source_column_helper import update_column_meta_with_filters
 
 
-def update_column_meta(column_model):
+def update_column_meta(column_model: SourceColumn):
     if column_model.nullable is False and column_model.unique is True:
         column_model.keylike = True
     if column_model.primary_key:
@@ -12,7 +12,7 @@ def update_column_meta(column_model):
     return column_model
 
 
-def get_pg_column_model(user_db_engine, schema_name, table_name):
+def get_pg_column_model(user_db_engine: engine, schema: str, table: str):
     sql = f"""SELECT
     columns.column_name AS name,
     columns.data_type AS type,
@@ -78,25 +78,27 @@ def get_pg_column_model(user_db_engine, schema_name, table_name):
     columns.table_name = uniqueness.table_name AND
     columns.column_name = uniqueness.column_name
     WHERE
-    columns.table_name = '{table_name}'
-    AND columns.table_schema = '{schema_name}';
+    columns.table_name = '{table}'
+    AND columns.table_schema = '{schema}';
     """
     with user_db_engine.connect().execution_options(autocommit=True) as conn:
         return conn.execute(text(sql)).all()
 
 
-def parse_postgres_column_model(user_db_engine, regrouped_schema, schema_name, table_name, new_schema):
+def parse_postgres_column_model(
+    user_db_engine: engine, regrouped_schema: dict, schema: str, table: str, new_schema: dict
+):
 
-    table_columns = get_pg_column_model(user_db_engine, schema_name, table_name)
+    table_columns = get_pg_column_model(user_db_engine, schema, table)
     for column in table_columns:
-        if column.name in regrouped_schema[schema_name][table_name].keys():
+        if column.name in regrouped_schema[schema][table].keys():
             # cast column to SourceColumn
             source_column = SourceColumn.from_orm(column)
             # first pass of cleaning up column meta
             source_column = update_column_meta(source_column)
             # apply filters if any
-            filters = regrouped_schema[schema_name][table_name][column.name]["filters"]
+            filters = regrouped_schema[schema][table][column.name]["filters"]
             if len(filters) > 0:
                 source_column = update_column_meta_with_filters(source_column, filters)
-            new_schema[schema_name][table_name][column.name] = source_column.dict()
+            new_schema[schema][table][column.name] = source_column.dict()
     return new_schema
