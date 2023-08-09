@@ -50,12 +50,85 @@ stripe_product_default_price = SourceColumn(
     visible=True,
 )
 
+
+stripe_customer_id = SourceColumn(
+    name="id",
+    type="text",
+    primary_key=True,
+    foreign_key=False,
+    default=None,
+    nullable=False,
+    unique=True,
+    create_required=True,
+    modify_required=True,
+    keylike=True,
+    # table display specific
+    editable=False,
+    visible=True,
+)
+
+stripe_customer_name = SourceColumn(
+    name="name",
+    type="text",
+    primary_key=False,
+    foreign_key=False,
+    default=None,
+    nullable=True,
+    unique=False,
+    create_required=True,
+    modify_required=False,
+    keylike=False,
+    # table display specific
+    editable=True,
+    visible=True,
+)
+
+
+stripe_customer_email = SourceColumn(
+    name="email",
+    type="text",
+    primary_key=False,
+    foreign_key=False,
+    default=None,
+    nullable=True,
+    unique=False,
+    create_required=True,
+    modify_required=False,
+    keylike=False,
+    # table display specific
+    editable=True,
+    visible=True,
+)
+
+stripe_customer_created = SourceColumn(
+    name="created",
+    type="text",
+    primary_key=False,
+    foreign_key=False,
+    default=None,
+    nullable=True,
+    unique=False,
+    create_required=True,
+    modify_required=False,
+    keylike=False,
+    # table display specific
+    editable=True,
+    visible=True,
+)
+
+
 stripe_columns = {
     "product": {
         "id": stripe_product_id,
         "name": stripe_product_name,
         "default_price": stripe_product_default_price,
-    }
+    },
+    "customer": {
+        "id": stripe_customer_id,
+        "name": stripe_customer_name,
+        "email": stripe_customer_email,
+        "created": stripe_customer_created,
+    },
 }
 
 
