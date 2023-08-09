@@ -1,3 +1,4 @@
+import { SQLMonaco } from '@/components/SQLMonaco';
 import { Box, Flex } from '@chakra-ui/react';
 import { PropsWithChildren } from 'react';
 
@@ -10,6 +11,7 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 				<Box overflowY="auto" flex="1" p="0">
 					{children}
 				</Box>
+				<SQLMonaco />
 			</Flex>
 		</Box>
 	);
