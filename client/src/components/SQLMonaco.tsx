@@ -1,12 +1,11 @@
 import Editor, { useMonaco } from '@monaco-editor/react';
 import * as monacoLib from 'monaco-editor';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { MONARCH_TOKENIZER, PROPERTIES, THEME } from './constants';
 
-type Monaco = typeof monacoLib;
 const { CompletionItemKind } = monacoLib.languages;
 type CompletionSuggestion = Omit<monacoLib.languages.CompletionItem, 'insertText' | 'range'>;
-monacoLib.languages.I;
+type CompletionData = Record<string, Record<string, string[]>>;
 
 const countChars = (str: string, char: string) => {
 	return str.split(char).length - 1;
@@ -15,14 +14,8 @@ const countChars = (str: string, char: string) => {
 const completePhrase = (
 	model: monacoLib.editor.ITextModel,
 	position: monacoLib.Position,
+	completionData: CompletionData,
 ): CompletionSuggestion[] => {
-	const completionData: Record<string, Record<string, string[]>> = {
-		public: {
-			orders: ['id', 'customer_id', 'order_id', 'order_name'],
-			order_items: ['id', 'order_id'],
-		},
-		stripe: { customers: ['id', 'first_name', 'last_name'] },
-	};
 	const lineUpToPosition = model.getValueInRange({
 		startLineNumber: position.lineNumber,
 		startColumn: 1,
@@ -143,6 +136,7 @@ const completePhrase = (
 const completionProviderFunction = (
 	model: monacoLib.editor.ITextModel,
 	position: monacoLib.Position,
+	completionData: CompletionData,
 ) => {
 	// this wrapper function is required becauase the internal monaco type for
 	// CompletionItem[] has two extra properties that are not actually mandatory
@@ -151,43 +145,35 @@ const completionProviderFunction = (
 		suggestions: completePhrase(
 			model,
 			position,
+			completionData,
 		) as unknown as monacoLib.languages.CompletionItem[],
 	};
 };
 
-const monacoSettings = (monaco: Monaco) => {
-	monaco.languages.register({ id: 'sql' });
+interface MonacoProps {
+	editorProps: monacoLib.editor.IEditorConstructionOptions;
+	completionData: CompletionData;
+}
 
-	monaco.languages.setMonarchTokensProvider('sql', MONARCH_TOKENIZER as any);
-
-	monaco.editor.defineTheme('sql', THEME);
-	monaco.editor.setTheme('sql');
-
-	monaco.languages.registerCompletionItemProvider('sql', {
-		triggerCharacters: ['.', '"'],
-		provideCompletionItems: completionProviderFunction,
-	});
-};
-
-export function SQLMonaco() {
-	const editorRef = useRef<monacoLib.editor.IStandaloneCodeEditor | null>(null);
+export function SQLMonaco({ editorProps, completionData }: MonacoProps) {
 	const monaco = useMonaco();
 
 	useEffect(() => {
 		if (monaco) {
-			monacoSettings(monaco);
+			monaco.languages.register({ id: 'sql' });
+
+			monaco.languages.setMonarchTokensProvider('sql', MONARCH_TOKENIZER as any);
+
+			monaco.editor.defineTheme('sql', THEME);
+			monaco.editor.setTheme('sql');
+
+			monaco.languages.registerCompletionItemProvider('sql', {
+				triggerCharacters: ['.', '"'],
+				provideCompletionItems: (model, position) =>
+					completionProviderFunction(model, position, completionData),
+			});
 		}
-	}, [monaco]);
+	}, [monaco, completionData]);
 
-	const handleEditorDidMount = (editor: monacoLib.editor.IStandaloneCodeEditor) => {
-		editorRef.current = editor;
-	};
-
-	return (
-		<Editor
-			defaultLanguage="sql"
-			defaultValue="// some comment"
-			onMount={handleEditorDidMount}
-		/>
-	);
+	return <Editor defaultLanguage="sql" defaultValue="SELECT * FROM ..." {...editorProps} />;
 }
