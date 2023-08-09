@@ -1,4 +1,4 @@
-import Editor, { useMonaco } from '@monaco-editor/react';
+import Editor, { useMonaco, type EditorProps } from '@monaco-editor/react';
 import * as monacoLib from 'monaco-editor';
 import SqlTheme from 'monaco-themes/themes/GitHub.json';
 import { useEffect } from 'react';
@@ -149,7 +149,7 @@ const completionProviderFunction = (
 	};
 };
 
-interface MonacoProps extends monacoLib.editor.IEditorConstructionOptions {
+interface MonacoProps extends EditorProps {
 	completionData: CompletionData;
 }
 
