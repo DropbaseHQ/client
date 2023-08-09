@@ -1,12 +1,10 @@
-import Editor, { useMonaco, type EditorProps } from '@monaco-editor/react';
 import * as monacoLib from 'monaco-editor';
 import SqlTheme from 'monaco-themes/themes/GitHub.json';
-import { useEffect } from 'react';
 import { MONARCH_TOKENIZER, PROPERTIES } from './constants';
 
+type CompletionData = Record<string, Record<string, string[]>>;
 const { CompletionItemKind } = monacoLib.languages;
 type CompletionSuggestion = Omit<monacoLib.languages.CompletionItem, 'range'>;
-type CompletionData = Record<string, Record<string, string[]>>;
 
 const countChars = (str: string, char: string) => {
 	return str.split(char).length - 1;
@@ -132,44 +130,31 @@ const completePhrase = (
 	return suggestions;
 };
 
-const completionProviderFunction = (
-	model: monacoLib.editor.ITextModel,
-	position: monacoLib.Position,
-	completionData: CompletionData,
-) => {
-	// this wrapper function is required becauase the internal monaco type for
-	// CompletionItem[] has an extra property (range) that are not actually mandatory
-	// so we force a type cast so typescript is happy
-	return {
-		suggestions: completePhrase(
-			model,
-			position,
-			completionData,
-		) as unknown as monacoLib.languages.CompletionItem[],
+export const useSqlMonaco = (completionData: CompletionData) => {
+	const provideCompletionItems = (
+		model: monacoLib.editor.ITextModel,
+		position: monacoLib.Position,
+	) => {
+		return {
+			suggestions: completePhrase(
+				model,
+				position,
+				completionData,
+			) as monacoLib.languages.CompletionItem[],
+		};
 	};
+
+	const setupMonaco = (monaco: typeof monacoLib) => {
+		monaco.languages.register({ id: 'sql' });
+		monaco.languages.setMonarchTokensProvider('sql', MONARCH_TOKENIZER as any);
+		monaco.editor.defineTheme('sql', SqlTheme as any);
+		monaco.editor.setTheme('sql');
+
+		monaco.languages.registerCompletionItemProvider('sql', {
+			triggerCharacters: ['.', '"'],
+			provideCompletionItems,
+		});
+	};
+
+	return { setupMonaco };
 };
-
-interface MonacoProps extends EditorProps {
-	completionData: CompletionData;
-}
-
-export function SQLMonaco({ completionData, ...editorProps }: MonacoProps) {
-	const monaco = useMonaco();
-
-	useEffect(() => {
-		if (monaco) {
-			monaco.languages.register({ id: 'sql' });
-			monaco.languages.setMonarchTokensProvider('sql', MONARCH_TOKENIZER as any);
-			monaco.editor.defineTheme('sql', SqlTheme as any);
-			monaco.editor.setTheme('sql');
-
-			monaco.languages.registerCompletionItemProvider('sql', {
-				triggerCharacters: ['.', '"'],
-				provideCompletionItems: (model, position) =>
-					completionProviderFunction(model, position, completionData),
-			});
-		}
-	}, [monaco, completionData]);
-
-	return <Editor defaultLanguage="sql" defaultValue="SELECT * FROM ..." {...editorProps} />;
-}
