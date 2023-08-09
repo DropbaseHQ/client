@@ -4,8 +4,8 @@ import Editor, { useMonaco } from '@monaco-editor/react';
 import { PropsWithChildren, useEffect } from 'react';
 
 export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
-	const { setupMonaco } = useSqlMonaco({ public: { customers: ['id', 'test'] } });
 	const monaco = useMonaco();
+	const { setupMonaco } = useSqlMonaco({ public: { customers: ['id', 'test'] } });
 
 	useEffect(() => {
 		if (monaco) {
