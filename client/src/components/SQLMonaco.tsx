@@ -137,7 +137,7 @@ const completionProviderFunction = (
 	completionData: CompletionData,
 ) => {
 	// this wrapper function is required becauase the internal monaco type for
-	// CompletionItem[] has two extra properties that are not actually mandatory
+	// CompletionItem[] has an extra property (range) that are not actually mandatory
 	// so we force a type cast so typescript is happy
 	return {
 		suggestions: completePhrase(
