@@ -1,7 +1,8 @@
 import Editor, { useMonaco } from '@monaco-editor/react';
 import * as monacoLib from 'monaco-editor';
+import SqlTheme from 'monaco-themes/themes/GitHub.json';
 import { useEffect } from 'react';
-import { MONARCH_TOKENIZER, PROPERTIES, THEME } from './constants';
+import { MONARCH_TOKENIZER, PROPERTIES } from './constants';
 
 const { CompletionItemKind } = monacoLib.languages;
 type CompletionSuggestion = Omit<monacoLib.languages.CompletionItem, 'range'>;
@@ -148,21 +149,18 @@ const completionProviderFunction = (
 	};
 };
 
-interface MonacoProps {
-	editorProps?: monacoLib.editor.IEditorConstructionOptions;
+interface MonacoProps extends monacoLib.editor.IEditorConstructionOptions {
 	completionData: CompletionData;
 }
 
-export function SQLMonaco({ editorProps, completionData }: MonacoProps) {
+export function SQLMonaco({ completionData, ...editorProps }: MonacoProps) {
 	const monaco = useMonaco();
 
 	useEffect(() => {
 		if (monaco) {
 			monaco.languages.register({ id: 'sql' });
-
 			monaco.languages.setMonarchTokensProvider('sql', MONARCH_TOKENIZER as any);
-
-			monaco.editor.defineTheme('sql', THEME);
+			monaco.editor.defineTheme('sql', SqlTheme as any);
 			monaco.editor.setTheme('sql');
 
 			monaco.languages.registerCompletionItemProvider('sql', {
@@ -175,7 +173,3 @@ export function SQLMonaco({ editorProps, completionData }: MonacoProps) {
 
 	return <Editor defaultLanguage="sql" defaultValue="SELECT * FROM ..." {...editorProps} />;
 }
-
-SQLMonaco.defaultProps = {
-	editorProps: {},
-};
