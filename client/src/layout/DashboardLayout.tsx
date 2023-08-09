@@ -11,7 +11,16 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 				<Box overflowY="auto" flex="1" p="0">
 					{children}
 				</Box>
-				<SQLMonaco />
+				<SQLMonaco
+					completionData={{
+						public: {
+							customers: ['test', 'id', 'two'],
+						},
+						stripe: {
+							baby: ['id', 'props'],
+						},
+					}}
+				/>
 			</Flex>
 		</Box>
 	);

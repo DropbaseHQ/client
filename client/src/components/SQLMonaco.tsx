@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { MONARCH_TOKENIZER, PROPERTIES, THEME } from './constants';
 
 const { CompletionItemKind } = monacoLib.languages;
-type CompletionSuggestion = Omit<monacoLib.languages.CompletionItem, 'insertText' | 'range'>;
+type CompletionSuggestion = Omit<monacoLib.languages.CompletionItem, 'range'>;
 type CompletionData = Record<string, Record<string, string[]>>;
 
 const countChars = (str: string, char: string) => {
@@ -33,6 +33,7 @@ const completePhrase = (
 				suggestions.push({
 					label: `${schema}.${table}`,
 					kind: CompletionItemKind.Property,
+					insertText: `${schema}.${table}`,
 				});
 			});
 		});
@@ -52,6 +53,7 @@ const completePhrase = (
 				suggestions.push({
 					label: prop,
 					kind: CompletionItemKind.Property,
+					insertText: prop,
 				});
 			}
 		});
@@ -67,6 +69,7 @@ const completePhrase = (
 					suggestions.push({
 						label: `${schema}.${table}.${col}`,
 						kind: CompletionItemKind.Property,
+						insertText: `${schema}.${table}.${col}`,
 					});
 				}
 			});
@@ -79,8 +82,9 @@ const completePhrase = (
 		completionData[curSchema][curTable].forEach((col) => {
 			if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord.endsWith(` ${col}`)) {
 				suggestions.push({
-					label: `${col}`,
+					label: col,
 					kind: CompletionItemKind.Property,
+					insertText: col,
 				});
 			}
 		});
@@ -89,8 +93,9 @@ const completePhrase = (
 			Object.keys(completionData[curSchema][table]).forEach((col) => {
 				if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord.endsWith(` ${col}`)) {
 					suggestions.push({
-						label: `${table}`,
+						label: table,
 						kind: CompletionItemKind.Property,
+						insertText: table,
 					});
 				}
 			});
@@ -103,22 +108,25 @@ const completePhrase = (
 		if (!curSchema) {
 			Object.keys(completionData).forEach((schemaName) => {
 				suggestions.push({
-					label: `${schemaName}`,
+					label: schemaName,
 					kind: CompletionItemKind.Property,
+					insertText: schemaName,
 				});
 			});
 		} else if (!curTable) {
 			Object.keys(completionData[curSchema]).forEach((tableName) => {
 				suggestions.push({
-					label: `${tableName}`,
+					label: tableName,
 					kind: CompletionItemKind.Property,
+					insertText: tableName,
 				});
 			});
 		} else {
 			completionData[curSchema][curTable].forEach((col) => {
 				suggestions.push({
-					label: `${col}`,
+					label: col,
 					kind: CompletionItemKind.Property,
+					insertText: col,
 				});
 			});
 		}
@@ -151,7 +159,7 @@ const completionProviderFunction = (
 };
 
 interface MonacoProps {
-	editorProps: monacoLib.editor.IEditorConstructionOptions;
+	editorProps?: monacoLib.editor.IEditorConstructionOptions;
 	completionData: CompletionData;
 }
 
@@ -177,3 +185,7 @@ export function SQLMonaco({ editorProps, completionData }: MonacoProps) {
 
 	return <Editor defaultLanguage="sql" defaultValue="SELECT * FROM ..." {...editorProps} />;
 }
+
+SQLMonaco.defaultProps = {
+	editorProps: {},
+};
