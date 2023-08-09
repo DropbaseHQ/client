@@ -13,11 +13,19 @@ module.exports = {
 	parserOptions: {
 		project: './tsconfig.json',
 	},
-	plugins: ['react-refresh', 'import', '@typescript-eslint', 'prettier'],
+	settings: {
+		'import/resolver': {
+			node: {
+				paths: ['src'],
+			},
+		},
+	},
+	plugins: ['react-refresh', 'import', 'react', '@typescript-eslint', 'prettier'],
 	rules: {
 		'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
 		'prettier/prettier': ['error'],
 
+		'@typescript-eslint/no-explicit-any': 'warn',
 		'import/prefer-default-export': 'off',
 
 		'arrow-body-style': 'off',
@@ -30,5 +38,17 @@ module.exports = {
 		'react/function-component-definition': 'off',
 		'react/jsx-props-no-spreading': 'off',
 		'react/no-unstable-nested-components': 'off',
+
+		'import/extensions': [
+			'error',
+			'ignorePackages',
+			{
+				'': 'never',
+				js: 'never',
+				jsx: 'never',
+				ts: 'never',
+				tsx: 'never',
+			},
+		],
 	},
 };

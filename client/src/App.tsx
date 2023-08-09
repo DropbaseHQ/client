@@ -1,18 +1,19 @@
-import './App.css';
+import { ChakraProvider } from '@chakra-ui/react';
+import { QueryClientProvider } from 'react-query';
+import { BrowserRouter } from 'react-router-dom';
+
+import { theme } from '@/lib/chakra-ui';
+import { queryClient } from '@/lib/react-query';
+import { AppRoutes } from '@/routes';
 
 export const App = () => {
 	return (
-		<>
-			<h1>Vite + React</h1>
-			<div className="card">
-				<a target="_blank" rel="noopener noreferrer" href="https://google.com">
-					test
-				</a>
-				<p>
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<p className="read-the-docs">Click on the Vite and React logos to learn more</p>
-		</>
+		<BrowserRouter>
+			<ChakraProvider theme={theme}>
+				<QueryClientProvider client={queryClient}>
+					<AppRoutes />
+				</QueryClientProvider>
+			</ChakraProvider>
+		</BrowserRouter>
 	);
 };
