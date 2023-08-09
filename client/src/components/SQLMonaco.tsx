@@ -105,31 +105,21 @@ const completePhrase = (
 	// if we couldn't find any suggestions, suggest all valid schemas, tables, or columns
 	// that match the current alias
 	if (suggestions.length === 0) {
+		let suggestionSource;
 		if (!curSchema) {
-			Object.keys(completionData).forEach((schemaName) => {
-				suggestions.push({
-					label: schemaName,
-					kind: CompletionItemKind.Property,
-					insertText: schemaName,
-				});
-			});
+			suggestionSource = Object.keys(completionData);
 		} else if (!curTable) {
-			Object.keys(completionData[curSchema]).forEach((tableName) => {
-				suggestions.push({
-					label: tableName,
-					kind: CompletionItemKind.Property,
-					insertText: tableName,
-				});
-			});
+			suggestionSource = Object.keys(completionData[curSchema]);
 		} else {
-			completionData[curSchema][curTable].forEach((col) => {
-				suggestions.push({
-					label: col,
-					kind: CompletionItemKind.Property,
-					insertText: col,
-				});
-			});
+			suggestionSource = completionData[curSchema][curTable];
 		}
+		suggestionSource.forEach((name) => {
+			suggestions.push({
+				label: name,
+				kind: CompletionItemKind.Property,
+				insertText: name,
+			});
+		});
 	}
 
 	suggestions.forEach((suggestion) => {
