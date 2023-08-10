@@ -1,6 +1,6 @@
 import { useSqlMonaco } from '@/hooks/useSqlMonaco';
 import { Box, Flex } from '@chakra-ui/react';
-import { Editor, useMonaco } from '@monaco-editor/react';
+import Editor, { useMonaco } from '@monaco-editor/react';
 import { PropsWithChildren } from 'react';
 
 export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
