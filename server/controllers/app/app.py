@@ -1,9 +1,11 @@
 from sqlalchemy import create_engine, inspect
+from server.controllers.task.source_column_helper import connect_to_user_db
 
 
 def get_app_schema():
-    connection_str = f"postgresql+psycopg2://dropmail:dropmail@dropmail.cbwxplfobdd5.us-west-1.rds.amazonaws.com:5432/dropmail"
-    engine = create_engine(connection_str)
+    # connection_str = f"postgresql+psycopg2://dropmail:dropmail@dropmail.cbwxplfobdd5.us-west-1.rds.amazonaws.com:5432/dropmail"
+    # engine = create_engine(connection_str)
+    engine = connect_to_user_db()
     return get_db_schema(engine)
 
 
