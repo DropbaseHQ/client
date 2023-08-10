@@ -1,10 +1,11 @@
-import { PropsWithChildren } from 'react';
-import { Box, Flex } from '@chakra-ui/react';
-import Editor from '@monaco-editor/react';
 import { useSqlMonaco } from '@/hooks/useSqlMonaco';
+import { Box, Flex } from '@chakra-ui/react';
+import { useMonaco } from '@monaco-editor/react';
+import { PropsWithChildren } from 'react';
 
 export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
-	useSqlMonaco({ public: { customers: ['id', 'test'] } });
+	const monaco = useMonaco();
+	useSqlMonaco(monaco, { public: { customers: ['id', 'test'] } });
 
 	return (
 		<Box height="100vh" overflow="hidden" position="relative">
