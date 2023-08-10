@@ -5,6 +5,7 @@ import { MoreHorizontal, MoreVertical } from 'react-feather';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { AppBuilderNavbar } from './components/BuilderNavbar';
 import { Table } from '@/features/smart-table/components/Table';
+import { UIPreview } from './components/UIPreview';
 
 const PanelHandleContainer = ({ children, ...props }: PropsWithChildren<CenterProps>) => {
 	return (
@@ -62,8 +63,12 @@ export const AppBuilder = () => {
 
 							<Panel defaultSize={20}>
 								{/* Replace with UI component  */}
-								<Box bg="gray.50" p="6" h="full">
+								<Box bg="gray.50" p="6" h="50%">
 									UI Code
+								</Box>
+								<Box bg="gray.50" p="6" h="50%">
+									UI Preview
+									<UIPreview />
 								</Box>
 							</Panel>
 						</PanelGroup>
