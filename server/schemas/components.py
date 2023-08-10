@@ -26,4 +26,4 @@ class UpdateComponents(BaseModel):
 
 class ConvertComponents(BaseModel):
     code: str
-    app_id: UUID
+    app_id: str

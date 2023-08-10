@@ -23,6 +23,7 @@ class UIInput(UIComponent):
         depends: list[str] = None,
         style: Enum = None,
         number: int = None,
+        depends_value: any = None,
     ):
         self.name = name
         self.type = type
@@ -37,6 +38,7 @@ class UIInput(UIComponent):
         self.depends = depends
         self.style = style
         self.number = number
+        self.depends_value = depends_value
 
 
 class UIText(UIComponent):
