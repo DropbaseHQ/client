@@ -15,7 +15,7 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 				<Box overflowY="auto" flex="1" p="0">
 					{children}
 				</Box>
-				<Editor height="90vh" />
+				<Editor language="sql" height="90vh" />
 			</Flex>
 		</Box>
 	);

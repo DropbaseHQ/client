@@ -39,7 +39,7 @@ export const completePhrase = (
 	}
 
 	// now we are guaranteed to have words of the form [string, "as", string]
-	if (countChars(prevPrevWord, '.') > 2) {
+	if (countChars(currentWord, '.') > 2) {
 		// if we have already typed a schema.table.column, only suggest properties
 		PROPERTIES.forEach((prop) => {
 			if (!currentWord.includes(prop)) {
