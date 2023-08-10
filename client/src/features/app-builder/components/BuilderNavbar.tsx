@@ -3,7 +3,7 @@ import { ArrowLeft } from 'react-feather';
 
 export const AppBuilderNavbar = () => {
 	return (
-		<Stack alignItems="center" shadow="xs" h="10" borderBottomWidth="1px" direction="row">
+		<Stack alignItems="center" h="10" borderBottomWidth="1px" direction="row">
 			<Flex h="full" alignItems="center">
 				<IconButton
 					aria-label="Go back to Apps"

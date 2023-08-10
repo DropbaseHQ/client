@@ -51,8 +51,22 @@ export const useTableData = (appId: string = '') => {
 		if (response) {
 			return {
 				schema: response.schema,
-				rows: response.data,
-				columns: response.header,
+				rows: response.data.map((r) => {
+					return r.reduce((agg, item, index) => {
+						return {
+							...agg,
+							[response.header[index].column]: item,
+						};
+					}, {});
+				}),
+				columns: response.header.map(({ schema: folder, column, table }) => {
+					return {
+						...(response.schema?.[folder]?.[table]?.[column] || {}),
+						folder,
+						column,
+						table,
+					};
+				}),
 			};
 		}
 

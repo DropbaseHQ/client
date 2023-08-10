@@ -18,6 +18,7 @@
 		"@fontsource-variable/open-sans": "^5.0.9",
 		"@fontsource-variable/spline-sans": "^5.0.8",
 		"@glideapps/glide-data-grid": "^5.2.1",
+		"@glideapps/glide-data-grid-cells": "^5.2.1",
 		"axios": "^1.4.0",
 		"framer-motion": "^10.15.1",
 		"lodash": "^4.17.21",
