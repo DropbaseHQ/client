@@ -1,19 +1,10 @@
-import { useSqlMonaco } from '@/hooks/useSqlMonaco';
+import { PropsWithChildren } from 'react';
 import { Box, Flex } from '@chakra-ui/react';
-import Editor, { useMonaco } from '@monaco-editor/react';
-import { PropsWithChildren, useEffect } from 'react';
+import Editor from '@monaco-editor/react';
+import { useSqlMonaco } from '@/hooks/useSqlMonaco';
 
 export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
-	const monaco = useMonaco();
-	const { setupMonaco } = useSqlMonaco({ public: { customers: ['id', 'test'] } });
-
-	useEffect(() => {
-		if (monaco) {
-			const dispose = setupMonaco(monaco);
-			return () => dispose();
-		}
-		return () => {};
-	}, [monaco, setupMonaco]);
+	useSqlMonaco({ public: { customers: ['id', 'test'] } });
 
 	return (
 		<Box height="100vh" overflow="hidden" position="relative">
