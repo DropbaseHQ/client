@@ -1,6 +1,6 @@
 import * as monacoLib from 'monaco-editor';
 import SqlTheme from 'monaco-themes/themes/GitHub.json';
-import { completePhrase, CompletionData } from './completion';
+import { CompletionData, completePhrase } from './completion';
 import { MONARCH_TOKENIZER } from './constants';
 
 export const useSqlMonaco = (completionData: CompletionData) => {
@@ -31,6 +31,7 @@ export const useSqlMonaco = (completionData: CompletionData) => {
 			triggerCharacters: ['.', '"'],
 			provideCompletionItems,
 		});
+		return dispose;
 	};
 	return { setupMonaco };
 };

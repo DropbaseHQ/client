@@ -9,8 +9,10 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 
 	useEffect(() => {
 		if (monaco) {
-			setupMonaco(monaco);
+			const dispose = setupMonaco(monaco);
+			return () => dispose();
 		}
+		return () => {};
 	}, [monaco, setupMonaco]);
 
 	return (
