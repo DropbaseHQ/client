@@ -1,21 +1,13 @@
 import { useQuery } from 'react-query';
+import { axios } from '@/lib/axios';
 
 export const SCHEMA_QUERY_KEY = 'all-schema';
 
 const fetchSchema = async () => {
-	await new Promise((resolve) => {
-		setTimeout(() => {
-			resolve('123');
-		}, Math.random() * 2500);
-	});
 
-	return {
-		public: {
-			customers: ['id', 'test', 'name'],
-			users: ['id', 'email'],
-		},
-		stripe: { subscriptions: ['id'] },
-	};
+	const appId = '123';
+	const response = await axios.get(`/app/${appId}/schema`)
+	return response.data;
 };
 
 export const useSchema = () => {
