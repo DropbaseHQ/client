@@ -20,7 +20,7 @@ export const SmartTable = () => {
 					</Panel>
 
 					<PanelHandleContainer borderBottomWidth="1px" borderTopWidth="1px">
-						<MoreHorizontal strokeWidth="1.5px" />
+						<MoreHorizontal size="18" strokeWidth="1.5px" />
 					</PanelHandleContainer>
 
 					<Panel maxSize={80} defaultSize={60}>

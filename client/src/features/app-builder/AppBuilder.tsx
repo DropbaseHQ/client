@@ -70,7 +70,7 @@ export const AppBuilder = () => {
 					</Panel>
 
 					<PanelHandleContainer borderTopWidth="1px" borderBottomWidth="1px" w="full">
-						<MoreHorizontal size="16" />
+						<MoreHorizontal size="18" />
 					</PanelHandleContainer>
 
 					<Panel>
