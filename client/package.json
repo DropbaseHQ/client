@@ -36,8 +36,6 @@
 		"@typescript-eslint/eslint-plugin": "^6.0.0",
 		"@typescript-eslint/parser": "^6.0.0",
 		"@vitejs/plugin-react": "^4.0.3",
-		"cypress": "^12.17.3",
-		"cypress-vite": "^1.4.2",
 		"eslint": "^8.45.0",
 		"eslint-config-airbnb": "^19.0.4",
 		"eslint-config-airbnb-typescript": "^17.1.0",
