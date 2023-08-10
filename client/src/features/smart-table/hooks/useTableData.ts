@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 
 import { axios } from '@/lib/axios';
 
-export const TABLE_DATA_QUERY_KEY = 'pipeline';
+export const TABLE_DATA_QUERY_KEY = 'tableData';
 
 type Row = any[];
 
