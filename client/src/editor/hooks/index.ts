@@ -1,1 +1,1 @@
-export * from './useSqlMonaco';
+export * from './useSQLCompletion';
