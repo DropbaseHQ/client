@@ -13,7 +13,7 @@ router = APIRouter(prefix="/app", tags=["app"])
 
 @router.get("/{app_id}")
 def get_app(app_id: UUID, db: Session = Depends(get_db)):
-    return crud.app.get_object_by_id_or_404(db, id=app_id)
+    return app.get_app_details(db, app_id=app_id)
 
 
 @router.post("/")

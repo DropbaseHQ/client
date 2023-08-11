@@ -1,5 +1,7 @@
 from sqlalchemy import create_engine, inspect
+from sqlalchemy.orm import Session
 from server.controllers.task.source_column_helper import connect_to_user_db
+from server import crud
 
 
 def get_app_schema():
@@ -26,3 +28,9 @@ def get_db_schema(engine):
         database_structure[schema] = schema_tables
 
     return database_structure
+
+
+def get_app_details(db: Session, app_id: str):
+    app = crud.app.get_object_by_id_or_404(db, id=app_id)
+    app_sql = crud.sqls.get_app_sqls(db, app_id=app_id)
+    return {"app": app, "sql": app_sql}
