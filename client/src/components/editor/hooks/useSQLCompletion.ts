@@ -9,7 +9,7 @@ import { CompletionData, provideCompletionItems } from '../utils/sql-completion'
 export const useSQLCompletion = (completionData: CompletionData) => {
 	const monaco = useMonaco();
 
-	useMonacoTheme();
+	useMonacoTheme(monaco);
 
 	useEffect(() => {
 		if (!monaco) {
