@@ -4,7 +4,7 @@ import { Box, Center, CenterProps, Stack } from '@chakra-ui/react';
 import { MoreHorizontal, MoreVertical } from 'react-feather';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 
-import 'monaco-editor/esm/vs/editor/edcore.main';
+// import 'monaco-editor/esm/vs/editor/edcore.main';
 
 import { CloseAction, ErrorAction, MessageTransports } from 'vscode-languageclient';
 import { WebSocketMessageReader, WebSocketMessageWriter, toSocket } from 'vscode-ws-jsonrpc';
@@ -17,6 +17,9 @@ import {
 	ITextFileEditorModel,
 } from 'vscode/monaco';
 
+import { buildWorkerDefinition } from 'monaco-editor-workers';
+buildWorkerDefinition('../../../node_modules/monaco-editor-workers/dist/workers/', new URL('', window.location.href).href, false);
+
 import { AppBuilderNavbar } from './components/BuilderNavbar';
 import { Table } from '@/features/smart-table/components/Table';
 
@@ -25,7 +28,7 @@ const createLanguageClient = (transports: MessageTransports): MonacoLanguageClie
 		name: 'Python Language Client',
 		clientOptions: {
 			// use a language id as a document selector
-			documentSelector: ['python'],
+			documentSelector: ['python', 'py'],
 			// disable the default error handler
 			errorHandler: {
 				error: () => ({ action: ErrorAction.Continue }),
@@ -52,7 +55,7 @@ const createWebSocket = (url: string): WebSocket => {
 			writer,
 		});
 		languageClient.start();
-		reader.onClose(() => languageClient.stop());
+		reader.onClose(() => { console.log("STOPPING CLIENT"); languageClient.stop() });
 	};
 	return webSocket;
 };
@@ -67,33 +70,16 @@ export type ExamplePythonEditor = {
 const createPythonEditor = async (config: {
 	htmlElement: HTMLElement;
 	content: string;
-	init: boolean;
 	filepath: string;
 }) => {
 	const languageId = 'python';
 
-	if (config.init === true) {
-		await initServices({
-			enableThemeService: true,
-			// enableThemeService: false,
-			enableTextmateService: true,
-			enableModelService: true,
-			configureEditorOrViewsServiceConfig: {
-				enableViewsService: false,
-			},
-			enableLanguagesService: true,
-			enableKeybindingsService: true,
-			enableQuickaccessService: true,
-			debugLogging: true,
-		});
-	}
-
 	// register the JSON language with Monaco
 	languages.register({
-		id: languageId,
+		id: 'python',
 		extensions: ['.py'],
-		aliases: ['Python', 'Python3'],
-		mimetypes: ['application/text'],
+		// aliases: ['Python', 'Python3'],
+		// mimetypes: ['application/text'],
 	});
 
 	// create the model
@@ -110,7 +96,7 @@ const createPythonEditor = async (config: {
 			enabled: true,
 		},
 		automaticLayout: true,
-		theme: 'vs-dark',
+		theme: 'vs-light',
 		language: languageId,
 	});
 
@@ -129,49 +115,66 @@ export const ReactMonacoEditor = () => {
 	const editorRef = useRef<monacoEditor.IStandaloneCodeEditor>();
 	const ref = useRef<any>();
 	const ref2 = useRef<any>();
-	const url = 'https://0baa-65-95-84-67.ngrok-free.app';
+	const url = 'ws://localhost:8000/ws';
 	const lspWebSocket: any = useRef(null);
 
 	useEffect(() => {
 		const currentEditor = editorRef.current;
 
-		if (ref.current != null) {
+		if (ref.current != null && ref2.current != null) {
 			const start = async () => {
+				if (init) {
+					await initServices({
+						// enableThemeService: true,
+						// enableTextmateService: true,
+						enableModelService: true,
+						configureEditorOrViewsServiceConfig: {
+							enableViewsService: false,
+						},
+						enableLanguagesService: true,
+						// enableKeybindingsService: true,
+						// enableQuickaccessService: true,
+						// enableOutputService: true,
+						// enableAccessibilityService: true,
+						// debugLogging: true
+					});
+					init = false;
+				}
+
 				await createPythonEditor({
 					htmlElement: ref.current!,
 					content: ['# fetcher/<uuid>.py'].join('\n'),
 					filepath: 'fetcher/b518b883-fc3d-4fc2-a2be-f6e0a8dacd76.py',
-					init,
 				});
-				if (init) {
-					init = false;
+				await createPythonEditor({
+					htmlElement: ref2.current!,
+					content: ['# ui-component.py'].join('\n'),
+					filepath: 'ui-component.py',
+				});
 
-					await createPythonEditor({
-						htmlElement: ref2.current!,
-						content: ['# ui-component.py'].join('\n'),
-						filepath: 'ui-component.py',
-						init,
-					});
-
-					lspWebSocket.current = createWebSocket(url);
-				}
+				console.log("CREATING WEBSOCKET")
+				lspWebSocket.current = createWebSocket(url);
+				console.log("CREATED WEBSOCKET")
 			};
 			start();
 
 			return () => {
+				console.log("I AM CLOSING");
 				currentEditor?.dispose();
 			};
 		}
 
 		window.onbeforeunload = () => {
+			console.log("I AM CLOSING");
 			// On page reload/exit, close web socket connection
 			lspWebSocket?.current?.close();
 		};
 		return () => {
+			console.log("I AM CLOSING");
 			// On component unmount, close web socket connection
 			lspWebSocket?.current?.close();
 		};
-	}, []);
+	}, [ref, ref2]);
 
 	return (
 		<>
