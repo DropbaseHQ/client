@@ -24,6 +24,7 @@ export const useSQLCompletion = (completionData: CompletionData) => {
 			provideCompletionItems: (model, position) =>
 				provideCompletionItems(model, position, completionData),
 		});
+
 		return dispose;
 	}, [monaco, completionData]);
 };
