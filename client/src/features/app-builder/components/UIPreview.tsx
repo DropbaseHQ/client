@@ -23,7 +23,7 @@ export const UIPreview = () => {
 		});
 
 	return (
-		<Box overflow="auto">
+		<Box p="0">
 			<FormProvider {...methods}>{sortUI(components)}</FormProvider>
 		</Box>
 	);

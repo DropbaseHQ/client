@@ -1,8 +1,7 @@
 import { Stack } from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
-import { MoreHorizontal } from 'react-feather';
 
-import { PanelHandleContainer } from '@/components/Panel';
+import { PanelHandle } from '@/components/Panel';
 
 import { SmartTableNavbar } from './components/SmartTableNavbar';
 import { Editor } from './components/Editor';
@@ -19,9 +18,7 @@ export const SmartTable = () => {
 						<Editor />
 					</Panel>
 
-					<PanelHandleContainer borderBottomWidth="1px" borderTopWidth="1px">
-						<MoreHorizontal size="18" strokeWidth="1.5px" />
-					</PanelHandleContainer>
+					<PanelHandle direction="horizontal" />
 
 					<Panel maxSize={80} defaultSize={60}>
 						<Table />
