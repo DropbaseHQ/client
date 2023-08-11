@@ -3,10 +3,10 @@ import { useQuery } from 'react-query';
 
 const fetchUIJson = async ({ code, app_id }: { code: string; app_id: string }) => {
 	const { data } = await axios.post('http://localhost:8000/components/some_id/convert', {
-		// code,
-		// app_id,
-		code: 'name_input = UIInput(\r\n    name="name",\r\n    type="input",\r\n    label="Name",\r\n    required=True,\r\n    validation="",\r\n    error="",\r\n    number=3\r\n)\r\naddress_input = UIInput(\r\n    name="address",\r\n    type="input",\r\n    label="Address",\r\n    required=True,\r\n    validation="",\r\n    error="",\r\n    number=3,\r\n    depends="name",\r\n    depends_value="John"\r\n)',
-		app_id: '1234',
+		code,
+		app_id,
+		// code: 'name_input = UIInput(\r\n    name="name",\r\n    type="input",\r\n    label="Name",\r\n    required=True,\r\n    validation="",\r\n    error="",\r\n    number=3\r\n)\r\naddress_input = UIInput(\r\n    name="address",\r\n    type="input",\r\n    label="Address",\r\n    required=True,\r\n    validation="",\r\n    error="",\r\n    number=3,\r\n    depends="name",\r\n    depends_value="John"\r\n)',
+		// app_id: '1234',
 	});
 	return data;
 };

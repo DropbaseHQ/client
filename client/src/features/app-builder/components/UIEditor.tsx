@@ -2,9 +2,7 @@ import { Box } from '@chakra-ui/react';
 import { useState } from 'react';
 import { usePythonEditor } from '@/components/Editor';
 
-export const UIEditor = () => {
-	const [code, setCode] = useState('# some comment');
-
+export const UIEditor = ({ code, setCode }: { code: any; setCode: any }) => {
 	const editorRef = usePythonEditor({
 		filepath: 'uiComponent.py',
 		code,
