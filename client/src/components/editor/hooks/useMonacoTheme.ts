@@ -1,12 +1,10 @@
 import { useColorMode } from '@chakra-ui/react';
-import { useMonaco } from '@monaco-editor/react';
 import { useEffect } from 'react';
 
 import GhDark from 'monaco-themes/themes/GitHub Dark.json';
 import GhLight from 'monaco-themes/themes/GitHub Light.json';
 
-export const useMonacoTheme = () => {
-	const monaco = useMonaco();
+export const useMonacoTheme = (monaco: any) => {
 	const { colorMode } = useColorMode();
 
 	useEffect(() => {

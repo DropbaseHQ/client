@@ -1,10 +1,14 @@
 import { Box, Stack } from '@chakra-ui/react';
 
 import { Panel, PanelGroup } from 'react-resizable-panels';
-import { AppBuilderNavbar } from './components/BuilderNavbar';
-import { Table } from '@/features/smart-table/components/Table';
-import { UIPreview } from './components/UIPreview';
+// import { UIEditor } from './components/UIPreview';
 import { PanelHandle } from '@/components/Panel';
+
+import { Table } from '@/features/smart-table/components/Table';
+import { UIPanel } from './components/UIPreview';
+import { AppBuilderNavbar } from './components/BuilderNavbar';
+// import { UIEditor } from './components/UIEditor';
+import { Fetchers } from './components/Fetchers';
 
 export const AppBuilder = () => {
 	return (
@@ -23,29 +27,14 @@ export const AppBuilder = () => {
 							<PanelHandle direction="vertical" />
 
 							<Panel>
-								<Box p="6" overflowY="auto" bg="gray.50" h="full">
-									Fetchers
-								</Box>
+								<Fetchers />
 							</Panel>
 
 							<PanelHandle direction="vertical" />
 
 							<Panel defaultSize={20}>
-								<PanelGroup direction="vertical">
-									<Panel defaultSize={50}>
-										<Box bg="gray.50" p="6" h="full">
-											UI Code
-										</Box>
-									</Panel>
-
-									<PanelHandle direction="horizontal" />
-
-									<Panel maxSize={80}>
-										<Box bg="gray.50" p="6" h="full">
-											<UIPreview />
-										</Box>
-									</Panel>
-								</PanelGroup>
+								UI Components
+								<UIPanel />
 							</Panel>
 						</PanelGroup>
 					</Panel>

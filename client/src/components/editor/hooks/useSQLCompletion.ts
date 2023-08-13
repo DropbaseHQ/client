@@ -9,7 +9,7 @@ import { CompletionData, provideCompletionItems } from '../utils/sql-completion'
 export const useSQLCompletion = (completionData: CompletionData) => {
 	const monaco = useMonaco();
 
-	useMonacoTheme();
+	useMonacoTheme(monaco);
 
 	useEffect(() => {
 		if (!monaco) {
@@ -24,6 +24,7 @@ export const useSQLCompletion = (completionData: CompletionData) => {
 			provideCompletionItems: (model, position) =>
 				provideCompletionItems(model, position, completionData),
 		});
+
 		return dispose;
 	}, [monaco, completionData]);
 };

@@ -57,15 +57,21 @@ class UIText(UIComponent):
 
 
 class UIButton(UIComponent):
-    def __init__(self, name=None, label=None, role=None, width=None, action=None):
+    def __init__(
+        self, name=None, label=None, role=None, width=None, action=None, depends=None, depends_value=None
+    ):
         self.name = name
         self.label = label
         self.role = role
         self.width = width
         self.action = action
+        self.depends = depends
+        self.depends_value = depends_value
 
     name: str
     label: str
     role: list[str]
     width: str
     action: callable
+    depends: list[str]
+    depends_value: any
