@@ -73,9 +73,17 @@ class Workspace:
         self.__rope_config = None
         self.__rope_autoimport = None
 
+        self.generate_files()
+
     def __del__(self):
         if self._root_path:
             shutil.rmtree(self._root_path, ignore_errors=True)
+
+    def generate_files(self):
+        for (path, func) in generate:
+            file = os.path.join(self._root_path, path)
+            fd = os.open(file, os.O_WRONLY | os.O_CREAT)
+            os.write(fd, func().encode('utf-8'))
 
     def _rope_autoimport(self, rope_config: Optional, memory: bool = False):
         # pylint: disable=import-outside-toplevel
@@ -372,8 +380,6 @@ class Document:
         self._rope_project_builder = rope_project_builder
         self._lock = RLock()
 
-        self.generate_files()
-
     def __str__(self):
         return str(self.uri)
 
@@ -457,12 +463,6 @@ class Document:
         n = os.pwrite(self._fd, buf, 0)
         # Truncate file to appropriate length
         os.truncate(self._fd, n)
-
-    def generate_files(self):
-        for (path, func) in generate:
-            file = os.path.join(self._workspace._root_path, path)
-            fd = os.open(file, os.O_WRONLY | os.O_CREAT)
-            os.write(fd, func().encode('utf-8'))
 
     def offset_at_position(self, position):
         """Return the byte-offset pointed at by the given position."""
