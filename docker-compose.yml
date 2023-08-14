@@ -1,0 +1,11 @@
+services:
+  server:
+    image: dropbase-server
+    build: ./server
+    ports:
+      - 8000:8000 # this should be reflected in client/.env
+  pylsp:
+    image: dropbase-pylsp
+    build: ./python-lsp-server
+    ports:
+      - 8001:8000 # this should be reflected in client/.env
