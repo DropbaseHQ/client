@@ -7,7 +7,6 @@ import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
 import { CustomInput, CustomButton } from '@/utils/uiBuilder';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { PanelHandle } from '@/components/Panel';
-import MonacoEditor from '@monaco-editor/react';
 import { useParams } from 'react-router-dom';
 import { UIEditor } from './UIEditor';
 
@@ -64,6 +63,7 @@ export const UIPreview = ({
 
 export const UIPanel = () => {
 	const [code, setCode] = useState('');
+
 	const { appId } = useParams();
 	const { components, refetch, isFetching } = useGetUIJson({
 		app_id: appId || '',

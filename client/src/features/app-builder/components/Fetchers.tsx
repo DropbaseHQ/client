@@ -3,9 +3,7 @@ import { Box, Button, Stack } from '@chakra-ui/react';
 
 import { usePythonEditor } from '@/components/Editor';
 
-export const FetchEditor = ({ id }: { id: string }) => {
-	const [code, setCode] = useState('# some comment');
-
+export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; setCode: any }) => {
 	const editorRef = usePythonEditor({
 		filepath: `fetchers/${id}.py`,
 		code,
@@ -20,18 +18,33 @@ export const FetchEditor = ({ id }: { id: string }) => {
 };
 
 export const Fetchers = () => {
-	const [fetchers, setFetchers] = useState<any>([]);
+	const [fetchers, setFetchers] = useState<any>({
+		default: '# some comment',
+	});
 
 	const createNewFetcher = () => {
-		setFetchers((f: any) => [...f, f.length + 1]);
+		setFetchers({
+			...fetchers,
+			[`code-${Object.keys(fetchers).length}`]: `# some comment ${
+				Object.keys(fetchers).length
+			}`,
+		});
 	};
 
 	return (
 		<Stack h="full" bg="gray.50" minH="full" overflowY="auto" spacing="4">
-			<FetchEditor id="default" />
-
-			{fetchers.map((fetchId: any) => (
-				<FetchEditor key={fetchId} id={fetchId} />
+			{Object.keys(fetchers).map((fetchId: any) => (
+				<FetchEditor
+					key={fetchId}
+					code={fetchers[fetchId]}
+					setCode={(n: any) => {
+						setFetchers((f: any) => ({
+							...f,
+							[fetchId]: n,
+						}));
+					}}
+					id={fetchId}
+				/>
 			))}
 
 			<Stack
@@ -43,10 +56,18 @@ export const Fetchers = () => {
 				p="2"
 				alignItems="center"
 				borderTopWidth="0.5px"
-				justifyContent="end"
+				justifyContent="space-between"
 			>
 				<Button size="sm" onClick={createNewFetcher}>
 					Create new fetcher
+				</Button>
+				<Button
+					size="sm"
+					onClick={() => {
+						console.log('Fetchers', fetchers);
+					}}
+				>
+					Test console
 				</Button>
 			</Stack>
 		</Stack>
