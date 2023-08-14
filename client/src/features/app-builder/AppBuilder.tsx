@@ -7,7 +7,7 @@ import { Table } from '@/features/smart-table/components/Table';
 import { UIPanel } from './components/UIPreview';
 import { AppBuilderNavbar } from './components/BuilderNavbar';
 import { Fetchers } from './components/Fetchers';
-import { useMonacoLoader } from '@/components/Editor';
+import { useMonacoLoader } from '@/components/editor';
 
 export const AppBuilder = () => {
 	const isEditorReady = useMonacoLoader();

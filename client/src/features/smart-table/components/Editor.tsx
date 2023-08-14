@@ -4,7 +4,7 @@ import { Box, Flex, IconButton, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { CheckCircle, Play } from 'react-feather';
 
-import { useSQLCompletion } from '@/components/Editor';
+import { useSQLCompletion } from '@/components/editor';
 import { useSchema } from '@/features/smart-table/hooks/useSchema';
 import { useTableData } from '../hooks/useTableData';
 import { useGetApp } from '@/features/app/hooks';

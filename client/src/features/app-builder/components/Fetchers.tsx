@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Stack } from '@chakra-ui/react';
 
-import { usePythonEditor } from '@/components/Editor';
+import { usePythonEditor } from '@/components/editor';
 
 export const FetchEditor = ({ id }: { id: string }) => {
 	const [code, setCode] = useState('# some comment');

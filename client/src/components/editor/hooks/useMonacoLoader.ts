@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { initializeLanguageServices } from '@/components/Editor';
+import { initializeLanguageServices } from '@/components/editor';
 
 export const useMonacoLoader = () => {
 	const [isMonacoReady, setReady] = useState(false);

@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react';
 
-import { usePythonEditor } from '@/components/Editor';
+import { usePythonEditor } from '@/components/editor';
 
 export const UIEditor = ({ code, setCode }: { code: any; setCode: any }) => {
 	const editorRef = usePythonEditor({
