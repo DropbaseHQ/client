@@ -1,6 +1,10 @@
 from sqlalchemy.engine import URL, Connection, create_engine
 from sqlalchemy.orm import Session
 
+from server import crud
+from server.controllers.app import get_app_schema
+from server.controllers.task.source_column_helper import connect_to_user_db
+
 SchemaDict = dict[str, dict[str, list[str]]]
 
 
@@ -102,9 +106,15 @@ def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str]) -> li
     ]
     return bad_cols
 
-def test_sql(db: Session, url: URL, sql_string: str):
+def test_sql(db: Session, sql_string: str):
+    """
+    Tests if a SQL query is valid for the given app.
+    :raises ValueError if the query is invalid.
+    """
+    # app = crud.app.get_object_by_id_or_404(db, id=app_id)
+    # TODO: store schema in db
     schema = get_app_schema()
-    engine = create_engine(url)
+    engine = connect_to_user_db()
     try:
         with engine.connect() as conn:
             bad_cols = get_missing_aliases(conn, sql_string, schema)
@@ -114,10 +124,5 @@ def test_sql(db: Session, url: URL, sql_string: str):
             bad_cols = get_bad_aliases(conn, sql_string, schema)
             if bad_cols:
                 raise ValueError(f"Query has misnamed columns: {', '.join(bad_cols)}")
-            
-
     finally:
         engine.dispose()
-    ...
-    # get creds from db, connect to it
-    # get schema from db
