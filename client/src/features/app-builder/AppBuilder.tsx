@@ -33,7 +33,6 @@ export const AppBuilder = () => {
 							<PanelHandle direction="vertical" />
 
 							<Panel defaultSize={20}>
-								UI Components
 								<UIPanel />
 							</Panel>
 						</PanelGroup>
