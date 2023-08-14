@@ -12,7 +12,11 @@ export const FetchEditor = ({ id }: { id: string }) => {
 		onChange: setCode,
 	});
 
-	return <Box ref={editorRef} as="div" w="full" h="250px" />;
+	return (
+		<Box minH="2xs" borderTopWidth="1px" borderBottomWidth="1px">
+			<Box ref={editorRef} as="div" w="full" h="full" />
+		</Box>
+	);
 };
 
 export const Fetchers = () => {
@@ -23,16 +27,28 @@ export const Fetchers = () => {
 	};
 
 	return (
-		<Stack overflowY="auto" spacing="8">
+		<Stack h="full" bg="gray.50" minH="full" overflowY="auto" spacing="4">
 			<FetchEditor id="default" />
 
 			{fetchers.map((fetchId: any) => (
 				<FetchEditor key={fetchId} id={fetchId} />
 			))}
 
-			<Button size="sm" onClick={createNewFetcher}>
-				Create new fetcher
-			</Button>
+			<Stack
+				mt="auto"
+				position="sticky"
+				bottom="0"
+				bg="white"
+				direction="row"
+				p="2"
+				alignItems="center"
+				borderTopWidth="0.5px"
+				justifyContent="end"
+			>
+				<Button size="sm" onClick={createNewFetcher}>
+					Create new fetcher
+				</Button>
+			</Stack>
 		</Stack>
 	);
 };

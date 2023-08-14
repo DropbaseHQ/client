@@ -65,7 +65,7 @@ export const initializeLanguageServices = async () => {
 		enableKeybindingsService: true,
 		enableQuickaccessService: true,
 		// Disable for production
-		debugLogging: true,
+		debugLogging: false,
 	});
 
 	// Register the Python language with Monaco
@@ -91,7 +91,7 @@ const createPythonEditor = async (config: { htmlElement: HTMLElement; filepath: 
 	// Create monaco editor
 	const editor = createConfiguredEditor(config.htmlElement, {
 		model: modelRef.object.textEditorModel,
-		glyphMargin: true,
+		glyphMargin: false,
 		lightbulb: {
 			enabled: true,
 		},
@@ -110,7 +110,8 @@ export type EditorProps = {
 
 export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
 	const [isEditorReady, setEditorReady] = useState(false);
-	// const [initialized, setInitialized] = useState(false);
+
+	const creatingRef = useRef(false);
 	const editorInstanceRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 	const ref = createRef<HTMLDivElement>();
 
@@ -119,28 +120,17 @@ export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
 
 	useMonacoTheme(monaco);
 
-	// useEffect(() => {
-	// 	const initialiazeLSP = async () => {
-	// 		const lspWebSocket = await initializeLanguageServices();
-	// 		setInitialized(true);
-	// 		window.onbeforeunload = () => {
-	// 			// On page reload/exit, close web socket connection
-	// 			lspWebSocket?.close();
-	// 		};
-	// 	};
-	//
-	// 	if (ref.current) {
-	// 		initialiazeLSP();
-	// 	}
-	// }, [ref, filepath, onChangeRef]);
-
 	useEffect(() => {
 		const createEditor = async () => {
-			if (!editorInstanceRef.current) {
+			if (!editorInstanceRef.current && !creatingRef.current) {
+				creatingRef.current = true;
+
 				editorInstanceRef.current = await createPythonEditor({
 					htmlElement: ref.current!,
 					filepath,
 				});
+
+				creatingRef.current = false;
 
 				if (editorInstanceRef.current) {
 					setEditorReady(true);
@@ -149,17 +139,16 @@ export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
 		};
 
 		if (ref.current) {
-			console.log("CREATING EDITOR");
 			createEditor();
 		}
 
 		return () => {
-			console.log("DISPOSING EDITOR");
-			setEditorReady(false);
-			editorInstanceRef.current?.dispose();
-			editorInstanceRef.current = null;
+			if (editorInstanceRef.current) {
+				editorInstanceRef.current?.dispose();
+				editorInstanceRef.current = null;
+				setEditorReady(false);
+			}
 		};
-		// }, [ref, initialized, filepath, onChangeRef]);
 	}, [ref, filepath]);
 
 	useEffect(() => {
