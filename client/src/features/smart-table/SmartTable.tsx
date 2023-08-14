@@ -4,7 +4,7 @@ import { Panel, PanelGroup } from 'react-resizable-panels';
 import { PanelHandle } from '@/components/Panel';
 
 import { SmartTableNavbar } from './components/SmartTableNavbar';
-import { Editor } from './components/editor';
+import { Editor } from './components/Editor';
 import { Table } from './components/Table';
 
 export const SmartTable = () => {
