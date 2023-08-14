@@ -26,7 +26,7 @@ export const Fetchers = () => {
 		<Stack overflowY="auto" spacing="8">
 			<FetchEditor id="default" />
 
-			{fetchers.map((fetchId: string) => (
+			{fetchers.map((fetchId: any) => (
 				<FetchEditor key={fetchId} id={fetchId} />
 			))}
 

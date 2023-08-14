@@ -54,7 +54,7 @@ const createWebSocket = (url: string): WebSocket => {
 	return webSocket;
 };
 
-const initializeLanguageServices = async () => {
+export const initializeLanguageServices = async () => {
 	await initServices({
 		// Use our own themes
 		enableThemeService: false,
@@ -110,7 +110,7 @@ export type EditorProps = {
 
 export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
 	const [isEditorReady, setEditorReady] = useState(false);
-	const [initialized, setInitialized] = useState(false);
+	// const [initialized, setInitialized] = useState(false);
 	const editorInstanceRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
 	const ref = createRef<HTMLDivElement>();
 
@@ -119,20 +119,20 @@ export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
 
 	useMonacoTheme(monaco);
 
-	useEffect(() => {
-		const initialiazeLSP = async () => {
-			const lspWebSocket = await initializeLanguageServices();
-			setInitialized(true);
-			window.onbeforeunload = () => {
-				// On page reload/exit, close web socket connection
-				lspWebSocket?.close();
-			};
-		};
-
-		if (ref.current) {
-			initialiazeLSP();
-		}
-	}, [ref, filepath, onChangeRef]);
+	// useEffect(() => {
+	// 	const initialiazeLSP = async () => {
+	// 		const lspWebSocket = await initializeLanguageServices();
+	// 		setInitialized(true);
+	// 		window.onbeforeunload = () => {
+	// 			// On page reload/exit, close web socket connection
+	// 			lspWebSocket?.close();
+	// 		};
+	// 	};
+	//
+	// 	if (ref.current) {
+	// 		initialiazeLSP();
+	// 	}
+	// }, [ref, filepath, onChangeRef]);
 
 	useEffect(() => {
 		const createEditor = async () => {
@@ -149,9 +149,18 @@ export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
 		};
 
 		if (ref.current) {
+			console.log("CREATING EDITOR");
 			createEditor();
 		}
-	}, [ref, initialized, filepath, onChangeRef]);
+
+		return () => {
+			console.log("DISPOSING EDITOR");
+			setEditorReady(false);
+			editorInstanceRef.current?.dispose();
+			editorInstanceRef.current = null;
+		};
+		// }, [ref, initialized, filepath, onChangeRef]);
+	}, [ref, filepath]);
 
 	useEffect(() => {
 		if (isEditorReady && editorInstanceRef.current && onChangeRef.current) {

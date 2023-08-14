@@ -9,8 +9,26 @@ import { UIPanel } from './components/UIPreview';
 import { AppBuilderNavbar } from './components/BuilderNavbar';
 // import { UIEditor } from './components/UIEditor';
 import { Fetchers } from './components/Fetchers';
+import { initializeLanguageServices } from '@/components/Editor';
+import { useEffect, useState } from 'react';
+
+// initializeLanguageServices();
 
 export const AppBuilder = () => {
+	const [init, setInit] = useState(false);
+	useEffect(() => {
+		(async () => {
+			if (!init) {
+				await initializeLanguageServices();
+				setInit(true);
+			}
+		})();
+
+		return () => {
+			setInit(false);
+		};
+	}, []);
+
 	return (
 		<Stack spacing="0" h="full">
 			<AppBuilderNavbar />
