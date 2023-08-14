@@ -1,16 +1,17 @@
 import { Box, Stack } from '@chakra-ui/react';
 
 import { Panel, PanelGroup } from 'react-resizable-panels';
-// import { UIEditor } from './components/UIPreview';
 import { PanelHandle } from '@/components/Panel';
 
 import { Table } from '@/features/smart-table/components/Table';
 import { UIPanel } from './components/UIPreview';
 import { AppBuilderNavbar } from './components/BuilderNavbar';
-// import { UIEditor } from './components/UIEditor';
 import { Fetchers } from './components/Fetchers';
+import { useMonacoLoader } from '@/components/Editor';
 
 export const AppBuilder = () => {
+	const isEditorReady = useMonacoLoader();
+
 	return (
 		<Stack spacing="0" h="full">
 			<AppBuilderNavbar />
@@ -26,16 +27,11 @@ export const AppBuilder = () => {
 
 							<PanelHandle direction="vertical" />
 
-							<Panel>
-								<Fetchers />
-							</Panel>
+							<Panel>{isEditorReady ? <Fetchers /> : null}</Panel>
 
 							<PanelHandle direction="vertical" />
 
-							<Panel defaultSize={20}>
-								UI Components
-								<UIPanel />
-							</Panel>
+							<Panel defaultSize={20}>{isEditorReady ? <UIPanel /> : null}</Panel>
 						</PanelGroup>
 					</Panel>
 
