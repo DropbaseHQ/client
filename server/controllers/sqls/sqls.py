@@ -20,27 +20,36 @@ def parse_object_alias(obj: str) -> tuple[str, list[str]]:
 
     return f"{schema}.{table}.{column}", props
 
-
-def get_missing_aliases(conn: Connection, query: str, schema_dict: SchemaDict) -> list[str]:
+def expand_schema_tree(schema_dict: SchemaDict) -> set[str]:
     """
-    Returns a list of aliases that are not recognised from the schema
+    Convert a schema tree to a list of all possible columns
     """
-    open_query = query.rstrip(";\n ")
-    res = conn.execute(f"SELECT * FROM ({open_query}) AS q LIMIT 1")
-    returned_query_keys = res.keys()
-
     all_schema_cols: set[str] = set()
     for schema, tables in schema_dict.items():
         for table, columns in tables.items():
             for column in columns:
                 all_schema_cols.add(f"{schema}.{table}.{column}")
+    return all_schema_cols
+
+
+def get_missing_aliases(conn: Connection, query: str, schema_dict: SchemaDict) -> tuple[list[str], list[str]]:
+    """
+    Returns a tuple of:
+    - a list of aliases that are not in the schema
+    - all aliases used in the query
+    """
+    open_query = query.rstrip(";\n ")
+    res = conn.execute(f"SELECT * FROM ({open_query}) AS q LIMIT 1")
+    returned_query_keys = res.keys()
+
+    all_schema_cols = expand_schema_tree(schema_dict)
 
     bad_cols = [
         key
         for key in returned_query_keys
         if parse_object_alias(key)[0] not in all_schema_cols
     ]
-    return bad_cols
+    return bad_cols, returned_query_keys
 
 
 def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str]) -> list[str]:
@@ -51,11 +60,12 @@ def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str]) -> li
     """
 
     parsed_aliases = [parse_object_alias(alias) for alias in used_aliases]
-    used_tables = [
+    used_tables = list(set(
         alias[: alias.rfind(".")] for alias, _ in parsed_aliases
-    ]
+    ))
 
     table_to_primary_key: dict[str, str] = {}
+    table_to_primary_alias: dict[str, str] = {}
 
     for alias, props in parsed_aliases:
         if "_key" in props:
@@ -65,6 +75,7 @@ def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str]) -> li
                     f"Table {table} has multiple fields marked as `_key`."
                 )
             table_to_primary_key[table] = alias
+            table_to_primary_alias[table] = ".".join([alias, *props])
     
     for table in used_tables:
         if table not in table_to_primary_key:
@@ -74,16 +85,17 @@ def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str]) -> li
 
     # get q."public.customers.id" = public.customers.id
     alias_comparisons = [
-        f'ALL(q."{alias}" = {alias}) AS "{alias}"' for alias in parsed_aliases
+        f'MAX( CASE WHEN q."{".".join([alias, *props])}" = {alias} THEN 1 ELSE 0 END) AS "{alias}"' for alias, props in parsed_aliases
     ]
 
     joins = [
-        f'JOIN {table} ON q."{table_to_primary_key[table]}" = {table_to_primary_key[table]}'
+        f'JOIN {table} ON q."{table_to_primary_alias[table]}" = {table_to_primary_key[table]}' for table in used_tables
     ]
 
     # fancy joins here
     # backslashes are not allowed in f-strings
     alias_separator = ",\n"
+    newline = "\n"
     open_query = query.rstrip(";\n ")
     # TODO: add limit to open query
     checker_query = f"""
@@ -92,7 +104,7 @@ def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str]) -> li
     FROM (
         {open_query}
     ) AS q
-    {alias_separator.join(joins)}
+    {newline.join(joins)}
     LIMIT 100;
     """
 
@@ -114,14 +126,15 @@ def test_sql(db: Session, sql_string: str):
     # app = crud.app.get_object_by_id_or_404(db, id=app_id)
     # TODO: store schema in db
     schema = get_app_schema()
+    schema.pop("information_schema", None)
     engine = connect_to_user_db()
     try:
         with engine.connect() as conn:
-            bad_cols = get_missing_aliases(conn, sql_string, schema)
+            bad_cols, good_cols = get_missing_aliases(conn, sql_string, schema)
             if bad_cols:
                 raise ValueError(f"Query has unknown columns: {', '.join(bad_cols)}")
             
-            bad_cols = get_bad_aliases(conn, sql_string, schema)
+            bad_cols = get_bad_aliases(conn, sql_string, good_cols)
             if bad_cols:
                 raise ValueError(f"Query has misnamed columns: {', '.join(bad_cols)}")
     finally:
