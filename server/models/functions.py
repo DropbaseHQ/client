@@ -12,5 +12,6 @@ class Functions(Base):
     app_id = Column(UUID(as_uuid=True), ForeignKey("app.id", ondelete="CASCADE"))
 
     date = Column(TIMESTAMP, server_default=func.now())
+    type = Column(String)
 
     __tablename__ = "functions"
