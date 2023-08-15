@@ -19,6 +19,7 @@ dependencies = [
     "docstring-to-markdown",
     "ujson>=3.0.0",
     "setuptools>=39.0.0",
+    "pydantic>=2.1.1",
 ]
 dynamic = ["version"]
 
