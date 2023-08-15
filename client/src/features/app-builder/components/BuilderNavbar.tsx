@@ -40,9 +40,9 @@ export const AppBuilderNavbar = () => {
 			const fetcherId = fetcher[0];
 			const fetcherCode = fetcher[1];
 
-			const ifIdInSavedFetchers = savedFetchers?.find((f: any) => f.id === fetcherId);
+			const IdInSavedFetchers = savedFetchers?.find((f: any) => f.id === fetcherId);
 
-			if (ifIdInSavedFetchers) {
+			if (IdInSavedFetchers) {
 				await updateAppFunction.mutateAsync({
 					functionId: fetcherId || '',
 					code: fetcherCode || '',
