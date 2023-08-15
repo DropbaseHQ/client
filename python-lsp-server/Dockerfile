@@ -9,9 +9,9 @@ WORKDIR /project
 # Install python libraries
 RUN pip3 install --no-cache-dir --upgrade 'python-lsp-server[websockets]'
 
-ADD server/ server/
+ADD ./server/ server/
 
-ADD python-lsp-server/ python-lsp-server/
+ADD ./python-lsp-server/ python-lsp-server/
 RUN pip3 install -e python-lsp-server
 
 # EXPOSE $API_PORT_NUM
