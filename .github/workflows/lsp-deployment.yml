@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - app
+      - dev
     paths:
       - python-lsp-server/**
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
   build-api-dev:
     name: Dev - Build and push LSP docker image
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/app'
+    if: github.ref == 'refs/heads/dev'
     steps:
       - uses: actions/checkout@v3
 
