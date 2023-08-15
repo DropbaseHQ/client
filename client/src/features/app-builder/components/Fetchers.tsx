@@ -23,11 +23,10 @@ export const Fetchers = () => {
 	});
 
 	const createNewFetcher = () => {
+		let rand_str = (Math.random() + 1).toString(36).substring(7);
 		setFetchers({
 			...fetchers,
-			[`code-${Object.keys(fetchers).length}`]: `# some comment ${
-				Object.keys(fetchers).length
-			}`,
+			[`${rand_str}`]: `# some comment ${rand_str}`,
 		});
 	};
 
