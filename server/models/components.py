@@ -10,6 +10,7 @@ class Components(Base):
 
     code = Column(String, nullable=False)
     app_id = Column(UUID(as_uuid=True), ForeignKey("app.id", ondelete="CASCADE"))
+    dataclass = Column(String)
 
     date = Column(TIMESTAMP, server_default=func.now())
 

@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Box, Button, Stack } from '@chakra-ui/react';
-
+import { fetchersAtom } from '../atoms/tableContextAtoms';
+import { useAtom } from 'jotai';
 import { usePythonEditor } from '@/components/Editor';
-
+import { useGetApp } from '@/features/app/hooks';
+import { useParams } from 'react-router-dom';
 export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; setCode: any }) => {
 	const editorRef = usePythonEditor({
 		filepath: `fetchers/${id}.py`,
@@ -18,33 +20,46 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 };
 
 export const Fetchers = () => {
-	const [fetchers, setFetchers] = useState<any>({
-		default: '# some comment',
-	});
+	const [fetchers, setFetchers] = useAtom(fetchersAtom);
+	const { appId } = useParams();
+	const { fetchers: savedFetchers } = useGetApp(appId || '');
+	useEffect(() => {
+		if (savedFetchers) {
+			const formattedFetchers = savedFetchers.reduce((acc: any, curr: any) => {
+				acc[curr.id] = curr.code;
+				return acc;
+			}, {});
+			console.log('formattedFetchers', formattedFetchers);
+			setFetchers(formattedFetchers);
+		}
+	}, [savedFetchers]);
 
 	const createNewFetcher = () => {
-		let rand_str = (Math.random() + 1).toString(36).substring(7);
+		// let rand_str = (Math.random() + 1).toString(36).substring(7);
+		const newUUID = crypto.randomUUID();
 		setFetchers({
 			...fetchers,
-			[`${rand_str}`]: `# some comment ${rand_str}`,
+			[`${newUUID}`]: `# some comment ${newUUID}`,
 		});
 	};
 
 	return (
 		<Stack h="full" bg="gray.50" minH="full" overflowY="auto" spacing="4">
-			{Object.keys(fetchers).map((fetchId: any) => (
-				<FetchEditor
-					key={fetchId}
-					code={fetchers[fetchId]}
-					setCode={(n: any) => {
-						setFetchers((f: any) => ({
-							...f,
-							[fetchId]: n,
-						}));
-					}}
-					id={fetchId}
-				/>
-			))}
+			{Object.keys(fetchers).map((fetchId: any) => {
+				return (
+					<FetchEditor
+						key={fetchId}
+						code={fetchers[fetchId]}
+						setCode={(n: any) => {
+							setFetchers((f: any) => ({
+								...f,
+								[fetchId]: n,
+							}));
+						}}
+						id={fetchId}
+					/>
+				);
+			})}
 
 			<Stack
 				mt="auto"

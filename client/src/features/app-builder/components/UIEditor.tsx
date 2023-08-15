@@ -1,8 +1,10 @@
 import { Box } from '@chakra-ui/react';
-
 import { usePythonEditor } from '@/components/Editor';
+import { useAtom } from 'jotai';
+import { uiCodeAtom } from '../atoms/tableContextAtoms';
 
-export const UIEditor = ({ code, setCode }: { code: any; setCode: any }) => {
+export const UIEditor = () => {
+	const [code, setCode] = useAtom(uiCodeAtom);
 	const editorRef = usePythonEditor({
 		filepath: 'uiComponent.py',
 		code,

@@ -9,8 +9,9 @@ import { Panel, PanelGroup } from 'react-resizable-panels';
 import { PanelHandle } from '@/components/Panel';
 import { useParams } from 'react-router-dom';
 import { UIEditor } from './UIEditor';
-import { useSetAtom } from 'jotai';
-import { userInputAtom } from '../atoms/tableContextAtoms';
+import { useGetApp } from '@/features/app/hooks';
+import { useSetAtom, useAtom } from 'jotai';
+import { userInputAtom, uiCodeAtom } from '../atoms/tableContextAtoms';
 
 export const UIPreview = ({
 	components,
@@ -70,18 +71,28 @@ export const UIPreview = ({
 };
 
 export const UIPanel = () => {
-	const [code, setCode] = useState('');
-
+	const [uiCode, setUiCode] = useAtom(uiCodeAtom);
 	const { appId } = useParams();
+	const { uiComponents } = useGetApp(appId || '');
+
+	useEffect(() => {
+		if (uiComponents?.[0]) {
+			const code = uiComponents?.[0].code;
+			if (code) {
+				setUiCode(code);
+			}
+		}
+	}, [uiComponents]);
+
 	const { components, refetch, isFetching } = useGetUIJson({
 		app_id: appId || '',
-		code: code || '',
+		code: uiCode || '',
 	});
 
 	return (
 		<PanelGroup direction="vertical">
 			<Panel defaultSize={50}>
-				<UIEditor code={code} setCode={setCode} />
+				<UIEditor />
 			</Panel>
 
 			<PanelHandle direction="horizontal" />
