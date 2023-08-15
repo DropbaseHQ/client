@@ -2,6 +2,8 @@ import { Box } from '@chakra-ui/react';
 import Editor, { useMonaco } from '@monaco-editor/react';
 
 import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
+import { useAtom } from 'jotai';
+import { userInputAtom, selectedRowAtom } from '../atoms/tableContextAtoms';
 
 const sampleData = {
 	$id: 'https://example.com/arrays.schema.json',
@@ -40,16 +42,20 @@ const sampleData = {
 
 export const UIState = () => {
 	const monaco = useMonaco();
-
+	const [userInput] = useAtom(userInputAtom);
+	const [selectedRow] = useAtom(selectedRowAtom);
 	useMonacoTheme(monaco);
-
+	const builderContext = {
+		userInput: userInput,
+		selectedRow: selectedRow,
+	};
 	return (
 		<Box w="full" h="full">
 			<Editor
 				height="100%"
 				options={{ readOnly: true, minimap: { enabled: false } }}
 				language="json"
-				value={JSON.stringify(sampleData, null, 4)}
+				value={JSON.stringify(builderContext, null, 4)}
 			/>
 		</Box>
 	);

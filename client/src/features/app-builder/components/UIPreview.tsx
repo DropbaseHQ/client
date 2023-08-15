@@ -2,13 +2,15 @@
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'react-feather';
 import { Box, IconButton } from '@chakra-ui/react';
-import { useForm, FormProvider, useFormContext } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
 import { CustomInput, CustomButton } from '@/utils/uiBuilder';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { PanelHandle } from '@/components/Panel';
 import { useParams } from 'react-router-dom';
 import { UIEditor } from './UIEditor';
+import { useSetAtom } from 'jotai';
+import { userInputAtom } from '../atoms/tableContextAtoms';
 
 export const UIPreview = ({
 	components,
@@ -23,9 +25,15 @@ export const UIPreview = ({
 	const methods = useForm({
 		shouldUnregister: true,
 	});
+	const updateUserInput = useSetAtom(userInputAtom);
 	const onRefreshUI = () => {
 		refetch();
 	};
+	const formValues = methods.watch();
+	useEffect(() => {
+		updateUserInput(formValues);
+	}, [formValues, updateUserInput]);
+
 	const sortUI = (components: any) =>
 		components.map((c: any) => {
 			const UIType = Object.keys(c)[0];

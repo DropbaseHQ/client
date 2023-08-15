@@ -1,7 +1,8 @@
 import { useParams } from 'react-router-dom';
 import { Center, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useState } from 'react';
-
+import { useAtom } from 'jotai';
+import { selectedRowAtom } from '@/features/app-builder/atoms/tableContextAtoms';
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import DataEditor, {
@@ -22,6 +23,12 @@ export const Table = () => {
 		rows: CompactSelection.empty(),
 		columns: CompactSelection.empty(),
 	});
+	const [, setSelectedRow] = useAtom(selectedRowAtom);
+	const handleSetSelection = (selection: any) => {
+		const currentRow = selection.current.cell[1];
+		setSelectedRow(rows[currentRow]);
+		setSelection(selection);
+	};
 
 	if (isLoading) {
 		return (
@@ -111,7 +118,7 @@ export const Table = () => {
 			rowSelectionMode="multi"
 			onCellEdited={onCellEdited}
 			gridSelection={selection}
-			onGridSelectionChange={setSelection}
+			onGridSelectionChange={handleSetSelection}
 		/>
 	);
 };
