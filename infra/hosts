@@ -1,0 +1,5 @@
+[dev]
+api.dev.dropbase.io
+
+[dev-lsp]
+lsp.dev.dropbase.io

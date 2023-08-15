@@ -1,0 +1,77 @@
+name: Build and deploy lsp app
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - python-lsp-server/**
+  workflow_dispatch:
+
+env:
+  APP_NAME: lsp
+  DEV_AWS_REGION: us-east-1
+  DEV_ECR_REPO: 890697794097.dkr.ecr.us-east-1.amazonaws.com
+  DEPLOY_USER: dropbase
+
+jobs:
+  build-lsp-dev:
+    name: Dev - Build and push LSP docker image
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.DEV_AWS_REGION }}
+          aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Setup buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: python-lsp-server
+          push: true
+          tags: |
+            "${{ env.DEV_ECR_REPO }}/${{ env.APP_NAME }}:latest"
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-lsp-dev:
+    name: Dev - Deploy API to EC2
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev'
+    needs: build-lsp-dev
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_DEPLOYMENT_KEY }}
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ env.DEV_AWS_REGION }}
+          aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+
+      - name: Setup ansible and libraries
+        run: pip3 install ansible boto3
+
+      - name: Deploy to EC2
+        run: |
+          ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i infra/hosts -l dev-lsp --user ${{ env.DEPLOY_USER }} --extra-vars="env=dev-lsp ecr_repo=${{ env.DEV_ECR_REPO }} aws_region=${{ env.DEV_AWS_REGION }}" infra/lsp-deployment.yml
