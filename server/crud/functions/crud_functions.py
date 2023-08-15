@@ -9,7 +9,8 @@ from server.schemas.functions import CreateFunctions, UpdateFunctions
 
 
 class CRUDFunctions(CRUDBase[Functions, CreateFunctions, UpdateFunctions]):
-    pass
+    def get_app_functions(self, db: Session, app_id: UUID) -> List[Functions]:
+        return db.query(Functions).filter(Functions.app_id == str(app_id)).all()
 
 
 functions = CRUDFunctions(Functions)
