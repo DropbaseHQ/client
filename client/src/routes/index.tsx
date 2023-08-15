@@ -3,8 +3,9 @@ import { Suspense } from 'react';
 import { Outlet, Route, Routes } from 'react-router-dom';
 
 import { DashboardLayout } from '@/layout';
+import { AppRoutes } from '@/features/app';
 
-export const AppRoutes = () => {
+export const DashboardRoutes = () => {
 	return (
 		<Suspense
 			fallback={
@@ -28,7 +29,7 @@ export const AppRoutes = () => {
 						</DashboardLayout>
 					}
 				>
-					<Route index element={<Heading>Home</Heading>} />
+					<Route path="apps/*" element={<AppRoutes />} />
 					<Route path="*" element={<Heading>404 page not defined</Heading>} />
 				</Route>
 			</Routes>

@@ -4,14 +4,14 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { theme } from '@/lib/chakra-ui';
 import { queryClient } from '@/lib/react-query';
-import { AppRoutes } from '@/routes';
+import { DashboardRoutes } from '@/routes';
 
-export const App = () => {
+export const Dashboard = () => {
 	return (
 		<BrowserRouter>
 			<ChakraProvider theme={theme}>
 				<QueryClientProvider client={queryClient}>
-					<AppRoutes />
+					<DashboardRoutes />
 				</QueryClientProvider>
 			</ChakraProvider>
 		</BrowserRouter>

@@ -16,7 +16,8 @@ def get_table_data(db: Session, app_id: UUID):
     with user_db_engine.connect().execution_options(autocommit=True) as conn:
         res = conn.execute(text(sql[0].code)).all()
 
-    col_names = list(res[0].keys())
+    # col_names = list(res[0].keys())
+    col_names = list(res[0]._mapping.keys())
     regrouped_schema, parsed_column_names = get_regrouped_schema(col_names)
     schema = get_parsed_schema(user_db_engine, regrouped_schema)
     data = [list(row) for row in res]
