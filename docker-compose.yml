@@ -6,6 +6,8 @@ services:
       - 8000:8000 # this should be reflected in client/.env
   pylsp:
     image: dropbase-pylsp
-    build: ./python-lsp-server
+    build: 
+      context: .
+      dockerfile: ./python-lsp-server/Dockerfile
     ports:
       - 8001:8000 # this should be reflected in client/.env

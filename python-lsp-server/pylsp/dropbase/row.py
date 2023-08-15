@@ -1,5 +1,3 @@
-import os
-
 row_data = {
     "public": {
         "customer": [
@@ -62,7 +60,5 @@ def compose_classes_from_row_data(row_data: dict):
     return all_cls
 
 
-# all_classes_str = compose_classes_from_row_data(row_data)
-
-
-generate = [("dropbase/input.py", lambda: compose_classes_from_row_data(row_data))]
+def generate(_):
+    return compose_classes_from_row_data(row_data)
