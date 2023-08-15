@@ -1,7 +1,7 @@
 from typing import Any, List, Optional, Union
 from uuid import UUID
 
-from compose_task_code import compose_run_code
+from .compose_task_code import compose_run_code
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
