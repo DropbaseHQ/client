@@ -1,23 +1,32 @@
 from typing import Any, List, Optional, Union
 from uuid import UUID
 
+from compose_task_code import compose_run_code
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from server import crud
-
-
-class RunTask(BaseModel):
-    user_input: dict
-    row: dict
-    action: str
+from server.schemas.task import RunTask
 
 
 def run_task(request: RunTask, db: Session):
-    # get table schema for row
     # get user input schema from ui components
-    # row and user input could be saved in sqlite
-    pass
+    components = crud.components.get_app_component(db, app_id=request.app_id)
+    # get table schema for row
+    sqls = crud.sqls.get_app_sqls(db, app_id=request.app_id)
+    # get function code
+    functions = crud.functions.get_app_functions(db, app_id=request.app_id)
+    # package all together
+    run_code = compose_run_code(sqls, components, functions, request)
+    # run code
+    res = run_task_from_code_string(run_code, request.user_input, request.row)
+    return res
+
+
+def run_task_from_code_string(run_code, user_input_json, row_json):
+    ldic = locals()
+    exec(run_code, ldic)
+    return ldic["result"]
 
 
 def run_function(exec_code: str, function_name: str):
