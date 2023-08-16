@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from 'react-query';
+import { useMutation } from 'react-query';
 import { axios } from '@/lib/axios';
 
 const createAppComponent = async ({
