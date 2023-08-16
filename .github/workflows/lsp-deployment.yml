@@ -39,7 +39,8 @@ jobs:
       - name: Build and push docker image
         uses: docker/build-push-action@v3
         with:
-          context: python-lsp-server
+          context: .
+          file: python-lsp-server/Dockerfile
           push: true
           tags: |
             "${{ env.DEV_ECR_REPO }}/${{ env.APP_NAME }}:latest"
