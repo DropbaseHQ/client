@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers.app import get_app_schema
 from server.controllers.task.source_column_helper import connect_to_user_db
+from server.utils.helper import raise_http_exception
 
 SchemaDict = dict[str, dict[str, list[str]]]
 
@@ -137,5 +138,7 @@ def test_sql(db: Session, sql_string: str):
             bad_cols = get_bad_aliases(conn, sql_string, good_cols)
             if bad_cols:
                 raise ValueError(f"Query has misnamed columns: {', '.join(bad_cols)}")
+    except ValueError as err:
+        return raise_http_exception(400, str(err))
     finally:
         engine.dispose()
