@@ -15,7 +15,7 @@ import { useParams } from 'react-router';
 import { useMutation } from 'react-query';
 import { axios } from '@/lib/axios';
 import { useAtom } from 'jotai';
-import { selectedRowAtom } from '@/features/app-builder/atoms/tableContextAtoms';
+import { selectedRowAtom, userInputAtom } from '@/features/app-builder/atoms/tableContextAtoms';
 
 const runTask = async ({
 	appId,
@@ -136,11 +136,13 @@ export const CustomButton = (props: any) => {
 	const runTask = useRunTask();
 	const { appId } = useParams();
 	const [selectedRow] = useAtom(selectedRowAtom);
+	const [userInput] = useAtom(userInputAtom);
+	// const
 	const handleAction = async () => {
 		try {
 			await runTask.mutateAsync({
 				appId: appId || '',
-				userInput: { name: 'asdf', age: 1 },
+				userInput: userInput,
 				row: formatRowForAction(selectedRow),
 				action,
 			});
@@ -162,8 +164,7 @@ export const CustomButton = (props: any) => {
 };
 
 const formatRowForAction = (rows: any) => {
-	const transformedObject = {};
-	console.log('rows', rows);
+	const transformedObject: any = {};
 	for (const key in rows) {
 		const { folder, table, value } = rows[key];
 		/* eslint-disable */
