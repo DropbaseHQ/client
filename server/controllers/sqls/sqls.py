@@ -137,7 +137,8 @@ def test_sql(db: Session, sql_string: str):
     engine = connect_to_user_db()
     try:
         with engine.connect() as conn:
-            bad_cols, good_cols = get_missing_aliases(conn, sql_string, schema)
+            bad_cols, good_cols = get_missing_aliases(
+                conn, sql_string, schema["schema"])
             if bad_cols:
                 raise ValueError(
                     f"Query has unknown columns: {', '.join(bad_cols)}")
