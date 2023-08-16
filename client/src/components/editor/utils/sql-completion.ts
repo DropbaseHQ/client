@@ -34,6 +34,19 @@ const completePhrase = (lineUpToCursor: string, data: CompletionData): Completio
 				}
 			});
 		});
+
+		// also populate table in default schema
+		Object.keys(completionData[data.metadata.default_schema]).forEach((table) => {
+			if (table.startsWith(cleanedCurrentWord)) {
+				suggestions.push({
+					label: table,
+					kind: CompletionItemKind.Property,
+					insertText: table,
+					detail: `schema: ${data.metadata.default_schema}`,
+				});
+			}
+		});
+
 		return suggestions;
 	}
 
@@ -68,7 +81,7 @@ const completePhrase = (lineUpToCursor: string, data: CompletionData): Completio
 	Object.keys(completionData).forEach((schema) => {
 		Object.keys(completionData[schema]).forEach((table) => {
 			completionData[schema][table].forEach((col) => {
-				if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord.endsWith(` ${col}`)) {
+				if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord === col) {
 					suggestions.push({
 						label: `${schema}.${table}.${col}`,
 						kind: CompletionItemKind.Property,
@@ -82,7 +95,7 @@ const completePhrase = (lineUpToCursor: string, data: CompletionData): Completio
 	// strip leading/trailing punctuation
 	if (curTable) {
 		completionData[curSchema][curTable].forEach((col) => {
-			if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord.endsWith(` ${col}`)) {
+			if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord === col) {
 				suggestions.push({
 					label: col,
 					kind: CompletionItemKind.Property,
@@ -93,7 +106,7 @@ const completePhrase = (lineUpToCursor: string, data: CompletionData): Completio
 	} else if (curSchema) {
 		Object.keys(completionData[curSchema]).forEach((table) => {
 			Object.keys(completionData[curSchema][table]).forEach((col) => {
-				if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord.endsWith(` ${col}`)) {
+				if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord === col) {
 					suggestions.push({
 						label: table,
 						kind: CompletionItemKind.Property,
