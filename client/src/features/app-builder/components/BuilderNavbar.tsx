@@ -1,6 +1,8 @@
 import { Flex, IconButton, Stack, Text, Button } from '@chakra-ui/react';
 import { ArrowLeft } from 'react-feather';
 import { useCreateAppFunction, useUpdateAppFunction } from '../hooks/useSaveAppCode';
+import { useCreateAppComponent, useUpdateAppComponent } from '../hooks/useSaveAppComponents';
+
 import { useParams } from 'react-router-dom';
 import { useGetApp } from '@/features/app/hooks';
 import { useAtom } from 'jotai';
@@ -9,6 +11,8 @@ import { fetchersAtom, uiCodeAtom } from '../atoms/tableContextAtoms';
 export const AppBuilderNavbar = () => {
 	const createAppFunction = useCreateAppFunction();
 	const updateAppFunction = useUpdateAppFunction();
+	const createAppComponent = useCreateAppComponent();
+	const updateAppComponent = useUpdateAppComponent();
 	const { appId } = useParams();
 	const {
 		fetchers: savedFetchers,
@@ -23,16 +27,16 @@ export const AppBuilderNavbar = () => {
 		// Maybe we can just save it as an object instead of an array
 		const currentUIComponent = uiComponents?.[0];
 		if (currentUIComponent) {
-			await updateAppFunction.mutateAsync({
+			await updateAppComponent.mutateAsync({
 				functionId: currentUIComponent.id || '',
 				code: uiCode || '',
-				type: 'ui',
+				// type: 'ui',
 			});
 		} else {
-			await createAppFunction.mutateAsync({
+			await createAppComponent.mutateAsync({
 				appId: appId || '',
 				code: uiCode || '',
-				type: 'ui',
+				// type: 'ui',
 			});
 		}
 
