@@ -87,7 +87,7 @@ export const Table = () => {
 		const currentRow = rows[row];
 		const column = displayColumns[col];
 
-		const currentValue = currentRow?.[column.name];
+		const currentValue = currentRow?.[column.name]?.value;
 
 		const cellValue =
 			currentValue === null || currentValue === undefined ? '' : String(currentValue);
