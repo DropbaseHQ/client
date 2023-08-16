@@ -14,8 +14,12 @@ import {
 import { useParams } from 'react-router';
 import { useMutation } from 'react-query';
 import { axios } from '@/lib/axios';
-import { useAtom } from 'jotai';
-import { selectedRowAtom, userInputAtom } from '@/features/app-builder/atoms/tableContextAtoms';
+import { useAtom, useSetAtom } from 'jotai';
+import {
+	selectedRowAtom,
+	userInputAtom,
+	runResultAtom,
+} from '@/features/app-builder/atoms/tableContextAtoms';
 
 const runTask = async ({
 	appId,
@@ -38,7 +42,12 @@ const runTask = async ({
 };
 
 export const useRunTask = () => {
-	return useMutation(runTask);
+	const updateRunResult = useSetAtom(runResultAtom);
+	return useMutation(runTask, {
+		onSuccess: (data) => {
+			updateRunResult(data);
+		},
+	});
 };
 
 export const CustomInput = (props: any) => {
