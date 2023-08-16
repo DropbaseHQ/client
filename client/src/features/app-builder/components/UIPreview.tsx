@@ -22,7 +22,7 @@ export const UIPreview = ({
 	refetch: () => void;
 	isLoading: any;
 }) => {
-	const [formData, setFormData] = useState([]);
+	const [, setFormData] = useState([]);
 	const methods = useForm({
 		shouldUnregister: true,
 	});

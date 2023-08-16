@@ -2,17 +2,14 @@ import { useParams } from 'react-router-dom';
 import { Center, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useAtom } from 'jotai';
-import { selectedRowAtom } from '@/features/app-builder/atoms/tableContextAtoms';
-import '@glideapps/glide-data-grid/dist/index.css';
-
 import DataEditor, {
 	CompactSelection,
-	EditableGridCell,
-	GridCell,
 	GridCellKind,
 	GridColumnIcon,
-	Item,
 } from '@glideapps/glide-data-grid';
+import '@glideapps/glide-data-grid/dist/index.css';
+
+import { selectedRowAtom } from '@/features/app-builder/atoms/tableContextAtoms';
 
 import { useTableData } from '../hooks/useTableData';
 
@@ -24,10 +21,11 @@ export const Table = () => {
 		columns: CompactSelection.empty(),
 	});
 	const [, setSelectedRow] = useAtom(selectedRowAtom);
-	const handleSetSelection = (selection: any) => {
-		const currentRow = selection.current.cell[1];
+
+	const handleSetSelection = (newSelection: any) => {
+		const currentRow = newSelection.current.cell[1];
 		setSelectedRow(rows[currentRow]);
-		setSelection(selection);
+		setSelection(newSelection);
 	};
 
 	if (isLoading) {
@@ -62,7 +60,7 @@ export const Table = () => {
 		};
 	});
 
-	const getCellContent = ([col, row]: Item): GridCell => {
+	const getCellContent = ([col, row]: any) => {
 		const currentRow = rows[row];
 		const column = displayColumns[col];
 
@@ -97,7 +95,7 @@ export const Table = () => {
 		};
 	};
 
-	const onCellEdited = (cell: Item, newValue: EditableGridCell) => {
+	const onCellEdited = (cell: any, newValue: any) => {
 		const [col, row] = cell;
 		const currentRow = rows[row];
 		const column = columns[col];
