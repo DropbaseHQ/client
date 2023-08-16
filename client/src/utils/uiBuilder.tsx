@@ -11,6 +11,35 @@ import {
 	Select,
 	Input as ChakraInput,
 } from '@chakra-ui/react';
+import { useParams } from 'react-router';
+import { useMutation } from 'react-query';
+import { axios } from '@/lib/axios';
+import { useAtom } from 'jotai';
+import { selectedRowAtom } from '@/features/app-builder/atoms/tableContextAtoms';
+
+const runTask = async ({
+	appId,
+	userInput,
+	row,
+	action,
+}: {
+	appId: string;
+	userInput: any;
+	row: any;
+	action: any;
+}) => {
+	const { data } = await axios.post('/task', {
+		app_id: appId,
+		user_input: userInput,
+		row,
+		action,
+	});
+	return data;
+};
+
+export const useRunTask = () => {
+	return useMutation(runTask);
+};
 
 export const CustomInput = (props: any) => {
 	const { name, type, options, depends, depends_value } = props;
@@ -104,9 +133,17 @@ export const CustomInput = (props: any) => {
 
 export const CustomButton = (props: any) => {
 	const { label, action, post_action, doActions, getValues, getData } = props;
+	const runTask = useRunTask();
+	const { appId } = useParams();
+	const [selectedRow] = useAtom(selectedRowAtom);
 	const handleAction = async () => {
 		try {
-			await doActions(action, getValues());
+			await runTask.mutateAsync({
+				appId: appId || '',
+				userInput: { name: 'asdf', age: 1 },
+				row: formatRowForAction(selectedRow),
+				action,
+			});
 			// reset(resetFields);
 			if (post_action) {
 				console.log(`Performing post action: ${post_action}`);
@@ -122,4 +159,22 @@ export const CustomButton = (props: any) => {
 			{label}
 		</Button>
 	);
+};
+
+const formatRowForAction = (rows: any) => {
+	const transformedObject = {};
+	console.log('rows', rows);
+	for (const key in rows) {
+		const { folder, table, value } = rows[key];
+		/* eslint-disable */
+		if (!transformedObject[folder as keyof typeof transformedObject]) {
+			transformedObject[folder] = {};
+		}
+		if (!transformedObject[folder][table]) {
+			transformedObject[folder][table] = {};
+		}
+		transformedObject[folder][table][key.split('-')[1]] = value;
+	}
+	/* eslint-enable */
+	return transformedObject;
 };

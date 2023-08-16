@@ -55,7 +55,11 @@ export const useTableData = (appId: string = '') => {
 					return r.reduce((agg, item, index) => {
 						return {
 							...agg,
-							[response.header[index].column]: item,
+							[`${response.header[index].table}-${response.header[index].column}`]: {
+								value: item,
+								table: response.header[index].table,
+								folder: response.header[index].schema,
+							},
 						};
 					}, {});
 				}),
