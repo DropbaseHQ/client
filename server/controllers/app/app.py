@@ -34,9 +34,10 @@ def get_app_details(db: Session, app_id: str):
     app = crud.app.get_object_by_id_or_404(db, id=app_id)
     app_sql = crud.sqls.get_app_sqls(db, app_id=app_id)
     app_functions = crud.functions.get_app_functions(db, app_id=app_id)
+    app_components = crud.components.get_app_component(db, app_id=app_id)
     organized_functions = {
         "fetchers": [],
-        "ui_components": [],
+        "ui_components": [app_components],
     }
     for function in app_functions:
         if function.type == "ui":
