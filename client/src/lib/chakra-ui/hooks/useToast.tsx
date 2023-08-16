@@ -6,7 +6,7 @@ import {
 	Circle,
 	useColorMode,
 } from '@chakra-ui/react';
-import { AlertCircle, CheckCircle, Info } from 'react-feather';
+import { AlertCircle, CheckCircle, Info, X } from 'react-feather';
 
 export const ToastContent = ({
 	icon,
@@ -121,7 +121,7 @@ export const useToast = () => {
 
 		return toast({
 			...toastProps(theme, isLightMode),
-			render: ({ onClose, id }) => {
+			render: ({ onClose }) => {
 				return (
 					<ToastContent
 						icon={renderIcon()}

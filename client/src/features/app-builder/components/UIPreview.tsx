@@ -22,7 +22,7 @@ export const UIPreview = ({
 	refetch: () => void;
 	isLoading: any;
 }) => {
-	const [formData, setFormData] = useState([]);
+	const [, setFormData] = useState([]);
 	const methods = useForm({
 		shouldUnregister: true,
 	});
@@ -46,6 +46,7 @@ export const UIPreview = ({
 				return <CustomButton key={props.name} {...props} setFormData={setFormData} />;
 			}
 		});
+
 	useEffect(() => {
 		const componentList = components.map((obj: any) => Object.values(obj));
 		setFormData(componentList);
@@ -98,7 +99,7 @@ export const UIPanel = () => {
 			<PanelHandle direction="horizontal" />
 
 			<Panel maxSize={80}>
-				<Box bg="gray.50" p="6" h="full">
+				<Box bg="gray.50" p="4" h="full">
 					<UIPreview components={components} refetch={refetch} isLoading={isFetching} />
 				</Box>
 			</Panel>

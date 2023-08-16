@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 
 import { axios } from '@/lib/axios';
@@ -24,13 +25,28 @@ export const useGetApp = (appId: string) => {
 		enabled: Boolean(appId),
 	});
 
+	const appInfo: any = useMemo(() => {
+		if (response) {
+			return {
+				app: response?.app,
+				sql: response?.sql[0],
+				functions: response?.functions,
+				fetchers: response?.functions?.fetchers,
+				uiComponents: response?.functions?.ui_components,
+			};
+		}
+
+		return {
+			app: {},
+			sql: {},
+			fetchers: [],
+			uiComponents: [],
+		};
+	}, [response]);
+
 	return {
 		...rest,
-		app: response?.app,
-		sql: response?.sql[0],
-		functions: response?.functions,
-		fetchers: response?.functions?.fetchers || [],
-		uiComponents: response?.functions?.ui_components || [],
 		queryKey,
+		...appInfo,
 	};
 };

@@ -1,6 +1,6 @@
 /* eslint-disable  */
 import { useEffect, useState } from 'react';
-import { useForm, FormProvider, useFormContext } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import {
 	Box,
 	FormLabel,
@@ -13,19 +13,8 @@ import {
 } from '@chakra-ui/react';
 
 export const CustomInput = (props: any) => {
-	const {
-		name,
-		type,
-		options,
-		depends,
-		depends_value,
-		setFormData,
-		label,
-		action,
-		post_action,
-		resetFields,
-	} = props;
-	const { watch, register, getValues, reset } = useFormContext();
+	const { name, type, options, depends, depends_value } = props;
+	const { watch, register } = useFormContext();
 	const dependentValue = watch(depends);
 
 	const [loading, setLoading] = useState(false);
@@ -48,19 +37,6 @@ export const CustomInput = (props: any) => {
 			// 	});
 			// });
 			setLoading(false);
-		}
-	};
-
-	const handleAction = async () => {
-		try {
-			// await doActions(action, getValues());
-			// reset(resetFields);
-			// if (post_action) {
-			// 	console.log(`Performing post action: ${post_action}`);
-			// 	await getData(post_action);
-			// }
-		} catch (e) {
-			//
 		}
 	};
 
@@ -89,7 +65,7 @@ export const CustomInput = (props: any) => {
 						<FormLabel htmlFor={name}>{name}</FormLabel>
 						<Select id={name} placeholder={name} {...register(name)}>
 							<option>Select {name}</option>
-							{options?.map((o) => <option key={o}>{o}</option>)}
+							{options?.map((o: any) => <option key={o}>{o}</option>)}
 						</Select>
 					</FormControl>
 				</Box>
@@ -127,7 +103,7 @@ export const CustomInput = (props: any) => {
 };
 
 export const CustomButton = (props: any) => {
-	const { label, action, post_action, resetFields, doActions, getValues, getData } = props;
+	const { label, action, post_action, doActions, getValues, getData } = props;
 	const handleAction = async () => {
 		try {
 			await doActions(action, getValues());

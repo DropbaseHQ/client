@@ -1,10 +1,13 @@
 import { useEffect } from 'react';
 import { Box, Button, Stack } from '@chakra-ui/react';
-import { fetchersAtom } from '../atoms/tableContextAtoms';
+import { useParams } from 'react-router-dom';
 import { useAtom } from 'jotai';
+
+import { fetchersAtom } from '../atoms/tableContextAtoms';
+
 import { usePythonEditor } from '@/components/Editor';
 import { useGetApp } from '@/features/app/hooks';
-import { useParams } from 'react-router-dom';
+
 export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; setCode: any }) => {
 	const editorRef = usePythonEditor({
 		filepath: `fetchers/${id}.py`,
@@ -23,16 +26,17 @@ export const Fetchers = () => {
 	const [fetchers, setFetchers] = useAtom(fetchersAtom);
 	const { appId } = useParams();
 	const { fetchers: savedFetchers } = useGetApp(appId || '');
+
 	useEffect(() => {
-		if (savedFetchers) {
+		if (savedFetchers && savedFetchers.length > 0) {
 			const formattedFetchers = savedFetchers.reduce((acc: any, curr: any) => {
 				acc[curr.id] = curr.code;
 				return acc;
 			}, {});
-			console.log('formattedFetchers', formattedFetchers);
+
 			setFetchers(formattedFetchers);
 		}
-	}, [savedFetchers]);
+	}, [savedFetchers, setFetchers]);
 
 	const createNewFetcher = () => {
 		// let rand_str = (Math.random() + 1).toString(36).substring(7);

@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from 'react-query';
+import { useMutation } from 'react-query';
 import { axios } from '@/lib/axios';
 
 const createAppFunction = async ({
@@ -23,7 +23,6 @@ const updateAppFunction = async ({
 	functionId: string;
 	type: string;
 }) => {
-
 	const response = await axios.put(`/functions/${functionId}`, { code, type });
 	return response.data;
 };
