@@ -6,6 +6,7 @@
 *.ipynb
 *.env
 *.env.*
+!vars.env
 
 # client
 client/.DS_Store

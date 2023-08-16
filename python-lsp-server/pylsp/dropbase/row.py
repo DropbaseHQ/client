@@ -1,4 +1,3 @@
-import os
 row_data = {
     "public": {
         "customer": [
@@ -9,11 +8,9 @@ row_data = {
             {
                 "name": "age",
                 "type": "int",
-            }
+            },
         ],
-
-        "products":
-        [
+        "products": [
             {
                 "name": "name",
                 "type": "str",
@@ -21,8 +18,8 @@ row_data = {
             {
                 "name": "price",
                 "type": "float",
-            }
-        ]
+            },
+        ],
     },
     "stripe": {
         "customer": [
@@ -33,9 +30,9 @@ row_data = {
             {
                 "name": "age",
                 "type": "int",
-            }
+            },
         ],
-    }
+    },
 }
 
 
@@ -54,17 +51,14 @@ def compose_classes_from_row_data(row_data: dict):
             cls_str = "@dataclass\n"
             cls_str += f"class {table_name}:\n"
             for val in column:
-                cls_str += (f"    {val['name']}: {val['type']}\n")
+                cls_str += f"    {val['name']}: {val['type']}\n"
             all_cls += cls_str + "\n"
-            schema_cls_str += (f"    {table}: {table_name}\n")
+            schema_cls_str += f"    {table}: {table_name}\n"
         all_cls += schema_cls_str + "\n"
-        row_cls_str += (f"    {schema}: {schema_name}\n")
+        row_cls_str += f"    {schema}: {schema_name}\n"
     all_cls += row_cls_str
     return all_cls
 
 
-# all_classes_str = compose_classes_from_row_data(row_data)
-
-
-generate = [("dropbase/input.py", lambda: compose_classes_from_row_data(row_data))]
-
+def generate(_):
+    return compose_classes_from_row_data(row_data)

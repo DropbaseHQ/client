@@ -141,7 +141,9 @@ export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
 		if (ref.current) {
 			createEditor();
 		}
+	}, [ref, filepath]);
 
+	useEffect(() => {
 		return () => {
 			if (editorInstanceRef.current) {
 				editorInstanceRef.current?.dispose();
@@ -149,7 +151,7 @@ export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
 				setEditorReady(false);
 			}
 		};
-	}, [ref, filepath]);
+	}, []);
 
 	useEffect(() => {
 		if (isEditorReady && editorInstanceRef.current && onChangeRef.current) {

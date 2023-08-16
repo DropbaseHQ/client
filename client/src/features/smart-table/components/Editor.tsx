@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { CheckCircle, Play } from 'react-feather';
 import { useParams } from 'react-router-dom';
 
-import { useSQLCompletion } from '@/components/editor';
+import { useSQLCompletion } from '@/components/Editor';
 import { useGetApp } from '@/features/app/hooks';
 import { useSchema } from '@/features/smart-table/hooks/useSchema';
 import { useCreateSql } from '../hooks/useCreateSql';

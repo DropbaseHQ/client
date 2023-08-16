@@ -49,4 +49,16 @@ def get_db_schema(engine) -> AppSchema:
 def get_app_details(db: Session, app_id: str):
     app = crud.app.get_object_by_id_or_404(db, id=app_id)
     app_sql = crud.sqls.get_app_sqls(db, app_id=app_id)
-    return {"app": app, "sql": app_sql}
+    app_functions = crud.functions.get_app_functions(db, app_id=app_id)
+    app_components = crud.components.get_app_component(db, app_id=app_id)
+    organized_functions = {
+        "fetchers": [],
+        "ui_components": [app_components],
+    }
+    for function in app_functions:
+        if function.type == "ui":
+            organized_functions["ui_components"].append(function)
+        else:
+            organized_functions["fetchers"].append(function)
+
+    return {"app": app, "sql": app_sql, "functions": organized_functions}

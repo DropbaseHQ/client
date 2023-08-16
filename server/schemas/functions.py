@@ -8,6 +8,7 @@ from pydantic import BaseModel
 class BaseFunctions(BaseModel):
     code: str
     app_id: UUID
+    type: str
 
 
 class ReadFunctions(BaseFunctions):
@@ -22,3 +23,4 @@ class CreateFunctions(BaseFunctions):
 class UpdateFunctions(BaseModel):
     code: Optional[str]
     app_id: Optional[UUID]
+    type: Optional[str]

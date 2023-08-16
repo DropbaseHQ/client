@@ -37,6 +37,7 @@ app.include_router(endpoints.sqls_router)
 app.include_router(endpoints.functions_router)
 app.include_router(endpoints.components_router)
 app.include_router(endpoints.table_router)
+app.include_router(endpoints.task_router)
 
 
 @app.get("/")

@@ -7,5 +7,6 @@ from .sqls import router as sqls_router
 
 # temp
 from .table import router as table_router
+from .task import router as task_router
 from .user import router as user_router
 from .workspace import router as workspace_router
