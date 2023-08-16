@@ -3,7 +3,10 @@ import { PROPERTIES } from './constants';
 
 const { CompletionItemKind } = monacoLib.languages;
 type CompletionSuggestion = Omit<monacoLib.languages.CompletionItem, 'range'>;
-export type CompletionData = Record<string, Record<string, string[]>>;
+export interface CompletionData {
+	schema: Record<string, Record<string, string[]>>;
+	metadata: Record<string, string>;
+}
 
 const SQL_KEYWORDS = ['select', 'from', 'with', 'as'];
 
@@ -11,10 +14,8 @@ const countChars = (str: string, char: string) => {
 	return str.split(char).length - 1;
 };
 
-const completePhrase = (
-	lineUpToCursor: string,
-	completionData: CompletionData,
-): CompletionSuggestion[] => {
+const completePhrase = (lineUpToCursor: string, data: CompletionData): CompletionSuggestion[] => {
+	const completionData = data.schema;
 	const [currentWord, prevWord, prevPrevWord] = lineUpToCursor.split(' ').reverse(); // the last three words of the current line
 	const cleanedCurrentWord = currentWord.replace(/^("|\.)+|("|\.)+$/g, ''); // remove leading/trailing punctuation
 	const [curSchema, curTable] = cleanedCurrentWord.split('.'); // the current schema and table

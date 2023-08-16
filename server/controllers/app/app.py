@@ -32,6 +32,8 @@ def get_db_schema(engine) -> AppSchema:
     }
 
     for schema in schemas:
+        if schema == "information_schema":
+            continue
         tables = inspector.get_table_names(schema=schema)
         schema_tables: dict[str, list[str]] = {}
 

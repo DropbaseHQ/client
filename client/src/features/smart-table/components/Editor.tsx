@@ -21,7 +21,7 @@ export const Editor = () => {
 	const updateSqlMutation = useUpdateSql();
 	const [code, setCode] = useState(sql?.code);
 
-	useSQLCompletion(schema.schema as any);
+	useSQLCompletion(schema as any);
 
 	useEffect(() => {
 		setCode(sql?.code);

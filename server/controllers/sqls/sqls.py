@@ -133,7 +133,6 @@ def test_sql(db: Session, sql_string: str):
     # app = crud.app.get_object_by_id_or_404(db, id=app_id)
     # TODO: store schema in db
     schema = get_app_schema()
-    schema.pop("information_schema", None)
     engine = connect_to_user_db()
     try:
         with engine.connect() as conn:
