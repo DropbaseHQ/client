@@ -1,31 +1,45 @@
+from typing import TypedDict
+
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import Session
-from server.controllers.task.source_column_helper import connect_to_user_db
+
 from server import crud
+from server.controllers.task.source_column_helper import connect_to_user_db
 
 
-def get_app_schema():
+class AppSchema(TypedDict):
+    metadata: dict[str, str]
+    schema: dict[str, dict[str, list[str]]]
+
+
+def get_app_schema() -> AppSchema:
     # connection_str = f"postgresql+psycopg2://dropmail:dropmail@dropmail.cbwxplfobdd5.us-west-1.rds.amazonaws.com:5432/dropmail"
     # engine = create_engine(connection_str)
     engine = connect_to_user_db()
     return get_db_schema(engine)
 
 
-def get_db_schema(engine):
+def get_db_schema(engine) -> AppSchema:
     inspector = inspect(engine)
     schemas = inspector.get_schema_names()
+    default_search_path = inspector.default_schema_name
 
-    database_structure = {}
+    database_structure: AppSchema = {
+        "metadata": {
+            "default_schema": default_search_path,
+        },
+        "schema": {}
+    }
 
     for schema in schemas:
         tables = inspector.get_table_names(schema=schema)
-        schema_tables = {}
+        schema_tables: dict[str, list[str]] = {}
 
         for table_name in tables:
             columns = inspector.get_columns(table_name, schema=schema)
             column_names = [column["name"] for column in columns]
             schema_tables[table_name] = column_names
-        database_structure[schema] = schema_tables
+        database_structure["schema"][schema] = schema_tables
 
     return database_structure
 

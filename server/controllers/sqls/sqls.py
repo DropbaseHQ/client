@@ -17,9 +17,11 @@ def parse_object_alias(obj: str) -> tuple[str, list[str]]:
     try:
         schema, table, column, *props = obj.split(".")
     except ValueError:
-        raise ValueError(f"Object {obj} does not have a schema, table, or column.")
+        raise ValueError(
+            f"Object {obj} does not have a schema, table, or column.")
 
     return f"{schema}.{table}.{column}", props
+
 
 def expand_schema_tree(schema_dict: SchemaDict) -> set[str]:
     """
@@ -44,6 +46,7 @@ def get_missing_aliases(conn: Connection, query: str, schema_dict: SchemaDict) -
     returned_query_keys = res.keys()
 
     all_schema_cols = expand_schema_tree(schema_dict)
+    # TODO: make it work without aliases if no props
 
     bad_cols = [
         key
@@ -77,7 +80,9 @@ def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str]) -> li
                 )
             table_to_primary_key[table] = alias
             table_to_primary_alias[table] = ".".join([alias, *props])
-    
+
+    # key is required for each table because otherwise we don't know
+    # how to update the table
     for table in used_tables:
         if table not in table_to_primary_key:
             raise ValueError(
@@ -111,13 +116,14 @@ def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str]) -> li
 
     res = conn.execute(checker_query)
 
-    # check that all aliases in the result 
+    # check that all aliases in the result
     bad_cols = [
         key
         for key, value in res.fetchone().items()
-        if not value 
+        if not value
     ]
     return bad_cols
+
 
 def test_sql(db: Session, sql_string: str):
     """
@@ -133,11 +139,13 @@ def test_sql(db: Session, sql_string: str):
         with engine.connect() as conn:
             bad_cols, good_cols = get_missing_aliases(conn, sql_string, schema)
             if bad_cols:
-                raise ValueError(f"Query has unknown columns: {', '.join(bad_cols)}")
-            
+                raise ValueError(
+                    f"Query has unknown columns: {', '.join(bad_cols)}")
+
             bad_cols = get_bad_aliases(conn, sql_string, good_cols)
             if bad_cols:
-                raise ValueError(f"Query has misnamed columns: {', '.join(bad_cols)}")
+                raise ValueError(
+                    f"Query has misnamed columns: {', '.join(bad_cols)}")
     except ValueError as err:
         return raise_http_exception(400, str(err))
     finally:
