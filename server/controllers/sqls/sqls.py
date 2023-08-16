@@ -18,7 +18,7 @@ def parse_object_alias(obj: str) -> tuple[str, list[str]]:
         schema, table, column, *props = obj.split(".")
     except ValueError:
         raise ValueError(
-            f"Object {obj} does not have a schema, table, or column.")
+            f"Object {obj} is missing a schema, table, and/or column. Is an alias missing?")
 
     return f"{schema}.{table}.{column}", props
 
@@ -38,7 +38,7 @@ def expand_schema_tree(schema_dict: SchemaDict) -> set[str]:
 def get_missing_aliases(conn: Connection, query: str, schema_dict: SchemaDict) -> tuple[list[str], list[str]]:
     """
     Returns a tuple of:
-    - a list of aliases that are not in the schema
+    - a list of aliases that are not in the schema by their fully qualified names
     - all aliases used in the query
     """
     open_query = query.rstrip(";\n ")
@@ -46,7 +46,6 @@ def get_missing_aliases(conn: Connection, query: str, schema_dict: SchemaDict) -
     returned_query_keys = res.keys()
 
     all_schema_cols = expand_schema_tree(schema_dict)
-    # TODO: make it work without aliases if no props
 
     bad_cols = [
         key
@@ -91,11 +90,13 @@ def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str]) -> li
 
     # get q."public.customers.id" = public.customers.id
     alias_comparisons = [
-        f'MAX( CASE WHEN q."{".".join([alias, *props])}" = {alias} THEN 1 ELSE 0 END) AS "{alias}"' for alias, props in parsed_aliases
+        f'MAX( CASE WHEN q."{".".join([alias, *props])}" = {alias} THEN 1 ELSE 0 END) AS "{alias}"'
+        for alias, props in parsed_aliases
     ]
 
     joins = [
-        f'JOIN {table} ON q."{table_to_primary_alias[table]}" = {table_to_primary_key[table]}' for table in used_tables
+        f'JOIN {table} ON q."{table_to_primary_alias[table]}" = {table_to_primary_key[table]}'
+        for table in used_tables
     ]
 
     # fancy joins here
