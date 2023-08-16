@@ -7,5 +7,3 @@ export const selectedRowAtom = atom({});
 export const fetchersAtom = atom<any>({});
 
 export const uiCodeAtom = atom('');
-
-export const runResultAtom = atom('');

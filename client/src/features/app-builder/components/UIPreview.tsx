@@ -1,7 +1,7 @@
 /* eslint-disable  */
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'react-feather';
-import { Box, IconButton, Textarea } from '@chakra-ui/react';
+import { Box, IconButton } from '@chakra-ui/react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
 import { CustomInput, CustomButton } from '@/utils/uiBuilder';
@@ -11,7 +11,7 @@ import { useParams } from 'react-router-dom';
 import { UIEditor } from './UIEditor';
 import { useGetApp } from '@/features/app/hooks';
 import { useSetAtom, useAtom } from 'jotai';
-import { userInputAtom, uiCodeAtom, runResultAtom } from '../atoms/tableContextAtoms';
+import { userInputAtom, uiCodeAtom } from '../atoms/tableContextAtoms';
 
 export const UIPreview = ({
 	components,
@@ -53,25 +53,21 @@ export const UIPreview = ({
 	}, [components, setFormData]);
 
 	return (
-		<>
-			<Box>
-				<Box p="0" w="full">
-					<Box w="full" display="flex" justifyContent="space-between">
-						UI Preview
-						<IconButton
-							aria-label="Refresh UI"
-							size="xs"
-							icon={<RefreshCw size="16" />}
-							variant="outline"
-							isLoading={isLoading}
-							onClick={onRefreshUI}
-						/>
-					</Box>
-
-					<FormProvider {...methods}>{sortUI(components)}</FormProvider>
-				</Box>
+		<Box p="0" w="full">
+			<Box w="full" display="flex" justifyContent="space-between">
+				UI Preview
+				<IconButton
+					aria-label="Refresh UI"
+					size="xs"
+					icon={<RefreshCw size="16" />}
+					variant="outline"
+					isLoading={isLoading}
+					onClick={onRefreshUI}
+				/>
 			</Box>
-		</>
+
+			<FormProvider {...methods}>{sortUI(components)}</FormProvider>
+		</Box>
 	);
 };
 
@@ -79,7 +75,6 @@ export const UIPanel = () => {
 	const [uiCode, setUiCode] = useAtom(uiCodeAtom);
 	const { appId } = useParams();
 	const { uiComponents } = useGetApp(appId || '');
-	const [runResult] = useAtom(runResultAtom);
 
 	useEffect(() => {
 		if (uiComponents?.[0]) {
@@ -106,17 +101,6 @@ export const UIPanel = () => {
 			<Panel maxSize={80}>
 				<Box bg="gray.50" p="4" h="full">
 					<UIPreview components={components} refetch={refetch} isLoading={isFetching} />
-				</Box>
-			</Panel>
-			<PanelHandle direction="horizontal" />
-
-			<Panel defaultSize={10}>
-				<Box bg="gray.50" p="4" h="full">
-					Console
-					<Textarea
-						value={runResult}
-						placeholder="Will display the result of your action function"
-					/>
 				</Box>
 			</Panel>
 		</PanelGroup>
