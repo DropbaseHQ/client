@@ -3,7 +3,7 @@ import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { PanelHandle } from '@/components/Panel';
 import { Table } from '@/features/smart-table/components/Table';
-import { UIPreview } from '@/features/app-builder/components/UIPreview';
+// import { UIPreview } from '@/features/app-builder/components/UIPreview';
 
 export const AppPreview = () => {
 	return (
