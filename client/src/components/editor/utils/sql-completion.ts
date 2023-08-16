@@ -92,7 +92,6 @@ const completePhrase = (lineUpToCursor: string, data: CompletionData): Completio
 		});
 	});
 
-	// strip leading/trailing punctuation
 	if (curTable) {
 		completionData[curSchema][curTable].forEach((col) => {
 			if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord === col) {
