@@ -13,18 +13,16 @@ import { useGetApp } from '@/features/app/hooks';
 import { useSetAtom, useAtom } from 'jotai';
 import { userInputAtom, uiCodeAtom, runResultAtom } from '../atoms/tableContextAtoms';
 
-export const UIPreview = ({
-	components,
-	refetch,
-	isLoading,
-}: {
-	components: any;
-	refetch: () => void;
-	isLoading: any;
-}) => {
-	const [, setFormData] = useState([]);
+export const UIPreview = () => {
+	// const [, setFormData] = useState([]);
 	const methods = useForm({
 		shouldUnregister: true,
+	});
+	const { appId } = useParams();
+	const [uiCode] = useAtom(uiCodeAtom);
+	const { components, refetch, isFetching } = useGetUIJson({
+		app_id: appId || '',
+		code: uiCode || '',
 	});
 	const updateUserInput = useSetAtom(userInputAtom);
 	const onRefreshUI = () => {
@@ -40,17 +38,17 @@ export const UIPreview = ({
 			const UIType = Object.keys(c)[0];
 			const props = c[UIType];
 			if (UIType === 'UIInput') {
-				return <CustomInput key={props.name} {...props} setFormData={setFormData} />;
+				return <CustomInput key={props.name} {...props} />;
 			}
 			if (UIType === 'UIButton') {
-				return <CustomButton key={props.name} {...props} setFormData={setFormData} />;
+				return <CustomButton key={props.name} {...props} />;
 			}
 		});
 
-	useEffect(() => {
-		const componentList = components.map((obj: any) => Object.values(obj));
-		setFormData(componentList);
-	}, [components, setFormData]);
+	// useEffect(() => {
+	// 	const componentList = components.map((obj: any) => Object.values(obj));
+	// 	setFormData(componentList);
+	// }, [components, setFormData]);
 
 	return (
 		<>
@@ -63,7 +61,7 @@ export const UIPreview = ({
 							size="xs"
 							icon={<RefreshCw size="16" />}
 							variant="outline"
-							isLoading={isLoading}
+							isLoading={isFetching}
 							onClick={onRefreshUI}
 						/>
 					</Box>
@@ -76,7 +74,7 @@ export const UIPreview = ({
 };
 
 export const UIPanel = () => {
-	const [uiCode, setUiCode] = useAtom(uiCodeAtom);
+	const setUiCode = useSetAtom(uiCodeAtom);
 	const { appId } = useParams();
 	const { uiComponents } = useGetApp(appId || '');
 	const [runResult] = useAtom(runResultAtom);
@@ -90,11 +88,6 @@ export const UIPanel = () => {
 		}
 	}, [uiComponents]);
 
-	const { components, refetch, isFetching } = useGetUIJson({
-		app_id: appId || '',
-		code: uiCode || '',
-	});
-
 	return (
 		<PanelGroup direction="vertical">
 			<Panel defaultSize={50}>
@@ -105,7 +98,7 @@ export const UIPanel = () => {
 
 			<Panel maxSize={80}>
 				<Box bg="gray.50" p="4" h="full">
-					<UIPreview components={components} refetch={refetch} isLoading={isFetching} />
+					<UIPreview />
 				</Box>
 			</Panel>
 			<PanelHandle direction="horizontal" />
