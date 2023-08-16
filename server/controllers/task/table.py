@@ -28,6 +28,18 @@ def get_table_data(db: Session, app_id: UUID):
     return {"header": parsed_column_names, "data": data, "schema": schema}
 
 
+type_mapping = {
+    "text": str,
+    "integer": int,
+    "float": float,
+    "boolean": bool,
+    "list": list,
+    "dictionary": dict,
+    "tuple": tuple,
+    "set": set,
+}
+
+
 def compose_classes_from_row_data(row_data: dict):
     all_cls = "from dataclasses import dataclass\n"
     row_cls_str = "@dataclass\n"
@@ -43,7 +55,7 @@ def compose_classes_from_row_data(row_data: dict):
             cls_str = "@dataclass\n"
             cls_str += f"class {table_name}:\n"
             for column, val in column.items():
-                cls_str += f"    {val['name']}: {val['type']}\n"
+                cls_str += f"    {val['name']}: {type_mapping.get(val['type']).__name__}\n"
             all_cls += cls_str + "\n"
             schema_cls_str += f"    {table}: {table_name}\n"
         all_cls += schema_cls_str + "\n"
