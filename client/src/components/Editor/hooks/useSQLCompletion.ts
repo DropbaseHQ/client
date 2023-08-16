@@ -6,6 +6,8 @@ import { MONARCH_TOKENIZER } from '../utils/constants';
 
 import { CompletionData, provideCompletionItems } from '../utils/sql-completion';
 
+
+// trigger rebuild
 export const useSQLCompletion = (completionData: CompletionData) => {
 	const monaco = useMonaco();
 
