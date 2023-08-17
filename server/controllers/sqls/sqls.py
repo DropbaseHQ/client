@@ -115,48 +115,94 @@ def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str], schem
             table_to_primary_key[table] = name
             table_to_primary_alias[table] = ".".join([name, *props])
 
-    # get q."public.customers.id" = public.customers.id
-    alias_comparisons = [
-        f'MAX( CASE WHEN q."{".".join([alias, *props])}" = {alias} THEN 1 ELSE 0 END) AS "{alias}"'
-        for alias, props in parsed_aliases
-    ]
-
-    joins = [
-        f'JOIN {table} ON q."{table_to_primary_alias[table]}" = {table_to_primary_key[table]}'
-        for table in used_tables
-    ]
-
-    # fancy joins here
-    # backslashes are not allowed in f-strings
     alias_separator = ",\n"
     newline = "\n"
     open_query = query.rstrip(";\n ")
-    # TODO: add limit to open query
-    checker_query = f"""
-    SELECT
-        {alias_separator.join(alias_comparisons)}
-    FROM (
-        {open_query}
-    ) AS q
-    {newline.join(joins)}
-    LIMIT 100;
-    """
+    if all(table in table_to_primary_key for table in used_tables):
+        # this way is significantly more performant
+        # get q."public.customers.id" = public.customers.id
+        alias_comparisons = [
+            f'MAX( CASE WHEN q."{".".join([alias, *props])}" = {alias} THEN 1 ELSE 0 END) AS "{alias}"'
+            for alias, props in parsed_aliases
+        ]
 
-    res = conn.execute(checker_query)
+        subqueries = [
+            f'JOIN {table} ON q."{table_to_primary_alias[table]}" = {table_to_primary_key[table]}'
+            for table in used_tables
+        ]
+        checker_query = f"""
+        SELECT
+            {alias_separator.join(alias_comparisons)}
+        FROM (
+            {open_query}
+        ) AS q
+        {newline.join(subqueries)}
+        LIMIT 100;
+        """
 
-    # check that all aliases in the result
-    bad_cols = [
-        key
-        for key, value in res.fetchone().items()
-        if not value
-    ]
+        res = conn.execute(checker_query)
+
+        # check that all aliases in the result
+        bad_cols = [
+            key
+            for key, value in res.fetchone().items()
+            if not value
+        ]
+    else:
+        # for each table, if there is a primary key, join on that
+        # otherwise, take the first column you see and join on that
+        subqueries = []
+        for table in used_tables:
+            if table in table_to_primary_key:
+                subqueries.append(
+                    f"""
+                    (SELECT COUNT(*) FROM q
+                    INNER JOIN {table} ON q."{table_to_primary_alias[table]}" = {table_to_primary_key[table]})
+                    AS {table_to_primary_alias[table]}
+                    """
+                )
+            else:
+                # find the first column in the table from used_aliases
+                for alias, props in parsed_aliases:
+                    if alias.startswith(f"{table}."):
+                        target_name = alias
+                        target_alias = ".".join(
+                            [alias, *props]
+                        )
+                        break
+
+                subqueries.append(
+                    f"""
+                    (SELECT COUNT(*) FROM q
+                    INNER JOIN {table} ON q."{target_alias}" = {target_name}) AS {target_alias}
+                    """
+                )
+        subqueries.append('SELECT COUNT(*) FROM q AS "total"')
+        checker_query = f"""
+        WITH q AS (
+            {open_query}
+        )
+        SELECT
+            {alias_separator.join(subqueries)}
+        LIMIT 100;
+        """
+
+        res = conn.execute(checker_query)
+        row = res.fetchone()
+        total = row["total"]
+        bad_cols = [
+            key
+            for key, value in row.items()
+            if key != "total" and value != total
+        ]
+
     return bad_cols
 
 
 def test_sql(db: Session, sql_string: str):
     """
     Tests if a SQL query is valid for the given app.
-    :raises ValueError if the query is invalid.
+    : raises ValueError if the query is invalid.
     """
     # app = crud.app.get_object_by_id_or_404(db, id=app_id)
     # TODO: store schema in db
