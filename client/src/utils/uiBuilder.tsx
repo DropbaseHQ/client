@@ -152,7 +152,7 @@ export const CustomButton = (props: any) => {
 			await runTask.mutateAsync({
 				appId: appId || '',
 				userInput: userInput,
-				row: formatRowForAction(selectedRow),
+				row: selectedRow,
 				action,
 			});
 			// reset(resetFields);
@@ -170,21 +170,4 @@ export const CustomButton = (props: any) => {
 			{label}
 		</Button>
 	);
-};
-
-const formatRowForAction = (rows: any) => {
-	const transformedObject: any = {};
-	for (const key in rows) {
-		const { folder, table, value } = rows[key];
-		/* eslint-disable */
-		if (!transformedObject[folder as keyof typeof transformedObject]) {
-			transformedObject[folder] = {};
-		}
-		if (!transformedObject[folder][table]) {
-			transformedObject[folder][table] = {};
-		}
-		transformedObject[folder][table][key.split('-')[1]] = value;
-	}
-	/* eslint-enable */
-	return transformedObject;
 };
