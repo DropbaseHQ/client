@@ -1,56 +1,66 @@
 import os
 from abc import ABC
-from typing import Any, Callable, List, Tuple
+from typing import Callable, Generic, List, Type, TypeVar
 
 from pydantic import BaseModel
+from pylsp.workspace import Document, Workspace
 
-from .row import generate as generate_row_code
-from .userinput import generate as generate_userinput
+T = TypeVar("T", Workspace, Document)
 
 
-class GeneratedFile(BaseModel):
+class GeneratedFile(ABC, BaseModel, Generic[T]):
     # Relative path to write to
     path: str
     # A None return value should not be written
-    content_fn: Callable[[Any], str | None]
+    content_fn: Callable[[T], str | None]
 
-    def write(self, basepath: str, content_fn_args: Tuple = (None,)):
+    # Writes the content of the content_fn to the given file path (content is overwritten)
+    def write(self, basepath: str, resource: T):
         file = os.path.join(basepath, self.path)
         os.makedirs(os.path.dirname(file), exist_ok=True)
 
-        content = self.content_fn(*content_fn_args)
+        content = self.content_fn(resource)
         if content is None:
             return
 
         fd = os.open(file, os.O_WRONLY | os.O_CREAT)
-        os.write(fd, content.encode("utf-8"))
+        n = os.pwrite(fd, content.encode("utf-8"), 0)
+        os.truncate(fd, n)
 
 
-class GenerateHandler(ABC, BaseModel):
-    files: List[GeneratedFile]
+class GenerateHandler(ABC, BaseModel, Generic[T]):
+    # Receives the triggering resource and returns whether to generate any files or not
+    # Used for conditional file generation
+    match_fn: Callable[[T], bool] = lambda _: True
+    # The files to generate
+    files: List[GeneratedFile[T]]
 
 
 # On workspace create
-class WorkspaceCreateHandler(GenerateHandler):
+class WorkspaceCreateHandler(GenerateHandler[Workspace]):
     pass
 
 
 # On document create
-# class DocumentCreateHandler(GenerateHandler):
-#     pass
+class DocumentCreateHandler(GenerateHandler[Document]):
+    pass
 
 
 # On document content change
-class DocumentChangeHandler(GenerateHandler):
-    trigger_paths: List[str]
+class DocumentChangeHandler(GenerateHandler[Document]):
+    pass
 
 
-generate: List[GenerateHandler] = [
-    WorkspaceCreateHandler(files=[GeneratedFile(path="dropbase/row.py", content_fn=generate_row_code)]),
-    DocumentChangeHandler(
-        trigger_paths=["uiComponent.py"],
-        files=[
-            GeneratedFile(path="dropbase/input.py", content_fn=lambda code: generate_userinput(code))
-        ],
-    ),
-]
+# Filters the generate list and handles the appropriate generate event handlers
+def handleGenerateEvent(
+    event_list: List[GenerateHandler], event_handler: Type[GenerateHandler], resource, basepath: str
+):
+    for handler in event_list:
+        if not isinstance(handler, event_handler):
+            continue
+
+        if not handler.match_fn(resource):
+            continue
+
+        for generate_file in handler.files:
+            generate_file.write(basepath, resource)
