@@ -9,7 +9,7 @@ from server.controllers.task.source_column_helper import connect_to_user_db
 
 class AppSchema(TypedDict):
     metadata: dict[str, str]
-    schema: dict[str, dict[str, list[str]]]
+    schema: dict[str, dict[str, dict[str, dict]]]
 
 
 def get_app_schema() -> AppSchema:
