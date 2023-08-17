@@ -24,6 +24,7 @@ class UIInput(UIComponent):
         style: Enum = None,
         number: int = None,
         depends_value: any = None,
+        rules: list[dict] = None,
     ):
         self.name = name
         self.type = type
@@ -39,6 +40,7 @@ class UIInput(UIComponent):
         self.style = style
         self.number = number
         self.depends_value = depends_value
+        self.rules = rules
 
 
 class UIText(UIComponent):
@@ -60,7 +62,15 @@ class UIText(UIComponent):
 
 class UIButton(UIComponent):
     def __init__(
-        self, name=None, label=None, role=None, width=None, action=None, depends=None, depends_value=None
+        self,
+        name=None,
+        label=None,
+        role=None,
+        width=None,
+        action=None,
+        depends=None,
+        depends_value=None,
+        rules: list[dict] = None,
     ):
         self.name = name
         self.label = label
@@ -70,6 +80,7 @@ class UIButton(UIComponent):
         self.depends = depends
         self.depends_value = depends_value
         self.type = "button"
+        self.rules: rules
 
     name: str
     label: str
