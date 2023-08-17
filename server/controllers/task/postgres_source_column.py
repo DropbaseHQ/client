@@ -1,16 +1,5 @@
 from sqlalchemy import engine, text
 
-from server.controllers.task.base_source_column import SourceColumn
-from server.controllers.task.source_column_helper import update_column_meta_with_filters
-
-
-def update_column_meta(column_model: SourceColumn):
-    if column_model.nullable is False and column_model.unique is True:
-        column_model.keylike = True
-    if column_model.primary_key:
-        column_model.keylike = True
-    return column_model
-
 
 def get_pg_column_model(user_db_engine: engine, schema: str, table: str):
     sql = f"""SELECT
@@ -83,22 +72,3 @@ def get_pg_column_model(user_db_engine: engine, schema: str, table: str):
     """
     with user_db_engine.connect().execution_options(autocommit=True) as conn:
         return conn.execute(text(sql)).all()
-
-
-def parse_postgres_column_model(
-    user_db_engine: engine, regrouped_schema: dict, schema: str, table: str, new_schema: dict
-):
-
-    table_columns = get_pg_column_model(user_db_engine, schema, table)
-    for column in table_columns:
-        if column.name in regrouped_schema[schema][table].keys():
-            # cast column to SourceColumn
-            source_column = SourceColumn.from_orm(column)
-            # first pass of cleaning up column meta
-            source_column = update_column_meta(source_column)
-            # apply filters if any
-            filters = regrouped_schema[schema][table][column.name]["filters"]
-            if len(filters) > 0:
-                source_column = update_column_meta_with_filters(source_column, filters)
-            new_schema[schema][table][column.name] = source_column.dict()
-    return new_schema
