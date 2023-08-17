@@ -177,8 +177,10 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
             if table in table_to_primary_key:
                 subqueries.append(
                     f"""
-                    (SELECT COUNT(*) FROM q
-                    INNER JOIN {table} ON q."{table_to_primary_alias[table]}" = {table_to_primary_key[table]})
+                    (SELECT COUNT(*) FROM (
+                        SELECT DISTINCT "{table_to_primary_alias[table]}" FROM q
+                    ) AS q2
+                    INNER JOIN {table} ON q2."{table_to_primary_alias[table]}" = {table_to_primary_key[table]})
                     AS "{table_to_primary_alias[table]}"
                     """
                 )
@@ -187,8 +189,10 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
 
                 subqueries.append(
                     f"""
-                    (SELECT COUNT(*) FROM q
-                    INNER JOIN {table} ON q."{response_name}" = {alias}) AS "{response_name}"
+                    (SELECT COUNT(*) FROM (
+                        SELECT DISTINCT "{response_name}" FROM q
+                    ) AS q2
+                    INNER JOIN {table} ON q2."{response_name}" = {alias}) AS "{response_name}"
                     """
                 )
         subqueries.append('(SELECT COUNT(*) FROM q) AS "total"')
@@ -212,6 +216,7 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
             print(err)
             raise TypeError(f"Query columns cannot be compared: {err}")
         total = row["total"]
+        print(row)
         bad_cols = [
             key
             for key, value in row.items()
