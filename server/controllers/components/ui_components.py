@@ -48,6 +48,7 @@ class UIText(UIComponent):
         self.value = value
         self.role = role
         self.style = style
+        self.type = "text"
 
     name: str
     label: str
@@ -68,6 +69,7 @@ class UIButton(UIComponent):
         self.action = action
         self.depends = depends
         self.depends_value = depends_value
+        self.type = "button"
 
     name: str
     label: str
