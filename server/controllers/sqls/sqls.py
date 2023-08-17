@@ -63,10 +63,14 @@ def get_missing_aliases(conn: Connection, query: str, schema_dict: SchemaDict) -
     - a list of aliases that are not in the schema by their fully qualified names
     - duplicate columns
     - all aliases used in the query
+    :raises ValueError if the query is invalid.
     """
     open_query = query.rstrip(";\n ")
-    res = conn.execute(f"SELECT * FROM ({open_query}) AS q LIMIT 1")
-    returned_query_keys = list(res.keys())
+    try:
+        res = conn.execute(f"SELECT * FROM ({open_query}) AS q LIMIT 1")
+        returned_query_keys = list(res.keys())
+    except ProgrammingError:
+        raise ValueError("Query is invalid.")
 
     all_schema_cols = expand_schema_tree(schema_dict)
 
