@@ -253,7 +253,7 @@ def test_sql(db: Session, sql_string: str):
                 )
             regrouped_schema, colnames = get_regrouped_schema(
                 qualified_good_cols)
-            parsed_schema = get_parsed_schema(conn, regrouped_schema)
+            parsed_schema, _ = get_parsed_schema(conn, regrouped_schema)
 
             try:
                 bad_cols = get_misnamed_aliases(
