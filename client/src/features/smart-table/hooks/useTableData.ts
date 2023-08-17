@@ -14,6 +14,7 @@ type TableData = {
 		column: string;
 	}[];
 	data: Row[];
+	sql_id: string;
 	schema: {
 		[folder: string]: {
 			[table: string]: {
@@ -47,25 +48,43 @@ export const useTableData = (appId: string = '') => {
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchTableData({ appId }));
 
-	const parsedData = useMemo(() => {
+	const parsedData: any = useMemo(() => {
 		if (response) {
+			const columns = response.header.map(({ schema: folder, column, table }) => {
+				return {
+					...(response.schema?.[folder]?.[table]?.[column] || {}),
+					folder,
+					column,
+					table,
+				};
+			});
+
+			const rows: any = response.data.map((r) => {
+				return r.reduce((agg, item, index) => {
+					return {
+						...agg,
+						[response.header[index].column]: item,
+					};
+				}, {});
+			});
+
 			return {
 				schema: response.schema,
-				rows: response.data.map((r) => {
-					return r.reduce((agg, item, index) => {
+				rows,
+				columns,
+				rowsWithSchema: response.data.map((r: any) => {
+					return response.header.reduce((agg: any, col, colIndex) => {
 						return {
 							...agg,
-							[response.header[index].column]: item,
+							[col.schema]: {
+								...(agg?.[col.schema] || {}),
+								[col.table]: {
+									...(agg?.[col.schema]?.[col.table] || {}),
+									[col.column]: r[colIndex],
+								},
+							},
 						};
 					}, {});
-				}),
-				columns: response.header.map(({ schema: folder, column, table }) => {
-					return {
-						...(response.schema?.[folder]?.[table]?.[column] || {}),
-						folder,
-						column,
-						table,
-					};
 				}),
 			};
 		}
@@ -80,6 +99,7 @@ export const useTableData = (appId: string = '') => {
 	return {
 		...rest,
 		...parsedData,
+		sqlId: response?.sql_id,
 		queryKey,
 	};
 };
