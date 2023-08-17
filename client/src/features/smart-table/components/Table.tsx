@@ -33,21 +33,24 @@ export const Table = () => {
 		setSelection(newSelection);
 
 		const selectedRow = newSelection.rows.toArray()?.[0];
-		setSelectedRow(
-			Object.keys(rows[selectedRow])?.reduce((agg: any, field: string) => {
-				const column: any = columnsAccessor?.[field];
 
-				return {
-					...agg,
-					[column.folder]: {
-						...(agg?.[column.folder] || {}),
-						[column.table]: {
-							...(agg[column.folder]?.[column.table] || {}),
-							[field]: rows[selectedRow][field],
-						},
-					},
-				};
-			}, {}),
+		setSelectedRow(
+			typeof selectedRow === 'number'
+				? Object.keys(rows[selectedRow])?.reduce((agg: any, field: string) => {
+						const column: any = columnsAccessor?.[field];
+
+						return {
+							...agg,
+							[column.folder]: {
+								...(agg?.[column.folder] || {}),
+								[column.table]: {
+									...(agg[column.folder]?.[column.table] || {}),
+									[field]: rows[selectedRow][field],
+								},
+							},
+						};
+				  }, {})
+				: {},
 		);
 	};
 

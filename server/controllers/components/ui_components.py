@@ -4,7 +4,7 @@ import json
 
 class UIComponent:
     def convert_to_json(self):
-        return json.dumps({self.__class__.__name__: vars(self)})
+        return json.dumps(vars(self))
 
 
 class UIInput(UIComponent):
@@ -48,12 +48,14 @@ class UIText(UIComponent):
         self.value = value
         self.role = role
         self.style = style
+        self.type = "text"
 
     name: str
     label: str
     value: callable
     role: list[str]
     style: str
+    type: str = "text"
 
 
 class UIButton(UIComponent):
@@ -67,6 +69,7 @@ class UIButton(UIComponent):
         self.action = action
         self.depends = depends
         self.depends_value = depends_value
+        self.type = "button"
 
     name: str
     label: str
@@ -75,3 +78,4 @@ class UIButton(UIComponent):
     action: callable
     depends: list[str]
     depends_value: any
+    type: str = "button"

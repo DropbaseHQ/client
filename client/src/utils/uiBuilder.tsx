@@ -63,8 +63,7 @@ export const CustomInput = (props: any) => {
 				<Box>
 					<FormControl>
 						<FormLabel htmlFor={name}>{name}</FormLabel>
-						<Select id={name} placeholder={name} {...register(name)}>
-							<option>Select {name}</option>
+						<Select id={name} placeholder={`Select ${name}`} {...register(name)}>
 							{options?.map((o: any) => <option key={o}>{o}</option>)}
 						</Select>
 					</FormControl>
