@@ -26,7 +26,7 @@ def get_table_data(db: Session, app_id: UUID):
     db.commit()
     data = [list(row) for row in res]
 
-    return {"header": parsed_column_names, "data": data, "schema": schema}
+    return {"header": parsed_column_names, "data": data, "schema": schema, "sql_id": sql[0].id}
 
 
 def compose_classes_from_row_data(row_data: dict):
