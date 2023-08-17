@@ -12,12 +12,12 @@ def regroup_edits(edits: List[CellEdit]):
     # group by table name
     regrouped = {}
     for edit in edits:
-        if edit.schema not in regrouped.keys():
-            regrouped[edit.schema] = {}
-        if edit.table not in regrouped[edit.schema].keys():
-            regrouped[edit.schema][edit.table] = {"from": {}, "to": {}}
-        regrouped[edit.schema][edit.table]["from"][edit.column] = edit.value
-        regrouped[edit.schema][edit.table]["to"][edit.column] = edit.new_value
+        if edit.schema_name not in regrouped.keys():
+            regrouped[edit.schema_name] = {}
+        if edit.table_name not in regrouped[edit.schema_name].keys():
+            regrouped[edit.schema_name][edit.table_name] = {"from": {}, "to": {}}
+        regrouped[edit.schema_name][edit.table_name]["from"][edit.column_name] = edit.value
+        regrouped[edit.schema_name][edit.table_name]["to"][edit.column_name] = edit.new_value
     return regrouped
 
 

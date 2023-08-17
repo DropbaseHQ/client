@@ -12,9 +12,9 @@ class RunTask(BaseModel):
 
 
 class CellEdit(BaseModel):
-    schema: str
-    table: str
-    column: str
+    schema_name: str
+    table_name: str
+    column_name: str
     value: Any
     new_value: Any
 
