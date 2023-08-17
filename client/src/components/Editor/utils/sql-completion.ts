@@ -92,6 +92,20 @@ const completePhrase = (lineUpToCursor: string, data: CompletionData): Completio
 		});
 	});
 
+	// do the same for the default schema
+	Object.keys(completionData[data.metadata.default_schema]).forEach((table) => {
+		completionData[data.metadata.default_schema][table].forEach((col) => {
+			if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord === col) {
+				suggestions.push({
+					label: `${table}.${col}`,
+					kind: CompletionItemKind.Property,
+					insertText: `${table}.${col}`,
+					detail: `schema: ${data.metadata.default_schema}`,
+				});
+			}
+		});
+	});
+
 	if (curTable) {
 		completionData[curSchema][curTable].forEach((col) => {
 			if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord === col) {
