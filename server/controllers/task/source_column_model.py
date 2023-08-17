@@ -116,6 +116,8 @@ def parse_postgres_column_model(
         if column.name in regrouped_schema[schema][table].keys():
             # cast column to SourceColumn
             source_column = SourceColumn.from_orm(column)
+            # add key
+            source_column.key_column = editable_column
             # set editable
             source_column.editable = True if editable_column else False
             # set keylike
