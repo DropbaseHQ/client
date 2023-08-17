@@ -19,6 +19,7 @@ class SourceColumn(BaseModel):
     # table display specific
     editable: bool = False
     hidden: bool = False
+    key_column: str = None
 
     class Config:
         orm_mode = True

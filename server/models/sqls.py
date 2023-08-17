@@ -1,5 +1,5 @@
 from sqlalchemy import TIMESTAMP, Column, ForeignKey, String
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.sql import func, text
 
 from .base import Base
@@ -11,6 +11,7 @@ class SQLs(Base):
     code = Column(String, nullable=False)
     app_id = Column(UUID(as_uuid=True), ForeignKey("app.id", ondelete="CASCADE"))
     dataclass = Column(String)
+    table_meta = Column(JSONB)
 
     date = Column(TIMESTAMP, server_default=func.now())
 
