@@ -174,27 +174,16 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
         subqueries = []
         for alias, props, response_name in parsed_aliases:
             table = alias[: alias.rfind(".")]
-            if table in table_to_primary_key:
-                subqueries.append(
-                    f"""
-                    (SELECT COUNT(*) FROM (
-                        SELECT DISTINCT "{table_to_primary_alias[table]}" FROM q
-                    ) AS q2
-                    INNER JOIN {table} ON q2."{table_to_primary_alias[table]}" = {table_to_primary_key[table]})
-                    AS "{table_to_primary_alias[table]}"
-                    """
-                )
-            else:
-                # find the first column in the table from used_aliases
+            # find the first column in the table from used_aliases
 
-                subqueries.append(
-                    f"""
-                    (SELECT COUNT(*) FROM (
-                        SELECT DISTINCT "{response_name}" FROM q
-                    ) AS q2
-                    INNER JOIN {table} ON q2."{response_name}" = {alias}) AS "{response_name}"
-                    """
-                )
+            subqueries.append(
+                f"""
+                (SELECT COUNT(*) FROM (
+                    SELECT DISTINCT "{response_name}" FROM q
+                ) AS q2
+                INNER JOIN {table} ON q2."{response_name}" = {alias}) AS "{response_name}"
+                """
+            )
         subqueries.append('(SELECT COUNT(*) FROM q) AS "total"')
         checker_query = f"""
         WITH q AS (
