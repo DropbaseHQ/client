@@ -1,14 +1,14 @@
+import { Box, Flex, IconButton, Spinner, Stack, Text } from '@chakra-ui/react';
 import MonacoEditor from '@monaco-editor/react';
 import { useEffect, useState } from 'react';
-import { Box, Flex, IconButton, Spinner, Stack, Text } from '@chakra-ui/react';
-import { useParams } from 'react-router-dom';
 import { CheckCircle, Play } from 'react-feather';
+import { useParams } from 'react-router-dom';
 
 import { useSQLCompletion } from '@/components/Editor';
-import { useSchema } from '@/features/smart-table/hooks/useSchema';
-import { useTableData } from '../hooks/useTableData';
 import { useGetApp } from '@/features/app/hooks';
+import { useSchema } from '@/features/smart-table/hooks/useSchema';
 import { useCreateSql } from '../hooks/useCreateSql';
+import { useTableData } from '../hooks/useTableData';
 import { useUpdateSql } from '../hooks/useUpdateSql';
 
 export const Editor = () => {
