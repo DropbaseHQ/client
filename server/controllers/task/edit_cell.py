@@ -11,9 +11,8 @@ from server.schemas.task import CellEdit, EditCell
 def edit_cell(db, request: EditCell):
     user_db_engine = connect_to_user_db()
 
-    # TODO: get table meta when saving sql
-    sql = crud.sqls.get_object_by_id_or_404(db, request.sql_id)
-    table_meta = sql.table_meta
+    for edit in request.edits:
+        update_value(user_db_engine, edit)
 
 
 def update_value(user_db_engine, edit: CellEdit):
