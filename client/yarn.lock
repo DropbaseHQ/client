@@ -1478,10 +1478,18 @@
     "@toast-ui/react-editor" "3.1.10"
     react-select "^5.2.2"
 
-"@glideapps/glide-data-grid@5.2.1", "@glideapps/glide-data-grid@^5.2.1":
+"@glideapps/glide-data-grid@5.2.1":
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/@glideapps/glide-data-grid/-/glide-data-grid-5.2.1.tgz#73036b3f7c17faad4bf418246afbcec5a91c8480"
   integrity sha512-2ds1xwYZkoJil7OyoHJHMtjq/MTwIFBRLx2VPAP5d6XaJRbuni3UCjtpUH51qf8o1qHeZsSE/dg3hJZZ2I86SQ==
+  dependencies:
+    canvas-hypertxt "^0.0.7"
+    react-number-format "^5.0.0"
+
+"@glideapps/glide-data-grid@5.2.2-beta5":
+  version "5.2.2-beta5"
+  resolved "https://registry.yarnpkg.com/@glideapps/glide-data-grid/-/glide-data-grid-5.2.2-beta5.tgz#d8c9eb46bc09d013f5cbd182e4aa36b2f05f62f7"
+  integrity sha512-mLDazKsbKBFt5zEY9sa2cVAz6Rz2cdkHjhTTD/c73FL03QzmCx3SCCpZ6m+OUGn7Dgqy/t0I6HXIcDAaT3Asew==
   dependencies:
     canvas-hypertxt "^0.0.7"
     react-number-format "^5.0.0"
