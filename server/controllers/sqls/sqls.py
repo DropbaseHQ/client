@@ -237,7 +237,8 @@ def test_sql(db: Session, sql_string: str):
                     conn, sql_string, good_cols, parsed_schema)
             except TypeError:
                 raise ValueError(
-                    "Query has misnamed columns that cannot be determined. Please check that your aliases match the returned columns.")
+                    "Query has misnamed columns that cannot be determined. Please check"
+                    "that your aliases match the returned columns.")
             if bad_cols:
                 raise ValueError(
                     f"Query has misnamed columns: {', '.join(bad_cols)}")
