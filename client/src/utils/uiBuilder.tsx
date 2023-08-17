@@ -21,11 +21,11 @@ const checkRules = ({ formValues, rules }: any) => {
 				return r.value === fieldValue;
 			}
 			case 'gt': {
-				return r.value > fieldValue;
+				return r.value < fieldValue;
 			}
 
 			case 'lt': {
-				return r.value < fieldValue;
+				return r.value > fieldValue;
 			}
 			case 'exists': {
 				return r.name in formValues;
