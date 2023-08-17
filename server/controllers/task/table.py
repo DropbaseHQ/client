@@ -18,14 +18,16 @@ def get_table_data(db: Session, app_id: UUID):
     # col_names = list(res[0].keys())
     col_names = list(res[0]._mapping.keys())
     regrouped_schema, parsed_column_names = get_regrouped_schema(col_names)
-    schema = get_parsed_schema(user_db_engine, regrouped_schema)
+    schema, table_keys = get_parsed_schema(user_db_engine, regrouped_schema)
     # save table row dataclass to db
     row_dataclass = compose_classes_from_row_data(schema)
     sql[0].dataclass = row_dataclass
+    # TODO: remove table_keys, not used by cell edits
+    sql[0].table_meta = table_keys
     db.commit()
     data = [list(row) for row in res]
 
-    return {"header": parsed_column_names, "data": data, "schema": schema}
+    return {"header": parsed_column_names, "data": data, "schema": schema, "sql_id": sql[0].id}
 
 
 type_mapping = {

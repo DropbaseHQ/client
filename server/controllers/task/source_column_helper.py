@@ -22,4 +22,4 @@ def connect_to_user_db():
     POSTGRES_DB_PORT = 5432
 
     SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://{POSTGRES_DB_USER}:{POSTGRES_DB_PASS}@{POSTGRES_DB_HOST}:{POSTGRES_DB_PORT}/{POSTGRES_DB_NAME}"
-    return create_engine(SQLALCHEMY_DATABASE_URL)
+    return create_engine(SQLALCHEMY_DATABASE_URL, future=True)

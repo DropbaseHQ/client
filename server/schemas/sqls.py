@@ -9,6 +9,7 @@ class BaseSQLs(BaseModel):
     code: str
     app_id: UUID
     dataclass: Optional[str]
+    table_meta: Optional[dict]
 
 
 class ReadSQLs(BaseSQLs):
@@ -24,3 +25,4 @@ class UpdateSQLs(BaseModel):
     code: Optional[str]
     app_id: Optional[UUID]
     dataclass: Optional[str]
+    table_meta: Optional[dict]
