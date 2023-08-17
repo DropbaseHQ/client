@@ -1,3 +1,4 @@
+from sqlalchemy import text
 from sqlalchemy.engine import URL, Connection, create_engine
 from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
@@ -70,7 +71,7 @@ def compare_aliases_from_db(conn: Connection, query: str, schema_dict: AppSchema
     """
     open_query = query.rstrip(";\n ")
     try:
-        res = conn.execute(f"SELECT * FROM ({open_query}) AS q LIMIT 1")
+        res = conn.execute(text(f"SELECT * FROM ({open_query}) AS q LIMIT 1"))
         returned_query_keys = list(res.keys())
     except ProgrammingError:
         raise ValueError("Query is invalid.")
@@ -158,7 +159,7 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
         """
         print(checker_query)
 
-        res = conn.execute(checker_query)
+        res = conn.execute(text(checker_query))
         data = res.fetchone()
 
         # check that all aliases in the result
@@ -209,7 +210,7 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
         print(checker_query)
 
         try:
-            res = conn.execute(checker_query)
+            res = conn.execute(text(checker_query))
             row = res.fetchone()
         except ProgrammingError as err:
             print(err)
