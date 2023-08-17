@@ -136,7 +136,6 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
     if all(table in table_to_primary_key for table in used_tables):
         # this way is significantly more performant
         # get q."public.customers.id" = public.customers.id
-        # nuke the performant way
         alias_comparisons = [
             f'MAX( CASE WHEN q."{response_name}" = {alias} THEN 1 ELSE 0 END) AS "{alias}"'
             for alias, props, response_name in parsed_aliases
