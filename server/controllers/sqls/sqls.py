@@ -11,12 +11,14 @@ from server.utils.helper import raise_http_exception
 SchemaDict = dict[str, dict[str, list[str]]]
 
 
-def parse_object_alias(obj: str) -> tuple[str, list[str]]:
+def parse_object_alias(obj: str, default_schema: str | None = None) -> tuple[str, list[str]]:
     """
     Return (schema.table.column, [properties]).
     :raises ValueError if the object does not have a schema, table, or column.
     """
     try:
+        # PROBLEM: we don't have a way to determine if schema is missing
+        # if there are also props because there's no difference
         schema, table, column, *props = obj.split(".")
     except ValueError:
         raise ValueError(
@@ -57,7 +59,7 @@ def expand_schema_tree(schema_dict: SchemaDict) -> set[str]:
     return all_schema_cols
 
 
-def get_missing_aliases(conn: Connection, query: str, schema_dict: SchemaDict) -> tuple[list[str], list[str], list[str]]:
+def compare_aliases_from_db(conn: Connection, query: str, schema_dict: SchemaDict) -> tuple[list[str], list[str], list[str]]:
     """
     Returns a tuple of:
     - a list of aliases that are not in the schema by their fully qualified names
@@ -88,7 +90,7 @@ def get_missing_aliases(conn: Connection, query: str, schema_dict: SchemaDict) -
     return bad_cols, duplicate_cols, returned_query_keys
 
 
-def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str], schema_dict: dict, default_path: str | None = None) -> list[str]:
+def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], schema_dict: dict, default_path: str | None = None) -> list[str]:
     """
     Returns a list of aliases that are incorrectly mapped
     :raises TypeError if a column is incorrectly mapped such that it is
@@ -146,10 +148,12 @@ def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str], schem
         SELECT
             {alias_separator.join(alias_comparisons)}
         FROM (
-            {open_query}
+            SELECT * FROM (
+                {open_query}
+            ) AS p
+            LIMIT 100
         ) AS q
         {newline.join(subqueries)}
-        LIMIT 100;
         """
 
         res = conn.execute(checker_query)
@@ -190,11 +194,14 @@ def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str], schem
         subqueries.append('(SELECT COUNT(*) FROM q) AS "total"')
         checker_query = f"""
         WITH q AS (
-            {open_query}
+            SELECT * FROM (
+                {open_query}
+            ) AS p
+            LIMIT 100
         )
         SELECT
             {alias_separator.join(subqueries)}
-        LIMIT 100;
+        ;
         """
         print(checker_query)
 
@@ -224,7 +231,7 @@ def test_sql(db: Session, sql_string: str):
     engine = connect_to_user_db()
     try:
         with engine.connect() as conn:
-            bad_cols, duplicate_cols, good_cols = get_missing_aliases(
+            bad_cols, duplicate_cols, good_cols = compare_aliases_from_db(
                 conn, sql_string, schema["schema"])
             if bad_cols:
                 raise ValueError(
@@ -237,7 +244,7 @@ def test_sql(db: Session, sql_string: str):
             parsed_schema = get_parsed_schema(conn, regrouped_schema)
 
             try:
-                bad_cols = get_bad_aliases(
+                bad_cols = get_misnamed_aliases(
                     conn, sql_string, good_cols, parsed_schema)
             except TypeError:
                 raise ValueError(
