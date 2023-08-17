@@ -22,6 +22,7 @@ def get_table_data(db: Session, app_id: UUID):
     # save table row dataclass to db
     row_dataclass = compose_classes_from_row_data(schema)
     sql[0].dataclass = row_dataclass
+    # TODO: remove table_keys, not used by cell edits
     sql[0].table_meta = table_keys
     db.commit()
     data = [list(row) for row in res]
