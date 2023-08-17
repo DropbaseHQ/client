@@ -23,9 +23,35 @@ export const Table = () => {
 	const [, setSelectedRow] = useAtom(selectedRowAtom);
 
 	const handleSetSelection = (newSelection: any) => {
-		const currentRow = newSelection.current.cell[1];
-		setSelectedRow(rows[currentRow]);
+		const columnsAccessor: any = columns.reduce((agg, col) => {
+			return {
+				...agg,
+				[col.name]: col,
+			};
+		}, {});
+
 		setSelection(newSelection);
+
+		const selectedRow = newSelection.rows.toArray()?.[0];
+
+		setSelectedRow(
+			typeof selectedRow === 'number'
+				? Object.keys(rows[selectedRow])?.reduce((agg: any, field: string) => {
+						const column: any = columnsAccessor?.[field];
+
+						return {
+							...agg,
+							[column.folder]: {
+								...(agg?.[column.folder] || {}),
+								[column.table]: {
+									...(agg[column.folder]?.[column.table] || {}),
+									[field]: rows[selectedRow][field],
+								},
+							},
+						};
+				  }, {})
+				: {},
+		);
 	};
 
 	if (isLoading) {
@@ -113,7 +139,6 @@ export const Table = () => {
 			rowMarkers="both"
 			smoothScrollX
 			smoothScrollY
-			rowSelectionMode="multi"
 			onCellEdited={onCellEdited}
 			gridSelection={selection}
 			onGridSelectionChange={handleSetSelection}

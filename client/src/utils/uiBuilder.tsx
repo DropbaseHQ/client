@@ -11,50 +11,49 @@ import {
 	Select,
 	Input as ChakraInput,
 } from '@chakra-ui/react';
+import get from 'lodash/get';
+
+const checkRules = ({ formValues, rules }: any) => {
+	const invalidRule = rules.find((r: any) => {
+		const fieldValue = get(formValues, r.name);
+
+		switch (r.operator) {
+			case 'equals': {
+				return r.value === fieldValue;
+			}
+			case 'gt': {
+				return r.value > fieldValue;
+			}
+
+			case 'lt': {
+				return r.value < fieldValue;
+			}
+			case 'exists': {
+				return r.name in formValues;
+			}
+			default:
+				return false;
+		}
+	});
+
+	return !!invalidRule;
+};
 
 export const CustomInput = (props: any) => {
-	const { name, type, options, depends, depends_value } = props;
-	const { watch, register } = useFormContext();
-	const dependentValue = watch(depends);
+	const { name, type, options, depends, rules } = props;
+	const { watch, register, getValues } = useFormContext();
 
-	const [loading, setLoading] = useState(false);
+	watch();
 
-	const getOptions = async () => {
-		if (!loading) {
-			setLoading(true);
-			// const fetchedOptions = await getData(options);
-
-			// setFormData((data) => {
-			// 	return data.map((d) => {
-			// 		if (d.name === name) {
-			// 			return {
-			// 				...d,
-			// 				...fetchedOptions,
-			// 			};
-			// 		}
-
-			// 		return d;
-			// 	});
-			// });
-			setLoading(false);
-		}
-	};
-
-	useEffect(() => {
-		if (typeof options === 'string') {
-			if (depends && depends_value === dependentValue) {
-				getOptions();
-			} else if (!depends) {
-				getOptions();
-			}
-		}
-	}, [options, depends, dependentValue]);
-
-	if (loading) {
-		return 'Loading....';
-	}
-
-	if ((depends && dependentValue && depends_value === dependentValue) || !depends) {
+	if (
+		(depends &&
+			rules &&
+			checkRules({
+				formValues: getValues(),
+				rules,
+			})) ||
+		!depends
+	) {
 		if (type === 'select') {
 			if (typeof options === 'string') {
 				return null;
@@ -63,8 +62,7 @@ export const CustomInput = (props: any) => {
 				<Box>
 					<FormControl>
 						<FormLabel htmlFor={name}>{name}</FormLabel>
-						<Select id={name} placeholder={name} {...register(name)}>
-							<option>Select {name}</option>
+						<Select id={name} placeholder={`Select ${name}`} {...register(name)}>
 							{options?.map((o: any) => <option key={o}>{o}</option>)}
 						</Select>
 					</FormControl>
@@ -84,10 +82,6 @@ export const CustomInput = (props: any) => {
 				</Box>
 			);
 		}
-
-		// if (type === 'button') {
-		// 	return <Button onClick={handleAction}>{label}</Button>;
-		// }
 
 		return (
 			<Box>
