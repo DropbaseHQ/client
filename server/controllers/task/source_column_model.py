@@ -31,7 +31,8 @@ def get_regrouped_schema(col_names: List[str]):
         column = col_name_arr[2]
 
         # will be used to display table columns
-        parsed_column_names.append({"schema": schema, "table": table, "column": column})
+        parsed_column_names.append(
+            {"schema": schema, "table": table, "column": column})
 
         if schema not in regrouped_schema:
             regrouped_schema[schema] = {}
@@ -44,7 +45,8 @@ def get_regrouped_schema(col_names: List[str]):
         # add filters if present
         if len(col_name_arr) > 3:
             for filter in col_name_arr[3:]:
-                regrouped_schema[schema][table][column]["filters"].append(filter)
+                regrouped_schema[schema][table][column]["filters"].append(
+                    filter)
 
     return regrouped_schema, parsed_column_names
 
@@ -57,7 +59,8 @@ def get_parsed_schema(user_db_engine: engine, regrouped_schema: dict):
 
         for table in regrouped_schema[schema].keys():
             # add table to schema if not present
-            new_schema[schema][table] = {} if table not in new_schema[schema] else None
+            new_schema[schema][table] = {
+            } if table not in new_schema[schema] else None
 
             # get table column models from sqlalchemy
             if schema == "public":
@@ -65,6 +68,7 @@ def get_parsed_schema(user_db_engine: engine, regrouped_schema: dict):
                     user_db_engine, regrouped_schema, schema, table, new_schema
                 )
             elif schema == "stripe":
-                new_schema = parse_stripe_column_model(regrouped_schema, schema, table, new_schema)
+                new_schema = parse_stripe_column_model(
+                    regrouped_schema, schema, table, new_schema)
 
     return new_schema

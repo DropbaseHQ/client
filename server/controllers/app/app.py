@@ -40,6 +40,7 @@ def get_db_schema(engine) -> AppSchema:
         for table_name in tables:
             columns = inspector.get_columns(table_name, schema=schema)
             column_names = [column["name"] for column in columns]
+            print(columns)
             schema_tables[table_name] = column_names
         database_structure["schema"][schema] = schema_tables
 

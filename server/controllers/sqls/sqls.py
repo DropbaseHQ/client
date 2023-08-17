@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers.app import get_app_schema
 from server.controllers.task.source_column_helper import connect_to_user_db
+from server.controllers.task.source_column_model import get_parsed_schema, get_regrouped_schema
 from server.utils.helper import raise_http_exception
 
 SchemaDict = dict[str, dict[str, list[str]]]
@@ -21,6 +22,26 @@ def parse_object_alias(obj: str) -> tuple[str, list[str]]:
             f"Object {obj} is missing a schema, table, and/or column. Is an alias missing?")
 
     return f"{schema}.{table}.{column}", props
+
+
+def lookup_alias_in_schema(schema_dict: dict, alias: str, default_path: str | None = None):
+    """
+    Return the column properties for an alias.
+    :raises KeyError if the alias does not exist in the schema.
+    """
+    data = parse_object_alias(alias)[0].split(".")
+
+    if len(data) == 3:
+        schema, table, column = data
+    elif len(data) == 2 and default_path is not None:
+        # special case: use default path
+        schema = default_path
+        table, column = data
+    else:
+        raise ValueError(
+            f"Alias {alias} is missing a schema, table, and/or column. Is an alias missing?")
+
+    return schema_dict[schema][table][column]
 
 
 def expand_schema_tree(schema_dict: SchemaDict) -> set[str]:
@@ -55,7 +76,7 @@ def get_missing_aliases(conn: Connection, query: str, schema_dict: SchemaDict) -
     return bad_cols, returned_query_keys
 
 
-def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str]) -> list[str]:
+def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str], schema_dict: dict, default_path: str | None = None) -> list[str]:
     """
     Returns a list of aliases that are incorrectly mapped
     :raises ValueError if the query is missing a key to perform joins on
@@ -80,13 +101,19 @@ def get_bad_aliases(conn: Connection, query: str, used_aliases: list[str]) -> li
             table_to_primary_key[table] = alias
             table_to_primary_alias[table] = ".".join([alias, *props])
 
-    # key is required for each table because otherwise we don't know
-    # how to update the table
-    for table in used_tables:
-        if table not in table_to_primary_key:
-            raise ValueError(
-                f"Table {table} has no fields marked as `_key`."
-            )
+    for name, props in parsed_aliases:
+        # infer aliases
+        table = name[: name.rfind(".")]
+        if table in table_to_primary_key:
+            continue
+
+        col_props = lookup_alias_in_schema(
+            schema_dict, name, default_path)
+
+        if not col_props.nullable and col_props.unique:
+            # if the column is unique and not nullable, it can be used as a key
+            table_to_primary_key[table] = name
+            table_to_primary_alias[table] = ".".join([name, *props])
 
     # get q."public.customers.id" = public.customers.id
     alias_comparisons = [
@@ -143,7 +170,11 @@ def test_sql(db: Session, sql_string: str):
                 raise ValueError(
                     f"Query has unknown columns: {', '.join(bad_cols)}")
 
-            bad_cols = get_bad_aliases(conn, sql_string, good_cols)
+            regrouped_schema = get_regrouped_schema(good_cols)
+            parsed_schema = get_parsed_schema(conn, regrouped_schema)
+
+            bad_cols = get_bad_aliases(
+                conn, sql_string, good_cols, parsed_schema)
             if bad_cols:
                 raise ValueError(
                     f"Query has misnamed columns: {', '.join(bad_cols)}")
