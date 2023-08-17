@@ -52,14 +52,11 @@ export const UIPreview = () => {
 
 	const sortUI = (components: any) =>
 		components.map((c: any) => {
-			const UIType = Object.keys(c)[0];
-			const props = c[UIType];
-			if (UIType === 'UIInput') {
-				return <CustomInput key={props.name} {...props} setFormData={setFormData} />;
+			if (c.type === 'button') {
+				return <CustomButton key={c.name} {...c} />;
 			}
-			if (UIType === 'UIButton') {
-				return <CustomButton key={props.name} {...props} setFormData={setFormData} />;
-			}
+
+			return <CustomInput key={c.name} {...c} setFormData={setFormData} />;
 		});
 
 	useEffect(() => {
