@@ -85,8 +85,8 @@ def compare_aliases_from_db(conn: Connection, query: str, schema_dict: AppSchema
 
     bad_cols = [
         key
-        for key in returned_query_keys
-        if parse_object_alias(key, schema_dict)[0] not in all_schema_cols
+        for key in cleaned_returned_query_keys
+        if key not in all_schema_cols
     ]
     duplicate_cols = [
         key
