@@ -52,49 +52,35 @@ def get_regrouped_schema(col_names: List[str]):
             column = col_name_arr[1]
             schema_table_col_lenght = 2
 
-        regrouped_schema = add_to_schema(
-            regrouped_schema, schema, table, column)
+        regrouped_schema = add_to_schema(regrouped_schema, schema, table, column)
 
         if len(col_name_arr) > schema_table_col_lenght:
             for filter in col_name_arr[schema_table_col_lenght:]:
-                regrouped_schema[schema][table][column]["filters"].append(
-                    filter)
+                regrouped_schema[schema][table][column]["filters"].append(filter)
 
         # will be used to display table columns
-        parsed_column_names.append(
-            {"schema": schema, "table": table, "column": column})
+        parsed_column_names.append({"schema": schema, "table": table, "column": column})
 
     return regrouped_schema, parsed_column_names
 
 
 def get_parsed_schema(user_db_engine: engine, regrouped_schema: dict):
-    new_schema, table_keys = {}, {}
+    new_schema = {}
     for schema in regrouped_schema.keys():
         # add schema to new schema if not present
-        new_schema[schema] = {
-        } if schema not in new_schema else new_schema[schema]
-        table_keys[schema] = {
-        } if schema not in table_keys else table_keys[schema]
+        new_schema[schema] = {} if schema not in new_schema else new_schema[schema]
 
         for table in regrouped_schema[schema].keys():
             # add table to schema if not present
             new_schema[schema][table] = (
                 {} if table not in new_schema[schema] else new_schema[schema][table]
             )
-            table_keys[schema][table] = (
-                {"key": None, "columns": []}
-                if table not in table_keys[schema]
-                else table_keys[schema][table]
-            )
 
-            new_schema, table_key = parse_postgres_column_model(
+            new_schema = parse_postgres_column_model(
                 user_db_engine, regrouped_schema, schema, table, new_schema
             )
-            table_keys[schema][table]["key"] = table_key
-            table_keys[schema][table]["columns"] = [
-                c for c in new_schema[schema][table].keys()]
 
-    return new_schema, table_keys
+    return new_schema
 
 
 def parse_postgres_column_model(
@@ -128,8 +114,7 @@ def parse_postgres_column_model(
             # apply filters if any
             filters = regrouped_schema[schema][table][column.name]["filters"]
             if len(filters) > 0:
-                source_column = update_column_meta_with_filters(
-                    source_column, filters)
+                source_column = update_column_meta_with_filters(source_column, filters)
             new_schema[schema][table][column.name] = source_column.dict()
 
-    return new_schema, editable_column
+    return new_schema

@@ -2,6 +2,7 @@ from .app import App
 from .base import Base
 from .components import Components
 from .functions import Functions
+from .pinned_filters import PinnedFilters
 from .role import Role
 from .source import Source
 from .sqls import SQLs

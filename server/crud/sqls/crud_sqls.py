@@ -12,5 +12,8 @@ class CRUDSQLs(CRUDBase[SQLs, CreateSQLs, UpdateSQLs]):
     def get_app_sqls(self, db: Session, app_id: UUID) -> List[SQLs]:
         return db.query(SQLs).filter(SQLs.app_id == str(app_id)).all()
 
+    def get_app_sql(self, db: Session, app_id: UUID) -> SQLs:
+        return db.query(SQLs).filter(SQLs.app_id == str(app_id)).one()
+
 
 sqls = CRUDSQLs(SQLs)

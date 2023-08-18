@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -26,3 +26,9 @@ class UpdateSQLs(BaseModel):
     app_id: Optional[UUID]
     dataclass: Optional[str]
     table_meta: Optional[dict]
+
+
+class QueryTable(BaseModel):
+    app_id: UUID
+    filters: Optional[List[dict]]
+    sorts: Optional[List[dict]]
