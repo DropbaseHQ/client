@@ -169,8 +169,11 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
         """
         print(checker_query)
 
-        res = conn.execute(text(checker_query))
-        data = res.mappings().fetchone()
+        try:
+            res = conn.execute(text(checker_query))
+            data = res.mappings().fetchone()
+        except ProgrammingError as err:
+            raise TypeError(f"Query columns cannot be compared: {err}")
 
         # check that all aliases in the result
         bad_cols = [
@@ -264,7 +267,7 @@ def test_sql(db: Session, sql_string: str):
             except TypeError as err:
                 print(err)
                 raise ValueError(
-                    "Query has misnamed columns that cannot be determined. Please check "
+                    "Query has misnamed columns. Please check "
                     "that your aliases match the returned columns.")
             if bad_cols:
                 raise ValueError(
