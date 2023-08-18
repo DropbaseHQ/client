@@ -3,7 +3,10 @@ import { PROPERTIES } from './constants';
 
 const { CompletionItemKind } = monacoLib.languages;
 type CompletionSuggestion = Omit<monacoLib.languages.CompletionItem, 'range'>;
-export type CompletionData = Record<string, Record<string, string[]>>;
+export interface CompletionData {
+	schema: Record<string, Record<string, string[]>>;
+	metadata: Record<string, string>;
+}
 
 const SQL_KEYWORDS = ['select', 'from', 'with', 'as'];
 
@@ -11,10 +14,8 @@ const countChars = (str: string, char: string) => {
 	return str.split(char).length - 1;
 };
 
-const completePhrase = (
-	lineUpToCursor: string,
-	completionData: CompletionData,
-): CompletionSuggestion[] => {
+const completePhrase = (lineUpToCursor: string, data: CompletionData): CompletionSuggestion[] => {
+	const completionData = data.schema;
 	const [currentWord, prevWord, prevPrevWord] = lineUpToCursor.split(' ').reverse(); // the last three words of the current line
 	const cleanedCurrentWord = currentWord.replace(/^("|\.)+|("|\.)+$/g, ''); // remove leading/trailing punctuation
 	const [curSchema, curTable] = cleanedCurrentWord.split('.'); // the current schema and table
@@ -33,6 +34,19 @@ const completePhrase = (
 				}
 			});
 		});
+
+		// also populate table in default schema
+		Object.keys(completionData[data.metadata.default_schema]).forEach((table) => {
+			if (table.startsWith(cleanedCurrentWord)) {
+				suggestions.push({
+					label: table,
+					kind: CompletionItemKind.Property,
+					insertText: table,
+					detail: `schema: ${data.metadata.default_schema}`,
+				});
+			}
+		});
+
 		return suggestions;
 	}
 
@@ -67,7 +81,7 @@ const completePhrase = (
 	Object.keys(completionData).forEach((schema) => {
 		Object.keys(completionData[schema]).forEach((table) => {
 			completionData[schema][table].forEach((col) => {
-				if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord.endsWith(` ${col}`)) {
+				if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord === col) {
 					suggestions.push({
 						label: `${schema}.${table}.${col}`,
 						kind: CompletionItemKind.Property,
@@ -78,10 +92,23 @@ const completePhrase = (
 		});
 	});
 
-	// strip leading/trailing punctuation
+	// do the same for the default schema
+	Object.keys(completionData[data.metadata.default_schema]).forEach((table) => {
+		completionData[data.metadata.default_schema][table].forEach((col) => {
+			if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord === col) {
+				suggestions.push({
+					label: `${table}.${col}`,
+					kind: CompletionItemKind.Property,
+					insertText: `${table}.${col}`,
+					detail: `schema: ${data.metadata.default_schema}`,
+				});
+			}
+		});
+	});
+
 	if (curTable) {
 		completionData[curSchema][curTable].forEach((col) => {
-			if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord.endsWith(` ${col}`)) {
+			if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord === col) {
 				suggestions.push({
 					label: col,
 					kind: CompletionItemKind.Property,
@@ -92,7 +119,7 @@ const completePhrase = (
 	} else if (curSchema) {
 		Object.keys(completionData[curSchema]).forEach((table) => {
 			Object.keys(completionData[curSchema][table]).forEach((col) => {
-				if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord.endsWith(` ${col}`)) {
+				if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord === col) {
 					suggestions.push({
 						label: table,
 						kind: CompletionItemKind.Property,
