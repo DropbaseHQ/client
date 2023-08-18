@@ -41,7 +41,7 @@ const runTask = async ({
 export const useRunTask = () => {
 	const setRunResult = useSetAtom(runResultAtom);
 	return useMutation(runTask, {
-		onSettled: (data, error, variables, context) => {
+		onSettled: (data, _error, _variables, _context) => {
 			setRunResult(data?.log);
 		},
 	});
@@ -130,7 +130,7 @@ export const CustomInput = (props: any) => {
 };
 
 export const CustomButton = (props: any) => {
-	const { label, action, post_action, doActions, getValues, getData } = props;
+	const { label, action, post_action, getData } = props;
 	const runTask = useRunTask();
 	const { appId } = useParams();
 	const [selectedRow] = useAtom(selectedRowAtom);

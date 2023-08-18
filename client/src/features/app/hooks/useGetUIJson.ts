@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import { axios } from '@/lib/axios';
 import { useSetAtom } from 'jotai';
 import { runResultAtom } from '@/features/app-builder/atoms/tableContextAtoms';
-import { AxiosError } from 'axios';
 
 const fetchUIJson = async ({ code, app_id }: { code: string; app_id: string }) => {
 	const { data } = await axios.post('components/some_id/convert', {
@@ -26,7 +25,7 @@ export const useGetUIJson = ({
 			console.log(error);
 			setRunResult(error?.response?.data?.error);
 		},
-		onSuccess: (data: any) => {
+		onSuccess: (_: any) => {
 			setRunResult('');
 		},
 	});

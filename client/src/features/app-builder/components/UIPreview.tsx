@@ -1,7 +1,7 @@
 /* eslint-disable  */
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'react-feather';
-import { Box, IconButton, Textarea } from '@chakra-ui/react';
+import { Box, IconButton } from '@chakra-ui/react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
 import { CustomInput, CustomButton } from '@/utils/uiBuilder';
