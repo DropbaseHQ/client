@@ -31,9 +31,11 @@ def parse_object_alias(obj: str, schema_dict: AppSchema) -> tuple[str, list[str]
         elif is_table_in_default_schema(schema_dict, data[0]):
             schema = schema_dict["metadata"]["default_schema"]
             table, column, *props = data
+        else:
+            raise ValueError
     except (ValueError, IndexError):
         raise ValueError(
-            f"Object {obj} is missing a schema, table, and/or column. Is an alias missing?")
+            f'Object "{obj}" is missing a schema, table, and/or column. Is an alias missing or misnamed?')
 
     return f"{schema}.{table}.{column}", props
 
@@ -73,6 +75,8 @@ def compare_aliases_from_db(conn: Connection, query: str, schema_dict: AppSchema
     try:
         res = conn.execute(text(f"SELECT * FROM ({open_query}) AS q LIMIT 1"))
         returned_query_keys = list(res.keys())
+        cleaned_returned_query_keys = [parse_object_alias(
+            key, schema_dict)[0] for key in returned_query_keys]
     except ProgrammingError:
         raise ValueError(
             "There seems to be an issue with the SQL statement you provided.")
@@ -86,8 +90,8 @@ def compare_aliases_from_db(conn: Connection, query: str, schema_dict: AppSchema
     ]
     duplicate_cols = [
         key
-        for key in returned_query_keys
-        if returned_query_keys.count(key) > 1
+        for key in cleaned_returned_query_keys
+        if cleaned_returned_query_keys.count(key) > 1
     ]
 
     return bad_cols, duplicate_cols, returned_query_keys
@@ -114,7 +118,7 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
             table = alias[: alias.rfind(".")]
             if table in table_to_primary_key:
                 raise ValueError(
-                    f"Table {table} has multiple fields marked as `_key`."
+                    f"Table {table} has multiple fields marked as `_key`. Please ensure that there is only one key per table."
                 )
             table_to_primary_key[table] = alias
             table_to_primary_alias[table] = response_name
@@ -125,7 +129,12 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
         if table in table_to_primary_key:
             continue
 
-        col_props = lookup_alias_in_schema(app_schema, schema_dict, name)
+        try:
+            col_props = lookup_alias_in_schema(app_schema, schema_dict, name)
+        except KeyError:
+            raise ValueError(
+                f'"{name}" does not exist in any of your sources. Is it misnamed?'
+            )
 
         if not col_props["nullable"] and col_props["unique"] or col_props["primary_key"]:
             # if the column is unique and not nullable, it can be used as a key
@@ -233,7 +242,7 @@ def test_sql(db: Session, sql_string: str):
                 f"Query has unknown columns: {', '.join(bad_cols)}")
         elif duplicate_cols:
             raise ValueError(
-                f"Query has duplicate columns: {', '.join(duplicate_cols)}")
+                f"Query has duplicate columns: {', '.join(set(duplicate_cols))}")
 
         qualified_good_cols: list[str] = []
         for col in good_cols:
