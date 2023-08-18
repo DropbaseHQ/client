@@ -15,6 +15,9 @@ import { selectedRowAtom } from '@/features/app-builder/atoms/tableContextAtoms'
 import { useTableData } from '../hooks/useTableData';
 import { axios } from '@/lib/axios';
 import { useToast } from '@/lib/chakra-ui';
+import { FilterButton } from '@/features/smart-table/components/Filters';
+import { SortButton } from './Sorts';
+import { PinnedFilters } from '@/features/smart-table/components/PinnedFilters';
 
 const saveEdits = async ({ edits, sqlId }: { edits: any; sqlId: any }) => {
 	const response = await axios.post(`/task/edit`, { sql_id: sqlId, edits });
@@ -176,15 +179,20 @@ export const Table = () => {
 	});
 
 	return (
-		<Stack h="full">
+		<Stack h="full" spacing="0">
 			<Stack
 				direction="row"
 				px="2"
 				borderBottomWidth="1px"
-				justifyContent="end"
+				justifyContent="space-between"
 				alignItems="center"
 				h="14"
 			>
+				<Stack alignItems="center" direction="row" flex="1">
+					<FilterButton columns={columns} />
+					<SortButton columns={columns} />
+					<PinnedFilters columns={columns} />
+				</Stack>
 				<Button
 					variant="solid"
 					colorScheme="blue"
