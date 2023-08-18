@@ -16,7 +16,6 @@ from typing import Callable, Generator, List, Optional
 import jedi
 
 from . import _utils, lsp, uris
-from .dropbase.generate import DocumentChangeHandler, WorkspaceCreateHandler, generate
 
 log = logging.getLogger(__name__)
 
@@ -74,19 +73,16 @@ class Workspace:
         self.__rope_config = None
         self.__rope_autoimport = None
 
-        self.generate_files()
+        if self.on_create_fn:
+            self.on_create_fn()
+
+    @classmethod
+    def on_create(cls, func: Callable):
+        cls.on_create_fn = func
 
     def __del__(self):
         if self._root_path:
             shutil.rmtree(self._root_path, ignore_errors=True)
-
-    def generate_files(self):
-        for handler in generate:
-            if not isinstance(handler, WorkspaceCreateHandler):
-                continue
-
-            for generate_file in handler.files:
-                generate_file.write(self._root_path)
 
     def _rope_autoimport(self, rope_config: Optional, memory: bool = False):
         # pylint: disable=import-outside-toplevel
@@ -363,10 +359,18 @@ class Document:
         self.uri = uri
         self.version = version
 
-        self.path = uris.to_fs_path(uri)
+        path = uris.to_fs_path(uri)
         # Convert absolute path to relative
+        self.rel_path = path[1:] if path[0] == "/" else path
+
+        # Rename fetchers to have python importable names
+        rel_dir = os.path.dirname(self.rel_path)
+        if rel_dir == "fetchers":
+            filename = os.path.basename(self.rel_path).replace("-", "_")  # replace hyphens
+            filename = f"_{filename}"  # ensure valid first character
+            self.rel_path = os.path.join(rel_dir, filename)
+
         # Base the relative path at workspace dir path
-        self.rel_path = self.path[1:] if self.path[0] == "/" else self.path
         self.path = os.path.join(workspace._root_path, self.rel_path)
         # Make necessary directories
         os.makedirs(os.path.dirname(self.path), exist_ok=True)
@@ -379,12 +383,19 @@ class Document:
         self.shared_data = {}
 
         self._config = workspace._config
-        self._workspace = workspace
+        self._workspace: Workspace = workspace
         self._local = local
         self._source = source
         self._extra_sys_path = extra_sys_path or []
         self._rope_project_builder = rope_project_builder
         self._lock = RLock()
+
+        if self.on_create_fn:
+            self.on_create_fn()
+
+    @classmethod
+    def on_create(cls, func: Callable):
+        cls.on_create_fn = func
 
     def __str__(self):
         return str(self.uri)
@@ -412,7 +423,7 @@ class Document:
         self._config.update((settings or {}).get("pylsp", {}))
 
     @lock
-    def apply_change(self, change):
+    def _apply_change(self, change):
         """Apply a change to the document."""
         text = change["text"]
         change_range = change.get("range")
@@ -420,8 +431,6 @@ class Document:
         if not change_range:
             # The whole file has changed
             self._source = text
-            self.rewrite_file()
-            self.generate_document_change_files()
             return
 
         start_line = change_range["start"]["line"]
@@ -432,11 +441,6 @@ class Document:
         # Check for an edit occuring at the very end of the file
         if start_line == len(self.lines):
             self._source = self.source + text
-            # Seek to end of file
-            os.lseek(self._fd, 0, os.SEEK_END)
-            # Write data
-            os.write(self._fd, (text or "").encode("utf-8"))
-            self.generate_document_change_files()
             return
 
         new = io.StringIO()
@@ -461,8 +465,6 @@ class Document:
                 new.write(line[end_col:])
 
         self._source = new.getvalue()
-        self.rewrite_file()
-        self.generate_document_change_files()
 
     # Rewrites the file with the current source
     @lock
@@ -474,17 +476,17 @@ class Document:
         # Truncate file to appropriate length
         os.truncate(self._fd, n)
 
-    # Generate files on document change
-    def generate_document_change_files(self):
-        for handler in generate:
-            if not isinstance(handler, DocumentChangeHandler):
-                continue
+    def apply_change(self, change):
+        try:
+            self._apply_change(change)
+        finally:
+            self.rewrite_file()
+            if self.on_content_change_fn:
+                self.on_content_change_fn()
 
-            if self.rel_path not in handler.trigger_paths:
-                continue
-
-            for generate_file in handler.files:
-                generate_file.write(self._workspace._root_path, (self._source,))
+    @classmethod
+    def on_content_change(cls, func: Callable):
+        cls.on_content_change_fn = func
 
     def offset_at_position(self, position):
         """Return the byte-offset pointed at by the given position."""
