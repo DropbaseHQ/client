@@ -107,10 +107,19 @@ export const UIPanel = () => {
 			<Panel defaultSize={10}>
 				<Box bg="gray.50" p="4" h="full">
 					Console
-					<Textarea
-						value={runResult}
-						placeholder="Will display the result of your action function"
-					/>
+					<Box
+						p="4"
+						bg="black"
+						color="white"
+						borderRadius="md"
+						boxShadow="md"
+						fontFamily="monospace"
+						overflowX="auto"
+						whiteSpace="pre-wrap"
+						wordWrap="break-word"
+					>
+						{runResult}
+					</Box>
 				</Box>
 			</Panel>
 		</PanelGroup>
