@@ -1,3 +1,4 @@
+from sqlalchemy import text
 from sqlalchemy.engine import URL, Connection, create_engine
 from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
@@ -70,7 +71,7 @@ def compare_aliases_from_db(conn: Connection, query: str, schema_dict: AppSchema
     """
     open_query = query.rstrip(";\n ")
     try:
-        res = conn.execute(f"SELECT * FROM ({open_query}) AS q LIMIT 1")
+        res = conn.execute(text(f"SELECT * FROM ({open_query}) AS q LIMIT 1"))
         returned_query_keys = list(res.keys())
     except ProgrammingError:
         raise ValueError("Query is invalid.")
@@ -158,8 +159,8 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
         """
         print(checker_query)
 
-        res = conn.execute(checker_query)
-        data = res.fetchone()
+        res = conn.execute(text(checker_query))
+        data = res.mappings().fetchone()
 
         # check that all aliases in the result
         bad_cols = [
@@ -173,27 +174,16 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
         subqueries = []
         for alias, props, response_name in parsed_aliases:
             table = alias[: alias.rfind(".")]
-            if table in table_to_primary_key:
-                subqueries.append(
-                    f"""
-                    (SELECT COUNT(*) FROM (
-                        SELECT DISTINCT "{table_to_primary_alias[table]}" FROM q
-                    ) AS q2
-                    INNER JOIN {table} ON q2."{table_to_primary_alias[table]}" = {table_to_primary_key[table]})
-                    AS "{table_to_primary_alias[table]}"
-                    """
-                )
-            else:
-                # find the first column in the table from used_aliases
+            # find the first column in the table from used_aliases
 
-                subqueries.append(
-                    f"""
-                    (SELECT COUNT(*) FROM (
-                        SELECT DISTINCT "{response_name}" FROM q
-                    ) AS q2
-                    INNER JOIN {table} ON q2."{response_name}" = {alias}) AS "{response_name}"
-                    """
-                )
+            subqueries.append(
+                f"""
+                (SELECT COUNT(*) FROM (
+                    SELECT DISTINCT "{response_name}" FROM q
+                ) AS q2
+                INNER JOIN {table} ON q2."{response_name}" = {alias}) AS "{response_name}"
+                """
+            )
         subqueries.append('(SELECT COUNT(*) FROM q) AS "total"')
         checker_query = f"""
         WITH q AS (
@@ -209,13 +199,12 @@ def get_misnamed_aliases(conn: Connection, query: str, used_aliases: list[str], 
         print(checker_query)
 
         try:
-            res = conn.execute(checker_query)
-            row = res.fetchone()
+            res = conn.execute(text(checker_query))
+            row = res.mappings().fetchone()
         except ProgrammingError as err:
-            print(err)
             raise TypeError(f"Query columns cannot be compared: {err}")
         total = row["total"]
-        print(row)
+
         bad_cols = [
             key
             for key, value in row.items()
@@ -238,23 +227,27 @@ def test_sql(db: Session, sql_string: str):
         with engine.connect() as conn:
             bad_cols, duplicate_cols, good_cols = compare_aliases_from_db(
                 conn, sql_string, schema)
-            if bad_cols:
-                raise ValueError(
-                    f"Query has unknown columns: {', '.join(bad_cols)}")
-            elif duplicate_cols:
-                raise ValueError(
-                    f"Query has duplicate columns: {', '.join(duplicate_cols)}")
+        if bad_cols:
+            raise ValueError(
+                f"Query has unknown columns: {', '.join(bad_cols)}")
+        elif duplicate_cols:
+            raise ValueError(
+                f"Query has duplicate columns: {', '.join(duplicate_cols)}")
 
-            qualified_good_cols: list[str] = []
-            for col in good_cols:
-                alias, props = parse_object_alias(col, schema)
-                qualified_good_cols.append(
-                    ".".join([alias, *props])
-                )
-            regrouped_schema, colnames = get_regrouped_schema(
-                qualified_good_cols)
-            parsed_schema, _ = get_parsed_schema(conn, regrouped_schema)
+        qualified_good_cols: list[str] = []
+        for col in good_cols:
+            alias, props = parse_object_alias(col, schema)
+            qualified_good_cols.append(
+                ".".join([alias, *props])
+            )
 
+        # this function creates a new engine connection so we have to
+        # get rid of the old one
+        regrouped_schema, colnames = get_regrouped_schema(
+            qualified_good_cols)
+        parsed_schema, _ = get_parsed_schema(engine, regrouped_schema)
+
+        with engine.connect() as conn:
             try:
                 bad_cols = get_misnamed_aliases(
                     conn, sql_string, good_cols, parsed_schema, schema)
