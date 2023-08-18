@@ -35,9 +35,15 @@ CONFIG_FILEs = ("pycodestyle.cfg", "setup.cfg", "tox.ini", ".flake8")
 
 
 # Register hooks
-Workspace.on_create(generateWorkspaceCreateFiles)
 Document.on_create(generateDocumentCreateFiles)
 Document.on_content_change(generateDocumentChangeFiles)
+
+
+@Workspace.on_create
+def onWorkspaceCreate(workspace: Workspace):
+    generateWorkspaceCreateFiles(workspace)
+    # Ignore Ruff linter errors (https://beta.ruff.rs/docs/rules/#error-e)
+    workspace.update_config({"pylsp": {"plugins": {"ruff": {"ignore": ["F403", "F405"]}}}})
 
 
 class _StreamHandlerWrapper(socketserver.StreamRequestHandler):

@@ -1,6 +1,9 @@
 import { useQuery } from 'react-query';
 import { useMemo } from 'react';
 import { axios } from '@/lib/axios';
+import { useSetAtom } from 'jotai';
+import { runResultAtom } from '@/features/app-builder/atoms/tableContextAtoms';
+import { AxiosError } from 'axios';
 
 const fetchUIJson = async ({ code, app_id }: { code: string; app_id: string }) => {
 	const { data } = await axios.post('components/some_id/convert', {
@@ -16,8 +19,17 @@ export const useGetUIJson = ({
 	code = '',
 	app_id = '',
 }: { code?: string; app_id?: string } = {}) => {
+	const setRunResult = useSetAtom(runResultAtom);
 	const queryKey = [UI_JSON_QUERY_KEY, app_id || '', code];
-	const { data, ...rest } = useQuery(queryKey, () => fetchUIJson({ code, app_id }));
+	const { data, ...rest } = useQuery(queryKey, () => fetchUIJson({ code, app_id }), {
+		onError: (error: any) => {
+			console.log(error);
+			setRunResult(error?.response?.data?.error);
+		},
+		onSuccess: (data: any) => {
+			setRunResult('');
+		},
+	});
 
 	const components = useMemo(() => {
 		return (data?.components || []).map((c: any) => {

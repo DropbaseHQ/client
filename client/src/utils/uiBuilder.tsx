@@ -11,6 +11,41 @@ import {
 	Input as ChakraInput,
 } from '@chakra-ui/react';
 import get from 'lodash/get';
+import { userInputAtom } from '@/features/app-builder/atoms/tableContextAtoms';
+import { useParams } from 'react-router';
+import { useMutation } from 'react-query';
+import { axios } from '@/lib/axios';
+import { useAtom, useSetAtom } from 'jotai';
+import { selectedRowAtom } from '@/features/app-builder/atoms/tableContextAtoms';
+import { runResultAtom } from '@/features/app-builder/atoms/tableContextAtoms';
+const runTask = async ({
+	appId,
+	userInput,
+	row,
+	action,
+}: {
+	appId: string;
+	userInput: any;
+	row: any;
+	action: any;
+}) => {
+	const { data } = await axios.post('/task', {
+		app_id: appId,
+		user_input: userInput,
+		row,
+		action,
+	});
+	return data;
+};
+
+export const useRunTask = () => {
+	const setRunResult = useSetAtom(runResultAtom);
+	return useMutation(runTask, {
+		onSettled: (data, error, variables, context) => {
+			setRunResult(data?.log);
+		},
+	});
+};
 
 const checkRules = ({ formValues, rules }: any) => {
 	const invalidRule = rules.find((r: any) => {
@@ -97,9 +132,19 @@ export const CustomInput = (props: any) => {
 
 export const CustomButton = (props: any) => {
 	const { label, action, post_action, doActions, getValues, getData } = props;
+	const runTask = useRunTask();
+	const { appId } = useParams();
+	const [selectedRow] = useAtom(selectedRowAtom);
+	const [userInput] = useAtom(userInputAtom);
+	// const
 	const handleAction = async () => {
 		try {
-			await doActions(action, getValues());
+			await runTask.mutateAsync({
+				appId: appId || '',
+				userInput: userInput,
+				row: selectedRow,
+				action,
+			});
 			// reset(resetFields);
 			if (post_action) {
 				console.log(`Performing post action: ${post_action}`);
