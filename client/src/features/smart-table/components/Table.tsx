@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { Button, Center, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useMutation } from 'react-query';
 import { useState } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import DataEditor, {
 	CompactSelection,
 	GridCellKind,
@@ -18,6 +18,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { FilterButton } from '@/features/smart-table/components/Filters';
 import { SortButton } from './Sorts';
 import { PinnedFilters } from '@/features/smart-table/components/PinnedFilters';
+import { filtersAtom, sortsAtom } from '@/features/smart-table/atoms';
 
 const saveEdits = async ({ edits, sqlId }: { edits: any; sqlId: any }) => {
 	const response = await axios.post(`/task/edit`, { sql_id: sqlId, edits });
@@ -27,8 +28,18 @@ const saveEdits = async ({ edits, sqlId }: { edits: any; sqlId: any }) => {
 export const Table = () => {
 	const { appId } = useParams();
 	const toast = useToast();
-	const { isLoading, rows, columns, rowsWithSchema, schema, sqlId, refetch } =
-		useTableData(appId);
+
+	const filters = useAtomValue(filtersAtom);
+	const sorts = useAtomValue(sortsAtom);
+
+	const parsedFilters = filters.filter((f) => f.column_name && f.value);
+	const parsedSorts = sorts.filter((f) => f.column_name);
+
+	const { isLoading, rows, columns, rowsWithSchema, schema, sqlId, refetch } = useTableData({
+		appId,
+		filters: parsedFilters,
+		sorts: parsedSorts,
+	});
 	const [selection, setSelection] = useState({
 		rows: CompactSelection.empty(),
 		columns: CompactSelection.empty(),
@@ -60,15 +71,6 @@ export const Table = () => {
 
 		setSelectedRow(typeof selectedRow === 'number' ? rowsWithSchema[selectedRow] : {});
 	};
-
-	if (isLoading) {
-		return (
-			<Center h="full" as={Stack}>
-				<Spinner size="md" />
-				<Text>Loading data...</Text>
-			</Center>
-		);
-	}
 
 	const displayColumns = columns.filter(({ hidden }: any) => !hidden);
 
@@ -209,20 +211,27 @@ export const Table = () => {
 					Save
 				</Button>
 			</Stack>
-			<DataEditor
-				columns={gridColumns}
-				rows={rows.length}
-				width="100%"
-				height="100%"
-				getCellContent={getCellContent}
-				rowMarkers="both"
-				smoothScrollX
-				smoothScrollY
-				highlightRegions={highlights}
-				onCellEdited={onCellEdited}
-				gridSelection={selection}
-				onGridSelectionChange={handleSetSelection}
-			/>
+			{isLoading ? (
+				<Center h="full" as={Stack}>
+					<Spinner size="md" />
+					<Text>Loading data...</Text>
+				</Center>
+			) : (
+				<DataEditor
+					columns={gridColumns}
+					rows={rows.length}
+					width="100%"
+					height="100%"
+					getCellContent={getCellContent}
+					rowMarkers="both"
+					smoothScrollX
+					smoothScrollY
+					highlightRegions={highlights}
+					onCellEdited={onCellEdited}
+					gridSelection={selection}
+					onGridSelectionChange={handleSetSelection}
+				/>
+			)}
 		</Stack>
 	);
 };

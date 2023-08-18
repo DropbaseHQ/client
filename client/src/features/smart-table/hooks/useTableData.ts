@@ -37,16 +37,22 @@ type TableData = {
 	};
 };
 
-const fetchTableData = async ({ appId }: { appId: string }) => {
-	const response = await axios.get<TableData>(`/table/${appId}`);
+const fetchTableData = async ({ appId, filters, sorts }: any) => {
+	const response = await axios.post<TableData>(`/table`, {
+		app_id: appId,
+		filters,
+		sorts,
+	});
 
 	return response.data;
 };
 
-export const useTableData = (appId: string = '') => {
-	const queryKey = [TABLE_DATA_QUERY_KEY, appId];
+export const useTableData = ({ appId, filters, sorts }: any) => {
+	const queryKey = [TABLE_DATA_QUERY_KEY, appId, JSON.stringify({ filters, sorts })];
 
-	const { data: response, ...rest } = useQuery(queryKey, () => fetchTableData({ appId }));
+	const { data: response, ...rest } = useQuery(queryKey, () =>
+		fetchTableData({ appId, filters, sorts }),
+	);
 
 	const parsedData: any = useMemo(() => {
 		if (response) {

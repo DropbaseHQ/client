@@ -15,7 +15,11 @@ export const PinnedFilters = ({ columns }: { columns: any }) => {
 		<Stack direction="row" borderRadius="sm" p="2" flex="1" overflow="auto" w="full">
 			{pinnedFilters.map((f) => {
 				const colType = columns.find((c: any) => c.name === f.column)?.type;
+				let inputType = 'text';
 
+				if (colType === 'integer') {
+					inputType = 'number';
+				}
 				return (
 					<Flex borderWidth="1px" borderRadius="sm">
 						<Box
@@ -26,7 +30,7 @@ export const PinnedFilters = ({ columns }: { columns: any }) => {
 							fontSize="sm"
 							bg="gray.50"
 						>
-							{f.column}
+							{f.column_name}
 						</Box>
 						<Box
 							h="full"
@@ -39,7 +43,7 @@ export const PinnedFilters = ({ columns }: { columns: any }) => {
 							{f.operator}
 						</Box>
 						<Input
-							type={colType}
+							type={inputType}
 							colorScheme="blue"
 							value={f.value}
 							borderWidth="0"
@@ -49,7 +53,10 @@ export const PinnedFilters = ({ columns }: { columns: any }) => {
 										if (filter.id === f.id) {
 											return {
 												...f,
-												value: e.target.value,
+												value:
+													inputType === 'number'
+														? +e.target.value
+														: e.target.value,
 											};
 										}
 

@@ -32,7 +32,7 @@ export const SortButton = ({ columns }: { columns: any }) => {
 		setSorts([
 			...sorts,
 			{
-				column: '',
+				column_name: '',
 				sort: 'asc',
 			},
 		]);
@@ -60,7 +60,7 @@ export const SortButton = ({ columns }: { columns: any }) => {
 			</PopoverTrigger>
 			<PopoverContent boxShadow="md" minW="35rem">
 				<PopoverHeader pt={4} fontWeight="bold" border="0">
-					Filter Data
+					Sort Data
 				</PopoverHeader>
 				<PopoverArrow />
 				<PopoverCloseButton mt={2} onClick={onClose} />
@@ -74,14 +74,19 @@ export const SortButton = ({ columns }: { columns: any }) => {
 									<HStack w="full" key={`sort-${index}`}>
 										<FormControl flexGrow="1">
 											<Select
-												value={sort.column}
+												value={`${sort.schema_name}.${sort.table_name}.${sort.column_name}`}
 												onChange={(e) => {
 													setSorts(
 														sorts.map((f, i) => {
+															const [folder, table, col] =
+																e.target.value.split('.');
+
 															if (i === index) {
 																return {
 																	...f,
-																	column: e.target.value,
+																	column_name: col,
+																	table_name: table,
+																	schema_name: folder,
 																};
 															}
 
@@ -94,7 +99,10 @@ export const SortButton = ({ columns }: { columns: any }) => {
 												placeholder="Select column"
 											>
 												{columns.map((column: any) => (
-													<option value={column.name} key={column.name}>
+													<option
+														value={`${column.folder}.${column.table}.${column.name}`}
+														key={column.name}
+													>
 														{column.name}
 													</option>
 												))}

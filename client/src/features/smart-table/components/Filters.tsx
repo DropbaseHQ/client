@@ -90,13 +90,13 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 
 	const [filters, setFilters] = useAtom(filtersAtom);
 
-	const haveFiltersApplied = filters.length > 0 && filters.every((f) => f.column && f.value);
+	const haveFiltersApplied = filters.length > 0 && filters.every((f) => f.column_name && f.value);
 
 	const handleAddFilter = () => {
 		setFilters([
 			...filters,
 			{
-				column: '',
+				column_name: '',
 				value: null,
 				operator: '=',
 				id: crypto.randomUUID(),
@@ -136,8 +136,18 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 					) : (
 						<VStack alignItems="start" w="full">
 							{filters.map((filter, index) => {
-								const colType = columns.find((c: any) => c.name === filter.column)
-									?.type;
+								const colType = columns.find(
+									(c: any) =>
+										c.name === filter.column_name &&
+										c.folder === filter.schema_name &&
+										c.table === filter.table_name,
+								)?.type;
+								let inputType = 'text';
+
+								if (colType === 'integer') {
+									inputType = 'number';
+								}
+
 								return (
 									<HStack w="full" key={`filter-${index}`}>
 										<IconButton
@@ -145,6 +155,7 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 											icon={<Star size="14" />}
 											size="sm"
 											colorScheme="yellow"
+											isDisabled={!filter.column_name}
 											variant={filter.pinned ? 'solid' : 'outline'}
 											onClick={() => {
 												setFilters(
@@ -164,14 +175,19 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 
 										<FormControl flexGrow="1">
 											<Select
-												value={filter.column}
+												value={`${filter.schema_name}.${filter.table_name}.${filter.column_name}`}
 												onChange={(e) => {
 													setFilters(
 														filters.map((f, i) => {
+															const [folder, table, col] =
+																e.target.value.split('.');
+
 															if (i === index) {
 																return {
 																	...f,
-																	column: e.target.value,
+																	column_name: col,
+																	table_name: table,
+																	schema_name: folder,
 																};
 															}
 
@@ -184,7 +200,10 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 												placeholder="Select column"
 											>
 												{columns.map((column: any) => (
-													<option value={column.name} key={column.name}>
+													<option
+														value={`${column.folder}.${column.table}.${column.name}`}
+														key={column.name}
+													>
 														{column.name}
 													</option>
 												))}
@@ -224,7 +243,7 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 										</FormControl>
 										<FormControl flexGrow="1">
 											<Input
-												type={colType}
+												type={inputType}
 												colorScheme="blue"
 												value={filter.value}
 												onChange={(e) => {
@@ -233,7 +252,10 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 															if (i === index) {
 																return {
 																	...f,
-																	value: e.target.value,
+																	value:
+																		inputType === 'number'
+																			? +e.target.value
+																			: e.target.value,
 																};
 															}
 
