@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import { useSQLCompletion } from '@/components/Editor';
 import { useGetApp } from '@/features/app/hooks';
 import { useSchema } from '@/features/smart-table/hooks/useSchema';
+import { useToast } from '@/lib/chakra-ui';
 import { useCreateSql } from '../hooks/useCreateSql';
 import { useTableData } from '../hooks/useTableData';
 import { useUpdateSql } from '../hooks/useUpdateSql';
@@ -17,8 +18,37 @@ export const Editor = () => {
 	const { refetch, isLoading: tableDataIsLoading } = useTableData(appId);
 
 	const { sql } = useGetApp(appId || '');
-	const createSqlMutation = useCreateSql();
-	const updateSqlMutation = useUpdateSql();
+	const toast = useToast();
+	const createSqlMutation = useCreateSql({
+		onSuccess: () => {
+			toast({
+				title: 'SQL query updated',
+				status: 'success',
+			});
+		},
+		onError: (err) => {
+			toast({
+				title: 'Failed to create SQL query',
+				description: err?.response?.data?.detail?.message,
+				status: 'error',
+			});
+		},
+	});
+	const updateSqlMutation = useUpdateSql({
+		onSuccess: () => {
+			toast({
+				title: 'SQL query updated',
+				status: 'success',
+			});
+		},
+		onError: (err) => {
+			toast({
+				title: 'Failed to update SQL query',
+				description: err?.response?.data?.detail?.message,
+				status: 'error',
+			});
+		},
+	});
 	const [code, setCode] = useState(sql?.code);
 
 	useSQLCompletion(schema as any);
