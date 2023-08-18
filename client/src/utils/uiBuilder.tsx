@@ -74,19 +74,18 @@ const checkRules = ({ formValues, rules }: any) => {
 };
 
 export const CustomInput = (props: any) => {
-	const { name, type, options, depends, rules } = props;
+	const { name, type, options, rules } = props;
 	const { watch, register, getValues } = useFormContext();
 
 	watch();
 
 	if (
-		(depends &&
-			rules &&
+		(rules &&
 			checkRules({
 				formValues: getValues(),
 				rules,
 			})) ||
-		!depends
+		!rules
 	) {
 		if (type === 'select') {
 			if (typeof options === 'string') {
