@@ -7,7 +7,7 @@ RUN apt-get update -y && apt-get install libffi-dev libmagic1 git -y \
 WORKDIR /project
 
 # Install python libraries
-RUN pip3 install --no-cache-dir --upgrade 'python-lsp-server[websockets]'
+RUN pip3 install --no-cache-dir --upgrade 'python-lsp-server[websockets]' python-lsp-ruff
 
 ADD ./server/ server/
 
