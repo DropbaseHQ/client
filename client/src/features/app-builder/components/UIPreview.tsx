@@ -116,7 +116,6 @@ export const UIPanel = () => {
 						fontFamily="monospace"
 						overflowX="auto"
 						whiteSpace="pre-wrap"
-						wordWrap="break-word"
 					>
 						{runResult}
 					</Box>

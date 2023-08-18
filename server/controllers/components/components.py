@@ -1,6 +1,7 @@
 import ast
 import logging
 from pydantic import BaseModel
+from fastapi import Response, status
 from sqlalchemy.orm import Session
 from server.schemas.components import ConvertComponents
 from server.schemas.components import CreateComponents, UpdateComponents, ConvertComponents
@@ -50,11 +51,16 @@ def generate_ui_json(ui_classes: list[GeneratedUIComponent]):
     return ui_jsons
 
 
-def convert_components(request: ConvertComponents):
-    generated_classes = extract_class_instantiations(request.code)
-    logger.info(f"generated_classes: {generated_classes}")
-    ui_jsons = generate_ui_json(generated_classes)
-    return {"components": ui_jsons}
+def convert_components(request: ConvertComponents, response: Response):
+    try:
+        generated_classes = extract_class_instantiations(request.code)
+        logger.info(f"generated_classes: {generated_classes}")
+        ui_jsons = generate_ui_json(generated_classes)
+        return {"components": ui_jsons}
+    except Exception as e:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        logger.error(e)
+        return {"error": str(e)}
 
 
 def create_components(db: Session, request: CreateComponents):
