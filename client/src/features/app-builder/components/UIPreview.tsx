@@ -50,8 +50,13 @@ export const UIPreview = () => {
 		updateUserInput(formValues);
 	}, [formValues, updateUserInput]);
 
-	const sortUI = (components: any) =>
-		components.map((c: any) => {
+	const sortUI = (components: any[]) =>
+		components.flatMap((c: any) => {
+			// Do not render if c.name is not provided or all values are falsy
+			if (!c?.name || Object.values(c).every((val) => !val)) {
+				return [];
+			}
+
 			if (c.type === 'button') {
 				return <CustomButton key={c.name} {...c} />;
 			}
