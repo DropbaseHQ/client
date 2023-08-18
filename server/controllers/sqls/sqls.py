@@ -74,7 +74,8 @@ def compare_aliases_from_db(conn: Connection, query: str, schema_dict: AppSchema
         res = conn.execute(text(f"SELECT * FROM ({open_query}) AS q LIMIT 1"))
         returned_query_keys = list(res.keys())
     except ProgrammingError:
-        raise ValueError("Query is invalid.")
+        raise ValueError(
+            "There seems to be an issue with the SQL statement you provided.")
 
     all_schema_cols = expand_schema_tree(schema_dict)
 
