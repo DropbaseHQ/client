@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers.task.compose_task_code import compose_run_code
 from server.schemas.task import RunTask
+import inspect
 
 
 def run_task(request: RunTask, db: Session):
@@ -24,6 +25,16 @@ def run_task(request: RunTask, db: Session):
 
 
 def run_task_from_code_string(run_code, user_input, row):
+    # noqa
+    def call_function_with_auto_arguments(func, argument_mapper):
+        """Defined here so this function is available in locals()"""
+        sig = inspect.signature(func)
+        kwargs = {}
+        for param_name, param in sig.parameters.items():
+            if param.annotation in argument_mapper:
+                kwargs[param_name] = argument_mapper[param.annotation]
+        return func(**kwargs)
+
     ldic = locals()
     exec(run_code, ldic)
     return ldic["result"]

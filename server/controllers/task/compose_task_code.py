@@ -20,5 +20,12 @@ def compose_run_code(
     run_code += """row = from_dict(data_class=Row, data=row)\n"""
     run_code += """user_input=UserInput(**user_input)\n\n"""
 
-    run_code += f"""result = {action}(user_input, row)"""
+    run_code += """argument_mapper = {
+        Row: row,
+        UserInput: user_input,
+    }\n\n"""
+
+    # run_code += f"""result = {action}(user_input, row)"""
+    run_code += f"""result = call_function_with_auto_arguments({action}, argument_mapper)"""
+
     return run_code
