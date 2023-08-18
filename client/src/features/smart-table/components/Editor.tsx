@@ -28,7 +28,7 @@ export const Editor = () => {
 	}, [sql?.code]);
 
 	const handleQueryDatabase = async () => {
-		if (sql) {
+		if (sql?.code) {
 			await updateSqlMutation.mutateAsync({ sqlsId: sql.id || '', code: code || '' });
 		} else {
 			await createSqlMutation.mutateAsync({ appId: appId || '', code: code || '' });

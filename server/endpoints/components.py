@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Response, HTTPException
 from sqlalchemy.orm import Session
 
 from server import crud
@@ -18,12 +18,12 @@ def get_components(components_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/")
 def create_components(request: CreateComponents, db: Session = Depends(get_db)):
-    return crud.components.create(db, obj_in=request)
+    return components.create_components(db, request)
 
 
 @router.put("/{components_id}")
 def update_components(components_id: UUID, request: UpdateComponents, db: Session = Depends(get_db)):
-    return crud.components.update_by_pk(db=db, pk=components_id, obj_in=request)
+    return components.update_components(db, request, components_id)
 
 
 @router.delete("/{components_id}")
@@ -32,5 +32,7 @@ def delete_components(components_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/{components_id}/convert")
-def convert_components(components_id: str, request: ConvertComponents, db: Session = Depends(get_db)):
-    return components.convert_components(request)
+def convert_components(
+    components_id: str, request: ConvertComponents, response: Response, db: Session = Depends(get_db)
+):
+    return components.convert_components(request, response)

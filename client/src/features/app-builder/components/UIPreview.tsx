@@ -1,7 +1,7 @@
 /* eslint-disable  */
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'react-feather';
-import { Box, IconButton } from '@chakra-ui/react';
+import { Box, IconButton, Textarea } from '@chakra-ui/react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
 import { CustomInput, CustomButton } from '@/utils/uiBuilder';
@@ -11,7 +11,7 @@ import { useParams } from 'react-router-dom';
 import { UIEditor } from './UIEditor';
 import { useGetApp } from '@/features/app/hooks';
 import { useSetAtom, useAtom } from 'jotai';
-import { userInputAtom, uiCodeAtom } from '../atoms/tableContextAtoms';
+import { userInputAtom, uiCodeAtom, runResultAtom } from '../atoms/tableContextAtoms';
 
 export const UIPreview = () => {
 	const [uiCode, setUiCode] = useAtom(uiCodeAtom);
@@ -65,25 +65,30 @@ export const UIPreview = () => {
 	}, [components, setFormData]);
 
 	return (
-		<Box p="0" w="full">
-			<Box w="full" display="flex" justifyContent="space-between">
-				UI Preview
-				<IconButton
-					aria-label="Refresh UI"
-					size="xs"
-					icon={<RefreshCw size="16" />}
-					variant="outline"
-					isLoading={isLoading}
-					onClick={onRefreshUI}
-				/>
-			</Box>
+		<>
+			<Box>
+				<Box p="0" w="full">
+					<Box w="full" display="flex" justifyContent="space-between">
+						UI Preview
+						<IconButton
+							aria-label="Refresh UI"
+							size="xs"
+							icon={<RefreshCw size="16" />}
+							variant="outline"
+							isLoading={isLoading}
+							onClick={onRefreshUI}
+						/>
+					</Box>
 
-			<FormProvider {...methods}>{sortUI(components)}</FormProvider>
-		</Box>
+					<FormProvider {...methods}>{sortUI(components)}</FormProvider>
+				</Box>
+			</Box>
+		</>
 	);
 };
 
 export const UIPanel = () => {
+	const [runResult] = useAtom(runResultAtom);
 	return (
 		<PanelGroup direction="vertical">
 			<Panel defaultSize={50}>
@@ -95,6 +100,25 @@ export const UIPanel = () => {
 			<Panel maxSize={80}>
 				<Box bg="gray.50" p="4" h="full">
 					<UIPreview />
+				</Box>
+			</Panel>
+			<PanelHandle direction="horizontal" />
+
+			<Panel defaultSize={10}>
+				<Box bg="gray.50" p="4" h="full">
+					Console
+					<Box
+						p="4"
+						bg="black"
+						color="white"
+						borderRadius="md"
+						boxShadow="md"
+						fontFamily="monospace"
+						overflowX="auto"
+						whiteSpace="pre-wrap"
+					>
+						{runResult}
+					</Box>
 				</Box>
 			</Panel>
 		</PanelGroup>
