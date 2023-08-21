@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -9,13 +9,7 @@ class RunTask(BaseModel):
     user_input: dict
     row: dict
     action: str
-
-
-class RunFunction(BaseModel):
-    app_id: UUID
-    user_input: dict
-    row: dict
-    function_call: str
+    call_type: Literal["task", "function"] = "task"
 
 
 class CellEdit(BaseModel):
@@ -32,3 +26,11 @@ class EditCell(BaseModel):
     # row: dict
     edits: List[CellEdit]
     sql_id: UUID
+
+
+class RunCodeResponse(BaseModel):
+    status: Literal["success", "error"]
+    type: Literal["sql", "python"]
+    stdout: Optional[str]
+    result: Optional[str]
+    traceback: Optional[str]

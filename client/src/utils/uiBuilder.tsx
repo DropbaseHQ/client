@@ -35,6 +35,7 @@ const runTask = async ({
 		user_input: userInput,
 		row,
 		action,
+		call_type: 'task',
 	});
 	return data;
 };

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Literal
 
 from server.schemas.components import ReadComponents
 from server.schemas.functions import ReadFunctions
@@ -10,7 +10,7 @@ def compose_run_code(
     components: ReadComponents,
     functions: ReadFunctions,
     action: str,
-    call_type: str = "task",
+    call_type: Literal["task", "function"],
 ) -> str:
     run_code = "from dataclasses import dataclass\n"
     run_code += "from dacite import from_dict\n"
@@ -30,7 +30,7 @@ def compose_run_code(
     }\n\n"""
 
     # run_code += f"""result = {action}(user_input, row)"""
-    if call_type == "function_call":
+    if call_type == "function":
         run_code += f"result = {action}"
     else:
         run_code += f"""result = call_function_with_auto_arguments({action}, argument_mapper)"""

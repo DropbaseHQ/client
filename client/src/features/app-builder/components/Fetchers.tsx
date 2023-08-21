@@ -125,7 +125,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 					</Text>
 				)}
 			</Stack>
-			{log?.message ? (
+			{log?.result ? (
 				<Stack pt="2" borderTopWidth="1px">
 					<Text
 						px="2"
@@ -138,7 +138,8 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 					</Text>
 					<MonacoEditor
 						language="shell"
-						height={`${(log?.data?.split('\n').length || 1) * 20}px`}
+						// height={'100px'}
+						height={`${(log?.result?.split('\n').length || 1) * 20 + 100}px`}
 						options={{
 							readOnly: true,
 							minimap: { enabled: false },
@@ -155,7 +156,14 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 							wordWrap: 'on',
 							wrappingStrategy: 'advanced',
 						}}
-						value={log?.data}
+						value={
+							'Result:\n' +
+							log?.result +
+							'\n\nStdout:\n' +
+							log?.stdout +
+							'\nTraceback:\n' +
+							log?.traceback
+						}
 					/>
 				</Stack>
 			) : null}

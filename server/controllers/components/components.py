@@ -1,11 +1,12 @@
 import ast
 import logging
-from pydantic import BaseModel
+
 from fastapi import Response, status
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from server.schemas.components import ConvertComponents
-from server.schemas.components import CreateComponents, UpdateComponents, ConvertComponents
+
 from server import crud
+from server.schemas.components import ConvertComponents, CreateComponents, UpdateComponents
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ def extract_class_instantiations(code_string: str) -> list[GeneratedUIComponent]
 
 
 def generate_ui_json(ui_classes: list[GeneratedUIComponent]):
-    from .ui_components import UIInput, UIText, UIButton
+    from .ui_components import UIButton, UIInput, UIText
 
     ui_jsons = []
     for ui_class in ui_classes:

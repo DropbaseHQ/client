@@ -12,11 +12,12 @@ const runFunction = async ({
 	row: any;
 	functionCall: any;
 }) => {
-	const { data } = await axios.post('/task/function', {
+	const { data } = await axios.post('/task', {
 		app_id: appId,
 		user_input: userInput,
 		row,
-		function_call: functionCall,
+		action: functionCall,
+		call_type: 'function'
 	});
 	return data;
 };

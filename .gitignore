@@ -11,3 +11,5 @@
 # client
 client/.DS_Store
 client/node_modules/
+
+.venvlsp
