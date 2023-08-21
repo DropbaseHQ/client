@@ -27,9 +27,11 @@ def extract_class_instantiations(code_string: str) -> list[GeneratedUIComponent]
             class_name = node.value.func.id
             kwargs = {}
             for keyword in node.value.keywords:
-                keyword_value = ast.literal_eval(keyword.value)
+                if isinstance(keyword.value, ast.Name):
+                    keyword_value = keyword.value.id
+                else:
+                    keyword_value = ast.literal_eval(keyword.value)
                 kwargs[keyword.arg] = keyword_value
-
             generated_class_instances.append(GeneratedUIComponent(class_name=class_name, kwargs=kwargs))
 
     return generated_class_instances
