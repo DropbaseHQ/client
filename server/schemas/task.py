@@ -11,6 +11,13 @@ class RunTask(BaseModel):
     action: str
 
 
+class RunFunction(BaseModel):
+    app_id: UUID
+    user_input: dict
+    row: dict
+    function_call: str
+
+
 class CellEdit(BaseModel):
     schema_name: str
     table_name: str
