@@ -40,17 +40,22 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 		},
 	});
 
-	const functionNameRegex = /^\s*def\s+([^(]*)(?:.*?:$)/m;
-	const functionName = functionNameRegex.exec(code)?.[1];
+	const functionRegex = /^def\s+(?<call>(?<name>\w*)\s*\((?<params>[\S\s]*?)\)(?:\s*->\s*[\S\s]+?|\s*)):/gm;
+	const matches = code.matchAll(functionRegex);
+	const firstMatch = matches.next();
+	const { name, params } = firstMatch?.value?.groups || { name: null, params: null };
 
-	const bracketsRegex = /\((.*?)\)/;
-	const argumentString = bracketsRegex.exec(code)?.[1];
-	const argumentsName = argumentString
+	if (!matches.next().done) {
+		// more than one function was matched
+		// MAYBE TODO: warn user
+	}
+
+	const argumentsName = (params || '')
 		?.split(',')
 		.map((s: any) => s.trim().split(':')?.[0])
 		?.filter(Boolean);
 
-	const functionCall = functionName ? `${functionName}(${argumentsName?.join(',')})` : '';
+	const functionCall = name ? `${name}(${argumentsName?.join(', ')})` : null;
 
 	return (
 		<Stack minH="2xs" spacing="0" borderTopWidth="1px" borderBottomWidth="1px">
@@ -62,6 +67,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 					isLoading={runFunctionMutation.isLoading}
 					icon={<Play size="14" />}
 					aria-label="Run code"
+					isDisabled={!functionCall}
 					onClick={() => {
 						if (appId) {
 							if (Object.keys(selectedRow).length > 0) {
@@ -80,28 +86,42 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 						}
 					}}
 				/>
-				<MonacoEditor
-					language="python"
-					height="20px"
-					options={{
-						readOnly: true,
-						minimap: { enabled: false },
-						lineNumbers: 'off',
-						glyphMargin: false,
-						scrollbar: {
-							vertical: 'hidden',
-							horizontal: 'hidden',
-							handleMouseWheel: false,
-							verticalScrollbarSize: 0,
-							verticalHasArrows: false,
-						},
-						overviewRulerLanes: 0,
-						scrollBeyondLastLine: false,
-						wordWrap: 'on',
-						wrappingStrategy: 'advanced',
-					}}
-					value={functionCall}
-				/>
+				{functionCall ?
+					<MonacoEditor
+						language="python"
+						height="20px"
+						options={{
+							readOnly: true,
+							minimap: { enabled: false },
+							lineNumbers: 'off',
+							folding: false,
+							glyphMargin: false,
+							lineDecorationsWidth: 0,
+							lineNumbersMinChars: 0,
+							scrollbar: {
+								vertical: 'hidden',
+								horizontal: 'hidden',
+								handleMouseWheel: false,
+								verticalScrollbarSize: 0,
+								verticalHasArrows: false,
+							},
+							overviewRulerLanes: 0,
+							scrollBeyondLastLine: false,
+							wordWrap: 'on',
+							wrappingStrategy: 'advanced',
+						}}
+						value={functionCall}
+					/>
+					: <Text
+						px="2"
+						fontSize="xs"
+						letterSpacing="wide"
+						color="muted"
+						fontWeight="semibold"
+					>
+						No function detected.
+					</Text>
+				}
 			</Stack>
 			{log?.message ? (
 				<Stack pt="2" borderTopWidth="1px">
