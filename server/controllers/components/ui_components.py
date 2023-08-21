@@ -25,6 +25,9 @@ class UIInput(UIComponent):
         number: int = None,
         depends_value: any = None,
         rules: list[dict] = None,
+        display_rules: list[dict] = None,
+        action_rules: list[dict] = None,
+        on_select: str = None,
     ):
         self.name = name
         self.type = type
@@ -41,6 +44,9 @@ class UIInput(UIComponent):
         self.number = number
         self.depends_value = depends_value
         self.rules = rules
+        self.display_rules = display_rules
+        self.action_rules = action_rules
+        self.on_select = on_select
 
 
 class UIText(UIComponent):

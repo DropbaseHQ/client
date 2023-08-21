@@ -74,18 +74,28 @@ const checkRules = ({ formValues, rules }: any) => {
 };
 
 export const CustomInput = (props: any) => {
-	const { name, type, options, rules } = props;
+	const {
+		name,
+		type,
+		options,
+		display_rules: displayRules,
+		action_rules: actionRules,
+		on_select: onSelect,
+	} = props;
 	const { watch, register, getValues } = useFormContext();
-
+	const runTask = useRunTask();
+	const [selectedRow] = useAtom(selectedRowAtom);
+	const [userInput] = useAtom(userInputAtom);
+	const { appId } = useParams();
 	watch();
 
 	if (
-		(rules &&
+		(displayRules &&
 			checkRules({
 				formValues: getValues(),
-				rules,
+				rules: displayRules,
 			})) ||
-		!rules
+		!displayRules
 	) {
 		if (type === 'select') {
 			if (typeof options === 'string') {
@@ -95,7 +105,29 @@ export const CustomInput = (props: any) => {
 				<Box>
 					<FormControl>
 						<FormLabel htmlFor={name}>{name}</FormLabel>
-						<Select id={name} placeholder={`Select ${name}`} {...register(name)}>
+						<Select
+							id={name}
+							placeholder={`Select ${name}`}
+							{...register(name)}
+							onChange={async (e) => {
+								console.log('over here');
+								register(name).onChange(e);
+								if (
+									onSelect &&
+									checkRules({
+										formValues: getValues(),
+										rules: actionRules,
+									})
+								) {
+									await runTask.mutateAsync({
+										appId: appId || '',
+										userInput: userInput,
+										row: selectedRow,
+										action: onSelect,
+									});
+								}
+							}}
+						>
 							{options?.map((o: any) => <option key={o}>{o}</option>)}
 						</Select>
 					</FormControl>
