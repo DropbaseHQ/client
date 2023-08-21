@@ -2,6 +2,7 @@ services:
   server:
     image: dropbase-server
     build: ./server
+    platform: linux/amd64 # required on Apple Silicon for pyscopg2 authentication
     ports:
       - 8000:8000 # this should be reflected in client/.env
   pylsp:

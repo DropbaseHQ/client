@@ -1,6 +1,6 @@
-from typing import Any
+from typing import Any, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class SourceColumn(BaseModel):
@@ -19,7 +19,9 @@ class SourceColumn(BaseModel):
     # table display specific
     editable: bool = False
     hidden: bool = False
-    key_column: str = None
+    key_column: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
+
+    # from_attributes = True
+    # orm_mode = True

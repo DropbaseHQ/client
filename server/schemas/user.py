@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class BaseUser(BaseModel):
@@ -12,8 +12,7 @@ class BaseUser(BaseModel):
     trial_eligible: bool
     active: bool
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CreateUser(BaseUser):

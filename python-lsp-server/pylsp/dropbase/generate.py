@@ -2,13 +2,17 @@ import os
 from abc import ABC
 from typing import Callable, Generic, List, Type, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from pylsp.workspace import Document, Workspace
 
 T = TypeVar("T", Workspace, Document)
 
 
 class GeneratedFile(ABC, BaseModel, Generic[T]):
+    # model_config = ConfigDict(arbitrary_types_allowed=True)
+    class Config:
+        arbitrary_types_allowed = True
+
     # Relative path to write to
     path: str
     # A None return value should not be written
@@ -29,6 +33,9 @@ class GeneratedFile(ABC, BaseModel, Generic[T]):
 
 
 class GenerateHandler(ABC, BaseModel, Generic[T]):
+    class Config:
+        arbitrary_types_allowed = True
+
     # Receives the triggering resource and returns whether to generate any files or not
     # Used for conditional file generation
     match_fn: Callable[[T], bool] = lambda _: True
@@ -38,17 +45,17 @@ class GenerateHandler(ABC, BaseModel, Generic[T]):
 
 # On workspace create
 class WorkspaceCreateHandler(GenerateHandler[Workspace]):
-    pass
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 # On document create
 class DocumentCreateHandler(GenerateHandler[Document]):
-    pass
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 # On document content change
 class DocumentChangeHandler(GenerateHandler[Document]):
-    pass
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 # Filters the generate list and handles the appropriate generate event handlers

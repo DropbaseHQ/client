@@ -10,6 +10,7 @@ WORKDIR /project
 RUN pip3 install --no-cache-dir --upgrade 'python-lsp-server[websockets]' python-lsp-ruff
 
 ADD ./server/ server/
+RUN pip3 install --no-cache-dir --upgrade -r server/requirements.txt
 
 ADD ./python-lsp-server/ python-lsp-server/
 RUN pip3 install -e python-lsp-server
