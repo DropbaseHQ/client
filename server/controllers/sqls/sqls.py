@@ -81,9 +81,9 @@ def compare_aliases_from_db(
         cleaned_returned_query_keys = [
             parse_object_alias(key, schema_dict)[0] for key in returned_query_keys
         ]
-    except ProgrammingError:
+    except ProgrammingError as err:
         raise ValueError(
-            "There seems to be an issue with the SQL statement you provided.")
+            "There seems to be an issue with the SQL statement you provided.", str(err))
 
     all_schema_cols = expand_schema_tree(schema_dict)
 
@@ -172,7 +172,7 @@ def get_misnamed_aliases(
             res = conn.execute(text(checker_query))
             data = res.mappings().fetchone()
         except ProgrammingError as err:
-            raise TypeError(f"Query columns cannot be compared: {err}")
+            raise TypeError(err)
 
         # check that all aliases in the result
         bad_cols = [key for key, value in data.items() if not value]
@@ -210,7 +210,7 @@ def get_misnamed_aliases(
             res = conn.execute(text(checker_query))
             row = res.mappings().fetchone()
         except ProgrammingError as err:
-            raise TypeError(f"Query columns cannot be compared: {err}")
+            raise TypeError(err)
         total = row["total"]
 
         bad_cols = [key for key, value in row.items() if key !=
@@ -254,21 +254,23 @@ def test_sql(db: Session, sql_string: str):
                 bad_cols = get_misnamed_aliases(
                     conn, sql_string, good_cols, parsed_schema, schema)
             except TypeError as err:
-                print(err)
                 raise ValueError(
                     "Query has misnamed columns. Please check "
-                    "that your aliases match the returned columns."
+                    "that your aliases match the returned columns.",
+                    str(err)
                 )
             if bad_cols:
                 raise ValueError(
                     f"Query has misnamed columns: {', '.join(bad_cols)}")
 
     except ValueError as err:
+        message: str = err.args[0]
+        details: str | None = err.args[1] if len(err.args) > 1 else None
         return raise_language_exception(LanguageErrorResponse(
             status="error",
             type="sql",
-            message=str(err),
-            details=None,
+            message=message,
+            details=details,
         ))
     finally:
         engine.dispose()
