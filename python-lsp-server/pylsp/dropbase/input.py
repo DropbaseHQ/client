@@ -1,4 +1,4 @@
-from server.controllers.components import GeneratedUIComponent, extract_class_instantiations
+from server.controllers.components.parse import GeneratedUIComponent, extract_class_instantiations
 
 map_ui_type_to_dtype = {
     "select": "str",

@@ -1,0 +1,7 @@
+# `pip install -r python-lsp-server/requirements.txt` should be run from the root project directory
+# context: .. (the parent directory, "dropbase")
+
+python-lsp-ruff # python linting addon
+
+# Install the module (with websockets feature) as editable
+-e ./python-lsp-server[websockets]

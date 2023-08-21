@@ -6,13 +6,12 @@ RUN apt-get update -y && apt-get install libffi-dev libmagic1 git -y \
 
 WORKDIR /project
 
-# Install python libraries
-RUN pip3 install --no-cache-dir --upgrade 'python-lsp-server[websockets]' python-lsp-ruff
-
 ADD ./server/ server/
 
+# Possible caching optimization, split installable requirements into seperate requirements folder (i.e. creating seperate layers).
+# Then install requirements which require the source after we copy the source. For now, we group everything together.
 ADD ./python-lsp-server/ python-lsp-server/
-RUN pip3 install -e python-lsp-server
+RUN pip3 install --no-cache-dir --upgrade -r python-lsp-server/requirements.txt
 
 # EXPOSE $API_PORT_NUM
 
