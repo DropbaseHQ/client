@@ -1,4 +1,4 @@
-import { Box, Flex, IconButton, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Box, Code, Flex, IconButton, Spinner, Stack, Text } from '@chakra-ui/react';
 import MonacoEditor from '@monaco-editor/react';
 import { useEffect, useState } from 'react';
 import { CheckCircle, Play } from 'react-feather';
@@ -16,6 +16,9 @@ export const Editor = () => {
 	const { schema, isLoading } = useSchema();
 	const { appId } = useParams();
 	const { refetch, isLoading: tableDataIsLoading } = useTableData(appId);
+	const [sqlError, setSqlError] = useState<{ message: string; details: string | null } | null>(
+		null,
+	);
 
 	const { sql } = useGetApp(appId || '');
 	const toast = useToast();
@@ -25,13 +28,10 @@ export const Editor = () => {
 				title: 'SQL query updated',
 				status: 'success',
 			});
+			setSqlError(null);
 		},
 		onError: (err) => {
-			toast({
-				title: 'Failed to create SQL query',
-				description: err?.response?.data?.detail?.message,
-				status: 'error',
-			});
+			setSqlError(err?.response?.data?.detail);
 		},
 	});
 	const updateSqlMutation = useUpdateSql({
@@ -40,13 +40,10 @@ export const Editor = () => {
 				title: 'SQL query updated',
 				status: 'success',
 			});
+			setSqlError(null);
 		},
 		onError: (err) => {
-			toast({
-				title: 'Failed to update SQL query',
-				description: err?.response?.data?.detail?.message,
-				status: 'error',
-			});
+			setSqlError(err?.response?.data?.detail);
 		},
 	});
 	const [code, setCode] = useState(sql?.code);
@@ -80,46 +77,57 @@ export const Editor = () => {
 			/>
 
 			<Stack
-				h="12"
 				position="sticky"
 				bottom="0"
 				bg="white"
-				direction="row"
+				direction="column"
 				p="2"
 				alignItems="center"
 				borderTopWidth="0.5px"
 				justifyContent="space-between"
 			>
-				{isLoading ? (
-					<Flex alignItems="center">
-						<Spinner size="xs" />
-						<Text ml="1" fontSize="sm">
-							Loading schema...
-						</Text>
-					</Flex>
-				) : (
-					<Flex alignItems="center">
-						<Box color="green.500">
-							<CheckCircle size="14" />
-						</Box>
-						<Text ml="1" fontSize="sm">
-							Schema loaded
-						</Text>
-					</Flex>
-				)}
+				<Stack direction="row" w="full" justifyContent="space-between">
+					{isLoading ? (
+						<Flex alignItems="center">
+							<Spinner size="xs" />
+							<Text ml="1" fontSize="sm">
+								Loading schema...
+							</Text>
+						</Flex>
+					) : (
+						<Flex alignItems="center">
+							<Box color="green.500">
+								<CheckCircle size="14" />
+							</Box>
+							<Text ml="1" fontSize="sm">
+								Schema loaded
+							</Text>
+						</Flex>
+					)}
 
-				<IconButton
-					borderRadius="full"
-					size="xs"
-					aria-label="Search database"
-					icon={<Play size="12" />}
-					isLoading={
-						createSqlMutation.isLoading ||
-						updateSqlMutation.isLoading ||
-						tableDataIsLoading
-					}
-					onClick={handleQueryDatabase}
-				/>
+					<IconButton
+						borderRadius="full"
+						size="xs"
+						aria-label="Search database"
+						icon={<Play size="12" />}
+						isLoading={
+							createSqlMutation.isLoading ||
+							updateSqlMutation.isLoading ||
+							tableDataIsLoading
+						}
+						onClick={handleQueryDatabase}
+					/>
+				</Stack>
+				{sqlError?.message && (
+					<Code w="full" background="white" color="red">
+						ERROR: {sqlError.message}
+					</Code>
+				)}
+				{sqlError?.details && (
+					<Code w="full" background="white" color="red">
+						{sqlError.details}
+					</Code>
+				)}
 			</Stack>
 		</Stack>
 	);
