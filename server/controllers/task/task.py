@@ -8,6 +8,7 @@ from server.schemas.task import RunFunction, RunTask
 
 
 def run_task(request: RunTask, db: Session):
+    # TODO: catch stdout
     try:
         # get user input schema from ui components
         components = crud.components.get_app_component(db, app_id=request.app_id)
@@ -26,7 +27,7 @@ def run_task(request: RunTask, db: Session):
         return {
             "message": "fail",
             "data": str(e) + "\n\n" + temp_error,
-            "error": f"Failed to run {request.function_call}",
+            "error": f"Failed to run {request.action}",
         }
 
 
