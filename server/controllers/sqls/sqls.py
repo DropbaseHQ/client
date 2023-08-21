@@ -7,7 +7,8 @@ from server import crud
 from server.controllers.app import AppSchema, get_app_schema
 from server.controllers.task.source_column_helper import connect_to_user_db
 from server.controllers.task.source_column_model import get_parsed_schema, get_regrouped_schema
-from server.utils.helper import raise_http_exception
+from server.schemas.errors import LanguageErrorResponse
+from server.utils.helper import raise_language_exception
 
 SchemaDict = dict[str, dict[str, list[str]]]
 
@@ -80,12 +81,14 @@ def compare_aliases_from_db(
         cleaned_returned_query_keys = [
             parse_object_alias(key, schema_dict)[0] for key in returned_query_keys
         ]
-    except ProgrammingError:
-        raise ValueError("There seems to be an issue with the SQL statement you provided.")
+    except ProgrammingError as err:
+        raise ValueError(
+            "There seems to be an issue with the SQL statement you provided.", str(err))
 
     all_schema_cols = expand_schema_tree(schema_dict)
 
-    bad_cols = [key for key in cleaned_returned_query_keys if key not in all_schema_cols]
+    bad_cols = [
+        key for key in cleaned_returned_query_keys if key not in all_schema_cols]
     duplicate_cols = [
         key for key in cleaned_returned_query_keys if cleaned_returned_query_keys.count(key) > 1
     ]
@@ -102,8 +105,10 @@ def get_misnamed_aliases(
     compared with another type
     """
 
-    parsed_aliases = [(*parse_object_alias(alias, app_schema), alias) for alias in used_aliases]
-    used_tables = list(set(alias[: alias.rfind(".")] for alias, _, _ in parsed_aliases))
+    parsed_aliases = [(*parse_object_alias(alias, app_schema), alias)
+                      for alias in used_aliases]
+    used_tables = list(set(alias[: alias.rfind(".")]
+                       for alias, _, _ in parsed_aliases))
 
     table_to_primary_key: dict[str, str] = {}
     table_to_primary_alias: dict[str, str] = {}
@@ -127,7 +132,8 @@ def get_misnamed_aliases(
         try:
             col_props = lookup_alias_in_schema(app_schema, schema_dict, name)
         except KeyError:
-            raise ValueError(f'"{name}" does not exist in any of your sources. Is it misnamed?')
+            raise ValueError(
+                f'"{name}" does not exist in any of your sources. Is it misnamed?')
 
         if not col_props["nullable"] and col_props["unique"] or col_props["primary_key"]:
             # if the column is unique and not nullable, it can be used as a key
@@ -166,7 +172,7 @@ def get_misnamed_aliases(
             res = conn.execute(text(checker_query))
             data = res.mappings().fetchone()
         except ProgrammingError as err:
-            raise TypeError(f"Query columns cannot be compared: {err}")
+            raise TypeError(err)
 
         # check that all aliases in the result
         bad_cols = [key for key, value in data.items() if not value]
@@ -204,10 +210,11 @@ def get_misnamed_aliases(
             res = conn.execute(text(checker_query))
             row = res.mappings().fetchone()
         except ProgrammingError as err:
-            raise TypeError(f"Query columns cannot be compared: {err}")
+            raise TypeError(err)
         total = row["total"]
 
-        bad_cols = [key for key, value in row.items() if key != "total" and value != total]
+        bad_cols = [key for key, value in row.items() if key !=
+                    "total" and value != total]
 
     return bad_cols
 
@@ -223,11 +230,14 @@ def test_sql(db: Session, sql_string: str):
     engine = connect_to_user_db()
     try:
         with engine.connect() as conn:
-            bad_cols, duplicate_cols, good_cols = compare_aliases_from_db(conn, sql_string, schema)
+            bad_cols, duplicate_cols, good_cols = compare_aliases_from_db(
+                conn, sql_string, schema)
         if bad_cols:
-            raise ValueError(f"Query has unknown columns: {', '.join(bad_cols)}")
+            raise ValueError(
+                f"Query has unknown columns: {', '.join(bad_cols)}")
         elif duplicate_cols:
-            raise ValueError(f"Query has duplicate columns: {', '.join(set(duplicate_cols))}")
+            raise ValueError(
+                f"Query has duplicate columns: {', '.join(set(duplicate_cols))}")
 
         qualified_good_cols: list[str] = []
         for col in good_cols:
@@ -241,17 +251,26 @@ def test_sql(db: Session, sql_string: str):
 
         with engine.connect() as conn:
             try:
-                bad_cols = get_misnamed_aliases(conn, sql_string, good_cols, parsed_schema, schema)
+                bad_cols = get_misnamed_aliases(
+                    conn, sql_string, good_cols, parsed_schema, schema)
             except TypeError as err:
-                print(err)
                 raise ValueError(
                     "Query has misnamed columns. Please check "
-                    "that your aliases match the returned columns."
+                    "that your aliases match the returned columns.",
+                    str(err)
                 )
             if bad_cols:
-                raise ValueError(f"Query has misnamed columns: {', '.join(bad_cols)}")
+                raise ValueError(
+                    f"Query has misnamed columns: {', '.join(bad_cols)}")
 
     except ValueError as err:
-        return raise_http_exception(400, str(err))
+        message: str = err.args[0]
+        details: str | None = err.args[1] if len(err.args) > 1 else None
+        return raise_language_exception(LanguageErrorResponse(
+            status="error",
+            type="sql",
+            message=message,
+            details=details,
+        ))
     finally:
         engine.dispose()
