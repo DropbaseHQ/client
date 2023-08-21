@@ -40,7 +40,8 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 		},
 	});
 
-	const functionRegex = /^def\s+(?<call>(?<name>\w*)\s*\((?<params>[\S\s]*?)\)(?:\s*->\s*[\S\s]+?|\s*)):/gm;
+	const functionRegex =
+		/^def\s+(?<call>(?<name>\w*)\s*\((?<params>[\S\s]*?)\)(?:\s*->\s*[\S\s]+?|\s*)):/gm;
 	const matches = code.matchAll(functionRegex);
 	const firstMatch = matches.next();
 	const { name, params } = firstMatch?.value?.groups || { name: null, params: null };
@@ -86,7 +87,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 						}
 					}}
 				/>
-				{functionCall ?
+				{functionCall ? (
 					<MonacoEditor
 						language="python"
 						height="20px"
@@ -112,7 +113,8 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 						}}
 						value={functionCall}
 					/>
-					: <Text
+				) : (
+					<Text
 						px="2"
 						fontSize="xs"
 						letterSpacing="wide"
@@ -121,7 +123,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 					>
 						No function detected.
 					</Text>
-				}
+				)}
 			</Stack>
 			{log?.message ? (
 				<Stack pt="2" borderTopWidth="1px">
