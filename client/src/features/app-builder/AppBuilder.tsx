@@ -4,7 +4,7 @@ import { Panel, PanelGroup } from 'react-resizable-panels';
 import { PanelHandle } from '@/components/Panel';
 
 import { Table } from '@/features/smart-table/components/Table';
-import { UIPanel } from './components/UIPreview';
+import { UIPanel, UIPreview } from './components/UIPreview';
 import { AppBuilderNavbar } from './components/BuilderNavbar';
 import { Fetchers } from './components/Fetchers';
 import { useMonacoLoader } from '@/components/Editor';
@@ -26,18 +26,30 @@ export const AppBuilder = () => {
 
 							<PanelHandle direction="vertical" />
 
-							<Panel>{isEditorReady ? <Fetchers /> : null}</Panel>
+							<Panel defaultSize={30}>{isEditorReady ? <UIPanel /> : null}</Panel>
 
 							<PanelHandle direction="vertical" />
 
-							<Panel defaultSize={20}>{isEditorReady ? <UIPanel /> : null}</Panel>
+							<Panel defaultSize={50}>{isEditorReady ? <Fetchers /> : null}</Panel>
 						</PanelGroup>
 					</Panel>
 
 					<PanelHandle direction="horizontal" />
 
 					<Panel>
-						<Table />
+						<PanelGroup direction="horizontal">
+							<Panel defaultSize={80} maxSize={80}>
+								<Table />
+							</Panel>
+
+							<PanelHandle direction="vertical" />
+
+							<Panel>
+								<Box p="4">
+									<UIPreview />
+								</Box>
+							</Panel>
+						</PanelGroup>
 					</Panel>
 				</PanelGroup>
 			</Box>

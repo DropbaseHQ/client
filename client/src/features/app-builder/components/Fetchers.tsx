@@ -1,24 +1,143 @@
-import { useEffect } from 'react';
-import { Box, Button, Stack } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { Box, Button, IconButton, Stack, Text } from '@chakra-ui/react';
+import { Play } from 'react-feather';
+import MonacoEditor, { useMonaco } from '@monaco-editor/react';
 import { useParams } from 'react-router-dom';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
-import { fetchersAtom } from '../atoms/tableContextAtoms';
+import { fetchersAtom, selectedRowAtom, userInputAtom } from '../atoms/tableContextAtoms';
 
 import { usePythonEditor } from '@/components/Editor';
 import { useGetApp } from '@/features/app/hooks';
+import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
+import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
+import { useToast } from '@/lib/chakra-ui';
 
 export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; setCode: any }) => {
+	const { appId } = useParams();
+	const toast = useToast();
+
+	const [log, setLog] = useState<any>(null);
+
+	const monaco = useMonaco();
+	useMonacoTheme(monaco);
+
 	const editorRef = usePythonEditor({
 		filepath: `fetchers/${id}.py`,
 		code,
 		onChange: setCode,
 	});
 
+	const selectedRow = useAtomValue(selectedRowAtom);
+	const userInput = useAtomValue(userInputAtom);
+
+	const runFunctionMutation = useRunFunction({
+		onMutate: () => {
+			setLog(null);
+		},
+		onSuccess: (response: any) => {
+			setLog(response);
+		},
+	});
+
+	const functionNameRegex = /^\s*def\s+([^(]*)(?:.*?:$)/m;
+	const functionName = functionNameRegex.exec(code)?.[1];
+
+	const bracketsRegex = /\((.*?)\)/;
+	const argumentString = bracketsRegex.exec(code)?.[1];
+	const argumentsName = argumentString
+		?.split(',')
+		.map((s: any) => s.trim().split(':')?.[0])
+		?.filter(Boolean);
+
+	const functionCall = functionName ? `${functionName}(${argumentsName?.join(',')})` : '';
+
 	return (
-		<Box minH="2xs" borderTopWidth="1px" borderBottomWidth="1px">
-			<Box ref={editorRef} as="div" w="full" h="full" />
-		</Box>
+		<Stack minH="2xs" spacing="0" borderTopWidth="1px" borderBottomWidth="1px">
+			<Box flex="1" ref={editorRef} as="div" w="full" borderBottomWidth="1px" h="full" />
+			<Stack direction="row" alignItems="center" p="2">
+				<IconButton
+					borderRadius="full"
+					size="xs"
+					isLoading={runFunctionMutation.isLoading}
+					icon={<Play size="14" />}
+					aria-label="Run code"
+					onClick={() => {
+						if (appId) {
+							if (Object.keys(selectedRow).length > 0) {
+								runFunctionMutation.mutate({
+									appId,
+									functionCall,
+									row: selectedRow,
+									userInput,
+								});
+							} else {
+								toast({
+									status: 'error',
+									title: 'Select a row',
+								});
+							}
+						}
+					}}
+				/>
+				<MonacoEditor
+					language="python"
+					height="20px"
+					options={{
+						readOnly: true,
+						minimap: { enabled: false },
+						lineNumbers: 'off',
+						glyphMargin: false,
+						scrollbar: {
+							vertical: 'hidden',
+							horizontal: 'hidden',
+							handleMouseWheel: false,
+							verticalScrollbarSize: 0,
+							verticalHasArrows: false,
+						},
+						overviewRulerLanes: 0,
+						scrollBeyondLastLine: false,
+						wordWrap: 'on',
+						wrappingStrategy: 'advanced',
+					}}
+					value={functionCall}
+				/>
+			</Stack>
+			{log?.message ? (
+				<Stack pt="2" borderTopWidth="1px">
+					<Text
+						px="2"
+						fontSize="xs"
+						letterSpacing="wide"
+						color="muted"
+						fontWeight="semibold"
+					>
+						Output
+					</Text>
+					<MonacoEditor
+						language="shell"
+						height={`${(log?.data?.split('\n').length || 1) * 20}px`}
+						options={{
+							readOnly: true,
+							minimap: { enabled: false },
+							glyphMargin: false,
+							scrollbar: {
+								vertical: 'hidden',
+								horizontal: 'hidden',
+								handleMouseWheel: false,
+								verticalScrollbarSize: 0,
+								verticalHasArrows: false,
+							},
+							overviewRulerLanes: 0,
+							scrollBeyondLastLine: false,
+							wordWrap: 'on',
+							wrappingStrategy: 'advanced',
+						}}
+						value={log?.data}
+					/>
+				</Stack>
+			) : null}
+		</Stack>
 	);
 };
 

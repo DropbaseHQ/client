@@ -1,17 +1,18 @@
 /* eslint-disable  */
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'react-feather';
-import { Box, IconButton } from '@chakra-ui/react';
+import { Box, IconButton, Stack, Text } from '@chakra-ui/react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
 import { CustomInput, CustomButton } from '@/utils/uiBuilder';
-import { Panel, PanelGroup } from 'react-resizable-panels';
-import { PanelHandle } from '@/components/Panel';
+import MonacoEditor from '@monaco-editor/react';
 import { useParams } from 'react-router-dom';
 import { UIEditor } from './UIEditor';
 import { useGetApp } from '@/features/app/hooks';
 import { useSetAtom, useAtom } from 'jotai';
 import { userInputAtom, uiCodeAtom, runResultAtom } from '../atoms/tableContextAtoms';
+import { Panel, PanelGroup } from 'react-resizable-panels';
+import { PanelHandle } from '@/components/Panel';
 
 export const UIPreview = () => {
 	const [uiCode, setUiCode] = useAtom(uiCodeAtom);
@@ -94,38 +95,51 @@ export const UIPreview = () => {
 
 export const UIPanel = () => {
 	const [runResult] = useAtom(runResultAtom);
+	console.log(runResult);
+
 	return (
 		<PanelGroup direction="vertical">
-			<Panel defaultSize={50}>
+			<Panel>
 				<UIEditor />
 			</Panel>
+			{runResult ? <PanelHandle direction="horizontal" /> : null}
 
-			<PanelHandle direction="horizontal" />
-
-			<Panel maxSize={80}>
-				<Box bg="gray.50" p="4" h="full">
-					<UIPreview />
-				</Box>
-			</Panel>
-			<PanelHandle direction="horizontal" />
-
-			<Panel defaultSize={10}>
-				<Box bg="gray.50" p="4" h="full">
-					Console
-					<Box
-						p="4"
-						bg="black"
-						color="white"
-						borderRadius="md"
-						boxShadow="md"
-						fontFamily="monospace"
-						overflowX="auto"
-						whiteSpace="pre-wrap"
-					>
-						{runResult}
-					</Box>
-				</Box>
-			</Panel>
+			{runResult ? (
+				<Panel>
+					<Stack h="full" pt="2" borderTopWidth="1px">
+						<Text
+							px="2"
+							fontSize="xs"
+							letterSpacing="wide"
+							color="muted"
+							fontWeight="semibold"
+						>
+							Output
+						</Text>
+						<MonacoEditor
+							language="shell"
+							height="100%"
+							options={{
+								readOnly: true,
+								minimap: { enabled: false },
+								glyphMargin: false,
+								scrollbar: {
+									vertical: 'hidden',
+									horizontal: 'hidden',
+									handleMouseWheel: false,
+									verticalScrollbarSize: 0,
+									verticalHasArrows: false,
+								},
+								overviewRulerLanes: 0,
+								scrollBeyondLastLine: false,
+								wordWrap: 'on',
+								wrappingStrategy: 'advanced',
+							}}
+							value={runResult}
+						/>
+					</Stack>
+				</Panel>
+			) : null}
 		</PanelGroup>
 	);
 };

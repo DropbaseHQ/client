@@ -18,6 +18,7 @@ import { axios } from '@/lib/axios';
 import { useAtom, useSetAtom } from 'jotai';
 import { selectedRowAtom } from '@/features/app-builder/atoms/tableContextAtoms';
 import { runResultAtom } from '@/features/app-builder/atoms/tableContextAtoms';
+
 const runTask = async ({
 	appId,
 	userInput,
@@ -42,7 +43,7 @@ export const useRunTask = () => {
 	const setRunResult = useSetAtom(runResultAtom);
 	return useMutation(runTask, {
 		onSettled: (data, _error, _variables, _context) => {
-			setRunResult(data?.log);
+			setRunResult(data?.data);
 		},
 	});
 };
