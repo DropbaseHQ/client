@@ -38,20 +38,22 @@ const createLanguageClient = (transports: MessageTransports): MonacoLanguageClie
 	});
 };
 
-const createWebSocket = (url: string): WebSocket => {
+const createWebSocket = async (url: string): Promise<[WebSocket, MonacoLanguageClient]> => {
 	const webSocket = new WebSocket(url);
-	webSocket.onopen = () => {
-		const socket = toSocket(webSocket);
-		const reader = new WebSocketMessageReader(socket);
-		const writer = new WebSocketMessageWriter(socket);
-		const languageClient = createLanguageClient({
-			reader,
-			writer,
-		});
-		languageClient.start();
-		reader.onClose(() => languageClient.stop());
-	};
-	return webSocket;
+	return new Promise((resolve, _) => {
+		webSocket.onopen = () => {
+			const socket = toSocket(webSocket);
+			const reader = new WebSocketMessageReader(socket);
+			const writer = new WebSocketMessageWriter(socket);
+			const languageClient = createLanguageClient({
+				reader,
+				writer,
+			});
+			languageClient.start();
+			reader.onClose(() => languageClient.stop());
+			resolve([webSocket, languageClient]);
+		};
+	});
 };
 
 export const initializeLanguageServices = async () => {
@@ -79,7 +81,7 @@ export const initializeLanguageServices = async () => {
 	monaco.languages.setLanguageConfiguration(languageId, conf);
 	monaco.languages.setMonarchTokensProvider(languageId, language);
 
-	return createWebSocket(import.meta.env.VITE_PYTHON_LSP_SERVER);
+	return await createWebSocket(import.meta.env.VITE_PYTHON_LSP_SERVER);
 };
 
 const createPythonEditor = async (config: { htmlElement: HTMLElement; filepath: string }) => {

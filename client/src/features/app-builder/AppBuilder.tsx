@@ -9,9 +9,22 @@ import { AppBuilderNavbar } from './components/BuilderNavbar';
 import { Fetchers } from './components/Fetchers';
 import { useMonacoLoader } from '@/components/Editor';
 import { UIState } from './components/UIState';
+import { useParams } from 'react-router-dom';
+import { useTableData } from '../smart-table/hooks/useTableData';
 
 export const AppBuilder = () => {
-	const isEditorReady = useMonacoLoader();
+	const { appId } = useParams();
+	const [isEditorReady, _, languageClient] = useMonacoLoader();
+
+	const { isLoading, dataclass } = useTableData({
+		appId: appId,
+		filters: [],
+		sorts: [],
+	});
+
+	if (!isLoading && languageClient) {
+		languageClient.sendNotification('workspace/setTableSchema', { dataclass });
+	}
 
 	return (
 		<Stack spacing="0" h="full">
