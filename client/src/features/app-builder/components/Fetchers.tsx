@@ -63,6 +63,15 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 
 	const functionCall = name ? `${name}(${argumentsName?.join(', ')})` : '';
 
+	const outputPreview = log
+		? `Result:
+${log.result}\n
+Stdout:
+${log.stdout}\n
+Traceback:
+${log.traceback}`
+		: '';
+
 	return (
 		<Stack minH="2xs" spacing="0" borderTopWidth="1px" borderBottomWidth="1px">
 			<Box flex="1" ref={editorRef} as="div" w="full" borderBottomWidth="1px" h="full" />
@@ -131,7 +140,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 				)}
 			</Stack>
 			{log?.result ? (
-				<Stack pt="2" borderTopWidth="1px">
+				<Stack pt="2" h="full" borderTopWidth="1px">
 					<Text
 						px="2"
 						fontSize="xs"
@@ -143,8 +152,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 					</Text>
 					<MonacoEditor
 						language="shell"
-						// height={'100px'}
-						height={`${(log?.result?.split('\n').length || 1) * 20 + 100}px`}
+						height={`${(outputPreview?.split('\n').length || 1) * 20}px`}
 						options={{
 							readOnly: true,
 							minimap: { enabled: false },
@@ -161,14 +169,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 							wordWrap: 'on',
 							wrappingStrategy: 'advanced',
 						}}
-						value={
-							'Result:\n' +
-							log?.result +
-							'\n\nStdout:\n' +
-							log?.stdout +
-							'\nTraceback:\n' +
-							log?.traceback
-						}
+						value={outputPreview}
 					/>
 				</Stack>
 			) : null}
@@ -202,27 +203,29 @@ export const Fetchers = () => {
 	};
 
 	return (
-		<Stack h="full" bg="gray.50" minH="full" overflowY="auto" spacing="4">
-			{Object.keys(fetchers).map((fetchId: any) => {
-				return (
-					<FetchEditor
-						key={fetchId}
-						code={fetchers[fetchId]}
-						setCode={(n: any) => {
-							setFetchers((f: any) => ({
-								...f,
-								[fetchId]: n,
-							}));
-						}}
-						id={fetchId}
-					/>
-				);
-			})}
+		<Stack position="relative" h="full" bg="gray.50" minH="full" spacing="4">
+			<Stack overflowY="auto" flex="1" pb="10" spacing="4" h="full">
+				{Object.keys(fetchers).map((fetchId: any) => {
+					return (
+						<FetchEditor
+							key={fetchId}
+							code={fetchers[fetchId]}
+							setCode={(n: any) => {
+								setFetchers((f: any) => ({
+									...f,
+									[fetchId]: n,
+								}));
+							}}
+							id={fetchId}
+						/>
+					);
+				})}
+			</Stack>
 
 			<Stack
-				mt="auto"
-				position="sticky"
+				position="absolute"
 				bottom="0"
+				w="full"
 				bg="white"
 				direction="row"
 				p="2"
@@ -232,14 +235,6 @@ export const Fetchers = () => {
 			>
 				<Button size="sm" onClick={createNewFetcher}>
 					Create new fetcher
-				</Button>
-				<Button
-					size="sm"
-					onClick={() => {
-						console.log('Fetchers', fetchers);
-					}}
-				>
-					Test console
 				</Button>
 			</Stack>
 		</Stack>

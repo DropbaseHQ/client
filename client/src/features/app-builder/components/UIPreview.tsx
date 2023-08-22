@@ -1,7 +1,16 @@
 /* eslint-disable  */
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'react-feather';
-import { Box, IconButton, Stack, Text } from '@chakra-ui/react';
+import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	AlertTitle,
+	Box,
+	IconButton,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
 import { CustomInput, CustomButton } from '@/utils/uiBuilder';
@@ -9,7 +18,7 @@ import MonacoEditor from '@monaco-editor/react';
 import { useParams } from 'react-router-dom';
 import { UIEditor } from './UIEditor';
 import { useGetApp } from '@/features/app/hooks';
-import { useSetAtom, useAtom } from 'jotai';
+import { useSetAtom, useAtom, useAtomValue } from 'jotai';
 import { userInputAtom, uiCodeAtom, runResultAtom } from '../atoms/tableContextAtoms';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { PanelHandle } from '@/components/Panel';
@@ -18,6 +27,8 @@ export const UIPreview = () => {
 	const [uiCode, setUiCode] = useAtom(uiCodeAtom);
 	const { appId } = useParams();
 	const { uiComponents } = useGetApp(appId || '');
+
+	const log = useAtomValue(runResultAtom);
 
 	useEffect(() => {
 		if (uiComponents?.[0]) {
@@ -71,31 +82,41 @@ export const UIPreview = () => {
 	}, [components, setFormData]);
 
 	return (
-		<>
-			<Box>
-				<Box p="0" w="full">
-					<Box w="full" display="flex" justifyContent="space-between">
-						UI Preview
-						<IconButton
-							aria-label="Refresh UI"
-							size="xs"
-							icon={<RefreshCw size="16" />}
-							variant="outline"
-							isLoading={isLoading}
-							onClick={onRefreshUI}
-						/>
-					</Box>
-
-					<FormProvider {...methods}>{sortUI(components)}</FormProvider>
-				</Box>
+		<Stack>
+			<Box w="full" display="flex" justifyContent="space-between">
+				UI Preview
+				<IconButton
+					aria-label="Refresh UI"
+					size="xs"
+					icon={<RefreshCw size="16" />}
+					variant="outline"
+					isLoading={isLoading}
+					onClick={onRefreshUI}
+				/>
 			</Box>
-		</>
+
+			<FormProvider {...methods}>{sortUI(components)}</FormProvider>
+
+			{log ? (
+				<Alert borderRadius="md" status={log.status}>
+					<AlertIcon />
+					<AlertDescription>{log.result}</AlertDescription>
+				</Alert>
+			) : null}
+		</Stack>
 	);
 };
 
 export const UIPanel = () => {
-	const [runResult] = useAtom(runResultAtom);
-	console.log(runResult);
+	const log = useAtomValue(runResultAtom);
+	const runResult = log
+		? `Result:
+${log.result}\n
+Stdout:
+${log.stdout}\n
+Traceback:
+${log.traceback}`
+		: '';
 
 	return (
 		<PanelGroup direction="vertical">
@@ -123,13 +144,6 @@ export const UIPanel = () => {
 								readOnly: true,
 								minimap: { enabled: false },
 								glyphMargin: false,
-								scrollbar: {
-									vertical: 'hidden',
-									horizontal: 'hidden',
-									handleMouseWheel: false,
-									verticalScrollbarSize: 0,
-									verticalHasArrows: false,
-								},
 								overviewRulerLanes: 0,
 								scrollBeyondLastLine: false,
 								wordWrap: 'on',

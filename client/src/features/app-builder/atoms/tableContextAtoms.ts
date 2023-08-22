@@ -8,4 +8,4 @@ export const fetchersAtom = atom<any>({});
 
 export const uiCodeAtom = atom('');
 
-export const runResultAtom = atom('');
+export const runResultAtom = atom<any>('');

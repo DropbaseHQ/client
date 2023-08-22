@@ -44,7 +44,7 @@ export const useRunTask = () => {
 	const setRunResult = useSetAtom(runResultAtom);
 	return useMutation(runTask, {
 		onSettled: (data, _error, _variables, _context) => {
-			setRunResult(data?.data);
+			setRunResult(data);
 		},
 	});
 };
@@ -189,7 +189,7 @@ export const CustomButton = (props: any) => {
 	};
 
 	return (
-		<Button onClick={handleAction} marginTop="2">
+		<Button isLoading={runTask.isLoading} onClick={handleAction} marginTop="2">
 			{label}
 		</Button>
 	);

@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query';
 import { useMemo } from 'react';
-import { axios } from '@/lib/axios';
 import { useSetAtom } from 'jotai';
+import { axios } from '@/lib/axios';
 import { runResultAtom } from '@/features/app-builder/atoms/tableContextAtoms';
 
 const fetchUIJson = async ({ code, app_id }: { code: string; app_id: string }) => {

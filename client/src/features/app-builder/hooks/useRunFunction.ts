@@ -17,7 +17,7 @@ const runFunction = async ({
 		user_input: userInput,
 		row,
 		action: functionCall,
-		call_type: 'function'
+		call_type: 'function',
 	});
 	return data;
 };
