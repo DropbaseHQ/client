@@ -40,15 +40,20 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 		},
 	});
 
+	// If a truthy value is set, the "run block" button is disabled and this error is displayed.
+	let runDisabledError = '';
+
 	const functionRegex =
 		/^def\s+(?<call>(?<name>\w*)\s*\((?<params>[\S\s]*?)\)(?:\s*->\s*[\S\s]+?|\s*)):/gm;
 	const matches = code.matchAll(functionRegex);
 	const firstMatch = matches.next();
-	const { name, params } = firstMatch?.value?.groups || { name: null, params: null };
 
-	if (!matches.next().done) {
-		// more than one function was matched
-		// MAYBE TODO: warn user
+	const { name, params } = firstMatch?.value?.groups || { name: null, params: null };
+	if (!name) {
+		runDisabledError = 'No function detected. Fetchers must define one function.';
+	} else if (!matches.next().done) {
+		runDisabledError =
+			'More than one function was detected. Fetchers can only define one function.';
 	}
 
 	const argumentsName = (params || '')
@@ -56,7 +61,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 		.map((s: any) => s.trim().split(':')?.[0])
 		?.filter(Boolean);
 
-	const functionCall = name ? `${name}(${argumentsName?.join(', ')})` : null;
+	const functionCall = name ? `${name}(${argumentsName?.join(', ')})` : '';
 
 	return (
 		<Stack minH="2xs" spacing="0" borderTopWidth="1px" borderBottomWidth="1px">
@@ -68,7 +73,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 					isLoading={runFunctionMutation.isLoading}
 					icon={<Play size="14" />}
 					aria-label="Run code"
-					isDisabled={!functionCall}
+					isDisabled={!!runDisabledError}
 					onClick={() => {
 						if (appId) {
 							if (Object.keys(selectedRow).length > 0) {
@@ -87,7 +92,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 						}
 					}}
 				/>
-				{functionCall ? (
+				{!runDisabledError ? (
 					<MonacoEditor
 						language="python"
 						height="20px"
@@ -119,9 +124,9 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 						fontSize="xs"
 						letterSpacing="wide"
 						color="muted"
-						fontWeight="semibold"
+						fontWeight="medium"
 					>
-						No function detected.
+						{runDisabledError}
 					</Text>
 				)}
 			</Stack>
