@@ -1,7 +1,12 @@
 from pylsp.workspace import Document, Workspace
 
-from .generate import handleGenerateEvent
-from .generatelist import DocumentChangeHandler, DocumentCreateHandler, WorkspaceCreateHandler, generate
+from .generate import (
+    DocumentChangeHandler,
+    DocumentCreateHandler,
+    WorkspaceCreateHandler,
+    handleGenerateEvent,
+)
+from .generatelist import generate
 
 
 def generateWorkspaceCreateFiles(workspace: Workspace):

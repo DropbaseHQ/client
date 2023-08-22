@@ -22,6 +22,7 @@ from .dropbase.events import (
     generateDocumentCreateFiles,
     generateWorkspaceCreateFiles,
 )
+from .dropbase.generate import GeneratedFile
 from .workspace import Document, Notebook, Workspace
 
 log = logging.getLogger(__name__)
@@ -651,6 +652,14 @@ class PythonLSPServer(MethodDispatcher):
 
     def m_text_document__signature_help(self, textDocument=None, position=None, **_kwargs):
         return self.signature_help(textDocument["uri"], position)
+
+    # Dropbase defined event (LSP notifcation is called "workspace/setTableSchema")
+    # Writes the passed dataclass to dropbase/row.py
+    def m_workspace__set_table_schema(self, dataclass: str = "", **_kwargs):
+        if self.workspace is not None:
+            GeneratedFile[Workspace](path="dropbase/row.py", content_fn=lambda _: dataclass).write(
+                self.workspace._root_path, self.workspace
+            )
 
     def m_workspace__did_change_configuration(self, settings=None):
         if self.config is not None:
