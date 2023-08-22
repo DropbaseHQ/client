@@ -38,7 +38,7 @@ type TableData = {
 };
 
 const fetchTableData = async ({ appId, filters, sorts }: any) => {
-	const response = await axios.post<TableData>(`/table`, {
+	const response = await axios.post<TableData>(`/table/`, {
 		app_id: appId,
 		filters,
 		sorts,
