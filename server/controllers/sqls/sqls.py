@@ -83,7 +83,7 @@ def compare_aliases_from_db(
         ]
     except ProgrammingError as err:
         raise ValueError(
-            "There seems to be an issue with the SQL statement you provided.", str(err))
+            "There seems to be an issue with the SQL statement you provided.", str(err.orig))
 
     all_schema_cols = expand_schema_tree(schema_dict)
 
@@ -172,7 +172,7 @@ def get_misnamed_aliases(
             res = conn.execute(text(checker_query))
             data = res.mappings().fetchone()
         except ProgrammingError as err:
-            raise TypeError(err)
+            raise TypeError(str(err.orig))
 
         # check that all aliases in the result
         bad_cols = [key for key, value in data.items() if not value]
@@ -210,7 +210,7 @@ def get_misnamed_aliases(
             res = conn.execute(text(checker_query))
             row = res.mappings().fetchone()
         except ProgrammingError as err:
-            raise TypeError(err)
+            raise TypeError(str(err.orig))
         total = row["total"]
 
         bad_cols = [key for key, value in row.items() if key !=

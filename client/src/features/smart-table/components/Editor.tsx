@@ -125,7 +125,9 @@ export const Editor = () => {
 				)}
 				{sqlError?.details && (
 					<Code w="full" background="white" color="red">
-						{sqlError.details}
+						{sqlError.details.split('\n').map((line, index) => (
+							<pre key={index}>{line}</pre>
+						))}
 					</Code>
 				)}
 			</Stack>
