@@ -15,6 +15,7 @@ type TableData = {
 	}[];
 	data: Row[];
 	sql_id: string;
+	dataclass: string;
 	schema: {
 		[folder: string]: {
 			[table: string]: {
@@ -76,6 +77,7 @@ export const useTableData = ({ appId, filters, sorts }: any) => {
 
 			return {
 				schema: response.schema,
+				dataclass: response.dataclass,
 				rows,
 				columns,
 				rowsWithSchema: response.data.map((r: any) => {

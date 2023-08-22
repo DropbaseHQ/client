@@ -32,7 +32,13 @@ def get_table_data(db: Session, request: QueryTable):
         res = conn.execute(text(filter_sql), join_filters).all()
     data = [list(row) for row in res]
 
-    return {"header": parsed_column_names, "data": data, "schema": schema, "sql_id": sql.id}
+    return {
+        "header": parsed_column_names,
+        "data": data,
+        "schema": schema,
+        "sql_id": sql.id,
+        "dataclass": row_dataclass,
+    }
 
 
 type_mapping = {
