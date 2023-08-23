@@ -59,17 +59,30 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 
 	const functionCall = name ? `${name}(${argumentsName?.join(', ')})` : '';
 
-	const outputPreview = log
-		? `Result:
-${log.result}\n
-Stdout:
-${log.stdout}\n
-Traceback:
-${log.traceback}`
-		: '';
+	let outputPreview = '';
+
+	if (log?.stdout && log.stdout !== '\n') {
+		outputPreview = log.stdout;
+	}
+
+	if (log?.traceback) {
+		if (outputPreview) {
+			outputPreview += '\n';
+		}
+		outputPreview += `---------------------------------------------------------------------------------\n`;
+
+		outputPreview += log.traceback;
+	}
+
+	if (log?.result) {
+		if (outputPreview) {
+			outputPreview += '\n';
+		}
+		outputPreview += log.result;
+	}
 
 	return (
-		<Stack spacing="0" borderTopWidth="1px" borderBottomWidth="1px" bg={BG_FOCUSED}>
+		<Stack spacing="0" borderRadius="sm" borderWidth="1px" bg={BG_FOCUSED}>
 			<Box flex="1" ref={editorRef} as="div" w="full" borderBottomWidth="1px" h="full" />
 			<Stack direction="row" alignItems="center" p="2" pl="1rem">
 				<IconButton
@@ -138,7 +151,8 @@ ${log.traceback}`
 						color="gray.500"
 						backgroundColor="inherit"
 						paddingLeft="3rem"
-						overflow="hidden"
+						overflowY="scroll"
+						overflowX="hidden"
 						height={`${(outputPreview?.split('\n').length || 1) * 20}px`}
 					>
 						<pre>{outputPreview}</pre>
@@ -176,7 +190,7 @@ export const Fetchers = () => {
 
 	return (
 		<Stack position="relative" h="full" bg={BG_UNFOCUSED} minH="full" spacing="4">
-			<Stack overflowY="auto" flex="1" pb="10" spacing="4" h="full">
+			<Stack overflowY="auto" flex="1" px="2" pt="2" pb="10" spacing="4" h="full">
 				{Object.keys(fetchers).map((fetchId: any) => {
 					return (
 						<FetchEditor
