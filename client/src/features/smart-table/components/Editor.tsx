@@ -15,7 +15,7 @@ import { useUpdateSql } from '../hooks/useUpdateSql';
 export const Editor = () => {
 	const { schema, isLoading } = useSchema();
 	const { appId } = useParams();
-	const { refetch, isLoading: tableDataIsLoading } = useTableData(appId);
+	const { refetch, isLoading: tableDataIsLoading } = useTableData({ appId });
 	const [sqlError, setSqlError] = useState<{ message: string; details: string | null } | null>(
 		null,
 	);
