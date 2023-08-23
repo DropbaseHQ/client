@@ -141,15 +141,25 @@ ${log.traceback}`
 			</Stack>
 			{log?.result ? (
 				<Stack pt="2" h="full" borderTopWidth="1px">
-					<Text
-						px="2"
-						fontSize="xs"
-						letterSpacing="wide"
-						color="muted"
-						fontWeight="semibold"
-					>
-						Output
-					</Text>
+					<Stack direction="row" px="2" justifyContent="space-between">
+						<Text
+							fontSize="xs"
+							letterSpacing="wide"
+							color="muted"
+							fontWeight="semibold"
+						>
+							Output
+						</Text>
+						<Button
+							size="xs"
+							variant="link"
+							onClick={() => {
+								setLog(null);
+							}}
+						>
+							Clear
+						</Button>
+					</Stack>
 					<MonacoEditor
 						language="shell"
 						height={`${(outputPreview?.split('\n').length || 1) * 20}px`}
