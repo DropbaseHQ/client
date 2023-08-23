@@ -1,25 +1,28 @@
-import { Flex, IconButton, Stack, Text, Button } from '@chakra-ui/react';
+import { BG_UNFOCUSED } from '@/utils/constants';
+import { Button, Flex, Stack } from '@chakra-ui/react';
 import { ArrowLeft } from 'react-feather';
 import { useSaveStudio } from '../hooks/useSaveStudio';
 
 export const AppBuilderNavbar = () => {
 	const { saveStudio, isLoading: saveStudioIsLoading } = useSaveStudio();
 	return (
-		<Stack alignItems="center" h="10" borderBottomWidth="1px" direction="row">
+		<Stack
+			alignItems="center"
+			h="12"
+			borderBottomWidth="1px"
+			direction="row"
+			backgroundColor={BG_UNFOCUSED}
+		>
 			<Flex h="full" alignItems="center">
-				<IconButton
-					aria-label="Go back to Apps"
-					icon={<ArrowLeft size="14" />}
+				<Button
+					leftIcon={<ArrowLeft size="14" />}
 					borderRadius="0"
 					variant="ghost"
 					h="full"
 					colorScheme="gray"
-					borderRightWidth="1px"
-				/>
-
-				<Text fontSize="sm" fontWeight="medium" marginLeft="2">
-					App Builder
-				</Text>
+				>
+					Back to App
+				</Button>
 			</Flex>
 			<Button
 				size="sm"

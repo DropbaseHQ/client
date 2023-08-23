@@ -1,16 +1,16 @@
 import { Box, Stack } from '@chakra-ui/react';
 
-import { Panel, PanelGroup } from 'react-resizable-panels';
 import { PanelHandle } from '@/components/Panel';
+import { Panel, PanelGroup } from 'react-resizable-panels';
 
-import { Table } from '@/features/smart-table/components/Table';
-import { UIPanel, UIPreview } from './components/UIPreview';
-import { AppBuilderNavbar } from './components/BuilderNavbar';
-import { Fetchers } from './components/Fetchers';
 import { useMonacoLoader } from '@/components/Editor';
-import { UIState } from './components/UIState';
+import { Table } from '@/features/smart-table/components/Table';
 import { useParams } from 'react-router-dom';
 import { useTableData } from '../smart-table/hooks/useTableData';
+import { AppBuilderNavbar } from './components/BuilderNavbar';
+import { Fetchers } from './components/Fetchers';
+import { UIPanel, UIPreview } from './components/UIPreview';
+import { UIState } from './components/UIState';
 
 export const AppBuilder = () => {
 	const { appId } = useParams();
@@ -36,14 +36,10 @@ export const AppBuilder = () => {
 							<Panel defaultSize={20}>
 								<UIState />
 							</Panel>
-
 							<PanelHandle direction="vertical" />
-
-							<Panel defaultSize={30}>{isEditorReady ? <UIPanel /> : null}</Panel>
-
-							<PanelHandle direction="vertical" />
-
 							<Panel defaultSize={50}>{isEditorReady ? <Fetchers /> : null}</Panel>
+							<PanelHandle direction="vertical" />
+							<Panel defaultSize={30}>{isEditorReady ? <UIPanel /> : null}</Panel>
 						</PanelGroup>
 					</Panel>
 
