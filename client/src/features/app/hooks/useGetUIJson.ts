@@ -22,10 +22,9 @@ export const useGetUIJson = ({
 	const queryKey = [UI_JSON_QUERY_KEY, app_id || '', code];
 	const { data, ...rest } = useQuery(queryKey, () => fetchUIJson({ code, app_id }), {
 		onError: (error: any) => {
-			console.log(error);
 			setRunResult(error?.response?.data?.error);
 		},
-		onSuccess: (_: any) => {
+		onSuccess: () => {
 			setRunResult('');
 		},
 	});

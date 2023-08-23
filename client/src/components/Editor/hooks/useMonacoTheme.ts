@@ -1,23 +1,31 @@
 import { useColorMode } from '@chakra-ui/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import GhDark from 'monaco-themes/themes/GitHub Dark.json';
 import GhLight from 'monaco-themes/themes/GitHub Light.json';
 
 export const useMonacoTheme = (monaco: any) => {
+	const [themeLoaded, setThemeLoaded] = useState(false);
 	const { colorMode } = useColorMode();
 
 	useEffect(() => {
-		if (monaco) {
+		if (!monaco) return;
+
+		monaco.editor.defineTheme('gh-dark', GhDark);
+		monaco.editor.defineTheme('gh-light', GhLight);
+
+		setThemeLoaded(true);
+	}, [monaco]);
+
+	useEffect(() => {
+		if (monaco && themeLoaded) {
 			const isDark = colorMode === 'dark';
 
 			if (isDark) {
-				monaco.editor.defineTheme('gh-dark', GhDark as any);
 				monaco.editor.setTheme('gh-dark');
 			} else {
-				monaco.editor.defineTheme('gh-light', GhLight as any);
 				monaco.editor.setTheme('gh-light');
 			}
 		}
-	}, [monaco, colorMode]);
+	}, [monaco, themeLoaded, colorMode]);
 };

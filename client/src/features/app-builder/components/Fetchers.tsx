@@ -73,7 +73,7 @@ ${log.traceback}`
 		: '';
 
 	return (
-		<Stack minH="2xs" spacing="0" borderTopWidth="1px" borderBottomWidth="1px">
+		<Stack spacing="0" borderTopWidth="1px" borderBottomWidth="1px">
 			<Box flex="1" ref={editorRef} as="div" w="full" borderBottomWidth="1px" h="full" />
 			<Stack direction="row" alignItems="center" p="2">
 				<IconButton

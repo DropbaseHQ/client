@@ -36,7 +36,7 @@ export const UIPreview = () => {
 		isFetching: isLoading,
 	} = useGetUIJson({
 		app_id: appId || '',
-		code: uiCode || '',
+		code: (uiCode || '').trim(),
 	});
 
 	const [, setFormData] = useState([]);

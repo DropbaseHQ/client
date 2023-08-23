@@ -14,5 +14,9 @@ export const UIEditor = () => {
 		},
 	});
 
-	return <Box ref={editorRef} as="div" w="full" h="full" />;
+	return (
+		<Box overflowY="auto" h="full">
+			<Box ref={editorRef} as="div" w="full" h="full" />
+		</Box>
+	);
 };
