@@ -1,5 +1,5 @@
-import { useQuery } from 'react-query';
 import { useMemo } from 'react';
+import { useQuery } from 'react-query';
 
 import { axios } from '@/lib/axios';
 
@@ -48,7 +48,7 @@ const fetchTableData = async ({ appId, filters, sorts }: any) => {
 	return response.data;
 };
 
-export const useTableData = ({ appId, filters, sorts }: any) => {
+export const useTableData = ({ appId, filters = [], sorts = [] }: any) => {
 	const queryKey = [TABLE_DATA_QUERY_KEY, appId, JSON.stringify({ filters, sorts })];
 
 	const { data: response, ...rest } = useQuery(queryKey, () =>
