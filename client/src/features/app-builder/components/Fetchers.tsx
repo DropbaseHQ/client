@@ -1,19 +1,29 @@
-import { useEffect, useState } from 'react';
 import { Box, Button, IconButton, Stack, Text } from '@chakra-ui/react';
-import { Play } from 'react-feather';
 import MonacoEditor, { useMonaco } from '@monaco-editor/react';
-import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useState } from 'react';
+import { Play, Trash } from 'react-feather';
+import { useParams } from 'react-router-dom';
 
 import { fetchersAtom, selectedRowAtom, userInputAtom } from '../atoms/tableContextAtoms';
 
 import { usePythonEditor } from '@/components/Editor';
-import { useGetApp } from '@/features/app/hooks';
 import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
+import { useGetApp } from '@/features/app/hooks';
 import { useToast } from '@/lib/chakra-ui';
 
-export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; setCode: any }) => {
+export const FetchEditor = ({
+	id,
+	code,
+	setCode,
+	onDelete,
+}: {
+	id: string;
+	code: string;
+	setCode: any;
+	onDelete: () => void;
+}) => {
 	const { appId } = useParams();
 	const toast = useToast();
 
@@ -101,6 +111,18 @@ ${log.traceback}`
 						}
 					}}
 				/>
+				<IconButton
+					borderRadius="full"
+					size="xs"
+					colorScheme="red"
+					isLoading={runFunctionMutation.isLoading}
+					icon={<Trash size="14" />}
+					aria-label="Delete function"
+					onClick={() => {
+						onDelete();
+					}}
+				/>
+
 				{!runDisabledError ? (
 					<MonacoEditor
 						language="python"
@@ -217,6 +239,10 @@ export const Fetchers = () => {
 								}));
 							}}
 							id={fetchId}
+							onDelete={() => {
+								const { [fetchId]: _, ...rest } = fetchers;
+								setFetchers(rest);
+							}}
 						/>
 					);
 				})}

@@ -1,9 +1,9 @@
-import { useMutation } from 'react-query';
+import { useGetApp } from '@/features/app/hooks';
 import { axios } from '@/lib/axios';
 import { useAtom } from 'jotai';
-import { fetchersAtom, uiCodeAtom } from '../atoms/tableContextAtoms';
+import { useMutation } from 'react-query';
 import { useParams } from 'react-router-dom';
-import { useGetApp } from '@/features/app/hooks';
+import { fetchersAtom, uiCodeAtom } from '../atoms/tableContextAtoms';
 
 const createAppFunction = async ({
 	code,
@@ -29,6 +29,11 @@ const updateAppFunction = async ({
 }) => {
 	const response = await axios.put(`/functions/${functionId}`, { code, type });
 	return response.data;
+};
+
+const deleteAppFunction = async (functionId: string) => {
+	const { data } = await axios.delete(`/functions/${functionId}`);
+	return data;
 };
 
 const createAppComponent = async ({
@@ -60,6 +65,7 @@ export const useSaveStudio = () => {
 	const createAppComponentMutation = useMutation(createAppComponent);
 	const updateAppFunctionMutation = useMutation(updateAppFunction);
 	const createAppFunctionMutation = useMutation(createAppFunction);
+	const deleteAppFunctionMutation = useMutation(deleteAppFunction);
 
 	const [fetchers] = useAtom(fetchersAtom);
 	const [uiCode] = useAtom(uiCodeAtom);
@@ -108,6 +114,12 @@ export const useSaveStudio = () => {
 				});
 			}
 		});
+		savedFetchers.forEach(async (fetcher: any) => {
+			if (!fetchers[fetcher.id]) {
+				await deleteAppFunctionMutation.mutateAsync(fetcher.id);
+			}
+		});
+
 		refetch();
 	};
 	const isLoading =
