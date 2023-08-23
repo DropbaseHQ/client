@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react';
-import { Box, Button, IconButton, Stack, Text } from '@chakra-ui/react';
-import { Play } from 'react-feather';
+import { Box, Button, Code, IconButton, Stack, Text } from '@chakra-ui/react';
 import MonacoEditor, { useMonaco } from '@monaco-editor/react';
-import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useState } from 'react';
+import { Play } from 'react-feather';
+import { useParams } from 'react-router-dom';
 
 import { fetchersAtom, selectedRowAtom, userInputAtom } from '../atoms/tableContextAtoms';
 
 import { usePythonEditor } from '@/components/Editor';
-import { useGetApp } from '@/features/app/hooks';
 import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
+import { useGetApp } from '@/features/app/hooks';
 import { useToast } from '@/lib/chakra-ui';
+import { BG_BUTTON, BG_UNFOCUSED } from '@/utils/constants';
 
 export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; setCode: any }) => {
 	const { appId } = useParams();
@@ -79,8 +80,10 @@ ${log.traceback}`
 				<IconButton
 					borderRadius="full"
 					size="xs"
+					color="black"
+					backgroundColor={BG_BUTTON}
 					isLoading={runFunctionMutation.isLoading}
-					icon={<Play size="14" />}
+					icon={<Play size="14" fill="true" />}
 					aria-label="Run code"
 					isDisabled={!!runDisabledError}
 					onClick={() => {
@@ -102,31 +105,9 @@ ${log.traceback}`
 					}}
 				/>
 				{!runDisabledError ? (
-					<MonacoEditor
-						language="python"
-						height="20px"
-						options={{
-							readOnly: true,
-							minimap: { enabled: false },
-							lineNumbers: 'off',
-							folding: false,
-							glyphMargin: false,
-							lineDecorationsWidth: 0,
-							lineNumbersMinChars: 0,
-							scrollbar: {
-								vertical: 'hidden',
-								horizontal: 'hidden',
-								handleMouseWheel: false,
-								verticalScrollbarSize: 0,
-								verticalHasArrows: false,
-							},
-							overviewRulerLanes: 0,
-							scrollBeyondLastLine: false,
-							wordWrap: 'on',
-							wrappingStrategy: 'advanced',
-						}}
-						value={functionCall}
-					/>
+					<Code color="gray.500" backgroundColor="inherit" paddingLeft="1rem">
+						{functionCall}
+					</Code>
 				) : (
 					<Text
 						px="2"
@@ -134,6 +115,7 @@ ${log.traceback}`
 						letterSpacing="wide"
 						color="muted"
 						fontWeight="medium"
+						paddingLeft="1rem"
 					>
 						{runDisabledError}
 					</Text>
@@ -203,7 +185,7 @@ export const Fetchers = () => {
 	};
 
 	return (
-		<Stack position="relative" h="full" bg="gray.50" minH="full" spacing="4">
+		<Stack position="relative" h="full" bg={BG_UNFOCUSED} minH="full" spacing="4">
 			<Stack overflowY="auto" flex="1" pb="10" spacing="4" h="full">
 				{Object.keys(fetchers).map((fetchId: any) => {
 					return (
