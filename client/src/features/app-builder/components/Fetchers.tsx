@@ -115,7 +115,6 @@ ${log.traceback}`
 					borderRadius="full"
 					size="xs"
 					colorScheme="red"
-					isLoading={runFunctionMutation.isLoading}
 					icon={<Trash size="14" />}
 					aria-label="Delete function"
 					onClick={() => {
