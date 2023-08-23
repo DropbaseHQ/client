@@ -1,27 +1,22 @@
 import { Box, Button, Code, IconButton, Stack, Text } from '@chakra-ui/react';
-import MonacoEditor, { useMonaco } from '@monaco-editor/react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
-import { Play } from 'react-feather';
+import { Play, X } from 'react-feather';
 import { useParams } from 'react-router-dom';
 
 import { fetchersAtom, selectedRowAtom, userInputAtom } from '../atoms/tableContextAtoms';
 
 import { usePythonEditor } from '@/components/Editor';
-import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
 import { useGetApp } from '@/features/app/hooks';
 import { useToast } from '@/lib/chakra-ui';
-import { BG_BUTTON, BG_UNFOCUSED } from '@/utils/constants';
+import { BG_BUTTON, BG_FOCUSED, BG_UNFOCUSED } from '@/utils/constants';
 
 export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; setCode: any }) => {
 	const { appId } = useParams();
 	const toast = useToast();
 
 	const [log, setLog] = useState<any>(null);
-
-	const monaco = useMonaco();
-	useMonacoTheme(monaco);
 
 	const editorRef = usePythonEditor({
 		filepath: `fetchers/${id}.py`,
@@ -74,9 +69,9 @@ ${log.traceback}`
 		: '';
 
 	return (
-		<Stack spacing="0" borderTopWidth="1px" borderBottomWidth="1px">
+		<Stack spacing="0" borderTopWidth="1px" borderBottomWidth="1px" bg={BG_FOCUSED}>
 			<Box flex="1" ref={editorRef} as="div" w="full" borderBottomWidth="1px" h="full" />
-			<Stack direction="row" alignItems="center" p="2">
+			<Stack direction="row" alignItems="center" p="2" pl="1rem">
 				<IconButton
 					borderRadius="full"
 					size="xs"
@@ -105,7 +100,7 @@ ${log.traceback}`
 					}}
 				/>
 				{!runDisabledError ? (
-					<Code color="gray.500" backgroundColor="inherit" paddingLeft="1rem">
+					<Code color="gray.400" backgroundColor="inherit" paddingLeft="1rem">
 						{functionCall}
 					</Code>
 				) : (
@@ -122,37 +117,32 @@ ${log.traceback}`
 				)}
 			</Stack>
 			{log?.result ? (
-				<Stack pt="2" h="full" borderTopWidth="1px">
-					<Text
-						px="2"
-						fontSize="xs"
-						letterSpacing="wide"
-						color="muted"
-						fontWeight="semibold"
-					>
-						Output
-					</Text>
-					<MonacoEditor
-						language="shell"
+				<Stack pt="2" h="full" borderTopWidth="1px" px="2" pl="1rem">
+					<Stack direction="row" alignItems="center">
+						<IconButton
+							aria-label="Close output"
+							isRound={true}
+							size="xs"
+							color="black"
+							backgroundColor={BG_BUTTON}
+							icon={<X size={14} />}
+							onClick={() => setLog(null)}
+						/>
+
+						<Text px="2" fontSize="xs" letterSpacing="wide" fontWeight="bold">
+							Output
+						</Text>
+					</Stack>
+
+					<Code
+						color="gray.500"
+						backgroundColor="inherit"
+						paddingLeft="3rem"
+						overflow="hidden"
 						height={`${(outputPreview?.split('\n').length || 1) * 20}px`}
-						options={{
-							readOnly: true,
-							minimap: { enabled: false },
-							glyphMargin: false,
-							scrollbar: {
-								vertical: 'hidden',
-								horizontal: 'hidden',
-								handleMouseWheel: false,
-								verticalScrollbarSize: 0,
-								verticalHasArrows: false,
-							},
-							overviewRulerLanes: 0,
-							scrollBeyondLastLine: false,
-							wordWrap: 'on',
-							wrappingStrategy: 'advanced',
-						}}
-						value={outputPreview}
-					/>
+					>
+						<pre>{outputPreview}</pre>
+					</Code>
 				</Stack>
 			) : null}
 		</Stack>
