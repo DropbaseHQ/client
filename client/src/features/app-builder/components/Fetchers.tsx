@@ -13,6 +13,12 @@ import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
 import { useToast } from '@/lib/chakra-ui';
 
+export const findFunctionDeclarations = (code: string) => {
+	const functionRegex =
+		/^def\s+(?<call>(?<name>\w*)\s*\((?<params>[\S\s]*?)\)(?:\s*->\s*[\S\s]+?|\s*)):/gm;
+	return code.matchAll(functionRegex);
+};
+
 export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; setCode: any }) => {
 	const { appId } = useParams();
 	const toast = useToast();
@@ -43,9 +49,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 	// If a truthy value is set, the "run block" button is disabled and this error is displayed.
 	let runDisabledError = '';
 
-	const functionRegex =
-		/^def\s+(?<call>(?<name>\w*)\s*\((?<params>[\S\s]*?)\)(?:\s*->\s*[\S\s]+?|\s*)):/gm;
-	const matches = code.matchAll(functionRegex);
+	const matches = findFunctionDeclarations(code);
 	const firstMatch = matches.next();
 
 	const { name, params } = firstMatch?.value?.groups || { name: null, params: null };
@@ -53,7 +57,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 		runDisabledError = 'No function detected. Fetchers must define one function.';
 	} else if (!matches.next().done) {
 		runDisabledError =
-			'More than one function was detected. Fetchers can only define one function.';
+			'More than one function was detected. Fetchers can only define one function. (This block will not save until this is fixed.)';
 	}
 
 	const argumentsName = (params || '')
