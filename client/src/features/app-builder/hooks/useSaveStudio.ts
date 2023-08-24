@@ -31,11 +31,6 @@ const updateAppFunction = async ({
 	return response.data;
 };
 
-const deleteAppFunction = async (functionId: string) => {
-	const { data } = await axios.delete(`/functions/${functionId}`);
-	return data;
-};
-
 const createAppComponent = async ({
 	code,
 	appId,
@@ -65,7 +60,6 @@ export const useSaveStudio = () => {
 	const createAppComponentMutation = useMutation(createAppComponent);
 	const updateAppFunctionMutation = useMutation(updateAppFunction);
 	const createAppFunctionMutation = useMutation(createAppFunction);
-	const deleteAppFunctionMutation = useMutation(deleteAppFunction);
 
 	const [fetchers] = useAtom(fetchersAtom);
 	const [uiCode] = useAtom(uiCodeAtom);
@@ -112,11 +106,6 @@ export const useSaveStudio = () => {
 					code: fetcherCode || '',
 					type: 'fetcher',
 				});
-			}
-		});
-		savedFetchers.forEach(async (fetcher: any) => {
-			if (!fetchers[fetcher.id]) {
-				await deleteAppFunctionMutation.mutateAsync(fetcher.id);
 			}
 		});
 
