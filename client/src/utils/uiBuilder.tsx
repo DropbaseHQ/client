@@ -50,6 +50,9 @@ export const useRunTask = () => {
 };
 
 const checkAllRulesPass = ({ formValues, rules }: any) => {
+	if (!rules || rules?.length === 0) {
+		return true;
+	}
 	const invalidRule = rules.find((r: any) => {
 		const fieldValue = get(formValues, r.name);
 		switch (r.operator) {
@@ -84,8 +87,10 @@ export const CustomInput = (props: any) => {
 		type,
 		options,
 		display_rules: displayRules,
-		action_rules: actionRules,
-		on_select: onSelect,
+		on_change_rules: onChangeRules,
+		// on_select: onSelect,
+		// on_click: onClick,
+		on_change: onChange,
 	} = props;
 	const { watch, register, getValues } = useFormContext();
 	const runTask = useRunTask();
@@ -115,20 +120,19 @@ export const CustomInput = (props: any) => {
 							placeholder={`Select ${name}`}
 							{...register(name)}
 							onChange={async (e) => {
-								console.log('over here');
 								register(name).onChange(e);
 								if (
-									onSelect &&
+									onChange &&
 									checkAllRulesPass({
 										formValues: getValues(),
-										rules: actionRules,
+										rules: onChangeRules,
 									})
 								) {
 									await runTask.mutateAsync({
 										appId: appId || '',
 										userInput: userInput,
 										row: selectedRow,
-										action: onSelect,
+										action: onChange,
 									});
 								}
 							}}

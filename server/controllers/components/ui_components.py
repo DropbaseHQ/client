@@ -26,8 +26,10 @@ class UIInput(UIComponent):
         depends_value: any = None,
         rules: list[dict] = None,
         display_rules: list[dict] = None,
-        action_rules: list[dict] = None,
+        on_change_rules: list[dict] = None,
         on_select: str = None,
+        on_click: str = None,
+        on_change: str = None,
     ):
         self.name = name
         self.type = type
@@ -45,8 +47,10 @@ class UIInput(UIComponent):
         self.depends_value = depends_value
         self.rules = rules
         self.display_rules = display_rules
-        self.action_rules = action_rules
+        self.on_change_rules = on_change_rules
         self.on_select = on_select
+        self.on_click = on_click
+        self.on_change = on_change
 
 
 class UIText(UIComponent):
