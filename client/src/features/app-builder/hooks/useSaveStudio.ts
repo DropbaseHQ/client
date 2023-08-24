@@ -9,6 +9,7 @@ import {
 } from '../atoms/tableContextAtoms';
 import { useParams } from 'react-router-dom';
 import { useGetApp } from '@/features/app/hooks';
+import { findFunctionDeclarations } from '../components/Fetchers';
 
 const createAppFunction = async ({
 	code,
@@ -114,13 +115,18 @@ export const useSaveStudio = () => {
 	};
 
 	const saveFetchers = async () => {
-		Object.entries(fetchers).forEach(async (fetcher: any) => {
-			const fetcherId = fetcher[0];
-			const fetcherCode = fetcher[1];
+		for (const [fetcherId, fetcherCode] of Object.entries(fetchers) as [string, string][]) {
+			const functionDeclarations = findFunctionDeclarations(fetcherCode);
+
+			if (Array.from(functionDeclarations).length > 1) {
+				console.log('Multiple functions in one fetcher not supported yet');
+				return;
+			}
 
 			const IdInSavedFetchers = savedFetchers?.find((f: any) => f.id === fetcherId);
 
 			if (IdInSavedFetchers) {
+				console.log('here');
 				await updateAppFunctionMutation.mutateAsync({
 					functionId: fetcherId || '',
 					code: fetcherCode || '',
@@ -133,7 +139,35 @@ export const useSaveStudio = () => {
 					type: 'fetcher',
 				});
 			}
-		});
+		}
+
+		// Object.entries(fetchers).forEach(async (fetcher: any) => {
+		// 	const fetcherId = fetcher[0];
+		// 	const fetcherCode = fetcher[1];
+		// 	const functionDeclarations = findFunctionDeclarations(fetcherCode);
+
+		// 	if (Array.from(functionDeclarations).length > 1) {
+		// 		console.log('Multiple functions in one fetcher not supported yet');
+		// 		return;
+		// 	}
+
+		// 	const IdInSavedFetchers = savedFetchers?.find((f: any) => f.id === fetcherId);
+
+		// 	if (IdInSavedFetchers) {
+		// 		console.log('here');
+		// 		await updateAppFunctionMutation.mutateAsync({
+		// 			functionId: fetcherId || '',
+		// 			code: fetcherCode || '',
+		// 			type: 'fetcher',
+		// 		});
+		// 	} else {
+		// 		await createAppFunctionMutation.mutateAsync({
+		// 			appId: appId || '',
+		// 			code: fetcherCode || '',
+		// 			type: 'fetcher',
+		// 		});
+		// 	}
+		// });
 	};
 	const saveStudio = async () => {
 		return await Promise.all([saveUICode(), saveFetchers()]);
