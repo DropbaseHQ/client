@@ -57,7 +57,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 		runDisabledError = 'No function detected. Fetchers must define one function.';
 	} else if (!matches.next().done) {
 		runDisabledError =
-			'More than one function was detected. Fetchers can only define one function. (This block will not save until this is fixed.)';
+			'More than one function was detected. Fetchers can only define one function. (Fetchers will not save until this is fixed.)';
 	}
 
 	const argumentsName = (params || '')
