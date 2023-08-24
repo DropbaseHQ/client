@@ -1470,6 +1470,11 @@
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.1.1.tgz#1a5b1959a528e374e8037c4396c3e825d6cf4a83"
   integrity sha512-m0G6wlnhm/AX0H12IOWtK8gASEMffnX08RtKkCgTdHb9JpHKGloI7icFfLg9ZmQeavcvR0PKmzxClyuFPSjKWw==
 
+"@fontsource-variable/inter@^5.0.8":
+  version "5.0.8"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/inter/-/inter-5.0.8.tgz#bd6d61ece1019c59b0ac330a138d48a34dfa6d8c"
+  integrity sha512-WkYfFNccmEIeL2fNg0mYeLWqOoB7xD8MFxFRc4IwbSP2o8ZaBt36v5aW4by4MyrgGRMNk7uNi5LbvYKq6clPjw==
+
 "@fontsource-variable/open-sans@^5.0.9":
   version "5.0.9"
   resolved "https://registry.yarnpkg.com/@fontsource-variable/open-sans/-/open-sans-5.0.9.tgz#780ebce3f754e03e752490fe7a6747ac24e3f10f"
@@ -1479,11 +1484,6 @@
   version "5.0.8"
   resolved "https://registry.yarnpkg.com/@fontsource-variable/spline-sans/-/spline-sans-5.0.8.tgz#1a46af18868778408fed9e5b9c82a04264865f25"
   integrity sha512-BKx/6unQUsCk2vyuNCmQTaihsNmDPnMW+yFYVaPaSskY5bCHe4PdAvMzz2t49s4g6Un1AGYZ5PfvNPnposaSIg==
-
-"@fontsource/inter@^5.0.8":
-  version "5.0.8"
-  resolved "https://registry.yarnpkg.com/@fontsource/inter/-/inter-5.0.8.tgz#61b50cb0eb72b14ae1938d47c4a9a91546d2a50c"
-  integrity sha512-28knWH1BfOiRalfLs90U4sge5mpQ8ZH6FS0PTT+IZMKrZ7wNHDHRuKa1kQJg+uHcc6axBppnxll+HXM4c7zo/Q==
 
 "@glideapps/glide-data-grid-cells@^5.2.1":
   version "5.2.1"

@@ -1,5 +1,5 @@
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
-import '@fontsource/inter/400.css';
+import '@fontsource-variable/inter';
 import { QueryClientProvider } from 'react-query';
 import { BrowserRouter } from 'react-router-dom';
 
