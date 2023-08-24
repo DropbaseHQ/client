@@ -12,6 +12,7 @@ import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
 import { useGetApp } from '@/features/app/hooks';
 import { useToast } from '@/lib/chakra-ui';
+import { useDeleteFunction } from '../hooks/useDeleteFunction';
 
 export const FetchEditor = ({
 	id,
@@ -28,6 +29,7 @@ export const FetchEditor = ({
 	const toast = useToast();
 
 	const [log, setLog] = useState<any>(null);
+	const [confirmDelete, setConfirmDelete] = useState(false);
 
 	const monaco = useMonaco();
 	useMonacoTheme(monaco);
@@ -111,16 +113,25 @@ ${log.traceback}`
 						}
 					}}
 				/>
-				<IconButton
-					borderRadius="full"
-					size="xs"
-					colorScheme="red"
-					icon={<Trash size="14" />}
-					aria-label="Delete function"
-					onClick={() => {
-						onDelete();
-					}}
-				/>
+				{!confirmDelete ? (
+					<IconButton
+						borderRadius="full"
+						size="xs"
+						colorScheme="red"
+						icon={<Trash size="14" />}
+						aria-label="Delete function"
+						onClick={() => setConfirmDelete(true)}
+					/>
+				) : (
+					<>
+						<Button size="xs" onClick={() => setConfirmDelete(false)}>
+							Cancel
+						</Button>
+						<Button size="xs" colorScheme="red" onClick={onDelete}>
+							Confirm delete
+						</Button>
+					</>
+				)}
 
 				{!runDisabledError ? (
 					<MonacoEditor
@@ -203,8 +214,10 @@ export const Fetchers = () => {
 	const { appId } = useParams();
 	const { fetchers: savedFetchers } = useGetApp(appId || '');
 
+	const deleteFunctionMutation = useDeleteFunction();
+
 	useEffect(() => {
-		if (savedFetchers && savedFetchers.length > 0) {
+		if (savedFetchers?.length > 0) {
 			const formattedFetchers = savedFetchers.reduce((acc: any, curr: any) => {
 				acc[curr.id] = curr.code;
 				return acc;
@@ -223,6 +236,17 @@ export const Fetchers = () => {
 		});
 	};
 
+	const deleteFetcher = (id: string) => {
+		if (savedFetchers) {
+			const fetcherToDelete = savedFetchers.find((f: any) => f.id === id);
+			if (fetcherToDelete) {
+				deleteFunctionMutation.mutate(id);
+			}
+		}
+		const { [id]: _, ...rest } = fetchers;
+		setFetchers(rest);
+	};
+
 	return (
 		<Stack position="relative" h="full" bg="gray.50" minH="full" spacing="4">
 			<Stack overflowY="auto" flex="1" pb="10" spacing="4" h="full">
@@ -238,10 +262,7 @@ export const Fetchers = () => {
 								}));
 							}}
 							id={fetchId}
-							onDelete={() => {
-								const { [fetchId]: _, ...rest } = fetchers;
-								setFetchers(rest);
-							}}
+							onDelete={() => deleteFetcher(fetchId)}
 						/>
 					);
 				})}
