@@ -9,6 +9,7 @@ import { Table } from '@/features/smart-table/components/Table';
 import { useTableData } from '../smart-table/hooks/useTableData';
 import { AppBuilderNavbar } from './components/BuilderNavbar';
 import { Fetchers } from './components/Fetchers';
+import { StudioAutoSaver } from './components/StudioAutoSaver';
 import { UIPanel, UIPreview } from './components/UIPreview';
 import { UIState } from './components/UIState';
 
@@ -29,6 +30,7 @@ export const AppBuilder = () => {
 	return (
 		<Stack spacing="0" h="full">
 			<AppBuilderNavbar />
+			<StudioAutoSaver />
 			<Box h="full" overflowY="auto">
 				<PanelGroup direction="horizontal">
 					<Panel defaultSize={80}>
