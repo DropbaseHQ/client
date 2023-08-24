@@ -210,7 +210,7 @@ export const Fetchers = () => {
 
 	return (
 		<Stack position="relative" h="full" bg={BG_UNFOCUSED} minH="full" spacing="4">
-			<Stack overflowY="auto" flex="1" px="2" pt="2" pb="10" spacing="4" h="full">
+			<Stack overflowY="auto" flex="1" px="2" pt="4" pb="10" spacing="4" h="full">
 				{Object.keys(fetchers).map((fetchId: any) => {
 					return (
 						<FetchEditor

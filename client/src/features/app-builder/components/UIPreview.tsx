@@ -2,7 +2,7 @@
 import { PanelHandle } from '@/components/Panel';
 import { useGetApp } from '@/features/app/hooks';
 import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
-import { BG_BUTTON } from '@/utils/constants';
+import { BG_BUTTON, BG_UNFOCUSED } from '@/utils/constants';
 import { CustomButton, CustomInput } from '@/utils/uiBuilder';
 import { Alert, AlertDescription, AlertIcon, Box, IconButton, Stack, Text } from '@chakra-ui/react';
 import MonacoEditor from '@monaco-editor/react';
@@ -114,7 +114,9 @@ ${log.traceback}`
 	return (
 		<PanelGroup direction="vertical">
 			<Panel>
-				<UIEditor />
+				<Box py="0.5rem" bg={BG_UNFOCUSED} overflow="hidden" h="full">
+					<UIEditor />
+				</Box>
 			</Panel>
 			{runResult ? <PanelHandle direction="horizontal" /> : null}
 
