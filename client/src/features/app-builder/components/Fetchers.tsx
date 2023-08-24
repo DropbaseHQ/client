@@ -75,17 +75,30 @@ export const FetchEditor = ({
 
 	const functionCall = name ? `${name}(${argumentsName?.join(', ')})` : '';
 
-	const outputPreview = log
-		? `Result:
-${log.result}\n
-Stdout:
-${log.stdout}\n
-Traceback:
-${log.traceback}`
-		: '';
+	let outputPreview = '';
+
+	if (log?.stdout && log.stdout !== '\n') {
+		outputPreview = log.stdout;
+	}
+
+	if (log?.traceback) {
+		if (outputPreview) {
+			outputPreview += '\n';
+		}
+		outputPreview += `---------------------------------------------------------------------------------\n`;
+
+		outputPreview += log.traceback;
+	}
+
+	if (log?.result) {
+		if (outputPreview) {
+			outputPreview += '\n';
+		}
+		outputPreview += log.result;
+	}
 
 	return (
-		<Stack spacing="0" borderTopWidth="1px" borderBottomWidth="1px">
+		<Stack bg="white" spacing="0" borderRadius="sm" borderWidth="1px">
 			<Box flex="1" ref={editorRef} as="div" w="full" borderBottomWidth="1px" h="full" />
 			<Stack direction="row" alignItems="center" p="2">
 				<IconButton
@@ -173,15 +186,25 @@ ${log.traceback}`
 			</Stack>
 			{log?.result ? (
 				<Stack pt="2" h="full" borderTopWidth="1px">
-					<Text
-						px="2"
-						fontSize="xs"
-						letterSpacing="wide"
-						color="muted"
-						fontWeight="semibold"
-					>
-						Output
-					</Text>
+					<Stack direction="row" px="2" justifyContent="space-between">
+						<Text
+							fontSize="xs"
+							letterSpacing="wide"
+							color="muted"
+							fontWeight="semibold"
+						>
+							Output
+						</Text>
+						<Button
+							size="xs"
+							variant="link"
+							onClick={() => {
+								setLog(null);
+							}}
+						>
+							Clear
+						</Button>
+					</Stack>
 					<MonacoEditor
 						language="shell"
 						height={`${(outputPreview?.split('\n').length || 1) * 20}px`}
@@ -189,6 +212,8 @@ ${log.traceback}`
 							readOnly: true,
 							minimap: { enabled: false },
 							glyphMargin: false,
+
+							lineNumbers: 'off',
 							scrollbar: {
 								vertical: 'hidden',
 								horizontal: 'hidden',
@@ -249,7 +274,7 @@ export const Fetchers = () => {
 
 	return (
 		<Stack position="relative" h="full" bg="gray.50" minH="full" spacing="4">
-			<Stack overflowY="auto" flex="1" pb="10" spacing="4" h="full">
+			<Stack overflowY="auto" flex="1" px="4" pt="4" pb="10" spacing="4" h="full">
 				{Object.keys(fetchers).map((fetchId: any) => {
 					return (
 						<FetchEditor

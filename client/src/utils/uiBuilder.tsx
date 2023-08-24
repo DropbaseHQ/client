@@ -49,30 +49,33 @@ export const useRunTask = () => {
 	});
 };
 
-const checkRules = ({ formValues, rules }: any) => {
+const checkAllRulesPass = ({ formValues, rules }: any) => {
 	const invalidRule = rules.find((r: any) => {
 		const fieldValue = get(formValues, r.name);
-
 		switch (r.operator) {
 			case 'equals': {
-				return r.value === fieldValue;
+				return r.value != fieldValue;
 			}
 			case 'gt': {
-				return r.value < fieldValue;
+				return r.value >= fieldValue;
 			}
-
-			case 'lt': {
+			case 'gte': {
 				return r.value > fieldValue;
 			}
+			case 'lt': {
+				return r.value <= fieldValue;
+			}
+			case 'lte': {
+				return r.value <= fieldValue;
+			}
 			case 'exists': {
-				return r.name in formValues;
+				return !(r.name in formValues);
 			}
 			default:
 				return false;
 		}
 	});
-
-	return !!invalidRule;
+	return !invalidRule;
 };
 
 export const CustomInput = (props: any) => {
@@ -93,7 +96,7 @@ export const CustomInput = (props: any) => {
 
 	if (
 		(displayRules &&
-			checkRules({
+			checkAllRulesPass({
 				formValues: getValues(),
 				rules: displayRules,
 			})) ||
@@ -116,7 +119,7 @@ export const CustomInput = (props: any) => {
 								register(name).onChange(e);
 								if (
 									onSelect &&
-									checkRules({
+									checkAllRulesPass({
 										formValues: getValues(),
 										rules: actionRules,
 									})
