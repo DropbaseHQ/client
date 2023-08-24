@@ -6,6 +6,7 @@ import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { useMonacoLoader } from '@/components/Editor';
 import { Table } from '@/features/smart-table/components/Table';
+import { BG_UNFOCUSED } from '@/utils/constants';
 import { useTableData } from '../smart-table/hooks/useTableData';
 import { AppBuilderNavbar } from './components/BuilderNavbar';
 import { Fetchers } from './components/Fetchers';
@@ -64,7 +65,7 @@ export const AppBuilder = () => {
 							<PanelHandle direction="horizontal" />
 
 							<Panel>
-								<Box p="4">
+								<Box p="2" h="full" bg={BG_UNFOCUSED}>
 									<UIPreview />
 								</Box>
 							</Panel>

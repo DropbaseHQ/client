@@ -2,7 +2,7 @@
 import { PanelHandle } from '@/components/Panel';
 import { useGetApp } from '@/features/app/hooks';
 import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
-import { BG_BUTTON, BG_UNFOCUSED } from '@/utils/constants';
+import { BG_BUTTON, BG_FOCUSED, BG_UNFOCUSED } from '@/utils/constants';
 import { CustomButton, CustomInput } from '@/utils/uiBuilder';
 import { Alert, AlertDescription, AlertIcon, Box, IconButton, Stack, Text } from '@chakra-ui/react';
 import MonacoEditor from '@monaco-editor/react';
@@ -74,7 +74,7 @@ export const UIPreview = () => {
 	}, [components, setFormData]);
 
 	return (
-		<Stack>
+		<Stack bg={BG_FOCUSED} p="4" h="full">
 			<Box w="full" display="flex" justifyContent="space-between">
 				UI Preview
 				<IconButton
