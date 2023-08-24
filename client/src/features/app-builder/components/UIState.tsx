@@ -1,5 +1,5 @@
-import { Box, Code } from '@chakra-ui/react';
-import { useMonaco } from '@monaco-editor/react';
+import { Box } from '@chakra-ui/react';
+import Editor, { useMonaco } from '@monaco-editor/react';
 
 import { useAtom } from 'jotai';
 
@@ -23,9 +23,25 @@ export const UIState = () => {
 
 	return (
 		<Box w="full" overflowY="auto" h="full" maxH="full" backgroundColor={BG_UNFOCUSED}>
-			<Code w="full" backgroundColor="inherit" padding="1rem">
-				<pre>{state}</pre>
-			</Code>
+			<Editor
+				options={{
+					readOnly: true,
+					minimap: { enabled: false },
+					overviewRulerLanes: 0,
+					scrollbar: {
+						vertical: 'auto',
+						horizontal: 'auto',
+						verticalHasArrows: true,
+						alwaysConsumeMouseWheel: false,
+					},
+
+					automaticLayout: true,
+					scrollBeyondLastLine: false,
+				}}
+				height="100%"
+				language="json"
+				value={state}
+			/>
 		</Box>
 	);
 };
