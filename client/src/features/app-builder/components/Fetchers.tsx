@@ -118,7 +118,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 					}}
 				/>
 				{!runDisabledError ? (
-					<Code color="gray.400" backgroundColor="inherit" paddingLeft="1rem">
+					<Code color="gray.500" backgroundColor="inherit" paddingLeft="1rem">
 						{functionCall}
 					</Code>
 				) : (
