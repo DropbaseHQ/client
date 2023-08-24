@@ -10,7 +10,7 @@ export const Dashboard = () => {
 	const theme = extendTheme({
 		fonts: {
 			heading: `Inter, apple-system, sans-serif`,
-			body: `Inter, sans-serif`,
+			body: `Inter, apple-system, sans-serif`,
 		},
 	});
 	return (
