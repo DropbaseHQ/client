@@ -1,9 +1,14 @@
-import { useGetApp } from '@/features/app/hooks';
+import { useMutation, useIsMutating } from 'react-query';
 import { axios } from '@/lib/axios';
-import { useAtom } from 'jotai';
-import { useMutation } from 'react-query';
+import { useAtom, useSetAtom } from 'jotai';
+import {
+	fetchersAtom,
+	uiCodeAtom,
+	fetchersLastSavedAtom,
+	uiCodeLastSavedAtom,
+} from '../atoms/tableContextAtoms';
 import { useParams } from 'react-router-dom';
-import { fetchersAtom, uiCodeAtom } from '../atoms/tableContextAtoms';
+import { useGetApp } from '@/features/app/hooks';
 
 const createAppFunction = async ({
 	code,
@@ -56,26 +61,45 @@ const updateAppComponent = async ({
 };
 
 export const useSaveStudio = () => {
-	const updateAppComponentMutation = useMutation(updateAppComponent);
-	const createAppComponentMutation = useMutation(createAppComponent);
-	const updateAppFunctionMutation = useMutation(updateAppFunction);
-	const createAppFunctionMutation = useMutation(createAppFunction);
-
 	const [fetchers] = useAtom(fetchersAtom);
 	const [uiCode] = useAtom(uiCodeAtom);
+	const setFetcherLastSaved = useSetAtom(fetchersLastSavedAtom);
+	const setUiCodeLastSaved = useSetAtom(uiCodeLastSavedAtom);
 	const { appId } = useParams();
-
 	const {
 		fetchers: savedFetchers,
 		uiComponents,
 		refetch,
 		isLoading: appDetailsIsLoading,
 	} = useGetApp(appId || '');
+	const lastSavedTimeStamp = new Date().getTime();
+	const componentMutationConfig = {
+		onSuccess: () => {
+			setUiCodeLastSaved(lastSavedTimeStamp);
+			refetch();
+		},
+		mutationKey: ['studio'],
+	};
+	const fetcherMutationConfig = {
+		onSuccess: () => {
+			setFetcherLastSaved(lastSavedTimeStamp);
+			refetch();
+		},
+		mutationKey: ['studio'],
+	};
+	const isMutatingStudio = useIsMutating({
+		mutationKey: ['studio'],
+	});
+	const updateAppComponentMutation = useMutation(updateAppComponent, componentMutationConfig);
+	const createAppComponentMutation = useMutation(createAppComponent, componentMutationConfig);
+	const updateAppFunctionMutation = useMutation(updateAppFunction, fetcherMutationConfig);
+	const createAppFunctionMutation = useMutation(createAppFunction, fetcherMutationConfig);
 
 	// UI components are currently saved as an array, but for now we only support one UI component
 	// Maybe we can just save it as an object instead of an array
 	const currentUIComponent = uiComponents?.[0];
-	const saveStudio = async () => {
+
+	const saveUICode = async () => {
 		if (currentUIComponent) {
 			await updateAppComponentMutation.mutateAsync({
 				functionId: currentUIComponent.id || '',
@@ -87,7 +111,9 @@ export const useSaveStudio = () => {
 				code: uiCode || '',
 			});
 		}
+	};
 
+	const saveFetchers = async () => {
 		Object.entries(fetchers).forEach(async (fetcher: any) => {
 			const fetcherId = fetcher[0];
 			const fetcherCode = fetcher[1];
@@ -108,17 +134,14 @@ export const useSaveStudio = () => {
 				});
 			}
 		});
-
-		refetch();
 	};
-	const isLoading =
-		updateAppComponentMutation.isLoading ||
-		createAppComponentMutation.isLoading ||
-		updateAppFunctionMutation.isLoading ||
-		createAppFunctionMutation.isLoading ||
-		appDetailsIsLoading;
-
+	const saveStudio = async () => {
+		return await Promise.all([saveUICode(), saveFetchers()]);
+	};
+	const isLoading = isMutatingStudio || appDetailsIsLoading;
 	return {
+		saveUICode,
+		saveFetchers,
 		saveStudio,
 		isLoading,
 	};
