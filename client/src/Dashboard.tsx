@@ -1,12 +1,18 @@
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+import '@fontsource/inter/400.css';
 import { QueryClientProvider } from 'react-query';
 import { BrowserRouter } from 'react-router-dom';
 
-import { theme } from '@/lib/chakra-ui';
 import { queryClient } from '@/lib/react-query';
 import { DashboardRoutes } from '@/routes';
 
 export const Dashboard = () => {
+	const theme = extendTheme({
+		fonts: {
+			heading: `Inter, apple-system, sans-serif`,
+			body: `Inter, sans-serif`,
+		},
+	});
 	return (
 		<BrowserRouter>
 			<ChakraProvider theme={theme}>
