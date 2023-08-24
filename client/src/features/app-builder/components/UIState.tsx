@@ -1,27 +1,45 @@
 import { Box } from '@chakra-ui/react';
 import Editor, { useMonaco } from '@monaco-editor/react';
+
 import { useAtom } from 'jotai';
 
 import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
 import { userInputAtom, selectedRowAtom } from '../atoms/tableContextAtoms';
 
 export const UIState = () => {
-	const monaco = useMonaco();
 	const [userInput] = useAtom(userInputAtom);
 	const [selectedRow] = useAtom(selectedRowAtom);
+
+	const monaco = useMonaco();
 	useMonacoTheme(monaco);
 
 	const builderContext = {
 		userInput,
 		selectedRow,
 	};
+
+	const state = JSON.stringify(builderContext, null, 4);
+
 	return (
-		<Box w="full" h="full">
+		<Box w="full" overflowY="auto" h="full" maxH="full">
 			<Editor
+				options={{
+					readOnly: true,
+					minimap: { enabled: false },
+					overviewRulerLanes: 0,
+					scrollbar: {
+						vertical: 'auto',
+						horizontal: 'auto',
+						verticalHasArrows: true,
+						alwaysConsumeMouseWheel: false,
+					},
+
+					automaticLayout: true,
+					scrollBeyondLastLine: false,
+				}}
 				height="100%"
-				options={{ readOnly: true, minimap: { enabled: false } }}
 				language="json"
-				value={JSON.stringify(builderContext, null, 4)}
+				value={state}
 			/>
 		</Box>
 	);

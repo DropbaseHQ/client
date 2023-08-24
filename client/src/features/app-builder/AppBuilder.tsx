@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import { Box, Stack } from '@chakra-ui/react';
 
 import { Panel, PanelGroup } from 'react-resizable-panels';
@@ -10,41 +11,57 @@ import { Fetchers } from './components/Fetchers';
 import { useMonacoLoader } from '@/components/Editor';
 import { UIState } from './components/UIState';
 import { StudioAutoSaver } from './components/StudioAutoSaver';
+import { useTableData } from '../smart-table/hooks/useTableData';
 
 export const AppBuilder = () => {
-	const isEditorReady = useMonacoLoader();
+	const { appId } = useParams();
+	const [isEditorReady, , languageClient] = useMonacoLoader();
+
+	const { isLoading, dataclass } = useTableData({
+		appId,
+		filters: [],
+		sorts: [],
+	});
+
+	if (!isLoading && languageClient) {
+		languageClient.sendNotification('workspace/setTableSchema', { dataclass });
+	}
 
 	return (
 		<Stack spacing="0" h="full">
 			<AppBuilderNavbar />
 			<StudioAutoSaver />
 			<Box h="full" overflowY="auto">
-				<PanelGroup direction="vertical">
+				<PanelGroup direction="horizontal">
 					<Panel defaultSize={80}>
-						<PanelGroup direction="horizontal">
-							<Panel defaultSize={20}>
-								<UIState />
+						<PanelGroup direction="vertical">
+							<Panel defaultSize={80}>
+								<PanelGroup direction="horizontal">
+									<Panel defaultSize={22.5}>
+										<UIState />
+									</Panel>
+
+									<PanelHandle direction="vertical" />
+
+									<Panel>{isEditorReady ? <Fetchers /> : null}</Panel>
+								</PanelGroup>
 							</Panel>
 
-							<PanelHandle direction="vertical" />
+							<PanelHandle direction="horizontal" />
 
-							<Panel defaultSize={30}>{isEditorReady ? <UIPanel /> : null}</Panel>
-
-							<PanelHandle direction="vertical" />
-
-							<Panel defaultSize={50}>{isEditorReady ? <Fetchers /> : null}</Panel>
+							<Panel maxSize={80}>
+								<Table />
+							</Panel>
 						</PanelGroup>
 					</Panel>
 
-					<PanelHandle direction="horizontal" />
+					<PanelHandle direction="vertical" />
 
 					<Panel>
-						<PanelGroup direction="horizontal">
-							<Panel defaultSize={80} maxSize={80}>
-								<Table />
-							</Panel>
+						<PanelGroup direction="vertical">
+							<Panel>{isEditorReady ? <UIPanel /> : null}</Panel>
 
-							<PanelHandle direction="vertical" />
+							<PanelHandle direction="horizontal" />
 
 							<Panel>
 								<Box p="4">

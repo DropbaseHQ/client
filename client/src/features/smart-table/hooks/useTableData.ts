@@ -1,5 +1,5 @@
-import { useQuery } from 'react-query';
 import { useMemo } from 'react';
+import { useQuery } from 'react-query';
 
 import { axios } from '@/lib/axios';
 
@@ -15,6 +15,7 @@ type TableData = {
 	}[];
 	data: Row[];
 	sql_id: string;
+	dataclass: string;
 	schema: {
 		[folder: string]: {
 			[table: string]: {
@@ -47,7 +48,7 @@ const fetchTableData = async ({ appId, filters, sorts }: any) => {
 	return response.data;
 };
 
-export const useTableData = ({ appId, filters, sorts }: any) => {
+export const useTableData = ({ appId, filters = [], sorts = [] }: any) => {
 	const queryKey = [TABLE_DATA_QUERY_KEY, appId, JSON.stringify({ filters, sorts })];
 
 	const { data: response, ...rest } = useQuery(queryKey, () =>
@@ -76,6 +77,7 @@ export const useTableData = ({ appId, filters, sorts }: any) => {
 
 			return {
 				schema: response.schema,
+				dataclass: response.dataclass,
 				rows,
 				columns,
 				rowsWithSchema: response.data.map((r: any) => {

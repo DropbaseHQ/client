@@ -1,16 +1,25 @@
 import { initializeLanguageServices } from '@/components/Editor';
+import { MonacoLanguageClient } from 'monaco-languageclient';
 import { useEffect, useState } from 'react';
 
-export const useMonacoLoader = () => {
+export const useMonacoLoader = (): [
+	boolean,
+	WebSocket | undefined,
+	MonacoLanguageClient | undefined,
+] => {
 	const [isMonacoReady, setReady] = useState(false);
+	const [languageClient, setLanguageClient] = useState<MonacoLanguageClient | undefined>();
 
+	let websocket: WebSocket | undefined;
 	useEffect(() => {
 		(async () => {
 			setReady(false);
-			await initializeLanguageServices();
+			let [ws, lc] = await initializeLanguageServices();
+			websocket = ws;
+			setLanguageClient(lc);
 			setReady(true);
 		})();
 	}, []);
 
-	return isMonacoReady;
+	return [isMonacoReady, websocket, languageClient];
 };

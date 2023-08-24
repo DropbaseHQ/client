@@ -117,7 +117,7 @@ export const Table = () => {
 			return {
 				kind,
 				data: String(cellValue),
-				displayData: cellValue,
+				displayData: String(cellValue),
 				allowOverlay: false,
 				readonly: true,
 			};
@@ -131,7 +131,7 @@ export const Table = () => {
 			kind,
 			data: currentValue,
 			allowOverlay: canEdit,
-			displayData: cellValue,
+			displayData: String(cellValue),
 			readonly: !canEdit,
 		};
 	};
