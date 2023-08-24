@@ -32,5 +32,5 @@ class RunCodeResponse(BaseModel):
     status: Literal["success", "error"]
     type: Literal["sql", "python"]
     stdout: Optional[str]
-    result: Optional[str]
+    result: Optional[Any]
     traceback: Optional[str]
