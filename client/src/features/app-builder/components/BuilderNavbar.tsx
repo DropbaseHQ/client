@@ -1,5 +1,5 @@
 import { BG_UNFOCUSED } from '@/utils/constants';
-import { Button, Flex, Stack } from '@chakra-ui/react';
+import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { ArrowLeft } from 'react-feather';
 import { useSaveStudio } from '../hooks/useSaveStudio';
 import { formatDistanceToNow } from 'date-fns';
