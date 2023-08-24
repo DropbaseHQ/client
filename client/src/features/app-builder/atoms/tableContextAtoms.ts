@@ -9,3 +9,7 @@ export const fetchersAtom = atom<any>({});
 export const uiCodeAtom = atom('');
 
 export const runResultAtom = atom<any>('');
+
+export const fetchersLastSavedAtom = atom<any>('');
+
+export const uiCodeLastSavedAtom = atom<any>('');
