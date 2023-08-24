@@ -9,6 +9,7 @@ import { AppBuilderNavbar } from './components/BuilderNavbar';
 import { Fetchers } from './components/Fetchers';
 import { useMonacoLoader } from '@/components/Editor';
 import { UIState } from './components/UIState';
+import { StudioAutoSaver } from './components/StudioAutoSaver';
 
 export const AppBuilder = () => {
 	const isEditorReady = useMonacoLoader();
@@ -16,6 +17,7 @@ export const AppBuilder = () => {
 	return (
 		<Stack spacing="0" h="full">
 			<AppBuilderNavbar />
+			<StudioAutoSaver />
 			<Box h="full" overflowY="auto">
 				<PanelGroup direction="vertical">
 					<Panel defaultSize={80}>
