@@ -1,5 +1,6 @@
-from enum import Enum
 import json
+from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
 
 
 class UIComponent:
@@ -16,17 +17,17 @@ class UIInput(UIComponent):
         required: bool = None,
         validation: str = None,
         error: str = None,
-        options: any = None,
+        options: Any = None,
         default: str = None,
         placeholder: str = None,
-        role: list[str] = None,
-        depends: list[str] = None,
+        role: List[str] = None,
+        depends: List[str] = None,
         style: Enum = None,
         number: int = None,
         depends_value: any = None,
-        rules: list[dict] = None,
-        display_rules: list[dict] = None,
-        on_change_rules: list[dict] = None,
+        rules: List[Dict] = None,
+        display_rules: List[Dict] = None,
+        on_change_rules: List[Dict] = None,
         on_select: str = None,
         on_click: str = None,
         on_change: str = None,
@@ -64,8 +65,8 @@ class UIText(UIComponent):
 
     name: str
     label: str
-    value: callable
-    role: list[str]
+    value: Callable
+    role: List[str]
     style: str
     type: str = "text"
 
@@ -80,7 +81,7 @@ class UIButton(UIComponent):
         action=None,
         depends=None,
         depends_value=None,
-        rules: list[dict] = None,
+        rules: List[Dict] = None,
     ):
         self.name = name
         self.label = label
@@ -90,13 +91,19 @@ class UIButton(UIComponent):
         self.depends = depends
         self.depends_value = depends_value
         self.type = "button"
-        self.rules: rules
+        self.rules = rules
 
     name: str
     label: str
     role: list[str]
     width: str
-    action: callable
-    depends: list[str]
-    depends_value: any
+    action: Callable
+    depends: List[str]
+    depends_value: Any
     type: str = "button"
+
+
+class UISidebar:
+    toast: Optional[str]
+    message: Optional[str]
+    message_type: Optional[str]
