@@ -197,7 +197,14 @@ def get_misnamed_aliases(
                 INNER JOIN {table} ON q2."{response_name}" = {alias}) AS "{response_name}"
                 """
             )
-        subqueries.append('(SELECT COUNT(*) FROM q) AS "total"')
+
+            subqueries.append(
+                f"""
+                (SELECT COUNT(*) FROM (
+                    SELECT DISTINCT {alias} FROM {table}
+                ) as q2) AS "DROPBASE_total_{response_name}"
+                """
+            )
         checker_query = f"""
         WITH q AS (
             SELECT * FROM (
@@ -216,10 +223,12 @@ def get_misnamed_aliases(
             row = res.mappings().fetchone()
         except ProgrammingError as err:
             raise TypeError(str(err.orig))
-        total = row["total"]
 
-        bad_cols = [key for key, value in row.items() if key !=
-                    "total" and value != total]
+        bad_cols = [
+            key for key, value in row.items()
+            if not key.startswith("DROPBASE_total_") and
+            value != row[f"DROPBASE_total_{key}"]
+        ]
 
     return bad_cols
 
