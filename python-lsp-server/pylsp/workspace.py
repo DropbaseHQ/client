@@ -6,8 +6,6 @@ import io
 import logging
 import os
 import re
-import shutil
-import tempfile
 import uuid
 from contextlib import contextmanager
 from threading import RLock
@@ -54,15 +52,6 @@ class Workspace:
 
         self._root_uri_scheme = uris.urlparse(self._root_uri)[0]
 
-        dir_path = tempfile.mkdtemp()
-        self._root_path = dir_path
-
-        current_path = os.path.abspath(__file__)
-        template_dir = os.path.join(os.path.dirname(current_path), "./dropbase/template")
-        shutil.copytree(template_dir, self._root_path, dirs_exist_ok=True)
-
-        print("NEW WORKSPACE", self._root_path)
-
         self._docs = {}
 
         # Cache jedi environments
@@ -72,17 +61,6 @@ class Workspace:
         self.__rope = None
         self.__rope_config = None
         self.__rope_autoimport = None
-
-        if self.on_create_fn:
-            self.on_create_fn()
-
-    @classmethod
-    def on_create(cls, func: Callable):
-        cls.on_create_fn = func
-
-    def __del__(self):
-        if self._root_path:
-            shutil.rmtree(self._root_path, ignore_errors=True)
 
     def _rope_autoimport(self, rope_config: Optional, memory: bool = False):
         # pylint: disable=import-outside-toplevel
@@ -359,43 +337,19 @@ class Document:
         self.uri = uri
         self.version = version
 
-        path = uris.to_fs_path(uri)
-        # Convert absolute path to relative
-        self.rel_path = path[1:] if path[0] == "/" else path
-
-        # Rename fetchers to have python importable names
-        rel_dir = os.path.dirname(self.rel_path)
-        if rel_dir == "fetchers":
-            filename = os.path.basename(self.rel_path).replace("-", "_")  # replace hyphens
-            filename = f"_{filename}"  # ensure valid first character
-            self.rel_path = os.path.join(rel_dir, filename)
-
-        # Base the relative path at workspace dir path
-        self.path = os.path.join(workspace._root_path, self.rel_path)
-        # Make necessary directories
-        os.makedirs(os.path.dirname(self.path), exist_ok=True)
-        # Store file descriptor
-        self._fd = os.open(self.path, os.O_WRONLY | os.O_CREAT)  # | os.O_SYNC)
-        print("NEW FILE", self.path)
+        self.path = uris.to_fs_path(uri)
 
         self.dot_path = _utils.path_to_dot_name(self.path)
         self.filename = os.path.basename(self.path)
         self.shared_data = {}
 
         self._config = workspace._config
-        self._workspace: Workspace = workspace
+        self._workspace = workspace
         self._local = local
         self._source = source
         self._extra_sys_path = extra_sys_path or []
         self._rope_project_builder = rope_project_builder
         self._lock = RLock()
-
-        if self.on_create_fn:
-            self.on_create_fn()
-
-    @classmethod
-    def on_create(cls, func: Callable):
-        cls.on_create_fn = func
 
     def __str__(self):
         return str(self.uri)
@@ -423,7 +377,7 @@ class Document:
         self._config.update((settings or {}).get("pylsp", {}))
 
     @lock
-    def _apply_change(self, change):
+    def apply_change(self, change):
         """Apply a change to the document."""
         text = change["text"]
         change_range = change.get("range")
@@ -465,28 +419,6 @@ class Document:
                 new.write(line[end_col:])
 
         self._source = new.getvalue()
-
-    # Rewrites the file with the current source
-    @lock
-    def rewrite_file(self):
-        # Encode source to bytes
-        buf = (self._source or "").encode("utf-8")
-        # Write at start of file
-        n = os.pwrite(self._fd, buf, 0)
-        # Truncate file to appropriate length
-        os.truncate(self._fd, n)
-
-    def apply_change(self, change):
-        try:
-            self._apply_change(change)
-        finally:
-            self.rewrite_file()
-            if self.on_content_change_fn:
-                self.on_content_change_fn()
-
-    @classmethod
-    def on_content_change(cls, func: Callable):
-        cls.on_content_change_fn = func
 
     def offset_at_position(self, position):
         """Return the byte-offset pointed at by the given position."""
