@@ -7,21 +7,16 @@ import { useParams } from 'react-router-dom';
 import { fetchersAtom, selectedRowAtom, userInputAtom } from '../atoms/tableContextAtoms';
 
 import { usePythonEditor } from '@/components/Editor';
-import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
 import { useGetApp } from '@/features/app/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { BG_BUTTON, BG_FOCUSED, BG_UNFOCUSED } from '@/utils/constants';
-import MonacoEditor, { useMonaco } from '@monaco-editor/react';
 
 export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; setCode: any }) => {
 	const { appId } = useParams();
 	const toast = useToast();
 
 	const [log, setLog] = useState<any>(null);
-
-	const monaco = useMonaco();
-	useMonacoTheme(monaco);
 
 	const editorRef = usePythonEditor({
 		filepath: `fetchers/${id}.py`,
@@ -152,31 +147,16 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 						</Text>
 					</Stack>
 
-					<Box pl="1.5rem">
-						<MonacoEditor
-							language="shell"
-							height={`${(outputPreview?.split('\n').length || 1) * 20}px`}
-							options={{
-								readOnly: true,
-								minimap: { enabled: false },
-								glyphMargin: false,
-
-								lineNumbers: 'off',
-								scrollbar: {
-									vertical: 'hidden',
-									horizontal: 'hidden',
-									handleMouseWheel: false,
-									verticalScrollbarSize: 0,
-									verticalHasArrows: false,
-								},
-								overviewRulerLanes: 0,
-								scrollBeyondLastLine: false,
-								wordWrap: 'on',
-								wrappingStrategy: 'advanced',
-							}}
-							value={outputPreview}
-						/>
-					</Box>
+					<Code
+						color="gray.500"
+						backgroundColor="inherit"
+						paddingLeft="3rem"
+						overflowY="scroll"
+						overflowX="hidden"
+						height={`${(outputPreview?.split('\n').length || 1) * 20}px`}
+					>
+						<pre>{outputPreview}</pre>
+					</Code>
 				</Stack>
 			) : null}
 		</Stack>
