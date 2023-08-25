@@ -1,6 +1,6 @@
 import json
 from enum import Enum
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Optional
 
 
 class UIComponent:
@@ -68,3 +68,9 @@ class UIButton(UIComponent):
     role: List[str] | None
     width: str | None
     action: Callable | None
+
+
+class UISidebar:
+    toast: Optional[str]
+    message: Optional[str]
+    message_type: Optional[str]

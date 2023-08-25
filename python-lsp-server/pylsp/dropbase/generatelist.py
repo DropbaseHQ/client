@@ -4,6 +4,7 @@ from typing import List
 from .fetchers import generate_fetcher_module
 from .generate import GeneratedFile, GenerateHandler, T
 from .input import generate as generate_userinput
+from .state import generate as generate_uistate
 from .workspace import Document, Workspace
 
 # Events on workspace create
@@ -27,7 +28,11 @@ documentChangeEvents: List[GenerateHandler[Document]] = [
             GeneratedFile[Document](
                 path="dropbase/input.py",
                 content_fn=lambda document: generate_userinput(document._source),
-            )
+            ),
+            GeneratedFile[Document](
+                path="dropbase/state.py",
+                content_fn=lambda document: generate_uistate(document._source),
+            ),
         ],
     ),
 ]
