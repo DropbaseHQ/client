@@ -4,8 +4,16 @@ import { useGetApp } from '@/features/app/hooks';
 import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
 import { BG_BUTTON } from '@/utils/constants';
 import { CustomButton, CustomInput } from '@/utils/uiBuilder';
-import { Alert, AlertDescription, AlertIcon, Box, IconButton, Stack, Text } from '@chakra-ui/react';
-import MonacoEditor from '@monaco-editor/react';
+import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	Box,
+	Code,
+	IconButton,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { RefreshCw, X } from 'react-feather';
@@ -137,23 +145,15 @@ ${log.traceback}`
 							</Text>
 						</Stack>
 
-						<Box pl="1.5rem">
-							<MonacoEditor
-								language="shell"
-								height={`${(runResult.split('\n').length || 1) * 20}px`}
-								options={{
-									readOnly: true,
-									minimap: { enabled: false },
-									glyphMargin: false,
-									lineNumbers: 'off',
-									overviewRulerLanes: 0,
-									scrollBeyondLastLine: false,
-									wordWrap: 'on',
-									wrappingStrategy: 'advanced',
-								}}
-								value={runResult}
-							/>
-						</Box>
+						<Code
+							color="gray.500"
+							backgroundColor="inherit"
+							paddingLeft="3rem"
+							overflow="hidden"
+							h="100%"
+						>
+							<pre>{runResult}</pre>
+						</Code>
 					</Stack>
 				</Panel>
 			) : null}
