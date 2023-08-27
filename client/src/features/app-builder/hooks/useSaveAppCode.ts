@@ -10,7 +10,7 @@ const createAppFunction = async ({
 	appId: string;
 	type: string;
 }) => {
-	const response = await axios.post(`/functions`, { code, app_id: appId, type });
+	const response = await axios.post(`/functions`, { code, sidebar_id: appId, type });
 	return response.data;
 };
 

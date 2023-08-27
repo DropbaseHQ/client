@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class BaseSQLs(BaseModel):
     code: str
-    app_id: UUID
+    page_id: UUID
     dataclass: Optional[str]
     table_meta: Optional[dict]
 
@@ -23,12 +23,12 @@ class CreateSQLs(BaseSQLs):
 
 class UpdateSQLs(BaseModel):
     code: Optional[str]
-    app_id: Optional[UUID]
+    page_id: Optional[UUID]
     dataclass: Optional[str]
     table_meta: Optional[dict]
 
 
 class QueryTable(BaseModel):
-    app_id: UUID
+    page_id: UUID
     filters: Optional[List[dict]]
     sorts: Optional[List[dict]]

@@ -5,19 +5,20 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
-class BaseApp(BaseModel):
+class BasePage(BaseModel):
     name: str
-    workspace_id: UUID
+    app_id: UUID
 
 
-class ReadApp(BaseApp):
+class ReadPage(BasePage):
     id: UUID
     date: datetime
 
 
-class CreateApp(BaseApp):
+class CreatePage(BasePage):
     pass
 
 
-class UpdateApp(BaseModel):
+class UpdatePage(BaseModel):
     name: Optional[str]
+    app_id: Optional[UUID]

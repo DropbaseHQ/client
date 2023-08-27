@@ -9,8 +9,13 @@ from server.schemas.functions import CreateFunctions, UpdateFunctions
 
 
 class CRUDFunctions(CRUDBase[Functions, CreateFunctions, UpdateFunctions]):
-    def get_app_functions(self, db: Session, app_id: UUID) -> List[Functions]:
-        return db.query(Functions).filter(Functions.app_id == str(app_id)).order_by(Functions.date).all()
+    def get_action_functions(self, db: Session, action_id: UUID) -> List[Functions]:
+        return (
+            db.query(Functions)
+            .filter(Functions.action_id == str(action_id))
+            .order_by(Functions.date)
+            .all()
+        )
 
 
 functions = CRUDFunctions(Functions)

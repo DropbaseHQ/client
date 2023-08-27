@@ -29,15 +29,15 @@ function_str = """def action(user_input: UserInput, row: Row):
 def test_run_task():
 
     # get user input schema from ui components
-    components = crud.components.get_app_component(db, app_id=ValueStorage.app_id)
+    components = crud.components.get_action_component(db, app_id=ValueStorage.app_id)
     components.dataclass = user_input_str
 
     # get table schema for row
-    sqls = crud.sqls.get_app_sqls(db, app_id=ValueStorage.app_id)
+    sqls = crud.sqls.get_page_sqls(db, app_id=ValueStorage.app_id)
     sqls[0].dataclass = row_str
 
     # get function code
-    functions = crud.functions.get_app_functions(db, app_id=ValueStorage.app_id)
+    functions = crud.functions.get_action_functions(db, app_id=ValueStorage.app_id)
     functions[0].code = function_str
 
     db.commit()

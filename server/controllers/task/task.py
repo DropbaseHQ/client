@@ -9,12 +9,13 @@ from server.schemas.task import RunCodeResponse, RunTask
 def run_task(request: RunTask, db: Session):
     # TODO: catch stdout
     try:
-        # get user input schema from ui components
-        components = crud.components.get_app_component(db, app_id=request.app_id)
-        # get table schema for row
-        sqls = crud.sqls.get_app_sqls(db, app_id=request.app_id)
+        sqls = crud.sqls.get_page_sqls(db, page_id=request.page_id)
         # get function code
-        functions = crud.functions.get_app_functions(db, app_id=request.app_id)
+        action = crud.action.get_page_action(db, page_id=request.page_id)
+        # get user input schema from ui components
+        components = crud.components.get_action_component(db, action_id=action.id)
+        # get table schema for row
+        functions = crud.functions.get_action_functions(db, action_id=action.id)
         # package all together
         run_code = compose_run_code(sqls, components, functions, request.action, request.call_type)
 
@@ -22,5 +23,11 @@ def run_task(request: RunTask, db: Session):
         res = exec_code(run_code, request.user_input, request.row)
         return RunCodeResponse(**res)
     except Exception as e:
-        print(e)
+        res = {
+            "status": "error",
+            "type": "python",
+            "stdout": None,
+            "result": str(e),
+            "traceback": None,
+        }
         return RunCodeResponse(**res)

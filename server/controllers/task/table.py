@@ -11,10 +11,9 @@ from server.schemas.sqls import QueryTable
 
 
 def get_table_data(db: Session, request: QueryTable):
-    # TODO: replace app_id with table id
     user_db_engine = connect_to_user_db()
 
-    sql = crud.sqls.get_app_sql(db, app_id=request.app_id)
+    sql = crud.sqls.get_page_sql(db, page_id=request.page_id)
     # apply filters
     filter_sql, join_filters = apply_filters(sql.code, request.filters, request.sorts)
 
@@ -84,15 +83,14 @@ def apply_filters(sql, filters, sorts):
     filter_sql = f"""SELECT * FROM ({sql}) as user_query\n"""
     if len(filters) > 0:
         filter_sql += "WHERE \n"
-    for filter in filters:
-        sql_column_name = f"{filter['schema_name']}.{filter['table_name']}.{filter['column_name']}"
-        dict_column_name = f"{filter['schema_name']}_{filter['table_name']}_{filter['column_name']}"
-        filter_dict[f"{dict_column_name}_filter"] = filter["value"]
-        filter_sql += (
-            f"""user_query."{sql_column_name}" {filter['operator']} :{dict_column_name}_filter AND\n"""
-        )
 
-    filter_sql = filter_sql[:-4] + "\n"
+        for filter in filters:
+            sql_column_name = f"{filter['schema_name']}.{filter['table_name']}.{filter['column_name']}"
+            dict_column_name = f"{filter['schema_name']}_{filter['table_name']}_{filter['column_name']}"
+            filter_dict[f"{dict_column_name}_filter"] = filter["value"]
+            filter_sql += f"""user_query."{sql_column_name}" {filter['operator']} :{dict_column_name}_filter AND\n"""
+
+        filter_sql = filter_sql[:-4] + "\n"
 
     if len(sorts) > 0:
         filter_sql += "ORDER BY \n"

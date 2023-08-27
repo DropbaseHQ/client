@@ -9,7 +9,7 @@ class Functions(Base):
     id = Column(UUID(as_uuid=True), server_default=text("uuid_generate_v4()"), primary_key=True)
 
     code = Column(String, nullable=False)
-    app_id = Column(UUID(as_uuid=True), ForeignKey("app.id", ondelete="CASCADE"))
+    action_id = Column(UUID(as_uuid=True), ForeignKey("action.id", ondelete="CASCADE"))
 
     date = Column(TIMESTAMP, server_default=func.now())
     type = Column(String)

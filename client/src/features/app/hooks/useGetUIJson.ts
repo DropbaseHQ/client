@@ -4,10 +4,10 @@ import { useSetAtom } from 'jotai';
 import { axios } from '@/lib/axios';
 import { runResultAtom } from '@/features/app-builder/atoms/tableContextAtoms';
 
-const fetchUIJson = async ({ code, app_id }: { code: string; app_id: string }) => {
+const fetchUIJson = async ({ code, sidebar_id }: { code: string; sidebar_id: string }) => {
 	const { data } = await axios.post('components/some_id/convert', {
 		code,
-		app_id,
+		sidebar_id: sidebar_id,
 	});
 	return data;
 };
@@ -16,11 +16,11 @@ const UI_JSON_QUERY_KEY = 'ui-json';
 
 export const useGetUIJson = ({
 	code = '',
-	app_id = '',
-}: { code?: string; app_id?: string } = {}) => {
+	sidebar_id = '',
+}: { code?: string; sidebar_id?: string } = {}) => {
 	const setRunResult = useSetAtom(runResultAtom);
-	const queryKey = [UI_JSON_QUERY_KEY, app_id || '', code];
-	const { data, ...rest } = useQuery(queryKey, () => fetchUIJson({ code, app_id }), {
+	const queryKey = [UI_JSON_QUERY_KEY, sidebar_id || '', code];
+	const { data, ...rest } = useQuery(queryKey, () => fetchUIJson({ code, sidebar_id }), {
 		onError: (error: any) => {
 			setRunResult(error?.response?.data?.error);
 		},

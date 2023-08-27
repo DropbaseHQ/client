@@ -40,6 +40,7 @@ def get_class_declaration_string(class_name, ui_components):
     cls_str += f"class {class_name}:\n"
     for comp in ui_components:
         cls_str += f"    {comp.name}: {map_ui_type_to_dtype[comp.type]}\n"
+    # TODO: add sidebar
     return cls_str
 
 
@@ -47,7 +48,7 @@ def generate(code_string) -> str | None:
     try:
         instantiations = extract_class_instantiations(code_string)
         typed_ui_classes = generate_typed_ui_classes(instantiations)
-        generated_code = get_class_declaration_string("UserInput", typed_ui_classes)
+        generated_code = get_class_declaration_string("State", typed_ui_classes)
     except Exception:
         return None  # i.e. do not write anything
     return generated_code

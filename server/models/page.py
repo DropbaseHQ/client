@@ -5,13 +5,12 @@ from sqlalchemy.sql import func, text
 from .base import Base
 
 
-class Components(Base):
+class Page(Base):
     id = Column(UUID(as_uuid=True), server_default=text("uuid_generate_v4()"), primary_key=True)
 
-    code = Column(String, nullable=False)
-    action_id = Column(UUID(as_uuid=True), ForeignKey("action.id", ondelete="CASCADE"))
-    dataclass = Column(String)
+    name = Column(String, nullable=False)
+    app_id = Column(UUID(as_uuid=True), ForeignKey("app.id", ondelete="CASCADE"))
 
     date = Column(TIMESTAMP, server_default=func.now())
 
-    __tablename__ = "components"
+    __tablename__ = "page"

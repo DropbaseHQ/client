@@ -9,7 +9,7 @@ const createAppComponent = async ({
 	appId: string;
 	// type?: string;
 }) => {
-	const response = await axios.post(`/components`, { code, app_id: appId });
+	const response = await axios.post(`/components`, { code, sidebar_id: appId });
 	return response.data;
 };
 

@@ -3,8 +3,7 @@ from sqlalchemy.engine import URL, Connection, create_engine
 from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
 
-from server import crud
-from server.controllers.app import AppSchema, get_app_schema
+from server.controllers.page import PageSchema, get_page_schema
 from server.controllers.task.source_column_helper import connect_to_user_db
 from server.controllers.task.source_column_model import get_parsed_schema, get_regrouped_schema
 from server.schemas.errors import LanguageErrorResponse
@@ -13,12 +12,12 @@ from server.utils.helper import raise_language_exception
 SchemaDict = dict[str, dict[str, list[str]]]
 
 
-def is_table_in_default_schema(schema_dict: AppSchema, table: str) -> bool:
+def is_table_in_default_schema(schema_dict: PageSchema, table: str) -> bool:
     default_schema = schema_dict["metadata"]["default_schema"]
     return table in schema_dict["schema"][default_schema]
 
 
-def parse_object_alias(obj: str, schema_dict: AppSchema) -> tuple[str, list[str]]:
+def parse_object_alias(obj: str, schema_dict: PageSchema) -> tuple[str, list[str]]:
     """
     Return (schema.table.column,  [properties]).
     :raises ValueError if the object does not have a schema, table, or column.
@@ -42,7 +41,7 @@ def parse_object_alias(obj: str, schema_dict: AppSchema) -> tuple[str, list[str]
     return f"{schema}.{table}.{column}", props
 
 
-def lookup_alias_in_schema(app_schema: AppSchema, schema_dict: SchemaDict, alias: str) -> dict:
+def lookup_alias_in_schema(app_schema: PageSchema, schema_dict: SchemaDict, alias: str) -> dict:
     """
     Return the column properties for an alias.
     :raises KeyError if the alias does not exist in the schema.
@@ -52,7 +51,7 @@ def lookup_alias_in_schema(app_schema: AppSchema, schema_dict: SchemaDict, alias
     return schema_dict[schema][table][column]
 
 
-def expand_schema_tree(schema_dict: AppSchema) -> set[str]:
+def expand_schema_tree(schema_dict: PageSchema) -> set[str]:
     """
     Convert a schema tree to a list of all possible columns
     """
@@ -65,7 +64,7 @@ def expand_schema_tree(schema_dict: AppSchema) -> set[str]:
 
 
 def compare_aliases_from_db(
-    conn: Connection, query: str, schema_dict: AppSchema
+    conn: Connection, query: str, schema_dict: PageSchema
 ) -> tuple[list[str], list[str], list[str]]:
     """
     Returns a tuple of:
@@ -83,12 +82,12 @@ def compare_aliases_from_db(
         ]
     except ProgrammingError as err:
         raise ValueError(
-            "There seems to be an issue with the SQL statement you provided.", str(err.orig))
+            "There seems to be an issue with the SQL statement you provided.", str(err.orig)
+        )
 
     all_schema_cols = expand_schema_tree(schema_dict)
 
-    bad_cols = [
-        key for key in cleaned_returned_query_keys if key not in all_schema_cols]
+    bad_cols = [key for key in cleaned_returned_query_keys if key not in all_schema_cols]
     duplicate_cols = [
         key for key in cleaned_returned_query_keys if cleaned_returned_query_keys.count(key) > 1
     ]
@@ -97,7 +96,11 @@ def compare_aliases_from_db(
 
 
 def get_misnamed_aliases(
-    conn: Connection, query: str, used_aliases: list[str], schema_dict: SchemaDict, app_schema: AppSchema
+    conn: Connection,
+    query: str,
+    used_aliases: list[str],
+    schema_dict: SchemaDict,
+    app_schema: PageSchema,
 ) -> list[str]:
     """
     Returns a list of aliases that are incorrectly mapped
@@ -105,10 +108,8 @@ def get_misnamed_aliases(
     compared with another type
     """
 
-    parsed_aliases = [(*parse_object_alias(alias, app_schema), alias)
-                      for alias in used_aliases]
-    used_tables = list(set(alias[: alias.rfind(".")]
-                       for alias, _, _ in parsed_aliases))
+    parsed_aliases = [(*parse_object_alias(alias, app_schema), alias) for alias in used_aliases]
+    used_tables = list(set(alias[: alias.rfind(".")] for alias, _, _ in parsed_aliases))
 
     table_to_primary_key: dict[str, str] = {}
     table_to_primary_alias: dict[str, str] = {}
@@ -132,8 +133,7 @@ def get_misnamed_aliases(
         try:
             col_props = lookup_alias_in_schema(app_schema, schema_dict, name)
         except KeyError:
-            raise ValueError(
-                f'"{name}" does not exist in any of your sources. Is it misnamed?')
+            raise ValueError(f'"{name}" does not exist in any of your sources. Is it misnamed?')
 
         if not col_props["nullable"] and col_props["unique"] or col_props["primary_key"]:
             # if the column is unique and not nullable, it can be used as a key
@@ -213,8 +213,7 @@ def get_misnamed_aliases(
             raise TypeError(str(err.orig))
         total = row["total"]
 
-        bad_cols = [key for key, value in row.items() if key !=
-                    "total" and value != total]
+        bad_cols = [key for key, value in row.items() if key != "total" and value != total]
 
     return bad_cols
 
@@ -224,20 +223,16 @@ def test_sql(db: Session, sql_string: str):
     Tests if a SQL query is valid for the given app.
     : raises ValueError if the query is invalid.
     """
-    # app = crud.app.get_object_by_id_or_404(db, id=app_id)
     # TODO: store schema in db
-    schema = get_app_schema()
+    schema = get_page_schema()
     engine = connect_to_user_db()
     try:
         with engine.connect() as conn:
-            bad_cols, duplicate_cols, good_cols = compare_aliases_from_db(
-                conn, sql_string, schema)
+            bad_cols, duplicate_cols, good_cols = compare_aliases_from_db(conn, sql_string, schema)
         if bad_cols:
-            raise ValueError(
-                f"Query has unknown columns: {', '.join(bad_cols)}")
+            raise ValueError(f"Query has unknown columns: {', '.join(bad_cols)}")
         elif duplicate_cols:
-            raise ValueError(
-                f"Query has duplicate columns: {', '.join(set(duplicate_cols))}")
+            raise ValueError(f"Query has duplicate columns: {', '.join(set(duplicate_cols))}")
 
         qualified_good_cols: list[str] = []
         for col in good_cols:
@@ -251,26 +246,26 @@ def test_sql(db: Session, sql_string: str):
 
         with engine.connect() as conn:
             try:
-                bad_cols = get_misnamed_aliases(
-                    conn, sql_string, good_cols, parsed_schema, schema)
+                bad_cols = get_misnamed_aliases(conn, sql_string, good_cols, parsed_schema, schema)
             except TypeError as err:
                 raise ValueError(
                     "Query has misnamed columns. Please check "
                     "that your aliases match the returned columns.",
-                    str(err)
+                    str(err),
                 )
             if bad_cols:
-                raise ValueError(
-                    f"Query has misnamed columns: {', '.join(bad_cols)}")
+                raise ValueError(f"Query has misnamed columns: {', '.join(bad_cols)}")
 
     except ValueError as err:
         message: str = err.args[0]
         details: str | None = err.args[1] if len(err.args) > 1 else None
-        return raise_language_exception(LanguageErrorResponse(
-            status="error",
-            type="sql",
-            message=message,
-            details=details,
-        ))
+        return raise_language_exception(
+            LanguageErrorResponse(
+                status="error",
+                type="sql",
+                message=message,
+                details=details,
+            )
+        )
     finally:
         engine.dispose()

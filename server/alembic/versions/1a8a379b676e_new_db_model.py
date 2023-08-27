@@ -1,8 +1,8 @@
-"""initial setup
+"""new db model
 
-Revision ID: b1ee5e9b1d75
+Revision ID: 1a8a379b676e
 Revises: 
-Create Date: 2023-08-05 02:23:43.591066
+Create Date: 2023-08-27 10:26:05.572714
 
 """
 import sqlalchemy as sa
@@ -10,7 +10,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'b1ee5e9b1d75'
+revision = '1a8a379b676e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,6 +22,7 @@ def upgrade():
     sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('uuid_generate_v4()'), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('email', sa.String(), nullable=False),
+    sa.Column('hashed_password', sa.String(), nullable=True),
     sa.Column('active', sa.Boolean(), nullable=True),
     sa.Column('trial_eligible', sa.Boolean(), nullable=True),
     sa.Column('date', sa.TIMESTAMP(), server_default=sa.text('now()'), nullable=True),
@@ -38,15 +39,15 @@ def upgrade():
     op.create_table('app',
     sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('uuid_generate_v4()'), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
-    sa.Column('workspace_id', postgresql.UUID(), nullable=True),
+    sa.Column('workspace_id', postgresql.UUID(as_uuid=True), nullable=True),
     sa.Column('date', sa.TIMESTAMP(), server_default=sa.text('now()'), nullable=True),
     sa.ForeignKeyConstraint(['workspace_id'], ['workspace.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('role',
     sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('uuid_generate_v4()'), nullable=False),
-    sa.Column('user_id', postgresql.UUID(), nullable=True),
-    sa.Column('workspace_id', postgresql.UUID(), nullable=True),
+    sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.Column('workspace_id', postgresql.UUID(as_uuid=True), nullable=True),
     sa.Column('role', sa.String(), nullable=False),
     sa.Column('date', sa.TIMESTAMP(), server_default=sa.text('now()'), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
@@ -59,33 +60,64 @@ def upgrade():
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('type', sa.String(), nullable=False),
     sa.Column('creds', sa.String(), nullable=False),
-    sa.Column('workspace_id', postgresql.UUID(), nullable=True),
+    sa.Column('workspace_id', postgresql.UUID(as_uuid=True), nullable=True),
     sa.Column('date', sa.TIMESTAMP(), server_default=sa.text('now()'), nullable=True),
     sa.ForeignKeyConstraint(['workspace_id'], ['workspace.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('components',
+    op.create_table('page',
     sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('uuid_generate_v4()'), nullable=False),
-    sa.Column('code', sa.String(), nullable=False),
-    sa.Column('app_id', postgresql.UUID(), nullable=True),
+    sa.Column('name', sa.String(), nullable=False),
+    sa.Column('app_id', postgresql.UUID(as_uuid=True), nullable=True),
     sa.Column('date', sa.TIMESTAMP(), server_default=sa.text('now()'), nullable=True),
     sa.ForeignKeyConstraint(['app_id'], ['app.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('functions',
+    op.create_table('action',
     sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('uuid_generate_v4()'), nullable=False),
-    sa.Column('code', sa.String(), nullable=False),
-    sa.Column('app_id', postgresql.UUID(), nullable=True),
+    sa.Column('name', sa.String(), nullable=False),
+    sa.Column('page_id', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.Column('settings', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+    sa.Column('dataclass', sa.String(), nullable=True),
     sa.Column('date', sa.TIMESTAMP(), server_default=sa.text('now()'), nullable=True),
-    sa.ForeignKeyConstraint(['app_id'], ['app.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['page_id'], ['page.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('sqls',
     sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('uuid_generate_v4()'), nullable=False),
     sa.Column('code', sa.String(), nullable=False),
-    sa.Column('app_id', postgresql.UUID(), nullable=True),
+    sa.Column('page_id', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.Column('dataclass', sa.String(), nullable=True),
+    sa.Column('table_meta', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
     sa.Column('date', sa.TIMESTAMP(), server_default=sa.text('now()'), nullable=True),
-    sa.ForeignKeyConstraint(['app_id'], ['app.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['page_id'], ['page.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('components',
+    sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('uuid_generate_v4()'), nullable=False),
+    sa.Column('code', sa.String(), nullable=False),
+    sa.Column('action_id', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.Column('dataclass', sa.String(), nullable=True),
+    sa.Column('date', sa.TIMESTAMP(), server_default=sa.text('now()'), nullable=True),
+    sa.ForeignKeyConstraint(['action_id'], ['action.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('functions',
+    sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('uuid_generate_v4()'), nullable=False),
+    sa.Column('code', sa.String(), nullable=False),
+    sa.Column('action_id', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.Column('date', sa.TIMESTAMP(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('type', sa.String(), nullable=True),
+    sa.ForeignKeyConstraint(['action_id'], ['action.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('pinned_filters',
+    sa.Column('id', postgresql.UUID(as_uuid=True), server_default=sa.text('uuid_generate_v4()'), nullable=False),
+    sa.Column('filters', postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+    sa.Column('sorts', postgresql.JSONB(astext_type=sa.Text()), nullable=False),
+    sa.Column('sql_id', postgresql.UUID(as_uuid=True), nullable=False),
+    sa.Column('date', sa.TIMESTAMP(), server_default=sa.text('now()'), nullable=True),
+    sa.ForeignKeyConstraint(['sql_id'], ['sqls.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
@@ -93,9 +125,12 @@ def upgrade():
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_table('sqls')
+    op.drop_table('pinned_filters')
     op.drop_table('functions')
     op.drop_table('components')
+    op.drop_table('sqls')
+    op.drop_table('action')
+    op.drop_table('page')
     op.drop_table('source')
     op.drop_table('role')
     op.drop_table('app')

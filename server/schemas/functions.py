@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class BaseFunctions(BaseModel):
     code: str
-    app_id: UUID
+    action_id: UUID
     type: str
 
 
@@ -22,5 +22,5 @@ class CreateFunctions(BaseFunctions):
 
 class UpdateFunctions(BaseModel):
     code: Optional[str]
-    app_id: Optional[UUID]
+    action_id: Optional[UUID]
     type: Optional[str]

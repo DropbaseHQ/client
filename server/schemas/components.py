@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class BaseComponents(BaseModel):
     code: str
-    app_id: UUID
+    action_id: UUID
     dataclass: Optional[str]
 
 
@@ -22,11 +22,11 @@ class CreateComponents(BaseComponents):
 
 class UpdateComponents(BaseModel):
     code: Optional[str]
-    app_id: Optional[UUID]
+    action_id: Optional[UUID]
     dataclass: Optional[str]
 
 
 class ConvertComponents(BaseModel):
     code: str
-    app_id: str
+    action_id: str
     dataclass: Optional[str]
