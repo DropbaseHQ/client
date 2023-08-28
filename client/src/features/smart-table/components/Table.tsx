@@ -26,7 +26,7 @@ const saveEdits = async ({ edits, sqlId }: { edits: any; sqlId: any }) => {
 };
 
 export const Table = () => {
-	const { appId } = useParams();
+	const { pageId } = useParams();
 	const toast = useToast();
 
 	const filters = useAtomValue(filtersAtom);
@@ -36,7 +36,7 @@ export const Table = () => {
 	const parsedSorts = sorts.filter((f) => f.column_name);
 
 	const { isLoading, rows, columns, rowsWithSchema, schema, sqlId, refetch } = useTableData({
-		appId,
+		pageId,
 		filters: parsedFilters,
 		sorts: parsedSorts,
 	});

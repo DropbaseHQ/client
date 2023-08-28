@@ -2,18 +2,18 @@ import { useMutation } from 'react-query';
 import { axios } from '@/lib/axios';
 
 const runFunction = async ({
-	appId,
+	pageId,
 	userInput,
 	row,
 	functionCall,
 }: {
-	appId: string;
+	pageId: string;
 	userInput: any;
 	row: any;
 	functionCall: any;
 }) => {
 	const { data } = await axios.post('/task', {
-		app_id: appId,
+		page_id: pageId,
 		user_input: userInput,
 		row,
 		action: functionCall,

@@ -14,11 +14,11 @@ import { UIPanel, UIPreview } from './components/UIPreview';
 import { UIState } from './components/UIState';
 
 export const AppBuilder = () => {
-	const { appId } = useParams();
+	const { pageId } = useParams();
 	const [isEditorReady, , languageClient] = useMonacoLoader();
 
 	const { isLoading, dataclass } = useTableData({
-		appId,
+		pageId,
 		filters: [],
 		sorts: [],
 	});

@@ -1,10 +1,11 @@
-import { axios } from '@/lib/axios';
 import { useMutation } from 'react-query';
+import { axios } from '@/lib/axios';
 
-const createSql = async ({ code, appId }: { code: string; appId: string }) => {
-	const response = await axios.post(`/sqls`, { code, app_id: appId });
+const createSql = async ({ code, pageId }: { code: string; pageId: string }) => {
+	const response = await axios.post(`/sqls`, { code, page_id: pageId });
 	return response.data;
 };
+
 export const useCreateSql = (options?: {
 	onSuccess?: (data: any) => void;
 	onError?: (error: any) => void;

@@ -25,7 +25,7 @@ import { fetchersAtom, selectedRowAtom, userInputAtom } from '../atoms/tableCont
 
 import { usePythonEditor } from '@/components/Editor';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
-import { useGetApp } from '@/features/app/hooks';
+import { useGetPage } from '@/features/app/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { useDeleteFunction } from '@/features/app-builder/hooks/useDeleteFetchers';
 
@@ -38,7 +38,7 @@ export const findFunctionDeclarations = (code: string) => {
 export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; setCode: any }) => {
 	const [showActions, setShowActions] = useState(false);
 
-	const { appId } = useParams();
+	const { pageId } = useParams();
 	const toast = useToast();
 
 	const deleteFunction = useDeleteFunction();
@@ -186,10 +186,10 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 					aria-label="Run code"
 					isDisabled={!!runDisabledError}
 					onClick={() => {
-						if (appId) {
+						if (pageId) {
 							if (Object.keys(selectedRow).length > 0) {
 								runFunctionMutation.mutate({
-									appId,
+									pageId,
 									functionCall,
 									row: selectedRow,
 									userInput,
@@ -221,32 +221,33 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 				)}
 			</Stack>
 			{log?.result ? (
-				<Stack pt="2" h="full" borderTopWidth="1px" px="2" pl="1rem">
-					<Stack direction="row" alignItems="center">
+				<Stack p="2" h="full" borderTopWidth="1px">
+					<Stack direction="row" alignItems="start">
 						<IconButton
 							aria-label="Close output"
 							size="xs"
 							colorScheme="gray"
+							variant="outline"
 							borderRadius="full"
 							icon={<X size={14} />}
 							onClick={() => setLog(null)}
 						/>
 
-						<Text px="2" fontSize="xs" letterSpacing="wide" fontWeight="bold">
-							Output
-						</Text>
+						<Stack>
+							<Text fontSize="xs" letterSpacing="wide" fontWeight="semibold">
+								Output
+							</Text>
+							<Code
+								w="full"
+								color="gray.500"
+								backgroundColor="inherit"
+								overflow="auto"
+								height={`${(outputPreview?.split('\n').length || 1) * 24}px`}
+							>
+								<pre>{outputPreview}</pre>
+							</Code>
+						</Stack>
 					</Stack>
-
-					<Code
-						color="gray.500"
-						backgroundColor="inherit"
-						paddingLeft="3rem"
-						overflowY="scroll"
-						overflowX="hidden"
-						height={`${(outputPreview?.split('\n').length || 1) * 20}px`}
-					>
-						<pre>{outputPreview}</pre>
-					</Code>
 				</Stack>
 			) : null}
 		</Stack>
@@ -255,8 +256,8 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 
 export const Fetchers = () => {
 	const [fetchers, setFetchers] = useAtom(fetchersAtom);
-	const { appId } = useParams();
-	const { fetchers: savedFetchers } = useGetApp(appId || '');
+	const { pageId } = useParams();
+	const { fetchers: savedFetchers } = useGetPage(pageId || '');
 
 	useEffect(() => {
 		if (savedFetchers && savedFetchers.length > 0) {

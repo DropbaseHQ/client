@@ -36,17 +36,17 @@ type TableData = {
 	};
 };
 
-const fetchTableData = async ({ appId }: { appId: string }) => {
-	const response = await axios.get<TableData>(`/table/${appId}`);
+const fetchTableData = async ({ pageId }: { pageId: string }) => {
+	const response = await axios.get<TableData>(`/table/${pageId}`);
 
 	return response.data;
 };
 
-export const useTableData = (appId: string) => {
-	const queryKey = [TABLE_DATA_QUERY_KEY, appId];
+export const useTableData = (pageId: string) => {
+	const queryKey = [TABLE_DATA_QUERY_KEY, pageId];
 
-	const { data: response, ...rest } = useQuery(queryKey, () => fetchTableData({ appId }), {
-		enabled: Boolean(appId),
+	const { data: response, ...rest } = useQuery(queryKey, () => fetchTableData({ pageId }), {
+		enabled: Boolean(pageId),
 	});
 
 	const parsedData = useMemo(() => {

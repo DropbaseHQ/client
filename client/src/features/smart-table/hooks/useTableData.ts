@@ -38,9 +38,9 @@ type TableData = {
 	};
 };
 
-const fetchTableData = async ({ appId, filters, sorts }: any) => {
+const fetchTableData = async ({ pageId, filters, sorts }: any) => {
 	const response = await axios.post<TableData>(`/table/`, {
-		app_id: appId,
+		page_id: pageId,
 		filters,
 		sorts,
 	});
@@ -48,11 +48,11 @@ const fetchTableData = async ({ appId, filters, sorts }: any) => {
 	return response.data;
 };
 
-export const useTableData = ({ appId, filters = [], sorts = [] }: any) => {
-	const queryKey = [TABLE_DATA_QUERY_KEY, appId, JSON.stringify({ filters, sorts })];
+export const useTableData = ({ pageId, filters = [], sorts = [] }: any) => {
+	const queryKey = [TABLE_DATA_QUERY_KEY, pageId, JSON.stringify({ filters, sorts })];
 
 	const { data: response, ...rest } = useQuery(queryKey, () =>
-		fetchTableData({ appId, filters, sorts }),
+		fetchTableData({ pageId, filters, sorts }),
 	);
 
 	const parsedData: any = useMemo(() => {

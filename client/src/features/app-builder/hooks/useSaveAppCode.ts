@@ -3,14 +3,14 @@ import { axios } from '@/lib/axios';
 
 const createAppFunction = async ({
 	code,
-	appId,
+	pageId,
 	type,
 }: {
 	code: string;
-	appId: string;
+	pageId: string;
 	type: string;
 }) => {
-	const response = await axios.post(`/functions`, { code, sidebar_id: appId, type });
+	const response = await axios.post(`/functions`, { code, sidebar_id: pageId, type });
 	return response.data;
 };
 

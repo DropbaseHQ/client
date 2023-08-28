@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useGetApp } from '@/features/app/hooks';
+import { useGetPage } from '@/features/app/hooks';
 import { useParams } from 'react-router-dom';
 import { useSaveStudio } from '../hooks/useSaveStudio';
 import { useAtom } from 'jotai';
@@ -9,8 +9,8 @@ export const StudioAutoSaver = () => {
 	const [fetchersChanged, setFetchersChanged] = useState(false);
 	const [uiCodeChanged, setUiCodeChanged] = useState(false);
 
-	const { appId } = useParams();
-	const { fetchers: savedFetchers, uiComponents, isSuccess } = useGetApp(appId || '');
+	const { pageId } = useParams();
+	const { fetchers: savedFetchers, uiComponents, isSuccess } = useGetPage(pageId || '');
 
 	const { saveFetchers, saveUICode } = useSaveStudio();
 

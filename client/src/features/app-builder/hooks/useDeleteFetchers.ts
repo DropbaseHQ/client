@@ -5,7 +5,7 @@ import { useAtom } from 'jotai';
 import { axios } from '@/lib/axios';
 import { fetchersAtom } from '@/features/app-builder/atoms/tableContextAtoms';
 import { useToast } from '@/lib/chakra-ui';
-import { useGetApp } from '@/features/app/hooks';
+import { useGetPage } from '@/features/app/hooks';
 
 const deleteFetcher = async (functionId: string) => {
 	const { data } = await axios.delete(`/function/${functionId}`);
@@ -13,11 +13,11 @@ const deleteFetcher = async (functionId: string) => {
 };
 
 export const useDeleteFunction = () => {
-	const { appId } = useParams();
+	const { pageId } = useParams();
 	const toast = useToast();
 	const [fetchers, setFetchers] = useAtom(fetchersAtom);
 
-	const { fetchers: savedFetchers } = useGetApp(appId || '');
+	const { fetchers: savedFetchers } = useGetPage(pageId || '');
 
 	const deleteFromLocalState = useCallback(
 		(fetcherId: string) => {

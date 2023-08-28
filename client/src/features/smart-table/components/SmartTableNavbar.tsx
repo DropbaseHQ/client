@@ -2,11 +2,11 @@ import { useParams } from 'react-router-dom';
 import { Flex, IconButton, Stack, Text } from '@chakra-ui/react';
 import { ArrowLeft } from 'react-feather';
 
-import { useGetApp } from '@/features/app/hooks';
+import { useGetPage } from '@/features/app/hooks';
 
 export const SmartTableNavbar = () => {
-	const { appId } = useParams();
-	const { isLoading, app } = useGetApp(appId || '');
+	const { pageId } = useParams();
+	const { isLoading, page } = useGetPage(pageId || '');
 
 	return (
 		<Stack alignItems="center" shadow="xs" h="10" borderBottomWidth="1px" direction="row">
@@ -23,7 +23,7 @@ export const SmartTableNavbar = () => {
 				/>
 
 				<Text fontSize="sm" fontWeight="medium" marginLeft="2">
-					{app?.name}
+					{page?.name}
 				</Text>
 			</Flex>
 		</Stack>

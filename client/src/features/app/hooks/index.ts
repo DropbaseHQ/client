@@ -1,2 +1,2 @@
-export * from './useGetApp';
+export * from './useGetPage';
 export * from './useTableData';

@@ -3,11 +3,12 @@ import { useMemo } from 'react';
 import { useSetAtom } from 'jotai';
 import { axios } from '@/lib/axios';
 import { runResultAtom } from '@/features/app-builder/atoms/tableContextAtoms';
+import { useGetPage } from '@/features/app/hooks';
 
-const fetchUIJson = async ({ code, sidebar_id }: { code: string; sidebar_id: string }) => {
+const fetchUIJson = async ({ code, action_id }: { code: string; action_id: string }) => {
 	const { data } = await axios.post('components/some_id/convert', {
 		code,
-		sidebar_id: sidebar_id,
+		action_id,
 	});
 	return data;
 };
@@ -16,18 +17,26 @@ const UI_JSON_QUERY_KEY = 'ui-json';
 
 export const useGetUIJson = ({
 	code = '',
-	sidebar_id = '',
-}: { code?: string; sidebar_id?: string } = {}) => {
+	page_id = '',
+}: { code?: string; page_id?: string } = {}) => {
 	const setRunResult = useSetAtom(runResultAtom);
-	const queryKey = [UI_JSON_QUERY_KEY, sidebar_id || '', code];
-	const { data, ...rest } = useQuery(queryKey, () => fetchUIJson({ code, sidebar_id }), {
-		onError: (error: any) => {
-			setRunResult(error?.response?.data?.error);
+
+	const { action } = useGetPage(page_id);
+
+	const queryKey = [UI_JSON_QUERY_KEY, action?.id || '', code];
+	const { data, ...rest } = useQuery(
+		queryKey,
+		() => fetchUIJson({ code, action_id: action?.id }),
+		{
+			onError: (error: any) => {
+				setRunResult(error?.response?.data?.error);
+			},
+			onSuccess: () => {
+				setRunResult('');
+			},
+			enabled: Boolean(code && action?.id),
 		},
-		onSuccess: () => {
-			setRunResult('');
-		},
-	});
+	);
 
 	const components = useMemo(() => {
 		return (data?.components || []).map((c: any) => {

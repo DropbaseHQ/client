@@ -20,18 +20,18 @@ import { selectedRowAtom } from '@/features/app-builder/atoms/tableContextAtoms'
 import { runResultAtom } from '@/features/app-builder/atoms/tableContextAtoms';
 
 const runTask = async ({
-	appId,
+	pageId,
 	userInput,
 	row,
 	action,
 }: {
-	appId: string;
+	pageId: string;
 	userInput: any;
 	row: any;
 	action: any;
 }) => {
 	const { data } = await axios.post('/task', {
-		app_id: appId,
+		page_id: pageId,
 		user_input: userInput,
 		row,
 		action,
@@ -96,7 +96,7 @@ export const CustomInput = (props: any) => {
 	const runTask = useRunTask();
 	const [selectedRow] = useAtom(selectedRowAtom);
 	const [userInput] = useAtom(userInputAtom);
-	const { appId } = useParams();
+	const { pageId } = useParams();
 	watch();
 
 	if (
@@ -129,7 +129,7 @@ export const CustomInput = (props: any) => {
 									})
 								) {
 									await runTask.mutateAsync({
-										appId: appId || '',
+										pageId: pageId || '',
 										userInput: userInput,
 										row: selectedRow,
 										action: onChange,
@@ -173,14 +173,14 @@ export const CustomInput = (props: any) => {
 export const CustomButton = (props: any) => {
 	const { label, action, post_action, getData } = props;
 	const runTask = useRunTask();
-	const { appId } = useParams();
+	const { pageId } = useParams();
 	const [selectedRow] = useAtom(selectedRowAtom);
 	const [userInput] = useAtom(userInputAtom);
 	// const
 	const handleAction = async () => {
 		try {
 			await runTask.mutateAsync({
-				appId: appId || '',
+				pageId: pageId || '',
 				userInput: userInput,
 				row: selectedRow,
 				action,

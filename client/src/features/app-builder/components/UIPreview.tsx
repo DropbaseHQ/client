@@ -1,6 +1,6 @@
 /* eslint-disable  */
 import { PanelHandle } from '@/components/Panel';
-import { useGetApp } from '@/features/app/hooks';
+import { useGetPage } from '@/features/app/hooks';
 import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
 import { CustomButton, CustomInput } from '@/utils/uiBuilder';
 import {
@@ -24,8 +24,8 @@ import { UIEditor } from './UIEditor';
 
 export const UIPreview = () => {
 	const [uiCode, setUiCode] = useAtom(uiCodeAtom);
-	const { appId } = useParams();
-	const { uiComponents } = useGetApp(appId || '');
+	const { pageId } = useParams();
+	const { uiComponents } = useGetPage(pageId || '');
 
 	const log = useAtomValue(runResultAtom);
 
@@ -43,7 +43,7 @@ export const UIPreview = () => {
 		refetch,
 		isFetching: isLoading,
 	} = useGetUIJson({
-		app_id: appId || '',
+		page_id: pageId || '',
 		code: (uiCode || '').trim(),
 	});
 

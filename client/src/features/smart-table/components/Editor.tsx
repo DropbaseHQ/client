@@ -5,7 +5,7 @@ import { CheckCircle, Play } from 'react-feather';
 import { useParams } from 'react-router-dom';
 
 import { useSQLCompletion } from '@/components/Editor';
-import { useGetApp } from '@/features/app/hooks';
+import { useGetPage } from '@/features/app/hooks';
 import { useSchema } from '@/features/smart-table/hooks/useSchema';
 import { useToast } from '@/lib/chakra-ui';
 import { useCreateSql } from '../hooks/useCreateSql';
@@ -13,14 +13,14 @@ import { useTableData } from '../hooks/useTableData';
 import { useUpdateSql } from '../hooks/useUpdateSql';
 
 export const Editor = () => {
-	const { schema, isLoading } = useSchema();
-	const { appId } = useParams();
-	const { refetch, isLoading: tableDataIsLoading } = useTableData({ appId });
+	const { pageId } = useParams();
+	const { schema, isLoading } = useSchema(pageId || '');
+	const { refetch, isLoading: tableDataIsLoading } = useTableData({ pageId });
 	const [sqlError, setSqlError] = useState<{ message: string; details: string | null } | null>(
 		null,
 	);
 
-	const { sql } = useGetApp(appId || '');
+	const { sql } = useGetPage(pageId || '');
 	const toast = useToast();
 	const createSqlMutation = useCreateSql({
 		onSuccess: () => {
@@ -58,7 +58,7 @@ export const Editor = () => {
 		if (sql?.code) {
 			await updateSqlMutation.mutateAsync({ sqlsId: sql.id || '', code: code || '' });
 		} else {
-			await createSqlMutation.mutateAsync({ appId: appId || '', code: code || '' });
+			await createSqlMutation.mutateAsync({ pageId: pageId || '', code: code || '' });
 		}
 		refetch();
 	};

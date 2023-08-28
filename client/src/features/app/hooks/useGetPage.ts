@@ -3,32 +3,34 @@ import { useQuery } from 'react-query';
 
 import { axios } from '@/lib/axios';
 
-export const APP_QUERY_KEY = 'app';
+export const APP_QUERY_KEY = 'page';
 
-const fetchAppInfo = async ({ appId }: { appId: string }) => {
+const fetchPageInfo = async ({ pageId }: { pageId: string }) => {
 	const response = await axios.get<{
-		app: { workspace_id: string; name: string; id: string };
+		page: { workspace_id: string; name: string; id: string };
+		action: { id: string; name: string };
 		sql: { id: string; code: string }[];
 		functions: {
 			fetchers: { id: string; code: string; type: string; date: string }[];
 			ui_components: { id: string; code: string; type: string; date: string }[];
 		};
-	}>(`/app/${appId}`);
+	}>(`/page/${pageId}`);
 
 	return response.data;
 };
 
-export const useGetApp = (appId: string) => {
-	const queryKey = [APP_QUERY_KEY, appId];
+export const useGetPage = (pageId: string) => {
+	const queryKey = [APP_QUERY_KEY, pageId];
 
-	const { data: response, ...rest } = useQuery(queryKey, () => fetchAppInfo({ appId }), {
-		enabled: Boolean(appId),
+	const { data: response, ...rest } = useQuery(queryKey, () => fetchPageInfo({ pageId }), {
+		enabled: Boolean(pageId),
 	});
 
-	const appInfo: any = useMemo(() => {
+	const pageInfo: any = useMemo(() => {
 		if (response) {
 			return {
-				app: response?.app,
+				page: response?.page,
+				action: response?.action,
 				sql: response?.sql[0],
 				functions: response?.functions,
 				fetchers: response?.functions?.fetchers,
@@ -37,8 +39,9 @@ export const useGetApp = (appId: string) => {
 		}
 
 		return {
-			app: {},
+			page: {},
 			sql: {},
+			action: {},
 			fetchers: [],
 			uiComponents: [],
 		};
@@ -47,6 +50,6 @@ export const useGetApp = (appId: string) => {
 	return {
 		...rest,
 		queryKey,
-		...appInfo,
+		...pageInfo,
 	};
 };

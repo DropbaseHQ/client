@@ -14,7 +14,7 @@ export const AppPreview = () => {
 				</Panel>
 				<PanelHandle direction="vertical" />
 				<Panel>
-					<Box p="4">
+					<Box h="full" bg="white" p="4">
 						<UIPreview />
 					</Box>
 				</Panel>

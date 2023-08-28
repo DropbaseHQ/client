@@ -3,13 +3,13 @@ import { axios } from '@/lib/axios';
 
 const createAppComponent = async ({
 	code,
-	appId,
+	pageId,
 }: {
 	code: string;
-	appId: string;
+	pageId: string;
 	// type?: string;
 }) => {
-	const response = await axios.post(`/components`, { code, sidebar_id: appId });
+	const response = await axios.post(`/components`, { code, sidebar_id: pageId });
 	return response.data;
 };
 

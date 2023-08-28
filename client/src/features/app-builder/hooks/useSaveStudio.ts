@@ -8,19 +8,19 @@ import {
 	uiCodeLastSavedAtom,
 } from '../atoms/tableContextAtoms';
 import { useParams } from 'react-router-dom';
-import { useGetApp } from '@/features/app/hooks';
+import { useGetPage } from '@/features/app/hooks';
 import { findFunctionDeclarations } from '../components/Fetchers';
 
 const createAppFunction = async ({
 	code,
-	appId,
+	pageId,
 	type,
 }: {
 	code: string;
-	appId: string;
+	pageId: string;
 	type: string;
 }) => {
-	const response = await axios.post(`/functions/`, { code, sidebar_id: appId, type });
+	const response = await axios.post(`/functions/`, { code, sidebar_id: pageId, type });
 	return response.data;
 };
 
@@ -39,13 +39,13 @@ const updateAppFunction = async ({
 
 const createAppComponent = async ({
 	code,
-	appId,
+	pageId,
 }: {
 	code: string;
-	appId: string;
+	pageId: string;
 	// type?: string;
 }) => {
-	const response = await axios.post(`/components/`, { code, sidebar_id: appId });
+	const response = await axios.post(`/components/`, { code, sidebar_id: pageId });
 	return response.data;
 };
 
@@ -66,13 +66,13 @@ export const useSaveStudio = () => {
 	const [uiCode] = useAtom(uiCodeAtom);
 	const setFetcherLastSaved = useSetAtom(fetchersLastSavedAtom);
 	const setUiCodeLastSaved = useSetAtom(uiCodeLastSavedAtom);
-	const { appId } = useParams();
+	const { pageId } = useParams();
 	const {
 		fetchers: savedFetchers,
 		uiComponents,
 		refetch,
 		isLoading: appDetailsIsLoading,
-	} = useGetApp(appId || '');
+	} = useGetPage(pageId || '');
 	const lastSavedTimeStamp = new Date().getTime();
 	const componentMutationConfig = {
 		onSuccess: () => {
@@ -108,7 +108,7 @@ export const useSaveStudio = () => {
 			});
 		} else {
 			await createAppComponentMutation.mutateAsync({
-				appId: appId || '',
+				pageId: pageId || '',
 				code: uiCode || '',
 			});
 		}
@@ -134,7 +134,7 @@ export const useSaveStudio = () => {
 				});
 			} else {
 				await createAppFunctionMutation.mutateAsync({
-					appId: appId || '',
+					pageId: pageId || '',
 					code: fetcherCode || '',
 					type: 'fetcher',
 				});
@@ -162,7 +162,7 @@ export const useSaveStudio = () => {
 		// 		});
 		// 	} else {
 		// 		await createAppFunctionMutation.mutateAsync({
-		// 			appId: appId || '',
+		// 			pageId: pageId || '',
 		// 			code: fetcherCode || '',
 		// 			type: 'fetcher',
 		// 		});
