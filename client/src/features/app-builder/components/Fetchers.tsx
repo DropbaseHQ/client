@@ -1,6 +1,21 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, IconButton, Stack, Text } from '@chakra-ui/react';
-import { Play } from 'react-feather';
+import {
+	Box,
+	Button,
+	ButtonGroup,
+	IconButton,
+	Popover,
+	PopoverArrow,
+	PopoverBody,
+	PopoverCloseButton,
+	PopoverContent,
+	PopoverFooter,
+	PopoverHeader,
+	PopoverTrigger,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
+import { Play, Trash } from 'react-feather';
 import MonacoEditor, { useMonaco } from '@monaco-editor/react';
 import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
@@ -12,6 +27,7 @@ import { useGetApp } from '@/features/app/hooks';
 import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
 import { useToast } from '@/lib/chakra-ui';
+import { useDeleteFunction } from '@/features/app-builder/hooks/useDeleteFetchers';
 
 export const findFunctionDeclarations = (code: string) => {
 	const functionRegex =
@@ -20,8 +36,12 @@ export const findFunctionDeclarations = (code: string) => {
 };
 
 export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; setCode: any }) => {
+	const [showActions, setShowActions] = useState(false);
+
 	const { appId } = useParams();
 	const toast = useToast();
+
+	const deleteFunction = useDeleteFunction();
 
 	const [log, setLog] = useState<any>(null);
 
@@ -90,8 +110,74 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 	}
 
 	return (
-		<Stack bg="white" spacing="0" borderRadius="sm" borderWidth="1px">
+		<Stack
+			onMouseEnter={() => {
+				setShowActions(true);
+			}}
+			onMouseLeave={() => {
+				setShowActions(false);
+			}}
+			pos="relative"
+			bg="white"
+			spacing="0"
+			borderRadius="sm"
+			borderWidth="1px"
+		>
 			<Box flex="1" ref={editorRef} as="div" w="full" borderBottomWidth="1px" h="full" />
+
+			<Box
+				display={showActions ? 'inherit' : 'none'}
+				borderWidth="1px"
+				borderRadius="md"
+				boxShadow="xs"
+				bg="white"
+				pos="absolute"
+				top="-15px"
+				right="-15px"
+			>
+				<Popover>
+					{({ onClose }) => (
+						<>
+							<PopoverTrigger>
+								<IconButton
+									variant="ghost"
+									borderRadius="none"
+									size="xs"
+									colorScheme="red"
+									icon={<Trash size="12" />}
+									aria-label="Delete function"
+								/>
+							</PopoverTrigger>
+							<PopoverContent>
+								<PopoverArrow />
+								<PopoverHeader>Confirm Delete Function</PopoverHeader>
+								<PopoverCloseButton size="xs" />
+								<PopoverBody>Are you sure you want to delete function?</PopoverBody>
+								<PopoverFooter>
+									<ButtonGroup display="flex" size="sm" justifyContent="flex-end">
+										<Button
+											variant="outline"
+											colorScheme="gray"
+											onClick={onClose}
+										>
+											Cancel
+										</Button>
+										<Button
+											colorScheme="red"
+											onClick={() => {
+												deleteFunction(id);
+											}}
+										>
+											Delete
+										</Button>
+									</ButtonGroup>
+								</PopoverFooter>
+							</PopoverContent>
+						</>
+					)}
+				</Popover>
+			</Box>
+
 			<Stack direction="row" alignItems="center" p="2">
 				<IconButton
 					borderRadius="full"
