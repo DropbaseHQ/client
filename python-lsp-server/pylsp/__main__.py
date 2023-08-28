@@ -13,12 +13,8 @@ except Exception:  # pylint: disable=broad-except
     import json
 
 from ._version import __version__
-from .python_lsp import (
-    PythonLSPServer,
-    start_io_lang_server,
-    start_tcp_lang_server,
-    start_ws_lang_server,
-)
+from .dropbase.python_lsp import PythonLSPServer  # Use our extended class
+from .python_lsp import start_io_lang_server, start_tcp_lang_server, start_ws_lang_server
 
 LOG_FORMAT = "%(asctime)s {0} - %(levelname)s - %(name)s - %(message)s".format(time.localtime().tm_zone)
 

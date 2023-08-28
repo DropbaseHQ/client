@@ -1,12 +1,12 @@
 import { useMonaco } from '@monaco-editor/react';
 import { useEffect } from 'react';
 
-import { useMonacoTheme } from './useMonacoTheme';
 import { MONARCH_TOKENIZER } from '../utils/constants';
+import { useMonacoTheme } from './useMonacoTheme';
 
 import { CompletionData, provideCompletionItems } from '../utils/sql-completion';
 
-export const useSQLCompletion = (completionData: CompletionData) => {
+export const useSQLCompletion = (databaseSchema: CompletionData) => {
 	const monaco = useMonaco();
 
 	useMonacoTheme(monaco);
@@ -22,9 +22,9 @@ export const useSQLCompletion = (completionData: CompletionData) => {
 		const { dispose } = monaco.languages.registerCompletionItemProvider('sql', {
 			triggerCharacters: ['.', '"'],
 			provideCompletionItems: (model, position) =>
-				provideCompletionItems(model, position, completionData),
+				provideCompletionItems(model, position, databaseSchema),
 		});
 
 		return dispose;
-	}, [monaco, completionData]);
+	}, [monaco, databaseSchema]);
 };

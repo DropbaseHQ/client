@@ -1,9 +1,9 @@
-import { Flex, IconButton, Stack, Text, Button } from '@chakra-ui/react';
+import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { ArrowLeft } from 'react-feather';
-import { useSaveStudio } from '../hooks/useSaveStudio';
-import { formatDistanceToNow } from 'date-fns';
-import { fetchersLastSavedAtom, uiCodeLastSavedAtom } from '../atoms/tableContextAtoms';
 import { useAtom } from 'jotai';
+import { formatDistanceToNow } from 'date-fns';
+import { useSaveStudio } from '../hooks/useSaveStudio';
+import { fetchersLastSavedAtom, uiCodeLastSavedAtom } from '../atoms/tableContextAtoms';
 
 export const AppBuilderNavbar = () => {
 	const { saveStudio, isLoading: saveStudioIsLoading } = useSaveStudio();
@@ -20,21 +20,17 @@ export const AppBuilderNavbar = () => {
 	};
 
 	return (
-		<Stack alignItems="center" h="10" borderBottomWidth="1px" direction="row">
+		<Stack alignItems="center" h="12" borderBottomWidth="1px" direction="row" bg="white">
 			<Flex h="full" alignItems="center">
-				<IconButton
-					aria-label="Go back to Apps"
-					icon={<ArrowLeft size="14" />}
+				<Button
+					leftIcon={<ArrowLeft size="14" />}
 					borderRadius="0"
 					variant="ghost"
 					h="full"
 					colorScheme="gray"
-					borderRightWidth="1px"
-				/>
-
-				<Text fontSize="sm" fontWeight="medium" marginLeft="2">
-					App Builder
-				</Text>
+				>
+					Back to App
+				</Button>
 			</Flex>
 			<Text fontSize="xs" ml="auto" color="gray.500">
 				{`Last saved: Fetchers: ${humanizedLastSaved(

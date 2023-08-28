@@ -14,8 +14,13 @@ const countChars = (str: string, char: string) => {
 	return str.split(char).length - 1;
 };
 
-const completePhrase = (lineUpToCursor: string, data: CompletionData): CompletionSuggestion[] => {
-	const completionData = data.schema;
+const completePhrase = (
+	lineUpToCursor: string,
+	databaseSchema: CompletionData,
+): CompletionSuggestion[] => {
+	// completionData is the real database schema,
+	// databaseSchema also contains metadata about the database
+	const completionData = databaseSchema.schema;
 	const [currentWord, prevWord, prevPrevWord] = lineUpToCursor.split(' ').reverse(); // the last three words of the current line
 	const cleanedCurrentWord = currentWord.replace(/^("|\.)+|("|\.)+$/g, ''); // remove leading/trailing punctuation
 	const [curSchema, curTable] = cleanedCurrentWord.split('.'); // the current schema and table
@@ -36,13 +41,13 @@ const completePhrase = (lineUpToCursor: string, data: CompletionData): Completio
 		});
 
 		// also populate table in default schema
-		Object.keys(completionData[data.metadata.default_schema]).forEach((table) => {
+		Object.keys(completionData[databaseSchema.metadata.default_schema]).forEach((table) => {
 			if (table.startsWith(cleanedCurrentWord)) {
 				suggestions.push({
 					label: table,
 					kind: CompletionItemKind.Property,
 					insertText: table,
-					detail: `schema: ${data.metadata.default_schema}`,
+					detail: `schema: ${databaseSchema.metadata.default_schema}`,
 				});
 			}
 		});
@@ -93,14 +98,14 @@ const completePhrase = (lineUpToCursor: string, data: CompletionData): Completio
 	});
 
 	// do the same for the default schema
-	Object.keys(completionData[data.metadata.default_schema]).forEach((table) => {
-		completionData[data.metadata.default_schema][table].forEach((col) => {
+	Object.keys(completionData[databaseSchema.metadata.default_schema]).forEach((table) => {
+		completionData[databaseSchema.metadata.default_schema][table].forEach((col) => {
 			if (prevPrevWord.endsWith(`.${col}`) || prevPrevWord === col) {
 				suggestions.push({
 					label: `${table}.${col}`,
 					kind: CompletionItemKind.Property,
 					insertText: `${table}.${col}`,
-					detail: `schema: ${data.metadata.default_schema}`,
+					detail: `schema: ${databaseSchema.metadata.default_schema}`,
 				});
 			}
 		});
@@ -162,7 +167,7 @@ const completePhrase = (lineUpToCursor: string, data: CompletionData): Completio
 export const provideCompletionItems = (
 	model: monacoLib.editor.ITextModel,
 	position: monacoLib.Position,
-	completionData: CompletionData,
+	databaseSchema: CompletionData,
 ) => {
 	const lineUpToPosition = model.getValueInRange({
 		startLineNumber: position.lineNumber,
@@ -173,7 +178,7 @@ export const provideCompletionItems = (
 	return {
 		suggestions: completePhrase(
 			lineUpToPosition,
-			completionData,
+			databaseSchema,
 		) as monacoLib.languages.CompletionItem[],
 	};
 };

@@ -184,10 +184,11 @@ export const Table = () => {
 		<Stack h="full" spacing="0">
 			<Stack
 				direction="row"
-				px="2"
+				p="2"
 				borderBottomWidth="1px"
 				justifyContent="space-between"
 				alignItems="center"
+				bg="white"
 				h="14"
 			>
 				<Stack alignItems="center" direction="row" flex="1">

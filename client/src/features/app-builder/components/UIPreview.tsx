@@ -1,18 +1,26 @@
 /* eslint-disable  */
-import { useEffect, useState } from 'react';
-import { RefreshCw } from 'react-feather';
-import { Alert, AlertDescription, AlertIcon, Box, IconButton, Stack, Text } from '@chakra-ui/react';
-import { useForm, FormProvider } from 'react-hook-form';
-import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
-import { CustomInput, CustomButton } from '@/utils/uiBuilder';
-import MonacoEditor from '@monaco-editor/react';
-import { useParams } from 'react-router-dom';
-import { UIEditor } from './UIEditor';
-import { useGetApp } from '@/features/app/hooks';
-import { useSetAtom, useAtom, useAtomValue } from 'jotai';
-import { userInputAtom, uiCodeAtom, runResultAtom } from '../atoms/tableContextAtoms';
-import { Panel, PanelGroup } from 'react-resizable-panels';
 import { PanelHandle } from '@/components/Panel';
+import { useGetApp } from '@/features/app/hooks';
+import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
+import { CustomButton, CustomInput } from '@/utils/uiBuilder';
+import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	Box,
+	Code,
+	IconButton,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useState } from 'react';
+import { RefreshCw, X } from 'react-feather';
+import { FormProvider, useForm } from 'react-hook-form';
+import { Panel, PanelGroup } from 'react-resizable-panels';
+import { useParams } from 'react-router-dom';
+import { runResultAtom, uiCodeAtom, userInputAtom } from '../atoms/tableContextAtoms';
+import { UIEditor } from './UIEditor';
 
 export const UIPreview = () => {
 	const [uiCode, setUiCode] = useAtom(uiCodeAtom);
@@ -100,6 +108,7 @@ export const UIPreview = () => {
 
 export const UIPanel = () => {
 	const log = useAtomValue(runResultAtom);
+	const setLog = useSetAtom(runResultAtom);
 	const runResult = log
 		? `Result:
 ${log.result}\n
@@ -118,30 +127,31 @@ ${log.traceback}`
 
 			{runResult ? (
 				<Panel>
-					<Stack h="full" pt="2" borderTopWidth="1px">
-						<Text
-							px="2"
-							fontSize="xs"
-							letterSpacing="wide"
-							color="muted"
-							fontWeight="semibold"
+					<Stack h="full" pt="2" borderTopWidth="1px" pl="1rem">
+						<Stack direction="row" alignItems="center">
+							<IconButton
+								aria-label="Close output"
+								isRound={true}
+								size="xs"
+								colorScheme="gray"
+								icon={<X size={14} />}
+								onClick={() => setLog(null)}
+							/>
+
+							<Text px="2" fontSize="xs" letterSpacing="wide" fontWeight="bold">
+								Output
+							</Text>
+						</Stack>
+
+						<Code
+							color="gray.500"
+							backgroundColor="inherit"
+							paddingLeft="3rem"
+							overflow="hidden"
+							h="100%"
 						>
-							Output
-						</Text>
-						<MonacoEditor
-							language="shell"
-							height="100%"
-							options={{
-								readOnly: true,
-								minimap: { enabled: false },
-								glyphMargin: false,
-								overviewRulerLanes: 0,
-								scrollBeyondLastLine: false,
-								wordWrap: 'on',
-								wrappingStrategy: 'advanced',
-							}}
-							value={runResult}
-						/>
+							<pre>{runResult}</pre>
+						</Code>
 					</Stack>
 				</Panel>
 			) : null}

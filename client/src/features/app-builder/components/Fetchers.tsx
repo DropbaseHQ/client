@@ -1,26 +1,49 @@
-import { useEffect, useState } from 'react';
-import { Box, Button, IconButton, Stack, Text } from '@chakra-ui/react';
-import { Play } from 'react-feather';
-import MonacoEditor, { useMonaco } from '@monaco-editor/react';
-import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useState } from 'react';
+
+import {
+	Box,
+	Button,
+	ButtonGroup,
+	Code,
+	IconButton,
+	Popover,
+	PopoverArrow,
+	PopoverBody,
+	PopoverCloseButton,
+	PopoverContent,
+	PopoverFooter,
+	PopoverHeader,
+	PopoverTrigger,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
+import { Play, Trash, X } from 'react-feather';
+import { useParams } from 'react-router-dom';
 
 import { fetchersAtom, selectedRowAtom, userInputAtom } from '../atoms/tableContextAtoms';
 
 import { usePythonEditor } from '@/components/Editor';
-import { useGetApp } from '@/features/app/hooks';
-import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
+import { useGetApp } from '@/features/app/hooks';
 import { useToast } from '@/lib/chakra-ui';
+import { useDeleteFunction } from '@/features/app-builder/hooks/useDeleteFetchers';
+
+export const findFunctionDeclarations = (code: string) => {
+	const functionRegex =
+		/^def\s+(?<call>(?<name>\w*)\s*\((?<params>[\S\s]*?)\)(?:\s*->\s*[\S\s]+?|\s*)):/gm;
+	return code.matchAll(functionRegex);
+};
 
 export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; setCode: any }) => {
+	const [showActions, setShowActions] = useState(false);
+
 	const { appId } = useParams();
 	const toast = useToast();
 
-	const [log, setLog] = useState<any>(null);
+	const deleteFunction = useDeleteFunction();
 
-	const monaco = useMonaco();
-	useMonacoTheme(monaco);
+	const [log, setLog] = useState<any>(null);
 
 	const editorRef = usePythonEditor({
 		filepath: `fetchers/${id}.py`,
@@ -43,9 +66,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 	// If a truthy value is set, the "run block" button is disabled and this error is displayed.
 	let runDisabledError = '';
 
-	const functionRegex =
-		/^def\s+(?<call>(?<name>\w*)\s*\((?<params>[\S\s]*?)\)(?:\s*->\s*[\S\s]+?|\s*)):/gm;
-	const matches = code.matchAll(functionRegex);
+	const matches = findFunctionDeclarations(code);
 	const firstMatch = matches.next();
 
 	const { name, params } = firstMatch?.value?.groups || { name: null, params: null };
@@ -53,7 +74,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 		runDisabledError = 'No function detected. Fetchers must define one function.';
 	} else if (!matches.next().done) {
 		runDisabledError =
-			'More than one function was detected. Fetchers can only define one function.';
+			'More than one function was detected. Fetchers can only define one function. (Fetchers will not save until this is fixed.)';
 	}
 
 	const argumentsName = (params || '')
@@ -86,14 +107,82 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 	}
 
 	return (
-		<Stack bg="white" spacing="0" borderRadius="sm" borderWidth="1px">
+		<Stack
+			onMouseEnter={() => {
+				setShowActions(true);
+			}}
+			onMouseLeave={() => {
+				setShowActions(false);
+			}}
+			pos="relative"
+			spacing="0"
+			borderRadius="sm"
+			borderWidth="1px"
+			bg="white"
+		>
 			<Box flex="1" ref={editorRef} as="div" w="full" borderBottomWidth="1px" h="full" />
+
+			<Box
+				display={showActions ? 'inherit' : 'none'}
+				borderWidth="1px"
+				borderRadius="md"
+				boxShadow="xs"
+				bg="white"
+				pos="absolute"
+				top="-15px"
+				right="-15px"
+			>
+				<Popover>
+					{({ onClose }) => (
+						<>
+							<PopoverTrigger>
+								<IconButton
+									variant="ghost"
+									borderRadius="none"
+									size="xs"
+									colorScheme="red"
+									icon={<Trash size="12" />}
+									aria-label="Delete function"
+								/>
+							</PopoverTrigger>
+							<PopoverContent>
+								<PopoverArrow />
+								<PopoverHeader>Confirm Delete Function</PopoverHeader>
+								<PopoverCloseButton size="xs" />
+								<PopoverBody>Are you sure you want to delete function?</PopoverBody>
+								<PopoverFooter>
+									<ButtonGroup display="flex" size="sm" justifyContent="flex-end">
+										<Button
+											variant="outline"
+											colorScheme="gray"
+											onClick={onClose}
+										>
+											Cancel
+										</Button>
+										<Button
+											colorScheme="red"
+											onClick={() => {
+												deleteFunction(id);
+											}}
+										>
+											Delete
+										</Button>
+									</ButtonGroup>
+								</PopoverFooter>
+							</PopoverContent>
+						</>
+					)}
+				</Popover>
+			</Box>
+
 			<Stack direction="row" alignItems="center" p="2">
 				<IconButton
 					borderRadius="full"
 					size="xs"
+					colorScheme="gray"
 					isLoading={runFunctionMutation.isLoading}
 					icon={<Play size="14" />}
+					variant="outline"
 					aria-label="Run code"
 					isDisabled={!!runDisabledError}
 					onClick={() => {
@@ -115,31 +204,9 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 					}}
 				/>
 				{!runDisabledError ? (
-					<MonacoEditor
-						language="python"
-						height="20px"
-						options={{
-							readOnly: true,
-							minimap: { enabled: false },
-							lineNumbers: 'off',
-							folding: false,
-							glyphMargin: false,
-							lineDecorationsWidth: 0,
-							lineNumbersMinChars: 0,
-							scrollbar: {
-								vertical: 'hidden',
-								horizontal: 'hidden',
-								handleMouseWheel: false,
-								verticalScrollbarSize: 0,
-								verticalHasArrows: false,
-							},
-							overviewRulerLanes: 0,
-							scrollBeyondLastLine: false,
-							wordWrap: 'on',
-							wrappingStrategy: 'advanced',
-						}}
-						value={functionCall}
-					/>
+					<Code color="gray.500" backgroundColor="inherit" paddingLeft="1rem">
+						{functionCall}
+					</Code>
 				) : (
 					<Text
 						px="2"
@@ -147,55 +214,39 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 						letterSpacing="wide"
 						color="muted"
 						fontWeight="medium"
+						paddingLeft="1rem"
 					>
 						{runDisabledError}
 					</Text>
 				)}
 			</Stack>
 			{log?.result ? (
-				<Stack pt="2" h="full" borderTopWidth="1px">
-					<Stack direction="row" px="2" justifyContent="space-between">
-						<Text
-							fontSize="xs"
-							letterSpacing="wide"
-							color="muted"
-							fontWeight="semibold"
-						>
+				<Stack pt="2" h="full" borderTopWidth="1px" px="2" pl="1rem">
+					<Stack direction="row" alignItems="center">
+						<IconButton
+							aria-label="Close output"
+							size="xs"
+							colorScheme="gray"
+							borderRadius="full"
+							icon={<X size={14} />}
+							onClick={() => setLog(null)}
+						/>
+
+						<Text px="2" fontSize="xs" letterSpacing="wide" fontWeight="bold">
 							Output
 						</Text>
-						<Button
-							size="xs"
-							variant="link"
-							onClick={() => {
-								setLog(null);
-							}}
-						>
-							Clear
-						</Button>
 					</Stack>
-					<MonacoEditor
-						language="shell"
-						height={`${(outputPreview?.split('\n').length || 1) * 20}px`}
-						options={{
-							readOnly: true,
-							minimap: { enabled: false },
-							glyphMargin: false,
 
-							lineNumbers: 'off',
-							scrollbar: {
-								vertical: 'hidden',
-								horizontal: 'hidden',
-								handleMouseWheel: false,
-								verticalScrollbarSize: 0,
-								verticalHasArrows: false,
-							},
-							overviewRulerLanes: 0,
-							scrollBeyondLastLine: false,
-							wordWrap: 'on',
-							wrappingStrategy: 'advanced',
-						}}
-						value={outputPreview}
-					/>
+					<Code
+						color="gray.500"
+						backgroundColor="inherit"
+						paddingLeft="3rem"
+						overflowY="scroll"
+						overflowX="hidden"
+						height={`${(outputPreview?.split('\n').length || 1) * 20}px`}
+					>
+						<pre>{outputPreview}</pre>
+					</Code>
 				</Stack>
 			) : null}
 		</Stack>
@@ -228,7 +279,7 @@ export const Fetchers = () => {
 	};
 
 	return (
-		<Stack position="relative" h="full" bg="gray.50" minH="full" spacing="4">
+		<Stack position="relative" h="full" bg="bg-canvas" minH="full" spacing="4">
 			<Stack overflowY="auto" flex="1" px="4" pt="4" pb="10" spacing="4" h="full">
 				{Object.keys(fetchers).map((fetchId: any) => {
 					return (

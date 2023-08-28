@@ -1,9 +1,10 @@
 import os
 from abc import ABC
-from typing import Callable, Generic, List, Type, TypeVar
+from typing import Callable, Generic, List, TypeVar
 
 from pydantic import BaseModel
-from pylsp.workspace import Document, Workspace
+
+from .workspace import Document, Workspace
 
 T = TypeVar("T", Workspace, Document)
 
@@ -34,33 +35,3 @@ class GenerateHandler(ABC, BaseModel, Generic[T]):
     match_fn: Callable[[T], bool] = lambda _: True
     # The files to generate
     files: List[GeneratedFile[T]]
-
-
-# On workspace create
-class WorkspaceCreateHandler(GenerateHandler[Workspace]):
-    pass
-
-
-# On document create
-class DocumentCreateHandler(GenerateHandler[Document]):
-    pass
-
-
-# On document content change
-class DocumentChangeHandler(GenerateHandler[Document]):
-    pass
-
-
-# Filters the generate list and handles the appropriate generate event handlers
-def handleGenerateEvent(
-    event_list: List[GenerateHandler], event_handler: Type[GenerateHandler], resource, basepath: str
-):
-    for handler in event_list:
-        if not isinstance(handler, event_handler):
-            continue
-
-        if not handler.match_fn(resource):
-            continue
-
-        for generate_file in handler.files:
-            generate_file.write(basepath, resource)

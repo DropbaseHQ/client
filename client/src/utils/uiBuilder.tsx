@@ -49,30 +49,36 @@ export const useRunTask = () => {
 	});
 };
 
-const checkRules = ({ formValues, rules }: any) => {
+const checkAllRulesPass = ({ formValues, rules }: any) => {
+	if (!rules || rules?.length === 0) {
+		return true;
+	}
 	const invalidRule = rules.find((r: any) => {
 		const fieldValue = get(formValues, r.name);
-
 		switch (r.operator) {
 			case 'equals': {
-				return r.value === fieldValue;
+				return r.value != fieldValue;
 			}
 			case 'gt': {
-				return r.value < fieldValue;
+				return r.value >= fieldValue;
 			}
-
-			case 'lt': {
+			case 'gte': {
 				return r.value > fieldValue;
 			}
+			case 'lt': {
+				return r.value <= fieldValue;
+			}
+			case 'lte': {
+				return r.value <= fieldValue;
+			}
 			case 'exists': {
-				return r.name in formValues;
+				return !(r.name in formValues);
 			}
 			default:
 				return false;
 		}
 	});
-
-	return !!invalidRule;
+	return !invalidRule;
 };
 
 export const CustomInput = (props: any) => {
@@ -81,8 +87,10 @@ export const CustomInput = (props: any) => {
 		type,
 		options,
 		display_rules: displayRules,
-		action_rules: actionRules,
-		on_select: onSelect,
+		on_change_rules: onChangeRules,
+		// on_select: onSelect,
+		// on_click: onClick,
+		on_change: onChange,
 	} = props;
 	const { watch, register, getValues } = useFormContext();
 	const runTask = useRunTask();
@@ -93,7 +101,7 @@ export const CustomInput = (props: any) => {
 
 	if (
 		(displayRules &&
-			checkRules({
+			checkAllRulesPass({
 				formValues: getValues(),
 				rules: displayRules,
 			})) ||
@@ -112,20 +120,19 @@ export const CustomInput = (props: any) => {
 							placeholder={`Select ${name}`}
 							{...register(name)}
 							onChange={async (e) => {
-								console.log('over here');
 								register(name).onChange(e);
 								if (
-									onSelect &&
-									checkRules({
+									onChange &&
+									checkAllRulesPass({
 										formValues: getValues(),
-										rules: actionRules,
+										rules: onChangeRules,
 									})
 								) {
 									await runTask.mutateAsync({
 										appId: appId || '',
 										userInput: userInput,
 										row: selectedRow,
-										action: onSelect,
+										action: onChange,
 									});
 								}
 							}}

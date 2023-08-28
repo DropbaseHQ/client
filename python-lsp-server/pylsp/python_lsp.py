@@ -17,13 +17,8 @@ from pylsp_jsonrpc.streams import JsonRpcStreamReader, JsonRpcStreamWriter
 from . import _utils, lsp, uris
 from ._version import __version__
 from .config import config
-from .dropbase.events import (
-    generateDocumentChangeFiles,
-    generateDocumentCreateFiles,
-    generateWorkspaceCreateFiles,
-)
-from .dropbase.generate import GeneratedFile
-from .workspace import Document, Notebook, Workspace
+from .dropbase.workspace import Document, Workspace  # Use our extended classes
+from .workspace import Notebook
 
 log = logging.getLogger(__name__)
 
@@ -33,18 +28,6 @@ PARENT_PROCESS_WATCH_INTERVAL = 10  # 10 s
 MAX_WORKERS = 64
 PYTHON_FILE_EXTENSIONS = (".py", ".pyi")
 CONFIG_FILEs = ("pycodestyle.cfg", "setup.cfg", "tox.ini", ".flake8")
-
-
-# Register hooks
-Document.on_create(generateDocumentCreateFiles)
-Document.on_content_change(generateDocumentChangeFiles)
-
-
-@Workspace.on_create
-def onWorkspaceCreate(workspace: Workspace):
-    generateWorkspaceCreateFiles(workspace)
-    # Ignore Ruff linter errors (https://beta.ruff.rs/docs/rules/#error-e)
-    workspace.update_config({"pylsp": {"plugins": {"ruff": {"ignore": ["F403", "F405"]}}}})
 
 
 class _StreamHandlerWrapper(socketserver.StreamRequestHandler):
@@ -652,14 +635,6 @@ class PythonLSPServer(MethodDispatcher):
 
     def m_text_document__signature_help(self, textDocument=None, position=None, **_kwargs):
         return self.signature_help(textDocument["uri"], position)
-
-    # Dropbase defined event (LSP notifcation is called "workspace/setTableSchema")
-    # Writes the passed dataclass to dropbase/row.py
-    def m_workspace__set_table_schema(self, dataclass: str = "", **_kwargs):
-        if self.workspace is not None:
-            GeneratedFile[Workspace](path="dropbase/row.py", content_fn=lambda _: dataclass).write(
-                self.workspace._root_path, self.workspace
-            )
 
     def m_workspace__did_change_configuration(self, settings=None):
         if self.config is not None:
