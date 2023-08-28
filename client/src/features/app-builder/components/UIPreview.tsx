@@ -2,7 +2,6 @@
 import { PanelHandle } from '@/components/Panel';
 import { useGetApp } from '@/features/app/hooks';
 import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
-import { BG_BUTTON } from '@/utils/constants';
 import { CustomButton, CustomInput } from '@/utils/uiBuilder';
 import {
 	Alert,
@@ -134,8 +133,7 @@ ${log.traceback}`
 								aria-label="Close output"
 								isRound={true}
 								size="xs"
-								color="black"
-								backgroundColor={BG_BUTTON}
+								colorScheme="gray"
 								icon={<X size={14} />}
 								onClick={() => setLog(null)}
 							/>

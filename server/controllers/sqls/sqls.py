@@ -74,9 +74,10 @@ def compare_aliases_from_db(
     - all aliases used in the query
     :raises ValueError if the query is invalid.
     """
-    open_query = query.rstrip(";\n ")
+    user_query_cleaned = query.rstrip(";\n ")
     try:
-        res = conn.execute(text(f"SELECT * FROM ({open_query}) AS q LIMIT 1"))
+        res = conn.execute(
+            text(f"SELECT * FROM ({user_query_cleaned}) AS q LIMIT 1"))
         returned_query_keys = list(res.keys())
         cleaned_returned_query_keys = [
             parse_object_alias(key, schema_dict)[0] for key in returned_query_keys
@@ -142,12 +143,16 @@ def get_misnamed_aliases(
 
     alias_separator = ",\n"
     newline = "\n"
-    open_query = query.rstrip(";\n ")
+    user_query_cleaned = query.rstrip(";\n ")  # TODO: rename to user_query
     if all(table in table_to_primary_key for table in used_tables):
         # this way is significantly more performant
         # get q."public.customers.id" = public.customers.id
         alias_comparisons = [
-            f'MAX( CASE WHEN q."{response_name}" = {alias} THEN 1 ELSE 0 END) AS "{alias}"'
+            f'''MIN(
+                CASE WHEN q."{response_name}" = {alias} 
+                OR (q."{response_name}" IS NULL AND {alias} IS NULL)
+                THEN 1 ELSE 0 END
+            ) AS "{alias}"'''
             for alias, props, response_name in parsed_aliases
         ]
 
@@ -160,7 +165,7 @@ def get_misnamed_aliases(
             {alias_separator.join(alias_comparisons)}
         FROM (
             SELECT * FROM (
-                {open_query}
+                {user_query_cleaned}
             ) AS p
             LIMIT 100
         ) AS q
@@ -192,11 +197,18 @@ def get_misnamed_aliases(
                 INNER JOIN {table} ON q2."{response_name}" = {alias}) AS "{response_name}"
                 """
             )
-        subqueries.append('(SELECT COUNT(*) FROM q) AS "total"')
+
+            subqueries.append(
+                f"""
+                (SELECT COUNT(*) FROM (
+                    SELECT DISTINCT {alias} FROM {table}
+                ) as q2) AS "DROPBASE_total_{response_name}"
+                """
+            )
         checker_query = f"""
         WITH q AS (
             SELECT * FROM (
-                {open_query}
+                {user_query_cleaned}
             ) AS p
             LIMIT 100
         )
@@ -211,10 +223,12 @@ def get_misnamed_aliases(
             row = res.mappings().fetchone()
         except ProgrammingError as err:
             raise TypeError(str(err.orig))
-        total = row["total"]
 
-        bad_cols = [key for key, value in row.items() if key !=
-                    "total" and value != total]
+        bad_cols = [
+            key for key, value in row.items()
+            if not key.startswith("DROPBASE_total_") and
+            value != row[f"DROPBASE_total_{key}"]
+        ]
 
     return bad_cols
 

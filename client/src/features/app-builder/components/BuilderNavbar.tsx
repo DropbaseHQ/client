@@ -1,10 +1,9 @@
-import { BG_UNFOCUSED } from '@/utils/constants';
-import { Button, Flex, Stack } from '@chakra-ui/react';
+import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import { ArrowLeft } from 'react-feather';
-import { useSaveStudio } from '../hooks/useSaveStudio';
-import { formatDistanceToNow } from 'date-fns';
-import { fetchersLastSavedAtom, uiCodeLastSavedAtom } from '../atoms/tableContextAtoms';
 import { useAtom } from 'jotai';
+import { formatDistanceToNow } from 'date-fns';
+import { useSaveStudio } from '../hooks/useSaveStudio';
+import { fetchersLastSavedAtom, uiCodeLastSavedAtom } from '../atoms/tableContextAtoms';
 
 export const AppBuilderNavbar = () => {
 	const { saveStudio, isLoading: saveStudioIsLoading } = useSaveStudio();
@@ -21,13 +20,7 @@ export const AppBuilderNavbar = () => {
 	};
 
 	return (
-		<Stack
-			alignItems="center"
-			h="12"
-			borderBottomWidth="1px"
-			direction="row"
-			backgroundColor={BG_UNFOCUSED}
-		>
+		<Stack alignItems="center" h="12" borderBottomWidth="1px" direction="row" bg="white">
 			<Flex h="full" alignItems="center">
 				<Button
 					leftIcon={<ArrowLeft size="14" />}

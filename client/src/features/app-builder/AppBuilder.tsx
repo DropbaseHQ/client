@@ -1,8 +1,8 @@
 import { Box, Stack } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
+import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { PanelHandle } from '@/components/Panel';
-import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { useMonacoLoader } from '@/components/Editor';
 import { Table } from '@/features/smart-table/components/Table';
@@ -64,7 +64,7 @@ export const AppBuilder = () => {
 							<PanelHandle direction="horizontal" />
 
 							<Panel>
-								<Box p="4">
+								<Box p="4" h="full" bg="white">
 									<UIPreview />
 								</Box>
 							</Panel>
