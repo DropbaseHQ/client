@@ -1,8 +1,11 @@
+import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
+
 import {
 	Box,
 	Button,
 	ButtonGroup,
+	Code,
 	IconButton,
 	Popover,
 	PopoverArrow,
@@ -15,17 +18,14 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { Play, Trash } from 'react-feather';
-import MonacoEditor, { useMonaco } from '@monaco-editor/react';
+import { Play, Trash, X } from 'react-feather';
 import { useParams } from 'react-router-dom';
-import { useAtom, useAtomValue } from 'jotai';
 
 import { fetchersAtom, selectedRowAtom, userInputAtom } from '../atoms/tableContextAtoms';
 
 import { usePythonEditor } from '@/components/Editor';
-import { useGetApp } from '@/features/app/hooks';
-import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
+import { useGetApp } from '@/features/app/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { useDeleteFunction } from '@/features/app-builder/hooks/useDeleteFetchers';
 
@@ -44,9 +44,6 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 	const deleteFunction = useDeleteFunction();
 
 	const [log, setLog] = useState<any>(null);
-
-	const monaco = useMonaco();
-	useMonacoTheme(monaco);
 
 	const editorRef = usePythonEditor({
 		filepath: `fetchers/${id}.py`,
@@ -118,10 +115,10 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 				setShowActions(false);
 			}}
 			pos="relative"
-			bg="white"
 			spacing="0"
 			borderRadius="sm"
 			borderWidth="1px"
+			bg="white"
 		>
 			<Box flex="1" ref={editorRef} as="div" w="full" borderBottomWidth="1px" h="full" />
 
@@ -182,8 +179,10 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 				<IconButton
 					borderRadius="full"
 					size="xs"
+					colorScheme="gray"
 					isLoading={runFunctionMutation.isLoading}
 					icon={<Play size="14" />}
+					variant="outline"
 					aria-label="Run code"
 					isDisabled={!!runDisabledError}
 					onClick={() => {
@@ -205,31 +204,9 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 					}}
 				/>
 				{!runDisabledError ? (
-					<MonacoEditor
-						language="python"
-						height="20px"
-						options={{
-							readOnly: true,
-							minimap: { enabled: false },
-							lineNumbers: 'off',
-							folding: false,
-							glyphMargin: false,
-							lineDecorationsWidth: 0,
-							lineNumbersMinChars: 0,
-							scrollbar: {
-								vertical: 'hidden',
-								horizontal: 'hidden',
-								handleMouseWheel: false,
-								verticalScrollbarSize: 0,
-								verticalHasArrows: false,
-							},
-							overviewRulerLanes: 0,
-							scrollBeyondLastLine: false,
-							wordWrap: 'on',
-							wrappingStrategy: 'advanced',
-						}}
-						value={functionCall}
-					/>
+					<Code color="gray.500" backgroundColor="inherit" paddingLeft="1rem">
+						{functionCall}
+					</Code>
 				) : (
 					<Text
 						px="2"
@@ -237,55 +214,39 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 						letterSpacing="wide"
 						color="muted"
 						fontWeight="medium"
+						paddingLeft="1rem"
 					>
 						{runDisabledError}
 					</Text>
 				)}
 			</Stack>
 			{log?.result ? (
-				<Stack pt="2" h="full" borderTopWidth="1px">
-					<Stack direction="row" px="2" justifyContent="space-between">
-						<Text
-							fontSize="xs"
-							letterSpacing="wide"
-							color="muted"
-							fontWeight="semibold"
-						>
+				<Stack pt="2" h="full" borderTopWidth="1px" px="2" pl="1rem">
+					<Stack direction="row" alignItems="center">
+						<IconButton
+							aria-label="Close output"
+							size="xs"
+							colorScheme="gray"
+							borderRadius="full"
+							icon={<X size={14} />}
+							onClick={() => setLog(null)}
+						/>
+
+						<Text px="2" fontSize="xs" letterSpacing="wide" fontWeight="bold">
 							Output
 						</Text>
-						<Button
-							size="xs"
-							variant="link"
-							onClick={() => {
-								setLog(null);
-							}}
-						>
-							Clear
-						</Button>
 					</Stack>
-					<MonacoEditor
-						language="shell"
-						height={`${(outputPreview?.split('\n').length || 1) * 20}px`}
-						options={{
-							readOnly: true,
-							minimap: { enabled: false },
-							glyphMargin: false,
 
-							lineNumbers: 'off',
-							scrollbar: {
-								vertical: 'hidden',
-								horizontal: 'hidden',
-								handleMouseWheel: false,
-								verticalScrollbarSize: 0,
-								verticalHasArrows: false,
-							},
-							overviewRulerLanes: 0,
-							scrollBeyondLastLine: false,
-							wordWrap: 'on',
-							wrappingStrategy: 'advanced',
-						}}
-						value={outputPreview}
-					/>
+					<Code
+						color="gray.500"
+						backgroundColor="inherit"
+						paddingLeft="3rem"
+						overflowY="scroll"
+						overflowX="hidden"
+						height={`${(outputPreview?.split('\n').length || 1) * 20}px`}
+					>
+						<pre>{outputPreview}</pre>
+					</Code>
 				</Stack>
 			) : null}
 		</Stack>
@@ -318,7 +279,7 @@ export const Fetchers = () => {
 	};
 
 	return (
-		<Stack position="relative" h="full" bg="gray.50" minH="full" spacing="4">
+		<Stack position="relative" h="full" bg="bg-canvas" minH="full" spacing="4">
 			<Stack overflowY="auto" flex="1" px="4" pt="4" pb="10" spacing="4" h="full">
 				{Object.keys(fetchers).map((fetchId: any) => {
 					return (

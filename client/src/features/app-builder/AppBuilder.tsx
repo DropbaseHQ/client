@@ -1,17 +1,17 @@
-import { useParams } from 'react-router-dom';
 import { Box, Stack } from '@chakra-ui/react';
-
+import { useParams } from 'react-router-dom';
 import { Panel, PanelGroup } from 'react-resizable-panels';
+
 import { PanelHandle } from '@/components/Panel';
 
+import { useMonacoLoader } from '@/components/Editor';
 import { Table } from '@/features/smart-table/components/Table';
-import { UIPanel, UIPreview } from './components/UIPreview';
+import { useTableData } from '../smart-table/hooks/useTableData';
 import { AppBuilderNavbar } from './components/BuilderNavbar';
 import { Fetchers } from './components/Fetchers';
-import { useMonacoLoader } from '@/components/Editor';
-import { UIState } from './components/UIState';
 import { StudioAutoSaver } from './components/StudioAutoSaver';
-import { useTableData } from '../smart-table/hooks/useTableData';
+import { UIPanel, UIPreview } from './components/UIPreview';
+import { UIState } from './components/UIState';
 
 export const AppBuilder = () => {
 	const { appId } = useParams();
@@ -64,7 +64,7 @@ export const AppBuilder = () => {
 							<PanelHandle direction="horizontal" />
 
 							<Panel>
-								<Box p="4">
+								<Box p="4" h="full" bg="white">
 									<UIPreview />
 								</Box>
 							</Panel>

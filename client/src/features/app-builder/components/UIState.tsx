@@ -4,7 +4,7 @@ import Editor, { useMonaco } from '@monaco-editor/react';
 import { useAtom } from 'jotai';
 
 import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
-import { userInputAtom, selectedRowAtom } from '../atoms/tableContextAtoms';
+import { selectedRowAtom, userInputAtom } from '../atoms/tableContextAtoms';
 
 export const UIState = () => {
 	const [userInput] = useAtom(userInputAtom);
@@ -21,7 +21,7 @@ export const UIState = () => {
 	const state = JSON.stringify(builderContext, null, 4);
 
 	return (
-		<Box w="full" overflowY="auto" h="full" maxH="full">
+		<Box w="full" overflowY="auto" h="full" maxH="full" backgroundColor="bg-canvas">
 			<Editor
 				options={{
 					readOnly: true,
