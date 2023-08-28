@@ -1,4 +1,4 @@
-import { Box, Center, CenterProps } from '@chakra-ui/react';
+import { Center, CenterProps } from '@chakra-ui/react';
 import styled from '@emotion/styled';
 import { PanelResizeHandle } from 'react-resizable-panels';
 

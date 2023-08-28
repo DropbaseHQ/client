@@ -28,7 +28,7 @@ export const useDeleteFunction = () => {
 	);
 
 	const deleteMutation = useMutation(deleteFetcher, {
-		onSuccess: (data, fetcherId) => {
+		onSuccess: (_, fetcherId) => {
 			const fetcherToDelete = fetchers.find((f: any) => f.id === fetcherId);
 
 			if (fetcherToDelete) {
