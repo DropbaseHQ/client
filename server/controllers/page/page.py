@@ -62,4 +62,4 @@ def get_page_details(db: Session, page_id: str):
         else:
             organized_functions["fetchers"].append(function)
 
-    return {"page": page, "sql": page_sql, "functions": organized_functions}
+    return {"page": page, "action": action, "sql": page_sql, "functions": organized_functions}
