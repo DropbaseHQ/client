@@ -5,9 +5,11 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.user import CreateUser, ReadUser
+from server.schemas.user import CreateUser, ReadUser, LoginUser, CreateUserRequest
 from server.utils.helper import raise_http_exception
 from server.models import User
+from server.utils.auth import authenticate_user, get_password_hash, verify_password
+from server.utils.hash import get_confirmation_token_hash
 
 
 def get_user(db: Session, user_email: str):
@@ -30,15 +32,22 @@ def get_user(db: Session, user_email: str):
         raise_http_exception(status_code=404, message="User not found")
 
 
-def login_user(user: User, Authorize: AuthJWT):
+def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
     try:
+        user = authenticate_user(db, request.email, request.password)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect username or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         access_token = Authorize.create_access_token(subject=user.email)
         refresh_token = Authorize.create_refresh_token(subject=user.email)
 
         Authorize.set_access_cookies(access_token)
         Authorize.set_refresh_cookies(refresh_token)
 
-        return {"msg": "Successfully login"}
+        return {"msg": "Successfull login"}
         # return {"access_token": access_token, "refresh_token": refresh_token}
     except Exception as e:
         print("error", e)
@@ -62,6 +71,23 @@ def refresh_token(Authorize: AuthJWT):
         new_access_token = Authorize.create_access_token(subject=current_user)
         Authorize.set_access_cookies(new_access_token)
         return {"msg": "Successfully refresh token"}
+    except Exception as e:
+        print("error", e)
+        raise_http_exception(status_code=500, message="Internal server error")
+
+
+def register_user(db: Session, request: CreateUserRequest):
+    try:
+        hashed_password = get_password_hash(request.password)
+        user_obj = CreateUser(
+            name=request.name,
+            email=request.email,
+            hashed_password=hashed_password,
+            trial_eligible=True,
+            active=True,
+        )
+        crud.user.create(db, obj_in=user_obj)
+        return {"message": "User successfully registered"}
     except Exception as e:
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")

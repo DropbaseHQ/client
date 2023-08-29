@@ -11,5 +11,8 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         self.update(db, db_obj=user, obj_in={"refresh_token": refresh_token})
         db.commit()
 
+    def get_user_by_email(self, db: Session, email: str):
+        return db.query(self.model).filter(self.model.email == email).first()
+
 
 user = CRUDUser(User)
