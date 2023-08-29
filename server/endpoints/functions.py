@@ -6,8 +6,12 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.schemas.functions import CreateFunctions, UpdateFunctions
 from server.utils.connect import get_db
+from server.utils.authorization import generate_resource_dependency
 
-router = APIRouter(prefix="/functions", tags=["functions"])
+authorize_functions_actions = generate_resource_dependency("functions")
+router = APIRouter(
+    prefix="/functions", tags=["functions"], dependencies=[Depends(authorize_functions_actions)]
+)
 
 
 @router.get("/{functions_id}")

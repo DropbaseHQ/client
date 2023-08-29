@@ -7,12 +7,13 @@ from server import crud
 from server.controllers.page import page
 from server.schemas.page import CreatePage, UpdatePage
 from server.utils.connect import get_db
-from server.utils.authentication import get_current_user
+from server.utils.authorization import generate_resource_dependency
 
-router = APIRouter(prefix="/page", tags=["page"])
+authorize_page_actions = generate_resource_dependency("page")
+router = APIRouter(prefix="/page", tags=["page"], dependencies=[Depends(authorize_page_actions)])
 
 
-@router.get("/{page_id}", dependencies=[Depends(get_current_user)])
+@router.get("/{page_id}")
 def get_page(page_id: UUID, db: Session = Depends(get_db)):
     return page.get_page_details(db, page_id=page_id)
 

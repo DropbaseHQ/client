@@ -12,8 +12,8 @@ class CRUDPage(CRUDBase[Page, CreatePage, UpdatePage]):
     def get_workspace_id(self, db: Session, page_id: UUID) -> str:
         return (
             db.query(App.workspace_id)
-            .join(Page, Page.id == Action.page_id)
-            .filter(Action.id == str(page_id))
+            .join(Page, Page.app_id == App.id)
+            .filter(Page.id == str(page_id))
             .one()
         ).workspace_id
 

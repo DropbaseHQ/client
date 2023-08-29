@@ -52,7 +52,7 @@ def generate_resource_dependency(resource_type: str):
     ):
         resource_id_accessor = f"{resource_type}_id"
         resource_id = request.path_params.get(resource_id_accessor, None)
-        if resource_id is None:
+        if resource_id is None and request.method != "POST":
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Resource ID not provided for resource type {resource_type}",
