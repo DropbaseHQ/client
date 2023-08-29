@@ -12,7 +12,7 @@ const runFunction = async ({
 	row: any;
 	functionCall: any;
 }) => {
-	const { data } = await axios.post('/task', {
+	const { data } = await axios.post('/task/', {
 		page_id: pageId,
 		user_input: userInput,
 		row,
