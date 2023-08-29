@@ -30,7 +30,7 @@ const runTask = async ({
 	row: any;
 	action: any;
 }) => {
-	const { data } = await axios.post('/task', {
+	const { data } = await axios.post('/task/', {
 		page_id: pageId,
 		user_input: userInput,
 		row,
