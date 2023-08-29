@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from server import endpoints
 from server.utils.exception_handlers import catch_exceptions_middleware
-from server.utils.auth import get_current_user
+from server.utils.authentication import get_current_user
 
 load_dotenv()
 

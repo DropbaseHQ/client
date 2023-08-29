@@ -8,7 +8,7 @@ from server import crud
 from server.schemas.user import CreateUser, ReadUser, LoginUser, CreateUserRequest
 from server.utils.helper import raise_http_exception
 from server.models import User
-from server.utils.auth import authenticate_user, get_password_hash, verify_password
+from server.utils.authentication import authenticate_user, get_password_hash, verify_password
 from server.utils.hash import get_confirmation_token_hash
 
 

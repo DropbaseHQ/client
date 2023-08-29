@@ -7,7 +7,7 @@ from server import crud
 from server.controllers.page import page
 from server.schemas.page import CreatePage, UpdatePage
 from server.utils.connect import get_db
-from server.utils.auth import get_current_user
+from server.utils.authentication import get_current_user
 
 router = APIRouter(prefix="/page", tags=["page"])
 
