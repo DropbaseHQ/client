@@ -142,6 +142,7 @@ export const CustomInput = (props: any) => {
 										userInput: userInput,
 										row: selectedRow,
 										functionCall: onChange,
+										callType: 'task',
 									});
 								}
 							}}
@@ -201,6 +202,7 @@ export const CustomButton = (props: any) => {
 				userInput: userInput,
 				row: selectedRow,
 				functionCall: action,
+				callType: 'task',
 			});
 			// reset(resetFields);
 			if (post_action) {
