@@ -129,7 +129,7 @@ export const Login = () => {
 								<Button isLoading={isLoading} type="submit" variant="primary">
 									Sign in
 								</Button>
-								<Link to="/forgot">
+								<Link to="/reset">
 									<Text color="fg.muted" fontSize="sm" textDecoration="underline">
 										Forgot Password?
 									</Text>
