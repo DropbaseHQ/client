@@ -52,9 +52,7 @@ export const Login = () => {
 			}
 		},
 		onSuccess: (data) => {
-			console.log('data', data);
 			setDisplayEmailConfirmation(false);
-			localStorage.setItem('token', data.access_token);
 			navigate('/apps');
 		},
 	});

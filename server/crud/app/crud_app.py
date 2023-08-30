@@ -9,7 +9,8 @@ from server.schemas.app import CreateApp, UpdateApp
 
 
 class CRUDApp(CRUDBase[App, CreateApp, UpdateApp]):
-    pass
+    def get_workspace_apps(self, db: Session, workspace_id: UUID) -> List[App]:
+        return db.query(App).filter(App.workspace_id == workspace_id).all()
 
 
 app = CRUDApp(App)
