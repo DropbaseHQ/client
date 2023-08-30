@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Response
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
@@ -9,7 +9,6 @@ from server.schemas.user import CreateUser, ReadUser, LoginUser, CreateUserReque
 from server.utils.helper import raise_http_exception
 from server.models import User
 from server.utils.authentication import authenticate_user, get_password_hash, verify_password
-from server.utils.hash import get_confirmation_token_hash
 
 
 def get_user(db: Session, user_email: str):
@@ -54,10 +53,12 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
         raise_http_exception(status_code=500, message="Internal server error")
 
 
-def logout_user(Authorize: AuthJWT):
+def logout_user(response: Response, Authorize: AuthJWT):
     try:
         Authorize.jwt_required()
-        Authorize.unset_jwt_cookies()
+        # Authorize.unset_jwt_cookies()
+        response.delete_cookie("access_token_cookie", samesite="none", secure=True)
+        response.delete_cookie("refresh_token_cookie", samesite="none", secure=True)
         return {"msg": "Successfully logout"}
     except Exception as e:
         print("error", e)
