@@ -5,7 +5,13 @@ from fastapi_jwt_auth import AuthJWT
 
 from sqlalchemy.orm import Session
 from server import crud
-from server.schemas.user import CreateUser, UpdateUser, LoginUser, CreateUserRequest
+from server.schemas.user import (
+    CreateUser,
+    UpdateUser,
+    LoginUser,
+    CreateUserRequest,
+    ResetPasswordRequest,
+)
 from server.utils.connect import get_db
 from server.controllers.user import user
 
@@ -30,6 +36,11 @@ def logout_user(response: Response, Authorize: AuthJWT = Depends()):
 @router.post("/refresh")
 def refresh_token(Authorize: AuthJWT = Depends()):
     return user.refresh_token(Authorize)
+
+
+@router.post("/reset_password")
+def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    return user.reset_password(db, request)
 
 
 @router.get("/{user_id}")

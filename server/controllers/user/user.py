@@ -5,7 +5,7 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.user import CreateUser, ReadUser, LoginUser, CreateUserRequest
+from server.schemas.user import CreateUser, ReadUser, LoginUser, CreateUserRequest, ResetPasswordRequest
 from server.utils.helper import raise_http_exception
 from server.models import User
 from server.utils.authentication import authenticate_user, get_password_hash, verify_password
@@ -89,6 +89,20 @@ def register_user(db: Session, request: CreateUserRequest):
         )
         crud.user.create(db, obj_in=user_obj)
         return {"message": "User successfully registered"}
+    except Exception as e:
+        print("error", e)
+        raise_http_exception(status_code=500, message="Internal server error")
+
+
+# TODO: VERIFY RESET TOKEN
+def reset_password(db: Session, request: ResetPasswordRequest):
+    try:
+        user = crud.user.get_user_by_email(db, email=request.email)
+        if not user:
+            raise_http_exception(status_code=404, message="User not found")
+        hashed_password = get_password_hash(request.new_password)
+        crud.user.update(db, db_obj=user, obj_in={"hashed_password": hashed_password})
+        return {"message": "Password successfully reset"}
     except Exception as e:
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")

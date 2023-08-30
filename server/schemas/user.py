@@ -47,3 +47,9 @@ class CreateUserRequest(BaseModel):
     name: str
     email: str
     password: str
+
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    new_password: str
+    # reset_token: str

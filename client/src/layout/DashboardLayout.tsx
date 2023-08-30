@@ -3,6 +3,7 @@ import { PropsWithChildren } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { Navbar } from './Navbar';
+import path from 'path';
 
 export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const { pathname } = useLocation();
@@ -10,7 +11,8 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const shouldNotDisplayNavbar =
 		pathname.startsWith('/apps/') ||
 		pathname.startsWith('/login') ||
-		pathname.startsWith('/register');
+		pathname.startsWith('/register') ||
+		pathname.startsWith('/reset');
 	console.log('shouldNotDisplayNavbar', shouldNotDisplayNavbar);
 	return (
 		<Box height="100vh" overflow="hidden" position="relative">
