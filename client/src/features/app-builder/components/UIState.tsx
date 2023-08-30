@@ -24,7 +24,7 @@ export const UIState = () => {
 		<Box w="full" overflowY="auto" h="full" maxH="full" backgroundColor="bg-canvas">
 			<Editor
 				options={{
-					readOnly: true,
+					// readOnly: true,
 					minimap: { enabled: false },
 					overviewRulerLanes: 0,
 					scrollbar: {

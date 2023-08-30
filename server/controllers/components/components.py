@@ -30,7 +30,6 @@ def generate_ui_json(ui_classes: list[GeneratedUIComponent]):
 
 def convert_components(request: ConvertComponents, response: Response):
     try:
-        print("here")
         generated_classes = extract_class_instantiations(request.code)
         logger.info(f"generated_classes: {generated_classes}")
         ui_jsons = generate_ui_json(generated_classes)
@@ -60,7 +59,7 @@ def create_component_dataclass(db: Session, code: str):
         if generated_class.class_name == "UIInput":
             user_inputs.append(generated_class.kwargs.get("name"))
     dataclass_string = "@dataclass\n"
-    dataclass_string += "class State:\n"
+    dataclass_string += "class UserInput:\n"
 
     for user_input in user_inputs:
         dataclass_string += f"    {user_input}: str\n"

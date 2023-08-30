@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 
 class BaseSQLs(BaseModel):
+    # name: str
     code: str
     page_id: UUID
     dataclass: Optional[str]

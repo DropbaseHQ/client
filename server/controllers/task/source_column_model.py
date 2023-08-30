@@ -19,7 +19,7 @@ def add_to_schema(new_schema, schema, table, column):
     return new_schema
 
 
-def get_regrouped_schema(col_names: List[str]):
+def col_names_list_to_dict_schema(col_names: List[str]):
     """
     convert a list of column names into a nested dictionary with the following structure:
     {
@@ -34,7 +34,7 @@ def get_regrouped_schema(col_names: List[str]):
 
     used to query the user's database for the column metadata by schema and table
     """
-    regrouped_schema = {}
+    schema_dict = {}
     parsed_column_names = []
     schema_table_col_lenght = 3
     for col in col_names:
@@ -52,39 +52,39 @@ def get_regrouped_schema(col_names: List[str]):
             column = col_name_arr[1]
             schema_table_col_lenght = 2
 
-        regrouped_schema = add_to_schema(regrouped_schema, schema, table, column)
+        schema_dict = add_to_schema(schema_dict, schema, table, column)
 
         if len(col_name_arr) > schema_table_col_lenght:
             for filter in col_name_arr[schema_table_col_lenght:]:
-                regrouped_schema[schema][table][column]["filters"].append(filter)
+                schema_dict[schema][table][column]["filters"].append(filter)
 
         # will be used to display table columns
         parsed_column_names.append({"schema": schema, "table": table, "column": column})
 
-    return regrouped_schema, parsed_column_names
+    return schema_dict, parsed_column_names
 
 
-def get_parsed_schema(user_db_engine: engine, regrouped_schema: dict):
+def get_parsed_schema(user_db_engine: engine, schema_dict: dict):
     new_schema = {}
-    for schema in regrouped_schema.keys():
+    for schema in schema_dict.keys():
         # add schema to new schema if not present
         new_schema[schema] = {} if schema not in new_schema else new_schema[schema]
 
-        for table in regrouped_schema[schema].keys():
+        for table in schema_dict[schema].keys():
             # add table to schema if not present
             new_schema[schema][table] = (
                 {} if table not in new_schema[schema] else new_schema[schema][table]
             )
 
             new_schema = parse_postgres_column_model(
-                user_db_engine, regrouped_schema, schema, table, new_schema
+                user_db_engine, schema_dict, schema, table, new_schema
             )
 
     return new_schema
 
 
 def parse_postgres_column_model(
-    user_db_engine: engine, regrouped_schema: dict, schema: str, table: str, new_schema: dict
+    user_db_engine: engine, schema_dict: dict, schema: str, table: str, new_schema: dict
 ):
     # get columns metadata from schema and table
     table_columns = get_pg_column_model(user_db_engine, schema, table)
@@ -99,7 +99,7 @@ def parse_postgres_column_model(
             editable_column = col.name
 
     for column in table_columns:
-        if column.name in regrouped_schema[schema][table].keys():
+        if column.name in schema_dict[schema][table].keys():
             # cast column to SourceColumn
             source_column = SourceColumn.from_orm(column)
             # add key
@@ -112,7 +112,7 @@ def parse_postgres_column_model(
             if source_column.primary_key:
                 source_column.keylike = True
             # apply filters if any
-            filters = regrouped_schema[schema][table][column.name]["filters"]
+            filters = schema_dict[schema][table][column.name]["filters"]
             if len(filters) > 0:
                 source_column = update_column_meta_with_filters(source_column, filters)
             new_schema[schema][table][column.name] = source_column.dict()

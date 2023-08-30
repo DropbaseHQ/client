@@ -132,10 +132,10 @@ stripe_columns = {
 }
 
 
-def parse_stripe_column_model(regrouped_schema: dict, schema: str, table: str, new_schema: dict):
-    for column in regrouped_schema[schema][table].keys():
+def parse_stripe_column_model(schema_dict: dict, schema: str, table: str, new_schema: dict):
+    for column in schema_dict[schema][table].keys():
         source_column = stripe_columns[table][column]
-        filters = regrouped_schema[schema][table][column]["filters"]
+        filters = schema_dict[schema][table][column]["filters"]
         if len(filters) > 0:
             source_column = update_column_meta_with_filters(source_column, filters)
         new_schema[schema][table][column] = source_column.dict()

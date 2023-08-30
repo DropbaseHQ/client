@@ -6,7 +6,7 @@ from sqlalchemy.sql import text
 
 from server import crud
 from server.controllers.task.source_column_helper import connect_to_user_db
-from server.controllers.task.source_column_model import get_parsed_schema, get_regrouped_schema
+from server.controllers.task.source_column_model import col_names_list_to_dict_schema, get_parsed_schema
 from server.schemas.sqls import QueryTable
 
 
@@ -14,30 +14,35 @@ def get_table_data(db: Session, request: QueryTable):
     user_db_engine = connect_to_user_db()
 
     sql = crud.sqls.get_page_sql(db, page_id=request.page_id)
+    schema, header = get_table_schema(user_db_engine, sql.code)
+    row_dataclass = compose_classes_from_row_data(schema)
+
     # apply filters
     filter_sql, join_filters = apply_filters(sql.code, request.filters, request.sorts)
 
     with user_db_engine.connect().execution_options(autocommit=True) as conn:
-        res = conn.execute(text(sql.code)).all()
-
-    col_names = list(res[0]._mapping.keys())
-    regrouped_schema, parsed_column_names = get_regrouped_schema(col_names)
-    schema = get_parsed_schema(user_db_engine, regrouped_schema)
-    # save table row dataclass to db
-    row_dataclass = compose_classes_from_row_data(schema)
-    sql.dataclass = row_dataclass
-    db.commit()
-    with user_db_engine.connect().execution_options(autocommit=True) as conn:
         res = conn.execute(text(filter_sql), join_filters).all()
+
     data = [list(row) for row in res]
 
     return {
-        "header": parsed_column_names,
+        "header": header,
         "data": data,
         "schema": schema,
         "sql_id": sql.id,
         "dataclass": row_dataclass,
     }
+
+
+def get_table_schema(user_db_engine, sql_str):
+    user_query_cleaned = sql_str.strip("\n ;")
+
+    with user_db_engine.connect().execution_options(autocommit=True) as conn:
+        res = conn.execute(text(f"SELECT * FROM ({user_query_cleaned}) AS q LIMIT 1")).all()
+
+    col_names = list(res[0]._mapping.keys())
+    schema_dict, parsed_column_names = col_names_list_to_dict_schema(col_names)
+    return get_parsed_schema(user_db_engine, schema_dict), parsed_column_names
 
 
 type_mapping = {
@@ -79,7 +84,7 @@ def compose_classes_from_row_data(row_data: dict):
 def apply_filters(sql, filters, sorts):
 
     filter_dict = {}
-    sql = sql[:-1] if sql.endswith(";") else sql
+    sql = sql.strip("\n ;")
     filter_sql = f"""SELECT * FROM ({sql}) as user_query\n"""
     if len(filters) > 0:
         filter_sql += "WHERE \n"
