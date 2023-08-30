@@ -1,4 +1,4 @@
-import { Box, Image, Stack, Flex, Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
+import { Box, Stack, Flex, Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
 import { Menu as MenuIcon, Settings, LogOut } from 'react-feather';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 

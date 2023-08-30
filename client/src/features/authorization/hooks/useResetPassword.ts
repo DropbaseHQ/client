@@ -20,8 +20,7 @@ import { useMutation } from 'react-query';
 
 const resetPassword = async ({
 	email,
-	password,
-	resetToken,
+	password, // resetToken,
 }: {
 	email: string;
 	password: string;

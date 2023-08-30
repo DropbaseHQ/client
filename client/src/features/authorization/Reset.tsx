@@ -13,7 +13,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 type FormValues = {
 	email: string;
@@ -29,7 +29,7 @@ export const ResetPassword = () => {
 	} = useForm<FormValues>();
 	const navigate = useNavigate();
 
-	const [searchParams] = useSearchParams();
+	// const [searchParams] = useSearchParams();
 	// const email = searchParams.get('email') || '';
 	// const token = searchParams.get('token') || '';
 	const toast = useToast();

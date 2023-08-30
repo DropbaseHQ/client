@@ -5,7 +5,6 @@ import {
 	Box,
 	Button,
 	Container,
-	Flex,
 	FormControl,
 	FormErrorMessage,
 	FormLabel,
@@ -29,7 +28,7 @@ export const Login = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
 
-	const [displayEmailConfirmation, setDisplayEmailConfirmation] = useState(false);
+	const [_, setDisplayEmailConfirmation] = useState(false);
 
 	const {
 		register,
@@ -38,10 +37,10 @@ export const Login = () => {
 		handleSubmit,
 	} = useForm<FormValues>();
 
-	const email = watch('email');
+	// const email = watch('email');
 
 	const { mutate, isLoading } = useLogin({
-		onError: (error) => {
+		onError: (error: any) => {
 			toast({
 				title: 'Login Failed',
 				status: 'error',
@@ -51,7 +50,7 @@ export const Login = () => {
 				setDisplayEmailConfirmation(true);
 			}
 		},
-		onSuccess: (data) => {
+		onSuccess: (_) => {
 			setDisplayEmailConfirmation(false);
 			navigate('/apps');
 		},
