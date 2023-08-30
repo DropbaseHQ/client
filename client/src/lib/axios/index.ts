@@ -11,7 +11,6 @@ axios.interceptors.response.use(
 	},
 	async (err) => {
 		const apiConfig = err.config;
-
 		if (
 			apiConfig.url !== '/login' &&
 			apiConfig.url !== '/user/register' &&
@@ -19,11 +18,11 @@ axios.interceptors.response.use(
 			err.response
 		) {
 			// Access Token was expired
-			if (err.response.status === 401 && !apiConfig.retry) {
+			if (err.response.status === 422 && !apiConfig.retry) {
 				apiConfig.retry = true;
 
 				try {
-					await axios.post('/refresh');
+					await axios.post('/user/refresh');
 
 					return await axios(apiConfig);
 				} catch (_error) {
