@@ -33,7 +33,6 @@ export const Login = () => {
 	const {
 		register,
 		formState: { errors },
-		watch,
 		handleSubmit,
 	} = useForm<FormValues>();
 
