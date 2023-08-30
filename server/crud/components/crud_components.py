@@ -15,7 +15,7 @@ class CRUDComponents(CRUDBase[Components, CreateComponents, UpdateComponents]):
     def get_workspace_id(self, db: Session, components_id: UUID) -> str:
         return (
             db.query(App.workspace_id)
-            .join(Page, Page.id == Action.page_id)
+            .join(Page, Page.app_id == App.id)
             .join(Action, Action.page_id == Page.id)
             .join(Components, Components.action_id == Action.id)
             .filter(Action.id == str(components_id))

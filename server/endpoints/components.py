@@ -15,6 +15,11 @@ router = APIRouter(
 )
 
 
+@router.post("/convert")
+def convert_components(request: ConvertComponents, response: Response, db: Session = Depends(get_db)):
+    return components.convert_components(request, response)
+
+
 @router.get("/{components_id}")
 def get_components(components_id: UUID, db: Session = Depends(get_db)):
     return crud.components.get_object_by_id_or_404(db, id=components_id)
@@ -33,10 +38,3 @@ def update_components(components_id: UUID, request: UpdateComponents, db: Sessio
 @router.delete("/{components_id}")
 def delete_components(components_id: UUID, db: Session = Depends(get_db)):
     return crud.components.remove(db, id=components_id)
-
-
-@router.post("/{components_id}/convert")
-def convert_components(
-    components_id: str, request: ConvertComponents, response: Response, db: Session = Depends(get_db)
-):
-    return components.convert_components(request, response)
