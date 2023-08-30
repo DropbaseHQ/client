@@ -6,7 +6,7 @@ import { runResultAtom } from '@/features/app-builder/atoms/tableContextAtoms';
 import { useGetPage } from '@/features/app/hooks';
 
 const fetchUIJson = async ({ code, action_id }: { code: string; action_id: string }) => {
-	const { data } = await axios.post('components/some_id/convert', {
+	const { data } = await axios.post('components/convert', {
 		code,
 		action_id,
 	});

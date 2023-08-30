@@ -36,3 +36,20 @@ class UpdateUser(BaseModel):
     name: Optional[str]
     email: Optional[str]
     active: Optional[bool]
+
+
+class LoginUser(BaseModel):
+    email: str
+    password: str
+
+
+class CreateUserRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    new_password: str
+    # reset_token: str
