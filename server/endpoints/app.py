@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.schemas.app import CreateApp, UpdateApp
 from server.utils.connect import get_db
-from server.utils.authorization import generate_resource_dependency
+from server.utils.authorization import generate_resource_dependency, RESOURCES
 
-authorize_app_actions = generate_resource_dependency("app")
+authorize_app_actions = generate_resource_dependency(RESOURCES.APP)
 router = APIRouter(prefix="/app", tags=["app"], dependencies=[Depends(authorize_app_actions)])
 
 

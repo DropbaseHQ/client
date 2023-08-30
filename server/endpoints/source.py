@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 from server.controllers.source import source
 from server.schemas.source import CreateSourceRequest, UpdateSourceRequest
 from server.utils.connect import get_db
-from server.utils.authorization import generate_resource_dependency
+from server.utils.authorization import generate_resource_dependency, RESOURCES
 
-authorize_source_actions = generate_resource_dependency("source")
+authorize_source_actions = generate_resource_dependency(RESOURCES.SOURCE)
 router = APIRouter(prefix="/source", tags=["source"], dependencies=[Depends(authorize_source_actions)])
 
 

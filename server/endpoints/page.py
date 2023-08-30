@@ -7,9 +7,9 @@ from server import crud
 from server.controllers.page import page
 from server.schemas.page import CreatePage, UpdatePage
 from server.utils.connect import get_db
-from server.utils.authorization import generate_resource_dependency
+from server.utils.authorization import generate_resource_dependency, RESOURCES
 
-authorize_page_actions = generate_resource_dependency("page")
+authorize_page_actions = generate_resource_dependency(RESOURCES.PAGE)
 router = APIRouter(prefix="/page", tags=["page"], dependencies=[Depends(authorize_page_actions)])
 
 

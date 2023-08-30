@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.schemas.functions import CreateFunctions, UpdateFunctions
 from server.utils.connect import get_db
-from server.utils.authorization import generate_resource_dependency
+from server.utils.authorization import generate_resource_dependency, RESOURCES
 
-authorize_functions_actions = generate_resource_dependency("functions")
+authorize_functions_actions = generate_resource_dependency(RESOURCES.FUNCTIONS)
 router = APIRouter(
     prefix="/functions", tags=["functions"], dependencies=[Depends(authorize_functions_actions)]
 )

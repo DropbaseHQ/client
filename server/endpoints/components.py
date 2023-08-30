@@ -7,9 +7,9 @@ from server import crud
 from server.schemas.components import CreateComponents, UpdateComponents, ConvertComponents
 from server.utils.connect import get_db
 from server.controllers.components import components
-from server.utils.authorization import generate_resource_dependency
+from server.utils.authorization import generate_resource_dependency, RESOURCES
 
-authorize_components_actions = generate_resource_dependency("components")
+authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
 router = APIRouter(
     prefix="/components", tags=["components"], dependencies=[Depends(authorize_components_actions)]
 )
