@@ -18,7 +18,7 @@ import { axios } from '@/lib/axios';
 import { useAtom, useSetAtom } from 'jotai';
 import { selectedRowAtom } from '@/features/app-builder/atoms/tableContextAtoms';
 import { runResultAtom } from '@/features/app-builder/atoms/tableContextAtoms';
-
+import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
 const runTask = async ({
 	pageId,
 	userInput,
@@ -30,7 +30,7 @@ const runTask = async ({
 	row: any;
 	action: any;
 }) => {
-	const { data } = await axios.post('/task', {
+	const { data } = await axios.post('/task/', {
 		page_id: pageId,
 		user_input: userInput,
 		row,
@@ -93,7 +93,16 @@ export const CustomInput = (props: any) => {
 		on_change: onChange,
 	} = props;
 	const { watch, register, getValues } = useFormContext();
-	const runTask = useRunTask();
+	const setRunResult = useSetAtom(runResultAtom);
+
+	const runTask = useRunFunction({
+		onSuccess: (response: any) => {
+			if (typeof response.result !== 'string') {
+				response.result = JSON.stringify(response.result);
+			}
+			setRunResult(response);
+		},
+	});
 	const [selectedRow] = useAtom(selectedRowAtom);
 	const [userInput] = useAtom(userInputAtom);
 	const { pageId } = useParams();
@@ -132,7 +141,8 @@ export const CustomInput = (props: any) => {
 										pageId: pageId || '',
 										userInput: userInput,
 										row: selectedRow,
-										action: onChange,
+										functionCall: onChange,
+										callType: 'task',
 									});
 								}
 							}}
@@ -172,7 +182,15 @@ export const CustomInput = (props: any) => {
 
 export const CustomButton = (props: any) => {
 	const { label, action, post_action, getData } = props;
-	const runTask = useRunTask();
+	const setRunResult = useSetAtom(runResultAtom);
+	const runTask = useRunFunction({
+		onSuccess: (response: any) => {
+			if (typeof response.result !== 'string') {
+				response.result = JSON.stringify(response.result);
+			}
+			setRunResult(response);
+		},
+	});
 	const { pageId } = useParams();
 	const [selectedRow] = useAtom(selectedRowAtom);
 	const [userInput] = useAtom(userInputAtom);
@@ -183,7 +201,8 @@ export const CustomButton = (props: any) => {
 				pageId: pageId || '',
 				userInput: userInput,
 				row: selectedRow,
-				action,
+				functionCall: action,
+				callType: 'task',
 			});
 			// reset(resetFields);
 			if (post_action) {

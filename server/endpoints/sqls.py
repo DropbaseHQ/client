@@ -7,8 +7,10 @@ from server import crud
 from server.controllers.sqls import create_sql, update_sql
 from server.schemas.sqls import CreateSQLs, UpdateSQLs
 from server.utils.connect import get_db
+from server.utils.authorization import generate_resource_dependency, RESOURCES
 
-router = APIRouter(prefix="/sqls", tags=["sqls"])
+authorize_sqls_actions = generate_resource_dependency(RESOURCES.SQLS)
+router = APIRouter(prefix="/sqls", tags=["sqls"], dependencies=[Depends(authorize_sqls_actions)])
 
 
 @router.get("/{sqls_id}")
