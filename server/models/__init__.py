@@ -1,4 +1,3 @@
-from .action import Action
 from .app import App
 from .base import Base
 from .components import Components
@@ -9,4 +8,5 @@ from .role import Role
 from .source import Source
 from .sqls import SQLs
 from .user import User
+from .widget import Widget
 from .workspace import Workspace

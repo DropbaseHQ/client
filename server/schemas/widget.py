@@ -5,23 +5,23 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
-class BaseAction(BaseModel):
+class BaseWidget(BaseModel):
     name: str
     page_id: UUID
     settings: Optional[dict]
     dataclass: Optional[str]
 
 
-class ReadAction(BaseAction):
+class ReadWidget(BaseWidget):
     id: UUID
     date: datetime
 
 
-class CreateAction(BaseAction):
+class CreateWidget(BaseWidget):
     pass
 
 
-class UpdateAction(BaseModel):
+class UpdateWidget(BaseModel):
     name: Optional[str]
     page_id: Optional[UUID]
     settings: Optional[dict]

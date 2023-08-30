@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class BaseFunctions(BaseModel):
     code: str
-    action_id: UUID
+    page_id: UUID
     type: str
 
 
@@ -22,5 +22,5 @@ class CreateFunctions(BaseFunctions):
 
 class UpdateFunctions(BaseModel):
     code: Optional[str]
-    action_id: Optional[UUID]
+    page_id: Optional[UUID]
     type: Optional[str]

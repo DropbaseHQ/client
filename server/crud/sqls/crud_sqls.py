@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import SQLs, Action, Workspace, Page, App
+from server.models import App, Page, SQLs, Widget
 from server.schemas.sqls import CreateSQLs, UpdateSQLs
 
 
@@ -18,7 +18,7 @@ class CRUDSQLs(CRUDBase[SQLs, CreateSQLs, UpdateSQLs]):
     def get_workspace_id(self, db: Session, sqls_id: UUID) -> str:
         return (
             db.query(App.workspace_id)
-            .join(Page, Page.id == Action.page_id)
+            .join(Page, Page.id == Widget.page_id)
             .join(SQLs, SQLs.page_id == Page.id)
             .filter(SQLs.id == str(sqls_id))
             .one()

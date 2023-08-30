@@ -1,11 +1,12 @@
 from typing import TypedDict
 from uuid import UUID
+
 from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.models import User
 from server.controllers.task.source_column_helper import connect_to_user_db
+from server.models import User
 
 
 class PageSchema(TypedDict):
@@ -49,10 +50,11 @@ def get_db_schema(engine) -> PageSchema:
 
 def get_page_details(db: Session, page_id: str):
     page = crud.page.get_object_by_id_or_404(db, id=page_id)
-    action = crud.action.get_page_action(db, page_id=page_id)
     page_sql = crud.sqls.get_page_sqls(db, page_id=page_id)
-    page_functions = crud.functions.get_action_functions(db, action_id=action.id)
-    page_components = crud.components.get_action_component(db, action_id=action.id)
+    page_functions = crud.functions.get_page_functions(db, page_id=page.id)
+
+    widget = crud.widget.get_page_widget(db, page_id=page_id)
+    page_components = crud.components.get_widget_component(db, widget_id=widget.id)
     organized_functions = {
         "fetchers": [],
         "ui_components": [page_components],
@@ -63,7 +65,7 @@ def get_page_details(db: Session, page_id: str):
         else:
             organized_functions["fetchers"].append(function)
 
-    return {"page": page, "action": action, "sql": page_sql, "functions": organized_functions}
+    return {"page": page, "widget": widget, "sql": page_sql, "functions": organized_functions}
 
 
 def get_app_pages(db: Session, user: User):
