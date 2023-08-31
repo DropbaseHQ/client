@@ -1,5 +1,3 @@
-/* eslint-disable  */
-import { useFormContext } from 'react-hook-form';
 import {
 	Box,
 	FormLabel,
@@ -11,14 +9,18 @@ import {
 	Input as ChakraInput,
 } from '@chakra-ui/react';
 import get from 'lodash/get';
-import { userInputAtom } from '@/features/app-builder/atoms/tableContextAtoms';
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { useMutation } from 'react-query';
-import { axios } from '@/lib/axios';
 import { useAtom, useSetAtom } from 'jotai';
-import { selectedRowAtom } from '@/features/app-builder/atoms/tableContextAtoms';
-import { runResultAtom } from '@/features/app-builder/atoms/tableContextAtoms';
+import { axios } from '@/lib/axios';
+import {
+	userInputAtom,
+	selectedRowAtom,
+	runResultAtom,
+} from '@/features/app-builder/atoms/tableContextAtoms';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
+import { useEffect } from 'react';
+
 const runTask = async ({
 	pageId,
 	userInput,
@@ -43,7 +45,7 @@ const runTask = async ({
 export const useRunTask = () => {
 	const setRunResult = useSetAtom(runResultAtom);
 	return useMutation(runTask, {
-		onSettled: (data, _error, _variables, _context) => {
+		onSettled: (data) => {
 			setRunResult(data);
 		},
 	});
@@ -57,7 +59,7 @@ const checkAllRulesPass = ({ formValues, rules }: any) => {
 		const fieldValue = get(formValues, r.name);
 		switch (r.operator) {
 			case 'equals': {
-				return r.value != fieldValue;
+				return r.value !== fieldValue;
 			}
 			case 'gt': {
 				return r.value >= fieldValue;
@@ -88,14 +90,13 @@ export const CustomInput = (props: any) => {
 		options,
 		display_rules: displayRules,
 		on_change_rules: onChangeRules,
-		// on_select: onSelect,
-		// on_click: onClick,
 		on_change: onChange,
 	} = props;
-	const { watch, register, getValues } = useFormContext();
-	const setRunResult = useSetAtom(runResultAtom);
 
-	const runTask = useRunFunction({
+	const setRunResult = useSetAtom(runResultAtom);
+	const [userInput, setUserInput] = useAtom(userInputAtom);
+
+	const runTaskMutation = useRunFunction({
 		onSuccess: (response: any) => {
 			if (typeof response.result !== 'string') {
 				response.result = JSON.stringify(response.result);
@@ -104,14 +105,55 @@ export const CustomInput = (props: any) => {
 		},
 	});
 	const [selectedRow] = useAtom(selectedRowAtom);
-	const [userInput] = useAtom(userInputAtom);
+
 	const { pageId } = useParams();
-	watch();
+
+	useEffect(() => {
+		if (name) {
+			setUserInput((i) => ({
+				...i,
+				[name]: '',
+			}));
+		}
+
+		return () => {
+			setUserInput((i) => {
+				const inputs = { ...i };
+				delete inputs[name as keyof typeof inputs];
+
+				setUserInput(inputs);
+			});
+		};
+	}, [setUserInput, name, type]);
+
+	const handleChange = async (e: any) => {
+		const newInput = {
+			...userInput,
+			[name]: e.target.value,
+		};
+		setUserInput(newInput);
+
+		if (
+			onChange &&
+			checkAllRulesPass({
+				formValues: newInput,
+				rules: onChangeRules,
+			})
+		) {
+			await runTaskMutation.mutateAsync({
+				pageId: pageId || '',
+				userInput: newInput,
+				row: selectedRow,
+				functionCall: onChange,
+				callType: 'task',
+			});
+		}
+	};
 
 	if (
 		(displayRules &&
 			checkAllRulesPass({
-				formValues: getValues(),
+				formValues: userInput,
 				rules: displayRules,
 			})) ||
 		!displayRules
@@ -124,29 +166,7 @@ export const CustomInput = (props: any) => {
 				<Box>
 					<FormControl>
 						<FormLabel htmlFor={name}>{name}</FormLabel>
-						<Select
-							id={name}
-							placeholder={`Select ${name}`}
-							{...register(name)}
-							onChange={async (e) => {
-								register(name).onChange(e);
-								if (
-									onChange &&
-									checkAllRulesPass({
-										formValues: getValues(),
-										rules: onChangeRules,
-									})
-								) {
-									await runTask.mutateAsync({
-										pageId: pageId || '',
-										userInput: userInput,
-										row: selectedRow,
-										functionCall: onChange,
-										callType: 'task',
-									});
-								}
-							}}
-						>
+						<Select id={name} placeholder={`Select ${name}`} onChange={handleChange}>
 							{options?.map((o: any) => <option key={o}>{o}</option>)}
 						</Select>
 					</FormControl>
@@ -160,7 +180,11 @@ export const CustomInput = (props: any) => {
 					<FormControl>
 						<FormLabel htmlFor={name}>{name}</FormLabel>
 						<NumberInput>
-							<NumberInputField id={name} placeholder={name} {...register(name)} />
+							<NumberInputField
+								id={name}
+								placeholder={name}
+								onChange={handleChange}
+							/>
 						</NumberInput>
 					</FormControl>
 				</Box>
@@ -171,7 +195,7 @@ export const CustomInput = (props: any) => {
 			<Box>
 				<FormControl>
 					<FormLabel htmlFor={name}>{name}</FormLabel>
-					<ChakraInput id={name} placeholder={name} {...register(name)} />
+					<ChakraInput id={name} placeholder={name} onChange={handleChange} />
 				</FormControl>
 			</Box>
 		);
@@ -181,9 +205,9 @@ export const CustomInput = (props: any) => {
 };
 
 export const CustomButton = (props: any) => {
-	const { label, action, post_action, getData } = props;
+	const { label, action, post_action: postAction, getData } = props;
 	const setRunResult = useSetAtom(runResultAtom);
-	const runTask = useRunFunction({
+	const runTaskMutation = useRunFunction({
 		onSuccess: (response: any) => {
 			if (typeof response.result !== 'string') {
 				response.result = JSON.stringify(response.result);
@@ -194,20 +218,20 @@ export const CustomButton = (props: any) => {
 	const { pageId } = useParams();
 	const [selectedRow] = useAtom(selectedRowAtom);
 	const [userInput] = useAtom(userInputAtom);
-	// const
+
 	const handleAction = async () => {
 		try {
-			await runTask.mutateAsync({
+			await runTaskMutation.mutateAsync({
 				pageId: pageId || '',
-				userInput: userInput,
+				userInput,
 				row: selectedRow,
 				functionCall: action,
 				callType: 'task',
 			});
-			// reset(resetFields);
-			if (post_action) {
-				console.log(`Performing post action: ${post_action}`);
-				await getData(post_action);
+
+			if (postAction) {
+				console.log(`Performing post action: ${postAction}`);
+				await getData(postAction);
 			}
 		} catch (e) {
 			//
@@ -215,7 +239,7 @@ export const CustomButton = (props: any) => {
 	};
 
 	return (
-		<Button isLoading={runTask.isLoading} onClick={handleAction} marginTop="2">
+		<Button isLoading={runTaskMutation.isLoading} onClick={handleAction} marginTop="2">
 			{label}
 		</Button>
 	);

@@ -1,6 +1,3 @@
-import { useRegister } from './hooks/useRegister';
-// import { Logo } from '@/icons/logo';
-import { useToast } from '@/lib/chakra-ui';
 import {
 	Box,
 	Button,
@@ -15,6 +12,9 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
+
+import { useRegister } from './hooks/useRegister';
+import { useToast } from '@/lib/chakra-ui';
 
 type FormValues = {
 	email: string;
@@ -60,7 +60,6 @@ export const Register = () => {
 			<Stack spacing="8">
 				<Stack spacing="6">
 					<Stack spacing={{ base: '2', md: '3' }} textAlign="center">
-						{/* <Logo height={65} /> */}
 						<Heading size="sm">Sign up for dropbase</Heading>
 						<Link to="/login">
 							<Text color="fg.muted" fontSize="sm" textDecoration="underline">
@@ -69,15 +68,7 @@ export const Register = () => {
 						</Link>
 					</Stack>
 				</Stack>
-				<Box
-					minW="md"
-					p="12"
-					bg="bg-surface"
-					boxShadow="sm"
-					borderRadius="md"
-					border="1px solid"
-					borderColor="bg-muted"
-				>
+				<Box minW="md" p="12" boxShadow="sm" borderRadius="md" borderWidth="1px">
 					<form onSubmit={onSubmit}>
 						<Stack spacing="6">
 							<Stack spacing="5">

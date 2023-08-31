@@ -10,7 +10,7 @@ from server.schemas.components import CreateComponents, UpdateComponents
 
 class CRUDComponents(CRUDBase[Components, CreateComponents, UpdateComponents]):
     def get_action_component(self, db: Session, action_id: UUID) -> Components:
-        return db.query(Components).filter(Components.action_id == str(action_id)).one()
+        return db.query(Components).filter(Components.action_id == str(action_id)).one_or_none()
 
     def get_workspace_id(self, db: Session, components_id: UUID) -> str:
         return (

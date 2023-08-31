@@ -8,14 +8,14 @@ export type Pages = {
 	id: string;
 };
 
-const fetchAppPages = async () => {
-	const { data } = await axios.get<Pages[]>(`/page/list`);
+const fetchAppPages = async ({ appId }: { appId: string }) => {
+	const { data } = await axios.get<Pages[]>(`/app/${appId}/pages`);
 	return data;
 };
 
-export const useGetAppPages = () => {
-	const queryKey = ['appPages'];
-	const { data: response, ...rest } = useQuery(queryKey, fetchAppPages);
+export const useGetAppPages = ({ appId }: { appId: string }) => {
+	const queryKey = ['appPages', appId];
+	const { data: response, ...rest } = useQuery(queryKey, () => fetchAppPages({ appId }));
 	return {
 		pages: response || [],
 		...rest,

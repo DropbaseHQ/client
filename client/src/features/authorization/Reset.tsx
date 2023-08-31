@@ -1,5 +1,3 @@
-import { useResetPassword } from './hooks/useResetPassword';
-import { useToast } from '@/lib/chakra-ui';
 import {
 	Box,
 	Button,
@@ -14,6 +12,9 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
+
+import { useResetPassword } from './hooks/useResetPassword';
+import { useToast } from '@/lib/chakra-ui';
 
 type FormValues = {
 	email: string;
