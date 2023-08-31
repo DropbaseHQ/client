@@ -9,8 +9,11 @@ class BaseSQLs(BaseModel):
     name: str
     code: str
     page_id: UUID
+    property: Optional[dict]
     dataclass: Optional[str]
-    table_meta: Optional[dict]
+
+    class Config:
+        orm_mode = True
 
 
 class ReadSQLs(BaseSQLs):
@@ -25,8 +28,8 @@ class CreateSQLs(BaseSQLs):
 class UpdateSQLs(BaseModel):
     code: Optional[str]
     page_id: Optional[UUID]
+    property: Optional[dict]
     dataclass: Optional[str]
-    table_meta: Optional[dict]
 
 
 class QueryTable(BaseModel):

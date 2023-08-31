@@ -18,9 +18,9 @@ class CRUDSQLs(CRUDBase[SQLs, CreateSQLs, UpdateSQLs]):
     def get_workspace_id(self, db: Session, sqls_id: UUID) -> str:
         return (
             db.query(App.workspace_id)
-            .join(Page, Page.id == Widget.page_id)
+            .join(Page, Page.app_id == App.id)
             .join(SQLs, SQLs.page_id == Page.id)
-            .filter(SQLs.id == str(sqls_id))
+            .filter(SQLs.id == sqls_id)
             .one()
         ).workspace_id
 

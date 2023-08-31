@@ -11,6 +11,7 @@ class SQLs(Base):
     name = Column(String, nullable=False)
 
     code = Column(String, nullable=False)
+    property = Column(JSONB)
     dataclass = Column(String)
 
     page_id = Column(UUID(as_uuid=True), ForeignKey("page.id", ondelete="CASCADE"))

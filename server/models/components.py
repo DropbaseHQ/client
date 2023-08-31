@@ -9,6 +9,7 @@ class Components(Base):
     id = Column(UUID(as_uuid=True), server_default=text("uuid_generate_v4()"), primary_key=True)
 
     code = Column(String, nullable=False)
+    property = Column(JSONB)
     dataclass = Column(String)
 
     widget_id = Column(UUID(as_uuid=True), ForeignKey("widget.id", ondelete="CASCADE"))

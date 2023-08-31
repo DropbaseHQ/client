@@ -9,6 +9,7 @@ class BaseComponents(BaseModel):
     code: str
     widget_id: UUID
     dataclass: Optional[str]
+    property: Optional[dict]
 
 
 class ReadComponents(BaseComponents):
@@ -24,9 +25,11 @@ class UpdateComponents(BaseModel):
     code: Optional[str]
     widget_id: Optional[UUID]
     dataclass: Optional[str]
+    property: Optional[dict]
 
 
 class ConvertComponents(BaseModel):
     code: str
     widget_id: str
     dataclass: Optional[str]
+    property: Optional[dict]

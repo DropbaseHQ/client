@@ -1,9 +1,10 @@
 from typing import List
+from uuid import UUID
 
 from server import crud
 from server.controllers.sqls.test_sql import *
 from server.schemas.columns import CreateColumns
-from server.schemas.sqls import CreateSQLs, UpdateSQLs
+from server.schemas.sqls import CreateSQLs, ReadSQLs, UpdateSQLs
 
 
 def create_sql(db, request: CreateSQLs):
@@ -13,7 +14,9 @@ def create_sql(db, request: CreateSQLs):
     # TODO: infer column types
 
     dataclass = get_table_dataclass(request.name, columns)
+    properties = {"name": request.name}
     request.dataclass = dataclass
+    request.property = properties
 
     # match with existing columns, create columns if needed
     sql = crud.sqls.create(db, obj_in=request)
@@ -33,20 +36,24 @@ def get_table_columns(user_db_engine, sql_str):
 
 
 def get_table_dataclass(table_name: str, columns: List) -> str:
-    dataclass = f"""class {table_name.capitalize()}Table(BaseModel):"""
+    dataclass = f"""class {table_name.capitalize()}Table(BaseModel):\n"""
     for column in columns:
-        dataclass += f"""    {column}: Any"""
+        dataclass += f"""    {column}: Any\n"""
     return dataclass
 
 
-def update_sql(db: Session, sql_id: str, request: UpdateSQLs):
+def update_sql(db: Session, sql_id: UUID, request: UpdateSQLs) -> ReadSQLs:
     user_db_engine = connect_to_user_db()
     sql_columns = get_table_columns(user_db_engine, request.code)
     db_columns = crud.columns.get_sql_columns(db, sql_id=sql_id)
 
-    # check for delta
-    cols_to_delete = [col for col in db_columns if col.name not in sql_columns]
-    cols_to_add = [col for col in sql_columns if col not in db_columns]
+    if not db_columns:
+        cols_to_delete = []
+        cols_to_add = sql_columns
+    else:
+        # check for delta
+        cols_to_delete = [col for col in db_columns if col.name not in sql_columns]
+        cols_to_add = [col for col in sql_columns if col not in db_columns]
 
     # delete columns
     for col in cols_to_delete:
@@ -60,6 +67,7 @@ def update_sql(db: Session, sql_id: str, request: UpdateSQLs):
     sql = crud.sqls.get(db, id=sql_id)
     dataclass = get_table_dataclass(sql.name, sql_columns)
     sql.dataclass = dataclass
+
     db.commit()
 
-    return sql
+    return ReadSQLs.from_orm(sql)

@@ -8,8 +8,7 @@ from pydantic import BaseModel
 class BaseWidget(BaseModel):
     name: str
     page_id: UUID
-    settings: Optional[dict]
-    dataclass: Optional[str]
+    property: Optional[dict]
 
 
 class ReadWidget(BaseWidget):
@@ -23,6 +22,4 @@ class CreateWidget(BaseWidget):
 
 class UpdateWidget(BaseModel):
     name: Optional[str]
-    page_id: Optional[UUID]
-    settings: Optional[dict]
-    dataclass: Optional[str]
+    property: Optional[dict]

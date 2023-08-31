@@ -10,7 +10,7 @@ class Widget(Base):
 
     name = Column(String, nullable=False)
     page_id = Column(UUID(as_uuid=True), ForeignKey("page.id", ondelete="CASCADE"))
-    # settings = Column(JSONB)
+    property = Column(JSONB)
 
     date = Column(TIMESTAMP, server_default=func.now())
 
