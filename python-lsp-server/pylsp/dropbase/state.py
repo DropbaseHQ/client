@@ -18,7 +18,8 @@ def generate_state_ui_class(ui_classes: list[GeneratedUIComponent]):
 
 
 def get_table_state_class_string() -> str:
-    cls_str =  "class TableState(BaseModel)\n"
+    cls_str =  "@dataclass\n"
+    cls_str += "class TableState:\n"
     cls_str += "    toast: str\n"
     cls_str += "    toast_type: str\n"
     cls_str += "    message: str\n"
@@ -32,7 +33,8 @@ def get_tables_string() -> str:
 
 
 def get_component_state_class_string() -> str:
-    cls_str =  "class ComponentState(BaseModel):\n"
+    cls_str =  "@dataclass\n"
+    cls_str += "class ComponentState:\n"
     cls_str += "    error_message: Optional[str]\n"
     cls_str += "    options: Optional[Any]\n"
     cls_str += "    value: Optional[Any]\n"
@@ -41,13 +43,16 @@ def get_component_state_class_string() -> str:
 
 
 def get_components_string(ui_components) -> str:
-    cls_str = "class Components(BaseModel):\n"
+    cls_str =  "@dataclass\n"
+    cls_str += "class Components:\n"
     for component in ui_components:
         cls_str += f"    {component.name}: ComponentState\n"
+    return cls_str
 
 
 def get_sidebar_state_class_string() -> str:
-    cls_str =  "class SidebarState(BaseModel):\n"
+    cls_str =  "@dataclass\n"
+    cls_str += "class SidebarState:\n"
     cls_str += "    components: Components\n"
     cls_str += "    toast: str\n"
     cls_str += "    toast_type: str\n"
@@ -57,7 +62,8 @@ def get_sidebar_state_class_string() -> str:
 
 
 def get_state_class_string() -> str:
-    cls_str = "class State(BaseModel):\n"
+    cls_str =  "@dataclass\n"
+    cls_str += "class State:\n"
     cls_str += "    sidebar: SidebarState\n"
     cls_str += "    tables: Tables\n"
     return cls_str
@@ -82,8 +88,8 @@ def get_state_instantiation_string() -> str:
 
 
 def get_state_content_string(ui_components) -> str:
-    content_str =  "from typing import Any, Optional\n" 
-    content_str += "from pydantic import BaseModel\n"
+    content_str =  "from dataclasses import dataclass\n"
+    content_str += "from typing import Any, Optional\n" 
     content_str += get_table_state_class_string()
     content_str += get_tables_string()
     content_str += get_component_state_class_string()
