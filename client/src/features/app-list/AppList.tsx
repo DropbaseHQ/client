@@ -6,8 +6,6 @@ import {
 	Flex,
 	Text,
 	Button,
-	FormControl,
-	FormLabel,
 	Input,
 	Modal,
 	ModalOverlay,

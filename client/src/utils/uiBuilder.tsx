@@ -119,7 +119,7 @@ export const CustomInput = (props: any) => {
 		return () => {
 			setUserInput((i) => {
 				const inputs = { ...i };
-				delete inputs[name];
+				delete inputs[name as keyof typeof inputs];
 
 				setUserInput(inputs);
 			});
