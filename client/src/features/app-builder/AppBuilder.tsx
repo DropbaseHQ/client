@@ -17,14 +17,14 @@ export const AppBuilder = () => {
 	const { pageId } = useParams();
 	const [isEditorReady, , languageClient] = useMonacoLoader();
 
-	const { isLoading, dataclass } = useTableData({
+	const { isLoading, dataclass, schema } = useTableData({
 		pageId,
 		filters: [],
 		sorts: [],
 	});
 
 	if (!isLoading && languageClient) {
-		languageClient.sendNotification('workspace/setTableSchema', { dataclass });
+		languageClient.sendNotification('workspace/setTableSchema', { dataclass, schema });
 	}
 
 	return (

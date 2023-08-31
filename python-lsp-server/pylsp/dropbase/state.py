@@ -28,8 +28,15 @@ def get_table_state_class_string() -> str:
     return cls_str
 
 
-def get_tables_string() -> str:
-    return ""
+def get_tables_string(schema: dict) -> str:
+    cls_str =  "@dataclass\n"
+    cls_str += "class Tables:\n"
+    for schema_name, tables in schema.items():
+        schema_name = schema_name.capitalize()
+        for table_name in tables:
+            table_name = schema_name + table_name.capitalize()
+            cls_str += f"    {table_name}: TableState\n"
+    return cls_str
 
 
 def get_component_state_class_string() -> str:
@@ -69,42 +76,48 @@ def get_state_class_string() -> str:
     return cls_str
 
 
-def get_state_instantiation_string() -> str:
-    """
-    State(
-        sidebar = SidebarState(
-            TODO,
-            toast = "",
-            toast_type = "",
-            message = "",
-            message_type = ""
-        ),
-        tables = Tables(
-            TODO
-        )
-    )
-    """
-    return ""
-
-
-def get_state_content_string(ui_components) -> str:
+def get_table_state_content_string(schema: dict) -> str | None:
     content_str =  "from dataclasses import dataclass\n"
-    content_str += "from typing import Any, Optional\n" 
+    content_str += "from typing import Any, Optional\n"
     content_str += get_table_state_class_string()
-    content_str += get_tables_string()
-    content_str += get_component_state_class_string()
-    content_str += get_components_string(ui_components)
-    content_str += get_sidebar_state_class_string()
-    content_str += get_state_class_string()
-    content_str += get_state_instantiation_string()
+    content_str += get_tables_string(schema)
     return content_str
 
 
-def generate(code_string) -> str | None:
+def get_component_state_content_string(ui_components) -> str:
+    content_str =  "from dataclasses import dataclass\n"
+    content_str += "from typing import Any, Optional\n"
+    content_str += get_component_state_class_string()
+    content_str += get_components_string(ui_components)
+    return content_str
+
+def get_ui_state_content_string() -> str:
+    content_str =  "from .table import *\n"
+    content_str += "from .component import *\n"
+    content_str += get_sidebar_state_class_string()
+    content_str += get_state_class_string()
+    content_str += "state_data = State(**state)\n"
+    return content_str
+
+
+def generate_table_state(schema: dict) -> str | None:
     try:
-        instantiations = extract_class_instantiations(code_string)
-        typed_ui_classes = generate_state_ui_class(instantiations)
-        generated_code = get_state_content_string(typed_ui_classes)
+        generated_code = get_table_state_content_string(schema)
     except Exception:
         return None  # i.e. do not write anything
     return generated_code
+
+
+def generate_component_state(code_string) -> str | None:
+    try:
+        instantiations = extract_class_instantiations(code_string)
+        typed_ui_classes = generate_state_ui_class(instantiations)
+        generated_code = get_component_state_content_string(typed_ui_classes)
+    except Exception:
+        return None  # i.e. do not write anything
+    return generated_code
+
+
+# TODO can hard code this (flatten it)
+def generate_ui_state() -> str | None:
+    return get_ui_state_content_string()

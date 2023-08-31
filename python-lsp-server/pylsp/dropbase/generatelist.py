@@ -4,7 +4,7 @@ from typing import List
 from .fetchers import generate_fetcher_module
 from .generate import GeneratedFile, GenerateHandler, T
 from .input import generate as generate_userinput
-from .state import generate as generate_uistate
+from .state import generate_component_state, generate_ui_state
 from .workspace import Document, Workspace
 
 # Events on workspace create
@@ -15,7 +15,12 @@ documentCreateEvents: List[GenerateHandler[Document]] = [
     # Generate __init__.py when a fetcher document is created
     GenerateHandler[Document](
         match_fn=lambda document: os.path.dirname(document.rel_path) == "fetchers",
-        files=[GeneratedFile[Document](path="fetchers/__init__.py", content_fn=generate_fetcher_module)],
+        files=[
+            GeneratedFile[Document](
+                path="fetchers/__init__.py",
+                content_fn=generate_fetcher_module,
+            ),
+        ],
     ),
 ]
 
@@ -30,8 +35,12 @@ documentChangeEvents: List[GenerateHandler[Document]] = [
                 content_fn=lambda document: generate_userinput(document._source),
             ),
             GeneratedFile[Document](
-                path="dropbase/state.py",
-                content_fn=lambda document: generate_uistate(document._source),
+                path="dropbase/state/component.py",
+                content_fn=lambda document: generate_component_state(document._source),
+            ),
+            GeneratedFile[Document](
+                path="dropbase/state/__init__.py",
+                content_fn=lambda _: generate_ui_state(),
             ),
         ],
     ),
