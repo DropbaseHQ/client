@@ -16,7 +16,14 @@ def get_table_data(db: Session, request: QueryTable):
     sql = crud.sqls.get_page_sql(db, page_id=request.page_id)
     # apply filters
     filter_sql, join_filters = apply_filters(sql.code, request.filters, request.sorts)
-
+    if sql.code == "":
+        return {
+            "header": [],
+            "data": [],
+            "schema": {},
+            "sql_id": sql.id,
+            "dataclass": "",
+        }
     with user_db_engine.connect().execution_options(autocommit=True) as conn:
         res = conn.execute(text(sql.code)).all()
 
@@ -77,7 +84,6 @@ def compose_classes_from_row_data(row_data: dict):
 
 
 def apply_filters(sql, filters, sorts):
-
     filter_dict = {}
     sql = sql[:-1] if sql.endswith(";") else sql
     filter_sql = f"""SELECT * FROM ({sql}) as user_query\n"""

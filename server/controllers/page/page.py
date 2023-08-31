@@ -64,9 +64,3 @@ def get_page_details(db: Session, page_id: str):
             organized_functions["fetchers"].append(function)
 
     return {"page": page, "action": action, "sql": page_sql, "functions": organized_functions}
-
-
-def get_app_pages(db: Session, user: User):
-    first_workspace = crud.user.get_user_first_workspace(db, user.id)
-    first_app = crud.app.get_workspace_apps(db, workspace_id=first_workspace.id)[0]
-    return crud.page.get_app_pages(db, first_app.id)

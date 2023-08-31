@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class BaseApp(BaseModel):
     name: str
-    workspace_id: UUID
+    workspace_id: Optional[UUID] = None
 
 
 class ReadApp(BaseApp):
