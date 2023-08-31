@@ -1,6 +1,6 @@
 from typing import TypedDict
 
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
 from server import crud
@@ -48,17 +48,8 @@ def get_db_schema(engine) -> WidgetSchema:
 
 def get_app_details(db: Session, app_id: str):
     app = crud.app.get_object_by_id_or_404(db, id=app_id)
-    app_sql = crud.sqls.get_page_sqls(db, app_id=app_id)
-    app_functions = crud.functions.get_page_functions(db, app_id=app_id)
-    app_components = crud.components.get_widget_component(db, app_id=app_id)
-    organized_functions = {
-        "fetchers": [],
-        "ui_components": [app_components],
-    }
-    for function in app_functions:
-        if function.type == "ui":
-            organized_functions["ui_components"].append(function)
-        else:
-            organized_functions["fetchers"].append(function)
+    sql = crud.sqls.get_page_sqls(db, app_id=app_id)
+    functions = crud.functions.get_page_functions(db, app_id=app_id)
+    components = crud.components.get_widget_component(db, app_id=app_id)
 
-    return {"app": app, "sql": app_sql, "functions": organized_functions}
+    return {"app": app, "sql": sql, "functions": functions, "components": components}

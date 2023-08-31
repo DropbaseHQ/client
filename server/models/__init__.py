@@ -1,5 +1,6 @@
 from .app import App
 from .base import Base
+from .columns import Columns
 from .components import Components
 from .functions import Functions
 from .page import Page

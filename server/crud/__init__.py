@@ -1,4 +1,5 @@
 from .app.crud_app import app
+from .columns.crud_columns import columns
 from .components.crud_components import components
 from .functions.crud_functions import functions
 from .page.crud_page import page

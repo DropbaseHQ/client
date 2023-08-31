@@ -40,7 +40,7 @@ def get_table_schema(user_db_engine, sql_str):
     with user_db_engine.connect().execution_options(autocommit=True) as conn:
         res = conn.execute(text(f"SELECT * FROM ({user_query_cleaned}) AS q LIMIT 1")).all()
 
-    col_names = list(res[0]._mapping.keys())
+    col_names = list(res[0].keys())
     schema_dict, parsed_column_names = col_names_list_to_dict_schema(col_names)
     return get_parsed_schema(user_db_engine, schema_dict), parsed_column_names
 

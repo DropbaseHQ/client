@@ -5,16 +5,14 @@ from sqlalchemy.sql import func, text
 from .base import Base
 
 
-class SQLs(Base):
+class Columns(Base):
     id = Column(UUID(as_uuid=True), server_default=text("uuid_generate_v4()"), primary_key=True)
 
     name = Column(String, nullable=False)
-
-    code = Column(String, nullable=False)
-    dataclass = Column(String)
-
-    page_id = Column(UUID(as_uuid=True), ForeignKey("page.id", ondelete="CASCADE"))
+    type = Column(String)
+    property = Column(JSONB)
+    sql_id = Column(UUID(as_uuid=True), ForeignKey("sqls.id", ondelete="CASCADE"))
 
     date = Column(TIMESTAMP, server_default=func.now())
 
-    __tablename__ = "sqls"
+    __tablename__ = "columns"

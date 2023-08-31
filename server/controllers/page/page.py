@@ -1,5 +1,4 @@
 from typing import TypedDict
-from uuid import UUID
 
 from sqlalchemy import inspect
 from sqlalchemy.orm import Session
@@ -54,18 +53,15 @@ def get_page_details(db: Session, page_id: str):
     page_functions = crud.functions.get_page_functions(db, page_id=page.id)
 
     widget = crud.widget.get_page_widget(db, page_id=page_id)
-    page_components = crud.components.get_widget_component(db, widget_id=widget.id)
-    organized_functions = {
-        "fetchers": [],
-        "ui_components": [page_components],
-    }
-    for function in page_functions:
-        if function.type == "ui":
-            organized_functions["ui_components"].append(function)
-        else:
-            organized_functions["fetchers"].append(function)
+    components = crud.components.get_widget_component(db, widget_id=widget.id)
 
-    return {"page": page, "widget": widget, "sql": page_sql, "functions": organized_functions}
+    return {
+        "page": page,
+        "widget": widget,
+        "sql": page_sql,
+        "functions": page_functions,
+        "components": components,
+    }
 
 
 def get_app_pages(db: Session, user: User):
