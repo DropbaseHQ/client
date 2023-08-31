@@ -1,8 +1,3 @@
-/* eslint-disable  */
-import { PanelHandle } from '@/components/Panel';
-import { useGetPage } from '@/features/app/hooks';
-import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
-import { CustomButton, CustomInput } from '@/utils/uiBuilder';
 import {
 	Alert,
 	AlertDescription,
@@ -14,16 +9,20 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { RefreshCw, X } from 'react-feather';
-import { FormProvider, useForm } from 'react-hook-form';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { useParams } from 'react-router-dom';
-import { runResultAtom, uiCodeAtom, userInputAtom } from '../atoms/tableContextAtoms';
+
+import { PanelHandle } from '@/components/Panel';
+import { useGetPage } from '@/features/app/hooks';
+import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
+import { CustomButton, CustomInput } from '@/utils/uiBuilder';
+import { runResultAtom, uiCodeAtom } from '../atoms/tableContextAtoms';
 import { UIEditor } from './UIEditor';
 
 export const UIPreview = () => {
-	const [uiCode, setUiCode] = useAtom(uiCodeAtom);
+	const [uiCode, setUICode] = useAtom(uiCodeAtom);
 	const { pageId } = useParams();
 	const { uiComponents } = useGetPage(pageId || '');
 
@@ -33,10 +32,10 @@ export const UIPreview = () => {
 		if (uiComponents?.[0]) {
 			const code = uiComponents?.[0].code;
 			if (code) {
-				setUiCode(code);
+				setUICode(code);
 			}
 		}
-	}, [uiComponents]);
+	}, [uiComponents, setUICode]);
 
 	const {
 		components,
@@ -47,38 +46,9 @@ export const UIPreview = () => {
 		code: (uiCode || '').trim(),
 	});
 
-	const [, setFormData] = useState([]);
-	const methods = useForm({
-		shouldUnregister: true,
-	});
-	const updateUserInput = useSetAtom(userInputAtom);
 	const onRefreshUI = () => {
 		refetch();
 	};
-
-	const formValues = methods.watch();
-	useEffect(() => {
-		updateUserInput(formValues);
-	}, [formValues, updateUserInput]);
-
-	const sortUI = (components: any[]) =>
-		components.flatMap((c: any) => {
-			// Do not render if c.name is not provided or all values are falsy
-			if (!c?.name || Object.values(c).every((val) => !val)) {
-				return [];
-			}
-
-			if (c.type === 'button') {
-				return <CustomButton key={c.name} {...c} />;
-			}
-
-			return <CustomInput key={c.name} {...c} setFormData={setFormData} />;
-		});
-
-	useEffect(() => {
-		const componentList = components.map((obj: any) => Object.values(obj));
-		setFormData(componentList);
-	}, [components, setFormData]);
 
 	return (
 		<Stack>
@@ -94,7 +64,18 @@ export const UIPreview = () => {
 				/>
 			</Box>
 
-			<FormProvider {...methods}>{sortUI(components)}</FormProvider>
+			{components.map((c: any) => {
+				// Do not render if c.name is not provided or all values are falsy
+				if (!c?.name || Object.values(c).every((val) => !val)) {
+					return [];
+				}
+
+				if (c.type === 'button') {
+					return <CustomButton key={c.name} {...c} />;
+				}
+
+				return <CustomInput key={c.name} {...c} />;
+			})}
 
 			{log ? (
 				<Alert borderRadius="md" status={log.status}>
@@ -131,7 +112,7 @@ ${log.traceback}`
 						<Stack direction="row" alignItems="center">
 							<IconButton
 								aria-label="Close output"
-								isRound={true}
+								isRound
 								size="xs"
 								colorScheme="gray"
 								icon={<X size={14} />}
