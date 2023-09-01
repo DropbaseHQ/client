@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import get from 'lodash/get';
 import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useMutation } from 'react-query';
 import { useAtom, useSetAtom } from 'jotai';
 import { axios } from '@/lib/axios';
@@ -19,7 +20,6 @@ import {
 	runResultAtom,
 } from '@/features/app-builder/atoms/tableContextAtoms';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
-import { useEffect } from 'react';
 
 const runTask = async ({
 	pageId,
