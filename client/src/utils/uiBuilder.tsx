@@ -11,45 +11,13 @@ import {
 import get from 'lodash/get';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useMutation } from 'react-query';
 import { useAtom, useSetAtom } from 'jotai';
-import { axios } from '@/lib/axios';
 import {
 	userInputAtom,
 	selectedRowAtom,
 	runResultAtom,
 } from '@/features/app-builder/atoms/tableContextAtoms';
 import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
-
-const runTask = async ({
-	pageId,
-	userInput,
-	row,
-	action,
-}: {
-	pageId: string;
-	userInput: any;
-	row: any;
-	action: any;
-}) => {
-	const { data } = await axios.post('/task/', {
-		page_id: pageId,
-		user_input: userInput,
-		row,
-		action,
-		call_type: 'task',
-	});
-	return data;
-};
-
-export const useRunTask = () => {
-	const setRunResult = useSetAtom(runResultAtom);
-	return useMutation(runTask, {
-		onSettled: (data) => {
-			setRunResult(data);
-		},
-	});
-};
 
 const checkAllRulesPass = ({ formValues, rules }: any) => {
 	if (!rules || rules?.length === 0) {
@@ -126,10 +94,10 @@ export const CustomInput = (props: any) => {
 		};
 	}, [setUserInput, name, type]);
 
-	const handleChange = async (e: any) => {
+	const handleChange = async (newValue: any) => {
 		const newInput = {
 			...userInput,
-			[name]: e.target.value,
+			[name]: newValue,
 		};
 		setUserInput(newInput);
 
@@ -166,7 +134,13 @@ export const CustomInput = (props: any) => {
 				<Box>
 					<FormControl>
 						<FormLabel htmlFor={name}>{name}</FormLabel>
-						<Select id={name} placeholder={`Select ${name}`} onChange={handleChange}>
+						<Select
+							id={name}
+							placeholder={`Select ${name}`}
+							onChange={(e) => {
+								handleChange(e.target.value);
+							}}
+						>
 							{options?.map((o: any) => <option key={o}>{o}</option>)}
 						</Select>
 					</FormControl>
@@ -179,12 +153,12 @@ export const CustomInput = (props: any) => {
 				<Box>
 					<FormControl>
 						<FormLabel htmlFor={name}>{name}</FormLabel>
-						<NumberInput>
-							<NumberInputField
-								id={name}
-								placeholder={name}
-								onChange={handleChange}
-							/>
+						<NumberInput
+							onChange={(_, value) => {
+								handleChange(value);
+							}}
+						>
+							<NumberInputField id={name} placeholder={name} />
 						</NumberInput>
 					</FormControl>
 				</Box>
@@ -195,7 +169,13 @@ export const CustomInput = (props: any) => {
 			<Box>
 				<FormControl>
 					<FormLabel htmlFor={name}>{name}</FormLabel>
-					<ChakraInput id={name} placeholder={name} onChange={handleChange} />
+					<ChakraInput
+						id={name}
+						placeholder={name}
+						onChange={(e) => {
+							handleChange(e.target.value);
+						}}
+					/>
 				</FormControl>
 			</Box>
 		);

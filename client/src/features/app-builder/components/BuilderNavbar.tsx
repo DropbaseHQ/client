@@ -1,12 +1,11 @@
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'react-feather';
 import { useAtom } from 'jotai';
 import { formatDistanceToNow } from 'date-fns';
 import { useSaveStudio } from '../hooks/useSaveStudio';
 import { useGetPage } from '@/features/app/hooks';
 import { fetchersLastSavedAtom, uiCodeLastSavedAtom } from '../atoms/tableContextAtoms';
-import { useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
 
 export const AppBuilderNavbar = () => {
 	const { saveStudio, isLoading: saveStudioIsLoading } = useSaveStudio();
