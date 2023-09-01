@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import App, Columns, Page, SQLs, Widget
+from server.models import App, Columns, Page, Tables, Widget
 from server.schemas.columns import CreateColumns, UpdateColumns
 
 

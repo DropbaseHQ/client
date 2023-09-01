@@ -1,7 +1,5 @@
-from typing import Annotated
-
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth.exceptions import AuthJWTException
@@ -38,10 +36,11 @@ require_authentication_routes.include_router(endpoints.workspace_router)
 require_authentication_routes.include_router(endpoints.app_router)
 require_authentication_routes.include_router(endpoints.page_router)
 require_authentication_routes.include_router(endpoints.widget_router)
-require_authentication_routes.include_router(endpoints.sqls_router)
+# require_authentication_routes.include_router(endpoints.sqls_router)
+require_authentication_routes.include_router(endpoints.tables_router)
 require_authentication_routes.include_router(endpoints.functions_router)
 require_authentication_routes.include_router(endpoints.components_router)
-require_authentication_routes.include_router(endpoints.table_router)
+require_authentication_routes.include_router(endpoints.tables_router)
 require_authentication_routes.include_router(endpoints.task_router)
 
 app.include_router(endpoints.user_router)

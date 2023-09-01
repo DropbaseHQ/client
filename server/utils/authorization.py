@@ -17,7 +17,8 @@ class RESOURCES:
     SOURCE = "source"
     USER = "user"
     WORKSPACE = "workspace"
-    SQLS = "sqls"
+    # SQLS = "sqls"
+    TABLES = "tables"
 
 
 resource_query_mapper = {
@@ -30,7 +31,8 @@ resource_query_mapper = {
     RESOURCES.SOURCE: crud.source,
     RESOURCES.USER: crud.user,
     RESOURCES.WORKSPACE: crud.workspace,
-    RESOURCES.SQLS: crud.sqls,
+    # RESOURCES.SQLS: crud.sqls,
+    RESOURCES.TABLES: crud.tables,
 }
 
 

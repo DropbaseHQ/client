@@ -52,15 +52,21 @@ def update_components(db: Session, request: UpdateComponents, components_id: str
     return crud.components.update_by_pk(db=db, pk=components_id, obj_in=request)
 
 
+type_mapper = {"text": "str", "number": "int", "select": "str"}
+
+
 def create_component_dataclass(db: Session, code: str):
     generated_classes = extract_class_instantiations(code)
     user_inputs = []
     for generated_class in generated_classes:
-        if generated_class.class_name == "UIInput":
-            user_inputs.append(generated_class.kwargs.get("name"))
-    dataclass_string = "@dataclass\n"
-    dataclass_string += "class UserInput:\n"
+        if generated_class.class_name == "Input":
+            user_inputs.append(
+                {"name": generated_class.kwargs.get("name"), "type": generated_class.kwargs.get("type")}
+            )
+
+    dataclass_string = "from pydantic import BaseModel\n"
+    dataclass_string += "class UserInput(BaseModel):\n"
 
     for user_input in user_inputs:
-        dataclass_string += f"    {user_input}: str\n"
+        dataclass_string += f"    {user_input['name']}: {type_mapper[user_input['type']]}\n"
     return dataclass_string

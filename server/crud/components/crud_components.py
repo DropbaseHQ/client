@@ -17,7 +17,7 @@ class CRUDComponents(CRUDBase[Components, CreateComponents, UpdateComponents]):
             .join(Page, Page.app_id == App.id)
             .join(Widget, Widget.page_id == Page.id)
             .join(Components, Components.widget_id == Widget.id)
-            .filter(Widget.id == str(components_id))
+            .filter(Components.id == str(components_id))
             .one()
         ).workspace_id
 

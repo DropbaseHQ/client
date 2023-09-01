@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.task.source_column_helper import connect_to_user_db
-from server.models import User
+from server.models.user import User
+from server.schemas import ReadColumns, ReadComponents, ReadFunctions, ReadSQLs
 
 
 class PageSchema(TypedDict):
@@ -49,8 +50,12 @@ def get_db_schema(engine) -> PageSchema:
 
 def get_page_details(db: Session, page_id: str):
     page = crud.page.get_object_by_id_or_404(db, id=page_id)
-    page_sql = crud.sqls.get_page_sqls(db, page_id=page_id)
-    page_functions = crud.functions.get_page_functions(db, page_id=page.id)
+    sqls = crud.sqls.get_page_sqls(db, page_id=page_id)
+    tables = []
+    for sql in sqls:
+        columns = crud.columns.get_sql_columns(db, sql_id=sql.id)
+        tables.append({"sql": sql, "columns": columns})
+    functions = crud.functions.get_page_functions(db, page_id=page.id)
 
     widget = crud.widget.get_page_widget(db, page_id=page_id)
     components = crud.components.get_widget_component(db, widget_id=widget.id)
@@ -58,10 +63,29 @@ def get_page_details(db: Session, page_id: str):
     return {
         "page": page,
         "widget": widget,
-        "sql": page_sql,
-        "functions": page_functions,
+        "tables": tables,
+        "columns": columns,
+        "functions": functions,
         "components": components,
     }
+
+
+from typing import Optional
+
+from pydantic import BaseModel
+
+
+class TableState(BaseModel):
+    toast: str
+    toast_type: str
+    message: str
+    message_type: str
+    refresh: Optional[bool]
+
+
+def get_state_table(db, sql: ReadSQLs, columns):
+    table_state = TableState(**sql.property)
+    return table_state.dict()
 
 
 def get_app_pages(db: Session, user: User):

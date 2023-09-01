@@ -8,7 +8,7 @@ from pydantic import BaseModel
 class BaseColumns(BaseModel):
     name: str
     property: Optional[dict]
-    sql_id: UUID
+    table_id: UUID
 
 
 class ReadColumns(BaseColumns):

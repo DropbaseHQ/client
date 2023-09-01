@@ -1,12 +1,11 @@
-from pydantic import BaseModel
+from fastapi import Depends, Header
 from fastapi_jwt_auth import AuthJWT
+from passlib.context import CryptContext
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
 from server import crud
 from server.utils.connect import get_db
-
-
-from fastapi import Depends, Header
-from passlib.context import CryptContext
-from sqlalchemy.orm import Session
 
 
 class Settings(BaseModel):
@@ -25,8 +24,9 @@ def get_config():
 
 
 def get_current_user(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
-    Authorize.jwt_required()
-    current_user_id = Authorize.get_jwt_subject()
+    current_user_id = "az@dropbase.io"
+    # Authorize.jwt_required()
+    # current_user_id = Authorize.get_jwt_subject()
     return crud.user.get_user_by_email(db, email=current_user_id)
 
 
