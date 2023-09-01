@@ -51,7 +51,7 @@ const checkAllRulesPass = ({ formValues, rules }: any) => {
 	return !invalidRule;
 };
 
-export const CustomInput = (props: any) => {
+export const InputRenderer = (props: any) => {
 	const {
 		name,
 		type,
@@ -59,6 +59,9 @@ export const CustomInput = (props: any) => {
 		display_rules: displayRules,
 		on_change_rules: onChangeRules,
 		on_change: onChange,
+		post_action: postAction,
+		label,
+		action: taskAction,
 	} = props;
 
 	const setRunResult = useSetAtom(runResultAtom);
@@ -77,11 +80,13 @@ export const CustomInput = (props: any) => {
 	const { pageId } = useParams();
 
 	useEffect(() => {
-		if (name) {
-			setUserInput((i) => ({
-				...i,
-				[name]: '',
-			}));
+		if (type !== 'button') {
+			if (name) {
+				setUserInput((i) => ({
+					...i,
+					[name]: '',
+				}));
+			}
 		}
 
 		return () => {
@@ -93,6 +98,24 @@ export const CustomInput = (props: any) => {
 			});
 		};
 	}, [setUserInput, name, type]);
+
+	const handleAction = async ({ action, inputs }: any) => {
+		try {
+			await runTaskMutation.mutateAsync({
+				pageId: pageId || '',
+				userInput: inputs,
+				row: selectedRow,
+				functionCall: action,
+				callType: 'task',
+			});
+
+			if (postAction) {
+				console.log(`Performing post action: ${postAction}`);
+			}
+		} catch (e) {
+			//
+		}
+	};
 
 	const handleChange = async (newValue: any) => {
 		const newInput = {
@@ -108,15 +131,13 @@ export const CustomInput = (props: any) => {
 				rules: onChangeRules,
 			})
 		) {
-			await runTaskMutation.mutateAsync({
-				pageId: pageId || '',
-				userInput: newInput,
-				row: selectedRow,
-				functionCall: onChange,
-				callType: 'task',
-			});
+			await handleAction({ action: onChange, inputs: newInput });
 		}
 	};
+
+	if (!props?.name || Object.values(props).every((val) => !val)) {
+		return [];
+	}
 
 	if (
 		(displayRules &&
@@ -165,6 +186,18 @@ export const CustomInput = (props: any) => {
 			);
 		}
 
+		if (type === 'button') {
+			return (
+				<Button
+					isLoading={runTaskMutation.isLoading}
+					onClick={() => handleAction({ action: taskAction, inputs: userInput })}
+					marginTop="2"
+				>
+					{label}
+				</Button>
+			);
+		}
+
 		return (
 			<Box>
 				<FormControl>
@@ -182,45 +215,4 @@ export const CustomInput = (props: any) => {
 	}
 
 	return null;
-};
-
-export const CustomButton = (props: any) => {
-	const { label, action, post_action: postAction, getData } = props;
-	const setRunResult = useSetAtom(runResultAtom);
-	const runTaskMutation = useRunFunction({
-		onSuccess: (response: any) => {
-			if (typeof response.result !== 'string') {
-				response.result = JSON.stringify(response.result);
-			}
-			setRunResult(response);
-		},
-	});
-	const { pageId } = useParams();
-	const [selectedRow] = useAtom(selectedRowAtom);
-	const [userInput] = useAtom(userInputAtom);
-
-	const handleAction = async () => {
-		try {
-			await runTaskMutation.mutateAsync({
-				pageId: pageId || '',
-				userInput,
-				row: selectedRow,
-				functionCall: action,
-				callType: 'task',
-			});
-
-			if (postAction) {
-				console.log(`Performing post action: ${postAction}`);
-				await getData(postAction);
-			}
-		} catch (e) {
-			//
-		}
-	};
-
-	return (
-		<Button isLoading={runTaskMutation.isLoading} onClick={handleAction} marginTop="2">
-			{label}
-		</Button>
-	);
 };

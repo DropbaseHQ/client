@@ -17,9 +17,9 @@ import { useParams } from 'react-router-dom';
 import { PanelHandle } from '@/components/Panel';
 import { useGetPage } from '@/features/app/hooks';
 import { useGetUIJson } from '@/features/app/hooks/useGetUIJson';
-import { CustomButton, CustomInput } from '@/utils/uiBuilder';
 import { runResultAtom, uiCodeAtom } from '../atoms/tableContextAtoms';
 import { UIEditor } from './UIEditor';
+import { InputRenderer } from '@/features/app-builder/components/InputRenderer';
 
 export const UIPreview = () => {
 	const [uiCode, setUICode] = useAtom(uiCodeAtom);
@@ -65,16 +65,7 @@ export const UIPreview = () => {
 			</Box>
 
 			{components.map((c: any) => {
-				// Do not render if c.name is not provided or all values are falsy
-				if (!c?.name || Object.values(c).every((val) => !val)) {
-					return [];
-				}
-
-				if (c.type === 'button') {
-					return <CustomButton key={c.name} {...c} />;
-				}
-
-				return <CustomInput key={c.name} {...c} />;
+				return <InputRenderer key={c.name} {...c} />;
 			})}
 
 			{log ? (
