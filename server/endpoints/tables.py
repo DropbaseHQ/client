@@ -5,8 +5,7 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.tables import create_table, update_table
-from server.controllers.task import table
-from server.schemas.tables import CreateTables, QueryTable, UpdateTables
+from server.schemas.tables import CreateTables, UpdateTables
 from server.utils.connect import get_db
 
 router = APIRouter(prefix="/tables", tags=["tables"])

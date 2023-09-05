@@ -5,10 +5,17 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
+class WidgetProperty(BaseModel):
+    # read_only
+    # ui
+    name: Optional[str]
+    error_message: Optional[str]
+
+
 class BaseWidget(BaseModel):
     name: str
+    property: WidgetProperty
     page_id: UUID
-    property: Optional[dict]
 
 
 class ReadWidget(BaseWidget):
@@ -22,4 +29,4 @@ class CreateWidget(BaseWidget):
 
 class UpdateWidget(BaseModel):
     name: Optional[str]
-    property: Optional[dict]
+    property: WidgetProperty

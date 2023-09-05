@@ -4,7 +4,7 @@ from server.controllers.components.parse import GeneratedUIComponent, extract_cl
 # Returns UI classes with the 'type' attribute (like UIInput)
 def generate_state_ui_class(ui_classes: list[GeneratedUIComponent]):
     # Used for locals()
-    from server.controllers.components.ui_components import UIButton, UIInput, UIText
+    from server.controllers.components.schemas import UIButton, UIInput, UIText
 
     typed_components = []
     for ui_class in ui_classes:

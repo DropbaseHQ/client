@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -8,8 +9,8 @@ from server.schemas.components import CreateComponents, UpdateComponents
 
 
 class CRUDComponents(CRUDBase[Components, CreateComponents, UpdateComponents]):
-    def get_widget_component(self, db: Session, widget_id: UUID) -> Components:
-        return db.query(Components).filter(Components.widget_id == str(widget_id)).one()
+    def get_widget_component(self, db: Session, widget_id: UUID) -> List[Components]:
+        return db.query(Components).filter(Components.widget_id == str(widget_id)).all()
 
     def get_workspace_id(self, db: Session, components_id: UUID) -> str:
         return (

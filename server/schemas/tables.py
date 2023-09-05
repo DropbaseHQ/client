@@ -1,13 +1,24 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Callable, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
 
 
+class TablesProperty(BaseModel):
+    # read_only
+    # ui
+    code: str
+    type: str
+    name: str
+
+    # on row change
+    on_change: Optional[Callable[[int], int]]
+
+
 class BaseTables(BaseModel):
     name: str
-    property: Optional[dict]
+    property: TablesProperty
     page_id: UUID
 
     class Config:
@@ -19,12 +30,15 @@ class ReadTables(BaseTables):
     date: datetime
 
 
-class CreateTables(BaseTables):
-    pass
+class CreateTables(BaseModel):
+    name: Optional[str]
+    property: TablesProperty
+    page_id: UUID
 
 
 class UpdateTables(BaseModel):
-    property: Optional[dict]
+    name: Optional[str]
+    property: TablesProperty
 
 
 class QueryTable(BaseModel):

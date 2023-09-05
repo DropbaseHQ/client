@@ -10,9 +10,8 @@ class Columns(Base):
 
     name = Column(String, nullable=False)
     property = Column(JSONB)
-
-    type = Column(String)
     table_id = Column(UUID(as_uuid=True), ForeignKey("tables.id", ondelete="CASCADE"))
+    type = Column(String)
 
     date = Column(TIMESTAMP, server_default=func.now())
 
