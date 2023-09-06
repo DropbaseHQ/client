@@ -28,6 +28,7 @@ import { useRunFunction } from '@/features/app-builder/hooks/useRunFunction';
 import { useGetPage } from '@/features/app/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { useDeleteFunction } from '@/features/app-builder/hooks/useDeleteFetchers';
+import { useSaveStudio } from '../hooks/useSaveStudio';
 
 export const findFunctionDeclarations = (code: string) => {
 	const functionRegex =
@@ -42,6 +43,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 	const toast = useToast();
 
 	const deleteFunction = useDeleteFunction();
+	const { saveFetchers } = useSaveStudio();
 
 	const [log, setLog] = useState<any>(null);
 
@@ -83,6 +85,25 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 		?.filter(Boolean);
 
 	const functionCall = name ? `${name}(${argumentsName?.join(', ')})` : '';
+
+	const handleRunFunction = async () => {
+		if (pageId) {
+			if (Object.keys(selectedRow).length > 0) {
+				await saveFetchers();
+				runFunctionMutation.mutate({
+					pageId,
+					functionCall,
+					row: selectedRow,
+					userInput,
+				});
+			} else {
+				toast({
+					status: 'error',
+					title: 'Select a row',
+				});
+			}
+		}
+	};
 
 	let outputPreview = '';
 
@@ -186,21 +207,7 @@ export const FetchEditor = ({ id, code, setCode }: { id: string; code: string; s
 					aria-label="Run code"
 					isDisabled={!!runDisabledError}
 					onClick={() => {
-						if (pageId) {
-							if (Object.keys(selectedRow).length > 0) {
-								runFunctionMutation.mutate({
-									pageId,
-									functionCall,
-									row: selectedRow,
-									userInput,
-								});
-							} else {
-								toast({
-									status: 'error',
-									title: 'Select a row',
-								});
-							}
-						}
+						handleRunFunction();
 					}}
 				/>
 				{!runDisabledError ? (

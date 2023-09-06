@@ -18,7 +18,7 @@ axios.interceptors.response.use(
 			err.response
 		) {
 			// Access Token was expired
-			if (err.response.status === 422 && !apiConfig.retry) {
+			if (err.response.status === 401 && !apiConfig.retry) {
 				apiConfig.retry = true;
 
 				try {

@@ -44,15 +44,20 @@ def update_table(db: Session, table_id: UUID, request: UpdateTables) -> ReadTabl
     table_columns = get_table_columns(user_db_engine, request.property.code)
     db_columns = crud.columns.get_table_columns(db, table_id=table_id)
 
-    print(db_columns)
+    cols_to_add, cols_to_delete = [], []
 
     if not db_columns:
-        cols_to_delete = []
         cols_to_add = table_columns
     else:
         # check for delta
-        cols_to_delete = [col for col in db_columns if col.property["name"] not in table_columns]
-        cols_to_add = [col for col in table_columns if col not in db_columns]
+        db_cols_names = [col.property["name"] for col in db_columns]
+        for col in db_columns:
+            if col.property["name"] not in table_columns:
+                cols_to_delete.append(col)
+
+        for col in table_columns:
+            if col not in db_cols_names:
+                cols_to_add.append(col)
 
     # delete columns
     for col in cols_to_delete:
@@ -89,10 +94,3 @@ def create_column_record_from_name(db: Session, col_name: str, table_id: UUID) -
 
 def get_table_row(db: Session, table_id: UUID):
     return get_row_schema(db, table_id)
-
-
-# def get_table_dataclass(table_name: str, columns: List) -> str:
-#     dataclass = f"""class {table_name.capitalize()}Table(BaseModel):\n"""
-#     for column in columns:
-#         dataclass += f"""    {column}: Any\n"""
-#     return dataclass

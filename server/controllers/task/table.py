@@ -89,7 +89,6 @@ def compose_classes_from_row_data(row_data: dict):
 
 
 def apply_filters(sql, filters, sorts):
-
     filter_dict = {}
     sql = sql.strip("\n ;")
     filter_sql = f"""SELECT * FROM ({sql}) as user_query\n"""
