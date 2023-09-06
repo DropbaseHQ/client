@@ -15,7 +15,7 @@ class PgColumn(BaseModel):
 
     primary_key: bool = False
     foreign_key: bool = False
-    default: Any = None
+    default: str = None
     nullable: bool = True
     unique: bool = False
 

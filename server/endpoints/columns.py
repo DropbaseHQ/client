@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.columns import create_column, update_column
+from server.controllers.columns import create_column, get_table_columns_and_props, update_column
 from server.schemas.columns import CreateColumns, UpdateColumns
 from server.utils.connect import get_db
 
@@ -14,6 +14,11 @@ router = APIRouter(prefix="/columns", tags=["columns"])
 @router.get("/{columns_id}")
 def get_columns(columns_id: UUID, db: Session = Depends(get_db)):
     return crud.columns.get_object_by_id_or_404(db, id=columns_id)
+
+
+@router.get("/table/{table_id}")
+def get_table_columns(table_id: UUID, db: Session = Depends(get_db)):
+    return get_table_columns_and_props(db, table_id=table_id)
 
 
 @router.post("/")

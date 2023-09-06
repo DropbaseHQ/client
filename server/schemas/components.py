@@ -22,14 +22,14 @@ class Input(BaseModel):
     display_rules: Optional[List[Dict]]
     on_change_rules: Optional[List[Dict]]
 
-    on_select: Optional[Callable[[int], int]]
-    on_click: Optional[Callable[[int], int]]
-    on_change: Optional[Callable[[int], int]]
+    on_select: Optional[str]
+    on_click: Optional[str]
+    on_change: Optional[str]
 
     # editable
-    options: Optional[Any]
+    options: Optional[str]
     visible: Optional[bool]
-    value: Optional[Any]
+    value: Optional[str]
 
 
 class Button(BaseModel):

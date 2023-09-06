@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.schemas.components import Button, CreateComponents, Input, UpdateComponents
+from server.utils.converter import get_class_properties
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +23,15 @@ def create_component(db: Session, request: CreateComponents):
 
 def update_component(db: Session, components_id: UUID, request: UpdateComponents):
     ComponentClass = component_type_to_schema_mapper[request.type]
-    ComponentClass(**request.property)
+    component = ComponentClass(**request.property)
+    request.property = component.dict()
     return crud.components.update_by_pk(db=db, pk=components_id, obj_in=request)
+
+
+def get_widget_components_and_props(db: Session, widget_id: UUID):
+    components = crud.components.get_widget_component(db, widget_id=widget_id)
+    column_props = get_class_properties(Input)
+    return {"schema": column_props, "values": components}
 
 
 # type_mapper = {"text": "str", "number": "int", "select": "str"}

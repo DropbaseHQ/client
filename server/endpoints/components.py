@@ -4,15 +4,22 @@ from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.components import create_component, update_component
+from server.controllers.components import (
+    create_component,
+    get_widget_components_and_props,
+    update_component,
+)
 from server.schemas.components import CreateComponents, UpdateComponents
 from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.connect import get_db
 
-authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
-router = APIRouter(
-    prefix="/components", tags=["components"], dependencies=[Depends(authorize_components_actions)]
-)
+# authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+router = APIRouter(prefix="/components", tags=["components"])
+
+
+@router.get("/widget/{widget_id}")
+def get_widget_components(widget_id: UUID, db: Session = Depends(get_db)):
+    return get_widget_components_and_props(db, widget_id=widget_id)
 
 
 @router.get("/{components_id}")

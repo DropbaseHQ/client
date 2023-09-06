@@ -4,16 +4,24 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.tables import create_table, update_table
-from server.schemas.tables import CreateTables, UpdateTables
+from server.controllers.tables import create_table, get_table, get_table_row, update_table
+from server.controllers.task.table import get_table_data
+from server.schemas.tables import CreateTables, QueryTable, TablesProperty, UpdateTables
 from server.utils.connect import get_db
+from server.utils.converter import get_class_properties
 
 router = APIRouter(prefix="/tables", tags=["tables"])
 
 
+@router.get("/properties")
+def get_table_properties_req():
+    return get_class_properties(TablesProperty)
+
+
 @router.get("/{tables_id}")
 def get_tables(tables_id: UUID, db: Session = Depends(get_db)):
-    return crud.tables.get_object_by_id_or_404(db, id=tables_id)
+    return get_table(db, tables_id)
+    # return crud.tables.get_object_by_id_or_404(db, id=tables_id)
 
 
 @router.post("/")
@@ -31,6 +39,11 @@ def delete_tables(tables_id: UUID, db: Session = Depends(get_db)):
     return crud.tables.remove(db, id=tables_id)
 
 
-# @router.post("/")
-# def get_table(request: QueryTable, db: Session = Depends(get_db)):
-#     return table.get_table_data(db, request)
+@router.get("/schema/{tables_id}")
+def get_table_schema(tables_id: UUID, db: Session = Depends(get_db)):
+    return get_table_row(db, tables_id)
+
+
+@router.post("/query")
+def get_table_req(request: QueryTable, db: Session = Depends(get_db)):
+    return get_table_data(db, request)

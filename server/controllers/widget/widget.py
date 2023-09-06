@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.task.source_column_helper import connect_to_user_db
+from server.controllers.widget.helpers import get_user_input
 
 
 class WidgetSchema(TypedDict):
@@ -53,3 +54,7 @@ def get_app_details(db: Session, app_id: str):
     components = crud.components.get_widget_component(db, app_id=app_id)
 
     return {"app": app, "sql": sql, "functions": functions, "components": components}
+
+
+def get_widget_schema(db, widget_id):
+    return get_user_input(db, widget_id)

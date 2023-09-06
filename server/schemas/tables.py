@@ -1,19 +1,19 @@
 from datetime import datetime
-from typing import Callable, List, Optional
+from typing import List, Literal, Optional
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class TablesProperty(BaseModel):
     # read_only
     # ui
-    code: str
-    type: str
+    code: str = Field(..., description="sql")
+    type: Literal["postgres", "python"]
     name: str
 
     # on row change
-    on_change: Optional[Callable[[int], int]]
+    on_change: Optional[str]
 
 
 class BaseTables(BaseModel):
@@ -42,6 +42,6 @@ class UpdateTables(BaseModel):
 
 
 class QueryTable(BaseModel):
-    page_id: UUID
+    table_id: UUID
     filters: Optional[List[dict]]
     sorts: Optional[List[dict]]

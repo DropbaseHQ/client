@@ -10,7 +10,7 @@ from server.schemas.columns import CreateColumns, UpdateColumns
 
 class CRUDColumns(CRUDBase[Columns, CreateColumns, UpdateColumns]):
     def get_table_columns(self, db: Session, table_id: UUID) -> List[Columns]:
-        db.query(Columns).filter(Columns.table_id == table_id).all()
+        return db.query(Columns).filter(Columns.table_id == table_id).all()
 
 
 columns = CRUDColumns(Columns)

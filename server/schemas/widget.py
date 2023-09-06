@@ -9,6 +9,7 @@ class WidgetProperty(BaseModel):
     # read_only
     # ui
     name: Optional[str]
+    description: Optional[str]
     error_message: Optional[str]
 
 
