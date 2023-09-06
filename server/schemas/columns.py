@@ -33,7 +33,6 @@ class PythonColumn(BaseModel):
 
 
 class BaseColumns(BaseModel):
-    name: str
     property: Union[PgColumn, PythonColumn]
     table_id: UUID
     type: str
@@ -45,13 +44,11 @@ class ReadColumns(BaseColumns):
 
 
 class CreateColumns(BaseModel):
-    name: Optional[str]
-    property: Union[PgColumn, PythonColumn]
+    property: dict
     table_id: UUID
     type: str
 
 
 class UpdateColumns(BaseModel):
-    name: Optional[str]
     type: str
-    property: Union[PgColumn, PythonColumn]
+    property: dict

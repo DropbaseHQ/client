@@ -45,19 +45,25 @@ class BaseComponents(BaseModel):
     type: str
 
 
-class ReadComponents(BaseComponents):
+class ReadComponents(BaseModel):
     id: UUID
+    property: Union[Input, Button]
+    widget_id: UUID
+    type: str
     date: datetime
 
 
-class CreateComponents(BaseComponents):
-    pass
+class CreateComponents(BaseModel):
+    property: dict
+    widget_id: UUID
+    type: str
 
 
 class UpdateComponents(BaseModel):
-    property: Union[Input, Button]
+    property: dict
+    type: str
 
 
-class ConvertComponents(BaseModel):
-    widget_id: str
-    property: Union[Input, Button]
+# class ConvertComponents(BaseModel):
+#     widget_id: str
+#     property: Union[Input, Button]

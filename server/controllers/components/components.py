@@ -16,6 +16,7 @@ component_type_to_schema_mapper = {"input": Input, "button": Button}
 def create_component(db: Session, request: CreateComponents):
     ComponentClass = component_type_to_schema_mapper[request.type]
     ComponentClass(**request.property)
+    # request.property = component
     return crud.components.create(db, obj_in=request)
 
 

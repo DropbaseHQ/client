@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.components import create_component, update_component
-from server.schemas.components import ConvertComponents, CreateComponents, UpdateComponents
+from server.schemas.components import CreateComponents, UpdateComponents
 from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.connect import get_db
 

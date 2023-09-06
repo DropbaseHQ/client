@@ -8,7 +8,6 @@ from .base import Base
 class Columns(Base):
     id = Column(UUID(as_uuid=True), server_default=text("uuid_generate_v4()"), primary_key=True)
 
-    name = Column(String, nullable=False)
     property = Column(JSONB)
     table_id = Column(UUID(as_uuid=True), ForeignKey("tables.id", ondelete="CASCADE"))
     type = Column(String)

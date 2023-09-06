@@ -20,6 +20,7 @@ def get_widget(widget_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/")
 def create_widget(request: CreateWidget, db: Session = Depends(get_db)):
+    request.name = request.property.name
     return crud.widget.create(db, obj_in=request)
 
 

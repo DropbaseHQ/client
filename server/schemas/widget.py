@@ -23,8 +23,10 @@ class ReadWidget(BaseWidget):
     date: datetime
 
 
-class CreateWidget(BaseWidget):
-    pass
+class CreateWidget(BaseModel):
+    name: Optional[str]
+    property: WidgetProperty
+    page_id: UUID
 
 
 class UpdateWidget(BaseModel):
