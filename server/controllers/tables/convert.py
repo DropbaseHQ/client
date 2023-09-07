@@ -12,6 +12,10 @@ load_dotenv()
 from server.controllers.task.source_column_helper import connect_to_user_db
 
 user_db_engine = connect_to_user_db()
+import openai
+
+openai.organization = os.getenv("OPENAI_ORG_ID")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 def parse_gpt_output(data: str) -> dict[str, PgColumnBaseProperty]:
@@ -29,10 +33,7 @@ def parse_gpt_output(data: str) -> dict[str, PgColumnBaseProperty]:
 
 
 def get_gpt_output(gpt_input: str, model: str = "gpt-3.5-turbo", temperature: float = 0.0) -> str:
-    import openai
 
-    openai.organization = os.getenv("OPENAI_ORG_ID")
-    openai.api_key = os.getenv("OPENAI_API_KEY")
     return str(
         openai.ChatCompletion.create(
             model=model,
