@@ -9,9 +9,7 @@ editable_inputs = ["input"]
 component_type_to_schema_mapper = {"input": Input, "button": Button}
 
 
-def get_user_input(db: Session, widget_id: UUID):
-    # get components for widget
-    components = crud.components.get_widget_component(db, widget_id)
+def get_user_input(components):
     # get user input for each component
     user_input = {}
     for component in components:

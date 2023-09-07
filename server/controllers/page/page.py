@@ -16,18 +16,29 @@ def get_page_schema(db: Session, page_id: UUID):
 
     # get select table schema
     tables = crud.tables.get_page_tables(db, page_id=page_id)
+    state = {}
     table_schema = {}
+    state["tables"] = {}
     for table in tables:
-        row_schema = get_row_schema(db, table.id)
+        # get columns
+        columns = crud.columns.get_table_columns(db, table.id)
+        row_schema = get_row_schema(columns)
         table_schema[table.name] = row_schema
+        # TODO: get only ui states
+        state["tables"][table.name] = {col.property["name"]: col.property for col in columns}
 
     # get user input schema
     widget = crud.widget.get_page_widget(db, page_id=page_id)
-    user_input = get_user_input(db, widget.id)
+    # get components for widget
+    components = crud.components.get_widget_component(db, widget.id)
+    user_input = get_user_input(components)
+    state["widget"] = {}
+    # TODO: get only ui states
+    state["widget"][widget.name] = {comp.property["name"]: comp.property for comp in components}
 
     # TODO:
     # get state
-    return {"tables": table_schema, "user_input": user_input}
+    return {"tables": table_schema, "user_input": user_input, "state": state}
 
 
 class DBSchema(TypedDict):

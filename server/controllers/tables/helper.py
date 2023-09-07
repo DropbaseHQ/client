@@ -8,9 +8,7 @@ from server.schemas.columns import PgColumn, PythonColumn
 column_type_to_schema_mapper = {"postgres": PgColumn, "python": PythonColumn}
 
 
-def get_row_schema(db: Session, table_id: UUID):
-    # get columns
-    columns = crud.columns.get_table_columns(db, table_id)
+def get_row_schema(columns):
     # convert to selected row input
     row_input = {}
     for column in columns:
