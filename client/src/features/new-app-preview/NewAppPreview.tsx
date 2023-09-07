@@ -8,7 +8,7 @@ import { newUserInput } from '@/features/new-app-state';
 
 export const NewAppPreview = () => {
 	const { isLoading, refetch, components, widget, isRefetching } = useGetWidgetPreview(
-		'29261240-d36e-4cf6-82ea-7dfb41ede6f1',
+		'62a43f32-89f6-4143-a8e9-57cbdf0889b1',
 	);
 
 	const [userInput, setUserInput] = useAtom(newUserInput) as any;

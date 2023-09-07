@@ -19,7 +19,7 @@ export const NewSmartTable = () => {
 	});
 
 	const { isLoading, rows, columns, header, tableName } = useTableData({
-		tableId: '05a2a44e-34ae-4b03-9dc2-a1b2b278ae34',
+		tableId: 'b37ba8d3-6f5f-47a0-9d98-d749ccb8d4a2',
 	});
 
 	const selectRow = useSetAtom(newSelectedRow);
@@ -29,7 +29,10 @@ export const NewSmartTable = () => {
 
 		const column = columns[columnName];
 
-		switch (column.type) {
+		console.log('COLUMN');
+		console.log(column);
+
+		switch (column?.type) {
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;

@@ -1,10 +1,10 @@
-from server import crud
 from uuid import UUID
+
 from sqlalchemy.orm import Session
-from server.utils.connect import get_db
-from server.schemas import CreateApp
-from fastapi import APIRouter, Depends
+
+from server import crud
 from server.models import User
+from server.schemas import CreateApp
 
 
 def get_user_apps(db: Session, user: User):

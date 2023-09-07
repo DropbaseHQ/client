@@ -1,18 +1,16 @@
-from uuid import UUID
-
-from sqlalchemy.orm import Session
-
 from server import crud
-from server.schemas.components import Button, Input
+from server.schemas.components import Button, InputBaseProperties
 
 editable_inputs = ["input"]
-component_type_to_schema_mapper = {"input": Input, "button": Button}
+component_type_to_schema_mapper = {"input": InputBaseProperties, "button": Button}
 
 
 def get_user_input(components):
     # get user input for each component
     user_input = {}
     for component in components:
+        print(component.type)
+        print(component.property)
         if component.type in editable_inputs:
             ComponentClass = component_type_to_schema_mapper[component.type]
             comp = ComponentClass(**component.property)
@@ -21,7 +19,7 @@ def get_user_input(components):
 
 
 input_pydantic_dtype_mapper = {"text": "str", "number": "float", "select": "str"}
-component_type_mapper = {"input": Input}
+component_type_mapper = {"input": InputBaseProperties}
 input_types = ["input"]
 
 

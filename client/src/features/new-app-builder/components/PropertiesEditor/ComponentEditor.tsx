@@ -16,7 +16,7 @@ import {
 	useUpdateComponentProperties,
 } from '@/features/new-app-builder/hooks';
 
-const WIDGET_ID = '29261240-d36e-4cf6-82ea-7dfb41ede6f1';
+const WIDGET_ID = '62a43f32-89f6-4143-a8e9-57cbdf0889b1';
 
 const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 	const { schema, refetch } = useGetComponentProperties(WIDGET_ID);

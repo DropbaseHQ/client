@@ -14,7 +14,7 @@ import { FormInput } from '@/components/FormInput';
 
 export const TableProperties = () => {
 	const { isLoading, properties, values, refetch } = useGetTable(
-		'05a2a44e-34ae-4b03-9dc2-a1b2b278ae34',
+		'b37ba8d3-6f5f-47a0-9d98-d749ccb8d4a2',
 	);
 
 	const mutation = useUpdateTableProperties({
@@ -38,7 +38,7 @@ export const TableProperties = () => {
 
 	const onSubmit = (formValues: any) => {
 		mutation.mutate({
-			tableId: '05a2a44e-34ae-4b03-9dc2-a1b2b278ae34',
+			tableId: 'b37ba8d3-6f5f-47a0-9d98-d749ccb8d4a2',
 			payload: formValues,
 		});
 	};

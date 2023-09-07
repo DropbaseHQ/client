@@ -17,7 +17,7 @@ import {
 } from '@/features/new-app-builder/hooks';
 
 const ColumnProperty = ({ id, property: properties }: any) => {
-	const { schema, refetch } = useGetColumnProperties('05a2a44e-34ae-4b03-9dc2-a1b2b278ae34');
+	const { schema, refetch } = useGetColumnProperties('b37ba8d3-6f5f-47a0-9d98-d749ccb8d4a2');
 
 	const methods = useForm();
 	const {
@@ -81,7 +81,7 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 };
 
 export const Columns = () => {
-	const { isLoading, values } = useGetColumnProperties('05a2a44e-34ae-4b03-9dc2-a1b2b278ae34');
+	const { isLoading, values } = useGetColumnProperties('b37ba8d3-6f5f-47a0-9d98-d749ccb8d4a2');
 
 	if (isLoading) {
 		return <Skeleton />;

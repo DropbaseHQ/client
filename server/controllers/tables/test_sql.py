@@ -4,7 +4,6 @@ from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.orm import Session
 
 from server.controllers.page import PageSchema, get_db_schema
-from server.controllers.task.source_column_helper import connect_to_user_db
 from server.controllers.task.source_column_model import col_names_list_to_dict_schema, get_parsed_schema
 from server.schemas.errors import LanguageErrorResponse
 from server.utils.helper import raise_language_exception
