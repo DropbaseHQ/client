@@ -1,6 +1,3 @@
-import { useLogin } from './hooks/useLogin';
-// import { Logo } from '@/icons/logo';
-import { useToast } from '@/lib/chakra-ui';
 import {
 	Box,
 	Button,
@@ -17,7 +14,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 
-// import { useResendConfirmEmail } from './hooks/useResendConfirmEmail';
+import { useLogin } from './hooks/useLogin';
+import { useToast } from '@/lib/chakra-ui';
 
 type FormValues = {
 	email: string;
@@ -28,7 +26,7 @@ export const Login = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
 
-	const [_, setDisplayEmailConfirmation] = useState(false);
+	const [, setDisplayEmailConfirmation] = useState(false);
 
 	const {
 		register,
@@ -49,33 +47,21 @@ export const Login = () => {
 				setDisplayEmailConfirmation(true);
 			}
 		},
-		onSuccess: (_) => {
+		onSuccess: () => {
 			setDisplayEmailConfirmation(false);
 			navigate('/apps');
 		},
 	});
 
-	// const {
-	// 	mutate: resendConfirmEmail,
-	// 	isLoading: resendIsLoading,
-	// 	isSuccess: resendIsSuccess,
-	// } = useResendConfirmEmail();
-
 	const onSubmit = handleSubmit((data) => {
 		mutate(data);
 	});
-
-	// const onResendConfirmEmail = () => {
-	// 	resendConfirmEmail({ email });
-	// };
 
 	return (
 		<Container display="flex" alignItems="center" h="100vh" maxW="lg">
 			<Stack spacing="8">
 				<Stack spacing="6">
 					<Stack spacing={{ base: '2', md: '3' }} textAlign="center">
-						{/* <Logo height={65} /> */}
-
 						<Heading size="sm">Log in to your account</Heading>
 						<Link to="/register">
 							<Text color="fg.muted" fontSize="sm" textDecoration="underline">
@@ -84,15 +70,7 @@ export const Login = () => {
 						</Link>
 					</Stack>
 				</Stack>
-				<Box
-					minW="md"
-					p="12"
-					bg="bg-surface"
-					boxShadow="sm"
-					borderRadius="md"
-					border="1px solid"
-					borderColor="bg-muted"
-				>
+				<Box minW="md" p="12" boxShadow="sm" borderRadius="md" borderWidth="1px">
 					<form onSubmit={onSubmit}>
 						<Stack spacing="6">
 							<Stack spacing="5">
@@ -135,21 +113,6 @@ export const Login = () => {
 							</Stack>
 						</Stack>
 					</form>
-					{/* {displayEmailConfirmation && (
-						<Flex mt="6" direction="column">
-							<Text color="orange" fontSize="sm">
-								You must first confirm your email before logging in.
-							</Text>
-							<Button
-								marginTop="4"
-								onClick={onResendConfirmEmail}
-								isLoading={resendIsLoading}
-								isDisabled={resendIsSuccess}
-							>
-								{resendIsSuccess ? 'Email sent' : 'Resend Confirmation Email'}
-							</Button>
-						</Flex>
-					)} */}
 				</Box>
 			</Stack>
 		</Container>

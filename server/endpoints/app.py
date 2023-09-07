@@ -25,8 +25,10 @@ def get_app(app_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/")
-def create_app(request: CreateApp, db: Session = Depends(get_db)):
-    return crud.app.create(db, request)
+def create_app(
+    request: CreateApp, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
+    return app_controller.create_app(db, request, user)
 
 
 @router.put("/{app_id}")
@@ -37,3 +39,8 @@ def update_app(app_id: UUID, request: UpdateApp, db: Session = Depends(get_db)):
 @router.delete("/{app_id}")
 def delete_app(app_id: UUID, db: Session = Depends(get_db)):
     return crud.app.remove(db, id=app_id)
+
+
+@router.get("/{app_id}/pages")
+def get_app_pages(app_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    return app_controller.get_app_pages(db, user, app_id)

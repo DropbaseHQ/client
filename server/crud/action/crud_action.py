@@ -10,7 +10,7 @@ from server.schemas.action import CreateAction, UpdateAction
 
 class CRUDAction(CRUDBase[Action, CreateAction, UpdateAction]):
     def get_page_action(self, db: Session, page_id: UUID) -> Action:
-        return db.query(Action).filter(Action.page_id == str(page_id)).one()
+        return db.query(Action).filter(Action.page_id == str(page_id)).one_or_none()
 
     def get_workspace_id(self, db: Session, action_id: UUID) -> Workspace:
         return (
