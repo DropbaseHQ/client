@@ -1,4 +1,4 @@
-FROM python:3.10-slim-buster
+FROM python:3.11-slim-buster
 
 # Install basic packages
 RUN apt-get update -y && apt-get install libffi-dev libmagic1 git -y \
@@ -9,6 +9,7 @@ WORKDIR /project
 # Install python libraries
 COPY requirements.txt requirements.txt
 
+RUN pip3 install --upgrade pip 
 RUN pip3 install --no-cache-dir --upgrade -r requirements.txt
 
 ADD . server/.
