@@ -8,7 +8,7 @@ from server.controllers.tables.convert import call_gpt
 from server.controllers.tables.helper import get_column_names, get_db_schema, get_row_schema
 from server.controllers.task.source_column_helper import connect_to_user_db
 from server.models.columns import Columns
-from server.schemas.columns import CreateColumns, PgColumn
+from server.schemas.columns import CreateColumns, PgColumnBaseProperty
 from server.schemas.tables import (
     ConvertToSmart,
     CreateTables,
@@ -89,16 +89,6 @@ def get_table_columns(user_db_engine, table_str):
     return list(res[0].keys())
 
 
-def create_column_record_from_name(db: Session, col_name: str, table_id: UUID) -> Columns:
-    column_obj = CreateColumns(
-        name=col_name,
-        property=PgColumn(name=col_name),
-        table_id=table_id,
-        type="postgres",
-    )
-    return crud.columns.create(db, obj_in=column_obj)
-
-
 def get_table_row(db: Session, table_id: UUID):
     return get_row_schema(db, table_id)
 
@@ -111,4 +101,20 @@ def convert_to_smart_table(db: Session, request: ConvertToSmart):
     column_names = get_column_names(user_db_engine, user_sql)
     smart_cols = call_gpt(user_sql, column_names, db_schema)
     # TODO: validate
-    return smart_cols
+    # TODO: get additional column metadata
+    columns = crud.columns.get_table_columns(db, table_id=table.id)
+    for col in columns:
+        col.property = smart_cols[col.name].dict()
+    db.commit()
+    user_db_engine.dispose()
+    return {"message": "success"}
+
+
+def create_column_record_from_name(db: Session, col_name: str, table_id: UUID) -> Columns:
+    column_obj = CreateColumns(
+        name=col_name,
+        property=PgColumnBaseProperty(name=col_name),
+        table_id=table_id,
+        type="postgres",
+    )
+    return crud.columns.create(db, obj_in=column_obj)
