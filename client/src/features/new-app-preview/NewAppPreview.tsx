@@ -1,28 +1,17 @@
-import {
-	FormControl,
-	FormErrorMessage,
-	FormLabel,
-	IconButton,
-	Skeleton,
-	Stack,
-	Text,
-} from '@chakra-ui/react';
+import { FormControl, FormLabel, IconButton, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { RefreshCw } from 'react-feather';
+import { useAtom } from 'jotai';
 
-import { ErrorMessage } from '@hookform/error-message';
-import { FormProvider, useForm } from 'react-hook-form';
 import { useGetWidgetPreview } from '@/features/new-app-preview/hooks';
-import { FormInput } from '@/components/FormInput';
+import { InputRenderer } from '@/components/FormInput';
+import { newUserInput } from '@/features/new-app-state';
 
 export const NewAppPreview = () => {
 	const { isLoading, refetch, components, widget, isRefetching } = useGetWidgetPreview(
 		'29261240-d36e-4cf6-82ea-7dfb41ede6f1',
 	);
 
-	const methods = useForm();
-	const {
-		formState: { errors },
-	} = methods;
+	const [userInput, setUserInput] = useAtom(newUserInput) as any;
 
 	return (
 		<Stack bg="white" h="full">
@@ -55,33 +44,31 @@ export const NewAppPreview = () => {
 						onClick={() => refetch()}
 					/>
 				</Stack>
-				<form>
-					<FormProvider {...methods}>
-						<Stack p="4">
-							{components.map((c: any) => {
-								const component = c.property;
+				<Stack p="4">
+					{components.map((c: any) => {
+						const component = c.property;
 
-								return (
-									<FormControl
-										isInvalid={!!errors?.[component.name]}
-										key={component.name}
-									>
-										<FormLabel>{component.label}</FormLabel>
+						return (
+							<FormControl key={component.name}>
+								<FormLabel>{component.label}</FormLabel>
 
-										<FormInput name={component.name} type={component.type} />
-										<ErrorMessage
-											errors={errors}
-											name={component.name}
-											render={({ message }) => (
-												<FormErrorMessage>{message}</FormErrorMessage>
-											)}
-										/>
-									</FormControl>
-								);
-							})}
-						</Stack>
-					</FormProvider>
-				</form>
+								<InputRenderer
+									value={userInput?.[component.name]}
+									name={component.name}
+									type={component.type}
+									onChange={(newValue: any) => {
+										setUserInput((oldInputs: any) => {
+											return {
+												...oldInputs,
+												[component.name]: newValue,
+											};
+										});
+									}}
+								/>
+							</FormControl>
+						);
+					})}
+				</Stack>
 			</Skeleton>
 		</Stack>
 	);
