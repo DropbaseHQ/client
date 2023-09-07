@@ -20,12 +20,13 @@ def get_page_schema(db: Session, page_id: UUID):
     table_schema = {}
     state["tables"] = {}
     for table in tables:
+        state["tables"][table.name] = table.property
         # get columns
         columns = crud.columns.get_table_columns(db, table.id)
         row_schema = get_row_schema(columns)
         table_schema[table.name] = row_schema
         # TODO: get only ui states
-        state["tables"][table.name] = {col.property["name"]: col.property for col in columns}
+        state["tables"][table.name]["columns"] = {col.property["name"]: col.property for col in columns}
 
     # get user input schema
     widget = crud.widget.get_page_widget(db, page_id=page_id)
@@ -34,7 +35,10 @@ def get_page_schema(db: Session, page_id: UUID):
     user_input = get_user_input(components)
     state["widget"] = {}
     # TODO: get only ui states
-    state["widget"][widget.name] = {comp.property["name"]: comp.property for comp in components}
+    state["widget"][widget.name] = widget.property
+    state["widget"][widget.name]["components"] = {
+        comp.property["name"]: comp.property for comp in components
+    }
 
     # TODO:
     # get state
