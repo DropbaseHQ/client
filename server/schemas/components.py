@@ -4,10 +4,24 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-# input_types = ['text', 'number', 'select']
+
+class InputDisplayProperties(BaseModel):
+    message: Optional[str]
+    message_type: Optional[str]
 
 
-class Input(BaseModel):
+class InputSharedProperties(BaseModel):
+    # editable
+    options: Optional[str]
+    visible: Optional[bool]
+    value: Optional[str]
+
+
+class ComponentStateProperty(InputDisplayProperties, InputSharedProperties):
+    pass
+
+
+class InputBaseProperties(BaseModel):
     # read_only
     # ui
     name: Optional[str]
@@ -28,10 +42,9 @@ class Input(BaseModel):
     on_click: Optional[str]
     on_change: Optional[str]
 
-    # editable
-    options: Optional[str]
-    visible: Optional[bool]
-    value: Optional[str]
+
+class Input(InputBaseProperties, InputDisplayProperties, InputSharedProperties):
+    pass
 
 
 class Button(BaseModel):

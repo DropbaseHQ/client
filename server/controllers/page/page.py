@@ -9,10 +9,16 @@ from server.controllers.tables.helper import get_row_schema
 from server.controllers.task.source_column_helper import connect_to_user_db
 from server.controllers.widget.helpers import get_user_input
 from server.models.user import User
-from server.schemas import ReadColumns, ReadComponents, ReadFunctions, ReadSQLs
+from server.schemas import ReadSQLs
+from server.schemas.columns import PgColumnStateProperty
+from server.schemas.components import ComponentStateProperty
+from server.schemas.tables import TableColumnStateProperty
+from server.schemas.widget import WidgetStateProperty
+from server.utils.converter import get_class_dict
 
 
 def get_page_schema(db: Session, page_id: UUID):
+    # TODO: get col states for table type
 
     # get select table schema
     tables = crud.tables.get_page_tables(db, page_id=page_id)
@@ -20,13 +26,14 @@ def get_page_schema(db: Session, page_id: UUID):
     table_schema = {}
     state["tables"] = {}
     for table in tables:
-        state["tables"][table.name] = table.property
+        table_props = get_class_dict(TableColumnStateProperty)
+        state["tables"][table.name] = {**table_props}
         # get columns
         columns = crud.columns.get_table_columns(db, table.id)
         row_schema = get_row_schema(columns)
         table_schema[table.name] = row_schema
-        # TODO: get only ui states
-        state["tables"][table.name]["columns"] = {col.property["name"]: col.property for col in columns}
+        column_props = get_class_dict(PgColumnStateProperty)
+        state["tables"][table.name]["columns"] = {col.property["name"]: column_props for col in columns}
 
     # get user input schema
     widget = crud.widget.get_page_widget(db, page_id=page_id)
@@ -35,9 +42,11 @@ def get_page_schema(db: Session, page_id: UUID):
     user_input = get_user_input(components)
     state["widget"] = {}
     # TODO: get only ui states
-    state["widget"][widget.name] = widget.property
+    widget_props = get_class_dict(WidgetStateProperty)
+    state["widget"][widget.name] = widget_props
+    component_props = get_class_dict(ComponentStateProperty)
     state["widget"][widget.name]["components"] = {
-        comp.property["name"]: comp.property for comp in components
+        comp.property["name"]: component_props for comp in components
     }
 
     # TODO:
