@@ -49,8 +49,6 @@ def get_page_schema(db: Session, page_id: UUID):
         comp.property["name"]: component_props for comp in components
     }
 
-    # TODO:
-    # get state
     return {"tables": table_schema, "user_input": user_input, "state": state}
 
 

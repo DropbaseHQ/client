@@ -3,7 +3,13 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.columns import CreateColumns, PgColumnBaseProperty, PythonColumn, UpdateColumns
+from server.schemas.columns import (
+    CreateColumns,
+    PgColumn,
+    PgColumnBaseProperty,
+    PythonColumn,
+    UpdateColumns,
+)
 from server.utils.converter import get_class_properties
 
 column_type_to_schema_mapper = {"postgres": PgColumnBaseProperty, "python": PythonColumn}
@@ -29,5 +35,5 @@ def get_table_columns_and_props(db: Session, table_id: UUID):
     for column in columns:
         values.append({"id": column.id, "property": column.property})
 
-    column_props = get_class_properties(PgColumnBaseProperty)
+    column_props = get_class_properties(PgColumn)
     return {"schema": column_props, "values": values}

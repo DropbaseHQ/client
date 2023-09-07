@@ -33,6 +33,7 @@ def get_table_data(db: Session, request: QueryTable):
         "data": data,
         # "schema": schema,
         "table_id": table.id,
+        "table_name": table.name,
         "columns": column_schema
         # "dataclass": row_dataclass,
     }

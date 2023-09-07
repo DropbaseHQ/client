@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.schemas.functions import CreateFunctions, UpdateFunctions
+from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.connect import get_db
-from server.utils.authorization import generate_resource_dependency, RESOURCES
 
 authorize_functions_actions = generate_resource_dependency(RESOURCES.FUNCTIONS)
 router = APIRouter(
@@ -21,6 +21,9 @@ def get_functions(functions_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/")
 def create_functions(request: CreateFunctions, db: Session = Depends(get_db)):
+    if request.name is None:
+        page_funcs = crud.functions.get_page_functions(db, page_id=request.page_id)
+        request.name = "function " + str(len(page_funcs) + 1)
     return crud.functions.create(db, obj_in=request)
 
 
@@ -32,3 +35,8 @@ def update_functions(functions_id: UUID, request: UpdateFunctions, db: Session =
 @router.delete("/{functions_id}")
 def delete_functions(functions_id: UUID, db: Session = Depends(get_db)):
     return crud.functions.remove(db, id=functions_id)
+
+
+@router.get("/page/{page_id}")
+def get_page_functions(page_id: UUID, db: Session = Depends(get_db)):
+    return crud.functions.get_page_functions(db, page_id=page_id)
