@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import Action, Workspace, Page, App
+from server.models import Action, App, Page, Workspace
 from server.schemas.action import CreateAction, UpdateAction
 
 

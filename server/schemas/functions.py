@@ -1,14 +1,15 @@
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
 
 
 class BaseFunctions(BaseModel):
+    name: Optional[str]
     code: str
-    action_id: UUID
-    type: str
+    page_id: UUID
+    type: Optional[str]
 
 
 class ReadFunctions(BaseFunctions):
@@ -21,6 +22,5 @@ class CreateFunctions(BaseFunctions):
 
 
 class UpdateFunctions(BaseModel):
+    name: Optional[str]
     code: Optional[str]
-    action_id: Optional[UUID]
-    type: Optional[str]

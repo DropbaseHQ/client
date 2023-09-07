@@ -17,7 +17,7 @@ map_ui_type_to_dtype = {
 # Returns UI classes with the 'type' attribute (like UIInput)
 def generate_typed_ui_classes(ui_classes: list[GeneratedUIComponent]):
     # Used for locals()
-    from server.controllers.components.ui_components import UIButton, UIInput, UIText
+    from server.controllers.components.schemas import UIButton, UIInput, UIText
 
     typed_components = []
     for ui_class in ui_classes:

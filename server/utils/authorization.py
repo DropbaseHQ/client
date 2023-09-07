@@ -1,13 +1,14 @@
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
+
 from server import crud
-from fastapi import APIRouter, Depends, HTTPException, status, Request
-from server.utils.connect import get_db
 from server.models import User
 from server.utils.authentication import get_current_user
+from server.utils.connect import get_db
 
 
 class RESOURCES:
-    ACTION = "action"
+    WIDGET = "widget"
     APP = "app"
     COMPONENTS = "components"
     FUNCTIONS = "functions"
@@ -16,11 +17,11 @@ class RESOURCES:
     SOURCE = "source"
     USER = "user"
     WORKSPACE = "workspace"
-    SQLS = "sqls"
+    TABLES = "tables"
 
 
 resource_query_mapper = {
-    RESOURCES.ACTION: crud.action,
+    RESOURCES.WIDGET: crud.widget,
     RESOURCES.APP: crud.app,
     RESOURCES.COMPONENTS: crud.components,
     RESOURCES.FUNCTIONS: crud.functions,
@@ -29,7 +30,7 @@ resource_query_mapper = {
     RESOURCES.SOURCE: crud.source,
     RESOURCES.USER: crud.user,
     RESOURCES.WORKSPACE: crud.workspace,
-    RESOURCES.SQLS: crud.sqls,
+    RESOURCES.TABLES: crud.tables,
 }
 
 

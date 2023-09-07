@@ -1,23 +1,25 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response, HTTPException
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.components import CreateComponents, UpdateComponents, ConvertComponents
-from server.utils.connect import get_db
-from server.controllers.components import components
-from server.utils.authorization import generate_resource_dependency, RESOURCES
-
-authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
-router = APIRouter(
-    prefix="/components", tags=["components"], dependencies=[Depends(authorize_components_actions)]
+from server.controllers.components import (
+    create_component,
+    get_widget_components_and_props,
+    update_component,
 )
+from server.schemas.components import CreateComponents, UpdateComponents
+from server.utils.authorization import RESOURCES, generate_resource_dependency
+from server.utils.connect import get_db
+
+# authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+router = APIRouter(prefix="/components", tags=["components"])
 
 
-@router.post("/convert")
-def convert_components(request: ConvertComponents, response: Response, db: Session = Depends(get_db)):
-    return components.convert_components(request, response)
+@router.get("/widget/{widget_id}")
+def get_widget_components(widget_id: UUID, db: Session = Depends(get_db)):
+    return get_widget_components_and_props(db, widget_id=widget_id)
 
 
 @router.get("/{components_id}")
@@ -27,14 +29,19 @@ def get_components(components_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/")
 def create_components(request: CreateComponents, db: Session = Depends(get_db)):
-    return components.create_components(db, request)
+    return create_component(db, request)
 
 
 @router.put("/{components_id}")
 def update_components(components_id: UUID, request: UpdateComponents, db: Session = Depends(get_db)):
-    return components.update_components(db, request, components_id)
+    return update_component(db, components_id, request)
 
 
 @router.delete("/{components_id}")
 def delete_components(components_id: UUID, db: Session = Depends(get_db)):
     return crud.components.remove(db, id=components_id)
+
+
+# @router.post("/convert")
+# def convert_components(request: ConvertComponents, response: Response, db: Session = Depends(get_db)):
+#     return components.convert_components(request, response)
