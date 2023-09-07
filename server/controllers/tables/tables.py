@@ -8,17 +8,23 @@ from server.controllers.tables.helper import get_row_schema
 from server.controllers.task.source_column_helper import connect_to_user_db
 from server.models.columns import Columns
 from server.schemas.columns import CreateColumns, PgColumn
-from server.schemas.tables import CreateTables, ReadTables, TablesProperty, UpdateTables
+from server.schemas.tables import (
+    CreateTables,
+    ReadTables,
+    TablesBaseProperty,
+    TablesProperty,
+    UpdateTables,
+)
 from server.utils.converter import get_class_properties
 
 
 def get_table_properties():
-    return get_class_properties(TablesProperty)
+    return get_class_properties(TablesBaseProperty)
 
 
 def get_table(db, table_id: UUID):
     table = crud.tables.get_object_by_id_or_404(db, id=table_id)
-    table_props = get_class_properties(TablesProperty)
+    table_props = get_class_properties(TablesBaseProperty)
     return {"properties": table_props, "values": table.property}
 
 

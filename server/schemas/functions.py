@@ -6,9 +6,10 @@ from pydantic import BaseModel
 
 
 class BaseFunctions(BaseModel):
+    name: Optional[str]
     code: str
     page_id: UUID
-    type: str
+    type: Optional[str]
 
 
 class ReadFunctions(BaseFunctions):
@@ -21,6 +22,5 @@ class CreateFunctions(BaseFunctions):
 
 
 class UpdateFunctions(BaseModel):
+    name: Optional[str]
     code: Optional[str]
-    page_id: Optional[UUID]
-    type: Optional[str]

@@ -4,14 +4,14 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.components import Button, CreateComponents, Input, UpdateComponents
+from server.schemas.components import Button, CreateComponents, InputBaseProperties, UpdateComponents
 from server.utils.converter import get_class_properties
 
 logger = logging.getLogger(__name__)
 
 
 editable_inputs = ["input"]
-component_type_to_schema_mapper = {"input": Input, "button": Button}
+component_type_to_schema_mapper = {"input": InputBaseProperties, "button": Button}
 
 
 def create_component(db: Session, request: CreateComponents):
@@ -30,7 +30,7 @@ def update_component(db: Session, components_id: UUID, request: UpdateComponents
 
 def get_widget_components_and_props(db: Session, widget_id: UUID):
     components = crud.components.get_widget_component(db, widget_id=widget_id)
-    column_props = get_class_properties(Input)
+    column_props = get_class_properties(InputBaseProperties)
     return {"schema": column_props, "values": components}
 
 

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.widget import CreateWidget, UpdateWidget, WidgetProperty
+from server.schemas.widget import CreateWidget, UpdateWidget, WidgetBaseProperty
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
 
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/widget", tags=["widget"])
 @router.get("/{widget_id}")
 def get_widget(widget_id: UUID, db: Session = Depends(get_db)):
     widget = crud.widget.get_object_by_id_or_404(db, id=widget_id)
-    widget_props = get_class_properties(WidgetProperty)
+    widget_props = get_class_properties(WidgetBaseProperty)
     return {"schema": widget_props, "values": widget}
 
 

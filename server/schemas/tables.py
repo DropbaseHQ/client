@@ -5,7 +5,16 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 
-class TablesProperty(BaseModel):
+class TableDisplayProperty(BaseModel):
+    message: Optional[str]
+    message_type: Optional[str]
+
+
+class TableColumnStateProperty(TableDisplayProperty):
+    pass
+
+
+class TablesBaseProperty(BaseModel):
     # read_only
     # ui
     code: str = Field(..., description="sql")
@@ -14,6 +23,10 @@ class TablesProperty(BaseModel):
 
     # on row change
     on_change: Optional[str]
+
+
+class TablesProperty(TablesBaseProperty, TableDisplayProperty):
+    pass
 
 
 class BaseTables(BaseModel):
@@ -32,13 +45,13 @@ class ReadTables(BaseTables):
 
 class CreateTables(BaseModel):
     name: Optional[str]
-    property: TablesProperty
+    property: TablesBaseProperty
     page_id: UUID
 
 
 class UpdateTables(BaseModel):
     name: Optional[str]
-    property: TablesProperty
+    property: TablesBaseProperty
 
 
 class QueryTable(BaseModel):

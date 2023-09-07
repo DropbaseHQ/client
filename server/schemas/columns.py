@@ -4,42 +4,22 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-# pg_types = ["TEXT",
-#             "VARCHAR",
-#             "CHAR",
-#             "CHARACTER",
-#             "STRING",
-#             "BINARY",
-#             "VARBINARY",
-#             "INTEGER",
-#             "INT",
-#             "BIGINT",
-#             "SMALLINT",
-#             "TINYINT",
-#             "BYTEINT",
-#             "REAL",
-#             "FLOAT",
-#             "FLOAT4",
-#             "FLOAT8",
-#             "DOUBLE",
-#             "DOUBLE PRECISION",
-#             "DECIMAL",
-#             "NUMERIC",
-#             "BOOLEAN",
-#             "DATE",
-#             "TIME",
-#             "DATETIME",
-#             "TIMESTAMP",
-#             "TIMESTAMP_LTZ",
-#             "TIMESTAMP_NTZ",
-#             "TIMESTAMP_TZ",
-#             "VARIANT",
-#             "OBJECT",
-#             "ARRAY"
-#             ]
+
+class PgColumnDisplayProperty(BaseModel):
+    message: Optional[str]
+    message_type: Optional[str]
 
 
-class PgColumn(BaseModel):
+class PgColumnSharedProperty(BaseModel):
+    editable: Optional[bool]
+    hidden: Optional[bool]
+
+
+class PgColumnStateProperty(PgColumnDisplayProperty, PgColumnSharedProperty):
+    pass
+
+
+class PgColumnBaseProperty(BaseModel):
     name: str
     type: Optional[
         Literal[
@@ -88,12 +68,9 @@ class PgColumn(BaseModel):
     nullable: bool = True
     unique: bool = False
 
-    # table display specific
-    editable: bool = False
-    hidden: bool = False
 
-    class Config:
-        orm_mode = True
+class PgColumn(PgColumnBaseProperty, PgColumnSharedProperty, PgColumnDisplayProperty):
+    pass
 
 
 class PythonColumn(BaseModel):
