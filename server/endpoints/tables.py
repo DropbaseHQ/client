@@ -4,9 +4,15 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.tables import create_table, get_table, get_table_row, update_table
+from server.controllers.tables import (
+    convert_to_smart_table,
+    create_table,
+    get_table,
+    get_table_row,
+    update_table,
+)
 from server.controllers.task.table import get_table_data
-from server.schemas.tables import CreateTables, QueryTable, TablesProperty, UpdateTables
+from server.schemas.tables import ConvertToSmart, CreateTables, QueryTable, TablesProperty, UpdateTables
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
 
@@ -46,3 +52,8 @@ def get_table_schema(tables_id: UUID, db: Session = Depends(get_db)):
 @router.post("/query")
 def get_table_req(request: QueryTable, db: Session = Depends(get_db)):
     return get_table_data(db, request)
+
+
+@router.post("/convert")
+def convert_to_smart_req(request: ConvertToSmart, db: Session = Depends(get_db)):
+    return convert_to_smart_table(db, request)

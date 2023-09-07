@@ -68,5 +68,50 @@ def get_table_pydantic_model(db, table_id):
     return model_str
 
 
-# model_str = get_pydantic_model(db, table_id)
-# print(model_str)
+from typing import TypedDict
+
+from sqlalchemy import inspect
+from sqlalchemy.sql import text
+
+
+class GPTSchema(TypedDict):
+    metadata: dict[str, str]
+    schema: dict[str, dict[str, dict[str, dict]]]
+
+
+def get_db_schema(user_db_engine) -> GPTSchema:
+    inspector = inspect(user_db_engine)
+    schemas = inspector.get_schema_names()
+    default_search_path = inspector.default_schema_name
+
+    database_structure: GPTSchema = {
+        "metadata": {
+            "default_schema": default_search_path,
+        },
+        "schema": {},
+    }
+
+    for schema in schemas:
+        if schema == "information_schema":
+            continue
+        tables = inspector.get_table_names(schema=schema)
+        schema_tables: dict[str, list[str]] = {}
+
+        for table_name in tables:
+            columns = inspector.get_columns(table_name, schema=schema)
+            column_names = [column["name"] for column in columns]
+            schema_tables[table_name] = column_names
+        database_structure["schema"][schema] = schema_tables
+
+    # TODO also return full schema (all column metadata)
+    return database_structure
+
+
+def get_column_names(user_db_engine, user_sql: str) -> list[str]:
+    if user_sql == "":
+        return []
+    user_sql = user_sql.strip("\n ;")
+    user_sql = f"SELECT * FROM ({user_sql}) AS q LIMIT 1"
+    with user_db_engine.connect().execution_options(autocommit=True) as conn:
+        col_names = list(conn.execute(text(user_sql)).keys())
+    return col_names

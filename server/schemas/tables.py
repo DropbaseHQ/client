@@ -58,3 +58,7 @@ class QueryTable(BaseModel):
     table_id: UUID
     filters: Optional[List[dict]]
     sorts: Optional[List[dict]]
+
+
+class ConvertToSmart(BaseModel):
+    table_id: UUID

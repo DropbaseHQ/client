@@ -1,13 +1,10 @@
-from uuid import UUID
-
-# NOTE:  this file mimics tasks
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
 from server import crud
 from server.controllers.task.source_column_helper import connect_to_user_db
 from server.controllers.task.source_column_model import col_names_list_to_dict_schema, get_parsed_schema
-from server.schemas.tables import QueryTable
+from server.schemas.tables import ConvertToSmart, QueryTable
 
 
 def get_table_data(db: Session, request: QueryTable):
@@ -31,11 +28,9 @@ def get_table_data(db: Session, request: QueryTable):
     return {
         "header": col_names,
         "data": data,
-        # "schema": schema,
         "table_id": table.id,
         "table_name": table.name,
-        "columns": column_schema
-        # "dataclass": row_dataclass,
+        "columns": column_schema,
     }
 
 
