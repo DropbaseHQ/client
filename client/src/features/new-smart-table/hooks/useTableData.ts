@@ -37,6 +37,8 @@ export const useTableData = ({ tableId, filters = [], sorts = [] }: any) => {
 				rows,
 				columns: response.columns,
 				header: response.header,
+				tableName: response.table_name,
+				tableId: response.table_id,
 			};
 		}
 

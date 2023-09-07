@@ -1,14 +1,28 @@
+import { useSetAtom } from 'jotai';
 import { Center, Spinner, Stack, Text } from '@chakra-ui/react';
+import { useState } from 'react';
 
-import DataEditor, { GridCellKind, GridColumnIcon } from '@glideapps/glide-data-grid';
+import DataEditor, {
+	CompactSelection,
+	GridCellKind,
+	GridColumnIcon,
+} from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import { useTableData } from './hooks/useTableData';
+import { newSelectedRow } from '@/features/new-app-state';
 
 export const NewSmartTable = () => {
-	const { isLoading, rows, columns, header } = useTableData({
+	const [selection, setSelection] = useState({
+		rows: CompactSelection.empty(),
+		columns: CompactSelection.empty(),
+	});
+
+	const { isLoading, rows, columns, header, tableName } = useTableData({
 		tableId: '05a2a44e-34ae-4b03-9dc2-a1b2b278ae34',
 	});
+
+	const selectRow = useSetAtom(newSelectedRow);
 
 	const gridColumns = header.map((columnName: any) => {
 		let icon = GridColumnIcon.HeaderString;
@@ -69,6 +83,18 @@ export const NewSmartTable = () => {
 		};
 	};
 
+	const handleSetSelection = (newSelection: any) => {
+		const selectedRow = newSelection.rows.toArray()?.[0];
+
+		setSelection(newSelection);
+
+		selectRow(
+			typeof selectedRow === 'number'
+				? ({ [tableName]: { ...rows[selectedRow] } } as any)
+				: {},
+		);
+	};
+
 	return (
 		<Stack h="full" spacing="0">
 			{isLoading ? (
@@ -86,6 +112,8 @@ export const NewSmartTable = () => {
 					rowMarkers="both"
 					smoothScrollX
 					smoothScrollY
+					onGridSelectionChange={handleSetSelection}
+					gridSelection={selection}
 				/>
 			)}
 		</Stack>

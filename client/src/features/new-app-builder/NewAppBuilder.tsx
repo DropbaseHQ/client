@@ -7,6 +7,7 @@ import { AppBuilderNavbar } from './components/Navbar';
 import { PropertiesEditor } from './components/PropertiesEditor';
 import { NewAppPreview } from '@/features/new-app-preview';
 import { NewSmartTable } from '@/features/new-smart-table';
+import { NewAppState } from '@/features/new-app-state';
 
 export const NewAppBuilder = () => {
 	return (
@@ -29,7 +30,15 @@ export const NewAppBuilder = () => {
 					<PanelHandle direction="horizontal" />
 
 					<Panel>
-						<PropertiesEditor />
+						<PanelGroup direction="horizontal">
+							<Panel defaultSize={20}>
+								<NewAppState />
+							</Panel>
+							<PanelHandle direction="vertical" />
+							<Panel>
+								<PropertiesEditor />
+							</Panel>
+						</PanelGroup>
 					</Panel>
 				</PanelGroup>
 			</Box>
