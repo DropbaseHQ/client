@@ -9,7 +9,6 @@ WORKDIR /project
 # Install python libraries
 COPY requirements.txt requirements.txt
 
-RUN pip3 install --upgrade pip 
 RUN pip3 install --no-cache-dir --upgrade -r requirements.txt
 
 ADD . server/.
