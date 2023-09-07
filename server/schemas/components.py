@@ -1,15 +1,17 @@
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel
+
+# input_types = ['text', 'number', 'select']
 
 
 class Input(BaseModel):
     # read_only
     # ui
     name: Optional[str]
-    type: Optional[str]
+    type: Literal["text", "number", "select"]
     label: Optional[str]
     # ui logic
     required: Optional[bool]
@@ -34,7 +36,7 @@ class Input(BaseModel):
 
 class Button(BaseModel):
     name: Optional[str]
-    on_click: Optional[Callable[[int], int]]
+    on_click: Optional[str]
     # editable
     visible: Optional[bool]
 

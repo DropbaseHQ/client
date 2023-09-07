@@ -85,7 +85,7 @@ def get_table_columns(user_db_engine, table_str):
 def create_column_record_from_name(db: Session, col_name: str, table_id: UUID) -> Columns:
     column_obj = CreateColumns(
         name=col_name,
-        property=PgColumn(name=col_name, type="postgres"),
+        property=PgColumn(name=col_name),
         table_id=table_id,
         type="postgres",
     )

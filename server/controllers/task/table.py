@@ -19,9 +19,6 @@ def get_table_data(db: Session, request: QueryTable):
     for column in columns:
         column_schema[column.property["name"]] = column.property
 
-    # schema, header = get_table_schema(user_db_engine, table.property['code'])
-    # row_dataclass = compose_classes_from_row_data(schema)
-
     # apply filters
     filter_sql, join_filters = apply_filters(table.property["code"], request.filters, request.sorts)
 

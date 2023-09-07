@@ -12,9 +12,6 @@ class Components(Base):
     widget_id = Column(UUID(as_uuid=True), ForeignKey("widget.id", ondelete="CASCADE"))
     type = Column(String)
 
-    # code = Column(String)
-    # dataclass = Column(String)
-
     date = Column(TIMESTAMP, server_default=func.now())
 
     __tablename__ = "components"

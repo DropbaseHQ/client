@@ -42,7 +42,7 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 		mutation.mutate({
 			columnId: id,
 			payload: formValues,
-			type: properties.type,
+			type: 'postgres',
 		});
 	};
 

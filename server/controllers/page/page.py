@@ -1,32 +1,47 @@
 from typing import TypedDict
+from uuid import UUID
 
 from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
 from server import crud
+from server.controllers.tables.helper import get_row_schema
 from server.controllers.task.source_column_helper import connect_to_user_db
+from server.controllers.widget.helpers import get_user_input
 from server.models.user import User
 from server.schemas import ReadColumns, ReadComponents, ReadFunctions, ReadSQLs
 
 
-class PageSchema(TypedDict):
+def get_page_schema(db: Session, page_id: UUID):
+
+    # get select table schema
+    tables = crud.tables.get_page_tables(db, page_id=page_id)
+    table_schema = {}
+    for table in tables:
+        row_schema = get_row_schema(db, table.id)
+        table_schema[table.name] = row_schema
+
+    # get user input schema
+    widget = crud.widget.get_page_widget(db, page_id=page_id)
+    user_input = get_user_input(db, widget.id)
+
+    # TODO:
+    # get state
+    return {"tables": table_schema, "user_input": user_input}
+
+
+class DBSchema(TypedDict):
     metadata: dict[str, str]
     schema: dict[str, dict[str, dict[str, dict]]]
 
 
-def get_page_schema() -> PageSchema:
-    # connection_str = f"postgresql+psycopg2://dropmail:dropmail@dropmail.cbwxplfobdd5.us-west-1.rds.amazonaws.com:5432/dropmail"
-    # engine = create_engine(connection_str)
+def get_db_schema() -> DBSchema:
     engine = connect_to_user_db()
-    return get_db_schema(engine)
-
-
-def get_db_schema(engine) -> PageSchema:
     inspector = inspect(engine)
     schemas = inspector.get_schema_names()
     default_search_path = inspector.default_schema_name
 
-    database_structure: PageSchema = {
+    database_structure: DBSchema = {
         "metadata": {
             "default_schema": default_search_path,
         },

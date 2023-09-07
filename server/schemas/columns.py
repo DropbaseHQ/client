@@ -1,13 +1,80 @@
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Any, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel
 
+# pg_types = ["TEXT",
+#             "VARCHAR",
+#             "CHAR",
+#             "CHARACTER",
+#             "STRING",
+#             "BINARY",
+#             "VARBINARY",
+#             "INTEGER",
+#             "INT",
+#             "BIGINT",
+#             "SMALLINT",
+#             "TINYINT",
+#             "BYTEINT",
+#             "REAL",
+#             "FLOAT",
+#             "FLOAT4",
+#             "FLOAT8",
+#             "DOUBLE",
+#             "DOUBLE PRECISION",
+#             "DECIMAL",
+#             "NUMERIC",
+#             "BOOLEAN",
+#             "DATE",
+#             "TIME",
+#             "DATETIME",
+#             "TIMESTAMP",
+#             "TIMESTAMP_LTZ",
+#             "TIMESTAMP_NTZ",
+#             "TIMESTAMP_TZ",
+#             "VARIANT",
+#             "OBJECT",
+#             "ARRAY"
+#             ]
+
 
 class PgColumn(BaseModel):
     name: str
-    type: str = None
+    type: Literal[
+        "TEXT",
+        "VARCHAR",
+        "CHAR",
+        "CHARACTER",
+        "STRING",
+        "BINARY",
+        "VARBINARY",
+        "INTEGER",
+        "INT",
+        "BIGINT",
+        "SMALLINT",
+        "TINYINT",
+        "BYTEINT",
+        "REAL",
+        "FLOAT",
+        "FLOAT4",
+        "FLOAT8",
+        "DOUBLE",
+        "DOUBLE PRECISION",
+        "DECIMAL",
+        "NUMERIC",
+        "BOOLEAN",
+        "DATE",
+        "TIME",
+        "DATETIME",
+        "TIMESTAMP",
+        "TIMESTAMP_LTZ",
+        "TIMESTAMP_NTZ",
+        "TIMESTAMP_TZ",
+        "VARIANT",
+        "OBJECT",
+        "ARRAY",
+    ]
 
     schema_name: str = None
     table_name: str = None
@@ -22,7 +89,6 @@ class PgColumn(BaseModel):
     # table display specific
     editable: bool = False
     hidden: bool = False
-    key_column: str = None
 
     class Config:
         orm_mode = True

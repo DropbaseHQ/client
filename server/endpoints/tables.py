@@ -21,7 +21,6 @@ def get_table_properties_req():
 @router.get("/{tables_id}")
 def get_tables(tables_id: UUID, db: Session = Depends(get_db)):
     return get_table(db, tables_id)
-    # return crud.tables.get_object_by_id_or_404(db, id=tables_id)
 
 
 @router.post("/")
