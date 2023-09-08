@@ -4,16 +4,7 @@ import io
 import traceback
 
 
-def exec_code(run_code, user_input, row, state):
-    def call_function_with_auto_arguments(func, argument_mapper):
-        """Defined here so this function is available in locals()"""
-        sig = inspect.signature(func)
-        kwargs = {}
-        for param_name, param in sig.parameters.items():
-            if param.annotation in argument_mapper:
-                kwargs[param_name] = argument_mapper[param.annotation]
-        return func(**kwargs)
-
+def exec_code(run_code, user_input, tables, state):
     ldic = {"result": "", "stdout": "", "traceback": "", "status": "", "type": "python", **locals()}
     stdout_ = io.StringIO()  # Create StringIO object
     try:

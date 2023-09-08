@@ -23,10 +23,13 @@ def run_task(request: RunTask, response: Response, db: Session):
 
         print(executable_code)
         # run code
-        res = exec_code(
-            executable_code, request.state["user_input"], request.state["tables"], request.state["state"]
-        )
-        return RunCodeResponse(**res)
+        tables = request.state["tables"]
+        user_input = request.state["user_input"]
+        state = request.state["state"]
+        res = exec_code(executable_code, user_input, tables, state)
+        print(res["result"])
+        # res = RunCodeResponse(**res)
+        return res["result"]
     except Exception as e:
         print(e)
         res = {
@@ -63,7 +66,7 @@ def get_tables_states(db, page_id):
         table_state += f"    {table.name}: TableDisplayProperty\n"
 
     final_str = "from pydantic import BaseModel\n"
-    final_str += "from typing import Any, Optional, Literal\n"
+    final_str += "from typing import Any, Optional, Literal, List, Dict\n"
 
     for model in table_row_models:
         final_str += model
@@ -85,30 +88,14 @@ def get_widget_states(db, widget_id: UUID):
 
     widget_components_state = "class WidgetComponents(BaseModel):\n"
     for comp in components:
-        widget_components_state += f"    {comp.property['name']}: InputBaseProperties\n"
+        widget_components_state += f"    {comp.property['name']}: InputDisplayProperties\n"
 
-    final_str = widget_components_state
+    final_str = """class InputDisplayProperties(BaseModel):
+    message: Optional[str]
+    message_type: Optional[str]\n"""
 
-    final_str += """class InputBaseProperties(BaseModel):
-    # read_only
-    # ui
-    name: Optional[str]
-    type: Literal["text", "number", "select"]
-    label: Optional[str]
-    # ui logic
-    required: Optional[bool]
-    validation: Optional[str]
-    # ui options
-    default: Optional[str]
-    placeholder: Optional[str]
-    # ui events
-    rules: Optional[List[Dict]]
-    display_rules: Optional[List[Dict]]
-    on_change_rules: Optional[List[Dict]]
+    final_str += widget_components_state
 
-    on_select: Optional[str]
-    on_click: Optional[str]
-    on_change: Optional[str]\n"""
     final_str += """class Widget(BaseModel):
     components: WidgetComponents
     message: str\n"""
@@ -130,3 +117,60 @@ def get_function_code(functions: list[ReadFunctions]):
     for func in functions:
         final_str += func.code
     return final_str
+
+
+# return {
+# 	"tables": {
+# 		"table1": {
+# 			"message": None,
+# 			"message_type": None,
+# 			"columns": {
+# 				"name": {
+# 					"editable": None,
+# 					"hidden": None,
+# 					"message": None,
+# 					"message_type": None,
+# 				},
+# 				"email": {
+# 					"editable": None,
+# 					"hidden": None,
+# 					"message": None,
+# 					"message_type": None,
+# 				},
+# 				"age": {
+# 					"editable": None,
+# 					"hidden": None,
+# 					"message": None,
+# 					"message_type": None,
+# 				},
+# 				"customer_id": {
+# 					"editable": None,
+# 					"hidden": None,
+# 					"message": None,
+# 					"message_type": None,
+# 				},
+# 				"id": {
+# 					"editable": None,
+# 					"hidden": None,
+# 					"message": None,
+# 					"message_type": None,
+# 				},
+# 			},
+# 		},
+# 	},
+# 	"widget": {
+# 		"widget": {
+# 			"message": 'Some random warning message below widget',
+# 			"message_type": 'warning',
+# 			"components": {
+# 				"email": {
+# 					"options": None,
+# 					"visible": True,
+# 					"value": 'az@dropbase.io',
+# 					"message": 'Some random message below component',
+# 					"message_type": None,
+# 				},
+# 			},
+# 		},
+# 	},
+# }
