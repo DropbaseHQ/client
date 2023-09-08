@@ -18,18 +18,9 @@ openai.organization = os.getenv("OPENAI_ORG_ID")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
-def parse_gpt_output(data: str) -> dict[str, PgColumnBaseProperty]:
-    # Returns [] if no choices are returned
-    output_str = json.loads(data).get("choices", [{"message": {"content": "{}"}}])[0]["message"][
-        "content"
-    ]
-    raw_cols = json.loads(output_str)
-    smart_cols = {}
-    for name, col in raw_cols.items():
-        smart_cols[name] = PgColumnBaseProperty(
-            name=name, schema_name=col["schema"], table_name=col["table"], columns_name=col["column"]
-        )
-    return smart_cols
+def parse_gpt_output(data: str) -> dict[str, dict]:
+    # Returns {} if no choices are returned
+    return json.loads(data).get("choices", [{"message": {"content": "{}"}}])[0]["message"]["content"]
 
 
 def get_gpt_output(gpt_input: str, model: str = "gpt-3.5-turbo", temperature: float = 0.0) -> str:

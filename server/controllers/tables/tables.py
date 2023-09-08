@@ -99,9 +99,19 @@ def convert_to_smart_table(db: Session, request: ConvertToSmart):
     db_schema = get_db_schema(user_db_engine)
     user_sql = table.property["code"]
     column_names = get_column_names(user_db_engine, user_sql)
-    smart_cols = call_gpt(user_sql, column_names, db_schema)
-    # TODO: validate
-    # TODO: get additional column metadata
+    smart_col_data = call_gpt(user_sql, column_names, db_schema)
+
+    try:
+        validate_smart_cols(smart_col_paths)
+    except Exception:
+        return {"message": "failure"}
+    
+    fill_smart_col_data(smart_col_data)
+
+    smart_cols = {}
+    for col, col_data in smart_col_data:
+        smart_cols[col] = PgColumnBaseProperty(**col_data)
+
     columns = crud.columns.get_table_columns(db, table_id=table.id)
     for col in columns:
         col.property = smart_cols[col.name].dict()
