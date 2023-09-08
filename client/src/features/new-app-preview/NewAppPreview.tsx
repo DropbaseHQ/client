@@ -1,20 +1,41 @@
-import { FormControl, FormLabel, IconButton, Skeleton, Stack, Text } from '@chakra-ui/react';
+import {
+	Alert,
+	AlertIcon,
+	FormControl,
+	FormHelperText,
+	FormLabel,
+	IconButton,
+	Skeleton,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
 import { RefreshCw } from 'react-feather';
-import { useAtom } from 'jotai';
+import { useParams } from 'react-router-dom';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { useGetWidgetPreview } from '@/features/new-app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
-import { newUserInput } from '@/features/new-app-state';
+import {
+	widgetComponentsAtom,
+	useInitializeWidgetState,
+	allWidgetStateAtom,
+} from '@/features/new-app-state';
+
+const WIDGET_ID = '62a43f32-89f6-4143-a8e9-57cbdf0889b1';
 
 export const NewAppPreview = () => {
-	const { isLoading, refetch, components, widget, isRefetching } = useGetWidgetPreview(
-		'62a43f32-89f6-4143-a8e9-57cbdf0889b1',
-	);
+	const { pageId } = useParams();
+	const { isLoading, refetch, components, widget, isRefetching } = useGetWidgetPreview(WIDGET_ID);
 
-	const [userInput, setUserInput] = useAtom(newUserInput) as any;
+	useInitializeWidgetState({ widgetId: widget?.name, pageId });
+
+	const allWidgetState: any = useAtomValue(allWidgetStateAtom).state;
+	const widgetState: any = allWidgetState[widget?.name];
+
+	const [widgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
 
 	return (
-		<Stack bg="white" h="full">
+		<Stack bg="white" h="full" justifyContent="space-between">
 			<Skeleton isLoaded={!isLoading}>
 				<Stack
 					px="4"
@@ -47,29 +68,46 @@ export const NewAppPreview = () => {
 				<Stack p="4">
 					{components.map((c: any) => {
 						const component = c.property;
+						const inputState = widgetComponents?.[component.name] || {};
 
 						return (
 							<FormControl key={component.name}>
 								<FormLabel>{component.label}</FormLabel>
 
 								<InputRenderer
-									value={userInput?.[component.name]}
+									value={inputState?.value}
 									name={component.name}
 									type={component.type}
 									onChange={(newValue: any) => {
-										setUserInput((oldInputs: any) => {
-											return {
-												...oldInputs,
-												[component.name]: newValue,
-											};
+										setWidgetComponentValues({
+											[component.name]: newValue,
 										});
 									}}
 								/>
+
+								{inputState?.message ? (
+									<FormHelperText>{inputState.message}</FormHelperText>
+								) : null}
 							</FormControl>
 						);
 					})}
 				</Stack>
 			</Skeleton>
+			{widgetState?.message ? (
+				<Alert
+					pos="sticky"
+					bottom="0"
+					w="full"
+					flexGrow="0"
+					bg="transparent"
+					status={widgetState?.message_type || 'info'}
+					variant="top-accent"
+					borderTopWidth="3px"
+				>
+					<AlertIcon />
+					{widgetState?.message}
+				</Alert>
+			) : null}
 		</Stack>
 	);
 };

@@ -1,29 +1,17 @@
 import { useParams } from 'react-router-dom';
-import { useAtom } from 'jotai';
-import { useEffect } from 'react';
 import { Box, Skeleton } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
 
-import { useAppState } from './hooks';
+import { useInitializePageState } from './hooks';
 import { ObjectRenderer } from '@/components/ObjectRenderer';
-import { newSelectedRow, newUserInput } from '@/features/new-app-state';
+import { newPageStateAtom } from '@/features/new-app-state';
 
 export const NewAppState = () => {
 	const { pageId } = useParams();
-	const {
-		isLoading,
-		state: { tables, user_input: serverInputs, ...data },
-	} = useAppState(pageId || '');
 
-	const [selectedRowData, setRowData] = useAtom(newSelectedRow);
-	const [userInput, setUserInput] = useAtom(newUserInput) as any;
+	const { isLoading } = useInitializePageState(pageId);
 
-	useEffect(() => {
-		setRowData(tables as any);
-	}, [tables, setRowData]);
-
-	useEffect(() => {
-		setUserInput(serverInputs as any);
-	}, [serverInputs, setUserInput]);
+	const pageState = useAtomValue(newPageStateAtom);
 
 	if (isLoading) {
 		return <Skeleton />;
@@ -31,13 +19,7 @@ export const NewAppState = () => {
 
 	return (
 		<Box p="2" bg="white" h="full" overflowY="auto">
-			<ObjectRenderer
-				obj={{
-					user_input: userInput,
-					tables: selectedRowData || {},
-					...data,
-				}}
-			/>
+			<ObjectRenderer obj={pageState} />
 		</Box>
 	);
 };

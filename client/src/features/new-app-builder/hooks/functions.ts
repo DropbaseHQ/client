@@ -89,3 +89,19 @@ export const useUpdateFunction = (props: any = {}) => {
 		},
 	});
 };
+
+const runFunction = async ({ action, pageId, pageState }: any) => {
+	const response = await axios.post(`/task`, { page_id: pageId, action, state: pageState });
+
+	return response.data;
+};
+
+export const useRunFunction = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(runFunction, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
+		},
+	});
+};
