@@ -12,8 +12,7 @@ def compose_run_code(
     action: str,
     call_type: Literal["task", "function"],
 ) -> str:
-    run_code = "from dataclasses import dataclass\n"
-    run_code += "from dacite import from_dict\n"
+    run_code = "from pydantic import BaseModel\n"
     run_code += "import stripe\n\n"
     run_code += "import requests\n\n"
     run_code += sqls[0].dataclass + "\n\n"

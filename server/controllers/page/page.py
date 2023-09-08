@@ -19,7 +19,6 @@ from server.utils.converter import get_class_dict
 
 def get_page_schema(db: Session, page_id: UUID):
     # TODO: get col states for table type
-    print("IM HERE!")
 
     # get select table schema
     tables = crud.tables.get_page_tables(db, page_id=page_id)

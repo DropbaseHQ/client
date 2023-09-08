@@ -90,7 +90,8 @@ def get_table_columns(user_db_engine, table_str):
 
 
 def get_table_row(db: Session, table_id: UUID):
-    return get_row_schema(db, table_id)
+    columns = crud.columns.get_table_columns(db, table_id=table_id)
+    return get_row_schema(columns)
 
 
 def convert_to_smart_table(db: Session, request: ConvertToSmart):

@@ -1,9 +1,6 @@
-from uuid import UUID
-
-from sqlalchemy.orm import Session
-
 from server import crud
 from server.schemas.columns import PgColumn, PythonColumn
+from server.utils.helper import clean_name_for_class
 
 column_type_to_schema_mapper = {"postgres": PgColumn, "python": PythonColumn}
 
@@ -58,14 +55,15 @@ pg_pydantic_dtype_mapper = {
 def get_table_pydantic_model(db, table_id):
     table = crud.tables.get_object_by_id_or_404(db, id=table_id)
     columns = crud.columns.get_table_columns(db, table_id)
-
-    model_str = f"class {table.name.capitalize()}(BaseModel):\n"
+    model_name = clean_name_for_class(table.name)
+    model_str = f"class {model_name}(BaseModel):\n"
     for col in columns:
         ColumnModel = columns_type_mapper[col.type]
         column = ColumnModel(**col.property)
-        model_str += f"    {column.name}: {pg_pydantic_dtype_mapper[column.type]}\n"
+        type = pg_pydantic_dtype_mapper.get(column.type)
+        model_str += f"    {column.name}: {type if type else 'Any'}\n"
 
-    return model_str
+    return model_str, model_name
 
 
 from typing import TypedDict

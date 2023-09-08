@@ -4,7 +4,7 @@ import io
 import traceback
 
 
-def exec_code(run_code, user_input, row):
+def exec_code(run_code, user_input, row, state):
     def call_function_with_auto_arguments(func, argument_mapper):
         """Defined here so this function is available in locals()"""
         sig = inspect.signature(func)
