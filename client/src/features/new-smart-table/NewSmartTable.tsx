@@ -10,7 +10,7 @@ import DataEditor, {
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import { useTableData } from './hooks/useTableData';
-import { newSelectedRow } from '@/features/new-app-state';
+import { newSelectedRowAtom } from '@/features/new-app-state';
 
 export const NewSmartTable = () => {
 	const [selection, setSelection] = useState({
@@ -22,15 +22,12 @@ export const NewSmartTable = () => {
 		tableId: 'b37ba8d3-6f5f-47a0-9d98-d749ccb8d4a2',
 	});
 
-	const selectRow = useSetAtom(newSelectedRow);
+	const selectRow = useSetAtom(newSelectedRowAtom);
 
 	const gridColumns = header.map((columnName: any) => {
 		let icon = GridColumnIcon.HeaderString;
 
 		const column = columns[columnName];
-
-		console.log('COLUMN');
-		console.log(column);
 
 		switch (column?.type) {
 			case 'integer': {
