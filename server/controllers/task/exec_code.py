@@ -1,5 +1,4 @@
 import contextlib
-import inspect
 import io
 import traceback
 
