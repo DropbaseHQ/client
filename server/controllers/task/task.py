@@ -28,12 +28,12 @@ def run_task(request: RunTask, response: Response, db: Session):
         executable_code = (
             table_models + widget_models + function_code + casted_inputs + "\n" + request.action
         )
-        print(executable_code)
+        # print(executable_code)
 
         # run code
         res = exec_code(executable_code, user_input, tables, state)
-        # res = RunCodeResponse(**res)
-        return res["result"]
+        res = RunCodeResponse(**res)
+        return res
     except Exception as e:
         print(e)
         res = {
@@ -76,9 +76,13 @@ def get_widget_states(db, widget_id: UUID):
     final_str += """class Widget(BaseModel):
     components: WidgetComponents
     message: Optional[str]\n"""
+    # TODO: this is to handle nested
 
-    final_str += f"""class State(BaseModel):
-    {widget.name}: Widget
+    final_str += f"""class WidgetBase(BaseModel):
+    {widget.name}: Widget\n"""
+
+    final_str += """class State(BaseModel):
+    widget: WidgetBase
     tables: StateTables\n"""
 
     final_str += user_input
