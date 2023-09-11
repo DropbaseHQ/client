@@ -1,4 +1,5 @@
 import {
+	Code,
 	IconButton,
 	Input,
 	InputGroup,
@@ -6,8 +7,9 @@ import {
 	InputRightElement,
 	Skeleton,
 	Stack,
+	Text,
 } from '@chakra-ui/react';
-import { Play, Save } from 'react-feather';
+import { Play, Save, X } from 'react-feather';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 
@@ -20,12 +22,14 @@ import {
 	useUpdateFunction,
 } from '@/features/new-app-builder/hooks';
 import { newPageStateAtom, useSyncState } from '@/features/new-app-state';
+import { logBuilder } from '@/features/new-app-builder/utils';
 
 export const FunctionEditor = ({ id }: any) => {
 	const { pageId } = useParams();
 	const { isLoading, code: defaultCode, name, refetch } = usePageFunction(id || '');
 
 	const [action, setAction] = useState('');
+	const [log, setLog] = useState<any>(null);
 
 	const pageState = useAtomValue(newPageStateAtom);
 
@@ -39,9 +43,18 @@ export const FunctionEditor = ({ id }: any) => {
 
 	const runMutation = useRunFunction({
 		onSuccess: (data: any) => {
-			syncState(data);
+			if (data.status === 'success') {
+				syncState(data.result);
+			}
+
+			setLog(logBuilder(data));
+		},
+		onMutate: () => {
+			setLog(null);
 		},
 	});
+
+	console.log(runMutation.data);
 
 	const [code, setCode] = useState('');
 
@@ -106,6 +119,37 @@ export const FunctionEditor = ({ id }: any) => {
 					</InputRightElement>
 				) : null}
 			</InputGroup>
+
+			{log ? (
+				<Stack bg="white" p="2" h="full" borderRadius="sm">
+					<Stack direction="row" alignItems="start">
+						<IconButton
+							aria-label="Close output"
+							size="xs"
+							colorScheme="gray"
+							variant="outline"
+							borderRadius="full"
+							icon={<X size={14} />}
+							onClick={() => setLog(null)}
+						/>
+
+						<Stack>
+							<Text fontSize="sm" letterSpacing="wide" fontWeight="medium">
+								Output
+							</Text>
+							<Code
+								w="full"
+								color="gray.500"
+								backgroundColor="inherit"
+								overflow="auto"
+								height={`${(log?.split('\n').length || 1) * 24}px`}
+							>
+								<pre>{log}</pre>
+							</Code>
+						</Stack>
+					</Stack>
+				</Stack>
+			) : null}
 		</Stack>
 	);
 };
