@@ -90,26 +90,58 @@ def get_table_columns(user_db_engine, table_str):
 
 
 def get_table_row(db: Session, table_id: UUID):
-    return get_row_schema(db, table_id)
+    columns = crud.columns.get_table_columns(db, table_id=table_id)
+    return get_row_schema(columns)
+
+
+def fill_smart_cols_data(smart_cols_data: dict):
+    pass
+
+
+def has_primary_key(col_name: str, smart_col_data: dict) -> bool:
+    pass
+
+
+def validate_smart_col_fast(col_data: dict):
+    # Will throw an exception
+    # column must have primary key
+    pass
+
+
+def validate_smart_col_slow(col_data: dict):
+    # Will throw an exception
+    pass
+
+
+def validate_smart_cols(smart_cols_data: dict):
+    # Will throw an exception if smart columns are found to be inconsistent with the db
+    for col_name, col_data in smart_cols_data.items():
+        if has_primary_key(col_name, smart_cols_data):
+            validate_smart_col_fast(col_data)
+        else:
+            validate_smart_col_slow(col_data)
 
 
 def convert_to_smart_table(db: Session, request: ConvertToSmart):
     user_db_engine = connect_to_user_db()
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
+    import pdb;pdb.set_trace()
     db_schema = get_db_schema(user_db_engine)
     user_sql = table.property["code"]
     column_names = get_column_names(user_db_engine, user_sql)
-    smart_col_data = call_gpt(user_sql, column_names, db_schema)
+    smart_cols_data = call_gpt(user_sql, column_names, db_schema)
+
+    # Fill smart col data before validation to get
+    # primary keys along with other column metadata
+    fill_smart_cols_data(smart_cols_data)
 
     try:
-        validate_smart_cols(smart_col_paths)
+        validate_smart_cols(smart_cols_data)
     except Exception:
         return {"message": "failure"}
-    
-    fill_smart_col_data(smart_col_data)
 
     smart_cols = {}
-    for col, col_data in smart_col_data:
+    for col, col_data in smart_cols_data:
         smart_cols[col] = PgColumnBaseProperty(**col_data)
 
     columns = crud.columns.get_table_columns(db, table_id=table.id)

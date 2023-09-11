@@ -12,5 +12,6 @@
 client/.DS_Store
 client/node_modules/
 
+.venv
 .venvlsp
 .test
