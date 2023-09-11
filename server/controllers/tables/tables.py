@@ -141,12 +141,12 @@ def has_primary_key(col_name: str, smart_cols: dict[str, PgColumnBaseProperty]) 
 def validate_smart_col_fast(col_data: PgColumnBaseProperty):
     # Will throw an exception
     # column must have primary key
-    pass
+    pass  # TODO
 
 
 def validate_smart_col_slow(col_data: PgColumnBaseProperty):
     # Will throw an exception
-    pass
+    pass  # TODO
 
 
 def validate_smart_cols(smart_cols: dict[str, PgColumnBaseProperty]):
