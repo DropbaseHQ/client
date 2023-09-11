@@ -61,7 +61,7 @@ export const useUpdateComponentProperties = (props: any = {}) => {
 };
 
 const createComponents = async ({ widgetId, property, type }: any) => {
-	const response = await axios.post(`/components`, {
+	const response = await axios.post(`/components/`, {
 		widget_id: widgetId,
 		property,
 		type,
