@@ -112,7 +112,7 @@ export const useCreateFunction = (props: any = {}) => {
 };
 
 const runFunction = async ({ action, pageId, pageState }: any) => {
-	const response = await axios.post(`/task`, { page_id: pageId, action, state: pageState });
+	const response = await axios.post(`/task/`, { page_id: pageId, action, state: pageState });
 
 	return response.data;
 };
