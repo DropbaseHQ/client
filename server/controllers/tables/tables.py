@@ -125,15 +125,14 @@ def validate_smart_cols(smart_cols_data: dict):
 def convert_to_smart_table(db: Session, request: ConvertToSmart):
     user_db_engine = connect_to_user_db()
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
-    import pdb;pdb.set_trace()
-    db_schema = get_db_schema(user_db_engine)
+    db_schema, gpt_schema = get_db_schema(user_db_engine)
     user_sql = table.property["code"]
     column_names = get_column_names(user_db_engine, user_sql)
-    smart_cols_data = call_gpt(user_sql, column_names, db_schema)
+    smart_cols_data = call_gpt(user_sql, column_names, gpt_schema)
 
     # Fill smart col data before validation to get
     # primary keys along with other column metadata
-    fill_smart_cols_data(smart_cols_data)
+    fill_smart_cols_data(smart_cols_data, db_schema)
 
     try:
         validate_smart_cols(smart_cols_data)

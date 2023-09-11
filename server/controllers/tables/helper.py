@@ -66,23 +66,34 @@ def get_table_pydantic_model(db, table_id):
     return model_str, model_name
 
 
-from typing import TypedDict
+from typing import TypedDict, Any
 
 from sqlalchemy import inspect
 from sqlalchemy.sql import text
 
 
+# {schema: {table: {column: {property: ...}}}}
+FullDBSchema = dict[str, dict[str, dict[str, dict[str, Any]]]]
+
+# {schema: {table: [column names...]}}
+GPTDBSchema = dict[str, dict[str, list[str]]]
+
+class DBSchemaMetadata(TypedDict):
+    default_schema: str
+
+
 class GPTSchema(TypedDict):
-    metadata: dict[str, str]
-    schema: dict[str, dict[str, dict[str, dict]]]
+    metadata: DBSchemaMetadata
+    schema: GPTDBSchema
 
 
-def get_db_schema(user_db_engine) -> GPTSchema:
+def get_db_schema(user_db_engine) -> (FullDBSchema, GPTSchema):
     inspector = inspect(user_db_engine)
     schemas = inspector.get_schema_names()
     default_search_path = inspector.default_schema_name
 
-    database_structure: GPTSchema = {
+    db_schema: FullDBSchema = {}
+    gpt_schema: GPTSchema = {
         "metadata": {
             "default_schema": default_search_path,
         },
@@ -93,16 +104,37 @@ def get_db_schema(user_db_engine) -> GPTSchema:
         if schema == "information_schema":
             continue
         tables = inspector.get_table_names(schema=schema)
-        schema_tables: dict[str, list[str]] = {}
+        gpt_schema["schema"][schema] = {}
+        db_schema[schema] = {}
 
         for table_name in tables:
             columns = inspector.get_columns(table_name, schema=schema)
-            column_names = [column["name"] for column in columns]
-            schema_tables[table_name] = column_names
-        database_structure["schema"][schema] = schema_tables
+            primary_key = set().union(inspector.get_pk_constraint(table_name, schema=schema)["constrained_columns"])
 
-    # TODO also return full schema (all column metadata)
-    return database_structure
+            foreign_keys = set()
+            for fk_constraint in inspector.get_foreign_keys(table_name, schema=schema):
+                fk_constraint_cols = fk_constraint["constrained_columns"]
+                foreign_keys = foreign_keys.union(fk_constraint_cols)
+
+            unique_cols = set()
+            for unique_constraint in inspector.get_unique_constraints(table_name, schema=schema):
+                unique_constraint_cols = unique_constraint["column_names"]
+                unique_cols = unique_cols.union(unique_constraint_cols)
+
+            db_schema[schema][table_name] = {}
+            for column in columns:
+                col_name = column["name"]
+                is_pk = col_name in primary_key
+                db_schema[schema][table_name][col_name] = {}
+                db_schema[schema][table_name][col_name]["type"] = str(column["type"])
+                db_schema[schema][table_name][col_name]["nullable"] = column["nullable"]
+                db_schema[schema][table_name][col_name]["unique"] = is_pk or col_name in unique_cols
+                db_schema[schema][table_name][col_name]["pk"] = is_pk
+                db_schema[schema][table_name][col_name]["fk"] = col_name in foreign_keys
+                db_schema[schema][table_name][col_name]["default"] = column["default"]
+            gpt_schema["schema"][schema][table_name] = [column["name"] for column in columns]
+
+    return db_schema, gpt_schema
 
 
 def get_column_names(user_db_engine, user_sql: str) -> list[str]:
