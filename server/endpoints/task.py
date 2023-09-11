@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from server.controllers import task
@@ -10,8 +10,8 @@ router = APIRouter(prefix="/task", tags=["task"])
 
 
 @router.post("/")
-def run_task(request: RunTask, db: Session = Depends(get_db)):
-    return task.run_task(request, db)
+def run_task(request: RunTask, response: Response, db: Session = Depends(get_db)):
+    return task.run_task(request, response, db)
 
 
 @router.post("/edit")

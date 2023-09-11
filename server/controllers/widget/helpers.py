@@ -9,8 +9,6 @@ def get_user_input(components):
     # get user input for each component
     user_input = {}
     for component in components:
-        print(component.type)
-        print(component.property)
         if component.type in editable_inputs:
             ComponentClass = component_type_to_schema_mapper[component.type]
             comp = ComponentClass(**component.property)

@@ -6,10 +6,11 @@ from pydantic import BaseModel
 
 class RunTask(BaseModel):
     page_id: UUID
-    user_input: dict
-    row: dict
+    # user_input: dict
+    # row: dict
+    state: dict
     action: str
-    call_type: Literal["task", "function"] = "task"
+    # call_type: Literal["task", "function"] = "task"
 
 
 class CellEdit(BaseModel):

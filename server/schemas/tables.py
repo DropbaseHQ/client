@@ -4,10 +4,13 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from server.schemas.columns import PgColumnStateProperty
+
 
 class TableDisplayProperty(BaseModel):
     message: Optional[str]
     message_type: Optional[str]
+    columns: Optional[List[PgColumnStateProperty]]
 
 
 class TableColumnStateProperty(TableDisplayProperty):
