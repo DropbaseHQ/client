@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.schemas.columns import (
     CreateColumns,
-    PgColumn,
     PgColumnBaseProperty,
+    PgReadColumnProperty,
     PythonColumn,
     UpdateColumns,
 )
@@ -36,5 +36,5 @@ def get_table_columns_and_props(db: Session, table_id: UUID):
     for column in columns:
         values.append({"id": column.id, "property": column.property})
 
-    column_props = get_class_properties(PgColumn)
+    column_props = get_class_properties(PgReadColumnProperty)
     return {"schema": column_props, "values": values}

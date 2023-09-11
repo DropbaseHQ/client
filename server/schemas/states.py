@@ -44,7 +44,7 @@ class PgColumnDisplayProperty(BaseModel):
 
 class PgColumnSharedProperty(BaseModel):
     editable: Optional[bool]
-    hidden: Optional[bool]
+    visible: Optional[bool]
 
 
 class PgColumnStateProperty(PgColumnDisplayProperty, PgColumnSharedProperty):
@@ -55,7 +55,6 @@ class PgColumnStateProperty(PgColumnDisplayProperty, PgColumnSharedProperty):
 class TableDisplayProperty(BaseModel):
     message: Optional[str]
     message_type: Optional[str]
-    columns: Optional[List[PgColumnStateProperty]]
 
 
 class TableSharedProperty(BaseModel):

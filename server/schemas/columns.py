@@ -57,7 +57,11 @@ class PgColumnBaseProperty(BaseModel):
     unique: bool = False
 
 
-class PgColumn(PgColumnBaseProperty, PgColumnSharedProperty, PgColumnDisplayProperty):
+class PgDefinedColumnProperty(PgColumnBaseProperty, PgColumnSharedProperty):
+    pass
+
+
+class PgReadColumnProperty(PgColumnBaseProperty, PgColumnDisplayProperty, PgColumnSharedProperty):
     pass
 
 
@@ -67,13 +71,17 @@ class PythonColumn(BaseModel):
 
 class BaseColumns(BaseModel):
     name: Optional[str]
-    property: Union[PgColumn, PythonColumn]
+    property: Union[PgDefinedColumnProperty, PythonColumn]
     table_id: UUID
     type: str
 
 
 class ReadColumns(BaseColumns):
     id: UUID
+    name: str
+    property: Union[PgReadColumnProperty, PythonColumn]
+    table_id: UUID
+    type: str
     date: datetime
 
 

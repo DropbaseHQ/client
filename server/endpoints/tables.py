@@ -12,7 +12,13 @@ from server.controllers.tables import (
     update_table,
 )
 from server.controllers.task.table import get_table_data
-from server.schemas.tables import ConvertToSmart, CreateTables, QueryTable, TablesProperty, UpdateTables
+from server.schemas.tables import (
+    ConvertToSmart,
+    CreateTables,
+    QueryTable,
+    TablesReadProperty,
+    UpdateTables,
+)
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
 
@@ -21,7 +27,7 @@ router = APIRouter(prefix="/tables", tags=["tables"])
 
 @router.get("/properties")
 def get_table_properties_req():
-    return get_class_properties(TablesProperty)
+    return get_class_properties(TablesReadProperty)
 
 
 @router.get("/{tables_id}")

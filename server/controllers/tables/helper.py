@@ -1,8 +1,8 @@
 from server import crud
-from server.schemas.columns import PgColumn, PythonColumn
+from server.schemas.columns import PgReadColumnProperty, PythonColumn
 from server.utils.helper import clean_name_for_class
 
-column_type_to_schema_mapper = {"postgres": PgColumn, "python": PythonColumn}
+column_type_to_schema_mapper = {"postgres": PgReadColumnProperty, "python": PythonColumn}
 
 
 def get_row_schema(columns):
@@ -15,7 +15,7 @@ def get_row_schema(columns):
     return row_input
 
 
-columns_type_mapper = {"postgres": PgColumn}
+columns_type_mapper = {"postgres": PgReadColumnProperty}
 pg_pydantic_dtype_mapper = {
     "TEXT": "str",
     "VARCHAR": "str",

@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from server.schemas.states import WidgetDisplayProperty
+from server.schemas.states import WidgetDisplayProperty, WidgetSharedProperty
 
 
 class WidgetBaseProperty(BaseModel):
@@ -15,18 +15,25 @@ class WidgetBaseProperty(BaseModel):
     error_message: Optional[str]
 
 
-class WidgetProperty(WidgetBaseProperty, WidgetDisplayProperty):
+class WidgetDefinedProperty(WidgetBaseProperty, WidgetSharedProperty):
+    pass
+
+
+class WidgetReadProperty(WidgetBaseProperty, WidgetSharedProperty, WidgetDisplayProperty):
     pass
 
 
 class BaseWidget(BaseModel):
     name: str
-    property: WidgetProperty
+    property: WidgetDefinedProperty
     page_id: UUID
 
 
-class ReadWidget(BaseWidget):
+class ReadWidget(BaseModel):
     id: UUID
+    name: str
+    property: WidgetReadProperty
+    page_id: UUID
     date: datetime
 
 
