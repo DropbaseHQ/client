@@ -141,14 +141,14 @@ def convert_to_smart_table(db: Session, request: ConvertToSmart):
     # Return value
     # True means column is valid
     # False means column is invalid and was deleted from smart_cols
-    col_status = {col_name: False for col_name, _ in smart_col_paths}
+    col_status = {col_name: False for col_name in smart_col_paths}
 
     # Fill smart col data before validation to get
     # primary keys along with other column metadata
     smart_cols = fill_smart_cols_data(smart_col_paths, db_schema)
 
     # Validate smart cols will delete invalid cols from smart_cols
-    validate_smart_cols(db, smart_cols, user_sql)
+    validate_smart_cols(user_db_engine, smart_cols, user_sql)
 
     # Set column statuses
     for col_name in smart_cols:

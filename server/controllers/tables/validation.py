@@ -55,7 +55,7 @@ def get_primary_keys(smart_cols: dict[str, PgColumnBaseProperty]) -> dict[str, P
     return primary_keys
 
 
-def validate_smart_cols(db: Session, smart_cols: dict[str, PgColumnBaseProperty], user_sql: str):
+def validate_smart_cols(user_db_engine, smart_cols: dict[str, PgColumnBaseProperty], user_sql: str):
     # Will delete any columns that are invalid from smart_cols
     primary_keys = get_primary_keys(smart_cols)
     for col_name, col_data in smart_cols.items():
@@ -76,7 +76,7 @@ def validate_smart_cols(db: Session, smart_cols: dict[str, PgColumnBaseProperty]
                 col_data.columns_name,
             )
         try:
-            with db.connect().execution_options(autocommit=True) as conn:
+            with user_db_engine.connect().execution_options(autocommit=True) as conn:
                 # On SQL programming error, we know that the smart cols are invalid,
                 # no need to catch them
                 res = conn.execute(text(validation_sql)).all()
