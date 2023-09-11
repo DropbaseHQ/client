@@ -120,7 +120,7 @@ def fill_smart_cols_data(
         column = col_path["columns_name"]
 
         col_schema_data = db_schema[schema][table][column]
-        
+
         smart_cols_data[name] = PgColumnBaseProperty({**col_path, **col_schema_data})
     return smart_cols_data
 
@@ -130,7 +130,7 @@ def has_primary_key(col_name: str, smart_cols: dict[str, PgColumnBaseProperty]) 
     # where smart_cols contains metadata on the columns selected in the user sql query
     def get_table_path(col_data: PgColumnBaseProperty) -> str:
         return f"{col_data.schema_name}.{col_data.table_name}"
-    
+
     if col_name not in smart_cols.keys():
         return False
 
