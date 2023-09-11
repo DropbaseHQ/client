@@ -32,8 +32,8 @@ def run_task(request: RunTask, response: Response, db: Session):
 
         # run code
         res = exec_code(executable_code, user_input, tables, state)
-        res = RunCodeResponse(**res)
-        return res
+        return RunCodeResponse(**res)
+        # return res['result']
     except Exception as e:
         print(e)
         res = {
@@ -64,11 +64,22 @@ def get_widget_states(db, widget_id: UUID):
 
     widget_components_state = "class WidgetComponents(BaseModel):\n"
     for comp in components:
-        widget_components_state += f"    {comp.property['name']}: InputDisplayProperties\n"
+        widget_components_state += f"    {comp.property['name']}: ComponentStateProperty\n"
 
     final_str = """class InputDisplayProperties(BaseModel):
     message: Optional[str]
-    message_type: Optional[str]\n"""
+    message_type: Optional[str]
+
+
+class InputSharedProperties(BaseModel):
+    # editable
+    options: Optional[str]
+    visible: Optional[bool]
+    value: Optional[str]
+
+
+class ComponentStateProperty(InputDisplayProperties, InputSharedProperties):
+    pass\n"""
 
     final_str += widget_components_state
 
