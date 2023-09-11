@@ -33,7 +33,7 @@ def get_slow_sql(
     table_name: str,
     column_name: str,
 ) -> str:
-    # Query that results in [(1,)] if valid, [(0,)] if false
+    # Query that results in [(True,)] if valid, [(False,)] if false
     return f"""
     with uq as ({user_sql})
     select CASE WHEN count(t.{column_name}) = 0 THEN true ELSE false END
