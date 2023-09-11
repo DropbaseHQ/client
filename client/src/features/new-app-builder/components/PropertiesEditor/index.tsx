@@ -6,6 +6,7 @@ import { Columns } from './ColumnProperties';
 import { WidgetProperties } from './WidgetProperties';
 import { Components } from './ComponentEditor';
 import { FunctionEditor } from './FunctionEditor';
+import { NewFunction } from './Functions';
 import { usePageFunctions } from '@/features/new-app-builder/hooks';
 
 export const PropertiesEditor = () => {
@@ -19,9 +20,12 @@ export const PropertiesEditor = () => {
 				<Tab>Columns</Tab>
 				<Tab>Widget</Tab>
 				<Tab>Components</Tab>
+
 				{functions.map((f: any) => (
 					<Tab key={f.id}>{f.name}</Tab>
 				))}
+
+				<NewFunction />
 			</TabList>
 			<TabPanels>
 				<TabPanel>

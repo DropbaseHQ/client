@@ -8,12 +8,15 @@ from server.controllers.tables.helper import get_table_pydantic_model
 from server.controllers.task.exec_code import exec_code
 from server.controllers.widget.helpers import get_pydantic_model
 from server.schemas.functions import ReadFunctions
+from server.schemas.tables import ReadTables
 from server.schemas.task import RunCodeResponse, RunTask
+from server.utils.helper import clean_name_for_class
 
 
 def run_task(request: RunTask, response: Response, db: Session):
     # TODO: catch stdout
     try:
+        states_def = file_to_text("server/schemas/states.py")
         table_models = get_tables_states(db, request.page_id)
         widget = crud.widget.get_page_widget(db, page_id=request.page_id)
         widget_models = get_widget_states(db, widget.id)
@@ -26,14 +29,20 @@ def run_task(request: RunTask, response: Response, db: Session):
 
         casted_inputs = cast_to_classes(user_input, tables, state)
         executable_code = (
-            table_models + widget_models + function_code + casted_inputs + "\n" + request.action
+            states_def
+            + table_models
+            + widget_models
+            + function_code
+            + casted_inputs
+            + "\n"
+            + request.action
         )
-        # print(executable_code)
+        print(executable_code)
 
         # run code
         res = exec_code(executable_code, user_input, tables, state)
-        res = RunCodeResponse(**res)
-        return res
+        return RunCodeResponse(**res)
+        # return res['result']
     except Exception as e:
         print(e)
         res = {
@@ -47,11 +56,25 @@ def run_task(request: RunTask, response: Response, db: Session):
         return RunCodeResponse(**res)
 
 
+def file_to_text(file_path):
+    text_file = open(file_path, "r")
+    data = text_file.read()
+    text_file.close()
+    return data
+
+
 def cast_to_classes(user_input, tables, state):
     final_str = """
-user_input  = UserInput(**user_input)\n
-tables = SelectedRowTables(**tables)\n
+user_input  = UserInput(**user_input)
+tables = SelectedRowTables(**tables)
 state = State(**state)\n"""
+    return final_str
+
+
+def get_function_code(functions: list[ReadFunctions]):
+    final_str = ""
+    for func in functions:
+        final_str += func.code
     return final_str
 
 
@@ -64,22 +87,17 @@ def get_widget_states(db, widget_id: UUID):
 
     widget_components_state = "class WidgetComponents(BaseModel):\n"
     for comp in components:
-        widget_components_state += f"    {comp.property['name']}: InputDisplayProperties\n"
+        widget_components_state += f"    {comp.property['name']}: InputStateProperties\n"
 
-    final_str = """class InputDisplayProperties(BaseModel):
-    message: Optional[str]
-    message_type: Optional[str]\n"""
-
-    final_str += widget_components_state
+    final_str = widget_components_state
 
     # TODO: get this from schemas
-    final_str += """class Widget(BaseModel):
-    components: WidgetComponents
-    message: Optional[str]\n"""
+    final_str += """class WidgetState(WidgetDisplayProperty):
+    components: WidgetComponents\n"""
     # TODO: this is to handle nested
 
     final_str += f"""class WidgetBase(BaseModel):
-    {widget.name}: Widget\n"""
+    {widget.name}: WidgetState\n"""
 
     final_str += """class State(BaseModel):
     widget: WidgetBase
@@ -88,33 +106,6 @@ def get_widget_states(db, widget_id: UUID):
     final_str += user_input
 
     return final_str
-
-
-def get_function_code(functions: list[ReadFunctions]):
-    final_str = ""
-    for func in functions:
-        final_str += func.code
-    return final_str
-
-
-from server.schemas.tables import ReadTables
-from server.utils.helper import clean_name_for_class
-
-import_base = """from pydantic import BaseModel
-from typing import Any, Optional, Literal, List, Dict\n\n\n"""
-
-base_column_state_model = """class PgColumnDisplayProperty(BaseModel):
-    message: Optional[str]
-    message_type: Optional[str]
-
-
-class PgColumnSharedProperty(BaseModel):
-    editable: Optional[bool]
-    hidden: Optional[bool]
-
-
-class PgColumnStateProperty(PgColumnDisplayProperty, PgColumnSharedProperty):
-    pass\n\n\n"""
 
 
 def get_display_props(db, table: ReadTables):
@@ -126,12 +117,10 @@ def get_display_props(db, table: ReadTables):
         table_state_columns += f"    {col.name}: PgColumnStateProperty\n"
     table_state_columns += "\n\n"
 
-    base_table_state_model = f"""class {table_name}State(BaseModel):
-    message: Optional[str]
-    message_type: Optional[str]
+    base_table_state_model = f"""class {table_name}TableStateProperty(TableDisplayProperty):
     columns: {table_name}Columns\n\n\n"""
 
-    return table_state_columns + base_table_state_model, table_name + "State"
+    return table_state_columns + base_table_state_model, table_name + "TableStateProperty"
 
 
 def get_tables_states(db, page_id):
@@ -151,7 +140,7 @@ def get_tables_states(db, page_id):
         all_selected_row_models.append(pyd_model_str)
         all_ui_states.append(table_ui_classes)
 
-    final_str = import_base + base_column_state_model
+    final_str = ""
 
     for ui_state in all_ui_states:
         final_str += ui_state + "\n\n"

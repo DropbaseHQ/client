@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Plus } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ErrorMessage } from '@hookform/error-message';
 import {
@@ -9,9 +10,21 @@ import {
 	Box,
 	Skeleton,
 	Button,
+	Popover,
+	PopoverTrigger,
+	IconButton,
+	PopoverContent,
+	PopoverHeader,
+	PopoverArrow,
+	PopoverCloseButton,
+	PopoverBody,
+	PopoverFooter,
+	ButtonGroup,
+	useDisclosure,
 } from '@chakra-ui/react';
 import { FormInput } from '@/components/FormInput';
 import {
+	useCreateComponents,
 	useGetComponentProperties,
 	useUpdateComponentProperties,
 } from '@/features/new-app-builder/hooks';
@@ -60,7 +73,7 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 								<FormInput {...property} />
 								<ErrorMessage
 									errors={errors}
-									name="singleErrorInput"
+									name={property.name}
 									render={({ message }) => (
 										<FormErrorMessage>{message}</FormErrorMessage>
 									)}
@@ -82,6 +95,115 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 	);
 };
 
+export const NewComponent = () => {
+	const { isOpen, onToggle, onClose } = useDisclosure();
+
+	const methods = useForm();
+	const {
+		formState: { errors },
+	} = methods;
+
+	const mutation = useCreateComponents({
+		onSuccess: () => {
+			methods.reset();
+			onClose();
+		},
+	});
+
+	const onSubmit = ({ name, type }: any) => {
+		if (name.trim()) {
+			mutation.mutate({
+				widgetId: WIDGET_ID,
+				property: { name, type },
+				type: 'input',
+			});
+		}
+	};
+
+	return (
+		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur={false}>
+			<PopoverTrigger>
+				<IconButton
+					aria-label="Add function"
+					icon={<Plus size="14" />}
+					variant="outline"
+					onClick={onToggle}
+					isLoading={mutation.isLoading}
+				/>
+			</PopoverTrigger>
+
+			<PopoverContent>
+				<form onSubmit={methods.handleSubmit(onSubmit)}>
+					<FormProvider {...methods}>
+						<PopoverHeader pt={4} fontWeight="bold" border="0">
+							Create a new Component
+						</PopoverHeader>
+						<PopoverArrow />
+						<PopoverCloseButton />
+						<PopoverBody>
+							<Stack>
+								<FormControl isInvalid={!!errors?.name}>
+									<FormLabel>Name</FormLabel>
+
+									<FormInput
+										name="name"
+										validation={{ required: 'Name is required' }}
+										type="text"
+									/>
+									<ErrorMessage
+										errors={errors}
+										name="name"
+										render={({ message }) => (
+											<FormErrorMessage>{message}</FormErrorMessage>
+										)}
+									/>
+								</FormControl>
+
+								<FormControl isInvalid={!!errors?.type}>
+									<FormLabel>Type</FormLabel>
+
+									<FormInput
+										name="type"
+										type="select"
+										enum={['select', 'text', 'number']}
+									/>
+									<ErrorMessage
+										errors={errors}
+										name="type"
+										render={({ message }) => (
+											<FormErrorMessage>{message}</FormErrorMessage>
+										)}
+									/>
+								</FormControl>
+							</Stack>
+						</PopoverBody>
+						<PopoverFooter
+							border="0"
+							display="flex"
+							alignItems="center"
+							justifyContent="space-between"
+							pb={4}
+						>
+							<ButtonGroup size="sm">
+								<Button onClick={onClose} colorScheme="red" variant="outline">
+									Cancel
+								</Button>
+								<Button
+									colorScheme="blue"
+									isLoading={mutation.isLoading}
+									type="submit"
+								>
+									Create
+								</Button>
+							</ButtonGroup>
+						</PopoverFooter>
+					</FormProvider>
+				</form>
+			</PopoverContent>
+		</Popover>
+	);
+};
+
 export const Components = () => {
 	const { isLoading, values } = useGetComponentProperties(WIDGET_ID);
 
@@ -90,10 +212,13 @@ export const Components = () => {
 	}
 
 	return (
-		<Stack direction="row" spacing="4" overflowX="auto" flexWrap="nowrap">
-			{values.map((value: any) => (
-				<ComponentPropertyEditor key={value.id} {...value} />
-			))}
+		<Stack h="full">
+			<NewComponent />
+			<Stack direction="row" spacing="4" overflowX="auto" flexWrap="nowrap">
+				{values.map((value: any) => (
+					<ComponentPropertyEditor key={value.id} {...value} />
+				))}
+			</Stack>
 		</Stack>
 	);
 };

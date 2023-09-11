@@ -4,14 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-
-class WidgetDisplayProperty(BaseModel):
-    message: Optional[str]
-    message_type: Optional[str]
-
-
-class WidgetStateProperty(WidgetDisplayProperty):
-    pass
+from server.schemas.states import WidgetDisplayProperty
 
 
 class WidgetBaseProperty(BaseModel):

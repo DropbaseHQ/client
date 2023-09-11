@@ -4,19 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-
-class PgColumnDisplayProperty(BaseModel):
-    message: Optional[str]
-    message_type: Optional[str]
-
-
-class PgColumnSharedProperty(BaseModel):
-    editable: Optional[bool]
-    hidden: Optional[bool]
-
-
-class PgColumnStateProperty(PgColumnDisplayProperty, PgColumnSharedProperty):
-    pass
+from server.schemas.states import PgColumnDisplayProperty, PgColumnSharedProperty
 
 
 class PgColumnBaseProperty(BaseModel):

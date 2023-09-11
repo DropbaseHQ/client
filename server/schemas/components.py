@@ -4,21 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-
-class InputDisplayProperties(BaseModel):
-    message: Optional[str]
-    message_type: Optional[str]
-
-
-class InputSharedProperties(BaseModel):
-    # editable
-    options: Optional[str]
-    visible: Optional[bool]
-    value: Optional[str]
-
-
-class ComponentStateProperty(InputDisplayProperties, InputSharedProperties):
-    pass
+from server.schemas.states import InputDisplayProperties, InputSharedProperties
 
 
 class InputBaseProperties(BaseModel):
@@ -77,8 +63,3 @@ class CreateComponents(BaseModel):
 class UpdateComponents(BaseModel):
     property: dict
     type: str
-
-
-# class ConvertComponents(BaseModel):
-#     widget_id: str
-#     property: Union[Input, Button]
