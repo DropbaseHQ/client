@@ -20,7 +20,8 @@ origins = [
     "http://127.0.0.1:3000",
     "https://dev.dropbase.io",
     "https://www.dev.dropbase.io",
-    "http://localhost:3000" "http://www.localhost:3000",
+    "http://localhost:3000",
+    "http://www.localhost:3000",
 ]
 
 

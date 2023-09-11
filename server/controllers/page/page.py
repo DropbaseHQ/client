@@ -10,10 +10,12 @@ from server.controllers.task.source_column_helper import connect_to_user_db
 from server.controllers.widget.helpers import get_user_input
 from server.models.user import User
 from server.schemas import ReadSQLs
-from server.schemas.columns import PgColumnStateProperty
-from server.schemas.components import ComponentStateProperty
-from server.schemas.tables import TableColumnStateProperty
-from server.schemas.widget import WidgetStateProperty
+from server.schemas.states import (
+    InputStateProperties,
+    PgColumnStateProperty,
+    TableStateProperty,
+    WidgetStateProperty,
+)
 from server.utils.converter import get_class_dict
 
 
@@ -26,7 +28,7 @@ def get_page_schema(db: Session, page_id: UUID):
     table_schema = {}
     state["tables"] = {}
     for table in tables:
-        table_props = get_class_dict(TableColumnStateProperty)
+        table_props = get_class_dict(TableStateProperty)
         state["tables"][table.name] = {**table_props}
         # get columns
         columns = crud.columns.get_table_columns(db, table.id)
@@ -44,7 +46,7 @@ def get_page_schema(db: Session, page_id: UUID):
     # TODO: get only ui states
     widget_props = get_class_dict(WidgetStateProperty)
     state["widget"][widget.name] = widget_props
-    component_props = get_class_dict(ComponentStateProperty)
+    component_props = get_class_dict(InputStateProperties)
     state["widget"][widget.name]["components"] = {
         comp.property["name"]: component_props for comp in components
     }
