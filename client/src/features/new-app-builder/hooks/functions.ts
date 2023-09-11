@@ -90,6 +90,27 @@ export const useUpdateFunction = (props: any = {}) => {
 	});
 };
 
+const createFunction = async ({ pageId, name }: any) => {
+	const response = await axios.post(`/functions`, {
+		page_id: pageId,
+		name,
+		code: '',
+		type: 'python',
+	});
+
+	return response.data;
+};
+
+export const useCreateFunction = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(createFunction, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(ALL_PAGE_FUNCTIONS_QUERY_KEY);
+		},
+	});
+};
+
 const runFunction = async ({ action, pageId, pageState }: any) => {
 	const response = await axios.post(`/task`, { page_id: pageId, action, state: pageState });
 

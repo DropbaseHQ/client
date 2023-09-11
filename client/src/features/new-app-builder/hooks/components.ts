@@ -59,3 +59,23 @@ export const useUpdateComponentProperties = (props: any = {}) => {
 		},
 	});
 };
+
+const createComponents = async ({ widgetId, property, type }: any) => {
+	const response = await axios.post(`/components`, {
+		widget_id: widgetId,
+		property,
+		type,
+	});
+
+	return response.data;
+};
+
+export const useCreateComponents = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(createComponents, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(WIDGET_PROPERTIES_QUERY_KEY);
+		},
+	});
+};
