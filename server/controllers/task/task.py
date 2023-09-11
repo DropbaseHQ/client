@@ -65,8 +65,8 @@ def file_to_text(file_path):
 
 def cast_to_classes(user_input, tables, state):
     final_str = """
-user_input  = UserInput(**user_input)
-tables = SelectedRowTables(**tables)
+user_input  = UserInput(**user_input) if user_input else UserInput()
+tables = TableSelection(**tables) if tables else TableSelection()
 state = State(**state)\n"""
     return final_str
 
@@ -86,6 +86,7 @@ def get_widget_states(db, widget_id: UUID):
     user_input = get_pydantic_model(db, widget_id)
 
     widget_components_state = "class WidgetComponents(BaseModel):\n"
+
     for comp in components:
         widget_components_state += f"    {comp.property['name']}: InputStateProperties\n"
 
@@ -127,7 +128,7 @@ def get_tables_states(db, page_id):
     tables = crud.tables.get_page_tables(db, page_id)
 
     table_ui_state = "class StateTables(BaseModel):\n"
-    selected_row_model = "class SelectedRowTables(BaseModel):\n"
+    selected_row_model = "class TableSelection(BaseModel):\n"
 
     all_ui_states = []
     all_selected_row_models = []
@@ -136,7 +137,7 @@ def get_tables_states(db, page_id):
         table_ui_classes, talbe_ui_class_name = get_display_props(db, table)
         table_ui_state += f"    {table.name}: {talbe_ui_class_name}\n"
         pyd_model_str, pyd_model_name = get_table_pydantic_model(db, table.id)
-        selected_row_model += f"    {table.name}: {pyd_model_name}\n"
+        selected_row_model += f"    {table.name}: Optional[{pyd_model_name}]\n"
         all_selected_row_models.append(pyd_model_str)
         all_ui_states.append(table_ui_classes)
 

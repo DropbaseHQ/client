@@ -30,5 +30,5 @@ def get_pydantic_model(db, widget_id):
 
         ColumnModel = component_type_mapper[comp.type]
         component = ColumnModel(**comp.property)
-        model_str += f"    {component.name}: {input_pydantic_dtype_mapper[component.type]}\n"
+        model_str += f"    {component.name}: Optional[{input_pydantic_dtype_mapper[component.type]}]\n"
     return model_str
