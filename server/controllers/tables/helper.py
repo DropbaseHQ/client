@@ -129,8 +129,8 @@ def get_db_schema(user_db_engine) -> (FullDBSchema, GPTSchema):
                 db_schema[schema][table_name][col_name]["type"] = str(column["type"])
                 db_schema[schema][table_name][col_name]["nullable"] = column["nullable"]
                 db_schema[schema][table_name][col_name]["unique"] = is_pk or col_name in unique_cols
-                db_schema[schema][table_name][col_name]["pk"] = is_pk
-                db_schema[schema][table_name][col_name]["fk"] = col_name in foreign_keys
+                db_schema[schema][table_name][col_name]["primary_key"] = is_pk
+                db_schema[schema][table_name][col_name]["foreign_key"] = col_name in foreign_keys
                 db_schema[schema][table_name][col_name]["default"] = column["default"]
             gpt_schema["schema"][schema][table_name] = [column["name"] for column in columns]
 

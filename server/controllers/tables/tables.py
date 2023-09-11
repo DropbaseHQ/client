@@ -11,6 +11,7 @@ from server.controllers.tables.helper import (
     get_row_schema,
     FullDBSchema
 )
+from server.controllers.tables.validation import validate_smart_cols
 from server.controllers.task.source_column_helper import connect_to_user_db
 from server.models.columns import Columns
 from server.schemas.columns import CreateColumns, PgColumnBaseProperty
@@ -112,50 +113,21 @@ def fill_smart_cols_data(
             "name": col_path["name"],
             "schema_name": col_path["schema"],
             "table_name": col_path["table"],
-            "column_name": col_path["column"],
+            "columns_name": col_path["column"],
         }
 
         schema = col_path["schema_name"]
         table = col_path["table_name"]
         column = col_path["columns_name"]
 
-        col_schema_data = db_schema[schema][table][column]
+        try:
+            col_schema_data = db_schema[schema][table][column]
+        except KeyError:
+            # Skip ChatGPT "hallucinated" columns
+            continue
 
-        smart_cols_data[name] = PgColumnBaseProperty({**col_path, **col_schema_data})
+        smart_cols_data[name] = PgColumnBaseProperty(**{**col_path, **col_schema_data})
     return smart_cols_data
-
-
-def has_primary_key(col_name: str, smart_cols: dict[str, PgColumnBaseProperty]) -> bool:
-    # Returns true if the primary key of the table that col_name belongs to is also in smart_cols
-    # where smart_cols contains metadata on the columns selected in the user sql query
-    def get_table_path(col_data: PgColumnBaseProperty) -> str:
-        return f"{col_data.schema_name}.{col_data.table_name}"
-
-    if col_name not in smart_cols.keys():
-        return False
-
-    tables_with_pks = {get_table_path(col) for col in smart_cols.values() if col.primary_key}
-    return get_table_path(smart_cols[col_name]) in tables_with_pks
-
-
-def validate_smart_col_fast(col_data: PgColumnBaseProperty):
-    # Will throw an exception
-    # column must have primary key
-    pass  # TODO
-
-
-def validate_smart_col_slow(col_data: PgColumnBaseProperty):
-    # Will throw an exception
-    pass  # TODO
-
-
-def validate_smart_cols(smart_cols: dict[str, PgColumnBaseProperty]):
-    # Will throw an exception if smart columns are found to be inconsistent with the db
-    for col_name, col_data in smart_cols.items():
-        if has_primary_key(col_name, smart_cols):
-            validate_smart_col_fast(col_data)
-        else:
-            validate_smart_col_slow(col_data)
 
 
 def convert_to_smart_table(db: Session, request: ConvertToSmart):
@@ -170,7 +142,7 @@ def convert_to_smart_table(db: Session, request: ConvertToSmart):
         # Fill smart col data before validation to get
         # primary keys along with other column metadata
         smart_cols = fill_smart_cols_data(smart_col_paths, db_schema)
-        validate_smart_cols(smart_cols)
+        validate_smart_cols(db, smart_cols, user_sql)
     except Exception:
         return {"message": "failure"}
 
