@@ -138,20 +138,29 @@ def convert_to_smart_table(db: Session, request: ConvertToSmart):
     column_names = get_column_names(user_db_engine, user_sql)
     smart_col_paths = call_gpt(user_sql, column_names, gpt_schema)
 
-    try:
-        # Fill smart col data before validation to get
-        # primary keys along with other column metadata
-        smart_cols = fill_smart_cols_data(smart_col_paths, db_schema)
-        validate_smart_cols(db, smart_cols, user_sql)
-    except Exception:
-        return {"message": "failure"}
+    # Return value
+    # True means column is valid
+    # False means column is invalid and was deleted from smart_cols
+    col_status = {col_name: False for col_name, _ in smart_col_paths}
+
+    # Fill smart col data before validation to get
+    # primary keys along with other column metadata
+    smart_cols = fill_smart_cols_data(smart_col_paths, db_schema)
+
+    # Validate smart cols will delete invalid cols from smart_cols
+    validate_smart_cols(db, smart_cols, user_sql)
+
+    # Set column statuses
+    for col_name in smart_cols:
+        col_status[col_name] = True
 
     columns = crud.columns.get_table_columns(db, table_id=table.id)
     for col in columns:
         col.property = smart_cols[col.name].dict()
     db.commit()
     user_db_engine.dispose()
-    return {"message": "success"}
+
+    return col_status
 
 
 def create_column_record_from_name(db: Session, col_name: str, table_id: UUID) -> Columns:
