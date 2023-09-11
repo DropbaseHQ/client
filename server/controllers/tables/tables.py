@@ -117,7 +117,7 @@ def fill_smart_cols_data(
 
         schema = col_path["schema_name"]
         table = col_path["table_name"]
-        column = col_path["column_name"]
+        column = col_path["columns_name"]
 
         col_schema_data = db_schema[schema][table][column]
         
@@ -126,16 +126,25 @@ def fill_smart_cols_data(
 
 
 def has_primary_key(col_name: str, smart_cols: dict[str, PgColumnBaseProperty]) -> bool:
-    pass
+    # Returns true if the primary key of the table that col_name belongs to is also in smart_cols
+    # where smart_cols contains metadata on the columns selected in the user sql query
+    def get_table_path(col_data: PgColumnBaseProperty) -> str:
+        return f"{col_data.schema_name}.{col_data.table_name}"
+    
+    if col_name not in smart_cols.keys():
+        return False
+
+    tables_with_pks = {get_table_path(col) for col in smart_cols.values() if col.primary_key}
+    return get_table_path(smart_cols[col_name]) in tables_with_pks
 
 
-def validate_smart_col_fast(col_data: dict):
+def validate_smart_col_fast(col_data: PgColumnBaseProperty):
     # Will throw an exception
     # column must have primary key
     pass
 
 
-def validate_smart_col_slow(col_data: dict):
+def validate_smart_col_slow(col_data: PgColumnBaseProperty):
     # Will throw an exception
     pass
 
