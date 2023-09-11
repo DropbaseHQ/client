@@ -5,7 +5,12 @@ from sqlalchemy.sql import text
 
 from server import crud
 from server.controllers.tables.convert import call_gpt
-from server.controllers.tables.helper import get_column_names, get_db_schema, get_row_schema
+from server.controllers.tables.helper import (
+    get_column_names,
+    get_db_schema,
+    get_row_schema,
+    FullDBSchema
+)
 from server.controllers.task.source_column_helper import connect_to_user_db
 from server.models.columns import Columns
 from server.schemas.columns import CreateColumns, PgColumnBaseProperty
@@ -94,11 +99,33 @@ def get_table_row(db: Session, table_id: UUID):
     return get_row_schema(columns)
 
 
-def fill_smart_cols_data(smart_cols_data: dict):
-    pass
+def fill_smart_cols_data(
+    smart_col_paths: dict,
+    db_schema: FullDBSchema
+) -> dict[str, PgColumnBaseProperty]:
+    smart_cols_data = {}
+    for name, col_path in smart_col_paths.items():
+        # TODO update gpt prompt to output key names that are
+        #      consistent with PgColumnBaseProperty
+        #      (i.e. gpt should spit out "schema_name" instead of "name")
+        col_path = {
+            "name": col_path["name"],
+            "schema_name": col_path["schema"],
+            "table_name": col_path["table"],
+            "column_name": col_path["column"],
+        }
+
+        schema = col_path["schema_name"]
+        table = col_path["table_name"]
+        column = col_path["column_name"]
+
+        col_schema_data = db_schema[schema][table][column]
+        
+        smart_cols_data[name] = PgColumnBaseProperty({**col_path, **col_schema_data})
+    return smart_cols_data
 
 
-def has_primary_key(col_name: str, smart_col_data: dict) -> bool:
+def has_primary_key(col_name: str, smart_cols: dict[str, PgColumnBaseProperty]) -> bool:
     pass
 
 
@@ -113,10 +140,10 @@ def validate_smart_col_slow(col_data: dict):
     pass
 
 
-def validate_smart_cols(smart_cols_data: dict):
+def validate_smart_cols(smart_cols: dict[str, PgColumnBaseProperty]):
     # Will throw an exception if smart columns are found to be inconsistent with the db
-    for col_name, col_data in smart_cols_data.items():
-        if has_primary_key(col_name, smart_cols_data):
+    for col_name, col_data in smart_cols.items():
+        if has_primary_key(col_name, smart_cols):
             validate_smart_col_fast(col_data)
         else:
             validate_smart_col_slow(col_data)
@@ -128,20 +155,15 @@ def convert_to_smart_table(db: Session, request: ConvertToSmart):
     db_schema, gpt_schema = get_db_schema(user_db_engine)
     user_sql = table.property["code"]
     column_names = get_column_names(user_db_engine, user_sql)
-    smart_cols_data = call_gpt(user_sql, column_names, gpt_schema)
-
-    # Fill smart col data before validation to get
-    # primary keys along with other column metadata
-    fill_smart_cols_data(smart_cols_data, db_schema)
+    smart_col_paths = call_gpt(user_sql, column_names, gpt_schema)
 
     try:
-        validate_smart_cols(smart_cols_data)
+        # Fill smart col data before validation to get
+        # primary keys along with other column metadata
+        smart_cols = fill_smart_cols_data(smart_col_paths, db_schema)
+        validate_smart_cols(smart_cols)
     except Exception:
         return {"message": "failure"}
-
-    smart_cols = {}
-    for col, col_data in smart_cols_data:
-        smart_cols[col] = PgColumnBaseProperty(**col_data)
 
     columns = crud.columns.get_table_columns(db, table_id=table.id)
     for col in columns:
