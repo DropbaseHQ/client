@@ -3,8 +3,6 @@ import os
 
 from dotenv import load_dotenv
 
-from server.schemas.columns import PgColumnBaseProperty
-
 from .gpt_template import get_gpt_input
 
 load_dotenv()
