@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import text
+from sqlalchemy import text, SQLAlchemyError
 
 from server.schemas.columns import PgColumnBaseProperty
 
-class SmartColumnDataInconsistentException(BaseException):
+class ColumnPathInferenceError(BaseException):
     pass
 
 
@@ -82,8 +82,8 @@ def validate_smart_cols(user_db_engine, smart_cols: dict[str, PgColumnBaseProper
                 res = conn.execute(text(validation_sql)).all()
             if not res[0][0]:
                 # invalid
-                raise SmartColumnDataInconsistentException
-        except BaseException:
+                raise ColumnPathInferenceError
+        except (SQLAlchemyError, ColumnPathInferenceError):
             # Drop column on any exception
             del smart_cols[col_name]
             continue
