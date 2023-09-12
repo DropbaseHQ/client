@@ -55,7 +55,7 @@ export const TableProperties = () => {
 								<FormInput {...property} />
 								<ErrorMessage
 									errors={errors}
-									name="singleErrorInput"
+									name={property.name}
 									render={({ message }) => (
 										<FormErrorMessage>{message}</FormErrorMessage>
 									)}

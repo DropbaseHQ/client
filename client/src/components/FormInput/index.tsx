@@ -61,7 +61,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	}
 
 	if (type === 'sql') {
-		return <MonacoEditor height="150px" language="sql" value={value} onChange={onChange} />;
+		return <MonacoEditor language="sql" value={value} onChange={onChange} />;
 	}
 
 	if (type === 'boolean') {

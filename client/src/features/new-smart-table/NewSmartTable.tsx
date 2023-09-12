@@ -16,6 +16,7 @@ export const NewSmartTable = () => {
 	const [selection, setSelection] = useState({
 		rows: CompactSelection.empty(),
 		columns: CompactSelection.empty(),
+		current: undefined,
 	});
 
 	const { isLoading, rows, columns, header, tableName } = useTableData({
@@ -84,15 +85,18 @@ export const NewSmartTable = () => {
 	};
 
 	const handleSetSelection = (newSelection: any) => {
-		const selectedRow = newSelection.rows.toArray()?.[0];
+		const currentRow = newSelection?.rows?.toArray()?.[0] || newSelection?.current?.cell?.[1];
 
-		setSelection(newSelection);
-
-		selectRow(
-			typeof selectedRow === 'number'
-				? ({ [tableName]: { ...rows[selectedRow] } } as any)
-				: {},
-		);
+		if (typeof currentRow === 'number') {
+			setSelection({
+				rows: CompactSelection.fromSingleSelection([currentRow, currentRow + 1]).add(
+					newSelection.rows,
+				),
+				columns: newSelection.columns,
+				current: newSelection.current,
+			});
+			selectRow({ [tableName]: rows[currentRow] } as any);
+		}
 	};
 
 	return (
