@@ -94,7 +94,7 @@ def compose_test_function_str(user_code):
             lines.append("is_state = check_if_state(result)")
     else:
         lines.append("is_state = False")
-        lines[-1] = "result = None"
+        lines.append("result = None")
 
     user_code = "\n".join(lines)
     return user_code
