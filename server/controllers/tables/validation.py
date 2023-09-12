@@ -1,5 +1,6 @@
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-from sqlalchemy import text, SQLAlchemyError
+from sqlalchemy import text
 
 from server.schemas.columns import PgColumnBaseProperty
 
