@@ -1,5 +1,6 @@
-import json
 import os
+import json
+from json import JSONDecodeError
 
 from dotenv import load_dotenv
 
@@ -18,14 +19,19 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def parse_gpt_output(data: str) -> dict[str, dict]:
     output_dict = json.loads(data).get("choices", [{"message": {"content": "{}"}}])[0]["message"]["content"]
-    output_dict = json.loads(output_dict)
-    parsed_output_dict = {}
 
-    # Delete incorrectly formatted output columns
+    try:
+        output_dict = json.loads(output_dict)
+    except JSONDecodeError:
+        return {}
+
+    # Drop incorrectly formatted output columns
+    parsed_output_dict = {}
     for column in output_dict:
         col_data = output_dict[column]
         if (
-            col_data.get("name")
+            type(col_data) is dict
+            and col_data.get("name")
             and col_data.get("schema_name")
             and col_data.get("table_name")
             and col_data.get("column_name")
