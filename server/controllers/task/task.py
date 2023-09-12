@@ -28,24 +28,14 @@ def run_task(request: RunTask, response: Response, db: Session):
         state = request.state["state"]
 
         casted_inputs = cast_to_classes(user_input, tables, state)
-        executable_code = (
-            states_def
-            + table_models
-            + widget_models
-            + function_code
-            + casted_inputs
-            + "\n"
-            + request.action
-        )
-        print(executable_code)
-
+        executable_code = states_def + table_models + widget_models + function_code + casted_inputs
         # run code
-        res = exec_code(executable_code, user_input, tables, state)
+        res = exec_code(executable_code, request.action, user_input, tables, state)
         return RunCodeResponse(**res)
-        # return res['result']
     except Exception as e:
         print(e)
         res = {
+            "is_state": False,
             "status": "error",
             "type": "python",
             "stdout": None,

@@ -30,6 +30,7 @@ class EditCell(BaseModel):
 
 
 class RunCodeResponse(BaseModel):
+    is_state: bool
     status: Literal["success", "error"]
     type: Literal["sql", "python"]
     stdout: Optional[str]
