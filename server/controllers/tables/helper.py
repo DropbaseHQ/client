@@ -126,6 +126,9 @@ def get_db_schema(user_db_engine) -> (FullDBSchema, GPTSchema):
                 col_name = column["name"]
                 is_pk = col_name in primary_key
                 db_schema[schema][table_name][col_name] = {}
+                db_schema[schema][table_name][col_name]["schema_name"] = schema
+                db_schema[schema][table_name][col_name]["table_name"] = table_name
+                db_schema[schema][table_name][col_name]["column_name"] = col_name
                 db_schema[schema][table_name][col_name]["type"] = str(column["type"])
                 db_schema[schema][table_name][col_name]["nullable"] = column["nullable"]
                 db_schema[schema][table_name][col_name]["unique"] = is_pk or col_name in unique_cols

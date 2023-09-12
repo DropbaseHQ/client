@@ -116,7 +116,7 @@ def fill_smart_cols_data(
             # Skip ChatGPT "hallucinated" columns
             continue
 
-        smart_cols_data[name] = PgColumnBaseProperty(**{**col_path, **col_schema_data})
+        smart_cols_data[name] = PgColumnBaseProperty(name=name, **col_schema_data)
     return smart_cols_data
 
 
