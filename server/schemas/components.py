@@ -4,21 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-
-class InputDisplayProperties(BaseModel):
-    message: Optional[str]
-    message_type: Optional[str]
-
-
-class InputSharedProperties(BaseModel):
-    # editable
-    options: Optional[str]
-    visible: Optional[bool]
-    value: Optional[str]
-
-
-class ComponentStateProperty(InputDisplayProperties, InputSharedProperties):
-    pass
+from server.schemas.states import InputDisplayProperties, InputSharedProperties
 
 
 class InputBaseProperties(BaseModel):
@@ -43,7 +29,11 @@ class InputBaseProperties(BaseModel):
     on_change: Optional[str]
 
 
-class Input(InputBaseProperties, InputDisplayProperties, InputSharedProperties):
+class InputDefined(InputBaseProperties, InputSharedProperties):
+    pass
+
+
+class InputRead(InputBaseProperties, InputDisplayProperties, InputSharedProperties):
     pass
 
 
@@ -55,14 +45,14 @@ class Button(BaseModel):
 
 
 class BaseComponents(BaseModel):
-    property: Union[Input, Button]
+    property: Union[InputDefined, Button]
     widget_id: UUID
     type: str
 
 
 class ReadComponents(BaseModel):
     id: UUID
-    property: Union[Input, Button]
+    property: Union[InputRead, Button]
     widget_id: UUID
     type: str
     date: datetime
@@ -77,8 +67,3 @@ class CreateComponents(BaseModel):
 class UpdateComponents(BaseModel):
     property: dict
     type: str
-
-
-# class ConvertComponents(BaseModel):
-#     widget_id: str
-#     property: Union[Input, Button]

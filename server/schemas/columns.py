@@ -4,19 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-
-class PgColumnDisplayProperty(BaseModel):
-    message: Optional[str]
-    message_type: Optional[str]
-
-
-class PgColumnSharedProperty(BaseModel):
-    editable: Optional[bool]
-    hidden: Optional[bool]
-
-
-class PgColumnStateProperty(PgColumnDisplayProperty, PgColumnSharedProperty):
-    pass
+from server.schemas.states import PgColumnDisplayProperty, PgColumnSharedProperty
 
 
 class PgColumnBaseProperty(BaseModel):
@@ -69,7 +57,11 @@ class PgColumnBaseProperty(BaseModel):
     unique: bool = False
 
 
-class PgColumn(PgColumnBaseProperty, PgColumnSharedProperty, PgColumnDisplayProperty):
+class PgDefinedColumnProperty(PgColumnBaseProperty, PgColumnSharedProperty):
+    pass
+
+
+class PgReadColumnProperty(PgColumnBaseProperty, PgColumnDisplayProperty, PgColumnSharedProperty):
     pass
 
 
@@ -79,13 +71,17 @@ class PythonColumn(BaseModel):
 
 class BaseColumns(BaseModel):
     name: Optional[str]
-    property: Union[PgColumn, PythonColumn]
+    property: Union[PgDefinedColumnProperty, PythonColumn]
     table_id: UUID
     type: str
 
 
 class ReadColumns(BaseColumns):
     id: UUID
+    name: str
+    property: Union[PgReadColumnProperty, PythonColumn]
+    table_id: UUID
+    type: str
     date: datetime
 
 

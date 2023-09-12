@@ -4,45 +4,38 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from server.schemas.columns import PgColumnStateProperty
-
-
-class TableDisplayProperty(BaseModel):
-    message: Optional[str]
-    message_type: Optional[str]
-    columns: Optional[List[PgColumnStateProperty]]
-
-
-class TableColumnStateProperty(TableDisplayProperty):
-    pass
+from server.schemas.states import TableDisplayProperty, TableSharedProperty
 
 
 class TablesBaseProperty(BaseModel):
-    # read_only
-    # ui
+    name: str
+    source: Optional[str]
     code: str = Field(..., description="sql")
     type: Literal["postgres", "python"]
-    name: str
 
     # on row change
     on_change: Optional[str]
 
 
-class TablesProperty(TablesBaseProperty, TableDisplayProperty):
+class TablesDefinedProperty(TablesBaseProperty, TableSharedProperty):
+    pass
+
+
+class TablesReadProperty(TablesBaseProperty, TableSharedProperty, TableDisplayProperty):
     pass
 
 
 class BaseTables(BaseModel):
     name: str
-    property: TablesProperty
+    property: TablesDefinedProperty
     page_id: UUID
 
-    class Config:
-        orm_mode = True
 
-
-class ReadTables(BaseTables):
+class ReadTables(BaseModel):
     id: UUID
+    name: str
+    property: TablesReadProperty
+    page_id: UUID
     date: datetime
 
 
