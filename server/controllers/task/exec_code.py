@@ -75,7 +75,7 @@ def compose_test_function_str(user_code):
     line_type, variables = identify_instruction(lines[-1])
 
     if line_type == "function":
-        lines.append(f"result = {lines[-1]}")
+        lines[-1] = f"result = {lines[-1]}"
         lines.append("is_state = check_if_state(result)")
 
     elif line_type == "assignment" and len(variables) > 0:
