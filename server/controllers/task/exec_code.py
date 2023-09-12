@@ -84,14 +84,14 @@ def compose_test_function_str(user_code):
             lines.append("is_state = False")
         else:
             lines.append(f"result = {variables[0]}")
-            lines.append(f"is_state = check_if_state({variables[0]})")
+            lines.append("is_state = check_if_state(result)")
     elif line_type == "variable" and len(variables) > 0:
         if len(variables) > 1:
             lines.append(f"result = ({','.join(variables)})")
             lines.append("is_state = False")
         else:
             lines.append(f"result = {variables[0]}")
-            lines.append(f"is_state = check_if_state({variables[0]})")
+            lines.append("is_state = check_if_state(result)")
     else:
         lines.append("is_state = False")
         lines[-1] = "result = None"
