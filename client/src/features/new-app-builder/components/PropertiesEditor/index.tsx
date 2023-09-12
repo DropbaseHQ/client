@@ -14,7 +14,7 @@ export const PropertiesEditor = () => {
 	const { functions } = usePageFunctions(pageId || '');
 
 	return (
-		<Tabs h="full" overflowY="auto">
+		<Tabs isLazy h="full" overflowY="auto">
 			<TabList bg="white" borderBottomWidth="1px">
 				<Tab>Table</Tab>
 				<Tab>Columns</Tab>
