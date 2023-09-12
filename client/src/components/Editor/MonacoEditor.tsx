@@ -30,7 +30,18 @@ export const MonacoEditor = (props: any) => {
 	return (
 		<Editor
 			{...otherProps}
-			options={{ ...(options || {}), scrollBeyondLastLine: false, automaticLayout: true }}
+			options={{
+				minimap: { enabled: false },
+				scrollbar: {
+					verticalHasArrows: true,
+					alwaysConsumeMouseWheel: false,
+					vertical: 'auto',
+					horizontal: 'auto',
+				},
+				...(options || {}),
+				scrollBeyondLastLine: false,
+				automaticLayout: true,
+			}}
 			onMount={handleEditorMount}
 			height={height}
 		/>

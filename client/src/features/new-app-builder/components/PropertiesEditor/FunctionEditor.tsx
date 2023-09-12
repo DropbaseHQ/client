@@ -1,19 +1,11 @@
-import {
-	Code,
-	IconButton,
-	Input,
-	InputGroup,
-	InputLeftElement,
-	InputRightElement,
-	Skeleton,
-	Stack,
-	Text,
-} from '@chakra-ui/react';
+import { Code, IconButton, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { Play, Save, X } from 'react-feather';
+import * as monacoLib from 'monaco-editor';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 
-import { useEffect, useState } from 'react';
+import { useMonaco } from '@monaco-editor/react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { MonacoEditor } from '@/components/Editor';
 import {
@@ -22,11 +14,19 @@ import {
 	useUpdateFunction,
 } from '@/features/new-app-builder/hooks';
 import { newPageStateAtom, useSyncState } from '@/features/new-app-state';
-import { logBuilder } from '@/features/new-app-builder/utils';
+import {
+	MODEL_PATH,
+	MODEL_SCHEME,
+	findFunctionDeclarations,
+	generateFunctionCallSuggestions,
+	logBuilder,
+} from '@/features/new-app-builder/utils';
 
 export const FunctionEditor = ({ id }: any) => {
 	const { pageId } = useParams();
 	const { isLoading, code: defaultCode, name, refetch } = usePageFunction(id || '');
+
+	const monaco = useMonaco();
 
 	const [action, setAction] = useState('');
 	const [log, setLog] = useState<any>(null);
@@ -54,13 +54,33 @@ export const FunctionEditor = ({ id }: any) => {
 		},
 	});
 
-	console.log(runMutation.data);
-
 	const [code, setCode] = useState('');
 
 	useEffect(() => {
 		setCode(defaultCode);
 	}, [defaultCode]);
+
+	const functionDeclarations = useMemo(() => {
+		return findFunctionDeclarations(code || '');
+	}, [code]);
+
+	useEffect(() => {
+		if (!monaco) {
+			return () => {};
+		}
+
+		const { dispose } = (monaco as any).languages.registerCompletionItemProvider('python', {
+			triggerCharacters: ['.', '"'],
+			provideCompletionItems: (
+				model: monacoLib.editor.ITextModel,
+				position: monacoLib.Position,
+			) => {
+				return generateFunctionCallSuggestions(model, position, functionDeclarations);
+			},
+		});
+
+		return dispose;
+	}, [monaco, code, functionDeclarations]);
 
 	const handleSave = () => {
 		updateMutation.mutate({
@@ -80,45 +100,46 @@ export const FunctionEditor = ({ id }: any) => {
 
 	return (
 		<Stack spacing="1">
-			<MonacoEditor height="250px" language="python" value={code} onChange={setCode} />
+			<MonacoEditor language="python" value={code} onChange={setCode} />
 
-			<InputGroup>
-				<InputLeftElement>
-					<IconButton
-						icon={<Play size="14" />}
-						variant="ghost"
-						colorScheme="gray"
-						aria-label="Run code"
-						isLoading={runMutation.isLoading}
-						onClick={handleRun}
-					/>
-				</InputLeftElement>
-				<Input
-					fontFamily="mono"
-					border="0"
-					type="text"
-					fontSize="sm"
-					value={action}
-					onChange={(e) => {
-						setAction(e.target.value);
-					}}
-					borderRadius="4px"
-					placeholder="Write function call here"
+			<Stack bg="white" p="1" spacing="0" alignItems="center" direction="row">
+				<IconButton
+					icon={<Play size="14" />}
+					variant="outline"
+					size="xs"
+					colorScheme="gray"
+					aria-label="Run code"
+					borderRadius="full"
+					isLoading={runMutation.isLoading}
+					onClick={handleRun}
+					isDisabled={!action}
+					flexShrink="0"
 				/>
 
-				{defaultCode !== code ? (
-					<InputRightElement>
-						<IconButton
-							icon={<Save size="14" />}
-							variant="ghost"
-							colorScheme="blue"
-							onClick={handleSave}
-							isLoading={updateMutation.isLoading}
-							aria-label="Save code"
-						/>
-					</InputRightElement>
-				) : null}
-			</InputGroup>
+				<MonacoEditor
+					options={{
+						lineNumbers: 'off',
+						glyphMargin: false,
+						folding: false,
+					}}
+					value={action}
+					onChange={setAction}
+					language="python"
+					path={`${MODEL_SCHEME}:${MODEL_PATH}`}
+				/>
+
+				<IconButton
+					icon={<Save size="14" />}
+					variant="ghost"
+					size="xs"
+					colorScheme="blue"
+					isDisabled={defaultCode === code}
+					onClick={handleSave}
+					isLoading={updateMutation.isLoading}
+					aria-label="Save code"
+					flexShrink="0"
+				/>
+			</Stack>
 
 			{log ? (
 				<Stack bg="white" p="2" h="full" borderRadius="sm">
