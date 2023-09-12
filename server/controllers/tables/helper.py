@@ -125,16 +125,17 @@ def get_db_schema(user_db_engine) -> (FullDBSchema, GPTSchema):
             for column in columns:
                 col_name = column["name"]
                 is_pk = col_name in primary_key
-                db_schema[schema][table_name][col_name] = {}
-                db_schema[schema][table_name][col_name]["schema_name"] = schema
-                db_schema[schema][table_name][col_name]["table_name"] = table_name
-                db_schema[schema][table_name][col_name]["column_name"] = col_name
-                db_schema[schema][table_name][col_name]["type"] = str(column["type"])
-                db_schema[schema][table_name][col_name]["nullable"] = column["nullable"]
-                db_schema[schema][table_name][col_name]["unique"] = is_pk or col_name in unique_cols
-                db_schema[schema][table_name][col_name]["primary_key"] = is_pk
-                db_schema[schema][table_name][col_name]["foreign_key"] = col_name in foreign_keys
-                db_schema[schema][table_name][col_name]["default"] = column["default"]
+                db_schema[schema][table_name][col_name] = {
+                    "schema_name": schema,
+                    "table_name": table_name,
+                    "column_name": col_name,
+                    "type": str(column["type"]),
+                    "nullable": column["nullable"],
+                    "unique": is_pk or col_name in unique_cols,
+                    "primary_key": is_pk,
+                    "foreign_key": col_name in foreign_keys,
+                    "default": column["default"],
+                }
             gpt_schema["schema"][schema][table_name] = [column["name"] for column in columns]
 
     return db_schema, gpt_schema
