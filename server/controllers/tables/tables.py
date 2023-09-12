@@ -106,19 +106,9 @@ def fill_smart_cols_data(
 ) -> dict[str, PgColumnBaseProperty]:
     smart_cols_data = {}
     for name, col_path in smart_col_paths.items():
-        # TODO update gpt prompt to output key names that are
-        #      consistent with PgColumnBaseProperty
-        #      (i.e. gpt should spit out "schema_name" instead of "name")
-        col_path = {
-            "name": col_path["name"],
-            "schema_name": col_path["schema"],
-            "table_name": col_path["table"],
-            "columns_name": col_path["column"],
-        }
-
         schema = col_path["schema_name"]
         table = col_path["table_name"]
-        column = col_path["columns_name"]
+        column = col_path["column_name"]
 
         try:
             col_schema_data = db_schema[schema][table][column]

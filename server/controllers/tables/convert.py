@@ -19,8 +19,21 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 def parse_gpt_output(data: str) -> dict[str, dict]:
-    # Returns {} if no choices are returned
-    return json.loads(data).get("choices", [{"message": {"content": "{}"}}])[0]["message"]["content"]
+    output_dict = json.loads(data).get("choices", [{"message": {"content": "{}"}}])[0]["message"]["content"]
+    output_dict = json.loads(output_dict)
+    parsed_output_dict = {}
+
+    # Delete incorrectly formatted output columns
+    for column in output_dict:
+        col_data = output_dict[column]
+        if (
+            col_data.get("name")
+            and col_data.get("schema_name")
+            and col_data.get("table_name")
+            and col_data.get("column_name")
+        ):
+            parsed_output_dict[column] = output_dict[column]
+    return parsed_output_dict
 
 
 def get_gpt_output(gpt_input: str, model: str = "gpt-3.5-turbo", temperature: float = 0.0) -> str:
@@ -37,5 +50,6 @@ def get_gpt_output(gpt_input: str, model: str = "gpt-3.5-turbo", temperature: fl
 def call_gpt(user_sql: str, column_names: list, db_schema: dict):
     gpt_input = get_gpt_input(db_schema, user_sql, column_names)
     gpt_output = get_gpt_output(gpt_input)
+    print(gpt_output)
     smart_cols = parse_gpt_output(gpt_output)
     return smart_cols

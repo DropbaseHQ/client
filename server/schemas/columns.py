@@ -48,7 +48,7 @@ class PgColumnBaseProperty(BaseModel):
 
     schema_name: str = None
     table_name: str = None
-    columns_name: str = None
+    column_name: str = None
 
     primary_key: bool = False
     foreign_key: bool = False

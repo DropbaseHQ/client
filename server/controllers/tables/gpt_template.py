@@ -10,14 +10,14 @@ Sample JSON object value
 ```json
 {{
         "name": "output column",
-        "schema": "public",
-        "table": "customer",
-        "column": "name"
+        "schema_name": "public",
+        "table_name": "customer",
+        "column_name": "name"
 }}
 ```
 
 In the sample JSON, "output column" is the column name as it would be output when executing the SQL statement.
-You will be provided a list of column names that will be returned by the query. Your job is to, for each column name, determine its schema, table, and column based on the SQL query. You may only return information on the columns specified in Column names. You must return information on each of the columns specified in Column names.
+You will be provided a list of column names that will be returned by the query. Your job is to, for each column name, determine its schema_name, table_name, and column_name based on the SQL query. You may only return information on the columns specified in Column names. You must return information on each of the columns specified in Column names.
 "table" is the table name and "column" is the column name, both are inferred from the SQL query.
 "schema" is the schema, this can be found by referencing the Database schema.
 If not otherwise specified, use the default schema specified in the Database schema metadata.

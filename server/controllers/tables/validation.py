@@ -65,15 +65,15 @@ def validate_smart_cols(user_db_engine, smart_cols: dict[str, PgColumnBaseProper
                 user_sql,
                 col_data.schema_name,
                 col_data.table_name,
-                col_data.columns_name,
-                pk.columns_name,
+                col_data.column_name,
+                pk.column_name,
             )
         else:
             validation_sql = get_slow_sql(
                 user_sql,
                 col_data.schema_name,
                 col_data.table_name,
-                col_data.columns_name,
+                col_data.column_name,
             )
         try:
             with user_db_engine.connect().execution_options(autocommit=True) as conn:
