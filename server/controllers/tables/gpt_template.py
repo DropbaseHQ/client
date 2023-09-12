@@ -39,5 +39,5 @@ Column names:
 {column_names}
 ```
 
-Output no prose, no explanations, just JSON.
+Output no prose, no explanations, just JSON. Exclude calculated columns from the JSON output.
 """
