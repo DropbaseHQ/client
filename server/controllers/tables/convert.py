@@ -54,6 +54,5 @@ def get_gpt_output(gpt_input: str, model: str = "gpt-3.5-turbo", temperature: fl
 def call_gpt(user_sql: str, column_names: list, db_schema: dict):
     gpt_input = get_gpt_input(db_schema, user_sql, column_names)
     gpt_output = get_gpt_output(gpt_input)
-    print(gpt_output)
     smart_cols = parse_gpt_output(gpt_output)
     return smart_cols
