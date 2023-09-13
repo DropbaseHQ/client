@@ -48,13 +48,15 @@ class PgColumnBaseProperty(BaseModel):
 
     schema_name: str = None
     table_name: str = None
-    columns_name: str = None
+    column_name: str = None
 
     primary_key: bool = False
     foreign_key: bool = False
     default: str = None
     nullable: bool = True
     unique: bool = False
+
+    is_editable: bool = False
 
 
 class PgDefinedColumnProperty(PgColumnBaseProperty, PgColumnSharedProperty):

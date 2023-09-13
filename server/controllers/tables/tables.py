@@ -4,18 +4,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
 from server import crud
-from server.controllers.tables.convert import call_gpt
-from server.controllers.tables.helper import get_column_names, get_db_schema, get_row_schema
+from server.controllers.tables.helper import get_row_schema
 from server.controllers.task.source_column_helper import connect_to_user_db
 from server.models.columns import Columns
 from server.schemas.columns import CreateColumns, PgColumnBaseProperty
-from server.schemas.tables import (
-    ConvertToSmart,
-    CreateTables,
-    ReadTables,
-    TablesBaseProperty,
-    UpdateTables,
-)
+from server.schemas.tables import CreateTables, ReadTables, TablesBaseProperty, UpdateTables
 from server.utils.converter import get_class_properties
 
 
@@ -92,23 +85,6 @@ def get_table_columns(user_db_engine, table_str):
 def get_table_row(db: Session, table_id: UUID):
     columns = crud.columns.get_table_columns(db, table_id=table_id)
     return get_row_schema(columns)
-
-
-def convert_to_smart_table(db: Session, request: ConvertToSmart):
-    user_db_engine = connect_to_user_db()
-    table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
-    db_schema = get_db_schema(user_db_engine)
-    user_sql = table.property["code"]
-    column_names = get_column_names(user_db_engine, user_sql)
-    smart_cols = call_gpt(user_sql, column_names, db_schema)
-    # TODO: validate
-    # TODO: get additional column metadata
-    columns = crud.columns.get_table_columns(db, table_id=table.id)
-    for col in columns:
-        col.property = smart_cols[col.name].dict()
-    db.commit()
-    user_db_engine.dispose()
-    return {"message": "success"}
 
 
 def create_column_record_from_name(db: Session, col_name: str, table_id: UUID) -> Columns:

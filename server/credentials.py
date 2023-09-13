@@ -14,3 +14,7 @@ AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
 ENVIRONMENT = os.environ.get("ENVIRONMENT")
+
+
+OPENAI_ORG_ID = os.getenv("OPENAI_ORG_ID")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
