@@ -89,23 +89,14 @@ def get_db_schema() -> DBSchema:
 
 def get_page_details(db: Session, page_id: str):
     page = crud.page.get_object_by_id_or_404(db, id=page_id)
-    sqls = crud.sqls.get_page_sqls(db, page_id=page_id)
-    tables = []
-    for sql in sqls:
-        columns = crud.columns.get_sql_columns(db, sql_id=sql.id)
-        tables.append({"sql": sql, "columns": columns})
+    tables = crud.tables.get_page_tables(db, page_id=page_id)
     functions = crud.functions.get_page_functions(db, page_id=page.id)
-
     widget = crud.widget.get_page_widget(db, page_id=page_id)
-    components = crud.components.get_widget_component(db, widget_id=widget.id)
-
     return {
         "page": page,
         "widget": widget,
         "tables": tables,
-        "columns": columns,
         "functions": functions,
-        "components": components,
     }
 
 

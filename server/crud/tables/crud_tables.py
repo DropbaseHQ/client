@@ -10,7 +10,7 @@ from server.schemas.tables import CreateTables, UpdateTables
 
 class CRUDTables(CRUDBase[Tables, CreateTables, UpdateTables]):
     def get_page_tables(self, db: Session, page_id: UUID) -> List[Tables]:
-        return db.query(Tables).filter(Tables.page_id == str(page_id)).all()
+        return db.query(Tables).filter(Tables.page_id == page_id).all()
 
     def get_page_sql(self, db: Session, page_id: UUID) -> Tables:
         return db.query(Tables).filter(Tables.page_id == str(page_id)).one()

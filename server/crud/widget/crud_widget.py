@@ -10,7 +10,7 @@ from server.schemas.widget import CreateWidget, UpdateWidget
 
 class CRUDWidget(CRUDBase[Widget, CreateWidget, UpdateWidget]):
     def get_page_widget(self, db: Session, page_id: UUID) -> Widget:
-        return db.query(Widget).filter(Widget.page_id == str(page_id)).one()
+        return db.query(Widget).filter(Widget.page_id == str(page_id)).first()
 
     def get_workspace_id(self, db: Session, widget_id: UUID) -> Workspace:
         return (
