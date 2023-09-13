@@ -7,10 +7,10 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.constants import GPT_MODEL, GPT_TEMPERATURE
-from server.controllers.task.source_column_helper import connect_to_user_db
 from server.credentials import OPENAI_API_KEY, OPENAI_ORG_ID
 from server.schemas.columns import PgColumnBaseProperty
 from server.schemas.tables import ConvertToSmart
+from server.utils.connect_to_user_db import connect_to_user_db
 
 from .gpt_template import get_gpt_input
 

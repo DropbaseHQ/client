@@ -1,15 +1,3 @@
-from server.controllers.task.base_source_column import SourceColumn
-
-
-def update_column_meta_with_filters(column_model: SourceColumn, filters: list):
-    for filter in filters:
-        if filter == "_protected":
-            column_model.editable = False
-        elif filter == "_hidden":
-            column_model.hidden = True
-    return column_model
-
-
 from sqlalchemy import create_engine
 
 

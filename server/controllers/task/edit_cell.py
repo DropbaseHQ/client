@@ -3,9 +3,9 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.task.source_column_helper import connect_to_user_db
 from server.schemas.columns import PgColumnBaseProperty
 from server.schemas.task import CellEdit, EditCell
+from server.utils.connect_to_user_db import connect_to_user_db
 
 
 def edit_cell(db: Session, request: EditCell):

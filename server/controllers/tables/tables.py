@@ -5,10 +5,10 @@ from sqlalchemy.sql import text
 
 from server import crud
 from server.controllers.tables.helper import get_row_schema
-from server.controllers.task.source_column_helper import connect_to_user_db
 from server.models.columns import Columns
 from server.schemas.columns import CreateColumns, PgColumnBaseProperty
 from server.schemas.tables import CreateTables, ReadTables, TablesBaseProperty, UpdateTables
+from server.utils.connect_to_user_db import connect_to_user_db
 from server.utils.converter import get_class_properties
 
 

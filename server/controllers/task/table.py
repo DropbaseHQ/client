@@ -2,9 +2,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
 from server import crud
-from server.controllers.task.source_column_helper import connect_to_user_db
-from server.controllers.task.source_column_model import col_names_list_to_dict_schema, get_parsed_schema
-from server.schemas.tables import ConvertToSmart, QueryTable
+from server.schemas.tables import QueryTable
+from server.utils.connect_to_user_db import connect_to_user_db
 
 
 def get_table_data(db: Session, request: QueryTable):
@@ -41,53 +40,6 @@ def get_table_data(db: Session, request: QueryTable):
         "table_name": table.name,
         "columns": column_schema,
     }
-
-
-def get_table_schema(user_db_engine, sql_str):
-    user_query_cleaned = sql_str.strip("\n ;")
-
-    with user_db_engine.connect().execution_options(autocommit=True) as conn:
-        res = conn.execute(text(f"SELECT * FROM ({user_query_cleaned}) AS q LIMIT 1")).all()
-
-    col_names = list(res[0].keys())
-    schema_dict, parsed_column_names = col_names_list_to_dict_schema(col_names)
-    return get_parsed_schema(user_db_engine, schema_dict), parsed_column_names
-
-
-type_mapping = {
-    "text": str,
-    "integer": int,
-    "float": float,
-    "boolean": bool,
-    "list": list,
-    "dictionary": dict,
-    "tuple": tuple,
-    "set": set,
-}
-
-
-def compose_classes_from_row_data(row_data: dict):
-    all_cls = "from dataclasses import dataclass\n"
-    row_cls_str = "@dataclass\n"
-    row_cls_str += "class Row:\n"
-
-    for schema, tables in row_data.items():
-        schema_cls_str = "@dataclass\n"
-        schema_name = schema.capitalize()
-        schema_cls_str += f"class {schema_name}:\n"
-
-        for table, column in tables.items():
-            table_name = schema_name + table.capitalize()
-            cls_str = "@dataclass\n"
-            cls_str += f"class {table_name}:\n"
-            for column, val in column.items():
-                cls_str += f"    {val['name']}: {type_mapping.get(val['type']).__name__}\n"
-            all_cls += cls_str + "\n"
-            schema_cls_str += f"    {table}: {table_name}\n"
-        all_cls += schema_cls_str + "\n"
-        row_cls_str += f"    {schema}: {schema_name}\n"
-    all_cls += row_cls_str
-    return all_cls
 
 
 def apply_filters(sql, filters, sorts):

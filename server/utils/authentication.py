@@ -1,4 +1,4 @@
-from fastapi import Depends, Header
+from fastapi import Depends
 from fastapi_jwt_auth import AuthJWT
 from passlib.context import CryptContext
 from pydantic import BaseModel
