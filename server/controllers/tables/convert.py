@@ -70,7 +70,6 @@ def fill_smart_cols_data(
         except KeyError:
             # Skip ChatGPT "hallucinated" columns
             continue
-
         smart_cols_data[name] = PgColumnBaseProperty(name=name, **col_schema_data)
     return smart_cols_data
 

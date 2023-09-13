@@ -110,35 +110,37 @@ def get_db_schema(user_db_engine) -> (FullDBSchema, GPTSchema):
 
         for table_name in tables:
             columns = inspector.get_columns(table_name, schema=schema)
-            primary_key = set().union(
-                inspector.get_pk_constraint(table_name, schema=schema)["constrained_columns"]
-            )
 
-            foreign_keys = set()
-            for fk_constraint in inspector.get_foreign_keys(table_name, schema=schema):
-                fk_constraint_cols = fk_constraint["constrained_columns"]
-                foreign_keys = foreign_keys.union(fk_constraint_cols)
+            # get primary keys
+            primary_keys = inspector.get_pk_constraint(table_name, schema=schema)["constrained_columns"]
 
-            unique_cols = set()
-            for unique_constraint in inspector.get_unique_constraints(table_name, schema=schema):
-                unique_constraint_cols = unique_constraint["column_names"]
-                unique_cols = unique_cols.union(unique_constraint_cols)
+            # get foreign keys
+            fk_constraints = inspector.get_foreign_keys("customer", schema="public")
+            foreign_keys = []
+            for fk_constraint in fk_constraints:
+                foreign_keys.extend(fk_constraint["constrained_columns"])
+
+            # get unique columns
+            unique_constraints = inspector.get_unique_constraints("customer", schema="public")
+            unique_columns = []
+            for unique_constraint in unique_constraints:
+                unique_columns.extend(unique_constraint["column_names"])
 
             db_schema[schema][table_name] = {}
             for column in columns:
                 col_name = column["name"]
-                is_pk = col_name in primary_key
+                is_pk = col_name in primary_keys
                 db_schema[schema][table_name][col_name] = {
                     "schema_name": schema,
                     "table_name": table_name,
                     "column_name": col_name,
                     "type": str(column["type"]),
                     "nullable": column["nullable"],
-                    "unique": is_pk or col_name in unique_cols,
+                    "unique": col_name in unique_columns,
                     "primary_key": is_pk,
                     "foreign_key": col_name in foreign_keys,
                     "default": column["default"],
-                    "is_editable": True if primary_key and not is_pk else False,
+                    "edit_keys": primary_keys if not is_pk else [],
                 }
             gpt_schema["schema"][schema][table_name] = [column["name"] for column in columns]
 

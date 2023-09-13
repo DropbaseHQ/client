@@ -56,7 +56,7 @@ class PgColumnBaseProperty(BaseModel):
     nullable: bool = True
     unique: bool = False
 
-    is_editable: bool = False
+    edit_keys: list = []
 
 
 class PgDefinedColumnProperty(PgColumnBaseProperty, PgColumnSharedProperty):

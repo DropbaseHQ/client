@@ -13,19 +13,15 @@ class RunTask(BaseModel):
 
 
 class CellEdit(BaseModel):
-    schema_name: str
-    table_name: str
-    column_name: str
+    column_id: UUID
     value: Any
     new_value: Any
-    key_column_name: str
-    key_column_value: Any
+    key_column_values: dict
 
 
 class EditCell(BaseModel):
-    # row: dict
     edits: List[CellEdit]
-    sql_id: UUID
+    table_id: UUID
 
 
 class RunCodeResponse(BaseModel):
