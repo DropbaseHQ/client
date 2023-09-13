@@ -3,6 +3,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server import crud
+from server.models.source import SourceType
 from server.schemas import CreateSource, CreateSourceRequest, UpdateSource, UpdateSourceRequest
 from server.utils.encrypt import _decrypt_db_creds, _encrypt_creds
 from server.utils.helper import raise_http_exception
@@ -46,9 +47,6 @@ def update_source(db: Session, source_id: UUID, request: UpdateSourceRequest):
             if key in request.creds and request.creds[key] == "":
                 request.creds[key] = source.creds[key]
 
-        # creds = _encrypt_creds(request.user_id, source.creds)
-        # _call_test_source_lambda(source, creds, request.user_id)
-
         source_obj = UpdateSource(
             name=request.name,
             description=request.description,
@@ -80,7 +78,6 @@ def test_source(
 
         if isinstance(source, CreateSourceRequest):
             pass
-            # creds = _encrypt_creds(user_id, source.creds.dict())
         else:
             if source.source_id:
                 donor_source = crud.source.get_object_by_id_or_404(db, id=source.source_id)
@@ -89,8 +86,6 @@ def test_source(
                     if key in source.creds and not source.creds[key]:
                         print("updated")
                         source.creds[key] = donor_source.creds[key]
-            # creds = _encrypt_creds(user_id, source.creds)
-        # return _call_test_source_lambda(source, creds, user_id)
 
     except Exception as ex:
         raise_http_exception(400, "Could not connect to source", ex)

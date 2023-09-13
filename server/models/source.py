@@ -1,8 +1,14 @@
+from enum import StrEnum
+
 from sqlalchemy import TIMESTAMP, Column, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
 from .base import Base
+
+
+class SourceType(StrEnum):
+    POSTGRES = "postgres"
 
 
 class Source(Base):
