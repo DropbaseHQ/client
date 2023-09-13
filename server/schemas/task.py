@@ -14,7 +14,7 @@ class RunTask(BaseModel):
 
 class CellEdit(BaseModel):
     column_id: UUID
-    value: Any
+    old_value: Any
     new_value: Any
     key_column_values: dict
 
@@ -26,6 +26,7 @@ class EditCell(BaseModel):
 
 class RunCodeResponse(BaseModel):
     # is_state: bool
+    is_state: Optional[bool]
     result: Optional[Any]
     state: Optional[dict]
     status: Literal["success", "error"]

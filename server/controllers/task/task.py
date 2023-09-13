@@ -86,15 +86,15 @@ def get_widget_states(db, widget_id: UUID):
     final_str = widget_components_state
 
     # TODO: get this from schemas
-    final_str += """class WidgetState(WidgetDisplayProperty):
+    final_str += """class WidgetBaseState(WidgetDisplayProperty):
     components: WidgetComponents\n"""
     # TODO: this is to handle nested
 
-    final_str += f"""class WidgetBase(BaseModel):
-    {widget.name}: WidgetState\n"""
+    final_str += f"""class WidgetState(BaseModel):
+    {widget.name}: WidgetBaseState\n"""
 
     final_str += """class State(BaseModel):
-    widget: WidgetBase
+    widget: WidgetState
     tables: StateTables\n"""
 
     final_str += user_input

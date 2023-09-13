@@ -67,11 +67,11 @@ def identify_instruction(instr):
         return "other", []
 
 
-def compose_test_function_str(user_code):
+def compose_test_function_str(test_code: str):
     # remove trailing spaces and newlines
-    user_code = user_code.strip("\n ")
+    test_code = test_code.strip("\n ")
     # split into lines
-    lines = user_code.split("\n")
+    lines = test_code.split("\n")
 
     line_type, variables = identify_instruction(lines[-1])
 
@@ -80,33 +80,18 @@ def compose_test_function_str(user_code):
         lines.append("is_state = check_if_state(result)")
         lines.append(
             """if is_state:
-    state = result"""
+    state = result
+    result = None"""
         )
-    elif line_type == "assignment" and len(variables) > 0:
-        if len(variables) > 1:
-            lines.append(f"result = ({','.join(variables)})")
-            lines.append("is_state = False")
-        else:
-            lines.append(f"result = {variables[0]}")
-            lines.append("is_state = check_if_state(result)")
-            lines.append(
-                """if is_state:
-    state = result"""
-            )
-    elif line_type == "variable" and len(variables) > 0:
-        if len(variables) > 1:
-            lines.append(f"result = ({','.join(variables)})")
-            lines.append("is_state = False")
-        else:
-            lines.append(f"result = {variables[0]}")
-            lines.append("is_state = check_if_state(result)")
-            lines.append(
-                """if is_state:
-    state = result"""
-            )
+    elif line_type in ["assignment", "variable"] and len(variables) > 0:
+        if "state" in variables:
+            variables.remove("state")
+        if variables:
+            lines.append(f"result = {','.join(variables)}")
     else:
-        lines.append("is_state = False")
         lines.append("result = None")
+    # verify that state is legal
+    lines.append("is_state = check_if_state(state)")
 
-    user_code = "\n".join(lines)
-    return user_code
+    test_code = "\n".join(lines)
+    return test_code

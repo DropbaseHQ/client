@@ -61,8 +61,7 @@ def get_table_pydantic_model(db, table_id):
         ColumnModel = columns_type_mapper[col.type]
         column = ColumnModel(**col.property)
         type = pg_pydantic_dtype_mapper.get(column.type)
-        model_str += f"    {column.name}: {type if type else 'Any'}\n"
-
+        model_str += f"    {column.name}: Optional[{type if type else 'Any'}]\n"
     return model_str, model_name
 
 

@@ -21,7 +21,7 @@ def update_value(db, user_db_engine, edit: CellEdit):
 
     values = {
         "new_value": edit.new_value,
-        "old_value": edit.value,
+        "old_value": edit.old_value,
     }
     prim_key_list = []
     for key in col_prop.edit_keys:
