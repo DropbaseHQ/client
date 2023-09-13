@@ -19,7 +19,7 @@ export const logBuilder = (data: any) => {
 		outputPreview += data.traceback;
 	}
 
-	if (data?.status === 'error' && data?.result) {
+	if (data?.result) {
 		if (outputPreview) {
 			outputPreview += '\n';
 		}

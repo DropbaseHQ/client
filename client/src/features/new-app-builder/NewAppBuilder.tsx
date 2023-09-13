@@ -15,7 +15,7 @@ export const NewAppBuilder = () => {
 			<AppBuilderNavbar />
 			<Box h="full" overflowY="auto">
 				<PanelGroup direction="vertical">
-					<Panel>
+					<Panel defaultSize={35}>
 						<PanelGroup direction="horizontal">
 							<Panel defaultSize={80}>
 								<NewSmartTable />

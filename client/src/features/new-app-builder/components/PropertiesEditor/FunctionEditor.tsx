@@ -24,11 +24,17 @@ import {
 
 export const FunctionEditor = ({ id }: any) => {
 	const { pageId } = useParams();
-	const { isLoading, code: defaultCode, name, refetch } = usePageFunction(id || '');
+	const {
+		isLoading,
+		code: defaultCode,
+		name,
+		refetch,
+		test_code: defaultTestCode,
+	} = usePageFunction(id || '');
 
 	const monaco = useMonaco();
 
-	const [action, setAction] = useState('');
+	const [testCode, setTestCode] = useState('');
 	const [log, setLog] = useState<any>(null);
 
 	const pageState = useAtomValue(newPageStateAtom);
@@ -44,7 +50,7 @@ export const FunctionEditor = ({ id }: any) => {
 	const runMutation = useRunFunction({
 		onSuccess: (data: any) => {
 			if (data.status === 'success') {
-				syncState(data.result);
+				syncState(data.state);
 			}
 
 			setLog(logBuilder(data));
@@ -59,6 +65,10 @@ export const FunctionEditor = ({ id }: any) => {
 	useEffect(() => {
 		setCode(defaultCode);
 	}, [defaultCode]);
+
+	useEffect(() => {
+		setTestCode(defaultTestCode);
+	}, [defaultTestCode]);
 
 	const functionDeclarations = useMemo(() => {
 		return findFunctionDeclarations(code || '');
@@ -91,7 +101,7 @@ export const FunctionEditor = ({ id }: any) => {
 	};
 
 	const handleRun = () => {
-		runMutation.mutate({ pageId, pageState, action });
+		runMutation.mutate({ pageId, functionId: id, pageState, testCode, code });
 	};
 
 	if (isLoading) {
@@ -112,18 +122,13 @@ export const FunctionEditor = ({ id }: any) => {
 					borderRadius="full"
 					isLoading={runMutation.isLoading}
 					onClick={handleRun}
-					isDisabled={!action}
+					isDisabled={!testCode}
 					flexShrink="0"
 				/>
 
 				<MonacoEditor
-					options={{
-						lineNumbers: 'off',
-						glyphMargin: false,
-						folding: false,
-					}}
-					value={action}
-					onChange={setAction}
+					value={testCode}
+					onChange={setTestCode}
 					language="python"
 					path={`${MODEL_SCHEME}:${MODEL_PATH}`}
 				/>

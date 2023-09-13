@@ -9,8 +9,9 @@ import DataEditor, {
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
 
-import { useTableData } from './hooks/useTableData';
+import { useTableData } from './hooks';
 import { newSelectedRowAtom } from '@/features/new-app-state';
+import { TableBar } from './components';
 
 export const NewSmartTable = () => {
 	const [selection, setSelection] = useState({
@@ -101,6 +102,7 @@ export const NewSmartTable = () => {
 
 	return (
 		<Stack h="full" spacing="0">
+			<TableBar />
 			{isLoading ? (
 				<Center h="full" as={Stack}>
 					<Spinner size="md" />

@@ -1,1 +1,1 @@
-export * from './useTableData';
+export * from './table';
