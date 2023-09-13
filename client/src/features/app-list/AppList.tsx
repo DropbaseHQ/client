@@ -16,19 +16,17 @@ import {
 	ModalCloseButton,
 	useDisclosure,
 } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+
 import { useState } from 'react';
 import { AppGraphic } from './AppGraphic';
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
-import { useGetAppPages } from './hooks/useGetAppPages';
-import { useNavigate } from 'react-router-dom';
 import { useCreateApp } from './hooks/useCreateApp';
 
 const AppCard = ({ app }: { app: AppType }) => {
-	const { pages } = useGetAppPages({ appId: app.id });
-
 	const navigate = useNavigate();
 	const handleClick = () => {
-		navigate(`/apps/${app.id}/${pages[0].id}`);
+		navigate(`/apps/${app.id}/${app?.pages?.[0]?.id}/new-editor`);
 	};
 	return (
 		<Flex
