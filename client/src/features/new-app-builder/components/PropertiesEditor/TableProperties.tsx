@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useAtomValue } from 'jotai';
 import { ErrorMessage } from '@hookform/error-message';
 import {
 	FormLabel,
@@ -11,11 +12,11 @@ import {
 } from '@chakra-ui/react';
 import { useGetTable, useUpdateTableProperties } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
+import { pageAtom } from '@/features/new-page';
 
 export const TableProperties = () => {
-	const { isLoading, properties, values, refetch } = useGetTable(
-		'b37ba8d3-6f5f-47a0-9d98-d749ccb8d4a2',
-	);
+	const { tableId } = useAtomValue(pageAtom);
+	const { isLoading, properties, values, refetch } = useGetTable(tableId || '');
 
 	const mutation = useUpdateTableProperties({
 		onSuccess: () => {
@@ -38,7 +39,7 @@ export const TableProperties = () => {
 
 	const onSubmit = (formValues: any) => {
 		mutation.mutate({
-			tableId: 'b37ba8d3-6f5f-47a0-9d98-d749ccb8d4a2',
+			tableId: tableId || '',
 			payload: formValues,
 		});
 	};

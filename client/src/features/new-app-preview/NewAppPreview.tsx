@@ -1,6 +1,8 @@
 import {
 	Alert,
 	AlertIcon,
+	Button,
+	Center,
 	FormControl,
 	FormHelperText,
 	FormLabel,
@@ -20,12 +22,17 @@ import {
 	useInitializeWidgetState,
 	allWidgetStateAtom,
 } from '@/features/new-app-state';
-
-const WIDGET_ID = '62a43f32-89f6-4143-a8e9-57cbdf0889b1';
+import { pageAtom } from '@/features/new-page';
+import { useCreateWidget } from '@/features/new-app-builder/hooks';
 
 export const NewAppPreview = () => {
 	const { pageId } = useParams();
-	const { isLoading, refetch, components, widget, isRefetching } = useGetWidgetPreview(WIDGET_ID);
+
+	const { widgetId } = useAtomValue(pageAtom);
+
+	const { isLoading, refetch, components, widget, isRefetching } = useGetWidgetPreview(
+		widgetId || '',
+	);
 
 	useInitializeWidgetState({ widgetId: widget?.name, pageId });
 
@@ -33,6 +40,29 @@ export const NewAppPreview = () => {
 	const widgetState: any = allWidgetState[widget?.name];
 
 	const [widgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
+
+	const mutation = useCreateWidget();
+
+	if (!widgetId) {
+		return (
+			<Stack as={Center} bg="white" h="full">
+				<Button
+					variant="outline"
+					colorScheme="blue"
+					size="sm"
+					isLoading={mutation.isLoading}
+					onClick={() => {
+						mutation.mutate({
+							pageId,
+							name: 'App',
+						});
+					}}
+				>
+					New App
+				</Button>
+			</Stack>
+		);
+	}
 
 	return (
 		<Stack bg="white" h="full" justifyContent="space-between">

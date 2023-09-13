@@ -9,18 +9,20 @@ import {
 	Skeleton,
 	Button,
 } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
+
 import { useGetWidget, useUpdateWidgetProperties } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
-
-const WIDGET_ID = '62a43f32-89f6-4143-a8e9-57cbdf0889b1';
+import { pageAtom } from '@/features/new-page';
 
 export const WidgetProperties = () => {
+	const { widgetId } = useAtomValue(pageAtom);
 	const {
 		isLoading,
 		schema,
 		values: { property: properties },
 		refetch,
-	} = useGetWidget(WIDGET_ID);
+	} = useGetWidget(widgetId || '');
 
 	const mutation = useUpdateWidgetProperties({
 		onSuccess: () => {
@@ -42,10 +44,11 @@ export const WidgetProperties = () => {
 	}, [properties, reset]);
 
 	const onSubmit = (formValues: any) => {
-		mutation.mutate({
-			widgetId: WIDGET_ID,
-			payload: formValues,
-		});
+		if (widgetId)
+			mutation.mutate({
+				widgetId,
+				payload: formValues,
+			});
 	};
 
 	return (

@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 
 import { TableProperties } from './TableProperties';
@@ -8,18 +9,21 @@ import { Components } from './ComponentEditor';
 import { FunctionEditor } from './FunctionEditor';
 import { NewFunction } from './Functions';
 import { usePageFunctions } from '@/features/new-app-builder/hooks';
+import { pageAtom } from '@/features/new-page';
 
 export const PropertiesEditor = () => {
 	const { pageId } = useParams();
 	const { functions } = usePageFunctions(pageId || '');
+
+	const { widgetId } = useAtomValue(pageAtom);
 
 	return (
 		<Tabs isLazy h="full" overflowY="auto">
 			<TabList bg="white" borderBottomWidth="1px">
 				<Tab>Table</Tab>
 				<Tab>Columns</Tab>
-				<Tab>Widget</Tab>
-				<Tab>Components</Tab>
+				<Tab isDisabled={!widgetId}>Widget</Tab>
+				<Tab isDisabled={!widgetId}>Components</Tab>
 
 				{functions.map((f: any) => (
 					<Tab key={f.id}>{f.name}</Tab>

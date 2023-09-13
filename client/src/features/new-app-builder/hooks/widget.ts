@@ -1,8 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useSetAtom } from 'jotai';
 import { useMemo } from 'react';
 
 import { axios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/new-app-preview/hooks';
+import { PAGE_DATA_QUERY_KEY, pageAtom } from '@/features/new-page';
+import { useToast } from '@/lib/chakra-ui';
 
 export const WIDGET_QUERY_KEY = 'widget';
 
@@ -50,6 +53,44 @@ export const useUpdateWidgetProperties = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
+		},
+	});
+};
+
+const createWidget = async ({ name, pageId }: any) => {
+	const response = await axios.post(`/widget/`, {
+		name,
+		property: {
+			name,
+			description: '',
+			error_message: '',
+		},
+		page_id: pageId,
+	});
+
+	return response.data;
+};
+
+export const useCreateWidget = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	const toast = useToast();
+	const updatePageContext = useSetAtom(pageAtom);
+
+	return useMutation(createWidget, {
+		...props,
+		onSuccess: (data: any) => {
+			updatePageContext((old) => ({
+				...old,
+				widgetId: data.id,
+			}));
+
+			toast({
+				status: 'success',
+				title: 'App created',
+			});
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 	});
 };

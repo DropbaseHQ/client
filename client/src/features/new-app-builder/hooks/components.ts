@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 
 import { axios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/new-app-preview/hooks';
+import { APP_STATE_QUERY_KEY } from '@/features/new-app-state';
 
 export const WIDGET_PROPERTIES_QUERY_KEY = 'widget/properties';
 
@@ -56,6 +57,8 @@ export const useUpdateComponentProperties = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
+			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 		},
 	});
 };
@@ -76,6 +79,8 @@ export const useCreateComponents = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(WIDGET_PROPERTIES_QUERY_KEY);
+			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 		},
 	});
 };

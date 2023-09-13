@@ -1,4 +1,4 @@
-import { Box, Stack } from '@chakra-ui/react';
+import { Box, Center, Spinner, Stack } from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { PanelHandle } from '@/components/Panel';
@@ -8,8 +8,22 @@ import { PropertiesEditor } from './components/PropertiesEditor';
 import { NewAppPreview } from '@/features/new-app-preview';
 import { NewSmartTable } from '@/features/new-smart-table';
 import { NewAppState } from '@/features/new-app-state';
+import { useInitPage } from '@/features/new-page';
 
 export const NewAppBuilder = () => {
+	const { isLoading } = useInitPage();
+
+	if (isLoading) {
+		return (
+			<Stack spacing="0" h="full">
+				<AppBuilderNavbar />
+				<Center h="full" w="full">
+					<Spinner />
+				</Center>
+			</Stack>
+		);
+	}
+
 	return (
 		<Stack spacing="0" h="full">
 			<AppBuilderNavbar />

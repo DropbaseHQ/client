@@ -19,8 +19,12 @@ const fetchTableData = async ({ tableId }: any) => {
 export const useTableData = ({ tableId, filters = [], sorts = [] }: any) => {
 	const queryKey = [TABLE_DATA_QUERY_KEY, tableId];
 
-	const { data: response, ...rest } = useQuery(queryKey, () =>
-		fetchTableData({ tableId, filters, sorts }),
+	const { data: response, ...rest } = useQuery(
+		queryKey,
+		() => fetchTableData({ tableId, filters, sorts }),
+		{
+			enabled: !!tableId,
+		},
 	);
 
 	const parsedData: any = useMemo(() => {

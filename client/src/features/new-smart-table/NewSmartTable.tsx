@@ -1,4 +1,4 @@
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Center, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useState } from 'react';
 
@@ -12,6 +12,7 @@ import '@glideapps/glide-data-grid/dist/index.css';
 import { useTableData } from './hooks';
 import { newSelectedRowAtom } from '@/features/new-app-state';
 import { TableBar } from './components';
+import { pageAtom } from '@/features/new-page';
 
 export const NewSmartTable = () => {
 	const [selection, setSelection] = useState({
@@ -20,8 +21,10 @@ export const NewSmartTable = () => {
 		current: undefined,
 	});
 
+	const { tableId } = useAtomValue(pageAtom);
+
 	const { isLoading, rows, columns, header, tableName } = useTableData({
-		tableId: 'b37ba8d3-6f5f-47a0-9d98-d749ccb8d4a2',
+		tableId,
 	});
 
 	const selectRow = useSetAtom(newSelectedRowAtom);

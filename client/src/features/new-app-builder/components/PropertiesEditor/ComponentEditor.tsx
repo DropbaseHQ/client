@@ -22,17 +22,19 @@ import {
 	ButtonGroup,
 	useDisclosure,
 } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
+
 import { FormInput } from '@/components/FormInput';
 import {
 	useCreateComponents,
 	useGetComponentProperties,
 	useUpdateComponentProperties,
 } from '@/features/new-app-builder/hooks';
-
-const WIDGET_ID = '62a43f32-89f6-4143-a8e9-57cbdf0889b1';
+import { pageAtom } from '@/features/new-page';
 
 const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
-	const { schema, refetch } = useGetComponentProperties(WIDGET_ID);
+	const { widgetId } = useAtomValue(pageAtom);
+	const { schema, refetch } = useGetComponentProperties(widgetId || '');
 
 	const methods = useForm();
 	const {
@@ -96,6 +98,7 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 };
 
 export const NewComponent = () => {
+	const { widgetId } = useAtomValue(pageAtom);
 	const { isOpen, onToggle, onClose } = useDisclosure();
 
 	const methods = useForm();
@@ -113,7 +116,7 @@ export const NewComponent = () => {
 	const onSubmit = ({ name, type }: any) => {
 		if (name.trim()) {
 			mutation.mutate({
-				widgetId: WIDGET_ID,
+				widgetId,
 				property: { name, type },
 				type: 'input',
 			});
@@ -205,7 +208,8 @@ export const NewComponent = () => {
 };
 
 export const Components = () => {
-	const { isLoading, values } = useGetComponentProperties(WIDGET_ID);
+	const { widgetId } = useAtomValue(pageAtom);
+	const { isLoading, values } = useGetComponentProperties(widgetId || '');
 
 	if (isLoading) {
 		return <Skeleton />;

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useAtomValue } from 'jotai';
 import { ErrorMessage } from '@hookform/error-message';
 import {
 	FormLabel,
@@ -15,9 +16,11 @@ import {
 	useGetColumnProperties,
 	useUpdateColumnProperties,
 } from '@/features/new-app-builder/hooks';
+import { pageAtom } from '@/features/new-page';
 
 const ColumnProperty = ({ id, property: properties }: any) => {
-	const { schema, refetch } = useGetColumnProperties('b37ba8d3-6f5f-47a0-9d98-d749ccb8d4a2');
+	const { tableId } = useAtomValue(pageAtom);
+	const { schema, refetch } = useGetColumnProperties(tableId || '');
 
 	const methods = useForm();
 	const {
@@ -81,10 +84,11 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 };
 
 export const Columns = () => {
-	const { isLoading, values } = useGetColumnProperties('b37ba8d3-6f5f-47a0-9d98-d749ccb8d4a2');
+	const { tableId } = useAtomValue(pageAtom);
+	const { isLoading, values } = useGetColumnProperties(tableId || '');
 
 	if (isLoading) {
-		return <Skeleton />;
+		return <Skeleton h="xs" />;
 	}
 
 	return (

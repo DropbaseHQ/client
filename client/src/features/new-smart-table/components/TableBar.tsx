@@ -26,7 +26,7 @@ export const TableBar = () => {
 			<IconButton
 				aria-label="Convert to Smart table"
 				icon={<Zap size="14" />}
-				variant="ghost"
+				variant="outline"
 				colorScheme="blue"
 				size="sm"
 				onClick={handleConvert}
