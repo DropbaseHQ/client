@@ -15,22 +15,25 @@ from server.utils.helper import clean_name_for_class
 
 def run_task(request: RunTask, response: Response, db: Session):
     # TODO: catch stdout
+    function = crud.functions.get_object_by_id_or_404(db, id=request.function_id)
+    function.test_code = request.test_code
+    function.code = request.code
+    db.commit()
+
     try:
         states_def = file_to_text("server/schemas/states.py")
         table_models = get_tables_states(db, request.page_id)
         widget = crud.widget.get_page_widget(db, page_id=request.page_id)
         widget_models = get_widget_states(db, widget.id)
-        functions = crud.functions.get_page_functions(db, page_id=request.page_id)
-        function_code = get_function_code(functions)
 
         tables = request.state["tables"]
         user_input = request.state["user_input"]
         state = request.state["state"]
 
         casted_inputs = cast_to_classes(user_input, tables, state)
-        executable_code = states_def + table_models + widget_models + function_code + casted_inputs
+        executable_code = states_def + table_models + widget_models + request.code + casted_inputs
         # run code
-        res = exec_code(executable_code, request.action, user_input, tables, state)
+        res = exec_code(executable_code, request.test_code, user_input, tables, state)
         return RunCodeResponse(**res)
     except Exception as e:
         print(e)

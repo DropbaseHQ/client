@@ -11,6 +11,7 @@ def exec_code(user_code, test_code, user_input, tables, state):
     run_code = "\n\n".join([helper_funcs, user_code, test_code_cleaned])
     ldic = {
         "result": "",
+        "state": {},
         "is_state": False,
         "stdout": "",
         "traceback": "",
@@ -77,7 +78,10 @@ def compose_test_function_str(user_code):
     if line_type == "function":
         lines[-1] = f"result = {lines[-1]}"
         lines.append("is_state = check_if_state(result)")
-
+        lines.append(
+            """if is_state:
+    state = result"""
+        )
     elif line_type == "assignment" and len(variables) > 0:
         if len(variables) > 1:
             lines.append(f"result = ({','.join(variables)})")
@@ -85,6 +89,10 @@ def compose_test_function_str(user_code):
         else:
             lines.append(f"result = {variables[0]}")
             lines.append("is_state = check_if_state(result)")
+            lines.append(
+                """if is_state:
+    state = result"""
+            )
     elif line_type == "variable" and len(variables) > 0:
         if len(variables) > 1:
             lines.append(f"result = ({','.join(variables)})")
@@ -92,6 +100,10 @@ def compose_test_function_str(user_code):
         else:
             lines.append(f"result = {variables[0]}")
             lines.append("is_state = check_if_state(result)")
+            lines.append(
+                """if is_state:
+    state = result"""
+            )
     else:
         lines.append("is_state = False")
         lines.append("result = None")
