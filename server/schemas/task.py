@@ -6,11 +6,10 @@ from pydantic import BaseModel
 
 class RunTask(BaseModel):
     page_id: UUID
-    # user_input: dict
-    # row: dict
     state: dict
-    action: str
-    # call_type: Literal["task", "function"] = "task"
+    code: str
+    test_code: str
+    function_id: UUID
 
 
 class CellEdit(BaseModel):
@@ -30,9 +29,10 @@ class EditCell(BaseModel):
 
 
 class RunCodeResponse(BaseModel):
-    is_state: bool
+    # is_state: bool
+    result: Optional[Any]
+    state: Optional[dict]
     status: Literal["success", "error"]
     type: Literal["sql", "python"]
     stdout: Optional[str]
-    result: Optional[Any]
     traceback: Optional[str]

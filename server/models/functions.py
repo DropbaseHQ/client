@@ -10,7 +10,7 @@ class Functions(Base):
 
     name = Column(String)
     code = Column(String, nullable=False)
-    # test_code = Column(String)
+    test_code = Column(String)
     type = Column(String)
     page_id = Column(UUID(as_uuid=True), ForeignKey("page.id", ondelete="CASCADE"))
 
