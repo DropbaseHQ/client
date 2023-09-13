@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -8,11 +8,8 @@ from server.schemas.states import WidgetDisplayProperty, WidgetSharedProperty
 
 
 class WidgetBaseProperty(BaseModel):
-    # read_only
-    # ui
     name: Optional[str]
     description: Optional[str]
-    error_message: Optional[str]
 
 
 class WidgetDefinedProperty(WidgetBaseProperty, WidgetSharedProperty):

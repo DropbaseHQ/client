@@ -40,8 +40,3 @@ def update_components(components_id: UUID, request: UpdateComponents, db: Sessio
 @router.delete("/{components_id}")
 def delete_components(components_id: UUID, db: Session = Depends(get_db)):
     return crud.components.remove(db, id=components_id)
-
-
-# @router.post("/convert")
-# def convert_components(request: ConvertComponents, response: Response, db: Session = Depends(get_db)):
-#     return components.convert_components(request, response)
