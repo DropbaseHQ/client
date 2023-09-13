@@ -41,7 +41,7 @@ export const NewAppBuilder = () => {
 						</PanelGroup>
 					</Panel>
 
-					<PanelHandle direction="horizontal" />
+					<PanelHandle boxShadow="0 -2px 4px rgba(0,0,0,0.2)" direction="horizontal" />
 
 					<Panel>
 						<PanelGroup direction="horizontal">
