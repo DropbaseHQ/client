@@ -27,7 +27,7 @@ def get_fast_sql(
     ) as equal
     from {schema_name}.{table_name} t
     inner join uq on t.{table_pk_name} = uq.{table_pk_name}
-    limit 100000;
+    limit 500;
     """
 
 
@@ -43,7 +43,7 @@ def get_slow_sql(
     select CASE WHEN count(t.{column_name}) = 0 THEN true ELSE false END
     from {schema_name}.{table_name} t
     where t.{column_name} not in (select uq.{column_name} from uq)
-    limit 100000;
+    limit 500;
     """
 
 
