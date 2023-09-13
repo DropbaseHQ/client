@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from server.controllers.source import source
 from server.schemas.source import CreateSourceRequest, UpdateSourceRequest
 from server.utils.connect import get_db
+from server.utils.authentication import get_current_user_email
 from server.utils.authorization import generate_resource_dependency, RESOURCES
 
 authorize_source_actions = generate_resource_dependency(RESOURCES.SOURCE)
@@ -18,8 +19,11 @@ def get_source(source_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/")
-def create_source(request: CreateSourceRequest, db: Session = Depends(get_db)):
-    user_email = ""
+def create_source(
+    request: CreateSourceRequest,
+    user_email: str = Depends(get_current_user_email),
+    db: Session = Depends(get_db),
+):
     return source.create_source(db, user_email, request)
 
 
@@ -35,7 +39,8 @@ def delete_source(source_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/test")
 def test_existing_source(
-    request: CreateSourceRequest | UpdateSourceRequest, db: Session = Depends(get_db)
+    request: CreateSourceRequest | UpdateSourceRequest,
+    user_email: str = Depends(get_current_user_email),
+    db: Session = Depends(get_db),
 ):
-    user_email = ""
     return source.test_source(db, request, user_email=user_email)
