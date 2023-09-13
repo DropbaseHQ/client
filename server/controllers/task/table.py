@@ -8,9 +8,16 @@ from server.schemas.tables import ConvertToSmart, QueryTable
 
 
 def get_table_data(db: Session, request: QueryTable):
-    user_db_engine = connect_to_user_db()
 
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
+    if table.property["code"] == "":
+        return {
+            "header": [],
+            "data": [],
+            "table_id": table.id,
+            "table_name": table.name,
+            "columns": [],
+        }
     columns = crud.columns.get_table_columns(db, table_id=table.id)
     column_schema = {}
     for column in columns:
@@ -19,8 +26,10 @@ def get_table_data(db: Session, request: QueryTable):
     # apply filters
     filter_sql, join_filters = apply_filters(table.property["code"], request.filters, request.sorts)
 
+    user_db_engine = connect_to_user_db()
     with user_db_engine.connect().execution_options(autocommit=True) as conn:
         res = conn.execute(text(filter_sql), join_filters).all()
+    user_db_engine.dispose()
 
     data = [list(row) for row in res]
     col_names = list(res[0].keys())
