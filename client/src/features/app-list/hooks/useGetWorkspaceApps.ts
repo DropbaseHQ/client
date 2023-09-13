@@ -1,11 +1,12 @@
-import { axios } from '@/lib/axios';
 import { useQuery } from 'react-query';
+import { axios } from '@/lib/axios';
 
 export type App = {
 	name: string;
 	workspace_id: string;
 	date: string;
 	id: string;
+	pages: any[];
 };
 
 const fetchWorkspaceApps = async () => {
