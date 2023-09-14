@@ -78,7 +78,6 @@ def test_source(
     # connect to the source
     # run "select 1"
     # Checkout dropmail for more guidance
-    import pdb; pdb.set_trace()
     try:
         if user_id is None:
             user_id = crud.user.get_user_by_email(db, email=user_email).id
