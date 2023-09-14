@@ -1,10 +1,12 @@
 import { IconButton, Stack } from '@chakra-ui/react';
+import { useParams } from 'react-router-dom';
 import { Zap } from 'react-feather';
 import { useConvertSmartTable } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
 
 export const TableBar = () => {
 	const toast = useToast();
+	const { tableId } = useParams();
 
 	const mutation = useConvertSmartTable({
 		onSuccess: () => {
@@ -16,9 +18,10 @@ export const TableBar = () => {
 	});
 
 	const handleConvert = () => {
-		mutation.mutate({
-			tableId: 'b37ba8d3-6f5f-47a0-9d98-d749ccb8d4a2',
-		});
+		if (tableId)
+			mutation.mutate({
+				tableId,
+			});
 	};
 
 	return (
