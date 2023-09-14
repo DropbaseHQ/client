@@ -74,10 +74,6 @@ def test_source(
     user_email: str,
     user_id: Optional[str] = None
 ):
-    # All we do is Given a source_id, or source_credentials
-    # connect to the source
-    # run "select 1"
-    # Checkout dropmail for more guidance
     try:
         if user_id is None:
             user_id = crud.user.get_user_by_email(db, email=user_email).id
