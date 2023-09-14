@@ -11,39 +11,43 @@ class ColumnPathInferenceError(BaseException):
 
 def get_fast_sql(
     user_sql: str,
+    name: str,
     schema_name: str,
     table_name: str,
     column_name: str,
     table_pk_name: str,
 ) -> str:
     # Query that results in [(1,)] if valid, [(0,)] if false
+    # NOTE: validate name of the column in user query (name) against column name in table (column_name)
     return f"""
-    with uq as ({user_sql})
-    select min(
+    WITH uq as ({user_sql})
+    SELECT min(
         CASE WHEN
-            t.{column_name} = uq.{column_name} or
-            t.{column_name} is null and uq.{column_name} is null
+            t.{column_name} = uq.{name} or
+            t.{column_name} is null and uq.{name} is null
         THEN 1 ELSE 0 END
     ) as equal
-    from {schema_name}.{table_name} t
-    inner join uq on t.{table_pk_name} = uq.{table_pk_name}
-    limit 500;
+    FROM {schema_name}.{table_name} t
+    INNER join uq on t.{table_pk_name} = uq.{table_pk_name}
+    LIMIT 500;
     """
 
 
 def get_slow_sql(
     user_sql: str,
+    name: str,
     schema_name: str,
     table_name: str,
     column_name: str,
 ) -> str:
     # Query that results in [(True,)] if valid, [(False,)] if false
+    # NOTE: validate name of the column in user query (name) against column name in table (column_name)
+    # NOTE: limit user query to 500 rows to improve performance
     return f"""
-    with uq as ({user_sql})
-    select CASE WHEN count(t.{column_name}) = 0 THEN true ELSE false END
-    from {schema_name}.{table_name} t
-    where t.{column_name} not in (select uq.{column_name} from uq)
-    limit 500;
+    WITH uq as ({user_sql})
+    SELECT CASE WHEN count(t.{column_name}) = 0 THEN true ELSE false END
+    FROM {schema_name}.{table_name} t
+    WHERE t.{column_name} not in (select uq.{name} from uq LIMIT 500);
     """
 
 
@@ -71,6 +75,7 @@ def validate_smart_cols(
         if pk_name:
             validation_sql = get_fast_sql(
                 user_sql,
+                col_name,
                 col_data.schema_name,
                 col_data.table_name,
                 col_data.column_name,
@@ -79,6 +84,7 @@ def validate_smart_cols(
         else:
             validation_sql = get_slow_sql(
                 user_sql,
+                col_name,
                 col_data.schema_name,
                 col_data.table_name,
                 col_data.column_name,
