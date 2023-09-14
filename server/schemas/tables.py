@@ -4,6 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from server.schemas.pinned_filters import Filter, Sort
 from server.schemas.states import TableDisplayProperty, TableSharedProperty
 
 
@@ -52,8 +53,8 @@ class UpdateTables(BaseModel):
 
 class QueryTable(BaseModel):
     table_id: UUID
-    filters: Optional[List[dict]]
-    sorts: Optional[List[dict]]
+    filters: Optional[List[Filter]]
+    sorts: Optional[List[Sort]]
 
 
 class ConvertToSmart(BaseModel):

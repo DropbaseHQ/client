@@ -1,7 +1,10 @@
+from typing import List
+
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
 from server import crud
+from server.schemas.pinned_filters import Filter, Sort
 from server.schemas.tables import QueryTable
 from server.utils.connect_to_user_db import connect_to_user_db
 
@@ -18,20 +21,21 @@ def get_table_data(db: Session, request: QueryTable):
             "columns": [],
         }
     columns = crud.columns.get_table_columns(db, table_id=table.id)
-    column_schema = {}
-    for column in columns:
-        column_schema[column.property["name"]] = column.property
 
     # apply filters
-    filter_sql, join_filters = apply_filters(table.property["code"], request.filters, request.sorts)
+    filter_sql, filter_values = apply_filters(table.property["code"], request.filters, request.sorts)
 
     user_db_engine = connect_to_user_db()
     with user_db_engine.connect().execution_options(autocommit=True) as conn:
-        res = conn.execute(text(filter_sql), join_filters).all()
+        res = conn.execute(text(filter_sql), filter_values).all()
     user_db_engine.dispose()
 
     data = [list(row) for row in res]
     col_names = list(res[0].keys())
+
+    # assert all the columns in schema are present in the result
+    column_schema = {column.name: column.property for column in columns}
+    assert set(column_schema.keys()).issubset(set(col_names))
 
     return {
         "header": col_names,
@@ -42,28 +46,37 @@ def get_table_data(db: Session, request: QueryTable):
     }
 
 
-def apply_filters(sql, filters, sorts):
+def apply_filters(table_sql: str, filters: List[Filter], sorts: List[Sort]):
+    # clean sql
+    table_sql = table_sql.strip("\n ;")
+    filter_sql = f"""WITH user_query as ({table_sql}) SELECT * FROM user_query\n"""
+
+    # apply filters
     filter_dict = {}
-    sql = sql.strip("\n ;")
-    filter_sql = f"""SELECT * FROM ({sql}) as user_query\n"""
-    if len(filters) > 0:
+    if filters:
         filter_sql += "WHERE \n"
 
+        filters_list = []
         for filter in filters:
-            sql_column_name = f"{filter['schema_name']}.{filter['table_name']}.{filter['column_name']}"
-            dict_column_name = f"{filter['schema_name']}_{filter['table_name']}_{filter['column_name']}"
-            filter_dict[f"{dict_column_name}_filter"] = filter["value"]
-            filter_sql += f"""user_query."{sql_column_name}" {filter['operator']} :{dict_column_name}_filter AND\n"""
+            print("FILTER")
+            print(filter)
+            filter_value_name = f"{filter.column_name}_filter"
+            filter_dict[filter_value_name] = filter.value
+            filters_list.append(
+                f'user_query."{filter.column_name}" {filter.operator} :{filter_value_name}'
+            )
 
-        filter_sql = filter_sql[:-4] + "\n"
+        filter_sql += " AND ".join(filters_list)
+    filter_sql += "\n"
 
-    if len(sorts) > 0:
+    # apply sorts
+    if sorts:
         filter_sql += "ORDER BY \n"
+        sort_list = []
+        for sort in sorts:
+            sort_list.append(f'user_query."{sort.column_name}" {sort.value}')
 
-    for sort in sorts:
-        sql_column_name = f"{sort['schema_name']}.{sort['table_name']}.{sort['column_name']}"
-        filter_sql += f"""user_query."{sql_column_name}" {sort['value']},\n"""
-
-    filter_sql = filter_sql[:-2] + ";"
+        filter_sql += ", ".join(sort_list)
+    filter_sql += "\n"
 
     return filter_sql, filter_dict
