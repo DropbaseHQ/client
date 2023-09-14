@@ -19,12 +19,8 @@ def get_source(source_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/")
-def create_source(
-    request: CreateSourceRequest,
-    user_email: str = Depends(get_current_user_email),
-    db: Session = Depends(get_db),
-):
-    return source.create_source(db, user_email, request)
+def create_source(request: CreateSourceRequest, db: Session = Depends(get_db)):
+    return source.create_source(db, request)
 
 
 @router.put("/{source_id}")
