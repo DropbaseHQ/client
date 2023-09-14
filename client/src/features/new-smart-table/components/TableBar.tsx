@@ -1,12 +1,14 @@
 import { IconButton, Stack } from '@chakra-ui/react';
-import { useParams } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+
 import { Zap } from 'react-feather';
 import { useConvertSmartTable } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
+import { pageAtom } from '@/features/new-page';
 
 export const TableBar = () => {
 	const toast = useToast();
-	const { tableId } = useParams();
+	const { tableId } = useAtomValue(pageAtom);
 
 	const mutation = useConvertSmartTable({
 		onSuccess: () => {
