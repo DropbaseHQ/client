@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -28,10 +28,10 @@ class UpdateFilters(BaseModel):
 
 class Filter(BaseModel):
     column_name: str
-    operator: str
+    operator: Literal["=", ">", "<", ">=", "<=", "like", "in"]
     value: Any
 
 
 class Sort(BaseModel):
     column_name: str
-    value: str
+    value: Literal["asc", "desc"]

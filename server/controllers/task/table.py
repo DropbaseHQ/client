@@ -52,16 +52,14 @@ def apply_filters(table_sql: str, filters: List[Filter], sorts: List[Sort]):
     filter_sql = f"""WITH user_query as ({table_sql}) SELECT * FROM user_query\n"""
 
     # apply filters
-    filter_dict = {}
+    filter_values = {}
     if filters:
         filter_sql += "WHERE \n"
 
         filters_list = []
         for filter in filters:
-            print("FILTER")
-            print(filter)
             filter_value_name = f"{filter.column_name}_filter"
-            filter_dict[filter_value_name] = filter.value
+            filter_values[filter_value_name] = filter.value
             filters_list.append(
                 f'user_query."{filter.column_name}" {filter.operator} :{filter_value_name}'
             )
@@ -79,4 +77,4 @@ def apply_filters(table_sql: str, filters: List[Filter], sorts: List[Sort]):
         filter_sql += ", ".join(sort_list)
     filter_sql += "\n"
 
-    return filter_sql, filter_dict
+    return filter_sql, filter_values
