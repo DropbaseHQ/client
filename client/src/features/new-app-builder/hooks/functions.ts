@@ -91,7 +91,7 @@ export const useUpdateFunction = (props: any = {}) => {
 };
 
 const createFunction = async ({ pageId, name }: any) => {
-	const response = await axios.post(`/functions`, {
+	const response = await axios.post(`/functions/`, {
 		page_id: pageId,
 		name,
 		code: '',
