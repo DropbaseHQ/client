@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -12,11 +12,20 @@ class RunTask(BaseModel):
     function_id: UUID
 
 
+class CellProps(BaseModel):
+    name: str
+    schema_name: str
+    table_name: str
+    column_name: str
+    edit_keys: List[str]
+
+
 class CellEdit(BaseModel):
-    column_id: UUID
+    column_name: str
     old_value: Any
     new_value: Any
-    key_column_values: dict
+    row: dict
+    columns: Dict[str, CellProps]
 
 
 class EditCell(BaseModel):

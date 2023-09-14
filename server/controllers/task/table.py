@@ -34,7 +34,7 @@ def get_table_data(db: Session, request: QueryTable):
     col_names = list(res[0].keys())
 
     # assert all the columns in schema are present in the result
-    column_schema = {column.name: column.property for column in columns}
+    column_schema = {column.name: {**{"id": column.id}, **column.property} for column in columns}
     assert set(column_schema.keys()).issubset(set(col_names))
 
     return {

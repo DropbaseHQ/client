@@ -42,6 +42,7 @@ def run_task(request: RunTask, response: Response, db: Session):
             "status": "error",
             "type": "python",
             "stdout": None,
+            "state": {},
             "result": str(e),
             "traceback": None,
         }
