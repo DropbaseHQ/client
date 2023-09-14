@@ -4,12 +4,13 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.tables import create_table, get_table, get_table_row, update_table
+from server.controllers.tables import create_table, get_table, get_table_row, pin_filters, update_table
 from server.controllers.tables.convert import convert_to_smart_table
 from server.controllers.task.table import get_table_data
 from server.schemas.tables import (
     ConvertToSmart,
     CreateTables,
+    PinFilters,
     QueryTable,
     TablesReadProperty,
     UpdateTables,
@@ -58,3 +59,8 @@ def get_table_req(request: QueryTable, db: Session = Depends(get_db)):
 @router.post("/convert")
 def convert_to_smart_req(request: ConvertToSmart, db: Session = Depends(get_db)):
     return convert_to_smart_table(db, request)
+
+
+@router.post("/pin_filters")
+def pin_filters_req(request: PinFilters, db: Session = Depends(get_db)):
+    return pin_filters(db, request)

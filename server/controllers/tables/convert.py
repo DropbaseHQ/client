@@ -36,6 +36,8 @@ def convert_to_smart_table(db: Session, request: ConvertToSmart):
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
     db_schema, gpt_schema = get_db_schema(user_db_engine)
     user_sql = table.property["code"]
+    # clean up user_sql, remove trailing semicolons and newlines
+    user_sql = user_sql.strip("\n ;")
     column_names = get_column_names(user_db_engine, user_sql)
     smart_col_paths = call_gpt(user_sql, column_names, gpt_schema)
 

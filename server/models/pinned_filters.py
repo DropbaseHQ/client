@@ -11,7 +11,7 @@ class PinnedFilters(Base):
     filters = Column(JSONB, nullable=False)
     sorts = Column(JSONB, nullable=False)
 
-    sql_id = Column(UUID(as_uuid=True), ForeignKey("tables.id", ondelete="CASCADE"), nullable=False)
+    table_id = Column(UUID(as_uuid=True), ForeignKey("tables.id", ondelete="CASCADE"), nullable=False)
 
     date = Column(TIMESTAMP, server_default=func.now())
 

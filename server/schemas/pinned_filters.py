@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class BaseFilters(BaseModel):
-    sql_id: UUID
+    table_id: UUID
     filters: dict
     sorts: dict
 
@@ -21,7 +21,7 @@ class CreateFilters(BaseFilters):
 
 
 class UpdateFilters(BaseModel):
-    sql_id: UUID
+    table_id: UUID
     filters: Optional[dict]
     sorts: Optional[dict]
 
@@ -35,3 +35,8 @@ class Filter(BaseModel):
 class Sort(BaseModel):
     column_name: str
     value: Literal["asc", "desc"]
+
+
+class PinnedFilter(BaseModel):
+    column_name: str
+    operator: Literal["=", ">", "<", ">=", "<=", "like", "in"]

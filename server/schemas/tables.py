@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from server.schemas.pinned_filters import Filter, Sort
+from server.schemas.pinned_filters import Filter, PinnedFilter, Sort
 from server.schemas.states import TableDisplayProperty, TableSharedProperty
 
 
@@ -13,6 +13,7 @@ class TablesBaseProperty(BaseModel):
     source: Optional[str]
     code: str = Field(..., description="sql")
     type: Literal["postgres", "python"]
+    filters: Optional[List[PinnedFilter]]
 
     # on row change
     on_change: Optional[str]
@@ -59,3 +60,8 @@ class QueryTable(BaseModel):
 
 class ConvertToSmart(BaseModel):
     table_id: UUID
+
+
+class PinFilters(BaseModel):
+    table_id: UUID
+    filters: List[PinnedFilter]

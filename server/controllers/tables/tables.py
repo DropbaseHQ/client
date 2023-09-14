@@ -7,7 +7,7 @@ from server import crud
 from server.controllers.tables.helper import get_row_schema
 from server.models.columns import Columns
 from server.schemas.columns import CreateColumns, PgColumnBaseProperty
-from server.schemas.tables import CreateTables, ReadTables, TablesBaseProperty, UpdateTables
+from server.schemas.tables import CreateTables, PinFilters, ReadTables, TablesBaseProperty, UpdateTables
 from server.utils.connect_to_user_db import connect_to_user_db
 from server.utils.converter import get_class_properties
 
@@ -95,3 +95,10 @@ def create_column_record_from_name(db: Session, col_name: str, table_id: UUID) -
         type="postgres",
     )
     return crud.columns.create(db, obj_in=column_obj)
+
+
+def pin_filters(db: Session, request: PinFilters):
+    table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
+    table.property["filters"] = request.filters
+    crud.tables.update(db, db_obj=table, obj_in=table)
+    return table
