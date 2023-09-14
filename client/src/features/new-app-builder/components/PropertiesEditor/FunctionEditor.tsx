@@ -49,7 +49,7 @@ export const FunctionEditor = ({ id }: any) => {
 
 	const runMutation = useRunFunction({
 		onSuccess: (data: any) => {
-			if (data.status === 'success') {
+			if (data.status === 'success' && data.is_state && data.state) {
 				syncState(data.state);
 			}
 
