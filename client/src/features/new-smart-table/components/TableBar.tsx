@@ -1,16 +1,31 @@
 import { IconButton, Stack } from '@chakra-ui/react';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
-import { Zap } from 'react-feather';
-import { useConvertSmartTable } from '../hooks';
+import { Save, Zap } from 'react-feather';
+import { useConvertSmartTable, useCurrentTableData, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { pageAtom } from '@/features/new-page';
+import { cellEditsAtom } from '@/features/new-smart-table/atoms';
 
 export const TableBar = () => {
 	const toast = useToast();
 	const { tableId } = useAtomValue(pageAtom);
 
-	const mutation = useConvertSmartTable({
+	const { rows, columns } = useCurrentTableData();
+
+	const [cellEdits, setCellEdits] = useAtom(cellEditsAtom);
+
+	const saveEditsMutation = useSaveEdits({
+		onSuccess: () => {
+			toast({
+				status: 'success',
+				title: 'Cell edits saved',
+			});
+			setCellEdits([]);
+		},
+	});
+
+	const convertMutation = useConvertSmartTable({
 		onSuccess: () => {
 			toast({
 				status: 'success',
@@ -21,13 +36,33 @@ export const TableBar = () => {
 
 	const handleConvert = () => {
 		if (tableId)
-			mutation.mutate({
+			convertMutation.mutate({
 				tableId,
 			});
 	};
 
+	const handleCellEdits = () => {
+		if (tableId)
+			saveEditsMutation.mutate({
+				tableId,
+				edits: cellEdits.map((edit: any) => ({
+					row: rows[edit.rowIndex],
+					column_name: edit.column_name,
+					columns,
+					old_value: edit.old_value,
+					new_value: edit.new_value,
+				})),
+			});
+	};
+
 	return (
-		<Stack bg="white" borderBottomWidth="1px" direction="row" p="1">
+		<Stack
+			bg="white"
+			borderBottomWidth="1px"
+			direction="row"
+			p="1"
+			justifyContent="space-between"
+		>
 			<IconButton
 				aria-label="Convert to Smart table"
 				icon={<Zap size="14" />}
@@ -35,8 +70,20 @@ export const TableBar = () => {
 				colorScheme="blue"
 				size="sm"
 				onClick={handleConvert}
-				isLoading={mutation.isLoading}
+				isLoading={convertMutation.isLoading}
 			/>
+
+			{cellEdits.length > 0 ? (
+				<IconButton
+					aria-label="Save Cell edits"
+					icon={<Save size="14" />}
+					variant="outline"
+					colorScheme="blue"
+					size="sm"
+					onClick={handleCellEdits}
+					isLoading={saveEditsMutation.isLoading}
+				/>
+			) : null}
 		</Stack>
 	);
 };

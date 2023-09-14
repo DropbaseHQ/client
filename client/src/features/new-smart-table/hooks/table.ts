@@ -80,3 +80,18 @@ export const useConvertSmartTable = (props: any = {}) => {
 		},
 	});
 };
+
+const saveEdits = async ({ edits, tableId }: { edits: any; tableId: any }) => {
+	const response = await axios.post(`/task/edit`, { table_id: tableId, edits });
+	return response.data;
+};
+
+export const useSaveEdits = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(saveEdits, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+		},
+	});
+};

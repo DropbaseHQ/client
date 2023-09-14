@@ -1,6 +1,6 @@
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Center, Spinner, Stack, Text } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import DataEditor, {
 	CompactSelection,
@@ -9,10 +9,12 @@ import DataEditor, {
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
 
-import { useTableData } from './hooks';
 import { newSelectedRowAtom } from '@/features/new-app-state';
-import { TableBar } from './components';
 import { pageAtom } from '@/features/new-page';
+
+import { useTableData } from './hooks';
+import { cellEditsAtom } from './atoms';
+import { TableBar } from './components';
 
 export const NewSmartTable = () => {
 	const [selection, setSelection] = useState({
@@ -27,7 +29,13 @@ export const NewSmartTable = () => {
 		tableId,
 	});
 
+	const [cellEdits, setCellEdits] = useAtom(cellEditsAtom);
+
 	const selectRow = useSetAtom(newSelectedRowAtom);
+
+	useEffect(() => {
+		setCellEdits([]);
+	}, [tableId, setCellEdits]);
 
 	const gridColumns = header.map((columnName: any) => {
 		let icon = GridColumnIcon.HeaderString;
@@ -58,10 +66,15 @@ export const NewSmartTable = () => {
 
 		const currentValue = currentRow?.[column.name];
 
-		const cellValue =
+		const editedValue = cellEdits.find((e: any) => e.columnIndex === col && e.rowIndex === row)
+			?.new_value;
+
+		const defaultValue =
 			currentValue === null || currentValue === undefined ? '' : String(currentValue);
 
-		const canEdit = column.editable;
+		const cellValue = editedValue === undefined ? defaultValue : editedValue;
+
+		const canEdit = column?.edit_keys?.length > 0;
 
 		let kind = GridCellKind.Text;
 
@@ -88,6 +101,28 @@ export const NewSmartTable = () => {
 		};
 	};
 
+	const onCellEdited = (cell: any, newValue: any) => {
+		const [col, row] = cell;
+		const currentRow = rows[row];
+
+		const column = columns[header[col]];
+
+		if (column?.edit_keys?.length > 0) {
+			setCellEdits((e: any) => [
+				...e,
+				{
+					new_value: newValue.data,
+					value: currentRow[column.name],
+					column_name: column.name,
+
+					old_value: currentRow[column.name],
+					rowIndex: row,
+					columnIndex: col,
+				},
+			]);
+		}
+	};
+
 	const handleSetSelection = (newSelection: any) => {
 		const currentRow = newSelection?.rows?.toArray()?.[0] || newSelection?.current?.cell?.[1];
 
@@ -102,6 +137,19 @@ export const NewSmartTable = () => {
 			selectRow({ [tableName]: rows[currentRow] } as any);
 		}
 	};
+
+	const highlights: any = cellEdits.map((edit: any) => {
+		return {
+			color: '#eaeaea',
+			range: {
+				x: edit.columnIndex,
+				y: edit.rowIndex,
+				width: 1,
+				height: 1,
+			},
+			style: 'solid',
+		};
+	});
 
 	return (
 		<Stack h="full" spacing="0">
@@ -123,6 +171,8 @@ export const NewSmartTable = () => {
 					smoothScrollY
 					onGridSelectionChange={handleSetSelection}
 					gridSelection={selection}
+					highlightRegions={highlights}
+					onCellEdited={onCellEdited}
 				/>
 			)}
 		</Stack>
