@@ -31,12 +31,3 @@ def update_source(source_id: UUID, request: UpdateSourceRequest, db: Session = D
 @router.delete("/{source_id}")
 def delete_source(source_id: UUID, db: Session = Depends(get_db)):
     return source.delete_source(db, source_id)
-
-
-@router.post("/test")
-def test_existing_source(
-    request: CreateSourceRequest | UpdateSourceRequest,
-    user_email: str = Depends(get_current_user_email),
-    db: Session = Depends(get_db),
-):
-    return source.test_source(db, request, user_email=user_email)
