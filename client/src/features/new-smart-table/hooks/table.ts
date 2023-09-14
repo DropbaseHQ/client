@@ -6,18 +6,18 @@ import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/new-app-builder/hooks';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
-const fetchTableData = async ({ tableId }: any) => {
+const fetchTableData = async ({ tableId, filters, sorts }: any) => {
 	const response = await axios.post<any>(`/tables/query`, {
 		table_id: tableId,
-		filters: [],
-		sorts: [],
+		filters,
+		sorts,
 	});
 
 	return response.data;
 };
 
 export const useTableData = ({ tableId, filters = [], sorts = [] }: any) => {
-	const queryKey = [TABLE_DATA_QUERY_KEY, tableId];
+	const queryKey = [TABLE_DATA_QUERY_KEY, tableId, JSON.stringify({ filters, sorts })];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,

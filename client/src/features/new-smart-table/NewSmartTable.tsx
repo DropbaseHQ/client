@@ -12,7 +12,7 @@ import '@glideapps/glide-data-grid/dist/index.css';
 import { newSelectedRowAtom } from '@/features/new-app-state';
 import { pageAtom } from '@/features/new-page';
 
-import { useTableData } from './hooks';
+import { useCurrentTableData } from './hooks';
 import { cellEditsAtom } from './atoms';
 import { TableBar } from './components';
 
@@ -25,9 +25,7 @@ export const NewSmartTable = () => {
 
 	const { tableId } = useAtomValue(pageAtom);
 
-	const { isLoading, rows, columns, header, tableName } = useTableData({
-		tableId,
-	});
+	const { isLoading, rows, columns, header, tableName } = useCurrentTableData();
 
 	const [cellEdits, setCellEdits] = useAtom(cellEditsAtom);
 

@@ -7,6 +7,9 @@ import { useToast } from '@/lib/chakra-ui';
 import { pageAtom } from '@/features/new-page';
 import { cellEditsAtom } from '@/features/new-smart-table/atoms';
 
+import { FilterButton } from './Filters';
+import { SortButton } from './Sorts';
+
 export const TableBar = () => {
 	const toast = useToast();
 	const { tableId } = useAtomValue(pageAtom);
@@ -63,27 +66,33 @@ export const TableBar = () => {
 			p="1"
 			justifyContent="space-between"
 		>
-			<IconButton
-				aria-label="Convert to Smart table"
-				icon={<Zap size="14" />}
-				variant="outline"
-				colorScheme="blue"
-				size="sm"
-				onClick={handleConvert}
-				isLoading={convertMutation.isLoading}
-			/>
+			<Stack spacing="0" direction="row">
+				<FilterButton />
+				<SortButton />
+			</Stack>
 
-			{cellEdits.length > 0 ? (
+			<Stack direction="row">
 				<IconButton
-					aria-label="Save Cell edits"
-					icon={<Save size="14" />}
-					variant="outline"
-					colorScheme="blue"
+					aria-label="Convert to Smart table"
+					icon={<Zap size="14" />}
+					variant="ghost"
+					colorScheme="yellow"
 					size="sm"
-					onClick={handleCellEdits}
-					isLoading={saveEditsMutation.isLoading}
+					onClick={handleConvert}
+					isLoading={convertMutation.isLoading}
 				/>
-			) : null}
+				{cellEdits.length > 0 ? (
+					<IconButton
+						aria-label="Save Cell edits"
+						icon={<Save size="14" />}
+						variant="outline"
+						colorScheme="blue"
+						size="sm"
+						onClick={handleCellEdits}
+						isLoading={saveEditsMutation.isLoading}
+					/>
+				) : null}
+			</Stack>
 		</Stack>
 	);
 };
