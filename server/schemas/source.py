@@ -10,7 +10,7 @@ class BaseSource(BaseModel):
     description: Optional[str]
     type: str
     creds: str
-    user_id: UUID
+    workspace_id: UUID
 
 
 class ReadSource(BaseSource):
@@ -63,7 +63,7 @@ class UpdateSource(BaseModel):
     description: Optional[str]
     type: Optional[str]
     creds: Optional[str]
-    user_id: Optional[UUID]
+    workspace_id: Optional[UUID]
 
 
 class UpdateSourceRequest(BaseModel):
@@ -71,8 +71,8 @@ class UpdateSourceRequest(BaseModel):
     description: Optional[str]
     type: Optional[str]
     creds: Optional[dict]
-    user_id: Optional[UUID]
-    Source_id: Optional[UUID]
+    workspace_id: Optional[UUID]
+    source_id: Optional[UUID]
 
 
 class ReadSourceResponse(BaseModel):
