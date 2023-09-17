@@ -29,37 +29,21 @@ class CreateSource(BaseSource):
 
 class BaseDatabaseCredentials(BaseModel):
     host: str
-    port: int
+    port: int = 5432
     username: str
     database: str
 
 
-class CreateDatabaseCredentials(BaseDatabaseCredentials):
+class DatabaseCredentials(BaseDatabaseCredentials):
     password: str
-
-
-class BaseSnowflakeCredentials(BaseModel):
-    account: str
-    database: str
-    username: str
-    warehouse: Optional[str]
-    role: Optional[str]
-    sf_schema: Optional[str]
-
-
-class CreateSnowflakeCredentials(BaseSnowflakeCredentials):
-    password: str
-
-
-class CreateBigQueryCredentials(BaseModel):
-    creds_json: str
 
 
 class CreateSourceRequest(BaseModel):
     name: str
+    workspace_id: UUID
     description: Optional[str]
     type: SourceType
-    creds: Union[CreateDatabaseCredentials, CreateSnowflakeCredentials, CreateBigQueryCredentials]
+    creds: DatabaseCredentials
 
 
 class UpdateSource(BaseModel):
@@ -85,4 +69,4 @@ class ReadSourceResponse(BaseModel):
     name: str
     description: Optional[str]
     type: SourceType
-    creds: Union[BaseDatabaseCredentials, BaseSnowflakeCredentials, CreateBigQueryCredentials]
+    creds: BaseDatabaseCredentials
