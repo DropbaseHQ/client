@@ -1,16 +1,21 @@
 from datetime import datetime
-from typing import Any, Optional, Union
+from enum import StrEnum
+from typing import Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel
 
 
+class SourceType(StrEnum):
+    POSTGRES = "postgres"
+
+
 class BaseSource(BaseModel):
     name: str
     description: Optional[str]
-    type: str
+    type: SourceType
     creds: str
-    user_id: UUID
+    workspace_id: UUID
 
 
 class ReadSource(BaseSource):
@@ -53,7 +58,7 @@ class CreateBigQueryCredentials(BaseModel):
 class CreateSourceRequest(BaseModel):
     name: str
     description: Optional[str]
-    type: str
+    type: SourceType
     creds: Union[CreateDatabaseCredentials, CreateSnowflakeCredentials, CreateBigQueryCredentials]
 
 
@@ -61,23 +66,23 @@ class UpdateSource(BaseModel):
     id: Optional[UUID]
     name: Optional[str]
     description: Optional[str]
-    type: Optional[str]
+    type: Optional[SourceType]
     creds: Optional[str]
-    user_id: Optional[UUID]
+    workspace_id: Optional[UUID]
 
 
 class UpdateSourceRequest(BaseModel):
     name: Optional[str]
     description: Optional[str]
-    type: Optional[str]
+    type: Optional[SourceType]
     creds: Optional[dict]
-    user_id: Optional[UUID]
-    Source_id: Optional[UUID]
+    workspace_id: Optional[UUID]
+    source_id: Optional[UUID]
 
 
 class ReadSourceResponse(BaseModel):
     id: UUID
     name: str
     description: Optional[str]
-    type: str
+    type: SourceType
     creds: Union[BaseDatabaseCredentials, BaseSnowflakeCredentials, CreateBigQueryCredentials]

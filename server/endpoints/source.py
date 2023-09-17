@@ -19,8 +19,7 @@ def get_source(source_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/")
 def create_source(request: CreateSourceRequest, db: Session = Depends(get_db)):
-    user_email = ""
-    return source.create_source(db, user_email, request)
+    return source.create_source(db, request)
 
 
 @router.put("/{source_id}")
@@ -31,11 +30,3 @@ def update_source(source_id: UUID, request: UpdateSourceRequest, db: Session = D
 @router.delete("/{source_id}")
 def delete_source(source_id: UUID, db: Session = Depends(get_db)):
     return source.delete_source(db, source_id)
-
-
-@router.post("/test")
-def test_existing_source(
-    request: CreateSourceRequest | UpdateSourceRequest, db: Session = Depends(get_db)
-):
-    user_email = ""
-    return source.test_source(db, request, user_email=user_email)

@@ -23,10 +23,12 @@ def get_config():
     return Settings()
 
 
-def get_current_user(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
-    current_user_id = "az@dropbase.io"
-    # Authorize.jwt_required()
-    # current_user_id = Authorize.get_jwt_subject()
+def get_current_user_email(Authorize: AuthJWT = Depends()) -> str:
+    return "az@dropbase.io"
+    # return Authorize.get_jwt_subject()
+
+
+def get_current_user(db: Session = Depends(get_db), current_user_id: str = Depends(get_current_user_email)):
     return crud.user.get_user_by_email(db, email=current_user_id)
 
 

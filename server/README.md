@@ -52,10 +52,11 @@ run specific test:
 pytest server/tests/test_components.py -s
 ```
 
-make sure to install pytest and httpx
+make sure to install pytest, pytest-mock, and httpx
 
 ```
 pip install pytest
+pip install pytest-mock
 pip install httpx
 ```
 
