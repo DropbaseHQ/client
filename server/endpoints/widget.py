@@ -26,6 +26,7 @@ def create_widget(request: CreateWidget, db: Session = Depends(get_db)):
 
 @router.put("/{widget_id}")
 def update_widget(widget_id: UUID, request: UpdateWidget, db: Session = Depends(get_db)):
+    request.name = request.property.name
     return crud.widget.update_by_pk(db, pk=widget_id, obj_in=request)
 
 
