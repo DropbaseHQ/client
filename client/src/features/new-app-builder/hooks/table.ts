@@ -12,7 +12,7 @@ const fetchTablePropertiesInfo = async ({ tableId }: { tableId: string }) => {
 	return response.data;
 };
 
-export const useGetTable = (tableId: string, props: any): any => {
+export const useGetTable = (tableId: string, props?: any): any => {
 	const queryKey = [APP_QUERY_KEY, tableId];
 
 	const { data: response, ...rest } = useQuery(

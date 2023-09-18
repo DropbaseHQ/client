@@ -38,6 +38,7 @@ export const MonacoEditor = (props: any) => {
 					vertical: 'auto',
 					horizontal: 'auto',
 				},
+				fontFamily: 'Fira Code',
 				...(options || {}),
 				scrollBeyondLastLine: false,
 				automaticLayout: true,
