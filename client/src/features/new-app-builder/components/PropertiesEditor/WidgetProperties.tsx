@@ -1,14 +1,7 @@
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { ErrorMessage } from '@hookform/error-message';
-import {
-	FormLabel,
-	FormControl,
-	Stack,
-	FormErrorMessage,
-	Skeleton,
-	Button,
-} from '@chakra-ui/react';
+
+import { Stack, Skeleton, Button } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 
 import { useGetWidget, useUpdateWidgetProperties } from '@/features/new-app-builder/hooks';
@@ -32,7 +25,7 @@ export const WidgetProperties = () => {
 
 	const methods = useForm();
 	const {
-		formState: { errors, isDirty },
+		formState: { isDirty },
 		reset,
 	} = methods;
 
@@ -57,18 +50,7 @@ export const WidgetProperties = () => {
 				<FormProvider {...methods}>
 					<Stack>
 						{schema.map((property: any) => (
-							<FormControl isInvalid={!!errors?.[property.name]} key={property.name}>
-								<FormLabel>{property.name}</FormLabel>
-
-								<FormInput {...property} />
-								<ErrorMessage
-									errors={errors}
-									name="singleErrorInput"
-									render={({ message }) => (
-										<FormErrorMessage>{message}</FormErrorMessage>
-									)}
-								/>
-							</FormControl>
+							<FormInput {...property} id={property.name} key={property.name} />
 						))}
 
 						{isDirty ? (

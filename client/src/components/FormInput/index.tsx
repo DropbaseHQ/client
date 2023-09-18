@@ -1,4 +1,7 @@
 import {
+	FormControl,
+	FormErrorMessage,
+	FormLabel,
 	Input,
 	NumberDecrementStepper,
 	NumberIncrementStepper,
@@ -9,6 +12,7 @@ import {
 	Switch,
 } from '@chakra-ui/react';
 import { forwardRef } from 'react';
+import { ErrorMessage } from '@hookform/error-message';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { MonacoEditor } from '@/components/Editor';
@@ -39,7 +43,9 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		return (
 			<Select
 				onBlur={onBlur}
-				onChange={(e) => onChange(e.target.value)}
+				onChange={(e) => {
+					onChange(e.target.value);
+				}}
 				value={value}
 				ref={ref}
 				size="sm"
@@ -87,13 +93,13 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	);
 });
 
-export const FormInput = ({ name, type, validation, enum: selectOptions }: any) => {
+export const BaseFormInput = ({ id, type, validation, enum: selectOptions }: any) => {
 	const { control } = useFormContext();
 
 	return (
 		<Controller
 			control={control}
-			name={name}
+			name={id}
 			rules={validation}
 			render={({ field: { onChange, onBlur, value, ref } }) => {
 				return (
@@ -108,5 +114,30 @@ export const FormInput = ({ name, type, validation, enum: selectOptions }: any) 
 				);
 			}}
 		/>
+	);
+};
+
+export const FormInput = ({ name, type, validation, enum: selectOptions, id }: any) => {
+	const {
+		formState: { errors },
+	} = useFormContext();
+
+	return (
+		<FormControl isInvalid={!!errors?.[id]} key={name}>
+			<FormLabel>{name}</FormLabel>
+
+			<BaseFormInput
+				name={name}
+				id={id}
+				type={type}
+				enum={selectOptions}
+				validation={validation}
+			/>
+			<ErrorMessage
+				errors={errors}
+				name={id}
+				render={({ message }) => <FormErrorMessage>{message}</FormErrorMessage>}
+			/>
+		</FormControl>
 	);
 };

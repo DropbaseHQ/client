@@ -4,6 +4,7 @@ import { Outlet, Route, Routes } from 'react-router-dom';
 import { Login, Register, ResetPassword } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
 import { AppRoutes } from '@/features/app';
+import { NewSource } from '@/features/sources';
 
 export const DashboardRoutes = () => {
 	return (
@@ -33,6 +34,7 @@ export const DashboardRoutes = () => {
 					<Route path="register" element={<Register />} />
 					<Route path="reset" element={<ResetPassword />} />
 					<Route path="apps/*" element={<AppRoutes />} />
+					<Route path="source/*" element={<NewSource />} />
 					<Route path="*" element={<Heading>404 page not defined</Heading>} />
 				</Route>
 			</Routes>

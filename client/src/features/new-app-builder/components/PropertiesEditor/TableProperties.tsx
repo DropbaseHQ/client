@@ -1,15 +1,7 @@
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
-import { ErrorMessage } from '@hookform/error-message';
-import {
-	FormLabel,
-	FormControl,
-	Stack,
-	FormErrorMessage,
-	Skeleton,
-	Button,
-} from '@chakra-ui/react';
+import { Stack, Skeleton, Button } from '@chakra-ui/react';
 import { useGetTable, useUpdateTableProperties } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { pageAtom } from '@/features/new-page';
@@ -26,7 +18,7 @@ export const TableProperties = () => {
 
 	const methods = useForm();
 	const {
-		formState: { errors, isDirty },
+		formState: { isDirty },
 		reset,
 	} = methods;
 
@@ -50,18 +42,7 @@ export const TableProperties = () => {
 				<FormProvider {...methods}>
 					<Stack>
 						{properties.map((property: any) => (
-							<FormControl isInvalid={!!errors?.[property.name]} key={property.name}>
-								<FormLabel>{property.name}</FormLabel>
-
-								<FormInput {...property} />
-								<ErrorMessage
-									errors={errors}
-									name={property.name}
-									render={({ message }) => (
-										<FormErrorMessage>{message}</FormErrorMessage>
-									)}
-								/>
-							</FormControl>
+							<FormInput {...property} id={property.name} key={property.name} />
 						))}
 
 						<Stack direction="row">

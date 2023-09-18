@@ -1,16 +1,7 @@
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
-import { ErrorMessage } from '@hookform/error-message';
-import {
-	FormLabel,
-	FormControl,
-	Stack,
-	FormErrorMessage,
-	Box,
-	Skeleton,
-	Button,
-} from '@chakra-ui/react';
+import { Stack, Box, Skeleton, Button } from '@chakra-ui/react';
 import { FormInput } from '@/components/FormInput';
 import {
 	useGetColumnProperties,
@@ -24,7 +15,7 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 
 	const methods = useForm();
 	const {
-		formState: { errors, isDirty },
+		formState: { isDirty },
 		reset,
 	} = methods;
 
@@ -55,18 +46,7 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 				<FormProvider {...methods}>
 					<Stack>
 						{schema.map((property: any) => (
-							<FormControl isInvalid={!!errors?.[property.name]} key={property.name}>
-								<FormLabel>{property.name}</FormLabel>
-
-								<FormInput {...property} />
-								<ErrorMessage
-									errors={errors}
-									name="singleErrorInput"
-									render={({ message }) => (
-										<FormErrorMessage>{message}</FormErrorMessage>
-									)}
-								/>
-							</FormControl>
+							<FormInput {...property} id={property.name} key={property.name} />
 						))}
 
 						{isDirty ? (

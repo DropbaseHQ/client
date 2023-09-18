@@ -1,12 +1,8 @@
 import { useEffect } from 'react';
 import { Plus } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
-import { ErrorMessage } from '@hookform/error-message';
 import {
-	FormLabel,
-	FormControl,
 	Stack,
-	FormErrorMessage,
 	Box,
 	Skeleton,
 	Button,
@@ -38,7 +34,7 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 
 	const methods = useForm();
 	const {
-		formState: { errors, isDirty },
+		formState: { isDirty },
 		reset,
 	} = methods;
 
@@ -69,18 +65,7 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 				<FormProvider {...methods}>
 					<Stack>
 						{schema.map((property: any) => (
-							<FormControl isInvalid={!!errors?.[property.name]} key={property.name}>
-								<FormLabel>{property.name}</FormLabel>
-
-								<FormInput {...property} />
-								<ErrorMessage
-									errors={errors}
-									name={property.name}
-									render={({ message }) => (
-										<FormErrorMessage>{message}</FormErrorMessage>
-									)}
-								/>
-							</FormControl>
+							<FormInput {...property} id={property.name} key={property.name} />
 						))}
 
 						{isDirty ? (
@@ -102,9 +87,6 @@ export const NewComponent = () => {
 	const { isOpen, onToggle, onClose } = useDisclosure();
 
 	const methods = useForm();
-	const {
-		formState: { errors },
-	} = methods;
 
 	const mutation = useCreateComponents({
 		onSuccess: () => {
@@ -145,39 +127,19 @@ export const NewComponent = () => {
 						<PopoverCloseButton />
 						<PopoverBody>
 							<Stack>
-								<FormControl isInvalid={!!errors?.name}>
-									<FormLabel>Name</FormLabel>
+								<FormInput
+									name="Name"
+									id="name"
+									validation={{ required: 'Name is required' }}
+									type="text"
+								/>
 
-									<FormInput
-										name="name"
-										validation={{ required: 'Name is required' }}
-										type="text"
-									/>
-									<ErrorMessage
-										errors={errors}
-										name="name"
-										render={({ message }) => (
-											<FormErrorMessage>{message}</FormErrorMessage>
-										)}
-									/>
-								</FormControl>
-
-								<FormControl isInvalid={!!errors?.type}>
-									<FormLabel>Type</FormLabel>
-
-									<FormInput
-										name="type"
-										type="select"
-										enum={['select', 'text', 'number']}
-									/>
-									<ErrorMessage
-										errors={errors}
-										name="type"
-										render={({ message }) => (
-											<FormErrorMessage>{message}</FormErrorMessage>
-										)}
-									/>
-								</FormControl>
+								<FormInput
+									name="Type"
+									id="type"
+									type="select"
+									enum={['select', 'text', 'number']}
+								/>
 							</Stack>
 						</PopoverBody>
 						<PopoverFooter
