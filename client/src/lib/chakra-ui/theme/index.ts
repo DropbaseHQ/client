@@ -2,6 +2,7 @@ import { theme as proTheme } from '@chakra-ui/pro-theme';
 import { extendTheme, theme as baseTheme } from '@chakra-ui/react';
 
 import '@fontsource-variable/inter';
+import '@fontsource-variable/inter/wght.css';
 
 export const theme = extendTheme({
 	...proTheme,
@@ -17,7 +18,8 @@ export const theme = extendTheme({
 		},
 	},
 	fonts: {
-		heading: `Inter, apple-system, sans-serif`,
-		body: `Inter, apple-system, sans-serif`,
+		heading: `'Inter Variable', apple-system, sans-serif`,
+		body: `'Inter Variable', apple-system, sans-serif`,
+		mono: `"Fira Code", SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace`,
 	},
 });

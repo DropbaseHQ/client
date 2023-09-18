@@ -26,7 +26,7 @@ export const ObjectRenderer = ({ obj, title, ...props }: any) => {
 				<>
 					<AccordionButton px="0.5" py="1">
 						<Stack spacing="1" alignItems="center" direction="row">
-							<Code fontSize="xs" colorScheme="white" as="span">
+							<Code color="gray.900" fontSize="xs" colorScheme="white" as="span">
 								{title}
 							</Code>
 
@@ -57,7 +57,14 @@ export const ObjectRenderer = ({ obj, title, ...props }: any) => {
 								}
 
 								return (
-									<Stack px="0.5" alignItems="center" direction="row" key={key}>
+									<Stack
+										color="gray.700"
+										fontWeight="300"
+										px="0.5"
+										alignItems="center"
+										direction="row"
+										key={key}
+									>
 										<Code fontSize="xs" flex="1" colorScheme="white">
 											{key}
 										</Code>
