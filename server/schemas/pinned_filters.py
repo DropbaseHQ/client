@@ -28,7 +28,8 @@ class UpdateFilters(BaseModel):
 
 class Filter(BaseModel):
     column_name: str
-    operator: Literal["=", ">", "<", ">=", "<=", "like", "in"]
+    # operator: Literal["and", "or", ""]
+    condition: Literal["=", ">", "<", ">=", "<=", "like", "in"]
     value: Any
 
 
@@ -39,4 +40,5 @@ class Sort(BaseModel):
 
 class PinnedFilter(BaseModel):
     column_name: str
-    operator: Literal["=", ">", "<", ">=", "<=", "like", "in"]
+    # operator: Literal["and", "or", ""]
+    condition: Literal["=", ">", "<", ">=", "<=", "like", "in"]

@@ -53,7 +53,7 @@ def apply_filters(table_sql: str, filters: List[Filter], sorts: List[Sort]):
             filter_value_name = f"{filter.column_name}_filter"
             filter_values[filter_value_name] = filter.value
             filters_list.append(
-                f'user_query."{filter.column_name}" {filter.operator} :{filter_value_name}'
+                f'user_query."{filter.column_name}" {filter.condition} :{filter_value_name}'
             )
 
         filter_sql += " AND ".join(filters_list)
