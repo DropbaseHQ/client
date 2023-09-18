@@ -1,49 +1,43 @@
 from typing import List
 
+from fastapi import Response
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
 from server import crud
 from server.schemas.pinned_filters import Filter, Sort
-from server.schemas.tables import QueryTable
+from server.schemas.tables import QueryResponse, QueryTable
 from server.utils.connect_to_user_db import connect_to_user_db
 
 
-def get_table_data(db: Session, request: QueryTable):
-
+def get_table_data(db: Session, request: QueryTable, response: Response) -> QueryResponse:
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
-    if table.property["code"] == "":
-        return {
-            "header": [],
-            "data": [],
-            "table_id": table.id,
-            "table_name": table.name,
-            "columns": [],
-        }
-    columns = crud.columns.get_table_columns(db, table_id=table.id)
+    try:
+        if table.property["code"] == "":
+            return QueryResponse(table_id=table.id, table_name=table.name)
+        columns = crud.columns.get_table_columns(db, table_id=table.id)
 
-    # apply filters
-    filter_sql, filter_values = apply_filters(table.property["code"], request.filters, request.sorts)
+        # apply filters
+        filter_sql, filter_values = apply_filters(table.property["code"], request.filters, request.sorts)
 
-    user_db_engine = connect_to_user_db()
-    with user_db_engine.connect().execution_options(autocommit=True) as conn:
-        res = conn.execute(text(filter_sql), filter_values).all()
-    user_db_engine.dispose()
+        user_db_engine = connect_to_user_db()
+        with user_db_engine.connect().execution_options(autocommit=True) as conn:
+            res = conn.execute(text(filter_sql), filter_values).all()
+        user_db_engine.dispose()
 
-    data = [list(row) for row in res]
-    col_names = list(res[0].keys())
+        data = [list(row) for row in res]
+        col_names = list(res[0].keys())
 
-    # assert all the columns in schema are present in the result
-    column_schema = {column.name: {**{"id": column.id}, **column.property} for column in columns}
-    assert set(column_schema.keys()).issubset(set(col_names))
+        # assert all the columns in schema are present in the result
+        column_schema = {column.name: {**{"id": column.id}, **column.property} for column in columns}
+        assert set(column_schema.keys()).issubset(set(col_names))
 
-    return {
-        "header": col_names,
-        "data": data,
-        "table_id": table.id,
-        "table_name": table.name,
-        "columns": column_schema,
-    }
+        return QueryResponse(
+            table_id=table.id, table_name=table.name, header=col_names, data=data, columns=column_schema
+        )
+    except Exception as e:
+        response.status_code = 400
+        return QueryResponse(table_id=table.id, table_name=table.name, error=str(e))
 
 
 def apply_filters(table_sql: str, filters: List[Filter], sorts: List[Sort]):
@@ -61,7 +55,7 @@ def apply_filters(table_sql: str, filters: List[Filter], sorts: List[Sort]):
             filter_value_name = f"{filter.column_name}_filter"
             filter_values[filter_value_name] = filter.value
             filters_list.append(
-                f'user_query."{filter.column_name}" {filter.operator} :{filter_value_name}'
+                f'user_query."{filter.column_name}" {filter.condition} :{filter_value_name}'
             )
 
         filter_sql += " AND ".join(filters_list)

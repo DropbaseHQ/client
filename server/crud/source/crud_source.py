@@ -9,8 +9,12 @@ from server.schemas.source import CreateSource, UpdateSource
 
 
 class CRUDSource(CRUDBase[Source, CreateSource, UpdateSource]):
-    def get_user_destinations(self, db: Session, user_id: UUID) -> List[Source]:
-        return db.query(Source).filter(Source.user_id == str(user_id)).all()
+    def get_workspace_sources(self, db: Session, workspace_id: UUID) -> List[Source]:
+        return (
+            db.query(Source.id, Source.name, Source.description, Source.type)
+            .filter(Source.workspace_id == workspace_id)
+            .all()
+        )
 
 
 source = CRUDSource(Source)

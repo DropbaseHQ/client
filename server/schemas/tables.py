@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Literal, Optional
+from typing import Any, List, Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -56,6 +56,15 @@ class QueryTable(BaseModel):
     table_id: UUID
     filters: Optional[List[Filter]]
     sorts: Optional[List[Sort]]
+
+
+class QueryResponse(BaseModel):
+    table_id: UUID
+    table_name: str
+    header: Optional[List[str]]
+    data: Optional[List[List[Any]]]
+    columns: Optional[dict]
+    error: Optional[str] = ""
 
 
 class ConvertToSmart(BaseModel):

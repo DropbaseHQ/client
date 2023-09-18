@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from server import crud
@@ -37,8 +37,10 @@ def create_tables(request: CreateTables, db: Session = Depends(get_db)):
 
 
 @router.put("/{tables_id}")
-def update_tables(tables_id: UUID, request: UpdateTables, db: Session = Depends(get_db)):
-    return update_table(db, tables_id, request)
+def update_tables(
+    tables_id: UUID, request: UpdateTables, response: Response, db: Session = Depends(get_db)
+):
+    return update_table(db, tables_id, request, response)
 
 
 @router.delete("/{tables_id}")
@@ -52,8 +54,8 @@ def get_table_schema(tables_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/query")
-def get_table_req(request: QueryTable, db: Session = Depends(get_db)):
-    return get_table_data(db, request)
+def get_table_req(request: QueryTable, response: Response, db: Session = Depends(get_db)):
+    return get_table_data(db, request, response)
 
 
 @router.post("/convert")

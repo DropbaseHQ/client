@@ -37,7 +37,7 @@ class RunCodeResponse(BaseModel):
     # is_state: bool
     is_state: Optional[bool]
     result: Optional[Any]
-    state: Optional[dict]
+    state: Optional[Any]
     status: Literal["success", "error"]
     type: Literal["sql", "python"]
     stdout: Optional[str]
