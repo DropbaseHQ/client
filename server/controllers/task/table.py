@@ -1,5 +1,6 @@
 from typing import List
 
+from fastapi import Response
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
@@ -9,7 +10,7 @@ from server.schemas.tables import QueryResponse, QueryTable
 from server.utils.connect_to_user_db import connect_to_user_db
 
 
-def get_table_data(db: Session, request: QueryTable) -> QueryResponse:
+def get_table_data(db: Session, request: QueryTable, response: Response) -> QueryResponse:
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
     try:
         if table.property["code"] == "":
@@ -35,6 +36,7 @@ def get_table_data(db: Session, request: QueryTable) -> QueryResponse:
             table_id=table.id, table_name=table.name, header=col_names, data=data, columns=column_schema
         )
     except Exception as e:
+        response.status_code = 400
         return QueryResponse(table_id=table.id, table_name=table.name, error=str(e))
 
 

@@ -54,8 +54,8 @@ def get_table_schema(tables_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/query")
-def get_table_req(request: QueryTable, db: Session = Depends(get_db)):
-    return get_table_data(db, request)
+def get_table_req(request: QueryTable, response: Response, db: Session = Depends(get_db)):
+    return get_table_data(db, request, response)
 
 
 @router.post("/convert")
