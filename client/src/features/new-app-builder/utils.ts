@@ -32,7 +32,14 @@ export const logBuilder = (data: any) => {
 export const findFunctionDeclarations = (code: string) => {
 	const functionRegex =
 		/^def\s+(?<call>(?<name>\w*)\s*\((?<params>[\S\s]*?)\)(?:\s*->\s*[\S\s]+?|\s*)):/gm;
-	return [...code.matchAll(functionRegex)].map((match) => match.groups);
+	return [...code.matchAll(functionRegex)]
+		.map((match) => match.groups)
+		.map((match: any) => ({
+			...match,
+			call: `${match.name}(${match.params
+				.split(',')
+				.map((param: any) => `${param.split(':')[0].trim()}= `)})`,
+		}));
 };
 
 export const generateFunctionCallSuggestions = (
