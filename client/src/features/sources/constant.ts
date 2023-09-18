@@ -1,3 +1,5 @@
+export const WORKSPACE_ID = '6db13881-1ba4-4412-9ae7-a21fb0e52d2d';
+
 const GENERIC_DATABASE_FIELDS = [
 	{
 		id: 'creds.host',
