@@ -9,6 +9,7 @@ import { cellEditsAtom } from '@/features/new-smart-table/atoms';
 
 import { FilterButton } from './Filters';
 import { SortButton } from './Sorts';
+import { PinnedFilters } from './PinnedFilters';
 
 export const TableBar = () => {
 	const toast = useToast();
@@ -66,9 +67,11 @@ export const TableBar = () => {
 			p="1.5"
 			justifyContent="space-between"
 		>
-			<Stack spacing="0" direction="row">
+			<Stack spacing="0" alignItems="center" direction="row">
 				<FilterButton />
 				<SortButton />
+
+				<PinnedFilters />
 			</Stack>
 
 			<Stack direction="row">

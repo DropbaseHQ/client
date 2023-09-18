@@ -123,7 +123,7 @@ export const SortButton = () => {
 												}}
 												bg="bg-canvas"
 												size="sm"
-												placeholder="Select operator"
+												placeholder="Select Sort"
 											>
 												<option value="asc">Ascending</option>
 												<option value="desc">Descending</option>
