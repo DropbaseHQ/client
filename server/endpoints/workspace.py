@@ -17,12 +17,12 @@ def get_workspace(workspace_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/")
 def create_workspace(request: CreateWorkspace, db: Session = Depends(get_db)):
-    return crud.workspace.create(db, request)
+    return crud.workspace.create(db, obj_in=request)
 
 
 @router.put("/{workspace_id}")
 def update_workspace(workspace_id: UUID, request: UpdateWorkspace, db: Session = Depends(get_db)):
-    return crud.workspace.update_by_pk(db, workspace_id, request)
+    return crud.workspace.update_by_pk(db, pk=workspace_id, obj_in=request)
 
 
 @router.delete("/{workspace_id}")
