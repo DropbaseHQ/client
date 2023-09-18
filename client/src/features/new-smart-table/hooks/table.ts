@@ -95,3 +95,18 @@ export const useSaveEdits = (props: any = {}) => {
 		},
 	});
 };
+
+const pinFilters = async ({ filters, tableId }: { filters: any; tableId: any }) => {
+	const response = await axios.post(`/tables/pin_filters`, { table_id: tableId, filters });
+	return response.data;
+};
+
+export const usePinFilters = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(pinFilters, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+		},
+	});
+};

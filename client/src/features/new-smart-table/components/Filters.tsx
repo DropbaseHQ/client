@@ -19,9 +19,12 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 import { Filter as FilterIcon, Plus, Star, Trash } from 'react-feather';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { filtersAtom } from '@/features/new-smart-table/atoms';
-import { useCurrentTableData } from '@/features/new-smart-table/hooks';
+import { useCurrentTableData, usePinFilters } from '@/features/new-smart-table/hooks';
+import { pageAtom } from '@/features/new-page';
+import { useGetTable } from '@/features/new-app-builder/hooks';
+import { useToast } from '@/lib/chakra-ui';
 
 const COMMON_OPERATORS = [
 	{
@@ -63,7 +66,7 @@ const COMPARISON_OPERATORS = [
 	},
 ];
 
-const getOperatorsByType = (type?: string) => {
+const getConditionsByType = (type?: string) => {
 	switch (type?.toLowerCase()) {
 		case 'integer': {
 			return [...COMMON_OPERATORS, ...COMPARISON_OPERATORS];
@@ -87,11 +90,34 @@ const getOperatorsByType = (type?: string) => {
 };
 
 export const FilterButton = () => {
+	const toast = useToast();
+	const { tableId } = useAtomValue(pageAtom);
 	const { isOpen, onToggle, onClose } = useDisclosure();
 
 	const { columns } = useCurrentTableData();
 
 	const [filters, setFilters] = useAtom(filtersAtom);
+
+	const pinFilterMutation = usePinFilters({
+		onSuccess: () => {
+			toast({
+				status: 'success',
+				title: 'Pinned filters updated',
+			});
+		},
+	});
+
+	useGetTable(tableId || '', {
+		onSuccess: (data: any) => {
+			setFilters(
+				(data?.values?.filters || []).map((f: any) => ({
+					...f,
+					pinned: true,
+					id: crypto.randomUUID(),
+				})),
+			);
+		},
+	});
 
 	const haveFiltersApplied = filters.length > 0 && filters.every((f) => f.column_name && f.value);
 
@@ -101,7 +127,7 @@ export const FilterButton = () => {
 			{
 				column_name: '',
 				value: null,
-				operator: '=',
+				condition: '=',
 				id: crypto.randomUUID(),
 			},
 		]);
@@ -111,8 +137,16 @@ export const FilterButton = () => {
 		setFilters([]);
 	};
 
-	const handleRemoveFilter = (index: number) => {
-		setFilters(filters.filter((_, i) => i !== index));
+	const handlePinnedFilters = (updatedFilters: any) => {
+		setFilters(updatedFilters);
+		pinFilterMutation.mutate({
+			tableId,
+			filters: updatedFilters.filter((f: any) => f.pinned),
+		});
+	};
+
+	const handleRemoveFilter = (removedId: any) => {
+		handlePinnedFilters(filters.filter((f) => f.id !== removedId));
 	};
 
 	return (
@@ -157,18 +191,18 @@ export const FilterButton = () => {
 											isDisabled={!filter.column_name}
 											variant={filter.pinned ? 'solid' : 'outline'}
 											onClick={() => {
-												setFilters(
-													filters.map((f, i) => {
-														if (i === index) {
-															return {
-																...f,
-																pinned: !f.pinned,
-															};
-														}
+												const newFilters = filters.map((f, i) => {
+													if (i === index) {
+														return {
+															...f,
+															pinned: !f.pinned,
+														};
+													}
 
-														return f;
-													}),
-												);
+													return f;
+												});
+
+												handlePinnedFilters(newFilters);
 											}}
 										/>
 
@@ -203,14 +237,14 @@ export const FilterButton = () => {
 										<FormControl flexGrow="1">
 											<Select
 												colorScheme="blue"
-												value={filter.operator}
+												value={filter.condition}
 												onChange={(e) => {
 													setFilters(
 														filters.map((f, i) => {
 															if (i === index) {
 																return {
 																	...f,
-																	operator: e.target.value,
+																	condition: e.target.value,
 																};
 															}
 
@@ -220,14 +254,14 @@ export const FilterButton = () => {
 												}}
 												bg="bg-canvas"
 												size="sm"
-												placeholder="Select operator"
+												placeholder="Select condition"
 											>
-												{getOperatorsByType(colType).map((operator) => (
+												{getConditionsByType(colType).map((condition) => (
 													<option
-														value={operator.value}
-														key={operator.value}
+														value={condition.value}
+														key={condition.value}
 													>
-														{operator.name}
+														{condition.name}
 													</option>
 												))}
 											</Select>
@@ -267,7 +301,7 @@ export const FilterButton = () => {
 											colorScheme="red"
 											variant="outline"
 											onClick={() => {
-												handleRemoveFilter(index);
+												handleRemoveFilter(filter.id);
 											}}
 										/>
 									</HStack>
