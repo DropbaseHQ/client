@@ -1,6 +1,5 @@
 from uuid import UUID
 
-from fastapi import Response
 from sqlalchemy.orm import Session
 
 from server import crud
@@ -13,7 +12,7 @@ from server.schemas.task import RunCodeResponse, RunTask
 from server.utils.helper import clean_name_for_class
 
 
-def run_task(request: RunTask, response: Response, db: Session):
+def run_task(request: RunTask, db: Session):
     # TODO: catch stdout
     function = crud.functions.get_object_by_id_or_404(db, id=request.function_id)
     function.test_code = request.test_code
@@ -46,7 +45,6 @@ def run_task(request: RunTask, response: Response, db: Session):
             "result": str(e),
             "traceback": None,
         }
-        response.status_code = 500
         return RunCodeResponse(**res)
 
 

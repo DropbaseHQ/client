@@ -6,6 +6,7 @@ from sqlalchemy.sql import text
 from server import crud
 from server.controllers.tables.helper import get_row_schema
 from server.models.columns import Columns
+from server.models.tables import Tables
 from server.schemas.columns import CreateColumns, PgColumnBaseProperty
 from server.schemas.tables import CreateTables, PinFilters, ReadTables, TablesBaseProperty, UpdateTables
 from server.utils.connect_to_user_db import connect_to_user_db
@@ -99,6 +100,9 @@ def create_column_record_from_name(db: Session, col_name: str, table_id: UUID) -
 
 def pin_filters(db: Session, request: PinFilters):
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
-    table.property["filters"] = request.filters
-    crud.tables.update(db, db_obj=table, obj_in=table)
+    table_props = table.property
+    table_props["filters"] = [filter.dict() for filter in request.filters]
+    db.query(Tables).filter(Tables.id == request.table_id).update({"property": table_props})
+    db.commit()
+    db.refresh(table)
     return table
