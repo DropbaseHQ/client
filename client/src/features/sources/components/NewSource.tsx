@@ -11,7 +11,7 @@ export const NewSource = () => {
 	const { watch } = methods;
 	const sourceType = watch('type');
 
-	const mutation = useCreateSource();
+	useCreateSource();
 
 	const onSubmit = (values: any) => {
 		console.log(values);

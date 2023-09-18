@@ -63,7 +63,7 @@ export const TableBar = () => {
 			bg="white"
 			borderBottomWidth="1px"
 			direction="row"
-			p="1"
+			p="1.5"
 			justifyContent="space-between"
 		>
 			<Stack spacing="0" direction="row">
