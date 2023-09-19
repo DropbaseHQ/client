@@ -18,17 +18,18 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { MonacoEditor } from '@/components/Editor';
 
 export const InputRenderer = forwardRef((props: any, ref: any) => {
-	const { onChange, onBlur, value, type, enum: selectOptions } = props;
+	const { onChange, onBlur, value, type, enum: selectOptions, ...inputProps } = props;
 
 	if (type === 'number') {
 		return (
 			<NumberInput
 				onChange={(_, valueAsNumber) => {
-					onChange(valueAsNumber);
+					onChange?.(valueAsNumber);
 				}}
 				size="sm"
 				onBlur={onBlur}
 				value={value === null ? '' : value}
+				{...inputProps}
 			>
 				<NumberInputField ref={ref} />
 				<NumberInputStepper>
@@ -44,19 +45,14 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 			<Select
 				onBlur={onBlur}
 				onChange={(e) => {
-					onChange(e.target.value);
+					onChange?.(e.target.value);
 				}}
 				value={value}
 				ref={ref}
 				size="sm"
+				{...inputProps}
 				placeholder="Select option"
 			>
-				{/* {options.map((option: any) => (
-								<option key={option.value} value={option.value}>
-									{option.name}{' '}
-								</option>
-							))} */}
-
 				{selectOptions.map((option: any) => (
 					<option key={option} value={option}>
 						{option}
@@ -76,8 +72,11 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				size="sm"
 				isChecked={!!value}
 				onBlur={onBlur}
-				onChange={(e) => onChange(e.target.value)}
+				onChange={(e) => {
+					onChange?.(e.target.checked);
+				}}
 				ref={ref}
+				{...inputProps}
 			/>
 		);
 	}
@@ -85,15 +84,22 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	return (
 		<Input
 			onBlur={onBlur}
-			onChange={(e) => onChange(e.target.value)}
+			onChange={(e) => onChange?.(e.target.value)}
 			value={value || ''}
 			size="sm"
 			ref={ref}
+			{...inputProps}
 		/>
 	);
 });
 
-export const BaseFormInput = ({ id, type, validation, enum: selectOptions }: any) => {
+export const BaseFormInput = ({
+	id,
+	type,
+	validation,
+	enum: selectOptions,
+	...inputProps
+}: any) => {
 	const { control } = useFormContext();
 
 	return (
@@ -110,6 +116,7 @@ export const BaseFormInput = ({ id, type, validation, enum: selectOptions }: any
 						ref={ref}
 						type={type}
 						enum={selectOptions}
+						{...inputProps}
 					/>
 				);
 			}}
@@ -117,14 +124,21 @@ export const BaseFormInput = ({ id, type, validation, enum: selectOptions }: any
 	);
 };
 
-export const FormInput = ({ name, type, validation, enum: selectOptions, id }: any) => {
+export const FormInput = ({
+	name,
+	type,
+	validation,
+	enum: selectOptions,
+	id,
+	...inputProps
+}: any) => {
 	const {
 		formState: { errors },
 	} = useFormContext();
 
 	return (
 		<FormControl isInvalid={!!errors?.[id]} key={name}>
-			<FormLabel>{name}</FormLabel>
+			{name ? <FormLabel>{name}</FormLabel> : null}
 
 			<BaseFormInput
 				name={name}
@@ -132,6 +146,7 @@ export const FormInput = ({ name, type, validation, enum: selectOptions, id }: a
 				type={type}
 				enum={selectOptions}
 				validation={validation}
+				{...inputProps}
 			/>
 			<ErrorMessage
 				errors={errors}

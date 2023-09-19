@@ -21,7 +21,11 @@ export const useGetPage = (pageId: any) => {
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchPage({ pageId }));
 
 	const data: any = useMemo(() => {
-		return { tables: response?.tables || [], widget: response?.widget || null };
+		return {
+			tables: response?.tables || [],
+			widget: response?.widget || null,
+			functions: response?.functions || [],
+		};
 	}, [response]);
 
 	return {
