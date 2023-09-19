@@ -8,7 +8,7 @@ from server import crud
 from server.controllers.tables.helper import get_row_schema
 from server.models.columns import Columns
 from server.models.tables import Tables
-from server.schemas.columns import CreateColumns, PgColumnBaseProperty
+from server.schemas.columns import CreateColumns, PgDefinedColumnProperty
 from server.schemas.tables import CreateTables, PinFilters, ReadTables, TablesBaseProperty, UpdateTables
 from server.utils.connect_to_user_db import connect_to_user_db
 from server.utils.converter import get_class_properties
@@ -96,7 +96,7 @@ def get_table_row(db: Session, table_id: UUID):
 def create_column_record_from_name(db: Session, col_name: str, table_id: UUID) -> Columns:
     column_obj = CreateColumns(
         name=col_name,
-        property=PgColumnBaseProperty(name=col_name),
+        property=PgDefinedColumnProperty(name=col_name),
         table_id=table_id,
         type="postgres",
     )

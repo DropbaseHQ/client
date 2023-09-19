@@ -65,8 +65,8 @@ class PgColumnDisplayProperty(BaseModel):
 
 
 class PgColumnSharedProperty(BaseModel):
-    editable: Optional[bool]
-    visible: Optional[bool]
+    editable: Optional[bool] = False
+    visible: Optional[bool] = True
 
 
 class PgColumnStateProperty(PgColumnDisplayProperty, PgColumnSharedProperty):

@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.constants import GPT_MODEL, GPT_TEMPERATURE
 from server.credentials import OPENAI_API_KEY, OPENAI_ORG_ID
-from server.schemas.columns import PgColumnBaseProperty
+from server.schemas.columns import PgDefinedColumnProperty
 from server.schemas.tables import ConvertToSmart
 from server.utils.connect_to_user_db import connect_to_user_db
 
@@ -61,7 +61,7 @@ def convert_to_smart_table(db: Session, request: ConvertToSmart):
 
 def fill_smart_cols_data(
     smart_col_paths: dict, db_schema: FullDBSchema
-) -> dict[str, PgColumnBaseProperty]:
+) -> dict[str, PgDefinedColumnProperty]:
     smart_cols_data = {}
     for name, col_path in smart_col_paths.items():
         try:
@@ -72,7 +72,7 @@ def fill_smart_cols_data(
         except KeyError:
             # Skip ChatGPT "hallucinated" columns
             continue
-        smart_cols_data[name] = PgColumnBaseProperty(name=name, **col_schema_data)
+        smart_cols_data[name] = PgDefinedColumnProperty(name=name, **col_schema_data)
     return smart_cols_data
 
 

@@ -15,7 +15,7 @@ from server.schemas.states import (
 
 class InputBaseProperties(BaseModel):
     name: str
-    type: Literal["text", "number", "date"]
+    type: Optional[Literal["text", "number", "date"]] = "text"
     label: Optional[str]
     # ui logic
     required: Optional[bool]
@@ -60,7 +60,7 @@ class SelectRead(SelectBaseProperties, ComponentDisplayProperties, SelectSharedP
 
 class ButtonBaseProperties(BaseModel):
     name: str
-    label: str
+    label: Optional[str]
     # editable
     visible: Optional[bool]
     # server call
@@ -76,7 +76,8 @@ class ButtonRead(ButtonBaseProperties, ComponentDisplayProperties, ButtonSharedP
 
 
 class TextBaseProperties(BaseModel):
-    text: str
+    name: str
+    text: Optional[str]
     size: Optional[Literal["small", "medium", "large"]]
     color: Optional[
         Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]
