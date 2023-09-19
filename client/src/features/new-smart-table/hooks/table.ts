@@ -28,7 +28,7 @@ export const useTableData = ({ tableId, filters = [], sorts = [] }: any) => {
 	);
 
 	const parsedData: any = useMemo(() => {
-		if (response) {
+		if (response && response.data) {
 			const rows: any = response.data.map((r: any) => {
 				return r.reduce((agg: any, item: any, index: any) => {
 					return {
