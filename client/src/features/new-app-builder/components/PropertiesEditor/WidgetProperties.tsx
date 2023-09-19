@@ -48,7 +48,7 @@ export const WidgetProperties = () => {
 		<Skeleton isLoaded={!isLoading}>
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
-					<Stack>
+					<Stack p="3">
 						{schema.map((property: any) => (
 							<FormInput {...property} id={property.name} key={property.name} />
 						))}

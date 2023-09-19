@@ -178,7 +178,7 @@ export const Components = () => {
 	}
 
 	return (
-		<Stack h="full">
+		<Stack p="3" overflowY="auto" h="full">
 			<NewComponent />
 			<Stack direction="row" spacing="4" overflowX="auto" flexWrap="nowrap">
 				{values.map((value: any) => (

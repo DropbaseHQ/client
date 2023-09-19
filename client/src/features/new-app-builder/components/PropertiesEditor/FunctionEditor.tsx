@@ -109,7 +109,7 @@ export const FunctionEditor = ({ id }: any) => {
 	}
 
 	return (
-		<Stack spacing="1">
+		<Stack p="3" spacing="1">
 			<MonacoEditor language="python" value={code} onChange={setCode} />
 
 			<Stack bg="white" p="1" spacing="0" alignItems="center" direction="row">

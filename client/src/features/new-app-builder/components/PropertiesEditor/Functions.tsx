@@ -20,7 +20,7 @@ import { useRef } from 'react';
 import { useCreateFunction } from '@/features/new-app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 
-export const NewFunction = () => {
+export const NewFunction = (props: any) => {
 	const toast = useToast();
 	const { pageId } = useParams();
 
@@ -56,10 +56,9 @@ export const NewFunction = () => {
 				<IconButton
 					aria-label="Add function"
 					icon={<Plus size="14" />}
-					borderRadius="0"
-					variant="ghost"
 					onClick={onToggle}
 					isLoading={mutation.isLoading}
+					{...props}
 				/>
 			</PopoverTrigger>
 
