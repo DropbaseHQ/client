@@ -8,7 +8,8 @@ from server.controllers.task.exec_code import exec_code
 from server.controllers.widget.helpers import get_pydantic_model
 from server.schemas.functions import ReadFunctions
 from server.schemas.tables import ReadTables
-from server.schemas.task import RunCodeResponse, RunTask
+from server.schemas.task import RunCodeResponse, RunFunction, RunTask
+from server.utils.components import state_component_type_mapper, state_update_components
 from server.utils.helper import clean_name_for_class
 
 
@@ -33,6 +34,41 @@ def run_task(request: RunTask, db: Session):
         executable_code = states_def + table_models + widget_models + request.code + casted_inputs
         # run code
         res = exec_code(executable_code, request.test_code, user_input, tables, state)
+        return RunCodeResponse(**res)
+    except Exception as e:
+        print(e)
+        res = {
+            "is_state": False,
+            "status": "error",
+            "type": "python",
+            "stdout": None,
+            "state": {},
+            "result": str(e),
+            "traceback": None,
+        }
+        return RunCodeResponse(**res)
+
+
+def run_function(request: RunFunction, db: Session):
+    try:
+        functions = crud.functions.get_page_functions(db, page_id=request.page_id)
+        function_code = get_function_code(functions)
+
+        states_def = file_to_text("server/schemas/states.py")
+        table_models = get_tables_states(db, request.page_id)
+        widget = crud.widget.get_page_widget(db, page_id=request.page_id)
+        widget_models = get_widget_states(db, widget.id)
+
+        tables = request.state["tables"]
+        user_input = request.state["user_input"]
+        state = request.state["state"]
+
+        casted_inputs = cast_to_classes(user_input, tables, state)
+        executable_code = states_def + table_models + widget_models + casted_inputs + function_code
+
+        code_to_run = f"""{request.function_name}()"""
+        # run code
+        res = exec_code(executable_code, code_to_run, user_input, tables, state)
         return RunCodeResponse(**res)
     except Exception as e:
         print(e)
@@ -80,7 +116,11 @@ def get_widget_states(db, widget_id: UUID):
     widget_components_state = "class WidgetComponents(BaseModel):\n"
 
     for comp in components:
-        widget_components_state += f"    {comp.property['name']}: InputStateProperties\n"
+        # NOTE: only care about editable inputs
+        if comp.type in state_update_components:
+            widget_components_state += (
+                f"    {comp.property['name']}: {state_component_type_mapper[comp.type].__name__}\n"
+            )
 
     final_str = widget_components_state
 

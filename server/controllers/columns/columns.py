@@ -5,14 +5,14 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.schemas.columns import (
     CreateColumns,
-    PgColumnBaseProperty,
+    PgDefinedColumnProperty,
     PgReadColumnProperty,
     PythonColumn,
     UpdateColumns,
 )
 from server.utils.converter import get_class_properties
 
-column_type_to_schema_mapper = {"postgres": PgColumnBaseProperty, "python": PythonColumn}
+column_type_to_schema_mapper = {"postgres": PgDefinedColumnProperty, "python": PythonColumn}
 
 
 def create_column(db: Session, request: CreateColumns):
