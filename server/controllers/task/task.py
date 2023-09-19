@@ -9,6 +9,7 @@ from server.controllers.widget.helpers import get_pydantic_model
 from server.schemas.functions import ReadFunctions
 from server.schemas.tables import ReadTables
 from server.schemas.task import RunCodeResponse, RunTask
+from server.utils.components import state_component_type_mapper, state_update_components
 from server.utils.helper import clean_name_for_class
 
 
@@ -80,7 +81,11 @@ def get_widget_states(db, widget_id: UUID):
     widget_components_state = "class WidgetComponents(BaseModel):\n"
 
     for comp in components:
-        widget_components_state += f"    {comp.property['name']}: InputStateProperties\n"
+        # NOTE: only care about editable inputs
+        if comp.type in state_update_components:
+            widget_components_state += (
+                f"    {comp.property['name']}: {state_component_type_mapper[comp.type].__name__}\n"
+            )
 
     final_str = widget_components_state
 

@@ -6,7 +6,7 @@ from server import crud
 from server.controllers.tables.helper import get_row_schema
 from server.controllers.widget.helpers import get_user_input
 from server.schemas.states import PgColumnStateProperty, TableStateProperty, WidgetStateProperty
-from server.utils.components import editable_inputs, state_component_type_mapper
+from server.utils.components import state_component_type_mapper, state_update_components
 from server.utils.converter import get_class_dict
 
 
@@ -38,7 +38,7 @@ def get_page_schema(db: Session, page_id: UUID):
         state["widget"][widget.name] = widget_props
         state["widget"][widget.name]["components"] = {}
         for component in components:
-            if component.type not in editable_inputs:
+            if component.type not in state_update_components:
                 continue
             ComponentClass = state_component_type_mapper[component.type]
             component_props = get_class_dict(ComponentClass)

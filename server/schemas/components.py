@@ -59,6 +59,7 @@ class SelectRead(SelectBaseProperties, ComponentDisplayProperties, SelectSharedP
 
 
 class ButtonBaseProperties(BaseModel):
+    name: str
     label: str
     # editable
     visible: Optional[bool]
