@@ -1,24 +1,46 @@
-from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Union
-from uuid import UUID
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
 
 # input
-class InputDisplayProperties(BaseModel):
+class ComponentDisplayProperties(BaseModel):
     message: Optional[str]
     message_type: Optional[str]
 
 
 class InputSharedProperties(BaseModel):
-    # editable
-    options: Optional[str]
     visible: Optional[bool]
     value: Optional[str]
 
 
-class InputStateProperties(InputDisplayProperties, InputSharedProperties):
+class InputStateProperties(ComponentDisplayProperties, InputSharedProperties):
+    pass
+
+
+class SelectSharedProperties(BaseModel):
+    visible: Optional[bool]
+    value: Optional[str]
+    options: Optional[List[Dict]]  # {name : value, ...}
+
+
+class SelectStateProperties(ComponentDisplayProperties, SelectSharedProperties):
+    pass
+
+
+class ButtonSharedProperties(BaseModel):
+    visible: Optional[bool]
+
+
+class ButtonStateProperties(ComponentDisplayProperties, ButtonSharedProperties):
+    pass
+
+
+class TextSharedProperties(BaseModel):
+    visible: Optional[bool]
+
+
+class TextStateProperties(TextSharedProperties):
     pass
 
 
