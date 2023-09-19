@@ -5,12 +5,8 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers.tables.helper import get_row_schema
 from server.controllers.widget.helpers import get_user_input
-from server.schemas.states import (
-    InputStateProperties,
-    PgColumnStateProperty,
-    TableStateProperty,
-    WidgetStateProperty,
-)
+from server.schemas.states import PgColumnStateProperty, TableStateProperty, WidgetStateProperty
+from server.utils.components import editable_inputs, state_component_type_mapper
 from server.utils.converter import get_class_dict
 
 
@@ -19,6 +15,7 @@ def get_page_schema(db: Session, page_id: UUID):
     tables = crud.tables.get_page_tables(db, page_id=page_id)
     state = {"tables": {}, "widget": {}}
     table_schema, user_input = {}, {}
+
     for table in tables:
         table_state_props = get_class_dict(TableStateProperty)
         state["tables"][table.name] = table_state_props
@@ -39,11 +36,14 @@ def get_page_schema(db: Session, page_id: UUID):
         components = crud.components.get_widget_component(db, widget.id)
         widget_props = get_class_dict(WidgetStateProperty)
         state["widget"][widget.name] = widget_props
-        component_props = get_class_dict(InputStateProperties)
-        state["widget"][widget.name]["components"] = {
-            comp.property["name"]: component_props for comp in components
-        }
-
+        state["widget"][widget.name]["components"] = {}
+        for component in components:
+            if component.type not in editable_inputs:
+                continue
+            ComponentClass = state_component_type_mapper[component.type]
+            component_props = get_class_dict(ComponentClass)
+            comp_name = component.property["name"]
+            state["widget"][widget.name]["components"][comp_name] = component_props
         # get user input schem
         user_input = get_user_input(components)
 

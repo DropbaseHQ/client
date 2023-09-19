@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -14,30 +14,30 @@ class InputSharedProperties(BaseModel):
     value: Optional[str]
 
 
+class InputStateProperties(ComponentDisplayProperties, InputSharedProperties):
+    pass
+
+
 class SelectSharedProperties(BaseModel):
     visible: Optional[bool]
     value: Optional[str]
-    options: Optional[List[str:Any]]  # FIXME: {name : value, ...}
-
-
-class ButtonSharedProperties(BaseModel):
-    visible: Optional[bool]
-
-
-class TextSharedProperties(BaseModel):
-    visible: Optional[bool]
-
-
-class InputStateProperties(ComponentDisplayProperties, InputSharedProperties):
-    pass
+    options: Optional[List[Dict]]  # {name : value, ...}
 
 
 class SelectStateProperties(ComponentDisplayProperties, SelectSharedProperties):
     pass
 
 
+class ButtonSharedProperties(BaseModel):
+    visible: Optional[bool]
+
+
 class ButtonStateProperties(ComponentDisplayProperties, ButtonSharedProperties):
     pass
+
+
+class TextSharedProperties(BaseModel):
+    visible: Optional[bool]
 
 
 class TextStateProperties(TextSharedProperties):

@@ -76,9 +76,9 @@ class ButtonRead(ButtonBaseProperties, ComponentDisplayProperties, ButtonSharedP
 
 class TextBaseProperties(BaseModel):
     text: str
-    size: Literal["small", "medium", "large"]
-    color: Literal[
-        "red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"
+    size: Optional[Literal["small", "medium", "large"]]
+    color: Optional[
+        Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]
     ]
 
 
@@ -86,7 +86,7 @@ class TextDefined(TextBaseProperties, TextSharedProperties):
     pass
 
 
-class TextRead(TextBaseProperties, ComponentDisplayProperties, TextSharedProperties):
+class TextRead(TextBaseProperties, TextSharedProperties):
     pass
 
 
@@ -105,7 +105,7 @@ class ReadComponents(BaseModel):
 
 
 class CreateComponents(BaseModel):
-    property: dict
+    property: dict  # Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
     type: str
 
