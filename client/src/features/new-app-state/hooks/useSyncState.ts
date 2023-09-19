@@ -7,11 +7,13 @@ export const useSyncState = () => {
 	const setNonInteractiveState = useSetAtom(nonWidgetStateAtom);
 
 	const handleSyncState = useCallback(
-		(state: any) => {
-			const { widget, ...other } = state || {};
+		(data: any) => {
+			if (data.status === 'success' && data.is_state && data.state) {
+				const { widget, ...other } = data?.state || {};
 
-			setWidgetState((s) => ({ ...s, state: widget || {} }));
-			setNonInteractiveState(other || {});
+				setWidgetState((s) => ({ ...s, state: widget || {} }));
+				setNonInteractiveState(other || {});
+			}
 		},
 		[setNonInteractiveState, setWidgetState],
 	);

@@ -95,7 +95,7 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 								value={properties.visible}
 								onChange={(newValue: any) => {
 									handleUpdate({
-										editable: newValue,
+										visible: newValue,
 									});
 								}}
 							/>
@@ -104,14 +104,18 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 				</Stack>
 			</AccordionButton>
 			<AccordionPanel borderTopWidth="1px">
-				{schema
-					.filter((property: any) => DISPLAY_COLUMN_PROPERTIES.includes(property.name))
-					.map((property: any) => (
-						<FormControl key={property.name}>
-							<FormLabel>{property.name}</FormLabel>
-							<InputRenderer {...property} value={properties[property.name]} />
-						</FormControl>
-					))}
+				<Stack p="2">
+					{schema
+						.filter((property: any) =>
+							DISPLAY_COLUMN_PROPERTIES.includes(property.name),
+						)
+						.map((property: any) => (
+							<FormControl key={property.name}>
+								<FormLabel>{property.name}</FormLabel>
+								<InputRenderer {...property} value={properties[property.name]} />
+							</FormControl>
+						))}
+				</Stack>
 			</AccordionPanel>
 		</AccordionItem>
 	);

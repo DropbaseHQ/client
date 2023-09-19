@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
-import { Box, Button, ButtonGroup, Skeleton, Stack } from '@chakra-ui/react';
+import { Box, Button, ButtonGroup, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { Code, Layout, Table } from 'react-feather';
 
 import { FunctionEditor } from './FunctionEditor';
@@ -114,7 +114,15 @@ export const PropertiesEditor = () => {
 			</Stack>
 
 			<Box h="calc(100% - 55px)" overflowX="hidden" overflowY="auto">
-				{Component ? <Component /> : 'Select a tab'}
+				{Component ? (
+					<Component id={devTab.type === 'function' ? devTab.id : ''} />
+				) : (
+					<Center p="4" h="full">
+						<Text size="sm" fontWeight="medium">
+							Select a tab
+						</Text>
+					</Center>
+				)}
 			</Box>
 		</Stack>
 	);

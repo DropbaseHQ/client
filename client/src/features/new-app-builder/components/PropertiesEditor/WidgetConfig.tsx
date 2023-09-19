@@ -1,18 +1,13 @@
-import { Panel, PanelGroup } from 'react-resizable-panels';
-import { PanelHandle } from '@/components/Panel';
+import { Stack } from '@chakra-ui/react';
+
 import { WidgetProperties } from './WidgetProperties';
 import { Components } from './ComponentEditor';
 
 export const WidgetConfig = () => {
 	return (
-		<PanelGroup direction="horizontal">
-			<Panel>
-				<WidgetProperties />
-			</Panel>
-			<PanelHandle direction="vertical" />
-			<Panel>
-				<Components />
-			</Panel>
-		</PanelGroup>
+		<Stack m="3" bg="white" p="3" borderWidth="1px" borderRadius="sm" maxW="container.sm">
+			<WidgetProperties />
+			<Components />
+		</Stack>
 	);
 };

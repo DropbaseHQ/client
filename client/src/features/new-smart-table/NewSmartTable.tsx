@@ -35,28 +35,30 @@ export const NewSmartTable = () => {
 		setCellEdits([]);
 	}, [tableId, setCellEdits]);
 
-	const gridColumns = header.map((columnName: any) => {
-		let icon = GridColumnIcon.HeaderString;
+	const gridColumns = header
+		.filter((columnName: any) => columns[columnName]?.visible)
+		.map((columnName: any) => {
+			let icon = GridColumnIcon.HeaderString;
 
-		const column = columns[columnName];
+			const column = columns[columnName];
 
-		switch (column?.type) {
-			case 'integer': {
-				icon = GridColumnIcon.HeaderNumber;
-				break;
+			switch (column?.type) {
+				case 'integer': {
+					icon = GridColumnIcon.HeaderNumber;
+					break;
+				}
+				default: {
+					break;
+				}
 			}
-			default: {
-				break;
-			}
-		}
 
-		return {
-			id: column.name,
-			title: column.name,
-			width: String(column.name).length * 10 + 35 + 30,
-			icon,
-		};
-	});
+			return {
+				id: column.name,
+				title: column.name,
+				width: String(column.name).length * 10 + 35 + 30,
+				icon,
+			};
+		});
 
 	const getCellContent = ([col, row]: any) => {
 		const currentRow = rows[row];
@@ -72,7 +74,7 @@ export const NewSmartTable = () => {
 
 		const cellValue = editedValue === undefined ? defaultValue : editedValue;
 
-		const canEdit = column?.edit_keys?.length > 0;
+		const canEdit = column?.editable;
 
 		let kind = GridCellKind.Text;
 

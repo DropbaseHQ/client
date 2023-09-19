@@ -6,17 +6,11 @@ import {
 	Box,
 	Skeleton,
 	Button,
-	Popover,
-	PopoverTrigger,
 	IconButton,
-	PopoverContent,
-	PopoverHeader,
-	PopoverArrow,
-	PopoverCloseButton,
-	PopoverBody,
-	PopoverFooter,
-	ButtonGroup,
-	useDisclosure,
+	MenuButton,
+	Menu,
+	MenuList,
+	MenuItem,
 } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 
@@ -64,7 +58,7 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
 					<Stack>
-						{schema.map((property: any) => (
+						{(schema[type] || []).map((property: any) => (
 							<FormInput {...property} id={property.name} key={property.name} />
 						))}
 
@@ -84,88 +78,52 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 
 export const NewComponent = () => {
 	const { widgetId } = useAtomValue(pageAtom);
-	const { isOpen, onToggle, onClose } = useDisclosure();
-
-	const methods = useForm();
+	const { values } = useGetComponentProperties(widgetId || '');
 
 	const mutation = useCreateComponents({
-		onSuccess: () => {
-			methods.reset();
-			onClose();
-		},
+		onSuccess: () => {},
 	});
 
-	const onSubmit = ({ name, type }: any) => {
-		if (name.trim()) {
-			mutation.mutate({
-				widgetId,
-				property: { name, type },
-				type: 'input',
-			});
+	const onSubmit = ({ type }: any) => {
+		const currentNames = values
+			.filter((c: any) => c.type === type)
+			.map((c: any) => c.property.name);
+
+		let nameIndex = 1;
+
+		while (currentNames.includes(`${type}${nameIndex}`)) {
+			nameIndex += 1;
 		}
+
+		mutation.mutate({
+			widgetId,
+			property: { name: `${type}${nameIndex}` },
+			type,
+		});
 	};
 
 	return (
-		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur={false}>
-			<PopoverTrigger>
-				<IconButton
-					aria-label="Add function"
-					icon={<Plus size="14" />}
-					variant="outline"
-					onClick={onToggle}
-					isLoading={mutation.isLoading}
-				/>
-			</PopoverTrigger>
-
-			<PopoverContent>
-				<form onSubmit={methods.handleSubmit(onSubmit)}>
-					<FormProvider {...methods}>
-						<PopoverHeader pt={4} fontWeight="bold" border="0">
-							Create a new Component
-						</PopoverHeader>
-						<PopoverArrow />
-						<PopoverCloseButton />
-						<PopoverBody>
-							<Stack>
-								<FormInput
-									name="Name"
-									id="name"
-									validation={{ required: 'Name is required' }}
-									type="text"
-								/>
-
-								<FormInput
-									name="Type"
-									id="type"
-									type="select"
-									enum={['select', 'text', 'number']}
-								/>
-							</Stack>
-						</PopoverBody>
-						<PopoverFooter
-							border="0"
-							display="flex"
-							alignItems="center"
-							justifyContent="space-between"
-							pb={4}
-						>
-							<ButtonGroup size="sm">
-								<Button onClick={onClose} colorScheme="red" variant="outline">
-									Cancel
-								</Button>
-								<Button
-									colorScheme="blue"
-									isLoading={mutation.isLoading}
-									type="submit"
-								>
-									Create
-								</Button>
-							</ButtonGroup>
-						</PopoverFooter>
-					</FormProvider>
-				</form>
-			</PopoverContent>
-		</Popover>
+		<Menu>
+			<MenuButton
+				as={IconButton}
+				aria-label="Add function"
+				icon={<Plus size="14" />}
+				variant="outline"
+				isLoading={mutation.isLoading}
+			/>
+			<MenuList>
+				{['input', 'text', 'select', 'button'].map((c) => (
+					<MenuItem
+						onClick={() => {
+							onSubmit({ type: c });
+						}}
+						key={c}
+					>
+						{c}
+					</MenuItem>
+				))}
+			</MenuList>
+		</Menu>
 	);
 };
 
