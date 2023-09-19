@@ -6,8 +6,9 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.schemas.user import CreateUser, ReadUser, LoginUser, CreateUserRequest, ResetPasswordRequest
+from server.schemas.workspace import CreateWorkspace
+from server.schemas.role import CreateRole
 from server.utils.helper import raise_http_exception
-from server.models import User
 from server.utils.authentication import authenticate_user, get_password_hash, verify_password
 
 
@@ -87,7 +88,21 @@ def register_user(db: Session, request: CreateUserRequest):
             trial_eligible=True,
             active=True,
         )
-        crud.user.create(db, obj_in=user_obj)
+        user_db_obj = crud.user.create(db, obj_in=user_obj)
+
+        workspace_obj = CreateWorkspace(
+            name=f"{request.name}'s Workspace",
+            active=True,
+        )
+        workspace_db_obj = crud.workspace.create(db, obj_in=workspace_obj)
+
+        role_obj = CreateRole(
+            user_id=user_db_obj.id,
+            workspace_id=workspace_db_obj.id,
+            role="admin",
+        )
+        crud.role.create(db, obj_in=role_obj)
+
         return {"message": "User successfully registered"}
     except Exception as e:
         print("error", e)
