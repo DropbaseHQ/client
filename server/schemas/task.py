@@ -12,6 +12,12 @@ class RunTask(BaseModel):
     function_id: UUID
 
 
+class RunFunction(BaseModel):
+    page_id: UUID
+    state: dict
+    function_name: str
+
+
 class CellProps(BaseModel):
     name: str
     schema_name: str
