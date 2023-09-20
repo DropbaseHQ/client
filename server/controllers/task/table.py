@@ -13,14 +13,14 @@ from server.utils.connect_to_user_db import connect_to_user_db
 def get_table_data(db: Session, request: QueryTable, response: Response) -> QueryResponse:
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
     try:
-        if table.property["code"] == "":
+        if table.property["code"] == "" or table.source_id is None:
             return QueryResponse(table_id=table.id, table_name=table.name)
         columns = crud.columns.get_table_columns(db, table_id=table.id)
 
         # apply filters
         filter_sql, filter_values = apply_filters(table.property["code"], request.filters, request.sorts)
 
-        user_db_engine = connect_to_user_db()
+        user_db_engine = connect_to_user_db(db, table.source_id)
         with user_db_engine.connect().execution_options(autocommit=True) as conn:
             res = conn.execute(text(filter_sql), filter_values).all()
         user_db_engine.dispose()

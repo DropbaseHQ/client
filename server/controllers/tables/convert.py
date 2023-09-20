@@ -32,8 +32,8 @@ class OutputSchema(BaseModel):
 
 
 def convert_to_smart_table(db: Session, request: ConvertToSmart):
-    user_db_engine = connect_to_user_db()
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
+    user_db_engine = connect_to_user_db(db, table.source_id)
     db_schema, gpt_schema = get_db_schema(user_db_engine)
     user_sql = table.property["code"]
     # clean up user_sql, remove trailing semicolons and newlines
