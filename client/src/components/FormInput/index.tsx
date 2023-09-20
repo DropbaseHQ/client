@@ -1,7 +1,10 @@
 import {
+	Box,
+	Button,
 	FormControl,
 	FormErrorMessage,
 	FormLabel,
+	IconButton,
 	Input,
 	NumberDecrementStepper,
 	NumberIncrementStepper,
@@ -9,9 +12,11 @@ import {
 	NumberInputField,
 	NumberInputStepper,
 	Select,
+	Stack,
 	Switch,
 } from '@chakra-ui/react';
 import { forwardRef } from 'react';
+import { Plus, Trash } from 'react-feather';
 import { ErrorMessage } from '@hookform/error-message';
 import { Controller, useFormContext } from 'react-hook-form';
 
@@ -54,11 +59,104 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				placeholder="Select option"
 			>
 				{(selectOptions || []).map((option: any) => (
-					<option key={option} value={option}>
-						{option}
+					<option key={option.name} value={option.value}>
+						{option.name}
 					</option>
 				))}
 			</Select>
+		);
+	}
+
+	if (type === 'array') {
+		const optionsToRender = value || [];
+
+		return (
+			<Stack p="3" borderWidth="1px" borderRadius="md" spacing="2">
+				<Stack fontSize="xs" fontWeight="medium" letterSpacing="wide" direction="row">
+					<Box flex="1">Name</Box>
+					<Box flex="1">Value</Box>
+					<Box minW="8" />
+				</Stack>
+
+				{optionsToRender.map((option: any, index: any) => {
+					return (
+						<Stack
+							alignItems="center"
+							key={`${JSON.stringify(option)}-${index}`}
+							direction="row"
+						>
+							<Input
+								size="sm"
+								flex="1"
+								placeholder="name"
+								value={option.name}
+								onChange={(e) => {
+									onChange(
+										optionsToRender.map((o: any, i: any) => {
+											if (i === index) {
+												return {
+													...o,
+													name: e.target.value,
+												};
+											}
+											return o;
+										}),
+									);
+								}}
+							/>
+							<Input
+								size="sm"
+								flex="1"
+								placeholder="value"
+								value={option.value}
+								onChange={(e) => {
+									onChange(
+										optionsToRender.map((o: any, i: any) => {
+											if (i === index) {
+												return {
+													...o,
+													value: e.target.value,
+												};
+											}
+											return o;
+										}),
+									);
+								}}
+							/>
+							<IconButton
+								aria-label="Delete"
+								icon={<Trash size="14" />}
+								size="sm"
+								variant="ghost"
+								colorScheme="red"
+								onClick={() => {
+									onChange(
+										optionsToRender.filter((_: any, i: any) => i !== index),
+									);
+								}}
+							/>
+						</Stack>
+					);
+				})}
+
+				<Button
+					size="sm"
+					leftIcon={<Plus size="14" />}
+					variant="ghost"
+					colorScheme="blue"
+					onClick={() => {
+						onChange([
+							...optionsToRender,
+							{
+								name: `option${optionsToRender.length + 1}`,
+								value: `value${optionsToRender.length + 1}`,
+							},
+						]);
+					}}
+				>
+					Add option
+				</Button>
+			</Stack>
 		);
 	}
 

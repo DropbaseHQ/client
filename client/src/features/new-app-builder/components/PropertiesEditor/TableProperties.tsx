@@ -60,7 +60,10 @@ export const TableProperties = () => {
 							name="Source"
 							placeholder="Select source "
 							validation={{ required: 'Source is required' }}
-							options={sources.map((s: any) => s.id)}
+							options={sources.map((s: any) => ({
+								value: s.id,
+								name: s.name,
+							}))}
 						/>
 
 						<FormInput id="name" name="Table Name" type="text" />
