@@ -87,30 +87,28 @@ export const PropertiesEditor = () => {
 					</Button>
 				) : null}
 
-				{functions.length > 0 ? (
-					<ButtonGroup isAttached size="sm">
-						{functions.map((f: any) => (
-							<Button
-								variant={
-									devTab.type === 'function' && f.id === devTab.id
-										? 'solid'
-										: 'outline'
-								}
-								onClick={() => {
-									setDevTab({
-										type: 'function',
-										id: f.id,
-									});
-								}}
-								leftIcon={<Code size="14" />}
-								key={f.id}
-							>
-								{f.name}
-							</Button>
-						))}
-						<NewFunction variant="outline" />
-					</ButtonGroup>
-				) : null}
+				<ButtonGroup isAttached size="sm">
+					{(functions || []).map((f: any) => (
+						<Button
+							variant={
+								devTab.type === 'function' && f.id === devTab.id
+									? 'solid'
+									: 'outline'
+							}
+							onClick={() => {
+								setDevTab({
+									type: 'function',
+									id: f.id,
+								});
+							}}
+							leftIcon={<Code size="14" />}
+							key={f.id}
+						>
+							{f.name}
+						</Button>
+					))}
+					<NewFunction variant="outline" />
+				</ButtonGroup>
 			</Stack>
 
 			<Box h="calc(100% - 55px)" overflowX="hidden" overflowY="auto">
