@@ -43,7 +43,7 @@ export const NewSource = () => {
 								validation={{
 									required: field.required,
 								}}
-								enum={field.options}
+								options={field.options}
 							/>
 						),
 					)}

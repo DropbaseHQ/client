@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 
 import { axios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/new-app-preview/hooks';
+import { PAGE_DATA_QUERY_KEY } from '@/features/new-page';
 
 export const ALL_PAGE_FUNCTIONS_QUERY_KEY = 'functions';
 
@@ -107,6 +108,7 @@ export const useCreateFunction = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(ALL_PAGE_FUNCTIONS_QUERY_KEY);
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 	});
 };

@@ -18,7 +18,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { MonacoEditor } from '@/components/Editor';
 
 export const InputRenderer = forwardRef((props: any, ref: any) => {
-	const { onChange, onBlur, value, type, enum: selectOptions, ...inputProps } = props;
+	const { onChange, onBlur, value, type, options: selectOptions, ...inputProps } = props;
 
 	if (type === 'number') {
 		return (
@@ -53,7 +53,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				{...inputProps}
 				placeholder="Select option"
 			>
-				{selectOptions.map((option: any) => (
+				{(selectOptions || []).map((option: any) => (
 					<option key={option} value={option}>
 						{option}
 					</option>
@@ -97,7 +97,7 @@ export const BaseFormInput = ({
 	id,
 	type,
 	validation,
-	enum: selectOptions,
+	options: selectOptions,
 	...inputProps
 }: any) => {
 	const { control } = useFormContext();
@@ -115,7 +115,7 @@ export const BaseFormInput = ({
 						value={value}
 						ref={ref}
 						type={type}
-						enum={selectOptions}
+						options={selectOptions}
 						{...inputProps}
 					/>
 				);
@@ -128,7 +128,7 @@ export const FormInput = ({
 	name,
 	type,
 	validation,
-	enum: selectOptions,
+	options: selectOptions,
 	id,
 	...inputProps
 }: any) => {
@@ -144,7 +144,7 @@ export const FormInput = ({
 				name={name}
 				id={id}
 				type={type}
-				enum={selectOptions}
+				options={selectOptions}
 				validation={validation}
 				{...inputProps}
 			/>

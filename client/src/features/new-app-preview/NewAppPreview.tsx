@@ -67,6 +67,10 @@ const AppComponent = (props: any) => {
 		);
 	}
 
+	if (type === 'text') {
+		return <Text>{component.text}</Text>;
+	}
+
 	return (
 		<FormControl key={component.name}>
 			<FormLabel>{component.label}</FormLabel>
@@ -74,12 +78,13 @@ const AppComponent = (props: any) => {
 			<InputRenderer
 				value={inputState?.value}
 				name={component.name}
-				type={component.type}
+				type={type === 'select' ? 'select' : component.type}
 				onChange={(newValue: any) => {
 					setWidgetComponentValues({
 						[component.name]: newValue,
 					});
 				}}
+				options={component.options}
 			/>
 
 			{inputState?.message ? <FormHelperText>{inputState.message}</FormHelperText> : null}

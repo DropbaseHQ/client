@@ -3,12 +3,13 @@ import { useAtom, useAtomValue } from 'jotai';
 import { Box, Button, ButtonGroup, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { Code, Layout, Table } from 'react-feather';
 
+import { pageAtom, useGetPage } from '@/features/new-page';
+import { developerTabAtom } from '@/features/new-app-builder/atoms';
+
 import { FunctionEditor } from './FunctionEditor';
 import { TableConfig } from './TableConfig';
 import { WidgetConfig } from './WidgetConfig';
 import { NewFunction } from './Functions';
-import { pageAtom, useGetPage } from '@/features/new-page';
-import { developerTabAtom } from '@/features/new-app-builder/atoms';
 
 const componentsMap: any = {
 	table: TableConfig,
@@ -42,29 +43,25 @@ export const PropertiesEditor = () => {
 				alignItems="center"
 				direction="row"
 			>
-				{tables.length > 0 ? (
-					<ButtonGroup isAttached size="sm">
-						{tables.map((t: any) => (
-							<Button
-								variant={
-									devTab.type === 'table' && t.id === devTab.id
-										? 'solid'
-										: 'outline'
-								}
-								onClick={() => {
-									setDevTab({
-										type: 'table',
-										id: t.id,
-									});
-								}}
-								leftIcon={<Table size="14" />}
-								key={t.id}
-							>
-								{t.name}
-							</Button>
-						))}
-					</ButtonGroup>
-				) : null}
+				<ButtonGroup isAttached size="sm">
+					{(tables || []).map((t: any) => (
+						<Button
+							variant={
+								devTab.type === 'table' && t.id === devTab.id ? 'solid' : 'outline'
+							}
+							onClick={() => {
+								setDevTab({
+									type: 'table',
+									id: t.id,
+								});
+							}}
+							leftIcon={<Table size="14" />}
+							key={t.id}
+						>
+							{t.name}
+						</Button>
+					))}
+				</ButtonGroup>
 
 				{widget ? (
 					<Button

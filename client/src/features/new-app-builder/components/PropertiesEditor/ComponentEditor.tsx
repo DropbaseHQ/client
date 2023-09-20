@@ -1,16 +1,22 @@
-import { useEffect } from 'react';
-import { Plus } from 'react-feather';
+import { useEffect, useState } from 'react';
+import { Plus, Save } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
 	Stack,
-	Box,
 	Skeleton,
-	Button,
 	IconButton,
 	MenuButton,
 	Menu,
 	MenuList,
 	MenuItem,
+	Accordion,
+	AccordionItem,
+	AccordionButton,
+	Spinner,
+	AccordionIcon,
+	Text,
+	AccordionPanel,
+	Button,
 } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 
@@ -22,9 +28,13 @@ import {
 } from '@/features/new-app-builder/hooks';
 import { pageAtom } from '@/features/new-page';
 
+const DISPLAY_COMPONENT_PROPERTIES = ['name', 'type', 'options', 'label', 'text', 'size'];
+
 const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 	const { widgetId } = useAtomValue(pageAtom);
 	const { schema, refetch } = useGetComponentProperties(widgetId || '');
+
+	const [visibleProperties, setVisibleProperties] = useState<any>(DISPLAY_COMPONENT_PROPERTIES);
 
 	const methods = useForm();
 	const {
@@ -53,26 +63,86 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 		});
 	};
 
+	const allProperties = schema[type] || [];
+	const displayProperties = allProperties
+		.filter((property: any) => {
+			const propertyValue = properties?.[property.name];
+			return (
+				visibleProperties.includes(property.name) ||
+				(propertyValue !== undefined && propertyValue !== null)
+			);
+		})
+		.sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+	const displayPropertiesNames = displayProperties.map((p: any) => p.name);
+
+	const propertiesToBeAdded = allProperties.filter(
+		(p: any) => !displayPropertiesNames.includes(p.name),
+	);
+
 	return (
-		<Box minW="sm" borderWidth="1px" p="3.5" maxW="md" borderRadius="md" bg="white">
+		<AccordionItem>
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
-					<Stack>
-						{(schema[type] || []).map((property: any) => (
-							<FormInput {...property} id={property.name} key={property.name} />
-						))}
+					<AccordionButton w="full">
+						{mutation.isLoading ? <Spinner size="sm" /> : <AccordionIcon />}
 
-						{isDirty ? (
-							<Stack direction="row">
-								<Button isLoading={mutation.isLoading} type="submit">
-									Save
-								</Button>
-							</Stack>
-						) : null}
-					</Stack>
+						<Stack flex="1" ml="4" alignItems="center" direction="row">
+							<Text size="sm">{properties.name}</Text>
+
+							{isDirty ? (
+								<IconButton
+									aria-label="Update component"
+									size="sm"
+									isLoading={mutation.isLoading}
+									type="submit"
+									onClick={(e) => {
+										e.stopPropagation();
+									}}
+									variant="ghost"
+									icon={<Save size="14" />}
+									ml="auto"
+								/>
+							) : null}
+						</Stack>
+					</AccordionButton>
+					<AccordionPanel borderTopWidth="1px">
+						<Stack p="2" maxW="md">
+							{displayProperties.map((property: any) => (
+								<FormInput {...property} id={property.name} key={property.name} />
+							))}
+
+							<Menu>
+								<MenuButton
+									as={Button}
+									size="sm"
+									variant="ghost"
+									colorScheme="blue"
+									flexShrink="0"
+								>
+									Add property
+								</MenuButton>
+								<MenuList>
+									{propertiesToBeAdded.map((p: any) => (
+										<MenuItem
+											onClick={() => {
+												setVisibleProperties([
+													...visibleProperties,
+													p.name,
+												]);
+											}}
+											key={p.name}
+										>
+											{p.name}
+										</MenuItem>
+									))}
+								</MenuList>
+							</Menu>
+						</Stack>
+					</AccordionPanel>
 				</FormProvider>
 			</form>
-		</Box>
+		</AccordionItem>
 	);
 };
 
@@ -109,6 +179,7 @@ export const NewComponent = () => {
 				aria-label="Add function"
 				icon={<Plus size="14" />}
 				variant="outline"
+				flexShrink="0"
 				isLoading={mutation.isLoading}
 			/>
 			<MenuList>
@@ -136,13 +207,13 @@ export const Components = () => {
 	}
 
 	return (
-		<Stack p="3" overflowY="auto" h="full">
+		<Stack overflowY="auto" h="full">
 			<NewComponent />
-			<Stack direction="row" spacing="4" overflowX="auto" flexWrap="nowrap">
+			<Accordion bg="white" borderLeftWidth="1px" borderRightWidth="1px" allowMultiple>
 				{values.map((value: any) => (
 					<ComponentPropertyEditor key={value.id} {...value} />
 				))}
-			</Stack>
+			</Accordion>
 		</Stack>
 	);
 };

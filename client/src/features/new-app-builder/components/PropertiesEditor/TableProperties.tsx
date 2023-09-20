@@ -5,10 +5,14 @@ import { Stack, Skeleton, Box, Button } from '@chakra-ui/react';
 import { useGetTable, useUpdateTableProperties } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { pageAtom } from '@/features/new-page';
+import { useSources } from '@/features/sources/hooks';
+import { WORKSPACE_ID } from '@/features/sources/constant';
 
 export const TableProperties = () => {
 	const { tableId } = useAtomValue(pageAtom);
-	const { isLoading, values, refetch } = useGetTable(tableId || '');
+	const { isLoading, values, sourceId, refetch } = useGetTable(tableId || '');
+
+	const { sources } = useSources(WORKSPACE_ID);
 
 	const [errorLog, setErrorLog] = useState('');
 
@@ -28,16 +32,20 @@ export const TableProperties = () => {
 	} = methods;
 
 	useEffect(() => {
-		reset(values, {
-			keepDirty: false,
-			keepDirtyValues: false,
-		});
-	}, [values, reset]);
+		reset(
+			{ ...values, sourceId },
+			{
+				keepDirty: false,
+				keepDirtyValues: false,
+			},
+		);
+	}, [values, sourceId, reset]);
 
-	const onSubmit = (formValues: any) => {
+	const onSubmit = ({ sourceId: newSourceId, ...rest }: any) => {
 		mutation.mutate({
 			tableId: tableId || '',
-			payload: formValues,
+			payload: rest,
+			sourceId: newSourceId,
 		});
 	};
 
@@ -46,6 +54,15 @@ export const TableProperties = () => {
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
 					<Stack p="3" spacing="4">
+						<FormInput
+							type="select"
+							id="sourceId"
+							name="Source"
+							placeholder="Select source "
+							validation={{ required: 'Source is required' }}
+							options={sources.map((s: any) => s.id)}
+						/>
+
 						<FormInput id="name" name="Table Name" type="text" />
 
 						<Stack spacing="0">
