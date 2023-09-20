@@ -23,7 +23,7 @@ import { Components } from './ComponentEditor';
 
 export const WidgetConfig = () => {
 	return (
-		<Stack direction="row" alignItems="start" maxW="container.xl" p="4" spacing="10">
+		<Stack direction="row" alignItems="start" maxW="container.xl" p="3" spacing="3">
 			<Box p="3" flex="2" borderWidth="1px" bg="white">
 				<WidgetProperties />
 			</Box>
