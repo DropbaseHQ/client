@@ -7,7 +7,7 @@ from server import crud
 from server.schemas.app import CreateApp, UpdateApp
 from server.models import User
 from server.utils.connect import get_db
-from server.utils.authorization import generate_resource_dependency, RESOURCES,get_current_user
+from server.utils.authorization import generate_resource_dependency, RESOURCES, get_current_user
 from server.controllers import app as app_controller
 
 authorize_app_actions = generate_resource_dependency(RESOURCES.APP)
