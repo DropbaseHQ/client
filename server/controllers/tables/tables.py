@@ -21,7 +21,12 @@ def get_table_properties():
 def get_table(db, table_id: UUID):
     table = crud.tables.get_object_by_id_or_404(db, id=table_id)
     table_props = get_class_properties(TablesBaseProperty)
-    return {"properties": table_props, "values": table.property}
+    return {
+        "properties": table_props,
+        "values": table.property,
+        "source_id": table.source_id,
+        "type": table.type,
+    }
 
 
 def create_table(db, request: CreateTables) -> ReadTables:

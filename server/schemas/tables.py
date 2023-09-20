@@ -56,6 +56,7 @@ class CreateTables(BaseModel):
 class UpdateTables(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
+    source_id: Optional[UUID]
 
 
 class QueryTable(BaseModel):

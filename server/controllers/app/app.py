@@ -25,9 +25,19 @@ def create_app(db: Session, request: CreateApp, user: User):
         request.workspace_id = first_workspace.id
     app = crud.app.create(db, obj_in=request)
     page = crud.page.create(db, obj_in={"name": "Page 1", "app_id": app.id})
+    source = crud.source.get_workspace_sources(db, workspace_id=first_workspace.id)[0]
     table_name = "table1"
     table_property = {"name": table_name, "code": "", "type": "postgres"}
-    crud.tables.create(db, obj_in={"name": table_name, "page_id": page.id, "property": table_property})
+    crud.tables.create(
+        db,
+        obj_in={
+            "name": table_name,
+            "page_id": page.id,
+            "property": table_property,
+            "source_id": source.id,
+            "type": "postgres",
+        },
+    )
     return app
 
 
