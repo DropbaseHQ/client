@@ -12,6 +12,7 @@ import {
 	PopoverFooter,
 	PopoverHeader,
 	PopoverTrigger,
+	Portal,
 	useDisclosure,
 } from '@chakra-ui/react';
 import { Plus } from 'react-feather';
@@ -62,36 +63,38 @@ export const NewFunction = (props: any) => {
 				/>
 			</PopoverTrigger>
 
-			<PopoverContent>
-				<PopoverHeader pt={4} fontWeight="bold" border="0">
-					Create a new Function
-				</PopoverHeader>
-				<PopoverArrow />
-				<PopoverCloseButton />
-				<PopoverBody>
-					<Input size="sm" ref={inputRef} placeholder="Enter function name" />
-				</PopoverBody>
-				<PopoverFooter
-					border="0"
-					display="flex"
-					alignItems="center"
-					justifyContent="space-between"
-					pb={4}
-				>
-					<ButtonGroup size="sm">
-						<Button onClick={onClose} colorScheme="red" variant="outline">
-							Cancel
-						</Button>
-						<Button
-							colorScheme="blue"
-							isLoading={mutation.isLoading}
-							onClick={handleAddFunction}
-						>
-							Create
-						</Button>
-					</ButtonGroup>
-				</PopoverFooter>
-			</PopoverContent>
+			<Portal>
+				<PopoverContent>
+					<PopoverHeader pt={4} fontWeight="bold" border="0">
+						Create a new Function
+					</PopoverHeader>
+					<PopoverArrow />
+					<PopoverCloseButton />
+					<PopoverBody>
+						<Input size="sm" ref={inputRef} placeholder="Enter function name" />
+					</PopoverBody>
+					<PopoverFooter
+						border="0"
+						display="flex"
+						alignItems="center"
+						justifyContent="space-between"
+						pb={4}
+					>
+						<ButtonGroup size="sm">
+							<Button onClick={onClose} colorScheme="red" variant="outline">
+								Cancel
+							</Button>
+							<Button
+								colorScheme="blue"
+								isLoading={mutation.isLoading}
+								onClick={handleAddFunction}
+							>
+								Create
+							</Button>
+						</ButtonGroup>
+					</PopoverFooter>
+				</PopoverContent>
+			</Portal>
 		</Popover>
 	);
 };
