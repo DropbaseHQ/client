@@ -10,7 +10,15 @@ from server.utils.authorization import RESOURCES, generate_resource_dependency, 
 from server.utils.connect import get_db
 
 authorize_page_actions = generate_resource_dependency(RESOURCES.PAGE)
-router = APIRouter(prefix="/page", tags=["page"], dependencies=[Depends(authorize_page_actions)])
+authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+router = APIRouter(
+    prefix="/page",
+    tags=["page"],
+    dependencies=[
+        Depends(authorize_page_actions),
+        Depends(authorize_components_actions),
+    ],
+)
 
 
 @router.get("/{page_id}")

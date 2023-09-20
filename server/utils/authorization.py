@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
 from server import crud
@@ -10,6 +11,7 @@ from server.utils.connect import get_db
 class RESOURCES:
     WIDGET = "widget"
     APP = "app"
+    COLUMNS = "columns"
     COMPONENTS = "components"
     FUNCTIONS = "functions"
     PAGE = "page"
@@ -18,11 +20,13 @@ class RESOURCES:
     USER = "user"
     WORKSPACE = "workspace"
     TABLES = "tables"
+    TASK = "task"
 
 
 resource_query_mapper = {
     RESOURCES.WIDGET: crud.widget,
     RESOURCES.APP: crud.app,
+    RESOURCES.COLUMNS: crud.columns,
     RESOURCES.COMPONENTS: crud.components,
     RESOURCES.FUNCTIONS: crud.functions,
     RESOURCES.PAGE: crud.page,
@@ -43,6 +47,17 @@ def get_resource_workspace_id(db: Session, resource_id: str, resource_type: str)
         if hasattr(resource, "workspace_id"):
             return resource.workspace_id
     return None
+
+
+def verify_user_id_belongs_to_current_user(
+    user_id: str,
+    user: User = Depends(get_current_user),
+):
+    if not user_id == user.id:
+        HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"User {user.id} cannot access user {user_id}",
+        )
 
 
 def generate_resource_dependency(resource_type: str):

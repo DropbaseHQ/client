@@ -7,8 +7,19 @@ from server import crud
 from server.schemas.widget import CreateWidget, UpdateWidget, WidgetBaseProperty
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
+from server.utils.authorization import generate_resource_dependency, RESOURCES
 
-router = APIRouter(prefix="/widget", tags=["widget"])
+
+authorize_widget_actions = generate_resource_dependency(RESOURCES.WIDGET)
+authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+router = APIRouter(
+    prefix="/widget",
+    tags=["widget"],
+    dependencies=[
+        Depends(authorize_widget_actions),
+        Depends(authorize_components_actions),
+    ],
+)
 
 
 @router.get("/{widget_id}")

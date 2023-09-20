@@ -13,8 +13,12 @@ from server.schemas.components import CreateComponents, UpdateComponents
 from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.connect import get_db
 
-# authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
-router = APIRouter(prefix="/components", tags=["components"])
+authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+router = APIRouter(
+    prefix="/components",
+    tags=["components"],
+    dependencies=[Depends(authorize_components_actions)],
+)
 
 
 @router.get("/widget/{widget_id}")

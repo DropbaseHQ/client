@@ -11,7 +11,15 @@ from server.utils.authorization import generate_resource_dependency, RESOURCES, 
 from server.controllers import app as app_controller
 
 authorize_app_actions = generate_resource_dependency(RESOURCES.APP)
-router = APIRouter(prefix="/app", tags=["app"], dependencies=[Depends(authorize_app_actions)])
+authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+router = APIRouter(
+    prefix="/app",
+    tags=["app"],
+    dependencies=[
+        Depends(authorize_app_actions),
+        Depends(authorize_components_actions),
+    ],
+)
 
 
 @router.get("/list")

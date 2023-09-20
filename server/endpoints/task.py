@@ -5,8 +5,21 @@ from server.controllers import task
 from server.controllers.task.edit_cell import edit_cell
 from server.schemas.task import EditCell, RunTask
 from server.utils.connect import get_db
+from server.utils.authorization import generate_resource_dependency, RESOURCES
 
-router = APIRouter(prefix="/task", tags=["task"])
+
+authorize_page_actions = generate_resource_dependency(RESOURCES.PAGE)
+authorize_functions_actions = generate_resource_dependency(RESOURCES.FUNCTIONS)
+authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+router = APIRouter(
+    prefix="/task",
+    tags=["task"],
+    dependencies=[
+        Depends(authorize_page_actions),
+        Depends(authorize_functions_actions),
+        Depends(authorize_components_actions),
+    ]
+)
 
 
 @router.post("/")

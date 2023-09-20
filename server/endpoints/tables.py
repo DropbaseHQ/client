@@ -17,8 +17,19 @@ from server.schemas.tables import (
 )
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
+from server.utils.authorization import generate_resource_dependency, RESOURCES
 
-router = APIRouter(prefix="/tables", tags=["tables"])
+
+authorize_tables_actions = generate_resource_dependency(RESOURCES.TABLES)
+authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+router = APIRouter(
+    prefix="/tables",
+    tags=["tables"],
+    dependencies=[
+        Depends(authorize_tables_actions),
+        Depends(authorize_components_actions),
+    ],
+)
 
 
 @router.get("/properties")

@@ -9,8 +9,14 @@ from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.connect import get_db
 
 authorize_functions_actions = generate_resource_dependency(RESOURCES.FUNCTIONS)
+authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
 router = APIRouter(
-    prefix="/functions", tags=["functions"], dependencies=[Depends(authorize_functions_actions)]
+    prefix="/functions",
+    tags=["functions"],
+    dependencies=[
+        Depends(authorize_functions_actions),
+        Depends(authorize_components_actions),
+    ],
 )
 
 

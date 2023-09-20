@@ -10,7 +10,15 @@ from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.connect import get_db
 
 authorize_source_actions = generate_resource_dependency(RESOURCES.SOURCE)
-router = APIRouter(prefix="/source", tags=["source"], dependencies=[Depends(authorize_source_actions)])
+authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+router = APIRouter(
+    prefix="/source",
+    tags=["source"],
+    dependencies=[
+        Depends(authorize_source_actions),
+        Depends(authorize_components_actions),
+    ],
+)
 
 
 @router.get("/{source_id}")

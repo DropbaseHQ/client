@@ -6,8 +6,19 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.schemas.role import CreateRole, UpdateRole
 from server.utils.connect import get_db
+from server.utils.authorization import generate_resource_dependency, RESOURCES
 
-router = APIRouter(prefix="/role", tags=["role"])
+
+authorize_workspace_actions = generate_resource_dependency(RESOURCES.WORKSPACE)
+authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+router = APIRouter(
+    prefix="/role",
+    tags=["role"],
+    dependencies=[
+        Depends(authorize_workspace_actions),
+        Depends(authorize_components_actions),
+    ],
+)
 
 
 @router.get("/{role_id}")
