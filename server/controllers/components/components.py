@@ -7,8 +7,8 @@ from server import crud
 from server.schemas.components import (
     ButtonDefined,
     CreateComponents,
-    InputBaseProperties,
     InputDefined,
+    ReorderComponents,
     SelectDefined,
     TextDefined,
     UpdateComponents,
@@ -42,3 +42,26 @@ def get_widget_components_and_props(db: Session, widget_id: UUID):
         "text": get_class_properties(TextDefined),
     }
     return {"schema": schema, "values": components}
+
+
+def delete_component(db: Session, components_id: UUID):
+    component = crud.components.get_object_by_id_or_404(db, id=components_id)
+    next_component = crud.components.get_component_by_after(
+        db, widget_id=component.widget_id, after=component.id
+    )
+    next_component.after = component.after
+    db.delete(component)
+    db.commit()
+    return {"message": "Component deleted successfully"}
+
+
+def reorder_component(db: Session, request: ReorderComponents):
+    # if request.after is None:
+    component = crud.components.get_object_by_id_or_404(db, id=request.component_id)
+    current_component = crud.components.get_component_by_after(
+        db, widget_id=request.widget_id, after=request.after
+    )
+    # get component currently at that position
+    component.after = request.after
+    current_component.after = component.id
+    db.commit()

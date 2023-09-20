@@ -39,4 +39,22 @@ def delete_widget(widget_id: UUID, db: Session = Depends(get_db)):
 def get_widget_ui(widget_id: UUID, db: Session = Depends(get_db)):
     widget = crud.widget.get_object_by_id_or_404(db, id=widget_id)
     components = crud.components.get_widget_component(db, widget_id=widget_id)
-    return {"widget": widget, "components": components}
+    ordered_comp = order_components(components)
+    return {"widget": widget, "components": ordered_comp}
+
+
+def order_components(components):
+    after_dict = {}
+    for component in components:
+        if component.after:
+            after_dict[component.id] = component.after
+    result = []
+    comp_dict = {component.id: component for component in components}
+    for c in reversed(list(comp_dict.keys())):
+        if c in result:
+            continue
+        else:
+            idx = result.index(after_dict.get(c)) if after_dict.get(c) in result else -1
+            result.insert(idx + 1, c)
+    response = [comp_dict.get(c) for c in result]
+    return response

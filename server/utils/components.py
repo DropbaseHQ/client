@@ -1,8 +1,10 @@
 from server.schemas.components import (
-    ButtonBaseProperties,
+    ButtonDefined,
     InputBaseProperties,
+    InputDefined,
     SelectBaseProperties,
-    TextBaseProperties,
+    SelectDefined,
+    TextDefined,
 )
 from server.schemas.states import (
     ButtonStateProperties,
@@ -15,10 +17,10 @@ user_input_components = ["input", "select"]
 state_update_components = ["input", "select", "button"]
 
 component_type_mapper = {
-    "input": InputBaseProperties,
-    "select": SelectBaseProperties,
-    "text": TextBaseProperties,
-    "button": ButtonBaseProperties,
+    "input": InputDefined,
+    "select": SelectDefined,
+    "text": TextDefined,
+    "button": ButtonDefined,
 }
 state_component_type_mapper = {
     "input": InputStateProperties,
@@ -37,3 +39,5 @@ def get_component_pydantic_dtype(component):
             return "float"
         else:
             return "str"
+    else:
+        return "Any"

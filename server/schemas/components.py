@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from server.schemas.states import (
     ButtonSharedProperties,
@@ -65,6 +65,7 @@ class ButtonBaseProperties(BaseModel):
     visible: Optional[bool]
     # server call
     on_click: Optional[str]
+    # = Field(..., description="function", Optional=True)
 
 
 class ButtonDefined(ButtonBaseProperties, ButtonSharedProperties):
@@ -95,6 +96,7 @@ class TextRead(TextBaseProperties, TextSharedProperties):
 class BaseComponents(BaseModel):
     property: Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
+    after: Optional[UUID]
     type: str
 
 
@@ -102,6 +104,7 @@ class ReadComponents(BaseModel):
     id: UUID
     property: Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
+    after: Optional[UUID]
     type: str
     date: datetime
 
@@ -109,9 +112,16 @@ class ReadComponents(BaseModel):
 class CreateComponents(BaseModel):
     property: dict  # Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
+    after: Optional[UUID]
     type: str
 
 
 class UpdateComponents(BaseModel):
     property: dict
     type: str
+
+
+class ReorderComponents(BaseModel):
+    widget_id: UUID
+    component_id: UUID
+    after: Optional[UUID]
