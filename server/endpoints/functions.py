@@ -24,6 +24,10 @@ def create_functions(request: CreateFunctions, db: Session = Depends(get_db)):
     if request.name is None:
         page_funcs = crud.functions.get_page_functions(db, page_id=request.page_id)
         request.name = "function " + str(len(page_funcs) + 1)
+    if request.code is None:
+        request.code = """def action() -> State:
+    state.widget.customer.message = "Hello world!
+    return state"""
     return crud.functions.create(db, obj_in=request)
 
 

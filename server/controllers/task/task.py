@@ -66,7 +66,7 @@ def run_function(request: RunFunction, db: Session):
         casted_inputs = cast_to_classes(user_input, tables, state)
         executable_code = states_def + table_models + widget_models + casted_inputs + function_code
 
-        code_to_run = f"""{request.function_name}()"""
+        code_to_run = f"""state = {request.function_name}()"""
         # run code
         res = exec_code(executable_code, code_to_run, user_input, tables, state)
         return RunCodeResponse(**res)

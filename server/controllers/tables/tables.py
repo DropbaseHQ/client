@@ -21,14 +21,19 @@ def get_table_properties():
 def get_table(db, table_id: UUID):
     table = crud.tables.get_object_by_id_or_404(db, id=table_id)
     table_props = get_class_properties(TablesBaseProperty)
-    return {"properties": table_props, "values": table.property}
+    return {
+        "properties": table_props,
+        "values": table.property,
+        "source_id": table.source_id,
+        "type": table.type,
+    }
 
 
 def create_table(db, request: CreateTables) -> ReadTables:
-    user_db_engine = connect_to_user_db()
-
     # get columns
+    user_db_engine = connect_to_user_db(db, request.source_id)
     columns = get_table_columns(user_db_engine, request.property.code)
+    user_db_engine.dispose()
 
     # create table
     request.name = request.property.name
@@ -43,8 +48,10 @@ def create_table(db, request: CreateTables) -> ReadTables:
 
 def update_table(db: Session, table_id: UUID, request: UpdateTables, response: Response) -> ReadTables:
     try:
-        user_db_engine = connect_to_user_db()
+        table = crud.tables.get_object_by_id_or_404(db, id=table_id)
+        user_db_engine = connect_to_user_db(db, table.source_id)
         table_columns = get_table_columns(user_db_engine, request.property.code)
+        user_db_engine.dispose()
         db_columns = crud.columns.get_table_columns(db, table_id=table_id)
 
         cols_to_add, cols_to_delete = [], []
