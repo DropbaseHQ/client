@@ -44,6 +44,8 @@ def get_component_pydantic_dtype(component):
 
 
 def order_components(components):
+    if len(components) == 0:
+        return []
     after_dict = {}
     first = None
     for component in components:
