@@ -27,7 +27,7 @@ class CRUDComponents(CRUDBase[Components, CreateComponents, UpdateComponents]):
             db.query(Components)
             .filter(Components.after == after)
             .filter(Components.widget_id == widget_id)
-            .one()
+            .first()
         )
 
 

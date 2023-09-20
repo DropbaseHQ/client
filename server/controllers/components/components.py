@@ -50,8 +50,9 @@ def delete_component(db: Session, components_id: UUID):
     next_component = crud.components.get_component_by_after(
         db, widget_id=component.widget_id, after=component.id
     )
-    next_component.after = component.after
-    db.commit()
+    if next_component:
+        next_component.after = component.after
+        db.commit()
     db.delete(component)
     db.commit()
     return {"message": "Component deleted successfully"}
