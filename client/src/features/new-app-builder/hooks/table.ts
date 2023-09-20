@@ -87,3 +87,22 @@ export const useUpdateTableProperties = (props: any = {}) => {
 		},
 	});
 };
+
+const convertToSmartTable = async ({ tableId }: any) => {
+	const response = await axios.post(`/tables/convert`, {
+		table_id: tableId,
+	});
+
+	return response.data;
+};
+
+export const useConvertSmartTable = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(convertToSmartTable, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
+		},
+	});
+};

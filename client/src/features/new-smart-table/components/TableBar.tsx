@@ -1,8 +1,8 @@
 import { IconButton, Stack } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { Save, Zap } from 'react-feather';
-import { useConvertSmartTable, useCurrentTableData, useSaveEdits } from '../hooks';
+import { Save } from 'react-feather';
+import { useCurrentTableData, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { pageAtom } from '@/features/new-page';
 import { cellEditsAtom } from '@/features/new-smart-table/atoms';
@@ -28,22 +28,6 @@ export const TableBar = () => {
 			setCellEdits([]);
 		},
 	});
-
-	const convertMutation = useConvertSmartTable({
-		onSuccess: () => {
-			toast({
-				status: 'success',
-				title: 'SmartTable converted',
-			});
-		},
-	});
-
-	const handleConvert = () => {
-		if (tableId)
-			convertMutation.mutate({
-				tableId,
-			});
-	};
 
 	const handleCellEdits = () => {
 		if (tableId)
@@ -75,15 +59,6 @@ export const TableBar = () => {
 			</Stack>
 
 			<Stack direction="row">
-				<IconButton
-					aria-label="Convert to Smart table"
-					icon={<Zap size="14" />}
-					variant="ghost"
-					colorScheme="yellow"
-					size="sm"
-					onClick={handleConvert}
-					isLoading={convertMutation.isLoading}
-				/>
 				{cellEdits.length > 0 ? (
 					<IconButton
 						aria-label="Save Cell edits"

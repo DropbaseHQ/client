@@ -1,3 +1,4 @@
+import { Zap } from 'react-feather';
 import { useAtomValue } from 'jotai';
 import {
 	Stack,
@@ -13,9 +14,11 @@ import {
 	FormLabel,
 	FormControl,
 	Spinner,
+	Button,
 } from '@chakra-ui/react';
 import { InputRenderer } from '@/components/FormInput';
 import {
+	useConvertSmartTable,
 	useGetColumnProperties,
 	useUpdateColumnProperties,
 } from '@/features/new-app-builder/hooks';
@@ -122,15 +125,43 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 };
 
 export const ColumnsProperties = () => {
+	const toast = useToast();
 	const { tableId } = useAtomValue(pageAtom);
 	const { isLoading, values } = useGetColumnProperties(tableId || '');
+
+	const convertMutation = useConvertSmartTable({
+		onSuccess: () => {
+			toast({
+				status: 'success',
+				title: 'SmartTable converted',
+			});
+		},
+	});
+
+	const handleConvert = () => {
+		if (tableId)
+			convertMutation.mutate({
+				tableId,
+			});
+	};
 
 	if (isLoading) {
 		return <Skeleton h="xs" />;
 	}
 
 	return (
-		<Box h="full" p="3" overflowY="auto">
+		<Stack h="full" p="3" overflowY="auto">
+			<Button
+				leftIcon={<Zap size="14" />}
+				size="sm"
+				colorScheme="yellow"
+				onClick={handleConvert}
+				isLoading={convertMutation.isLoading}
+				mr="auto"
+				variant="ghost"
+			>
+				Smart Table
+			</Button>
 			<Accordion bg="white" borderLeftWidth="1px" borderRightWidth="1px" allowMultiple>
 				<Stack
 					fontWeight="medium"
@@ -149,6 +180,6 @@ export const ColumnsProperties = () => {
 					<ColumnProperty key={value.id} {...value} />
 				))}
 			</Accordion>
-		</Box>
+		</Stack>
 	);
 };
