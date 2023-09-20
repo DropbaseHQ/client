@@ -41,3 +41,23 @@ def get_component_pydantic_dtype(component):
             return "str"
     else:
         return "Any"
+
+
+def order_components(components):
+    after_dict = {}
+    first = None
+    for component in components:
+        if component.after:
+            after_dict[component.after] = component.id
+        else:
+            first = component.id
+
+    comp_dict = {component.id: component for component in components}
+    result = [comp_dict[first]]
+
+    for _ in range(len(comp_dict.keys()) - 1):
+        last_component = result[-1]
+        next_comp_id = after_dict[last_component.id]
+        result.append(comp_dict[next_comp_id])
+
+    return result

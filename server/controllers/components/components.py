@@ -13,7 +13,7 @@ from server.schemas.components import (
     TextDefined,
     UpdateComponents,
 )
-from server.utils.components import component_type_mapper
+from server.utils.components import component_type_mapper, order_components
 from server.utils.converter import get_class_properties
 
 logger = logging.getLogger(__name__)
@@ -35,13 +35,14 @@ def update_component(db: Session, components_id: UUID, request: UpdateComponents
 
 def get_widget_components_and_props(db: Session, widget_id: UUID):
     components = crud.components.get_widget_component(db, widget_id=widget_id)
+    ordered_comp = order_components(components)
     schema = {
         "input": get_class_properties(InputDefined),
         "select": get_class_properties(SelectDefined),
         "button": get_class_properties(ButtonDefined),
         "text": get_class_properties(TextDefined),
     }
-    return {"schema": schema, "values": components}
+    return {"schema": schema, "values": ordered_comp}
 
 
 def delete_component(db: Session, components_id: UUID):
@@ -50,6 +51,7 @@ def delete_component(db: Session, components_id: UUID):
         db, widget_id=component.widget_id, after=component.id
     )
     next_component.after = component.after
+    db.commit()
     db.delete(component)
     db.commit()
     return {"message": "Component deleted successfully"}

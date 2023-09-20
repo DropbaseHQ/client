@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers.components import (
     create_component,
+    delete_component,
     get_widget_components_and_props,
     reorder_component,
     update_component,
@@ -40,7 +41,7 @@ def update_components(components_id: UUID, request: UpdateComponents, db: Sessio
 
 @router.delete("/{components_id}")
 def delete_components(components_id: UUID, db: Session = Depends(get_db)):
-    return crud.components.remove(db, id=components_id)
+    return delete_component(db, components_id)
 
 
 @router.post("/reorder")

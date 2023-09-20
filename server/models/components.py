@@ -10,7 +10,7 @@ class Components(Base):
 
     property = Column(JSONB)
     widget_id = Column(UUID(as_uuid=True), ForeignKey("widget.id", ondelete="CASCADE"))
-    after = Column(UUID(as_uuid=True), ForeignKey("components.id", ondelete="SET NULL"))
+    after = Column(UUID(as_uuid=True), ForeignKey("components.id"))
     type = Column(String)
 
     date = Column(TIMESTAMP, server_default=func.now())
