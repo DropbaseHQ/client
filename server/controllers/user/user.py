@@ -1,31 +1,18 @@
-from uuid import UUID
-
-from fastapi import HTTPException, status, Response
+from fastapi import HTTPException, Response, status
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.user import CreateUser, ReadUser, LoginUser, CreateUserRequest, ResetPasswordRequest
-from server.utils.helper import raise_http_exception
-from server.models import User
+from server.schemas.role import CreateRole
+from server.schemas.user import CreateUser, CreateUserRequest, LoginUser, ReadUser, ResetPasswordRequest
+from server.schemas.workspace import CreateWorkspace
 from server.utils.authentication import authenticate_user, get_password_hash, verify_password
+from server.utils.helper import raise_http_exception
 
 
 def get_user(db: Session, user_email: str):
     try:
-        user = crud.user.get_user_by_email(db, email=user_email)
-        return ReadUser(
-            id=user.id,
-            name=user.name,
-            email=user.email,
-            trial_eligible=user.trial_eligible,
-            active=user.active,
-            date=user.date,
-            customer_id=user.customer_id,
-            subscription_id=user.subscription_id,
-            status=user.status,
-            plan=user.plan,
-        )
+        return crud.user.get_user_by_email(db, email=user_email)
     except Exception as e:
         print("error", e)
         raise_http_exception(status_code=404, message="User not found")
@@ -87,7 +74,21 @@ def register_user(db: Session, request: CreateUserRequest):
             trial_eligible=True,
             active=True,
         )
-        crud.user.create(db, obj_in=user_obj)
+        user = crud.user.create(db, obj_in=user_obj)
+
+        workspace_obj = CreateWorkspace(
+            name="workspace",
+            active=True,
+        )
+        workspace = crud.workspace.create(db, obj_in=workspace_obj)
+
+        role_obj = CreateRole(
+            user_id=user.id,
+            workspace_id=workspace.id,
+            role="admin",
+        )
+        crud.role.create(db, obj_in=role_obj)
+
         return {"message": "User successfully registered"}
     except Exception as e:
         print("error", e)
