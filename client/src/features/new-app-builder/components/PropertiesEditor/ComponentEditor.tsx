@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Save } from 'react-feather';
+import { Plus, Save, Trash } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
 	Stack,
@@ -17,16 +17,19 @@ import {
 	Text,
 	AccordionPanel,
 	Button,
+	ButtonGroup,
 } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 
 import { FormInput } from '@/components/FormInput';
 import {
 	useCreateComponents,
+	useDeleteComponent,
 	useGetComponentProperties,
 	useUpdateComponentProperties,
 } from '@/features/new-app-builder/hooks';
 import { pageAtom } from '@/features/new-page';
+import { useToast } from '@/lib/chakra-ui';
 
 const DISPLAY_COMPONENT_PROPERTIES = ['name', 'type', 'options', 'label', 'text', 'size'];
 
@@ -42,7 +45,13 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 		reset,
 	} = methods;
 
-	const mutation = useUpdateComponentProperties({
+	const updateMutation = useUpdateComponentProperties({
+		onSuccess: () => {
+			refetch();
+		},
+	});
+
+	const deleteMutation = useDeleteComponent({
 		onSuccess: () => {
 			refetch();
 		},
@@ -56,7 +65,7 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 	}, [properties, reset]);
 
 	const onSubmit = (formValues: any) => {
-		mutation.mutate({
+		updateMutation.mutate({
 			componentId: id,
 			payload: formValues,
 			type,
@@ -85,31 +94,53 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
 					<AccordionButton w="full">
-						{mutation.isLoading ? <Spinner size="sm" /> : <AccordionIcon />}
+						{updateMutation.isLoading ? <Spinner size="sm" /> : <AccordionIcon />}
 
 						<Stack flex="1" ml="4" alignItems="center" direction="row">
 							<Text size="sm">{properties.name}</Text>
 
-							{isDirty ? (
+							<ButtonGroup ml="auto" size="xs">
+								{isDirty ? (
+									<IconButton
+										aria-label="Update component"
+										isLoading={updateMutation.isLoading}
+										type="submit"
+										onClick={(e) => {
+											e.stopPropagation();
+										}}
+										icon={<Save size="14" />}
+									/>
+								) : null}
 								<IconButton
-									aria-label="Update component"
-									size="sm"
-									isLoading={mutation.isLoading}
-									type="submit"
+									aria-label="Delete component"
+									variant="ghost"
+									colorScheme="red"
+									isLoading={deleteMutation.isLoading}
 									onClick={(e) => {
 										e.stopPropagation();
+										deleteMutation.mutate({
+											componentId: id,
+										});
 									}}
-									variant="ghost"
-									icon={<Save size="14" />}
-									ml="auto"
+									icon={<Trash size="14" />}
 								/>
-							) : null}
+							</ButtonGroup>
 						</Stack>
 					</AccordionButton>
 					<AccordionPanel borderTopWidth="1px">
 						<Stack p="2" maxW="md">
 							{displayProperties.map((property: any) => (
-								<FormInput {...property} id={property.name} key={property.name} />
+								<FormInput
+									{...property}
+									id={property.name}
+									options={(property.enum || property.options || []).map(
+										(o: any) => ({
+											name: o,
+											value: o,
+										}),
+									)}
+									key={property.name}
+								/>
 							))}
 
 							<Menu>
@@ -147,11 +178,17 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 };
 
 export const NewComponent = () => {
+	const toast = useToast();
 	const { widgetId } = useAtomValue(pageAtom);
 	const { values } = useGetComponentProperties(widgetId || '');
 
 	const mutation = useCreateComponents({
-		onSuccess: () => {},
+		onSuccess: () => {
+			toast({
+				status: 'success',
+				title: 'Component added',
+			});
+		},
 	});
 
 	const onSubmit = ({ type }: any) => {
@@ -169,6 +206,7 @@ export const NewComponent = () => {
 			widgetId,
 			property: { name: `${type}${nameIndex}` },
 			type,
+			after: values?.[values.length - 1]?.id || null,
 		});
 	};
 

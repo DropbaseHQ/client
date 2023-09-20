@@ -43,7 +43,10 @@ export const NewSource = () => {
 								validation={{
 									required: field.required,
 								}}
-								options={field.options}
+								options={field.options.map((o: any) => ({
+									name: o,
+									value: o,
+								}))}
 							/>
 						),
 					)}

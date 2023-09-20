@@ -83,8 +83,12 @@ const AppComponent = (props: any) => {
 					setWidgetComponentValues({
 						[component.name]: newValue,
 					});
+
+					if (component.on_change) {
+						handleAction(component.on_change);
+					}
 				}}
-				options={component.options}
+				options={inputState.options}
 			/>
 
 			{inputState?.message ? <FormHelperText>{inputState.message}</FormHelperText> : null}
@@ -168,6 +172,7 @@ export const NewAppPreview = () => {
 			</Skeleton>
 			{widgetState?.message ? (
 				<Alert
+					flexShrink="0"
 					pos="sticky"
 					bottom="0"
 					w="full"

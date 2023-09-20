@@ -14,7 +14,7 @@ export const AppBuilderNavbar = () => {
 				h="full"
 				colorScheme="gray"
 			>
-				Back to App
+				Back to Apps
 			</Button>
 
 			<Tooltip label="App preview">
