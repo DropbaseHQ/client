@@ -175,13 +175,16 @@ export const NewComponent = () => {
 	return (
 		<Menu>
 			<MenuButton
-				as={IconButton}
-				aria-label="Add function"
-				icon={<Plus size="14" />}
-				variant="outline"
+				as={Button}
+				leftIcon={<Plus size="14" />}
+				variant="ghost"
+				size="sm"
 				flexShrink="0"
+				mr="auto"
 				isLoading={mutation.isLoading}
-			/>
+			>
+				New Component
+			</MenuButton>
 			<MenuList>
 				{['input', 'text', 'select', 'button'].map((c) => (
 					<MenuItem
@@ -208,12 +211,13 @@ export const Components = () => {
 
 	return (
 		<Stack overflowY="auto" h="full">
-			<NewComponent />
 			<Accordion bg="white" borderLeftWidth="1px" borderRightWidth="1px" allowMultiple>
 				{values.map((value: any) => (
 					<ComponentPropertyEditor key={value.id} {...value} />
 				))}
 			</Accordion>
+
+			<NewComponent />
 		</Stack>
 	);
 };
