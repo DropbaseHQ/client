@@ -25,8 +25,10 @@ def get_page_schema(db: Session, page_id: UUID):
 
         # get table selection schema
         table_schema[table.name] = row_schema
-        column_props = get_class_dict(PgColumnStateProperty)
-        state["tables"][table.name]["columns"] = {col.property["name"]: column_props for col in columns}
+        state["tables"][table.name]["columns"] = {}
+        for col in columns:
+            col_state = PgColumnStateProperty(**col.property)
+            state["tables"][table.name]["columns"][col.property["name"]] = col_state.dict()
 
     # get user input schema
     widget = crud.widget.get_page_widget(db, page_id=page_id)
@@ -41,9 +43,9 @@ def get_page_schema(db: Session, page_id: UUID):
             if component.type not in state_update_components:
                 continue
             ComponentClass = state_component_type_mapper[component.type]
-            component_props = get_class_dict(ComponentClass)
+            comp_state = ComponentClass(**component.property)
             comp_name = component.property["name"]
-            state["widget"][widget.name]["components"][comp_name] = component_props
+            state["widget"][widget.name]["components"][comp_name] = comp_state.dict()
         # get user input schem
         user_input = get_user_input(components)
 

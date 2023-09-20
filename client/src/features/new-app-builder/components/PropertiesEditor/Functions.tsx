@@ -12,6 +12,7 @@ import {
 	PopoverFooter,
 	PopoverHeader,
 	PopoverTrigger,
+	Portal,
 	useDisclosure,
 } from '@chakra-ui/react';
 import { Plus } from 'react-feather';
@@ -20,7 +21,7 @@ import { useRef } from 'react';
 import { useCreateFunction } from '@/features/new-app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 
-export const NewFunction = () => {
+export const NewFunction = (props: any) => {
 	const toast = useToast();
 	const { pageId } = useParams();
 
@@ -56,43 +57,44 @@ export const NewFunction = () => {
 				<IconButton
 					aria-label="Add function"
 					icon={<Plus size="14" />}
-					borderRadius="0"
-					variant="ghost"
 					onClick={onToggle}
 					isLoading={mutation.isLoading}
+					{...props}
 				/>
 			</PopoverTrigger>
 
-			<PopoverContent>
-				<PopoverHeader pt={4} fontWeight="bold" border="0">
-					Create a new Function
-				</PopoverHeader>
-				<PopoverArrow />
-				<PopoverCloseButton />
-				<PopoverBody>
-					<Input size="sm" ref={inputRef} placeholder="Enter function name" />
-				</PopoverBody>
-				<PopoverFooter
-					border="0"
-					display="flex"
-					alignItems="center"
-					justifyContent="space-between"
-					pb={4}
-				>
-					<ButtonGroup size="sm">
-						<Button onClick={onClose} colorScheme="red" variant="outline">
-							Cancel
-						</Button>
-						<Button
-							colorScheme="blue"
-							isLoading={mutation.isLoading}
-							onClick={handleAddFunction}
-						>
-							Create
-						</Button>
-					</ButtonGroup>
-				</PopoverFooter>
-			</PopoverContent>
+			<Portal>
+				<PopoverContent>
+					<PopoverHeader pt={4} fontWeight="bold" border="0">
+						Create a new Function
+					</PopoverHeader>
+					<PopoverArrow />
+					<PopoverCloseButton />
+					<PopoverBody>
+						<Input size="sm" ref={inputRef} placeholder="Enter function name" />
+					</PopoverBody>
+					<PopoverFooter
+						border="0"
+						display="flex"
+						alignItems="center"
+						justifyContent="space-between"
+						pb={4}
+					>
+						<ButtonGroup size="sm">
+							<Button onClick={onClose} colorScheme="red" variant="outline">
+								Cancel
+							</Button>
+							<Button
+								colorScheme="blue"
+								isLoading={mutation.isLoading}
+								onClick={handleAddFunction}
+							>
+								Create
+							</Button>
+						</ButtonGroup>
+					</PopoverFooter>
+				</PopoverContent>
+			</Portal>
 		</Popover>
 	);
 };

@@ -10,9 +10,9 @@ from server.schemas.states import TableDisplayProperty, TableSharedProperty
 
 class TablesBaseProperty(BaseModel):
     name: str
-    source: Optional[str]
+    # source: Optional[str]
+    # type: Literal["postgres", "python"]
     code: str = Field(..., description="sql")
-    type: Literal["postgres", "python"]
     filters: Optional[List[PinnedFilter]]
 
     # on row change
@@ -31,6 +31,8 @@ class BaseTables(BaseModel):
     name: str
     property: TablesDefinedProperty
     page_id: UUID
+    source_id: Optional[UUID]
+    type: Optional[Literal["postgres", "python"]]
 
 
 class ReadTables(BaseModel):
@@ -38,6 +40,8 @@ class ReadTables(BaseModel):
     name: str
     property: TablesReadProperty
     page_id: UUID
+    source_id: Optional[UUID]
+    type: Optional[Literal["postgres", "python"]]
     date: datetime
 
 
@@ -45,11 +49,14 @@ class CreateTables(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
     page_id: UUID
+    source_id: Optional[UUID]
+    type: Optional[Literal["postgres", "python"]] = "postgres"
 
 
 class UpdateTables(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
+    source_id: Optional[UUID]
 
 
 class QueryTable(BaseModel):

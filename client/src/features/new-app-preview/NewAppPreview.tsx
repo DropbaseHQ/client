@@ -15,15 +15,86 @@ import { RefreshCw } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { useGetWidgetPreview } from '@/features/new-app-preview/hooks';
+import { useExecuteAction, useGetWidgetPreview } from '@/features/new-app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
 import {
 	widgetComponentsAtom,
 	useInitializeWidgetState,
 	allWidgetStateAtom,
+	useSyncState,
+	newPageStateAtom,
 } from '@/features/new-app-state';
 import { pageAtom } from '@/features/new-page';
 import { useCreateWidget } from '@/features/new-app-builder/hooks';
+
+const AppComponent = (props: any) => {
+	const { pageId } = useParams();
+	const { type, property: component } = props;
+
+	const [widgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
+	const inputState = widgetComponents?.[component.name] || {};
+
+	const pageState = useAtomValue(newPageStateAtom);
+	const syncState = useSyncState();
+
+	const actionMutation = useExecuteAction({
+		onSuccess: (data: any) => {
+			syncState(data);
+		},
+	});
+
+	const handleAction = (actionName: string) => {
+		actionMutation.mutate({
+			pageId,
+			functionName: actionName,
+			pageState,
+		});
+	};
+
+	if (type === 'button') {
+		return (
+			<Button
+				size="sm"
+				isLoading={actionMutation.isLoading}
+				onClick={() => {
+					if (component.on_click) {
+						handleAction(component.on_click);
+					}
+				}}
+			>
+				{component.label}
+			</Button>
+		);
+	}
+
+	if (type === 'text') {
+		return <Text>{component.text}</Text>;
+	}
+
+	return (
+		<FormControl key={component.name}>
+			<FormLabel>{component.label}</FormLabel>
+
+			<InputRenderer
+				value={inputState?.value}
+				name={component.name}
+				type={type === 'select' ? 'select' : component.type}
+				onChange={(newValue: any) => {
+					setWidgetComponentValues({
+						[component.name]: newValue,
+					});
+
+					if (component.on_change) {
+						handleAction(component.on_change);
+					}
+				}}
+				options={inputState.options}
+			/>
+
+			{inputState?.message ? <FormHelperText>{inputState.message}</FormHelperText> : null}
+		</FormControl>
+	);
+};
 
 export const NewAppPreview = () => {
 	const { pageId } = useParams();
@@ -38,8 +109,6 @@ export const NewAppPreview = () => {
 
 	const allWidgetState: any = useAtomValue(allWidgetStateAtom).state;
 	const widgetState: any = allWidgetState[widget?.name];
-
-	const [widgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
 
 	const mutation = useCreateWidget();
 
@@ -97,34 +166,13 @@ export const NewAppPreview = () => {
 				</Stack>
 				<Stack p="4">
 					{components.map((c: any) => {
-						const component = c.property;
-						const inputState = widgetComponents?.[component.name] || {};
-
-						return (
-							<FormControl key={component.name}>
-								<FormLabel>{component.label}</FormLabel>
-
-								<InputRenderer
-									value={inputState?.value}
-									name={component.name}
-									type={component.type}
-									onChange={(newValue: any) => {
-										setWidgetComponentValues({
-											[component.name]: newValue,
-										});
-									}}
-								/>
-
-								{inputState?.message ? (
-									<FormHelperText>{inputState.message}</FormHelperText>
-								) : null}
-							</FormControl>
-						);
+						return <AppComponent key={c.id} {...c} />;
 					})}
 				</Stack>
 			</Skeleton>
 			{widgetState?.message ? (
 				<Alert
+					flexShrink="0"
 					pos="sticky"
 					bottom="0"
 					w="full"

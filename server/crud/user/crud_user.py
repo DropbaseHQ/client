@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import User, Workspace, Role
+from server.models import Role, User, Workspace
 from server.schemas.user import CreateUser, UpdateUser
 
 
@@ -11,8 +11,8 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
         self.update(db, db_obj=user, obj_in={"refresh_token": refresh_token})
         db.commit()
 
-    def get_user_by_email(self, db: Session, email: str):
-        return db.query(self.model).filter(self.model.email == email).first()
+    def get_user_by_email(self, db: Session, email: str) -> User:
+        return db.query(User).filter(User.email == email).first()
 
     def get_user_first_workspace(self, db: Session, user_id: str):
         return (

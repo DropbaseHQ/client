@@ -1,7 +1,10 @@
 import {
+	Box,
+	Button,
 	FormControl,
 	FormErrorMessage,
 	FormLabel,
+	IconButton,
 	Input,
 	NumberDecrementStepper,
 	NumberIncrementStepper,
@@ -9,26 +12,29 @@ import {
 	NumberInputField,
 	NumberInputStepper,
 	Select,
+	Stack,
 	Switch,
 } from '@chakra-ui/react';
 import { forwardRef } from 'react';
+import { Plus, Trash } from 'react-feather';
 import { ErrorMessage } from '@hookform/error-message';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { MonacoEditor } from '@/components/Editor';
 
 export const InputRenderer = forwardRef((props: any, ref: any) => {
-	const { onChange, onBlur, value, type, enum: selectOptions } = props;
+	const { onChange, onBlur, value, type, options: selectOptions, ...inputProps } = props;
 
 	if (type === 'number') {
 		return (
 			<NumberInput
 				onChange={(_, valueAsNumber) => {
-					onChange(valueAsNumber);
+					onChange?.(valueAsNumber);
 				}}
 				size="sm"
 				onBlur={onBlur}
 				value={value === null ? '' : value}
+				{...inputProps}
 			>
 				<NumberInputField ref={ref} />
 				<NumberInputStepper>
@@ -44,25 +50,113 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 			<Select
 				onBlur={onBlur}
 				onChange={(e) => {
-					onChange(e.target.value);
+					onChange?.(e.target.value);
 				}}
 				value={value}
 				ref={ref}
 				size="sm"
+				{...inputProps}
 				placeholder="Select option"
 			>
-				{/* {options.map((option: any) => (
-								<option key={option.value} value={option.value}>
-									{option.name}{' '}
-								</option>
-							))} */}
-
-				{selectOptions.map((option: any) => (
-					<option key={option} value={option}>
-						{option}
+				{(selectOptions || []).map((option: any) => (
+					<option key={option.name} value={option.value}>
+						{option.name}
 					</option>
 				))}
 			</Select>
+		);
+	}
+
+	if (type === 'array') {
+		const optionsToRender = value || [];
+
+		return (
+			<Stack p="3" borderWidth="1px" borderRadius="md" spacing="2">
+				<Stack fontSize="xs" fontWeight="medium" letterSpacing="wide" direction="row">
+					<Box flex="1">Name</Box>
+					<Box flex="1">Value</Box>
+					<Box minW="8" />
+				</Stack>
+
+				{optionsToRender.map((option: any, index: any) => {
+					return (
+						<Stack
+							alignItems="center"
+							key={`${JSON.stringify(option)}-${index}`}
+							direction="row"
+						>
+							<Input
+								size="sm"
+								flex="1"
+								placeholder="name"
+								value={option.name}
+								onChange={(e) => {
+									onChange(
+										optionsToRender.map((o: any, i: any) => {
+											if (i === index) {
+												return {
+													...o,
+													name: e.target.value,
+												};
+											}
+											return o;
+										}),
+									);
+								}}
+							/>
+							<Input
+								size="sm"
+								flex="1"
+								placeholder="value"
+								value={option.value}
+								onChange={(e) => {
+									onChange(
+										optionsToRender.map((o: any, i: any) => {
+											if (i === index) {
+												return {
+													...o,
+													value: e.target.value,
+												};
+											}
+											return o;
+										}),
+									);
+								}}
+							/>
+							<IconButton
+								aria-label="Delete"
+								icon={<Trash size="14" />}
+								size="sm"
+								variant="ghost"
+								colorScheme="red"
+								onClick={() => {
+									onChange(
+										optionsToRender.filter((_: any, i: any) => i !== index),
+									);
+								}}
+							/>
+						</Stack>
+					);
+				})}
+
+				<Button
+					size="sm"
+					leftIcon={<Plus size="14" />}
+					variant="ghost"
+					colorScheme="blue"
+					onClick={() => {
+						onChange([
+							...optionsToRender,
+							{
+								name: `option${optionsToRender.length + 1}`,
+								value: `value${optionsToRender.length + 1}`,
+							},
+						]);
+					}}
+				>
+					Add option
+				</Button>
+			</Stack>
 		);
 	}
 
@@ -76,8 +170,11 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				size="sm"
 				isChecked={!!value}
 				onBlur={onBlur}
-				onChange={(e) => onChange(e.target.value)}
+				onChange={(e) => {
+					onChange?.(e.target.checked);
+				}}
 				ref={ref}
+				{...inputProps}
 			/>
 		);
 	}
@@ -85,15 +182,22 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	return (
 		<Input
 			onBlur={onBlur}
-			onChange={(e) => onChange(e.target.value)}
+			onChange={(e) => onChange?.(e.target.value)}
 			value={value || ''}
 			size="sm"
 			ref={ref}
+			{...inputProps}
 		/>
 	);
 });
 
-export const BaseFormInput = ({ id, type, validation, enum: selectOptions }: any) => {
+export const BaseFormInput = ({
+	id,
+	type,
+	validation,
+	options: selectOptions,
+	...inputProps
+}: any) => {
 	const { control } = useFormContext();
 
 	return (
@@ -109,7 +213,8 @@ export const BaseFormInput = ({ id, type, validation, enum: selectOptions }: any
 						value={value}
 						ref={ref}
 						type={type}
-						enum={selectOptions}
+						options={selectOptions}
+						{...inputProps}
 					/>
 				);
 			}}
@@ -117,21 +222,29 @@ export const BaseFormInput = ({ id, type, validation, enum: selectOptions }: any
 	);
 };
 
-export const FormInput = ({ name, type, validation, enum: selectOptions, id }: any) => {
+export const FormInput = ({
+	name,
+	type,
+	validation,
+	options: selectOptions,
+	id,
+	...inputProps
+}: any) => {
 	const {
 		formState: { errors },
 	} = useFormContext();
 
 	return (
 		<FormControl isInvalid={!!errors?.[id]} key={name}>
-			<FormLabel>{name}</FormLabel>
+			{name ? <FormLabel>{name}</FormLabel> : null}
 
 			<BaseFormInput
 				name={name}
 				id={id}
 				type={type}
-				enum={selectOptions}
+				options={selectOptions}
 				validation={validation}
+				{...inputProps}
 			/>
 			<ErrorMessage
 				errors={errors}

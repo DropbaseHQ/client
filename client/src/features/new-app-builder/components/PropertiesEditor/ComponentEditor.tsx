@@ -1,36 +1,43 @@
-import { useEffect } from 'react';
-import { Plus } from 'react-feather';
+import { useEffect, useState } from 'react';
+import { Plus, Save, Trash } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
 	Stack,
-	Box,
 	Skeleton,
-	Button,
-	Popover,
-	PopoverTrigger,
 	IconButton,
-	PopoverContent,
-	PopoverHeader,
-	PopoverArrow,
-	PopoverCloseButton,
-	PopoverBody,
-	PopoverFooter,
+	MenuButton,
+	Menu,
+	MenuList,
+	MenuItem,
+	Accordion,
+	AccordionItem,
+	AccordionButton,
+	Spinner,
+	AccordionIcon,
+	Text,
+	AccordionPanel,
+	Button,
 	ButtonGroup,
-	useDisclosure,
 } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 
 import { FormInput } from '@/components/FormInput';
 import {
 	useCreateComponents,
+	useDeleteComponent,
 	useGetComponentProperties,
 	useUpdateComponentProperties,
 } from '@/features/new-app-builder/hooks';
 import { pageAtom } from '@/features/new-page';
+import { useToast } from '@/lib/chakra-ui';
+
+const DISPLAY_COMPONENT_PROPERTIES = ['name', 'type', 'options', 'label', 'text', 'size'];
 
 const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 	const { widgetId } = useAtomValue(pageAtom);
 	const { schema, refetch } = useGetComponentProperties(widgetId || '');
+
+	const [visibleProperties, setVisibleProperties] = useState<any>(DISPLAY_COMPONENT_PROPERTIES);
 
 	const methods = useForm();
 	const {
@@ -38,7 +45,13 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 		reset,
 	} = methods;
 
-	const mutation = useUpdateComponentProperties({
+	const updateMutation = useUpdateComponentProperties({
+		onSuccess: () => {
+			refetch();
+		},
+	});
+
+	const deleteMutation = useDeleteComponent({
 		onSuccess: () => {
 			refetch();
 		},
@@ -52,120 +65,177 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 	}, [properties, reset]);
 
 	const onSubmit = (formValues: any) => {
-		mutation.mutate({
+		updateMutation.mutate({
 			componentId: id,
 			payload: formValues,
 			type,
 		});
 	};
 
+	const allProperties = schema[type] || [];
+	const displayProperties = allProperties
+		.filter((property: any) => {
+			const propertyValue = properties?.[property.name];
+			return (
+				visibleProperties.includes(property.name) ||
+				(propertyValue !== undefined && propertyValue !== null)
+			);
+		})
+		.sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+	const displayPropertiesNames = displayProperties.map((p: any) => p.name);
+
+	const propertiesToBeAdded = allProperties.filter(
+		(p: any) => !displayPropertiesNames.includes(p.name),
+	);
+
 	return (
-		<Box minW="sm" borderWidth="1px" p="3.5" maxW="md" borderRadius="md" bg="white">
+		<AccordionItem>
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
-					<Stack>
-						{schema.map((property: any) => (
-							<FormInput {...property} id={property.name} key={property.name} />
-						))}
+					<AccordionButton w="full">
+						{updateMutation.isLoading ? <Spinner size="sm" /> : <AccordionIcon />}
 
-						{isDirty ? (
-							<Stack direction="row">
-								<Button isLoading={mutation.isLoading} type="submit">
-									Save
-								</Button>
-							</Stack>
-						) : null}
-					</Stack>
+						<Stack flex="1" ml="4" alignItems="center" direction="row">
+							<Text size="sm">{properties.name}</Text>
+
+							<ButtonGroup ml="auto" size="xs">
+								{isDirty ? (
+									<IconButton
+										aria-label="Update component"
+										isLoading={updateMutation.isLoading}
+										type="submit"
+										onClick={(e) => {
+											e.stopPropagation();
+										}}
+										icon={<Save size="14" />}
+									/>
+								) : null}
+								<IconButton
+									aria-label="Delete component"
+									variant="ghost"
+									colorScheme="red"
+									isLoading={deleteMutation.isLoading}
+									onClick={(e) => {
+										e.stopPropagation();
+										deleteMutation.mutate({
+											componentId: id,
+										});
+									}}
+									icon={<Trash size="14" />}
+								/>
+							</ButtonGroup>
+						</Stack>
+					</AccordionButton>
+					<AccordionPanel borderTopWidth="1px">
+						<Stack p="2" maxW="md">
+							{displayProperties.map((property: any) => (
+								<FormInput
+									{...property}
+									id={property.name}
+									options={(property.enum || property.options || []).map(
+										(o: any) => ({
+											name: o,
+											value: o,
+										}),
+									)}
+									key={property.name}
+								/>
+							))}
+
+							<Menu>
+								<MenuButton
+									as={Button}
+									size="sm"
+									variant="ghost"
+									colorScheme="blue"
+									flexShrink="0"
+								>
+									Add property
+								</MenuButton>
+								<MenuList>
+									{propertiesToBeAdded.map((p: any) => (
+										<MenuItem
+											onClick={() => {
+												setVisibleProperties([
+													...visibleProperties,
+													p.name,
+												]);
+											}}
+											key={p.name}
+										>
+											{p.name}
+										</MenuItem>
+									))}
+								</MenuList>
+							</Menu>
+						</Stack>
+					</AccordionPanel>
 				</FormProvider>
 			</form>
-		</Box>
+		</AccordionItem>
 	);
 };
 
 export const NewComponent = () => {
+	const toast = useToast();
 	const { widgetId } = useAtomValue(pageAtom);
-	const { isOpen, onToggle, onClose } = useDisclosure();
-
-	const methods = useForm();
+	const { values } = useGetComponentProperties(widgetId || '');
 
 	const mutation = useCreateComponents({
 		onSuccess: () => {
-			methods.reset();
-			onClose();
+			toast({
+				status: 'success',
+				title: 'Component added',
+			});
 		},
 	});
 
-	const onSubmit = ({ name, type }: any) => {
-		if (name.trim()) {
-			mutation.mutate({
-				widgetId,
-				property: { name, type },
-				type: 'input',
-			});
+	const onSubmit = ({ type }: any) => {
+		const currentNames = values
+			.filter((c: any) => c.type === type)
+			.map((c: any) => c.property.name);
+
+		let nameIndex = 1;
+
+		while (currentNames.includes(`${type}${nameIndex}`)) {
+			nameIndex += 1;
 		}
+
+		mutation.mutate({
+			widgetId,
+			property: { name: `${type}${nameIndex}` },
+			type,
+			after: values?.[values.length - 1]?.id || null,
+		});
 	};
 
 	return (
-		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur={false}>
-			<PopoverTrigger>
-				<IconButton
-					aria-label="Add function"
-					icon={<Plus size="14" />}
-					variant="outline"
-					onClick={onToggle}
-					isLoading={mutation.isLoading}
-				/>
-			</PopoverTrigger>
-
-			<PopoverContent>
-				<form onSubmit={methods.handleSubmit(onSubmit)}>
-					<FormProvider {...methods}>
-						<PopoverHeader pt={4} fontWeight="bold" border="0">
-							Create a new Component
-						</PopoverHeader>
-						<PopoverArrow />
-						<PopoverCloseButton />
-						<PopoverBody>
-							<Stack>
-								<FormInput
-									name="Name"
-									id="name"
-									validation={{ required: 'Name is required' }}
-									type="text"
-								/>
-
-								<FormInput
-									name="Type"
-									id="type"
-									type="select"
-									enum={['select', 'text', 'number']}
-								/>
-							</Stack>
-						</PopoverBody>
-						<PopoverFooter
-							border="0"
-							display="flex"
-							alignItems="center"
-							justifyContent="space-between"
-							pb={4}
-						>
-							<ButtonGroup size="sm">
-								<Button onClick={onClose} colorScheme="red" variant="outline">
-									Cancel
-								</Button>
-								<Button
-									colorScheme="blue"
-									isLoading={mutation.isLoading}
-									type="submit"
-								>
-									Create
-								</Button>
-							</ButtonGroup>
-						</PopoverFooter>
-					</FormProvider>
-				</form>
-			</PopoverContent>
-		</Popover>
+		<Menu>
+			<MenuButton
+				as={Button}
+				leftIcon={<Plus size="14" />}
+				variant="ghost"
+				size="sm"
+				flexShrink="0"
+				mr="auto"
+				isLoading={mutation.isLoading}
+			>
+				New Component
+			</MenuButton>
+			<MenuList>
+				{['input', 'text', 'select', 'button'].map((c) => (
+					<MenuItem
+						onClick={() => {
+							onSubmit({ type: c });
+						}}
+						key={c}
+					>
+						{c}
+					</MenuItem>
+				))}
+			</MenuList>
+		</Menu>
 	);
 };
 
@@ -178,13 +248,14 @@ export const Components = () => {
 	}
 
 	return (
-		<Stack h="full">
-			<NewComponent />
-			<Stack direction="row" spacing="4" overflowX="auto" flexWrap="nowrap">
+		<Stack overflowY="auto" h="full">
+			<Accordion bg="white" borderLeftWidth="1px" borderRightWidth="1px" allowMultiple>
 				{values.map((value: any) => (
 					<ComponentPropertyEditor key={value.id} {...value} />
 				))}
-			</Stack>
+			</Accordion>
+
+			<NewComponent />
 		</Stack>
 	);
 };

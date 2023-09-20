@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from server.controllers import task
 from server.controllers.task.edit_cell import edit_cell
-from server.schemas.task import EditCell, RunTask
+from server.schemas.task import EditCell, RunFunction, RunTask
 from server.utils.connect import get_db
 from server.utils.authorization import generate_resource_dependency, RESOURCES
 
@@ -25,6 +25,11 @@ router = APIRouter(
 @router.post("/")
 def run_task(request: RunTask, db: Session = Depends(get_db)):
     return task.run_task(request, db)
+
+
+@router.post("/function")
+def run_function(request: RunFunction, db: Session = Depends(get_db)):
+    return task.run_function(request, db)
 
 
 @router.post("/edit")

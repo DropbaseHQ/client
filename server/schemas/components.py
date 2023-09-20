@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from server.schemas.states import (
     ButtonSharedProperties,
@@ -15,7 +15,7 @@ from server.schemas.states import (
 
 class InputBaseProperties(BaseModel):
     name: str
-    type: Literal["text", "number", "date"]
+    type: Optional[Literal["text", "number", "date"]] = "text"
     label: Optional[str]
     # ui logic
     required: Optional[bool]
@@ -60,11 +60,12 @@ class SelectRead(SelectBaseProperties, ComponentDisplayProperties, SelectSharedP
 
 class ButtonBaseProperties(BaseModel):
     name: str
-    label: str
+    label: Optional[str]
     # editable
     visible: Optional[bool]
     # server call
     on_click: Optional[str]
+    # = Field(..., description="function", Optional=True)
 
 
 class ButtonDefined(ButtonBaseProperties, ButtonSharedProperties):
@@ -76,7 +77,8 @@ class ButtonRead(ButtonBaseProperties, ComponentDisplayProperties, ButtonSharedP
 
 
 class TextBaseProperties(BaseModel):
-    text: str
+    name: str
+    text: Optional[str]
     size: Optional[Literal["small", "medium", "large"]]
     color: Optional[
         Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]
@@ -94,6 +96,7 @@ class TextRead(TextBaseProperties, TextSharedProperties):
 class BaseComponents(BaseModel):
     property: Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
+    after: Optional[UUID]
     type: str
 
 
@@ -101,6 +104,7 @@ class ReadComponents(BaseModel):
     id: UUID
     property: Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
+    after: Optional[UUID]
     type: str
     date: datetime
 
@@ -108,9 +112,16 @@ class ReadComponents(BaseModel):
 class CreateComponents(BaseModel):
     property: dict  # Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
+    after: Optional[UUID]
     type: str
 
 
 class UpdateComponents(BaseModel):
     property: dict
     type: str
+
+
+class ReorderComponents(BaseModel):
+    widget_id: UUID
+    component_id: UUID
+    after: Optional[UUID]

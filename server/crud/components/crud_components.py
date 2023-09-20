@@ -22,5 +22,13 @@ class CRUDComponents(CRUDBase[Components, CreateComponents, UpdateComponents]):
             .one()
         ).workspace_id
 
+    def get_component_by_after(self, db: Session, widget_id: UUID, after: UUID) -> Components:
+        return (
+            db.query(Components)
+            .filter(Components.after == after)
+            .filter(Components.widget_id == widget_id)
+            .one()
+        )
+
 
 components = CRUDComponents(Components)

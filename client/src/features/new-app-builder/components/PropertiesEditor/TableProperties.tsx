@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
-import { Stack, Skeleton, Button, Box } from '@chakra-ui/react';
+import { Stack, Skeleton, Box, Button } from '@chakra-ui/react';
 import { useGetTable, useUpdateTableProperties } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { pageAtom } from '@/features/new-page';
+import { useSources } from '@/features/sources/hooks';
+import { WORKSPACE_ID } from '@/features/sources/constant';
 
 export const TableProperties = () => {
 	const { tableId } = useAtomValue(pageAtom);
-	const { isLoading, properties, values, refetch } = useGetTable(tableId || '');
+	const { isLoading, values, sourceId, refetch } = useGetTable(tableId || '');
+
+	const { sources } = useSources(WORKSPACE_ID);
 
 	const [errorLog, setErrorLog] = useState('');
 
@@ -23,21 +27,25 @@ export const TableProperties = () => {
 
 	const methods = useForm();
 	const {
-		formState: { isDirty },
 		reset,
+		formState: { touchedFields, isDirty },
 	} = methods;
 
 	useEffect(() => {
-		reset(values, {
-			keepDirty: false,
-			keepDirtyValues: false,
-		});
-	}, [values, reset]);
+		reset(
+			{ ...values, sourceId },
+			{
+				keepDirty: false,
+				keepDirtyValues: false,
+			},
+		);
+	}, [values, sourceId, reset]);
 
-	const onSubmit = (formValues: any) => {
+	const onSubmit = ({ sourceId: newSourceId, ...rest }: any) => {
 		mutation.mutate({
 			tableId: tableId || '',
-			payload: formValues,
+			payload: rest,
+			sourceId: newSourceId,
 		});
 	};
 
@@ -45,39 +53,50 @@ export const TableProperties = () => {
 		<Skeleton isLoaded={!isLoading}>
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
-					<Stack>
-						{properties
-							.filter((f: any) => f.name !== 'filters')
-							.map((property: any) => (
-								<React.Fragment key={property.name}>
-									<FormInput {...property} id={property.name} />
+					<Stack p="3" spacing="4">
+						<FormInput
+							type="select"
+							id="sourceId"
+							name="Source"
+							placeholder="Select source "
+							validation={{ required: 'Source is required' }}
+							options={sources.map((s: any) => ({
+								value: s.id,
+								name: s.name,
+							}))}
+						/>
 
-									{property.name === 'code' && errorLog ? (
-										<Box
-											mt="-1.5"
-											fontSize="xs"
-											color="red.500"
-											bg="white"
-											p="2"
-											borderRadius="sm"
-											as="pre"
-											fontFamily="mono"
-										>
-											{errorLog}
-										</Box>
-									) : null}
-								</React.Fragment>
-							))}
+						<FormInput id="name" name="Table Name" type="text" />
 
-						<Stack direction="row">
+						<Stack spacing="0">
+							<FormInput id="code" name="SQL Code" type="sql" />
+							{errorLog ? (
+								<Box
+									fontSize="xs"
+									color="red.500"
+									bg="white"
+									p="2"
+									borderRadius="sm"
+									as="pre"
+									fontFamily="mono"
+								>
+									{errorLog}
+								</Box>
+							) : null}
+						</Stack>
+
+						{Object.keys(touchedFields).length > 0 || isDirty ? (
 							<Button
+								size="sm"
+								w="max-content"
+								variant="outline"
+								flexGrow="0"
 								isLoading={mutation.isLoading}
-								isDisabled={!isDirty}
 								type="submit"
 							>
-								Save
+								Update
 							</Button>
-						</Stack>
+						) : null}
 					</Stack>
 				</FormProvider>
 			</form>
