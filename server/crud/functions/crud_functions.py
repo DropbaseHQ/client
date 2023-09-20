@@ -18,8 +18,7 @@ class CRUDFunctions(CRUDBase[Functions, CreateFunctions, UpdateFunctions]):
         return (
             db.query(App.workspace_id)
             .join(Page, Page.app_id == App.id)
-            .join(Widget, Widget.page_id == Page.id)
-            .join(Functions, Functions.page_id == Widget.page_id)
+            .join(Functions, Functions.page_id == Page.id)
             .filter(Functions.id == functions_id)
             .one()
         ).workspace_id
