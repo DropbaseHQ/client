@@ -26,7 +26,8 @@ def get_role(role_id: UUID, db: Session = Depends(get_db)):
     return crud.role.get_object_by_id_or_404(db, id=role_id)
 
 
-@router.post("/")
+authorize_role_creation = generate_resource_dependency(RESOURCES.WORKSPACE, is_on_resource_creation=True)
+@router.post("/", dependencies=[Depends(authorize_role_creation)])
 def create_role(request: CreateRole, db: Session = Depends(get_db)):
     return crud.role.create(db, obj_in=request)
 

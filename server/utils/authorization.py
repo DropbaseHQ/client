@@ -1,3 +1,6 @@
+import asyncio
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
@@ -19,6 +22,7 @@ class RESOURCES:
     SOURCE = "source"
     USER = "user"
     WORKSPACE = "workspace"
+    TABLE = "table"  # FIXME: columns endpoints take "table_id" instead of "tables_id" 
     TABLES = "tables"
     TASK = "task"
 
@@ -34,6 +38,7 @@ resource_query_mapper = {
     RESOURCES.SOURCE: crud.source,
     RESOURCES.USER: crud.user,
     RESOURCES.WORKSPACE: crud.workspace,
+    RESOURCES.TABLE: crud.tables,
     RESOURCES.TABLES: crud.tables,
 }
 
@@ -60,14 +65,27 @@ def verify_user_id_belongs_to_current_user(
         )
 
 
-def generate_resource_dependency(resource_type: str):
+def generate_resource_dependency(resource_type: str, is_on_resource_creation: bool = False):
+    resource_id_accessor = f"{resource_type}_id"
+
+    def get_resource_id_from_path_params(request: Request) -> Optional[str]:
+        return request.path_params.get(resource_id_accessor, None)
+
+    def get_resource_id_from_req_body(request: Request) -> Optional[str]:
+        body = asyncio.run(request.json())
+        return body.get(resource_id_accessor)
+    
+    if is_on_resource_creation:
+        get_resource_id = get_resource_id_from_req_body
+    else:
+        get_resource_id = get_resource_id_from_path_params
+    
     def verify_user_can_act_on_resource(
         request: Request,
         db: Session = Depends(get_db),
         user: User = Depends(get_current_user),
     ):
-        resource_id_accessor = f"{resource_type}_id"
-        resource_id = request.path_params.get(resource_id_accessor, None)
+        resource_id = get_resource_id(request)
         if resource_id is None:
             return True
 

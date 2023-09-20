@@ -42,7 +42,8 @@ def get_tables(tables_id: UUID, db: Session = Depends(get_db)):
     return get_table(db, tables_id)
 
 
-@router.post("/")
+authorize_tables_creation = generate_resource_dependency(RESOURCES.PAGE, is_on_resource_creation=True)
+@router.post("/", dependencies=[Depends(authorize_tables_creation)])
 def create_tables(request: CreateTables, db: Session = Depends(get_db)):
     return create_table(db, request)
 

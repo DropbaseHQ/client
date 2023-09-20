@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers.page import page
 from server.schemas.page import CreatePage, UpdatePage
-from server.utils.authorization import RESOURCES, generate_resource_dependency, get_current_user
+from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.connect import get_db
 
 authorize_page_actions = generate_resource_dependency(RESOURCES.PAGE)
@@ -26,7 +26,8 @@ def get_page(page_id: UUID, db: Session = Depends(get_db)):
     return page.get_page_details(db, page_id=page_id)
 
 
-@router.post("/")
+authorize_page_creation = generate_resource_dependency(RESOURCES.APP, is_on_resource_creation=True)
+@router.post("/", dependencies=[Depends(authorize_page_creation)])
 def create_page(request: CreatePage, db: Session = Depends(get_db)):
     return crud.page.create(db, request)
 

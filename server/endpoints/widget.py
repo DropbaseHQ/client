@@ -29,7 +29,8 @@ def get_widget(widget_id: UUID, db: Session = Depends(get_db)):
     return {"schema": widget_props, "values": widget}
 
 
-@router.post("/")
+authorize_widget_creation = generate_resource_dependency(RESOURCES.PAGE, is_on_resource_creation=True)
+@router.post("/", dependencies=[Depends(authorize_widget_creation)])
 def create_widget(request: CreateWidget, db: Session = Depends(get_db)):
     request.name = request.property.name
     return crud.widget.create(db, obj_in=request)

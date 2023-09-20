@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, HTTPException
 from fastapi_jwt_auth import AuthJWT
 
 from sqlalchemy.orm import Session
@@ -55,8 +55,12 @@ def get_user(user_id: UUID, db: Session = Depends(get_db)):
     return crud.user.get_object_by_id_or_404(db, id=user_id)
 
 
-@router.post("/", dependencies=[Depends(authorize_components_actions)])
+@router.post("/")
 def create_user(request: CreateUser, db: Session = Depends(get_db)):
+    raise HTTPException(
+        status_code=501,
+        detail="Endpoint POST /user is not implemented"
+    )
     return crud.user.create(db, request)
 
 

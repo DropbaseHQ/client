@@ -25,7 +25,8 @@ def get_functions(functions_id: UUID, db: Session = Depends(get_db)):
     return crud.functions.get_object_by_id_or_404(db, id=functions_id)
 
 
-@router.post("/")
+authorize_functions_creation = generate_resource_dependency(RESOURCES.PAGE, is_on_resource_creation=True)
+@router.post("/", dependencies=[Depends(authorize_functions_creation)])
 def create_functions(request: CreateFunctions, db: Session = Depends(get_db)):
     if request.name is None:
         page_funcs = crud.functions.get_page_functions(db, page_id=request.page_id)

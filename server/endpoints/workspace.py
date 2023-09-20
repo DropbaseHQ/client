@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from server import crud
@@ -28,6 +28,10 @@ def get_workspace(workspace_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/")
 def create_workspace(request: CreateWorkspace, db: Session = Depends(get_db)):
+    raise HTTPException(
+        status_code=501,
+        detail="Endpoint POST /workspace is not implemented"
+    )
     return crud.workspace.create(db, obj_in=request)
 
 
