@@ -56,7 +56,6 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
 
 def logout_user(response: Response, Authorize: AuthJWT):
     try:
-        import pdb;pdb.set_trace()
         Authorize.jwt_required()
         # Authorize.unset_jwt_cookies()
         response.delete_cookie("access_token_cookie", samesite="none", secure=True)
