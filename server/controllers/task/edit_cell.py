@@ -9,9 +9,8 @@ from server.utils.connect_to_user_db import connect_to_user_db
 
 
 def edit_cell(db: Session, request: EditCell):
-    # TODO: use table to find a source and connect
-    # table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
-    user_db_engine = connect_to_user_db()
+    table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
+    user_db_engine = connect_to_user_db(db, table.source_id)
     for edit in request.edits:
         update_value(db, user_db_engine, edit)
     user_db_engine.dispose()
