@@ -1,10 +1,12 @@
 import { Button, SimpleGrid, Skeleton, Stack, Text } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
 import { Link } from 'react-router-dom';
-import { WORKSPACE_ID } from '@/features/sources/constant';
 import { useSources } from '@/features/sources/hooks';
+import { workspaceAtom } from '@/atoms';
 
 export const Sources = () => {
-	const { isLoading, sources } = useSources(WORKSPACE_ID);
+	const workspaceId = useAtomValue(workspaceAtom);
+	const { isLoading, sources } = useSources(workspaceId);
 
 	if (isLoading) {
 		return <Skeleton minH="container.sm" />;

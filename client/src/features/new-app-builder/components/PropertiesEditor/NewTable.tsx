@@ -14,22 +14,25 @@ import {
 	Portal,
 	useDisclosure,
 } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
+
 import { Plus } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useToast } from '@/lib/chakra-ui';
 import { useCreateTable } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
-import { WORKSPACE_ID } from '@/features/sources/constant';
 import { useSources } from '@/features/sources/hooks';
+import { workspaceAtom } from '@/atoms';
 
 export const NewTable = (props: any) => {
+	const workspaceId = useAtomValue(workspaceAtom);
 	const { pageId } = useParams();
 
 	const toast = useToast();
 	const methods = useForm();
 	const { isOpen, onToggle, onClose } = useDisclosure();
 
-	const { sources } = useSources(WORKSPACE_ID);
+	const { sources } = useSources(workspaceId);
 
 	const mutation = useCreateTable({
 		onSuccess: () => {

@@ -1,13 +1,16 @@
 import { Button, Stack } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { useNavigate } from 'react-router-dom';
 import { FormInput } from '@/components/FormInput';
-import { BASE_SOURCE_FIELDS, SOURCE_BASED_INPUTS, WORKSPACE_ID } from '@/features/sources/constant';
+import { BASE_SOURCE_FIELDS, SOURCE_BASED_INPUTS } from '@/features/sources/constant';
 import { useCreateSource } from '@/features/sources/hooks';
 import { useToast } from '@/lib/chakra-ui';
+import { workspaceAtom } from '@/atoms';
 
 export const NewSource = () => {
+	const workspaceId = useAtomValue(workspaceAtom);
 	const navigate = useNavigate();
 	const toast = useToast();
 	const methods = useForm();
@@ -26,7 +29,7 @@ export const NewSource = () => {
 	});
 
 	const onSubmit = (values: any) => {
-		createMutation.mutate({ ...values, workspaceId: WORKSPACE_ID });
+		createMutation.mutate({ ...values, workspaceId });
 	};
 
 	return (

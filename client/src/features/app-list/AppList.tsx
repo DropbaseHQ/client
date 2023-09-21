@@ -15,11 +15,13 @@ import {
 	ModalBody,
 	ModalCloseButton,
 	useDisclosure,
+	Skeleton,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import { Layout } from 'react-feather';
 
 import { useState } from 'react';
-import { AppGraphic } from './AppGraphic';
+
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
 import { useCreateApp } from './hooks/useCreateApp';
 
@@ -29,34 +31,34 @@ const AppCard = ({ app }: { app: AppType }) => {
 		navigate(`/apps/${app.id}/${app?.pages?.[0]?.id}/new-editor`);
 	};
 	return (
-		<Flex
-			rounded="md"
+		<Stack
 			borderWidth="1px"
 			borderColor="gray.200"
+			bg="white"
 			borderRadius="md"
 			alignItems="center"
-			justifyContent="space-around"
+			direction="row"
 			cursor="pointer"
-			p="2"
+			p="6"
+			spacing={6}
+			transition="all ease .2s"
 			_hover={{
-				bg: 'gray.100',
+				shadow: 'xs',
+				borderColor: 'gray.300',
 			}}
 			onClick={handleClick}
 		>
-			<Flex flex="1" alignItems="center" justifyContent="cente">
-				<AppGraphic />
-			</Flex>
-			<Box flex="2">
-				<Heading size="xs">{app?.name}</Heading>
-				<Text>Lorem ipsum</Text>
-			</Box>
-		</Flex>
+			<Layout size="48" />
+			<Text fontSize="xl" fontWeight="semibold">
+				{app?.name}
+			</Text>
+		</Stack>
 	);
 };
 
 export const AppList = () => {
 	// Will need to pass workspace in here but for now we only have one workspace (backend spits out the first workspace)
-	const { apps, refetch } = useGetWorkspaceApps();
+	const { apps, refetch, isLoading } = useGetWorkspaceApps();
 	const [appName, setAppName] = useState('');
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const createAppMutation = useCreateApp({
@@ -74,24 +76,27 @@ export const AppList = () => {
 	};
 
 	return (
-		<>
-			<Stack>
-				{/* <AppBuilderNavbar /> */}
-				<Box h="full" p="4">
-					<Flex w="full" justifyContent="space-between">
-						<Heading size="md" mb="8">
-							Your apps
-						</Heading>
-						<Button onClick={onOpen}>Add app</Button>
-					</Flex>
+		<Stack>
+			<Box h="full" p="4">
+				<Flex w="full" justifyContent="space-between">
+					<Heading size="md" mb="8">
+						Your apps
+					</Heading>
+					<Button onClick={onOpen}>Add app</Button>
+				</Flex>
 
-					<Grid templateColumns="repeat(3, 1fr)" gap={6}>
-						{apps.map((app) => (
-							<AppCard key={app.id} app={app} />
-						))}
-					</Grid>
-				</Box>
-			</Stack>
+				<Grid templateColumns="repeat(3, 1fr)" gap={6}>
+					{isLoading ? (
+						<>
+							<Skeleton w="full" h={24} />
+							<Skeleton w="full" h={24} />
+							<Skeleton w="full" h={24} />
+						</>
+					) : (
+						apps.map((app) => <AppCard key={app.id} app={app} />)
+					)}
+				</Grid>
+			</Box>
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent>
@@ -122,6 +127,6 @@ export const AppList = () => {
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
-		</>
+		</Stack>
 	);
 };
