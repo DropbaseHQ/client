@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.app import CreateApp, UpdateApp
-from server.models import User
-from server.utils.connect import get_db
-from server.utils.authorization import generate_resource_dependency, RESOURCES, get_current_user
 from server.controllers import app as app_controller
+from server.models import User
+from server.schemas.app import CreateApp, UpdateApp
+from server.utils.authorization import RESOURCES, generate_resource_dependency, get_current_user
+from server.utils.connect import get_db
 
 authorize_app_actions = generate_resource_dependency(RESOURCES.APP)
 authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
@@ -33,6 +33,8 @@ def get_app(app_id: UUID, db: Session = Depends(get_db)):
 
 
 authorize_app_creation = generate_resource_dependency(RESOURCES.WORKSPACE, is_on_resource_creation=True)
+
+
 @router.post("/", dependencies=[Depends(authorize_app_creation)])
 def create_app(
     request: CreateApp, db: Session = Depends(get_db), user: User = Depends(get_current_user)

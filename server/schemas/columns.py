@@ -77,6 +77,9 @@ class BaseColumns(BaseModel):
     table_id: UUID
     type: str
 
+    class Config:
+        orm_mode = True
+
 
 class ReadColumns(BaseColumns):
     id: UUID
