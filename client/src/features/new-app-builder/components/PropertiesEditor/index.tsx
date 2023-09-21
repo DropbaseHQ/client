@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { Box, Button, ButtonGroup, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { Code, Box as BoxIcon, Table } from 'react-feather';
@@ -23,6 +24,15 @@ export const PropertiesEditor = () => {
 
 	const { widgetId } = useAtomValue(pageAtom);
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
+
+	useEffect(() => {
+		return () => {
+			setDevTab({
+				type: null,
+				id: null,
+			});
+		};
+	}, [setDevTab]);
 
 	if (isLoading) {
 		return <Skeleton />;

@@ -16,6 +16,8 @@ import { pageAtom } from '@/features/new-page';
 import { useCurrentTableData } from './hooks';
 import { cellEditsAtom } from './atoms';
 import { TableBar } from './components';
+import { useGetTable } from '@/features/new-app-builder/hooks';
+import { TableProperties } from '@/features/new-app-builder/components/PropertiesEditor/TableProperties';
 
 export const NewSmartTable = () => {
 	const theme = useTheme();
@@ -30,6 +32,9 @@ export const NewSmartTable = () => {
 	const { tableId } = useAtomValue(pageAtom);
 
 	const { isLoading, rows, columns, header, tableName } = useCurrentTableData();
+	const { values, isLoading: isLoadingTableData } = useGetTable(tableId || '');
+
+	const sqlCode = (values?.code || '').trim();
 
 	const [cellEdits, setCellEdits] = useAtom(cellEditsAtom);
 
@@ -190,6 +195,39 @@ export const NewSmartTable = () => {
 					bgBubble: theme.colors.gray['100'],
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.3)(theme),
 			  };
+
+	if (isLoading || isLoadingTableData) {
+		return (
+			<Stack h="full" spacing="0">
+				<TableBar />
+
+				<Center h="full" as={Stack}>
+					<Spinner size="md" />
+					<Text>Loading data...</Text>
+				</Center>
+			</Stack>
+		);
+	}
+
+	if (!sqlCode) {
+		return (
+			<Center h="full">
+				<Stack p={6} w="container.sm" spacing="2.5" alignItems="center">
+					<Text fontWeight="semibold">Connect source to view table data.</Text>
+					<Stack
+						p={6}
+						bg="white"
+						w="full"
+						borderRadius="sm"
+						borderWidth="1px"
+						spacing="0"
+					>
+						<TableProperties />
+					</Stack>
+				</Stack>
+			</Center>
+		);
+	}
 
 	return (
 		<Stack h="full" spacing="0">
