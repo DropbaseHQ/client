@@ -39,8 +39,8 @@ const AppCard = ({ app }: { app: AppType }) => {
 			alignItems="center"
 			direction="row"
 			cursor="pointer"
-			p="6"
-			spacing={6}
+			p="4"
+			spacing="4"
 			transition="all ease .2s"
 			_hover={{
 				shadow: 'xs',
@@ -48,10 +48,12 @@ const AppCard = ({ app }: { app: AppType }) => {
 			}}
 			onClick={handleClick}
 		>
-			<Layout strokeWidth="1.5px" size="52px" />
-			<Text fontSize="xl" fontWeight="semibold">
-				{app?.name}
-			</Text>
+			<Layout strokeWidth="1.5px" size="40px" />
+			<Stack spacing="0">
+				<Text fontSize="lg" fontWeight="semibold">
+					{app?.name}
+				</Text>
+			</Stack>
 		</Stack>
 	);
 };
@@ -85,9 +87,10 @@ export const AppList = () => {
 					<Button onClick={onOpen}>Add app</Button>
 				</Flex>
 
-				<SimpleGrid gap={4} columns={4}>
+				<SimpleGrid spacing={6} columns={4}>
 					{isLoading ? (
 						<>
+							<Skeleton w="full" h={24} />
 							<Skeleton w="full" h={24} />
 							<Skeleton w="full" h={24} />
 							<Skeleton w="full" h={24} />
