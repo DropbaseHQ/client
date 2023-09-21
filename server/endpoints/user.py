@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, HTTPException
 from fastapi_jwt_auth import AuthJWT
 
 from sqlalchemy.orm import Session
@@ -13,9 +13,15 @@ from server.schemas.user import (
     ResetPasswordRequest,
 )
 from server.utils.connect import get_db
+from server.utils.authorization import verify_user_id_belongs_to_current_user, generate_resource_dependency, RESOURCES
 from server.controllers.user import user
 
-router = APIRouter(prefix="/user", tags=["user"])
+
+authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+router = APIRouter(
+    prefix="/user",
+    tags=["user"]
+)
 
 
 @router.post("/register")
@@ -28,36 +34,43 @@ def login_user(request: LoginUser, db: Session = Depends(get_db), Authorize: Aut
     return user.login_user(db, Authorize, request)
 
 
-@router.delete("/logout")
+@router.delete("/logout", dependencies=[Depends(authorize_components_actions)])
 def logout_user(response: Response, Authorize: AuthJWT = Depends()):
     return user.logout_user(response, Authorize)
 
 
-@router.post("/refresh")
+@router.post("/refresh", dependencies=[Depends(authorize_components_actions)])
 def refresh_token(Authorize: AuthJWT = Depends()):
     return user.refresh_token(Authorize)
 
 
-@router.post("/reset_password")
+@router.post("/reset_password", dependencies=[Depends(authorize_components_actions)])
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
     return user.reset_password(db, request)
 
 
-@router.get("/{user_id}")
+@router.get("/{user_id}", dependencies=[Depends(authorize_components_actions)])
 def get_user(user_id: UUID, db: Session = Depends(get_db)):
+    verify_user_id_belongs_to_current_user(user_id)
     return crud.user.get_object_by_id_or_404(db, id=user_id)
 
 
 @router.post("/")
 def create_user(request: CreateUser, db: Session = Depends(get_db)):
+    raise HTTPException(
+        status_code=501,
+        detail="Endpoint POST /user is not implemented"
+    )
     return crud.user.create(db, request)
 
 
-@router.put("/{user_id}")
+@router.put("/{user_id}", dependencies=[Depends(authorize_components_actions)])
 def update_user(user_id: UUID, request: UpdateUser, db: Session = Depends(get_db)):
+    verify_user_id_belongs_to_current_user(user_id)
     return crud.user.update_by_pk(db, user_id, request)
 
 
-@router.delete("/{user_id}")
+@router.delete("/{user_id}", dependencies=[Depends(authorize_components_actions)])
 def delete_user(user_id: UUID, db: Session = Depends(get_db)):
+    verify_user_id_belongs_to_current_user(user_id)
     return crud.user.remove(db, id=user_id)

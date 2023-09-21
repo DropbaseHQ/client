@@ -1,4 +1,8 @@
+import asyncio
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
 from server import crud
@@ -10,6 +14,7 @@ from server.utils.connect import get_db
 class RESOURCES:
     WIDGET = "widget"
     APP = "app"
+    COLUMNS = "columns"
     COMPONENTS = "components"
     FUNCTIONS = "functions"
     PAGE = "page"
@@ -17,12 +22,15 @@ class RESOURCES:
     SOURCE = "source"
     USER = "user"
     WORKSPACE = "workspace"
+    TABLE = "table"  # FIXME: columns endpoints take "table_id" instead of "tables_id" 
     TABLES = "tables"
+    TASK = "task"
 
 
 resource_query_mapper = {
     RESOURCES.WIDGET: crud.widget,
     RESOURCES.APP: crud.app,
+    RESOURCES.COLUMNS: crud.columns,
     RESOURCES.COMPONENTS: crud.components,
     RESOURCES.FUNCTIONS: crud.functions,
     RESOURCES.PAGE: crud.page,
@@ -30,6 +38,7 @@ resource_query_mapper = {
     RESOURCES.SOURCE: crud.source,
     RESOURCES.USER: crud.user,
     RESOURCES.WORKSPACE: crud.workspace,
+    RESOURCES.TABLE: crud.tables,
     RESOURCES.TABLES: crud.tables,
 }
 
@@ -45,17 +54,38 @@ def get_resource_workspace_id(db: Session, resource_id: str, resource_type: str)
     return None
 
 
-def generate_resource_dependency(resource_type: str):
+def verify_user_id_belongs_to_current_user(
+    user_id: str,
+    user: User = Depends(get_current_user),
+):
+    if not user_id == user.id:
+        HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"User {user.id} cannot access user {user_id}",
+        )
+
+
+def generate_resource_dependency(resource_type: str, is_on_resource_creation: bool = False):
+    resource_id_accessor = f"{resource_type}_id"
+
+    def get_resource_id_from_path_params(request: Request) -> Optional[str]:
+        return request.path_params.get(resource_id_accessor, None)
+
+    def get_resource_id_from_req_body(request: Request) -> Optional[str]:
+        body = asyncio.run(request.json())
+        return body.get(resource_id_accessor)
+    
+    if is_on_resource_creation:
+        get_resource_id = get_resource_id_from_req_body
+    else:
+        get_resource_id = get_resource_id_from_path_params
+    
     def verify_user_can_act_on_resource(
         request: Request,
         db: Session = Depends(get_db),
         user: User = Depends(get_current_user),
     ):
-        # Temporary disable authorization for dev purposes
-        return True
-
-        resource_id_accessor = f"{resource_type}_id"
-        resource_id = request.path_params.get(resource_id_accessor, None)
+        resource_id = get_resource_id(request)
         if resource_id is None:
             return True
 
