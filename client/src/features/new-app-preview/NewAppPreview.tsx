@@ -57,6 +57,7 @@ const AppComponent = (props: any) => {
 	if (type === 'button') {
 		return (
 			<Button
+				my="2"
 				size="sm"
 				isLoading={actionMutation.isLoading}
 				onClick={() => {
@@ -76,7 +77,7 @@ const AppComponent = (props: any) => {
 
 	return (
 		<FormControl key={component.name}>
-			<FormLabel>{component.label}</FormLabel>
+			{component.label ? <FormLabel lineHeight={1}>{component.label}</FormLabel> : null}
 
 			<InputRenderer
 				value={inputState?.value}
@@ -174,7 +175,7 @@ export const NewAppPreview = () => {
 						onClick={() => refetch()}
 					/>
 				</Stack>
-				<Stack p="4">
+				<Stack p="4" spacing="3">
 					{components.map((c: any) => {
 						return <AppComponent key={c.id} {...c} />;
 					})}

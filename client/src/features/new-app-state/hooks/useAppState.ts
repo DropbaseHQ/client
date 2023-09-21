@@ -16,7 +16,7 @@ export const useAppState = (pageId: string) => {
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchAppState({ pageId }), {
 		enabled: Boolean(pageId),
-		refetchInterval: 30 * 1000,
+		refetchInterval: false,
 	});
 
 	const info = useMemo(() => {
