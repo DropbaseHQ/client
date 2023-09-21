@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
 import { Box, Button, ButtonGroup, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
-import { Code, Layout, Table } from 'react-feather';
+import { Code, Box as BoxIcon, Table } from 'react-feather';
 
 import { pageAtom, useGetPage } from '@/features/new-page';
 import { developerTabAtom } from '@/features/new-app-builder/atoms';
@@ -78,7 +78,7 @@ export const PropertiesEditor = () => {
 								id: widget.id,
 							});
 						}}
-						leftIcon={<Layout size="14" />}
+						leftIcon={<BoxIcon size="14" />}
 					>
 						{widget.name}
 					</Button>
