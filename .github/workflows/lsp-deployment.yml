@@ -13,6 +13,8 @@ env:
   APP_NAME: lsp
   DEV_AWS_REGION: us-east-1
   DEV_ECR_REPO: 890697794097.dkr.ecr.us-east-1.amazonaws.com
+  PROD_AWS_REGION: us-east-1
+  PROD_ECR_REPO: 442766812249.dkr.ecr.us-east-1.amazonaws.com
   DEPLOY_USER: dropbase
 
 jobs:
