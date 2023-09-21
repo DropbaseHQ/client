@@ -1,8 +1,5 @@
 import {
-	Box,
 	Stack,
-	Heading,
-	Flex,
 	Text,
 	Button,
 	Input,
@@ -24,6 +21,7 @@ import { useState } from 'react';
 
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
 import { useCreateApp } from './hooks/useCreateApp';
+import { PageLayout } from '@/layout';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const navigate = useNavigate();
@@ -39,8 +37,8 @@ const AppCard = ({ app }: { app: AppType }) => {
 			alignItems="center"
 			direction="row"
 			cursor="pointer"
-			p="6"
-			spacing={6}
+			p="4"
+			spacing="4"
 			transition="all ease .2s"
 			_hover={{
 				shadow: 'xs',
@@ -48,21 +46,25 @@ const AppCard = ({ app }: { app: AppType }) => {
 			}}
 			onClick={handleClick}
 		>
-			<Layout strokeWidth="1.5px" size="52px" />
-			<Text fontSize="xl" fontWeight="semibold">
-				{app?.name}
-			</Text>
+			<Layout strokeWidth="1.5px" size="40px" />
+			<Stack spacing="0">
+				<Text fontSize="lg" fontWeight="semibold">
+					{app?.name}
+				</Text>
+			</Stack>
 		</Stack>
 	);
 };
 
 export const AppList = () => {
 	// Will need to pass workspace in here but for now we only have one workspace (backend spits out the first workspace)
+	const navigate = useNavigate();
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
 	const [appName, setAppName] = useState('');
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const createAppMutation = useCreateApp({
-		onSuccess: () => {
+		onSuccess: (data: any) => {
+			navigate(`/apps/${data.app?.id}/${data.app?.page?.id}/new-editor`);
 			refetch();
 			setAppName('');
 			onClose();
@@ -76,27 +78,26 @@ export const AppList = () => {
 	};
 
 	return (
-		<Stack>
-			<Box h="full" p="4">
-				<Flex w="full" justifyContent="space-between">
-					<Heading size="md" mb="8">
-						Your apps
-					</Heading>
-					<Button onClick={onOpen}>Add app</Button>
-				</Flex>
-
-				<SimpleGrid gap={4} columns={4}>
-					{isLoading ? (
-						<>
-							<Skeleton w="full" h={24} />
-							<Skeleton w="full" h={24} />
-							<Skeleton w="full" h={24} />
-						</>
-					) : (
-						apps.map((app) => <AppCard key={app.id} app={app} />)
-					)}
-				</SimpleGrid>
-			</Box>
+		<PageLayout
+			title="Your apps"
+			action={
+				<Button size="sm" ml="auto" onClick={onOpen}>
+					Create app
+				</Button>
+			}
+		>
+			<SimpleGrid spacing={6} columns={4}>
+				{isLoading ? (
+					<>
+						<Skeleton w="full" h={24} />
+						<Skeleton w="full" h={24} />
+						<Skeleton w="full" h={24} />
+						<Skeleton w="full" h={24} />
+					</>
+				) : (
+					apps.map((app) => <AppCard key={app.id} app={app} />)
+				)}
+			</SimpleGrid>
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent>
@@ -127,6 +128,6 @@ export const AppList = () => {
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
-		</Stack>
+		</PageLayout>
 	);
 };

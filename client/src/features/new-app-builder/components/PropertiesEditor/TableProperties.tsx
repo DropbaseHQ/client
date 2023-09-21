@@ -6,7 +6,7 @@ import { useGetTable, useUpdateTableProperties } from '@/features/new-app-builde
 import { FormInput } from '@/components/FormInput';
 import { pageAtom } from '@/features/new-page';
 import { useSources } from '@/features/sources/hooks';
-import { workspaceAtom } from '@/atoms';
+import { workspaceAtom } from '@/features/workspaces';
 
 export const TableProperties = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
