@@ -20,8 +20,8 @@ def get_user_input(components):
 def get_pydantic_model(db, widget_id):
     components = crud.components.get_widget_component(db, widget_id)
     model_str = "class UserInput(BaseModel):\n"
-    if len(components) == 0:
-        model_str += "    pass\n"
+
+    components_added = 0
     for component in components:
         if component.type in user_input_components:
             ColumnModel = component_type_mapper[component.type]
@@ -29,4 +29,7 @@ def get_pydantic_model(db, widget_id):
             model_str += (
                 f"    {componentModel.name}: Optional[{get_component_pydantic_dtype(componentModel)}]\n"
             )
+            components_added += 1
+    if components_added == 0:
+        model_str += "    pass\n"
     return model_str
