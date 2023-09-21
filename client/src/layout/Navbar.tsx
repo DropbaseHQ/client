@@ -8,6 +8,8 @@ export const Navbar = () => {
 	const { pathname } = useLocation();
 	const { mutate: logout } = useLogout();
 
+	// const { colorMode, toggleColorMode } = useColorMode();
+
 	const handleLogout = () => {
 		logout();
 	};
@@ -39,16 +41,30 @@ export const Navbar = () => {
 					/>
 				</Tooltip>
 
-				<Menu>
-					<MenuButton mt="auto">
-						<Settings size="22" />
-					</MenuButton>
-					<MenuList>
-						<MenuItem icon={<LogOut size="14" />} onClick={handleLogout}>
-							Logout
-						</MenuItem>
-					</MenuList>
-				</Menu>
+				<Stack mt="auto" alignItems="center">
+					{/* <Tooltip
+						label={`Toggle to ${colorMode === 'dark' ? 'light' : 'dark'} theme`}
+						placement="right"
+					>
+						<IconButton
+							variant="ghost"
+							colorScheme="gray"
+							onClick={toggleColorMode}
+							aria-label="Toggle theme"
+							icon={colorMode === 'dark' ? <Sun size="22" /> : <Moon size="22" />}
+						/>
+					</Tooltip> */}
+					<Menu>
+						<MenuButton mt="auto">
+							<Settings size="22" />
+						</MenuButton>
+						<MenuList>
+							<MenuItem icon={<LogOut size="14" />} onClick={handleLogout}>
+								Logout
+							</MenuItem>
+						</MenuList>
+					</Menu>
+				</Stack>
 			</Stack>
 		</Stack>
 	);
