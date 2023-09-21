@@ -9,6 +9,9 @@ class BasePage(BaseModel):
     name: str
     app_id: UUID
 
+    class Config:
+        orm_mode = True
+
 
 class ReadPage(BasePage):
     id: UUID

@@ -34,6 +34,9 @@ class BaseTables(BaseModel):
     source_id: Optional[UUID]
     type: Optional[Literal["postgres", "python"]]
 
+    class Config:
+        orm_mode = True
+
 
 class ReadTables(BaseModel):
     id: UUID

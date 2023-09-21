@@ -9,6 +9,9 @@ class BaseWorkspace(BaseModel):
     name: str
     active: bool = True
 
+    class Config:
+        orm_mode = True
+
 
 class ReadWorkspace(BaseWorkspace):
     id: UUID

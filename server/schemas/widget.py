@@ -25,6 +25,9 @@ class BaseWidget(BaseModel):
     property: WidgetDefinedProperty
     page_id: UUID
 
+    class Config:
+        orm_mode = True
+
 
 class ReadWidget(BaseModel):
     id: UUID

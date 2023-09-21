@@ -7,8 +7,20 @@ from server import crud
 from server.controllers.columns import create_column, get_table_columns_and_props, update_column
 from server.schemas.columns import CreateColumns, UpdateColumns
 from server.utils.connect import get_db
+from server.utils.authorization import generate_resource_dependency, RESOURCES
 
-router = APIRouter(prefix="/columns", tags=["columns"])
+authorize_columns_actions = generate_resource_dependency(RESOURCES.COLUMNS)
+authorize_tables_actions = generate_resource_dependency(RESOURCES.TABLE)
+authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+router = APIRouter(
+    prefix="/columns",
+    tags=["columns"],
+    dependencies=[
+        Depends(authorize_columns_actions),
+        Depends(authorize_tables_actions),
+        Depends(authorize_components_actions),
+    ],
+)
 
 
 @router.get("/{columns_id}")
@@ -21,7 +33,8 @@ def get_table_columns(table_id: UUID, db: Session = Depends(get_db)):
     return get_table_columns_and_props(db, table_id=table_id)
 
 
-@router.post("/")
+authorize_columns_creation = generate_resource_dependency(RESOURCES.TABLE, is_on_resource_creation=True)
+@router.post("/", dependencies=[Depends(authorize_columns_creation)])
 def create_columns(request: CreateColumns, db: Session = Depends(get_db)):
     return create_column(db, request)
 

@@ -12,6 +12,9 @@ class BaseFunctions(BaseModel):
     page_id: UUID
     type: Optional[str]
 
+    class Config:
+        orm_mode = True
+
 
 class ReadFunctions(BaseFunctions):
     id: UUID

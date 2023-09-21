@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.models import User
-from server.schemas import CreateApp
+from server.schemas import CreateApp, ReadApp, ReadPage
 
 
 def get_user_apps(db: Session, user: User):
@@ -25,20 +25,23 @@ def create_app(db: Session, request: CreateApp, user: User):
         request.workspace_id = first_workspace.id
     app = crud.app.create(db, obj_in=request)
     page = crud.page.create(db, obj_in={"name": "Page 1", "app_id": app.id})
-    source = crud.source.get_workspace_sources(db, workspace_id=first_workspace.id)[0]
+    source = crud.source.get_workspace_sources(db, workspace_id=first_workspace.id)
+    source_id = None
+    if source:
+        source_id = source[0].id
     table_name = "table1"
     table_property = {"name": table_name, "code": "", "type": "postgres"}
-    crud.tables.create(
+    table = crud.tables.create(
         db,
         obj_in={
             "name": table_name,
             "page_id": page.id,
             "property": table_property,
-            "source_id": source.id,
+            "source_id": source_id,
             "type": "postgres",
         },
     )
-    return app
+    return {"app": ReadApp.from_orm(app), "page": ReadPage.from_orm(page), "table": table}
 
 
 def get_app_pages(db: Session, user: User, app_id: UUID):
