@@ -2,7 +2,6 @@ import {
 	Box,
 	Stack,
 	Heading,
-	Grid,
 	Flex,
 	Text,
 	Button,
@@ -16,6 +15,7 @@ import {
 	ModalCloseButton,
 	useDisclosure,
 	Skeleton,
+	SimpleGrid,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from 'react-feather';
@@ -48,7 +48,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 			}}
 			onClick={handleClick}
 		>
-			<Layout size="48" />
+			<Layout strokeWidth="1.5px" size="52px" />
 			<Text fontSize="xl" fontWeight="semibold">
 				{app?.name}
 			</Text>
@@ -85,7 +85,7 @@ export const AppList = () => {
 					<Button onClick={onOpen}>Add app</Button>
 				</Flex>
 
-				<Grid templateColumns="repeat(3, 1fr)" gap={6}>
+				<SimpleGrid gap={4} columns={4}>
 					{isLoading ? (
 						<>
 							<Skeleton w="full" h={24} />
@@ -95,7 +95,7 @@ export const AppList = () => {
 					) : (
 						apps.map((app) => <AppCard key={app.id} app={app} />)
 					)}
-				</Grid>
+				</SimpleGrid>
 			</Box>
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />

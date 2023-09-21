@@ -1,27 +1,28 @@
+from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi_jwt_auth import AuthJWT
-
 from sqlalchemy.orm import Session
+
 from server import crud
+from server.controllers.user import user
 from server.schemas.user import (
     CreateUser,
-    UpdateUser,
-    LoginUser,
     CreateUserRequest,
+    LoginUser,
     ResetPasswordRequest,
+    UpdateUser,
+)
+from server.utils.authorization import (
+    RESOURCES,
+    generate_resource_dependency,
+    verify_user_id_belongs_to_current_user,
 )
 from server.utils.connect import get_db
-from server.utils.authorization import verify_user_id_belongs_to_current_user, generate_resource_dependency, RESOURCES
-from server.controllers.user import user
-
 
 authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
-router = APIRouter(
-    prefix="/user",
-    tags=["user"]
-)
+router = APIRouter(prefix="/user", tags=["user"])
 
 
 @router.post("/register")
@@ -57,10 +58,7 @@ def get_user(user_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/")
 def create_user(request: CreateUser, db: Session = Depends(get_db)):
-    raise HTTPException(
-        status_code=501,
-        detail="Endpoint POST /user is not implemented"
-    )
+    raise HTTPException(status_code=501, detail="Endpoint POST /user is not implemented")
     return crud.user.create(db, request)
 
 
@@ -74,3 +72,10 @@ def update_user(user_id: UUID, request: UpdateUser, db: Session = Depends(get_db
 def delete_user(user_id: UUID, db: Session = Depends(get_db)):
     verify_user_id_belongs_to_current_user(user_id)
     return crud.user.remove(db, id=user_id)
+
+
+@router.get("/workspaces", dependencies=[Depends(authorize_components_actions)])
+def get_user_worpsaces(db: Session = Depends(get_db), user: Any = Depends(authorize_components_actions)):
+    print(user)
+    return {"workspaces": []}
+    # return crud.workspace.get_user_workspaces(db, user_id=user_id)
