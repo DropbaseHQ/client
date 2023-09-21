@@ -310,13 +310,7 @@ export const FilterButton = () => {
 						</VStack>
 					)}
 				</PopoverBody>
-				<PopoverFooter
-					border="0"
-					display="flex"
-					alignItems="center"
-					justifyContent="right"
-					pb={4}
-				>
+				<PopoverFooter border="0" display="flex" alignItems="center" pb={4}>
 					<ButtonGroup size="sm">
 						<Button colorScheme="gray" onClick={handleReset}>
 							Reset all

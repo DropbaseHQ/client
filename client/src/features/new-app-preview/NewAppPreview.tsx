@@ -1,5 +1,6 @@
 import {
 	Alert,
+	AlertDescription,
 	AlertIcon,
 	Button,
 	Center,
@@ -11,9 +12,11 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { RefreshCw } from 'react-feather';
+import { RefreshCw, X } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
+
+import lodashSet from 'lodash/set';
 
 import { useExecuteAction, useGetWidgetPreview } from '@/features/new-app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
@@ -107,8 +110,15 @@ export const NewAppPreview = () => {
 
 	useInitializeWidgetState({ widgetId: widget?.name, pageId });
 
-	const allWidgetState: any = useAtomValue(allWidgetStateAtom).state;
+	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
+	const allWidgetState = widgetData.state;
 	const widgetState: any = allWidgetState[widget?.name];
+
+	const handleRemoveAlert = () => {
+		setWidgetData((oldData: any) =>
+			lodashSet(oldData, `state.widget.${widget?.name}.message`, null),
+		);
+	};
 
 	const mutation = useCreateWidget();
 
@@ -123,7 +133,7 @@ export const NewAppPreview = () => {
 					onClick={() => {
 						mutation.mutate({
 							pageId,
-							name: 'App',
+							name: 'widget1',
 						});
 					}}
 				>
@@ -171,20 +181,36 @@ export const NewAppPreview = () => {
 				</Stack>
 			</Skeleton>
 			{widgetState?.message ? (
-				<Alert
-					flexShrink="0"
-					pos="sticky"
-					bottom="0"
-					w="full"
-					flexGrow="0"
-					bg="transparent"
-					status={widgetState?.message_type || 'info'}
-					variant="top-accent"
-					borderTopWidth="3px"
-				>
-					<AlertIcon />
-					{widgetState?.message}
-				</Alert>
+				<Stack flexShrink="0" pos="sticky" bottom="0" w="full" flexGrow="0">
+					<Alert
+						bg="transparent"
+						status={widgetState?.message_type || 'info'}
+						variant="top-accent"
+						borderTopWidth="3px"
+					>
+						<AlertIcon />
+
+						<AlertDescription>{widgetState?.message}</AlertDescription>
+					</Alert>
+					<IconButton
+						position="absolute"
+						top={-3}
+						h={6}
+						w={6}
+						right={2}
+						alignSelf="start"
+						justifySelf="start"
+						aria-label="Close alert"
+						size="sm"
+						borderRadius="full"
+						icon={<X size="16" />}
+						bg="white"
+						borderColor="blue.500"
+						borderWidth="1px"
+						variant="ghost"
+						onClick={handleRemoveAlert}
+					/>
+				</Stack>
 			) : null}
 		</Stack>
 	);

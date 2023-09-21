@@ -40,7 +40,7 @@ export const ToastContent = ({
 				cursor="pointer"
 				size="5"
 				_hover={{
-					bg: isLightMode ? 'gray.400' : 'gray.700',
+					bg: isLightMode ? 'gray.100' : 'gray.700',
 				}}
 				onClick={onClose}
 				border="1px solid"

@@ -28,9 +28,9 @@ export const NewAppBuilder = () => {
 		<Stack spacing="0" h="full">
 			<AppBuilderNavbar />
 			<Box h="full" overflowY="auto">
-				<PanelGroup direction="vertical">
+				<PanelGroup autoSaveId="main-panel" direction="vertical">
 					<Panel defaultSize={35}>
-						<PanelGroup direction="horizontal">
+						<PanelGroup autoSaveId="data-panel" direction="horizontal">
 							<Panel defaultSize={80}>
 								<NewSmartTable />
 							</Panel>
@@ -44,7 +44,7 @@ export const NewAppBuilder = () => {
 					<PanelHandle boxShadow="0 -2px 4px rgba(0,0,0,0.2)" direction="horizontal" />
 
 					<Panel>
-						<PanelGroup direction="horizontal">
+						<PanelGroup autoSaveId="dev-panel" direction="horizontal">
 							<Panel defaultSize={20}>
 								<NewAppState />
 							</Panel>

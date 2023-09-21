@@ -50,5 +50,14 @@ export const useInitPage = () => {
 		}
 	}, [tables, widget, context, setPageContext]);
 
+	useEffect(() => {
+		return () => {
+			setPageContext({
+				tableId: null,
+				widgetId: null,
+			});
+		};
+	}, [setPageContext]);
+
 	return { tables, widget, ...rest };
 };

@@ -5,6 +5,7 @@ import { axios } from '@/lib/axios';
 import { TABLE_DATA_QUERY_KEY } from '@/features/new-smart-table/hooks';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/new-app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY } from '@/features/new-page';
+import { APP_STATE_QUERY_KEY } from '@/features/new-app-state';
 
 export const APP_QUERY_KEY = 'table';
 
@@ -57,6 +58,7 @@ export const useCreateTable = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 		},
 	});
 };
@@ -83,6 +85,7 @@ export const useUpdateTableProperties = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 		},
 	});
@@ -103,6 +106,7 @@ export const useConvertSmartTable = (props: any = {}) => {
 		onSettled: () => {
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 		},
 	});
 };
