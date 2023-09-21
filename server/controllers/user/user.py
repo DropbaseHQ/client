@@ -3,6 +3,7 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
 from server import crud
+from server.constants import ACCESS_TOKEN_EXPIRE_SECONDS, REFRESH_TOKEN_EXPIRE_SECONDS
 from server.schemas.role import CreateRole
 from server.schemas.user import CreateUser, CreateUserRequest, LoginUser, ReadUser, ResetPasswordRequest
 from server.schemas.workspace import CreateWorkspace, ReadWorkspace
@@ -27,15 +28,19 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
                 detail="Incorrect username or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        access_token = Authorize.create_access_token(subject=user.email)
-        refresh_token = Authorize.create_refresh_token(subject=user.email)
+        access_token = Authorize.create_access_token(
+            subject=user.email, expires_time=ACCESS_TOKEN_EXPIRE_SECONDS
+        )
+        refresh_token = Authorize.create_refresh_token(
+            subject=user.email, expires_time=REFRESH_TOKEN_EXPIRE_SECONDS
+        )
 
         Authorize.set_access_cookies(access_token)
         Authorize.set_refresh_cookies(refresh_token)
 
         workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
 
-        return {"user": ReadUser.from_orm(user), "workspaces": ReadWorkspace.from_orm(workspaces[0])}
+        return {"user": ReadUser.from_orm(user), "workspace": ReadWorkspace.from_orm(workspaces[0])}
     except Exception as e:
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")
