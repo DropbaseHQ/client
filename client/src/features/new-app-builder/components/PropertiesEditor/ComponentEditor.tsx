@@ -202,9 +202,21 @@ export const NewComponent = () => {
 			nameIndex += 1;
 		}
 
+		const newName = `${type}${nameIndex}`;
+
+		let otherProperty: any = {
+			label: newName,
+		};
+
+		if (type === 'text') {
+			otherProperty = {
+				text: newName,
+			};
+		}
+
 		mutation.mutate({
 			widgetId,
-			property: { name: `${type}${nameIndex}` },
+			property: { name: newName, ...otherProperty },
 			type,
 			after: values?.[values.length - 1]?.id || null,
 		});
