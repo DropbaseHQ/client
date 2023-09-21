@@ -11,6 +11,7 @@ import { workspaceAtom } from '@/atoms';
 
 export const NewSource = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
+	console.log(workspaceId);
 	const navigate = useNavigate();
 	const toast = useToast();
 	const methods = useForm();
@@ -46,7 +47,7 @@ export const NewSource = () => {
 								validation={{
 									required: field.required,
 								}}
-								options={field.options.map((o: any) => ({
+								options={field.options?.map((o: any) => ({
 									name: o,
 									value: o,
 								}))}
