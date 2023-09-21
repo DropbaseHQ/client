@@ -115,6 +115,8 @@ def get_widget_states(db, widget_id: UUID):
 
     widget_components_state = "class WidgetComponents(BaseModel):\n"
 
+    if len(components) == 0:
+        widget_components_state += "    pass\n"
     for comp in components:
         # NOTE: only care about editable inputs
         if comp.type in state_update_components:
