@@ -1,8 +1,5 @@
 import {
-	Box,
 	Stack,
-	Heading,
-	Flex,
 	Text,
 	Button,
 	Input,
@@ -24,6 +21,7 @@ import { useState } from 'react';
 
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
 import { useCreateApp } from './hooks/useCreateApp';
+import { PageLayout } from '@/layout';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const navigate = useNavigate();
@@ -80,28 +78,26 @@ export const AppList = () => {
 	};
 
 	return (
-		<Stack>
-			<Box h="full" p="4">
-				<Flex w="full" justifyContent="space-between">
-					<Heading size="md" mb="8">
-						Your apps
-					</Heading>
-					<Button onClick={onOpen}>Add app</Button>
-				</Flex>
-
-				<SimpleGrid spacing={6} columns={4}>
-					{isLoading ? (
-						<>
-							<Skeleton w="full" h={24} />
-							<Skeleton w="full" h={24} />
-							<Skeleton w="full" h={24} />
-							<Skeleton w="full" h={24} />
-						</>
-					) : (
-						apps.map((app) => <AppCard key={app.id} app={app} />)
-					)}
-				</SimpleGrid>
-			</Box>
+		<PageLayout
+			title="Your apps"
+			action={
+				<Button size="sm" ml="auto" onClick={onOpen}>
+					Create app
+				</Button>
+			}
+		>
+			<SimpleGrid spacing={6} columns={4}>
+				{isLoading ? (
+					<>
+						<Skeleton w="full" h={24} />
+						<Skeleton w="full" h={24} />
+						<Skeleton w="full" h={24} />
+						<Skeleton w="full" h={24} />
+					</>
+				) : (
+					apps.map((app) => <AppCard key={app.id} app={app} />)
+				)}
+			</SimpleGrid>
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent>
@@ -132,6 +128,6 @@ export const AppList = () => {
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
-		</Stack>
+		</PageLayout>
 	);
 };

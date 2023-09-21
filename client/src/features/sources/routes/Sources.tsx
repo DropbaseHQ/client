@@ -14,7 +14,7 @@ export const Sources = () => {
 		<PageLayout
 			title="Sources"
 			action={
-				<Button ml="auto" size="sm" variant="ghost" as={Link} to="new">
+				<Button ml="auto" size="sm" as={Link} to="new">
 					New Source
 				</Button>
 			}
