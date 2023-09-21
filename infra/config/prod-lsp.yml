@@ -1,0 +1,13 @@
+# environment variables with values in plain-text
+environment_variables:
+  POSTGRES_DB_USER: dropbase
+  POSTGRES_DB_HOST: dropbase-prod.cdy9hmsafcrz.us-east-1.rds.amazonaws.com
+  POSTGRES_DB_PORT: 5432
+  POSTGRES_DB_NAME: postgres
+  ENVIRONMENT: production
+  AWS_REGION: us-east-1
+
+# environment variables with values from AWS Secret Manager that will be
+# fetched and deployed by the CI/CD automatically
+secret_environment_variables:
+  POSTGRES_DB_PASS: /dropbase/prod/dropbase-rds/db_password
