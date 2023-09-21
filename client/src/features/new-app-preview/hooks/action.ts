@@ -3,7 +3,7 @@ import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/new-app-preview/hooks';
 import { axios } from '@/lib/axios';
 
 const executeAction = async ({ pageId, pageState, functionName }: any) => {
-	const response = await axios.post(`/task/function/`, {
+	const response = await axios.post(`/task/function`, {
 		page_id: pageId,
 		function_name: functionName,
 		state: pageState,

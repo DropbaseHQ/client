@@ -115,9 +115,9 @@ export const NewAppPreview = () => {
 	const widgetState: any = allWidgetState[widget?.name];
 
 	const handleRemoveAlert = () => {
-		setWidgetData((oldData: any) =>
-			lodashSet(oldData, `state.widget.${widget?.name}.message`, null),
-		);
+		setWidgetData((oldData: any) => ({
+			...lodashSet(oldData, `state.${widget?.name}.message`, null),
+		}));
 	};
 
 	const mutation = useCreateWidget();
