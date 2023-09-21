@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
+from server.controllers.functions import get_ui_functions
 from server.schemas.functions import CreateFunctions, UpdateFunctions
 from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.connect import get_db
@@ -44,3 +45,8 @@ def delete_functions(functions_id: UUID, db: Session = Depends(get_db)):
 @router.get("/page/{page_id}")
 def get_page_functions(page_id: UUID, db: Session = Depends(get_db)):
     return crud.functions.get_page_functions(db, page_id=page_id)
+
+
+@router.get("/page/ui/{page_id}")
+def get_page_ui_functions(page_id: UUID, db: Session = Depends(get_db)):
+    return get_ui_functions(db, page_id=page_id)
