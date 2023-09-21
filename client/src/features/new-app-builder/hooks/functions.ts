@@ -95,7 +95,7 @@ const createFunction = async ({ pageId, name }: any) => {
 	const response = await axios.post(`/functions/`, {
 		page_id: pageId,
 		name,
-		code: '',
+		code: 'def action() -> State:\n\t# your code goes here\n\treturn state',
 		type: 'python',
 	});
 

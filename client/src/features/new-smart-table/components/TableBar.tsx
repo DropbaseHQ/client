@@ -1,4 +1,4 @@
-import { IconButton, Stack } from '@chakra-ui/react';
+import { IconButton, Stack, Tooltip } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { Save } from 'react-feather';
@@ -60,15 +60,17 @@ export const TableBar = () => {
 
 			<Stack direction="row">
 				{cellEdits.length > 0 ? (
-					<IconButton
-						aria-label="Save Cell edits"
-						icon={<Save size="14" />}
-						variant="outline"
-						colorScheme="blue"
-						size="sm"
-						onClick={handleCellEdits}
-						isLoading={saveEditsMutation.isLoading}
-					/>
+					<Tooltip label="Update">
+						<IconButton
+							aria-label="Save Cell edits"
+							icon={<Save size="14" />}
+							variant="outline"
+							colorScheme="blue"
+							size="sm"
+							onClick={handleCellEdits}
+							isLoading={saveEditsMutation.isLoading}
+						/>
+					</Tooltip>
 				) : null}
 			</Stack>
 		</Stack>
