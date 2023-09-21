@@ -111,7 +111,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy-lsp-prod:
-    name: Prod - Deploy API to EC2
+    name: Prod - Deploy LSP to EC2
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     needs: build-lsp-prod
