@@ -3,3 +3,9 @@ api.dev.dropbase.io
 
 [dev-lsp]
 lsp.dev.dropbase.io
+
+[prod]
+api.dropbase.io
+
+[prod-lsp]
+lsp.dropbase.io
