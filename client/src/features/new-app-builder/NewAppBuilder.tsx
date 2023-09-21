@@ -36,7 +36,7 @@ export const NewAppBuilder = () => {
 							</Panel>
 							<PanelHandle direction="vertical" />
 							<Panel>
-								<NewAppPreview />
+								<NewAppPreview isDevMode />
 							</Panel>
 						</PanelGroup>
 					</Panel>

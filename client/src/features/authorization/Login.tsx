@@ -11,11 +11,13 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useState } from 'react';
+import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useLogin } from './hooks/useLogin';
 import { useToast } from '@/lib/chakra-ui';
+import { workspaceAtom } from '@/atoms';
 
 type FormValues = {
 	email: string;
@@ -25,6 +27,8 @@ type FormValues = {
 export const Login = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
+
+	const updateWorkspace = useSetAtom(workspaceAtom);
 
 	const [, setDisplayEmailConfirmation] = useState(false);
 
@@ -47,7 +51,8 @@ export const Login = () => {
 				setDisplayEmailConfirmation(true);
 			}
 		},
-		onSuccess: () => {
+		onSuccess: (data: any) => {
+			updateWorkspace(data?.workspace?.id);
 			setDisplayEmailConfirmation(false);
 			navigate('/apps');
 		},
@@ -70,7 +75,7 @@ export const Login = () => {
 						</Link>
 					</Stack>
 				</Stack>
-				<Box minW="md" p="12" boxShadow="sm" borderRadius="md" borderWidth="1px">
+				<Box minW="md" p="12" boxShadow="sm" bg="white" borderRadius="md" borderWidth="1px">
 					<form onSubmit={onSubmit}>
 						<Stack spacing="6">
 							<Stack spacing="5">

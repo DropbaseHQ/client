@@ -78,13 +78,9 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					<Box minW="8" />
 				</Stack>
 
-				{optionsToRender.map((option: any, index: any) => {
+				{optionsToRender.map((option: any) => {
 					return (
-						<Stack
-							alignItems="center"
-							key={`${JSON.stringify(option)}-${index}`}
-							direction="row"
-						>
+						<Stack alignItems="center" key={option.id} direction="row">
 							<Input
 								size="sm"
 								flex="1"
@@ -92,11 +88,12 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 								value={option.name}
 								onChange={(e) => {
 									onChange(
-										optionsToRender.map((o: any, i: any) => {
-											if (i === index) {
+										optionsToRender.map((o: any) => {
+											if (o.id === option.id) {
 												return {
 													...o,
 													name: e.target.value,
+													value: e.target.value,
 												};
 											}
 											return o;
@@ -111,8 +108,8 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 								value={option.value}
 								onChange={(e) => {
 									onChange(
-										optionsToRender.map((o: any, i: any) => {
-											if (i === index) {
+										optionsToRender.map((o: any) => {
+											if (o.id === option.id) {
 												return {
 													...o,
 													value: e.target.value,
@@ -131,7 +128,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 								colorScheme="red"
 								onClick={() => {
 									onChange(
-										optionsToRender.filter((_: any, i: any) => i !== index),
+										optionsToRender.filter((o: any) => o.id !== option.id),
 									);
 								}}
 							/>
@@ -150,6 +147,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							{
 								name: `option${optionsToRender.length + 1}`,
 								value: `value${optionsToRender.length + 1}`,
+								id: crypto.randomUUID(),
 							},
 						]);
 					}}

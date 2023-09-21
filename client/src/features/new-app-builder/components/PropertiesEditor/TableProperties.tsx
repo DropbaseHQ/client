@@ -6,13 +6,14 @@ import { useGetTable, useUpdateTableProperties } from '@/features/new-app-builde
 import { FormInput } from '@/components/FormInput';
 import { pageAtom } from '@/features/new-page';
 import { useSources } from '@/features/sources/hooks';
-import { WORKSPACE_ID } from '@/features/sources/constant';
+import { workspaceAtom } from '@/atoms';
 
 export const TableProperties = () => {
+	const workspaceId = useAtomValue(workspaceAtom);
 	const { tableId } = useAtomValue(pageAtom);
 	const { isLoading, values, sourceId, refetch } = useGetTable(tableId || '');
 
-	const { sources } = useSources(WORKSPACE_ID);
+	const { sources } = useSources(workspaceId);
 
 	const [errorLog, setErrorLog] = useState('');
 

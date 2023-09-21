@@ -1,6 +1,7 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { Center, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Center, Spinner, Stack, Text, useColorMode, useTheme } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
+import { transparentize } from '@chakra-ui/theme-tools';
 
 import DataEditor, {
 	CompactSelection,
@@ -17,6 +18,9 @@ import { cellEditsAtom } from './atoms';
 import { TableBar } from './components';
 
 export const NewSmartTable = () => {
+	const theme = useTheme();
+	const { colorMode } = useColorMode();
+
 	const [selection, setSelection] = useState({
 		rows: CompactSelection.empty(),
 		columns: CompactSelection.empty(),
@@ -151,6 +155,42 @@ export const NewSmartTable = () => {
 		};
 	});
 
+	const gridTheme =
+		colorMode === 'dark'
+			? {
+					accentColor: theme.colors.blue['500'], // main blue
+					accentLight: transparentize(theme.colors.blue['500'], 0.1)(theme), // cell selection highliths
+					textDark: theme.colors.gray['300'], // cell color
+					textLight: theme.colors.gray['500'], // colors of row id
+					bgIconHeader: theme.colors.gray['700'], // icon box bg
+					fgIconHeader: theme.colors.gray['50'], // icon color
+					textHeader: theme.colors.gray['200'], // column cell color
+					borderColor: theme.colors.gray['700'], // border color of cells
+					bgHeaderHovered: theme.colors.gray['800'], // hovered color of header cells
+					bgCell: theme.colors.gray['900'],
+					bgHeader: theme.colors.gray['900'],
+					bgHeaderHasFocus: theme.colors.gray['800'],
+					bgBubble: theme.colors.gray['800'],
+					bgBubbleSelected: theme.colors.blue['500'],
+					textBubble: theme.colors.gray['600'],
+					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.2)(theme),
+			  }
+			: {
+					accentColor: theme.colors.blue['500'], // main blue
+					accentLight: transparentize(theme.colors.blue['500'], 0.1)(theme), // cell selection highliths
+					textDark: theme.colors.gray['700'], // cell color
+					textLight: theme.colors.gray['400'], // colors of row id
+					bgIconHeader: theme.colors.gray['600'], // icon box bg
+					fgIconHeader: theme.colors.gray['100'], // icon color
+					textHeader: theme.colors.gray['600'], // column cell color
+					borderColor: theme.colors.gray['100'], // border color of cells
+					bgCell: theme.colors.white,
+					bgHeaderHovered: theme.colors.gray['100'], // hovered color of header cells
+					bgHeaderHasFocus: theme.colors.gray['100'], // hovered color of header cells
+					bgBubble: theme.colors.gray['100'],
+					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.3)(theme),
+			  };
+
 	return (
 		<Stack h="full" spacing="0">
 			<TableBar />
@@ -169,10 +209,12 @@ export const NewSmartTable = () => {
 					rowMarkers="both"
 					smoothScrollX
 					smoothScrollY
+					theme={gridTheme}
 					onGridSelectionChange={handleSetSelection}
 					gridSelection={selection}
 					highlightRegions={highlights}
 					onCellEdited={onCellEdited}
+					keybindings={{ search: true }}
 				/>
 			)}
 		</Stack>

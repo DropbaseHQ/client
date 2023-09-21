@@ -160,7 +160,7 @@ export const ColumnsProperties = () => {
 				mr="auto"
 				variant="ghost"
 			>
-				Smart Table
+				Convert to AI Table
 			</Button>
 			<Accordion bg="white" borderLeftWidth="1px" borderRightWidth="1px" allowMultiple>
 				<Stack

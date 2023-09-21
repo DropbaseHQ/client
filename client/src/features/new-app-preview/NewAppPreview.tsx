@@ -2,8 +2,8 @@ import {
 	Alert,
 	AlertDescription,
 	AlertIcon,
+	Box,
 	Button,
-	Center,
 	FormControl,
 	FormHelperText,
 	FormLabel,
@@ -12,7 +12,7 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { RefreshCw, X } from 'react-feather';
+import { ChevronDown, RefreshCw, X } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
 
@@ -57,7 +57,7 @@ const AppComponent = (props: any) => {
 	if (type === 'button') {
 		return (
 			<Button
-				my="2"
+				my="1.5"
 				size="sm"
 				isLoading={actionMutation.isLoading}
 				onClick={() => {
@@ -100,7 +100,7 @@ const AppComponent = (props: any) => {
 	);
 };
 
-export const NewAppPreview = () => {
+export const NewAppPreview = ({ isDevMode }: any) => {
 	const { pageId } = useParams();
 
 	const { widgetId } = useAtomValue(pageAtom);
@@ -124,22 +124,57 @@ export const NewAppPreview = () => {
 	const mutation = useCreateWidget();
 
 	if (!widgetId) {
+		if (!isDevMode) {
+			return null;
+		}
+
 		return (
-			<Stack as={Center} bg="white" h="full">
-				<Button
-					variant="outline"
-					colorScheme="blue"
-					size="sm"
-					isLoading={mutation.isLoading}
-					onClick={() => {
-						mutation.mutate({
-							pageId,
-							name: 'widget1',
-						});
-					}}
-				>
-					New App
-				</Button>
+			<Stack p={6} bg="white" h="full">
+				<Stack borderWidth="1px" borderRadius="sm" px={4} pt={4} pb={24} bg="gray.50">
+					<Skeleton bg="gray.100" borderRadius="sm" h={8} speed={0} />
+					<Box h={8} bg="white" borderWidth="1px" />
+					<Stack
+						direction="row"
+						justifyContent="space-between"
+						h={8}
+						bg="white"
+						p="2"
+						alignItems="center"
+						borderWidth="1px"
+					>
+						<Skeleton startColor="gray.100" flex="1" endColor="gray.100" h="full" />
+						<ChevronDown size="14" />
+					</Stack>
+
+					<Box h={8} w="fit-content" p="2" bg="blue.500" borderWidth="1px">
+						<Skeleton
+							w="32"
+							borderRadius="sm"
+							h="full"
+							startColor="gray.50"
+							flex="1"
+							endColor="gray.50"
+						/>
+					</Box>
+				</Stack>
+				<Stack mt="6">
+					<Text fontWeight="medium">Extend your AI Table with Widgets and Functions</Text>
+					<Button
+						w="fit-content"
+						variant="solid"
+						colorScheme="blue"
+						size="sm"
+						isLoading={mutation.isLoading}
+						onClick={() => {
+							mutation.mutate({
+								pageId,
+								name: 'widget1',
+							});
+						}}
+					>
+						Build Widget
+					</Button>
+				</Stack>
 			</Stack>
 		);
 	}
@@ -166,14 +201,16 @@ export const NewAppPreview = () => {
 						) : null}
 					</Stack>
 
-					<IconButton
-						aria-label="Refresh UI"
-						size="xs"
-						icon={<RefreshCw size="14" />}
-						variant="outline"
-						isLoading={isRefetching}
-						onClick={() => refetch()}
-					/>
+					{isDevMode ? (
+						<IconButton
+							aria-label="Refresh UI"
+							size="xs"
+							icon={<RefreshCw size="14" />}
+							variant="outline"
+							isLoading={isRefetching}
+							onClick={() => refetch()}
+						/>
+					) : null}
 				</Stack>
 				<Stack p="4" spacing="3">
 					{components.map((c: any) => {
