@@ -123,7 +123,7 @@ export const NewAppPreview = () => {
 					onClick={() => {
 						mutation.mutate({
 							pageId,
-							name: 'App',
+							name: 'widget1',
 						});
 					}}
 				>
