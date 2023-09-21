@@ -22,7 +22,7 @@ class RESOURCES:
     SOURCE = "source"
     USER = "user"
     WORKSPACE = "workspace"
-    TABLE = "table"  # FIXME: columns endpoints take "table_id" instead of "tables_id" 
+    TABLE = "table"  # FIXME: columns endpoints take "table_id" instead of "tables_id"
     TABLES = "tables"
     TASK = "task"
 
@@ -74,12 +74,12 @@ def generate_resource_dependency(resource_type: str, is_on_resource_creation: bo
     def get_resource_id_from_req_body(request: Request) -> Optional[str]:
         body = asyncio.run(request.json())
         return body.get(resource_id_accessor)
-    
+
     if is_on_resource_creation:
         get_resource_id = get_resource_id_from_req_body
     else:
         get_resource_id = get_resource_id_from_path_params
-    
+
     def verify_user_can_act_on_resource(
         request: Request,
         db: Session = Depends(get_db),

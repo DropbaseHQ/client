@@ -25,6 +25,14 @@ authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS
 router = APIRouter(prefix="/user", tags=["user"])
 
 
+from server.utils.authentication import get_current_user
+
+
+@router.get("/workspaces")
+def get_user_worpsaces(db: Session = Depends(get_db), user: Any = Depends(get_current_user)):
+    return crud.workspace.get_user_workspaces(db, user_id=user.id)
+
+
 @router.post("/register")
 def register_user(request: CreateUserRequest, db: Session = Depends(get_db)):
     return user.register_user(db, request)
@@ -72,10 +80,3 @@ def update_user(user_id: UUID, request: UpdateUser, db: Session = Depends(get_db
 def delete_user(user_id: UUID, db: Session = Depends(get_db)):
     verify_user_id_belongs_to_current_user(user_id)
     return crud.user.remove(db, id=user_id)
-
-
-@router.get("/workspaces", dependencies=[Depends(authorize_components_actions)])
-def get_user_worpsaces(db: Session = Depends(get_db), user: Any = Depends(authorize_components_actions)):
-    print(user)
-    return {"workspaces": []}
-    # return crud.workspace.get_user_workspaces(db, user_id=user_id)

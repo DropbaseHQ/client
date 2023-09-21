@@ -17,5 +17,8 @@ class CRUDWorkspace(CRUDBase[Workspace, CreateWorkspace, UpdateWorkspace]):
             .all()
         )
 
+    def get_workspace_id(self, db: Session, workspace_id: UUID) -> str:
+        return (db.query(Workspace.id).filter(Workspace.id == workspace_id).one()).id
+
 
 workspace = CRUDWorkspace(Workspace)
