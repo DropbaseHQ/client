@@ -81,7 +81,7 @@ jobs:
   build-api-prod:
     name: Prod - Build and push API docker image
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v3
 
@@ -111,7 +111,7 @@ jobs:
   deploy-api-prod:
     name: Prod - Deploy API to EC2
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main
+    if: github.ref == 'refs/heads/main'
     needs: build-api-prod
     steps:
       - uses: actions/checkout@v3
