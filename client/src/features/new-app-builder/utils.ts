@@ -36,9 +36,19 @@ export const findFunctionDeclarations = (code: string) => {
 		.map((match) => match.groups)
 		.map((match: any) => ({
 			...match,
-			call: `${match.name}(${match.params
-				.split(',')
-				.map((param: any) => `${param.split(':')[0].trim()}= `)})`,
+			call: `${match.name}(${match.params.split(',').map((param: any) => {
+				const paramName = `${param.split(':')[0].trim()}`;
+
+				if (paramName === 'user_input' || paramName === 'state' || paramName === 'tables') {
+					return paramName;
+				}
+
+				if (!paramName) {
+					return paramName;
+				}
+
+				return `${paramName}=`;
+			})})`,
 		}));
 };
 
