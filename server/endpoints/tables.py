@@ -15,10 +15,9 @@ from server.schemas.tables import (
     TablesReadProperty,
     UpdateTables,
 )
+from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
-from server.utils.authorization import generate_resource_dependency, RESOURCES
-
 
 authorize_tables_actions = generate_resource_dependency(RESOURCES.TABLES)
 authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
@@ -43,6 +42,8 @@ def get_tables(tables_id: UUID, db: Session = Depends(get_db)):
 
 
 authorize_tables_creation = generate_resource_dependency(RESOURCES.PAGE, is_on_resource_creation=True)
+
+
 @router.post("/", dependencies=[Depends(authorize_tables_creation)])
 def create_tables(request: CreateTables, db: Session = Depends(get_db)):
     return create_table(db, request)

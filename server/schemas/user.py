@@ -31,6 +31,9 @@ class ReadUser(BaseModel):
     active: Optional[bool]
     date: Optional[datetime]
 
+    class Config:
+        orm_mode = True
+
 
 class UpdateUser(BaseModel):
     name: Optional[str]

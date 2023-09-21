@@ -27,6 +27,8 @@ def get_functions(functions_id: UUID, db: Session = Depends(get_db)):
 
 
 authorize_functions_creation = generate_resource_dependency(RESOURCES.PAGE, is_on_resource_creation=True)
+
+
 @router.post("/", dependencies=[Depends(authorize_functions_creation)])
 def create_functions(request: CreateFunctions, db: Session = Depends(get_db)):
     if request.name is None:

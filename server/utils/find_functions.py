@@ -22,3 +22,11 @@ def get_function_names(python_string):
     visitor = FunctionVisitor()
     visitor.visit(ast.parse(python_string))
     return visitor.functions
+
+
+def compose_function_call_by_name(function_name, python_string):
+    functions = get_function_names(python_string)
+    if function_name not in functions:
+        return ""
+    function_call = f"state = {function_name}({','.join(functions[function_name]['arguments'])})"
+    return function_call

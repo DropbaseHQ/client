@@ -10,11 +10,12 @@ from server.schemas.functions import ReadFunctions
 from server.schemas.tables import ReadTables
 from server.schemas.task import RunCodeResponse, RunFunction, RunTask
 from server.utils.components import state_component_type_mapper, state_update_components
+from server.utils.find_functions import compose_function_call_by_name
 from server.utils.helper import clean_name_for_class
 
 
 def run_task(request: RunTask, db: Session):
-    # TODO: catch stdout
+    # TODO: get all functions code
     function = crud.functions.get_object_by_id_or_404(db, id=request.function_id)
     function.test_code = request.test_code
     function.code = request.code
@@ -66,7 +67,9 @@ def run_function(request: RunFunction, db: Session):
         casted_inputs = cast_to_classes(user_input, tables, state)
         executable_code = states_def + table_models + widget_models + casted_inputs + function_code
 
-        code_to_run = f"""state = {request.function_name}()"""
+        # get function call
+        code_to_run = compose_function_call_by_name(request.function_name, function_code)
+
         # run code
         res = exec_code(executable_code, code_to_run, user_input, tables, state)
         return RunCodeResponse(**res)

@@ -6,12 +6,14 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers.columns import create_column, get_table_columns_and_props, update_column
 from server.schemas.columns import CreateColumns, UpdateColumns
+from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.connect import get_db
-from server.utils.authorization import generate_resource_dependency, RESOURCES
 
 authorize_columns_actions = generate_resource_dependency(RESOURCES.COLUMNS)
 authorize_tables_actions = generate_resource_dependency(RESOURCES.TABLE)
 authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+
+
 router = APIRouter(
     prefix="/columns",
     tags=["columns"],
@@ -34,6 +36,8 @@ def get_table_columns(table_id: UUID, db: Session = Depends(get_db)):
 
 
 authorize_columns_creation = generate_resource_dependency(RESOURCES.TABLE, is_on_resource_creation=True)
+
+
 @router.post("/", dependencies=[Depends(authorize_columns_creation)])
 def create_columns(request: CreateColumns, db: Session = Depends(get_db)):
     return create_column(db, request)

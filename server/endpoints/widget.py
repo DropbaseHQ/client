@@ -5,11 +5,10 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.schemas.widget import CreateWidget, UpdateWidget, WidgetBaseProperty
+from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.components import order_components
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
-from server.utils.authorization import generate_resource_dependency, RESOURCES
-
 
 authorize_widget_actions = generate_resource_dependency(RESOURCES.WIDGET)
 authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
@@ -31,6 +30,8 @@ def get_widget(widget_id: UUID, db: Session = Depends(get_db)):
 
 
 authorize_widget_creation = generate_resource_dependency(RESOURCES.PAGE, is_on_resource_creation=True)
+
+
 @router.post("/", dependencies=[Depends(authorize_widget_creation)])
 def create_widget(request: CreateWidget, db: Session = Depends(get_db)):
     request.name = request.property.name

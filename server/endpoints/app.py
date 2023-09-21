@@ -11,6 +11,8 @@ from server.utils.authorization import RESOURCES, generate_resource_dependency, 
 from server.utils.connect import get_db
 
 authorize_app_actions = generate_resource_dependency(RESOURCES.APP)
+
+
 authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
 router = APIRouter(
     prefix="/app",

@@ -26,7 +26,11 @@ def get_source(source_id: UUID, db: Session = Depends(get_db)):
     return source.get_source(db, source_id)
 
 
-authorize_source_creation = generate_resource_dependency(RESOURCES.WORKSPACE, is_on_resource_creation=True)
+authorize_source_creation = generate_resource_dependency(
+    RESOURCES.WORKSPACE, is_on_resource_creation=True
+)
+
+
 @router.post("/", dependencies=[Depends(authorize_source_creation)])
 def create_source(request: CreateSourceRequest, db: Session = Depends(get_db)):
     return source.create_source(db, request)

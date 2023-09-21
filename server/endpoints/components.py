@@ -17,13 +17,12 @@ from server.utils.connect import get_db
 
 authorize_widget_actions = generate_resource_dependency(RESOURCES.WIDGET)
 authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+
+
 router = APIRouter(
     prefix="/components",
     tags=["components"],
-    dependencies=[
-        Depends(authorize_widget_actions),
-        Depends(authorize_components_actions),
-        ],
+    dependencies=[Depends(authorize_widget_actions), Depends(authorize_components_actions)],
 )
 
 
@@ -37,7 +36,11 @@ def get_components(components_id: UUID, db: Session = Depends(get_db)):
     return crud.components.get_object_by_id_or_404(db, id=components_id)
 
 
-authorize_components_creation = generate_resource_dependency(RESOURCES.WIDGET, is_on_resource_creation=True)
+authorize_components_creation = generate_resource_dependency(
+    RESOURCES.WIDGET, is_on_resource_creation=True
+)
+
+
 @router.post("/", dependencies=[Depends(authorize_components_creation)])
 def create_components(request: CreateComponents, db: Session = Depends(get_db)):
     return create_component(db, request)

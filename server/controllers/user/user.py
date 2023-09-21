@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.schemas.role import CreateRole
 from server.schemas.user import CreateUser, CreateUserRequest, LoginUser, ReadUser, ResetPasswordRequest
-from server.schemas.workspace import CreateWorkspace
-from server.utils.authentication import authenticate_user, get_password_hash, verify_password
+from server.schemas.workspace import CreateWorkspace, ReadWorkspace
+from server.utils.authentication import authenticate_user, get_password_hash
 from server.utils.helper import raise_http_exception
 
 
@@ -33,8 +33,9 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
         Authorize.set_access_cookies(access_token)
         Authorize.set_refresh_cookies(refresh_token)
 
-        return {"msg": "Successfull login"}
-        # return {"access_token": access_token, "refresh_token": refresh_token}
+        workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
+
+        return {"user": ReadUser.from_orm(user), "workspaces": ReadWorkspace.from_orm(workspaces[0])}
     except Exception as e:
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")

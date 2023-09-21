@@ -27,6 +27,8 @@ def get_page(page_id: UUID, db: Session = Depends(get_db)):
 
 
 authorize_page_creation = generate_resource_dependency(RESOURCES.APP, is_on_resource_creation=True)
+
+
 @router.post("/", dependencies=[Depends(authorize_page_creation)])
 def create_page(request: CreatePage, db: Session = Depends(get_db)):
     return crud.page.create(db, request)
