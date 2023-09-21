@@ -1,4 +1,4 @@
-import { Stack, Menu, MenuButton, MenuList, MenuItem, IconButton } from '@chakra-ui/react';
+import { Stack, Menu, MenuButton, MenuList, MenuItem, IconButton, Tooltip } from '@chakra-ui/react';
 import { Settings, LogOut, Grid, Database } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -15,25 +15,29 @@ export const Navbar = () => {
 	return (
 		<Stack w="14" h="full" bg="white" borderRightWidth="1px" p="3" alignItems="center">
 			<Stack alignItems="center" h="full">
-				<IconButton
-					variant="ghost"
-					as={Link}
-					to="/apps"
-					color={pathname === '/apps' ? 'blue.500' : 'body'}
-					colorScheme={pathname === '/apps' ? 'blue' : 'gray'}
-					aria-label="Apps"
-					icon={<Grid size="22" />}
-				/>
+				<Tooltip label="Apps" placement="right">
+					<IconButton
+						variant="ghost"
+						as={Link}
+						to="/apps"
+						color={pathname === '/apps' ? 'blue.500' : 'body'}
+						colorScheme={pathname === '/apps' ? 'blue' : 'gray'}
+						aria-label="Apps"
+						icon={<Grid size="22" />}
+					/>
+				</Tooltip>
 
-				<IconButton
-					variant="ghost"
-					as={Link}
-					to="/source"
-					color={pathname === '/source' ? 'blue.500' : 'body'}
-					colorScheme={pathname === '/source' ? 'blue' : 'gray'}
-					aria-label="Sources"
-					icon={<Database size="22" />}
-				/>
+				<Tooltip label="Sources" placement="right">
+					<IconButton
+						variant="ghost"
+						as={Link}
+						to="/source"
+						color={pathname === '/source' ? 'blue.500' : 'body'}
+						colorScheme={pathname === '/source' ? 'blue' : 'gray'}
+						aria-label="Sources"
+						icon={<Database size="22" />}
+					/>
+				</Tooltip>
 
 				<Menu>
 					<MenuButton mt="auto">

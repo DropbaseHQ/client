@@ -60,11 +60,13 @@ const AppCard = ({ app }: { app: AppType }) => {
 
 export const AppList = () => {
 	// Will need to pass workspace in here but for now we only have one workspace (backend spits out the first workspace)
+	const navigate = useNavigate();
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
 	const [appName, setAppName] = useState('');
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const createAppMutation = useCreateApp({
-		onSuccess: () => {
+		onSuccess: (data: any) => {
+			navigate(`/apps/${data.app?.id}/${data.app?.page?.id}/new-editor`);
 			refetch();
 			setAppName('');
 			onClose();
