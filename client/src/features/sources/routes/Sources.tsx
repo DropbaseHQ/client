@@ -1,7 +1,48 @@
-import { Button, SimpleGrid, Skeleton, Stack, Text } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import {
+	Box,
+	Button,
+	Flex,
+	SimpleGrid,
+	Skeleton,
+	Stack,
+	Text
+} from '@chakra-ui/react';
+import { Link, useNavigate } from 'react-router-dom';
 import { WORKSPACE_ID } from '@/features/sources/constant';
 import { useSources } from '@/features/sources/hooks';
+import { SourceGraphic } from '@/features/sources/SourceGraphic';
+
+const SourceCard = ({ source }: { source: any }) => {
+	const navigate = useNavigate();
+	const handleClick = () => {
+		// TODO add view/edit
+		navigate(`/apps`);
+	};
+	return (
+		<Flex
+			rounded="md"
+			borderWidth="1px"
+			borderColor="gray.200"
+			borderRadius="md"
+			alignItems="center"
+			justifyContent="space-around"
+			cursor="pointer"
+			p="2"
+			_hover={{
+				bg: 'gray.100',
+			}}
+			onClick={handleClick}
+		>
+			<Flex flex="1" alignItems="center" justifyContent="center">
+				<SourceGraphic />
+			</Flex>
+			<Box flex="2">
+				<Text size="md" fontWeight="semibold">{source?.name}</Text>
+				<Text fontSize="sm" color="gray.600">{source?.description || "(no description)"}</Text>
+			</Box>
+		</Flex>
+	);
+};
 
 export const Sources = () => {
 	const { isLoading, sources } = useSources(WORKSPACE_ID);
@@ -22,16 +63,7 @@ export const Sources = () => {
 			</Stack>
 			<SimpleGrid columns={4} spacing={4}>
 				{sources.map((source: any) => (
-					<Stack p="4" spacing="0" borderWidth="1px" borderRadius="sm">
-						<Text fontSize="md" fontWeight="semibold">
-							{source?.name}
-						</Text>
-						{source?.description ? (
-							<Text fontSize="sm" color="gray.600">
-								{source?.description}
-							</Text>
-						) : null}
-					</Stack>
+					<SourceCard key={source.id} source={source} />
 				))}
 			</SimpleGrid>
 		</Stack>
