@@ -8,13 +8,32 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
+import copy from 'copy-to-clipboard';
 
-export const ObjectRenderer = ({ obj, title, ...props }: any) => {
+import { useToast } from '@/lib/chakra-ui';
+
+const ClickableCode = ({ children, ...props }: any) => {
+	return (
+		<Code
+			cursor="pointer"
+			fontSize="xs"
+			_hover={{ bg: 'gray.100' }}
+			colorScheme="white"
+			{...props}
+		>
+			{children}
+		</Code>
+	);
+};
+
+export const ObjectRenderer = ({ obj, title, path, ...props }: any) => {
+	const toast = useToast();
+
 	if (!title) {
 		return (
 			<Accordion h="full" overflowY="auto" bg="white" allowMultiple>
 				{Object.keys(obj).map((k) => (
-					<ObjectRenderer key={k} obj={obj} title={k} />
+					<ObjectRenderer path={k} key={k} obj={obj} title={k} />
 				))}
 			</Accordion>
 		);
@@ -26,9 +45,20 @@ export const ObjectRenderer = ({ obj, title, ...props }: any) => {
 				<>
 					<AccordionButton px="0.5" py="1">
 						<Stack spacing="1" alignItems="center" direction="row">
-							<Code color="gray.900" fontSize="xs" colorScheme="white" as="span">
+							<ClickableCode
+								color="gray.900"
+								as="span"
+								onClick={() => {
+									console.log('hereee');
+									copy(path);
+									toast({
+										status: 'info',
+										title: 'Path copied',
+									});
+								}}
+							>
 								{title}
-							</Code>
+							</ClickableCode>
 
 							{isExpanded ? null : <Box fontSize="xs">...</Box>}
 						</Stack>
@@ -49,6 +79,7 @@ export const ObjectRenderer = ({ obj, title, ...props }: any) => {
 										<ObjectRenderer
 											borderTop="0"
 											borderBottom="0"
+											path={`${path ? `${path}.` : ''}${key}`}
 											key={key}
 											title={key}
 											obj={obj[title]}
@@ -65,9 +96,18 @@ export const ObjectRenderer = ({ obj, title, ...props }: any) => {
 										direction="row"
 										key={key}
 									>
-										<Code fontSize="xs" flex="1" colorScheme="white">
+										<ClickableCode
+											onClick={() => {
+												copy(`${path}.${key}`);
+												toast({
+													status: 'info',
+													title: 'Path copied',
+												});
+											}}
+											flex="1"
+										>
 											{key}
-										</Code>
+										</ClickableCode>
 										<Code
 											flexGrow="0"
 											fontSize="xs"
