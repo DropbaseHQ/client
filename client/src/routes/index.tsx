@@ -1,12 +1,15 @@
-import { Center, Heading, Spinner } from '@chakra-ui/react';
+import { Center, Spinner } from '@chakra-ui/react';
 import { Suspense } from 'react';
-import { Outlet, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { Login, Register, ResetPassword } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
 import { AppRoutes } from '@/features/app';
 import { SourceRoutes } from '@/features/sources';
+import { useWorkspaces } from '@/features/workspaces';
 
 export const DashboardRoutes = () => {
+	useWorkspaces();
+
 	return (
 		<Suspense
 			fallback={
@@ -35,7 +38,7 @@ export const DashboardRoutes = () => {
 					<Route path="reset" element={<ResetPassword />} />
 					<Route path="apps/*" element={<AppRoutes />} />
 					<Route path="source/*" element={<SourceRoutes />} />
-					<Route path="*" element={<Heading>404 page not defined</Heading>} />
+					<Route path="*" element={<Navigate to="/apps" />} />
 				</Route>
 			</Routes>
 		</Suspense>

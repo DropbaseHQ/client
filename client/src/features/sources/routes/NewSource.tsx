@@ -8,7 +8,7 @@ import { FormInput } from '@/components/FormInput';
 import { BASE_SOURCE_FIELDS, SOURCE_BASED_INPUTS } from '@/features/sources/constant';
 import { useCreateSource } from '@/features/sources/hooks';
 import { useToast } from '@/lib/chakra-ui';
-import { workspaceAtom } from '@/atoms';
+import { workspaceAtom } from '@/features/workspaces';
 import { PageLayout } from '@/layout';
 
 export const NewSource = () => {

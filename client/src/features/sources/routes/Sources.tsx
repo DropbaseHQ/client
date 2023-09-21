@@ -3,7 +3,7 @@ import { useAtomValue } from 'jotai';
 import { Database } from 'react-feather';
 import { Link } from 'react-router-dom';
 import { useSources } from '@/features/sources/hooks';
-import { workspaceAtom } from '@/atoms';
+import { workspaceAtom } from '@/features/workspaces';
 import { PageLayout } from '@/layout';
 
 export const Sources = () => {

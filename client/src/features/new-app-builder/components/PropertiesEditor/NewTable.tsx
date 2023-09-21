@@ -22,7 +22,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { useCreateTable } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { useSources } from '@/features/sources/hooks';
-import { workspaceAtom } from '@/atoms';
+import { workspaceAtom } from '@/features/workspaces';
 
 export const NewTable = (props: any) => {
 	const workspaceId = useAtomValue(workspaceAtom);
