@@ -28,6 +28,17 @@ export const useInitializePageState = (pageId: any) => {
 		setNonInteractiveState(other || {});
 	}, [state, setNonInteractiveState, setWidgetState]);
 
+	useEffect(() => {
+		return () => {
+			setWidgetState({
+				selected: null,
+				state: {},
+			});
+			setNonInteractiveState({});
+			setRowData(null);
+		};
+	}, [setNonInteractiveState, setRowData, setWidgetState]);
+
 	return rest;
 };
 
