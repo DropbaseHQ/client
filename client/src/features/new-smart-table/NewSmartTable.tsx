@@ -3,6 +3,7 @@ import {
 	Alert,
 	AlertDescription,
 	AlertIcon,
+	Box,
 	Center,
 	Spinner,
 	Stack,
@@ -258,48 +259,55 @@ export const NewSmartTable = () => {
 	});
 
 	return (
-		<Stack pos="relative" h="full" spacing="0">
-			<TableBar />
-			{isLoading ? (
-				<Center h="full" as={Stack}>
-					<Spinner size="md" />
-					<Text>Loading data...</Text>
-				</Center>
-			) : (
-				<DataEditor
-					columns={gridColumns}
-					rows={rows.length}
-					width="100%"
-					height="100%"
-					getCellContent={getCellContent}
-					rowMarkers="both"
-					smoothScrollX
-					smoothScrollY
-					theme={gridTheme}
-					onGridSelectionChange={handleSetSelection}
-					gridSelection={selection}
-					highlightRegions={highlights}
-					onCellEdited={onCellEdited}
-					keybindings={{ search: true }}
-				/>
-			)}
+		<Box w="full" h="full" display="flex" justifyContent="center" alignItems="center" flexDirection="column" gap="1%">
+			<Box textAlign="left" w="98%">
+				<Text fontSize="10pt" fontWeight="semibold">{tableName}</Text>
+			</Box>
+			<Box borderWidth='1px' w="98%" h="90%">
+				<Stack pos="relative" h="full" spacing="0">
+					<TableBar />
+					{isLoading ? (
+						<Center h="full" as={Stack}>
+							<Spinner size="md" />
+							<Text>Loading data...</Text>
+						</Center>
+					) : (
+						<DataEditor
+							columns={gridColumns}
+							rows={rows.length}
+							width="100%"
+							height="100%"
+							getCellContent={getCellContent}
+							rowMarkers="both"
+							smoothScrollX
+							smoothScrollY
+							theme={gridTheme}
+							onGridSelectionChange={handleSetSelection}
+							gridSelection={selection}
+							highlightRegions={highlights}
+							onCellEdited={onCellEdited}
+							keybindings={{ search: true }}
+						/>
+					)}
 
-			{/* {!sqlCode && !isLoadingTableData ? (
-				<Alert
-					borderRadius="md"
-					w="fit-content"
-					position="absolute"
-					right={2}
-					bottom={2}
-					shadow="xs"
-					status="warning"
-					variant="top-accent"
-					borderTopWidth="3px"
-				>
-					<AlertIcon />
-					<AlertDescription>Connect source to view data</AlertDescription>
-				</Alert>
-			) : null} */}
-		</Stack>
+					{/* {!sqlCode && !isLoadingTableData ? (
+						<Alert
+							borderRadius="md"
+							w="fit-content"
+							position="absolute"
+							right={2}
+							bottom={2}
+							shadow="xs"
+							status="warning"
+							variant="top-accent"
+							borderTopWidth="3px"
+						>
+							<AlertIcon />
+							<AlertDescription>Connect source to view data</AlertDescription>
+						</Alert>
+					) : null} */}
+				</Stack>
+			</Box>
+		</Box>
 	);
 };
