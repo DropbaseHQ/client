@@ -18,10 +18,12 @@ import {
 	Button,
 	ButtonGroup,
 } from '@chakra-ui/react';
+import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 
 import { FormInput } from '@/components/FormInput';
 import {
+	useAllPageFunctionNames,
 	useCreateComponents,
 	useDeleteComponent,
 	useGetComponentProperties,
@@ -34,8 +36,11 @@ import { ContentLoader } from '@/components/Loader';
 const DISPLAY_COMPONENT_PROPERTIES = ['name', 'type', 'options', 'label', 'text', 'size'];
 
 const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
+	const { pageId } = useParams();
 	const { widgetId } = useAtomValue(pageAtom);
 	const { schema, refetch } = useGetComponentProperties(widgetId || '');
+
+	const { functions } = useAllPageFunctionNames(pageId || '');
 
 	const [visibleProperties, setVisibleProperties] = useState<any>(DISPLAY_COMPONENT_PROPERTIES);
 
@@ -129,19 +134,28 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 					</AccordionButton>
 					<AccordionPanel borderTopWidth="1px">
 						<Stack p="2" maxW="md">
-							{displayProperties.map((property: any) => (
-								<FormInput
-									{...property}
-									id={property.name}
-									options={(property.enum || property.options || []).map(
-										(o: any) => ({
+							{displayProperties.map((property: any) => {
+								const showFunctionList =
+									property.type === 'function' ||
+									property.name === 'on_click' ||
+									property.name === 'on_change';
+								return (
+									<FormInput
+										{...property}
+										id={property.name}
+										type={showFunctionList ? 'select' : property.type}
+										options={(
+											(showFunctionList
+												? functions
+												: property.enum || property.options) || []
+										).map((o: any) => ({
 											name: o,
 											value: o,
-										}),
-									)}
-									key={property.name}
-								/>
-							))}
+										}))}
+										key={property.name}
+									/>
+								);
+							})}
 
 							<Menu>
 								<MenuButton

@@ -8,25 +8,22 @@ import { useInitPage } from '@/features/new-page';
 import { PanelHandle } from '@/components/Panel';
 import { NewAppPreview } from '@/features/new-app-preview';
 import { NewSmartTable } from '@/features/new-smart-table';
-import { DropbaseLogo } from '@/components/Logo';
 import { Loader } from '@/components/Loader';
 
 const Navbar = () => {
 	return (
 		<Stack alignItems="center" h="12" borderBottomWidth="1px" direction="row" bg="white">
-			<DropbaseLogo p="2">
-				<Button
-					leftIcon={<ArrowLeft size="14" />}
-					borderRadius="0"
-					variant="ghost"
-					as={Link}
-					to="/apps"
-					h="full"
-					colorScheme="gray"
-				>
-					Back to Apps
-				</Button>
-			</DropbaseLogo>
+			<Button
+				leftIcon={<ArrowLeft size="14" />}
+				borderRadius="0"
+				variant="ghost"
+				as={Link}
+				to="/apps"
+				h="full"
+				colorScheme="gray"
+			>
+				Back to Apps
+			</Button>
 
 			<Tooltip label="App preview">
 				<IconButton

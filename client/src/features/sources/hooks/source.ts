@@ -27,6 +27,31 @@ export const useSources = (workspaceId: any) => {
 	};
 };
 
+const SOURCE_QUERY_KEY = 'source';
+
+const fetchSource = async ({ sourceId }: any) => {
+	const response = await axios.get(`/source/${sourceId}`);
+
+	return response.data;
+};
+
+export const useSource = (sourceId: any) => {
+	const queryKey = [SOURCE_QUERY_KEY, sourceId];
+	const { data, ...rest } = useQuery(queryKey, () => fetchSource({ sourceId }), {
+		enabled: !!sourceId,
+	});
+
+	const source = useMemo(() => {
+		return data || {};
+	}, [data]);
+
+	return {
+		...rest,
+		source,
+		queryKey,
+	};
+};
+
 const createSource = async ({ name, type, workspaceId, description, creds }: any) => {
 	const response = await axios.post(`/source/`, {
 		name,
@@ -45,6 +70,47 @@ export const useCreateSource = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(SOURCES_QUERY_KEY);
+		},
+	});
+};
+
+const updateSource = async ({ sourceId, name, type, workspaceId, description, creds }: any) => {
+	const response = await axios.put(`/source/${sourceId}`, {
+		name,
+		workspace_id: workspaceId,
+		description,
+		type,
+		creds,
+		source_id: sourceId,
+	});
+
+	return response.data;
+};
+
+export const useUpdateSource = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(updateSource, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(SOURCES_QUERY_KEY);
+			queryClient.invalidateQueries(SOURCE_QUERY_KEY);
+		},
+	});
+};
+
+const deleteSource = async ({ sourceId }: any) => {
+	const response = await axios.delete(`/source/${sourceId}`);
+
+	return response.data;
+};
+
+export const useDeleteSource = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(deleteSource, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(SOURCES_QUERY_KEY);
+			queryClient.invalidateQueries(SOURCE_QUERY_KEY);
 		},
 	});
 };

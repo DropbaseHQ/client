@@ -33,6 +33,8 @@ export const Sources = () => {
 							borderWidth="1px"
 							borderColor="gray.200"
 							bg="white"
+							as={Link}
+							to={source.id}
 							borderRadius="md"
 							alignItems="center"
 							direction="row"

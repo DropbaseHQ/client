@@ -25,6 +25,7 @@ import { useCurrentTableData, usePinFilters } from '@/features/new-smart-table/h
 import { pageAtom } from '@/features/new-page';
 import { useGetTable } from '@/features/new-app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
+import { PG_COLUMN_BASE_TYPE } from '@/utils';
 
 const COMMON_OPERATORS = [
 	{
@@ -42,10 +43,6 @@ const COMMON_OPERATORS = [
 	{
 		name: 'Not empty',
 		value: 'is not null',
-	},
-	{
-		name: 'Contains',
-		value: 'like',
 	},
 ];
 
@@ -70,27 +67,45 @@ const COMPARISON_OPERATORS = [
 	},
 ];
 
+const TEXT_OPERATORS = [
+	{
+		name: 'Contains',
+		value: 'like',
+	},
+];
+
 const getConditionsByType = (type?: string) => {
-	switch (type?.toLowerCase()) {
-		case 'integer': {
-			return [...COMMON_OPERATORS, ...COMPARISON_OPERATORS];
+	if (type) {
+		switch (PG_COLUMN_BASE_TYPE[type]) {
+			case 'float':
+			case 'integer': {
+				return [...COMMON_OPERATORS, ...COMPARISON_OPERATORS];
+			}
+
+			case 'datetime':
+			case 'time':
+			case 'date': {
+				return [
+					...COMMON_OPERATORS,
+					{
+						name: 'After',
+						value: '>',
+					},
+					{
+						name: 'Before',
+						value: '<',
+					},
+				];
+			}
+			case 'text': {
+				return [...TEXT_OPERATORS, ...COMMON_OPERATORS];
+			}
+			default:
+				return COMMON_OPERATORS;
 		}
-		case 'date': {
-			return [
-				...COMMON_OPERATORS,
-				{
-					name: 'After',
-					value: '>',
-				},
-				{
-					name: 'Before',
-					value: '<',
-				},
-			];
-		}
-		default:
-			return COMMON_OPERATORS;
 	}
+
+	return COMMON_OPERATORS;
 };
 
 export const FilterButton = () => {

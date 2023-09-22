@@ -37,6 +37,38 @@ export const usePageFunctions = (pageId: string) => {
 	};
 };
 
+export const ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY = 'functionNames';
+
+const fetchAllPageFunctionNames = async ({ pageId }: { pageId: string }) => {
+	const response = await axios.get<any>(`/functions/page/ui/${pageId}`);
+
+	return response.data;
+};
+
+export const useAllPageFunctionNames = (pageId: string) => {
+	const queryKey = [ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY, pageId];
+
+	const { data: response, ...rest } = useQuery(
+		queryKey,
+		() => fetchAllPageFunctionNames({ pageId }),
+		{
+			enabled: Boolean(pageId),
+		},
+	);
+
+	const info = useMemo(() => {
+		return {
+			functions: response || [],
+		};
+	}, [response]);
+
+	return {
+		...rest,
+		queryKey,
+		...info,
+	};
+};
+
 const fetchPageFunction = async ({ functionId }: { functionId: string }) => {
 	const response = await axios.get<any>(`/functions/${functionId}`);
 
@@ -87,6 +119,7 @@ export const useUpdateFunction = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
+			queryClient.invalidateQueries(ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY);
 		},
 	});
 };
@@ -95,7 +128,7 @@ const createFunction = async ({ pageId, name }: any) => {
 	const response = await axios.post(`/functions/`, {
 		page_id: pageId,
 		name,
-		code: 'def action() -> State:\n\t# your code goes here\n\treturn state',
+		code: 'def action() -> State:\n    # your code goes here\n    return state',
 		type: 'python',
 	});
 
@@ -109,6 +142,7 @@ export const useCreateFunction = (props: any = {}) => {
 		onSettled: () => {
 			queryClient.invalidateQueries(ALL_PAGE_FUNCTIONS_QUERY_KEY);
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY);
 		},
 	});
 };
@@ -131,6 +165,7 @@ export const useRunFunction = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
+			queryClient.invalidateQueries(ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY);
 		},
 	});
 };

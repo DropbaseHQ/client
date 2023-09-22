@@ -66,4 +66,7 @@ export const theme = extendTheme({
 		body: `'Inter Variable', apple-system, sans-serif`,
 		mono: `"Fira Code", SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace`,
 	},
+	config: {
+		initialColorMode: 'light',
+	},
 });

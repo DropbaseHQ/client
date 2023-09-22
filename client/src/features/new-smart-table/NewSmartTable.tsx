@@ -27,6 +27,7 @@ import { useCurrentTableData } from './hooks';
 import { cellEditsAtom } from './atoms';
 import { TableBar } from './components';
 import { useGetTable } from '@/features/new-app-builder/hooks';
+import { PG_COLUMN_BASE_TYPE } from '@/utils';
 
 export const NewSmartTable = () => {
 	const theme = useTheme();
@@ -97,9 +98,30 @@ export const NewSmartTable = () => {
 
 			const column = columns[columnName];
 
-			switch (column?.type) {
+			switch (PG_COLUMN_BASE_TYPE[column?.type]) {
 				case 'integer': {
 					icon = GridColumnIcon.HeaderNumber;
+					break;
+				}
+
+				case 'float': {
+					icon = GridColumnIcon.HeaderMath;
+					break;
+				}
+
+				case 'date': {
+					icon = GridColumnIcon.HeaderDate;
+					break;
+				}
+
+				case 'time':
+				case 'datetime': {
+					icon = GridColumnIcon.HeaderTime;
+					break;
+				}
+
+				case 'boolean': {
+					icon = GridColumnIcon.HeaderBoolean;
 					break;
 				}
 				default: {
