@@ -3,6 +3,7 @@ import {
 	Alert,
 	AlertDescription,
 	AlertIcon,
+	Badge,
 	Box,
 	Center,
 	Spinner,
@@ -260,9 +261,9 @@ export const NewSmartTable = () => {
 
 	return (
 		<Box w="full" h="full" display="flex" justifyContent="center" alignItems="center" flexDirection="column" gap="1%">
-			<Box textAlign="left" w="98%">
-				<Text fontSize="10pt" fontWeight="semibold">{tableName}</Text>
-			</Box>
+			<Stack direction="row" textAlign="left" w="98%">
+				<Text mt="0.5" fontSize="10.5pt" fontWeight="semibold">{tableName}</Text>
+			</Stack>
 			<Box borderWidth='1px' w="98%" h="90%">
 				<Stack pos="relative" h="full" spacing="0">
 					<TableBar />
