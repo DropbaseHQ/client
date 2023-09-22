@@ -27,7 +27,7 @@ export const Navbar = () => {
 	return (
 		<Stack w="14" h="full" bg="white" borderRightWidth="1px" p="3" alignItems="center">
 			<Stack alignItems="center" h="full">
-				<Box mb="8" maxW="7" as={Link} to="/apps">
+				<Box mb="8" w="12" as={Link} to="/apps">
 					<DropbaseLogo />
 				</Box>
 				<Tooltip label="Apps" placement="right">

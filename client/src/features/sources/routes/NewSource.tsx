@@ -63,7 +63,7 @@ export const NewSourceForm = ({ onSuccess }: any) => {
 						colorScheme="blue"
 						size="sm"
 					>
-						Submit
+						Create
 					</Button>
 				</Stack>
 			</form>
