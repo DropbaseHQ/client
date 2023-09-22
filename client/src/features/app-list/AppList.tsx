@@ -64,7 +64,7 @@ export const AppList = () => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const createAppMutation = useCreateApp({
 		onSuccess: (data: any) => {
-			navigate(`/apps/${data.app?.id}/${data.app?.page?.id}/new-editor`);
+			navigate(`/apps/${data.app?.id}/${data?.page?.id}/new-editor`);
 			refetch();
 			setAppName('');
 			onClose();

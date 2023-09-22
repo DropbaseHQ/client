@@ -1,5 +1,15 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { Center, Spinner, Stack, Text, useColorMode, useTheme } from '@chakra-ui/react';
+import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	Center,
+	Spinner,
+	Stack,
+	Text,
+	useColorMode,
+	useTheme,
+} from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 
@@ -17,7 +27,6 @@ import { useCurrentTableData } from './hooks';
 import { cellEditsAtom } from './atoms';
 import { TableBar } from './components';
 import { useGetTable } from '@/features/new-app-builder/hooks';
-import { TableProperties } from '@/features/new-app-builder/components/PropertiesEditor/TableProperties';
 
 export const NewSmartTable = () => {
 	const theme = useTheme();
@@ -44,6 +53,43 @@ export const NewSmartTable = () => {
 		setCellEdits([]);
 	}, [tableId, setCellEdits]);
 
+	const gridTheme =
+		colorMode === 'dark'
+			? {
+					accentColor: theme.colors.blue['500'], // main blue
+					accentLight: transparentize(theme.colors.blue['500'], 0.1)(theme), // cell selection highliths
+					textDark: theme.colors.gray['300'], // cell color
+					textLight: theme.colors.gray['500'], // colors of row id
+					bgIconHeader: theme.colors.gray['700'], // icon box bg
+					fgIconHeader: theme.colors.gray['50'], // icon color
+					textHeader: theme.colors.gray['200'], // column cell color
+					borderColor: theme.colors.gray['700'], // border color of cells
+					bgHeaderHovered: theme.colors.gray['800'], // hovered color of header cells
+					bgCell: theme.colors.gray['900'],
+					bgHeader: theme.colors.gray['900'],
+					bgHeaderHasFocus: theme.colors.gray['800'],
+					bgBubble: theme.colors.gray['800'],
+					bgBubbleSelected: theme.colors.blue['500'],
+					textBubble: theme.colors.gray['600'],
+					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.2)(theme),
+			  }
+			: {
+					accentColor: theme.colors.blue['500'], // main blue
+					accentLight: transparentize(theme.colors.blue['500'], 0.1)(theme), // cell selection highliths
+					textDark: theme.colors.gray['700'], // cell color
+					textLight: theme.colors.gray['400'], // colors of row id
+					bgIconHeader: theme.colors.gray['600'], // icon box bg
+					fgIconHeader: theme.colors.gray['100'], // icon color
+					textHeader: theme.colors.gray['600'], // column cell color
+					borderColor: theme.colors.gray['100'], // border color of cells
+					bgCell: theme.colors.white,
+					bgHeader: theme.colors.white,
+					bgHeaderHovered: theme.colors.gray['50'], // hovered color of header cells
+					bgHeaderHasFocus: theme.colors.gray['100'], // hovered color of header cells
+					bgBubble: theme.colors.gray['100'],
+					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.3)(theme),
+			  };
+
 	const gridColumns = header
 		.filter((columnName: any) => columns[columnName]?.visible)
 		.map((columnName: any) => {
@@ -61,15 +107,28 @@ export const NewSmartTable = () => {
 				}
 			}
 
-			return {
+			const gridColumn = {
 				id: column.name,
 				title: column.name,
 				width: String(column.name).length * 10 + 35 + 30,
 				icon,
 			};
+
+			if (column.editable) {
+				return {
+					...gridColumn,
+					themeOverride: {
+						bgHeader: theme.colors.yellow['50'],
+						bgHeaderHovered: theme.colors.yellow['100'],
+						bgHeaderHasFocus: theme.colors.yellow['100'],
+					},
+				};
+			}
+
+			return gridColumn;
 		});
 
-	const getCellContent = ([col, row]: any) => {
+	const getCellContent: any = ([col, row]: any) => {
 		const currentRow = rows[row];
 		const column = columns[header[col]];
 
@@ -87,8 +146,10 @@ export const NewSmartTable = () => {
 
 		let kind = GridCellKind.Text;
 
+		let cellContent = {};
+
 		if (column.primary_key) {
-			return {
+			cellContent = {
 				kind,
 				data: String(cellValue),
 				displayData: String(cellValue),
@@ -101,12 +162,26 @@ export const NewSmartTable = () => {
 			kind = GridCellKind.Number;
 		}
 
-		return {
+		cellContent = {
 			kind,
 			data: currentValue,
 			allowOverlay: canEdit,
 			displayData: String(cellValue),
 			readonly: !canEdit,
+		};
+
+		if (canEdit) {
+			return {
+				...cellContent,
+			};
+		}
+
+		return {
+			...cellContent,
+
+			themeOverride: {
+				bgCell: theme.colors.gray['50'],
+			},
 		};
 	};
 
@@ -160,77 +235,8 @@ export const NewSmartTable = () => {
 		};
 	});
 
-	const gridTheme =
-		colorMode === 'dark'
-			? {
-					accentColor: theme.colors.blue['500'], // main blue
-					accentLight: transparentize(theme.colors.blue['500'], 0.1)(theme), // cell selection highliths
-					textDark: theme.colors.gray['300'], // cell color
-					textLight: theme.colors.gray['500'], // colors of row id
-					bgIconHeader: theme.colors.gray['700'], // icon box bg
-					fgIconHeader: theme.colors.gray['50'], // icon color
-					textHeader: theme.colors.gray['200'], // column cell color
-					borderColor: theme.colors.gray['700'], // border color of cells
-					bgHeaderHovered: theme.colors.gray['800'], // hovered color of header cells
-					bgCell: theme.colors.gray['900'],
-					bgHeader: theme.colors.gray['900'],
-					bgHeaderHasFocus: theme.colors.gray['800'],
-					bgBubble: theme.colors.gray['800'],
-					bgBubbleSelected: theme.colors.blue['500'],
-					textBubble: theme.colors.gray['600'],
-					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.2)(theme),
-			  }
-			: {
-					accentColor: theme.colors.blue['500'], // main blue
-					accentLight: transparentize(theme.colors.blue['500'], 0.1)(theme), // cell selection highliths
-					textDark: theme.colors.gray['700'], // cell color
-					textLight: theme.colors.gray['400'], // colors of row id
-					bgIconHeader: theme.colors.gray['600'], // icon box bg
-					fgIconHeader: theme.colors.gray['100'], // icon color
-					textHeader: theme.colors.gray['600'], // column cell color
-					borderColor: theme.colors.gray['100'], // border color of cells
-					bgCell: theme.colors.white,
-					bgHeaderHovered: theme.colors.gray['100'], // hovered color of header cells
-					bgHeaderHasFocus: theme.colors.gray['100'], // hovered color of header cells
-					bgBubble: theme.colors.gray['100'],
-					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.3)(theme),
-			  };
-
-	if (isLoading || isLoadingTableData) {
-		return (
-			<Stack h="full" spacing="0">
-				<TableBar />
-
-				<Center h="full" as={Stack}>
-					<Spinner size="md" />
-					<Text>Loading data...</Text>
-				</Center>
-			</Stack>
-		);
-	}
-
-	if (!sqlCode) {
-		return (
-			<Center h="full">
-				<Stack p={6} w="container.sm" spacing="2.5" alignItems="center">
-					<Text fontWeight="semibold">Connect source to view table data.</Text>
-					<Stack
-						p={6}
-						bg="white"
-						w="full"
-						borderRadius="sm"
-						borderWidth="1px"
-						spacing="0"
-					>
-						<TableProperties />
-					</Stack>
-				</Stack>
-			</Center>
-		);
-	}
-
 	return (
-		<Stack h="full" spacing="0">
+		<Stack pos="relative" h="full" spacing="0">
 			<TableBar />
 			{isLoading ? (
 				<Center h="full" as={Stack}>
@@ -255,6 +261,23 @@ export const NewSmartTable = () => {
 					keybindings={{ search: true }}
 				/>
 			)}
+
+			{!sqlCode && !isLoadingTableData ? (
+				<Alert
+					borderRadius="md"
+					w="fit-content"
+					position="absolute"
+					right={2}
+					bottom={2}
+					shadow="xs"
+					status="warning"
+					variant="top-accent"
+					borderTopWidth="3px"
+				>
+					<AlertIcon />
+					<AlertDescription>Connect source to view data</AlertDescription>
+				</Alert>
+			) : null}
 		</Stack>
 	);
 };

@@ -1,4 +1,4 @@
-import { Center, Spinner } from '@chakra-ui/react';
+import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { Login, Register, ResetPassword } from '@/features/authorization';
@@ -8,7 +8,23 @@ import { SourceRoutes } from '@/features/sources';
 import { useWorkspaces } from '@/features/workspaces';
 
 export const DashboardRoutes = () => {
-	useWorkspaces();
+	const { isLoading } = useWorkspaces();
+
+	if (isLoading) {
+		return (
+			<DashboardLayout>
+				<Center as={Stack} spacing="6" w="full" h="full">
+					<Stack alignItems="center" spacing="0">
+						<Text color="heading" fontSize="lg" fontWeight="medium">
+							Checking user...
+						</Text>
+						<Text color="gray.700">Please wait while we fetch your details</Text>
+					</Stack>
+					<Progress minW="sm" size="xs" isIndeterminate />
+				</Center>
+			</DashboardLayout>
+		);
+	}
 
 	return (
 		<Suspense

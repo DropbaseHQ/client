@@ -11,10 +11,11 @@ axios.interceptors.response.use(
 	},
 	async (err) => {
 		const apiConfig = err.config;
+
 		if (
 			apiConfig.url !== '/login' &&
 			apiConfig.url !== '/user/register' &&
-			apiConfig.url !== '/refresh' &&
+			apiConfig.url !== '/user/refresh' &&
 			err.response
 		) {
 			// Access Token was expired
@@ -26,7 +27,14 @@ axios.interceptors.response.use(
 
 					return await axios(apiConfig);
 				} catch (_error) {
-					window.location.href = '/login';
+					if (
+						!(
+							window.location.pathname.includes('/login') ||
+							window.location.pathname.includes('/register')
+						)
+					) {
+						window.location.href = '/login';
+					}
 				}
 			}
 		}

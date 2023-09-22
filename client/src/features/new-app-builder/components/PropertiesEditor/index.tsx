@@ -25,6 +25,17 @@ export const PropertiesEditor = () => {
 	const { widgetId } = useAtomValue(pageAtom);
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
 
+	const firstTableId = tables?.[0]?.id;
+
+	useEffect(() => {
+		if (!devTab?.type && !devTab?.id && firstTableId) {
+			setDevTab({
+				type: 'table',
+				id: firstTableId,
+			});
+		}
+	}, [devTab, setDevTab, firstTableId]);
+
 	useEffect(() => {
 		return () => {
 			setDevTab({
