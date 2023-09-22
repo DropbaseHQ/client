@@ -148,7 +148,7 @@ export const Register = () => {
 								</FormControl>
 							</Stack>
 							<Stack spacing="6">
-								<Button isLoading={isLoading} type="submit" variant="primary">
+								<Button isLoading={isLoading} type="submit" colorScheme="blue">
 									Sign up
 								</Button>
 							</Stack>

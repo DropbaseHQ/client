@@ -161,7 +161,6 @@ export const NewAppPreview = ({ isDevMode }: any) => {
 					<Text fontWeight="medium">Extend your AI Table with Widgets and Functions</Text>
 					<Button
 						w="fit-content"
-						variant="solid"
 						colorScheme="blue"
 						size="sm"
 						isLoading={mutation.isLoading}

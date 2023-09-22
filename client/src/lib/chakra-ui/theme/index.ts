@@ -1,11 +1,17 @@
 import { theme as proTheme } from '@chakra-ui/pro-theme';
 import { extendTheme, theme as baseTheme } from '@chakra-ui/react';
+import merge from 'lodash/merge';
 
 import '@fontsource-variable/inter';
 import '@fontsource-variable/inter/wght.css';
 
+import * as components from './components';
+
+const customComponents = merge(proTheme.components, components);
+
 export const theme = extendTheme({
 	...proTheme,
+	components: customComponents,
 	colors: {
 		...baseTheme.colors,
 		blue: {

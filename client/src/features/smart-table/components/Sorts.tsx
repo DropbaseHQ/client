@@ -163,7 +163,7 @@ export const SortButton = ({ columns }: { columns: any }) => {
 						</Button>
 						<Button
 							leftIcon={<Plus size={12} />}
-							variant="primary"
+							colorScheme="blue"
 							onClick={handleAddSort}
 						>
 							Add Sort

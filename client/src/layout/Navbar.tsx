@@ -1,8 +1,18 @@
-import { Stack, Menu, MenuButton, MenuList, MenuItem, IconButton, Tooltip } from '@chakra-ui/react';
+import {
+	Stack,
+	Menu,
+	MenuButton,
+	MenuList,
+	MenuItem,
+	IconButton,
+	Tooltip,
+	Box,
+} from '@chakra-ui/react';
 import { Settings, LogOut, Grid, Database } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 
 import { useLogout } from '@/features/authorization/hooks/useLogout';
+import { DropbaseLogo } from '@/components/Logo';
 
 export const Navbar = () => {
 	const { pathname } = useLocation();
@@ -17,6 +27,9 @@ export const Navbar = () => {
 	return (
 		<Stack w="14" h="full" bg="white" borderRightWidth="1px" p="3" alignItems="center">
 			<Stack alignItems="center" h="full">
+				<Box mb="8" maxW="7" as={Link} to="/apps">
+					<DropbaseLogo />
+				</Box>
 				<Tooltip label="Apps" placement="right">
 					<IconButton
 						variant="ghost"
@@ -28,7 +41,6 @@ export const Navbar = () => {
 						icon={<Grid size="22" />}
 					/>
 				</Tooltip>
-
 				<Tooltip label="Sources" placement="right">
 					<IconButton
 						variant="ghost"
@@ -40,7 +52,6 @@ export const Navbar = () => {
 						icon={<Database size="22" />}
 					/>
 				</Tooltip>
-
 				<Stack mt="auto" alignItems="center">
 					{/* <Tooltip
 						label={`Toggle to ${colorMode === 'dark' ? 'light' : 'dark'} theme`}
