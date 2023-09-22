@@ -41,6 +41,8 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
         workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
 
         return {"user": ReadUser.from_orm(user), "workspace": ReadWorkspace.from_orm(workspaces[0])}
+    except HTTPException as e:
+        raise_http_exception(status_code=e.status_code, message=e.detail)
     except Exception as e:
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")
