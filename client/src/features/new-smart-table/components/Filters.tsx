@@ -43,6 +43,10 @@ const COMMON_OPERATORS = [
 		name: 'Not empty',
 		value: 'is not null',
 	},
+	{
+		name: 'Contains',
+		value: 'like',
+	},
 ];
 
 const COMPARISON_OPERATORS = [

@@ -53,6 +53,9 @@ def apply_filters(table_sql: str, filters: List[Filter], sorts: List[Sort]):
         filters_list = []
         for filter in filters:
             filter_value_name = f"{filter.column_name}_filter"
+            if filter.condition == "like":
+                filter.value = f"%{filter.value}%"
+
             filter_values[filter_value_name] = filter.value
             filters_list.append(
                 f'user_query."{filter.column_name}" {filter.condition} :{filter_value_name}'
