@@ -1,4 +1,4 @@
-import { Skeleton, Button, IconButton, Stack, Tooltip } from '@chakra-ui/react';
+import { Button, IconButton, Stack, Tooltip } from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { Link } from 'react-router-dom';
@@ -9,6 +9,7 @@ import { PanelHandle } from '@/components/Panel';
 import { NewAppPreview } from '@/features/new-app-preview';
 import { NewSmartTable } from '@/features/new-smart-table';
 import { DropbaseLogo } from '@/components/Logo';
+import { Loader } from '@/components/Loader';
 
 const Navbar = () => {
 	return (
@@ -47,20 +48,20 @@ const Navbar = () => {
 export const NewApp = () => {
 	const { isLoading } = useInitPage();
 
-	if (isLoading) {
-		return <Skeleton h="container.sm" p="6" />;
-	}
-
 	return (
 		<Stack spacing="0" h="full">
 			<Navbar />
 			<PanelGroup direction="horizontal">
 				<Panel defaultSize={80}>
-					<NewSmartTable />
+					<Loader isLoading={isLoading}>
+						<NewSmartTable />
+					</Loader>
 				</Panel>
 				<PanelHandle direction="vertical" />
 				<Panel>
-					<NewAppPreview />
+					<Loader isLoading={isLoading}>
+						<NewAppPreview />
+					</Loader>
 				</Panel>
 			</PanelGroup>
 		</Stack>

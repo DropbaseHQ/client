@@ -29,6 +29,7 @@ import {
 } from '@/features/new-app-state';
 import { pageAtom } from '@/features/new-page';
 import { useCreateWidget } from '@/features/new-app-builder/hooks';
+import { Loader } from '@/components/Loader';
 
 const AppComponent = (props: any) => {
 	const { pageId } = useParams();
@@ -179,8 +180,8 @@ export const NewAppPreview = ({ isDevMode }: any) => {
 	}
 
 	return (
-		<Stack bg="white" h="full" justifyContent="space-between">
-			<Skeleton isLoaded={!isLoading}>
+		<Loader isLoading={isLoading}>
+			<Stack bg="white" h="full">
 				<Stack
 					px="4"
 					py="2"
@@ -216,39 +217,47 @@ export const NewAppPreview = ({ isDevMode }: any) => {
 						return <AppComponent key={c.id} {...c} />;
 					})}
 				</Stack>
-			</Skeleton>
-			{widgetState?.message ? (
-				<Stack flexShrink="0" pos="sticky" bottom="0" w="full" flexGrow="0">
-					<Alert
-						bg="transparent"
-						status={widgetState?.message_type || 'info'}
-						variant="top-accent"
-						borderTopWidth="3px"
+				{widgetState?.message ? (
+					<Stack
+						flexShrink="0"
+						pos="sticky"
+						mt="auto"
+						bg="gray.50"
+						bottom="0"
+						w="full"
+						flexGrow="0"
 					>
-						<AlertIcon />
+						<Alert
+							bg="transparent"
+							status={widgetState?.message_type || 'info'}
+							variant="top-accent"
+							borderTopWidth="3px"
+						>
+							<AlertIcon />
 
-						<AlertDescription>{widgetState?.message}</AlertDescription>
-					</Alert>
-					<IconButton
-						position="absolute"
-						top={-3}
-						h={6}
-						w={6}
-						right={2}
-						alignSelf="start"
-						justifySelf="start"
-						aria-label="Close alert"
-						size="sm"
-						borderRadius="full"
-						icon={<X size="16" />}
-						bg="white"
-						borderColor="blue.500"
-						borderWidth="1px"
-						variant="ghost"
-						onClick={handleRemoveAlert}
-					/>
-				</Stack>
-			) : null}
-		</Stack>
+							<AlertDescription>{widgetState?.message}</AlertDescription>
+						</Alert>
+						<IconButton
+							position="absolute"
+							top={-3}
+							h={6}
+							w={6}
+							right={2}
+							alignSelf="start"
+							justifySelf="start"
+							aria-label="Close alert"
+							size="sm"
+							borderRadius="full"
+							icon={<X size="16" />}
+							bg="white"
+							borderColor="blue.500"
+							borderWidth="1px"
+							variant="ghost"
+							onClick={handleRemoveAlert}
+						/>
+					</Stack>
+				) : null}
+			</Stack>
+		</Loader>
 	);
 };

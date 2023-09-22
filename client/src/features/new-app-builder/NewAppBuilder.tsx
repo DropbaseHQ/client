@@ -1,4 +1,4 @@
-import { Box, Center, Spinner, Stack } from '@chakra-ui/react';
+import { Box, Stack } from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { PanelHandle } from '@/components/Panel';
@@ -9,20 +9,10 @@ import { NewAppPreview } from '@/features/new-app-preview';
 import { NewSmartTable } from '@/features/new-smart-table';
 import { NewAppState } from '@/features/new-app-state';
 import { useInitPage } from '@/features/new-page';
+import { Loader } from '@/components/Loader';
 
 export const NewAppBuilder = () => {
 	const { isLoading } = useInitPage();
-
-	if (isLoading) {
-		return (
-			<Stack spacing="0" h="full">
-				<AppBuilderNavbar />
-				<Center h="full" w="full">
-					<Spinner />
-				</Center>
-			</Stack>
-		);
-	}
 
 	return (
 		<Stack spacing="0" h="full">
@@ -32,11 +22,15 @@ export const NewAppBuilder = () => {
 					<Panel defaultSize={35}>
 						<PanelGroup autoSaveId="data-panel" direction="horizontal">
 							<Panel defaultSize={80}>
-								<NewSmartTable />
+								<Loader isLoading={isLoading}>
+									<NewSmartTable />
+								</Loader>
 							</Panel>
 							<PanelHandle direction="vertical" />
 							<Panel>
-								<NewAppPreview isDevMode />
+								<Loader isLoading={isLoading}>
+									<NewAppPreview isDevMode />
+								</Loader>
 							</Panel>
 						</PanelGroup>
 					</Panel>
@@ -46,11 +40,15 @@ export const NewAppBuilder = () => {
 					<Panel>
 						<PanelGroup autoSaveId="dev-panel" direction="horizontal">
 							<Panel defaultSize={20}>
-								<NewAppState />
+								<Loader isLoading={isLoading}>
+									<NewAppState />
+								</Loader>
 							</Panel>
 							<PanelHandle direction="vertical" />
 							<Panel>
-								<PropertiesEditor />
+								<Loader isLoading={isLoading}>
+									<PropertiesEditor />
+								</Loader>
 							</Panel>
 						</PanelGroup>
 					</Panel>
