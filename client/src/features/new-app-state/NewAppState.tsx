@@ -19,7 +19,7 @@ export const NewAppState = () => {
 
 	return (
 		<Box p="2" bg="white" h="full" overflowY="auto">
-			<Text fontSize="11pt" fontWeight="semibold" p="1">State</Text>
+			<Text fontSize="10pt" fontWeight="semibold" p="1">State</Text>
 			<ObjectRenderer obj={pageState} />
 		</Box>
 	);

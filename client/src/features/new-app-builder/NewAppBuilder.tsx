@@ -1,4 +1,4 @@
-import { Box, Stack } from '@chakra-ui/react';
+import { Box, Stack, Text } from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { PanelHandle } from '@/components/Panel';
@@ -23,7 +23,14 @@ export const NewAppBuilder = () => {
 						<PanelGroup autoSaveId="data-panel" direction="horizontal">
 							<Panel defaultSize={80}>
 								<Loader isLoading={isLoading}>
-									<NewSmartTable />
+									<Box w="full" h="full" display="flex" justifyContent="center" alignItems="center" flexDirection="column" gap="1%">
+										<Box textAlign="left" w="98%">
+											<Text fontSize="10pt" fontWeight="semibold">Table Name</Text>
+										</Box>
+										<Box borderWidth='1px' w="98%" h="90%">
+											<NewSmartTable />
+										</Box>
+									</Box>
 								</Loader>
 							</Panel>
 							<PanelHandle direction="vertical" />

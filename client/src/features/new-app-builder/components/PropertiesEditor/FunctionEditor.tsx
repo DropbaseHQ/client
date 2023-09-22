@@ -61,7 +61,7 @@ export const FunctionEditor = ({ id }: any) => {
 	const [code, setCode] = useState('');
 
 	useEffect(() => {
-		setCode(defaultCode || '\n\n\n\n');
+		setCode(defaultCode);
 	}, [defaultCode]);
 
 	useEffect(() => {
