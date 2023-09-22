@@ -3,7 +3,7 @@ import { useAtomValue } from 'jotai';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ArrowLeft } from 'react-feather';
 
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FormInput } from '@/components/FormInput';
 import { BASE_SOURCE_FIELDS, SOURCE_BASED_INPUTS } from '@/features/sources/constant';
 import { useCreateSource } from '@/features/sources/hooks';
@@ -11,10 +11,9 @@ import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
 import { PageLayout } from '@/layout';
 
-export const NewSource = () => {
+export const NewSourceForm = ({ onSuccess }: any) => {
 	const workspaceId = useAtomValue(workspaceAtom);
-	console.log(workspaceId);
-	const navigate = useNavigate();
+
 	const toast = useToast();
 	const methods = useForm();
 
@@ -27,7 +26,7 @@ export const NewSource = () => {
 				status: 'success',
 				title: 'Source added',
 			});
-			navigate('..');
+			onSuccess?.();
 		},
 	});
 
@@ -35,6 +34,44 @@ export const NewSource = () => {
 		createMutation.mutate({ ...values, workspaceId });
 	};
 
+	return (
+		<FormProvider {...methods}>
+			<form onSubmit={methods.handleSubmit(onSubmit)}>
+				<Stack h="full" overflowY="auto">
+					{[...BASE_SOURCE_FIELDS, ...(SOURCE_BASED_INPUTS[sourceType] || [])].map(
+						(field: any) => (
+							<FormInput
+								type={field.type}
+								id={field.id}
+								name={field.name}
+								key={field.name}
+								validation={{
+									required: field.required,
+								}}
+								options={field.options?.map((o: any) => ({
+									name: o,
+									value: o,
+								}))}
+							/>
+						),
+					)}
+
+					<Button
+						mt="3"
+						isLoading={createMutation.isLoading}
+						type="submit"
+						colorScheme="blue"
+						size="sm"
+					>
+						Submit
+					</Button>
+				</Stack>
+			</form>
+		</FormProvider>
+	);
+};
+
+export const NewSource = ({ onSuccess }: any) => {
 	return (
 		<PageLayout
 			title={
@@ -52,40 +89,7 @@ export const NewSource = () => {
 			}
 		>
 			<Stack bg="white" borderWidth={1} borderRadius="sm" p="6" maxW="container.sm">
-				<FormProvider {...methods}>
-					<form onSubmit={methods.handleSubmit(onSubmit)}>
-						<Stack>
-							{[
-								...BASE_SOURCE_FIELDS,
-								...(SOURCE_BASED_INPUTS[sourceType] || []),
-							].map((field: any) => (
-								<FormInput
-									type={field.type}
-									id={field.id}
-									name={field.name}
-									key={field.name}
-									validation={{
-										required: field.required,
-									}}
-									options={field.options?.map((o: any) => ({
-										name: o,
-										value: o,
-									}))}
-								/>
-							))}
-
-							<Button
-								mt="3"
-								isLoading={createMutation.isLoading}
-								type="submit"
-								colorScheme="blue"
-								size="sm"
-							>
-								Submit
-							</Button>
-						</Stack>
-					</form>
-				</FormProvider>
+				<NewSourceForm onSuccess={onSuccess} />
 			</Stack>
 		</PageLayout>
 	);

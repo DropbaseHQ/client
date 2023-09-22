@@ -31,7 +31,7 @@ export const useGetPage = (pageId: string) => {
 			return {
 				page: response?.page,
 				action: response?.action,
-				sql: response?.sql[0],
+				sql: response?.sql?.[0],
 				functions: response?.functions,
 				fetchers: response?.functions?.fetchers,
 				uiComponents: response?.functions?.ui_components,
