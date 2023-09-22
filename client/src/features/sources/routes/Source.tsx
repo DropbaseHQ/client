@@ -45,7 +45,7 @@ export const Source = () => {
 	});
 
 	const onSubmit = (values: any) => {
-		updateMutation.mutate({ ...values, workspaceId });
+		updateMutation.mutate({ ...values, workspaceId, sourceId });
 	};
 
 	const handleDelete = () => {

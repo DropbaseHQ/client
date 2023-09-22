@@ -63,7 +63,7 @@ def update_source(db: Session, source_id: UUID, request: UpdateSourceRequest):
         name=request.name,
         description=request.description,
         type=request.type,
-        creds=_encrypt_creds(source.workspace_id, request.creds),
+        creds=_encrypt_creds(source.workspace_id, request.creds.dict()),
         workspace_id=source.workspace_id,
     )
     return crud.source.update(db, db_obj=source, obj_in=source_obj)

@@ -59,7 +59,7 @@ class UpdateSourceRequest(BaseModel):
     name: Optional[str]
     description: Optional[str]
     type: Optional[SourceType]
-    creds: Optional[dict]
+    creds: Optional[DatabaseCredentials]
     workspace_id: Optional[UUID]
     source_id: Optional[UUID]
 

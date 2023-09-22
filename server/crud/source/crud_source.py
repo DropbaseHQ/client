@@ -17,9 +17,7 @@ class CRUDSource(CRUDBase[Source, CreateSource, UpdateSource]):
         )
 
     def get_workspace_id(self, db: Session, source_id: UUID) -> str:
-        return (
-            db.query(Source.workspace_id).filter(Source.workspace_id == source_id).one()
-        ).workspace_id
+        return (db.query(Source.workspace_id).filter(Source.id == source_id).one()).workspace_id
 
 
 source = CRUDSource(Source)
