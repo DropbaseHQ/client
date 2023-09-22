@@ -49,6 +49,11 @@ def create_table(db, request: CreateTables) -> ReadTables:
 def update_table(db: Session, table_id: UUID, request: UpdateTables, response: Response) -> ReadTables:
     try:
         table = crud.tables.get_object_by_id_or_404(db, id=table_id)
+        # NOTE: this is a patch. table should be created with source_id to begin with
+        if table.source_id is None:
+            table.source_id = request.source_id
+            db.commit()
+
         user_db_engine = connect_to_user_db(db, table.source_id)
         table_columns = get_table_columns(user_db_engine, request.property.code)
         user_db_engine.dispose()

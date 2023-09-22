@@ -284,7 +284,7 @@ export const NewSmartTable = () => {
 				/>
 			)}
 
-			{!sqlCode && !isLoadingTableData ? (
+			{/* {!sqlCode && !isLoadingTableData ? (
 				<Alert
 					borderRadius="md"
 					w="fit-content"
@@ -299,7 +299,7 @@ export const NewSmartTable = () => {
 					<AlertIcon />
 					<AlertDescription>Connect source to view data</AlertDescription>
 				</Alert>
-			) : null}
+			) : null} */}
 		</Stack>
 	);
 };

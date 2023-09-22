@@ -123,7 +123,7 @@ export const TableProperties = () => {
 									isLoading={mutation.isLoading}
 									type="submit"
 								>
-									Update
+									Run
 								</Button>
 							) : null}
 						</Stack>
