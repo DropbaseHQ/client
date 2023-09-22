@@ -3,7 +3,6 @@ import { Plus, Save, Trash } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
 	Stack,
-	Skeleton,
 	IconButton,
 	MenuButton,
 	Menu,
@@ -30,6 +29,7 @@ import {
 } from '@/features/new-app-builder/hooks';
 import { pageAtom } from '@/features/new-page';
 import { useToast } from '@/lib/chakra-ui';
+import { ContentLoader } from '@/components/Loader';
 
 const DISPLAY_COMPONENT_PROPERTIES = ['name', 'type', 'options', 'label', 'text', 'size'];
 
@@ -255,18 +255,15 @@ export const Components = () => {
 	const { widgetId } = useAtomValue(pageAtom);
 	const { isLoading, values } = useGetComponentProperties(widgetId || '');
 
-	if (isLoading) {
-		return <Skeleton />;
-	}
-
 	return (
 		<Stack overflowY="auto" h="full">
-			<Accordion bg="white" borderLeftWidth="1px" borderRightWidth="1px" allowMultiple>
-				{values.map((value: any) => (
-					<ComponentPropertyEditor key={value.id} {...value} />
-				))}
-			</Accordion>
-
+			<ContentLoader isLoading={isLoading}>
+				<Accordion bg="white" borderLeftWidth="1px" borderRightWidth="1px" allowMultiple>
+					{values.map((value: any) => (
+						<ComponentPropertyEditor key={value.id} {...value} />
+					))}
+				</Accordion>
+			</ContentLoader>
 			<NewComponent />
 		</Stack>
 	);
