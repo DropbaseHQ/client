@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { Box, Skeleton } from '@chakra-ui/react';
+import { Box, Skeleton, Text } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 
 import { useInitializePageState } from './hooks';
@@ -19,6 +19,7 @@ export const NewAppState = () => {
 
 	return (
 		<Box p="2" bg="white" h="full" overflowY="auto">
+			<Text fontSize="11pt" fontWeight="semibold" p="1">State</Text>
 			<ObjectRenderer obj={pageState} />
 		</Box>
 	);
