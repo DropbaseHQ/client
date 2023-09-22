@@ -15,7 +15,7 @@ app = FastAPI()
 
 # app.middleware("http")(catch_exceptions_middleware)
 
-origins = ["http://127.0.0.1:3000", "https://app.dropbase.io", "https://www.app.dropbase.io"]
+origins = ["https://app.dropbase.io", "https://www.app.dropbase.io"]
 
 
 ### ROUTES ###
