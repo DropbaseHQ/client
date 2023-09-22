@@ -12,6 +12,8 @@ from server.utils.connect_to_user_db import connect_to_user_db
 
 def get_table_data(db: Session, request: QueryTable, response: Response) -> QueryResponse:
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
+    if table.source_id is None:
+        return QueryResponse(table_id=table.id, table_name=table.name, error="No source")
     try:
         if table.property["code"] == "" or table.source_id is None:
             return QueryResponse(table_id=table.id, table_name=table.name)
