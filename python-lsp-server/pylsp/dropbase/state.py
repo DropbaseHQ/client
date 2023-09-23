@@ -1,40 +1,53 @@
-from server.controllers.components.parse import GeneratedUIComponent, extract_class_instantiations
+def clean_name(name: str) -> str:
+    return name.title().replace(" ", "")
 
 
-# Returns UI classes with the 'type' attribute (like UIInput)
-def generate_state_ui_class(ui_classes: list[GeneratedUIComponent]):
-    # Used for locals()
-    from server.controllers.components.schemas import UIButton, UIInput, UIText
+def get_tables_pydantic_model(state) -> str:
+    model_str = ""
+    tables_str = "class Tables(BaseModel):\n"
 
-    typed_components = []
-    for ui_class in ui_classes:
-        class_type = locals().get(ui_class.class_name)
-        if class_type is None:
-            continue
-        ui_comp = class_type(**ui_class.kwargs)
+    tables = state["state"]["tables"]
+    for tableName in tables:
+        tables_str += f"    {clean_name(tableName)}: {clean_name(tableName)}Model\n"
+        table = tables[tableName]
+        model_str = f"class {clean_name(tableName)}Model(TableStateProperty):\n"
 
-        typed_components.append(ui_comp)
-    return typed_components
+        for columnName in table["columns"]:
+            model_str += f"    {clean_name(columnName)}: PgColumnStateProperty\n"
 
-
-def get_class_declaration_string(class_name, ui_components):
-    cls_str = "from .ui import *\n"
-    cls_str += "from dataclasses import dataclass\n"
-    cls_str += "@dataclass\n"
-    cls_str += f"class {class_name}:\n"
-    cls_str += "    sidebar: UISidebar\n"
-    for comp in ui_components:
-        cls_str += f"    {comp.name}: {comp.__class__.__name__}\n"
-    cls_str += "sidebar = UISidebar()\n"
-    cls_str += "state = UIState()\n"
-    return cls_str
+    return model_str + tables_str
 
 
-def generate(code_string) -> str | None:
-    try:
-        instantiations = extract_class_instantiations(code_string)
-        typed_ui_classes = generate_state_ui_class(instantiations)
-        generated_code = get_class_declaration_string("UIState", typed_ui_classes)
-    except Exception:
-        return None  # i.e. do not write anything
-    return generated_code
+def get_widgets_pydantic_model(state) -> str:
+    model_str = ""
+    widgets_str = "class Widget(BaseModel):\n"
+
+    widgets = state["state"]["widget"]
+    for widgetName in widgets:
+        widgets_str += f"    {clean_name(widgetName)}: {clean_name(widgetName)}Model\n"
+        widget = widgets[widgetName]
+        model_str = f"class {clean_name(widgetName)}Model(WidgetStateProperty):\n"
+
+        for componentName in widget["components"]:
+            model_str += f"    {clean_name(componentName)}: WidgetStateProperty\n"
+
+    return model_str + widgets_str
+
+
+def get_state_pydantic_model(state) -> str:
+    model_str = get_tables_pydantic_model(state) + get_widgets_pydantic_model(state)
+    model_str += "class State(BaseModel):\n"
+    model_str += "    tables: Tables\n"
+    model_str += "    widget: Widget\n"
+    return model_str
+
+
+import json
+
+
+def generate(s: str):
+    state = json.loads(s)
+    content = "from .states import *\n"
+    content += "from pydantic import BaseModel\n"
+    content += get_state_pydantic_model(state)
+    return content

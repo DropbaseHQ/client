@@ -1,26 +1,17 @@
-import { Code, IconButton, Skeleton, Stack, Text } from '@chakra-ui/react';
+import { Box, Code, IconButton, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { Play, Save, X } from 'react-feather';
-import * as monacoLib from 'monaco-editor';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
-
-import { useMonaco } from '@monaco-editor/react';
-import { useEffect, useMemo, useState } from 'react';
-
-import { MonacoEditor } from '@/components/Editor';
+import { useEffect, useState } from 'react';
+import { initializeLanguageServices, usePythonEditor } from '@/components/Editor';
 import {
 	usePageFunction,
 	useRunFunction,
 	useUpdateFunction,
 } from '@/features/new-app-builder/hooks';
 import { newPageStateAtom, useSyncState } from '@/features/new-app-state';
-import {
-	MODEL_PATH,
-	MODEL_SCHEME,
-	findFunctionDeclarations,
-	generateFunctionCallSuggestions,
-	logBuilder,
-} from '@/features/new-app-builder/utils';
+import { languageClientAtom, lspInitializedAtom } from '@/features/new-app-builder/atoms';
+import { logBuilder } from '@/features/new-app-builder/utils';
 
 export const FunctionEditor = ({ id }: any) => {
 	const { pageId } = useParams();
@@ -32,12 +23,13 @@ export const FunctionEditor = ({ id }: any) => {
 		test_code: defaultTestCode,
 	} = usePageFunction(id || '');
 
-	const monaco = useMonaco();
-
 	const [testCode, setTestCode] = useState('');
 	const [log, setLog] = useState<any>(null);
 
 	const pageState = useAtomValue(newPageStateAtom);
+
+	const [lspInitialized, setLspInitialized] = useAtom(lspInitializedAtom);
+	const [languageClient, setLanguageClient] = useAtom(languageClientAtom);
 
 	const syncState = useSyncState();
 
@@ -61,34 +53,43 @@ export const FunctionEditor = ({ id }: any) => {
 	const [code, setCode] = useState('');
 
 	useEffect(() => {
-		setCode(defaultCode);
+		setCode(defaultCode || '\n\n\n\n');
 	}, [defaultCode]);
 
 	useEffect(() => {
 		setTestCode(defaultTestCode);
 	}, [defaultTestCode]);
 
-	const functionDeclarations = useMemo(() => {
-		return findFunctionDeclarations(code || '');
-	}, [code]);
-
-	useEffect(() => {
-		if (!monaco) {
-			return () => {};
-		}
-
-		const { dispose } = (monaco as any).languages.registerCompletionItemProvider('python', {
-			triggerCharacters: ['.', '"'],
-			provideCompletionItems: (
-				model: monacoLib.editor.ITextModel,
-				position: monacoLib.Position,
-			) => {
-				return generateFunctionCallSuggestions(model, position, functionDeclarations);
-			},
+	// Initialize language services once
+	if (!lspInitialized) {
+		initializeLanguageServices().then(([_, lc]) => {
+			setLanguageClient(lc);
+			// Send initial state to LSP
+			lc.sendNotification('workspace/setState', { state: JSON.stringify(pageState) });
+			setLspInitialized(true);
 		});
+	}
 
-		return dispose;
-	}, [monaco, code, functionDeclarations]);
+	// Resend state to LSP on change
+	useEffect(() => {
+		if (!languageClient) return;
+		languageClient.sendNotification('workspace/setState', { state: JSON.stringify(pageState) });
+	}, [pageState]);
+
+	const editorRef = usePythonEditor({
+		filepath: 'functions.py',
+		code,
+		onChange: (newValue) => {
+			setCode(newValue);
+		},
+	});
+	const testEditorRef = usePythonEditor({
+		filepath: 'functionsTest.py',
+		code: testCode,
+		onChange: (newValue) => {
+			setTestCode(newValue);
+		},
+	});
 
 	const handleSave = () => {
 		updateMutation.mutate({
@@ -108,7 +109,11 @@ export const FunctionEditor = ({ id }: any) => {
 
 	return (
 		<Stack p="3" spacing="1">
-			<MonacoEditor language="python" value={code} onChange={setCode} />
+			{lspInitialized && (
+				<Box overflowY="auto" h="full">
+					<Box ref={editorRef} as="div" w="full" h="full" />
+				</Box>
+			)}
 
 			<Stack bg="white" p="1" spacing="0" alignItems="center" direction="row">
 				<IconButton
@@ -124,12 +129,14 @@ export const FunctionEditor = ({ id }: any) => {
 					flexShrink="0"
 				/>
 
-				<MonacoEditor
-					value={testCode}
-					onChange={setTestCode}
-					language="python"
-					path={`${MODEL_SCHEME}:${MODEL_PATH}`}
-				/>
+				{lspInitialized && (
+					<Box overflowY="auto" h="full">
+						<Box ref={testEditorRef} as="div" w="600px" h="50px" />
+						{/* FIXME: fix width sizing*/}
+					</Box>
+				)}
+
+				{/* /> */}
 
 				<IconButton
 					icon={<Save size="14" />}

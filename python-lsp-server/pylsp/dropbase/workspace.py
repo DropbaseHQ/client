@@ -21,7 +21,7 @@ class Workspace(_Workspace):
         # Copy the template directory into the workspace
         current_path = os.path.abspath(__file__)
         # The path is relative to this file (./template)
-        template_dir = os.path.join(os.path.dirname(current_path), "./template")
+        template_dir = os.path.join(os.path.dirname(current_path), "template")
         shutil.copytree(template_dir, self._root_path, dirs_exist_ok=True)
 
         print("NEW WORKSPACE", self._root_path)

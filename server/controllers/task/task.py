@@ -1,3 +1,4 @@
+import re
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -12,6 +13,8 @@ from server.schemas.task import RunCodeResponse, RunFunction, RunTask
 from server.utils.components import state_component_type_mapper, state_update_components
 from server.utils.find_functions import compose_function_call_by_name
 from server.utils.helper import clean_name_for_class
+
+LOCAL_IMPORT_RE = r"from \..* import .*\n"
 
 
 def run_task(request: RunTask, db: Session):
@@ -31,10 +34,14 @@ def run_task(request: RunTask, db: Session):
         user_input = request.state["user_input"]
         state = request.state["state"]
 
+        # Remove local imports
+        code = re.sub(LOCAL_IMPORT_RE, "", request.code)
+        test_code = re.sub(LOCAL_IMPORT_RE, "", request.test_code)
+
         casted_inputs = cast_to_classes(user_input, tables, state)
-        executable_code = states_def + table_models + widget_models + request.code + casted_inputs
+        executable_code = states_def + table_models + widget_models + code + casted_inputs
         # run code
-        res = exec_code(executable_code, request.test_code, user_input, tables, state)
+        res = exec_code(executable_code, test_code, user_input, tables, state)
         return RunCodeResponse(**res)
     except Exception as e:
         print(e)
@@ -54,6 +61,7 @@ def run_function(request: RunFunction, db: Session):
     try:
         functions = crud.functions.get_page_functions(db, page_id=request.page_id)
         function_code = get_function_code(functions)
+        function_code = re.sub(LOCAL_IMPORT_RE, "", function_code)
 
         states_def = file_to_text("server/schemas/states.py")
         table_models = get_tables_states(db, request.page_id)

@@ -12,6 +12,7 @@ export const NewAppState = () => {
 	const { isLoading } = useInitializePageState(pageId);
 
 	const pageState = useAtomValue(newPageStateAtom);
+	console.log(pageState);
 
 	if (isLoading) {
 		return <Skeleton />;
@@ -19,7 +20,9 @@ export const NewAppState = () => {
 
 	return (
 		<Box p="2" bg="white" h="full" overflowY="auto">
-			<Text fontSize="10pt" fontWeight="semibold" p="1">State Manager</Text>
+			<Text fontSize="10pt" fontWeight="semibold" p="1">
+				State Manager
+			</Text>
 			<Divider />
 			<ObjectRenderer obj={pageState} />
 		</Box>

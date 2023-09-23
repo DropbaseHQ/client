@@ -2,6 +2,7 @@ import logging
 
 from ..python_lsp import PythonLSPServer as _PythonLSPServer
 from .generate import GeneratedFile
+from .state import generate
 from .workspace import Workspace
 
 log = logging.getLogger(__name__)
@@ -13,5 +14,12 @@ class PythonLSPServer(_PythonLSPServer):
     def m_workspace__set_table_schema(self, dataclass: str = "", **_kwargs):
         if self.workspace is not None:
             GeneratedFile[Workspace](path="dropbase/row.py", content_fn=lambda _: dataclass).write(
+                self.workspace._root_path, self.workspace
+            )
+
+    # Dropbase defined event (LSP notifcation is called "workspace/setState")
+    def m_workspace__set_state(self, state: str = "", **_kwargs):
+        if self.workspace is not None:
+            GeneratedFile[Workspace](path="state.py", content_fn=lambda _: generate(state)).write(
                 self.workspace._root_path, self.workspace
             )
