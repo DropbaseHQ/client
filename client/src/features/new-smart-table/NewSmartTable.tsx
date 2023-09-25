@@ -1,17 +1,5 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import {
-	Alert,
-	AlertDescription,
-	AlertIcon,
-	Badge,
-	Box,
-	Center,
-	Spinner,
-	Stack,
-	Text,
-	useColorMode,
-	useTheme,
-} from '@chakra-ui/react';
+import { Center, Spinner, Stack, Text, useColorMode, useTheme } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 
@@ -28,7 +16,6 @@ import { pageAtom } from '@/features/new-page';
 import { useCurrentTableData } from './hooks';
 import { cellEditsAtom } from './atoms';
 import { TableBar } from './components';
-import { useGetTable } from '@/features/new-app-builder/hooks';
 import { PG_COLUMN_BASE_TYPE } from '@/utils';
 
 export const NewSmartTable = () => {
@@ -44,9 +31,6 @@ export const NewSmartTable = () => {
 	const { tableId } = useAtomValue(pageAtom);
 
 	const { isLoading, rows, columns, header, tableName } = useCurrentTableData();
-	const { values, isLoading: isLoadingTableData } = useGetTable(tableId || '');
-
-	const sqlCode = (values?.code || '').trim();
 
 	const [cellEdits, setCellEdits] = useAtom(cellEditsAtom);
 
@@ -260,55 +244,34 @@ export const NewSmartTable = () => {
 	});
 
 	return (
-		<Box w="full" h="full" display="flex" justifyContent="center" alignItems="center" flexDirection="column" gap="1%">
-			<Stack direction="row" textAlign="left" w="98%">
-				<Text mt="0.5" fontSize="10.5pt" fontWeight="semibold">{tableName}</Text>
-			</Stack>
-			<Box borderWidth='1px' w="98%" h="90%">
-				<Stack pos="relative" h="full" spacing="0">
-					<TableBar />
-					{isLoading ? (
-						<Center h="full" as={Stack}>
-							<Spinner size="md" />
-							<Text>Loading data...</Text>
-						</Center>
-					) : (
-						<DataEditor
-							columns={gridColumns}
-							rows={rows.length}
-							width="100%"
-							height="100%"
-							getCellContent={getCellContent}
-							rowMarkers="both"
-							smoothScrollX
-							smoothScrollY
-							theme={gridTheme}
-							onGridSelectionChange={handleSetSelection}
-							gridSelection={selection}
-							highlightRegions={highlights}
-							onCellEdited={onCellEdited}
-							keybindings={{ search: true }}
-						/>
-					)}
-
-					{/* {!sqlCode && !isLoadingTableData ? (
-						<Alert
-							borderRadius="md"
-							w="fit-content"
-							position="absolute"
-							right={2}
-							bottom={2}
-							shadow="xs"
-							status="warning"
-							variant="top-accent"
-							borderTopWidth="3px"
-						>
-							<AlertIcon />
-							<AlertDescription>Connect source to view data</AlertDescription>
-						</Alert>
-					) : null} */}
-				</Stack>
-			</Box>
-		</Box>
+		<Stack pos="relative" h="full" spacing="0">
+			<Text flexShrink="0" fontSize="sm" p="2" fontWeight="semibold">
+				{tableName}
+			</Text>
+			<TableBar />
+			{isLoading ? (
+				<Center h="full" as={Stack}>
+					<Spinner size="md" />
+					<Text>Loading data...</Text>
+				</Center>
+			) : (
+				<DataEditor
+					columns={gridColumns}
+					rows={rows.length}
+					width="100%"
+					height="100%"
+					getCellContent={getCellContent}
+					rowMarkers="both"
+					smoothScrollX
+					smoothScrollY
+					theme={gridTheme}
+					onGridSelectionChange={handleSetSelection}
+					gridSelection={selection}
+					highlightRegions={highlights}
+					onCellEdited={onCellEdited}
+					keybindings={{ search: true }}
+				/>
+			)}
+		</Stack>
 	);
 };
