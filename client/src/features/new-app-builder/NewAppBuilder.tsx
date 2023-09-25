@@ -19,7 +19,7 @@ export const NewAppBuilder = () => {
 			<AppBuilderNavbar />
 			<Box h="full" overflowY="auto">
 				<PanelGroup autoSaveId="main-panel" direction="vertical">
-					<Panel defaultSize={35}>
+					<Panel defaultSize={45}>
 						<PanelGroup autoSaveId="data-panel" direction="horizontal">
 							<Panel defaultSize={80}>
 								<Loader isLoading={isLoading}>
