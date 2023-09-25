@@ -166,8 +166,16 @@ export const NewSmartTable = () => {
 			};
 		}
 
-		if (column.type === 'integer') {
-			kind = GridCellKind.Number;
+		switch (PG_COLUMN_BASE_TYPE[column?.type]) {
+			case 'float':
+			case 'integer': {
+				kind = GridCellKind.Number;
+				break;
+			}
+
+			default: {
+				break;
+			}
 		}
 
 		cellContent = {
