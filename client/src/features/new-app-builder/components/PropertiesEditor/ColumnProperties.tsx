@@ -15,6 +15,7 @@ import {
 	FormControl,
 	Spinner,
 	Button,
+	Divider,
 } from '@chakra-ui/react';
 import { InputRenderer } from '@/components/FormInput';
 import {
@@ -146,7 +147,24 @@ export const ColumnsProperties = () => {
 	};
 
 	if (isLoading) {
-		return <Skeleton h="xs" />;
+		return (
+			<Stack p="3">
+				<Skeleton
+					startColor="gray.100"
+					endColor="gray.200"
+					w="36"
+					h="10"
+					borderRadius="sm"
+				/>
+				<Stack p="3" bg="white">
+					<Stack borderWidth="1px" spacing="0" divider={<Divider />}>
+						<Skeleton startColor="gray.50" endColor="gray.100" h="10" />
+						<Skeleton startColor="gray.50" endColor="gray.100" h="10" />
+						<Skeleton startColor="gray.50" endColor="gray.100" h="10" />
+					</Stack>
+				</Stack>
+			</Stack>
+		);
 	}
 
 	return (

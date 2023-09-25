@@ -1,4 +1,4 @@
-import { Skeleton, Stack } from '@chakra-ui/react';
+import { Box, Skeleton, Stack } from '@chakra-ui/react';
 
 export const NavLoader = ({ children, isLoading }: any) => {
 	if (isLoading) {
@@ -30,6 +30,21 @@ export const Loader = ({ children, isLoading }: any) => {
 			<Stack spacing="0" h="full" bg="white">
 				<NavLoader isLoading />
 				<ContentLoader isLoading />
+			</Stack>
+		);
+	}
+
+	return children;
+};
+
+export const InputLoader = ({ children, isLoading }: any) => {
+	if (isLoading) {
+		return (
+			<Stack spacing="1">
+				<Skeleton h="6" startColor="gray.50" endColor="gray.100" w="24" />
+				<Box w="full" borderWidth="1px" borderRadius="sm">
+					<Skeleton h="8" startColor="gray.100" endColor="gray.200" w="full" />
+				</Box>
 			</Stack>
 		);
 	}

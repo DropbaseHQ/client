@@ -1,4 +1,4 @@
-import { Code, IconButton, Skeleton, Stack, Text } from '@chakra-ui/react';
+import { Code, IconButton, Skeleton, SkeletonCircle, Stack, Text } from '@chakra-ui/react';
 import { Play, Save, X } from 'react-feather';
 import * as monacoLib from 'monaco-editor';
 import { useAtomValue } from 'jotai';
@@ -103,7 +103,15 @@ export const FunctionEditor = ({ id }: any) => {
 	};
 
 	if (isLoading) {
-		return <Skeleton h="xs" />;
+		return (
+			<Stack p="3" spacing="2">
+				<Skeleton startColor="gray.200" endColor="gray.300" h="32" />
+				<Stack direction="row">
+					<SkeletonCircle h="10" w="10" />
+					<Skeleton startColor="gray.200" w="full" endColor="gray.300" h="10" />
+				</Stack>
+			</Stack>
+		);
 	}
 
 	return (
