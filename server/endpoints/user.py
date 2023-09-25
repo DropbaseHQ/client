@@ -48,7 +48,7 @@ def logout_user(response: Response, Authorize: AuthJWT = Depends()):
     return user.logout_user(response, Authorize)
 
 
-@router.post("/refresh", dependencies=[Depends(authorize_components_actions)])
+@router.post("/refresh")
 def refresh_token(Authorize: AuthJWT = Depends()):
     return user.refresh_token(Authorize)
 
