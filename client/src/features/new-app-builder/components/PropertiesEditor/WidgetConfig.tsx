@@ -1,35 +1,24 @@
-import { Box, Stack } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
+import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { WidgetProperties } from './WidgetProperties';
 import { Components } from './ComponentEditor';
-
-// export const WidgetConfig = () => {
-// 	return (
-// 		<PanelGroup direction="horizontal">
-// 			<Panel maxSize={50} defaultSize={35}>
-// 				<Box p="3" m="3" borderWidth="1px" bg="white">
-// 					<WidgetProperties />
-// 				</Box>
-// 			</Panel>
-// 			<PanelHandle direction="vertical" />
-// 			<Panel>
-// 				<Box p="3" h="full" overflow="auto">
-// 					<Components />
-// 				</Box>
-// 			</Panel>
-// 		</PanelGroup>
-// 	);
-// };
+import { PanelHandle } from '@/components/Panel';
 
 export const WidgetConfig = () => {
 	return (
-		<Stack direction="row" alignItems="start" maxW="container.xl" p="3" spacing="3">
-			<Box p="3" flex="2" borderWidth="1px" bg="white">
-				<WidgetProperties />
-			</Box>
-			<Box h="full" flex="3" overflow="auto">
-				<Components />
-			</Box>
-		</Stack>
+		<PanelGroup direction="horizontal">
+			<Panel maxSize={50} defaultSize={35}>
+				<Box p="3">
+					<WidgetProperties />
+				</Box>
+			</Panel>
+			<PanelHandle direction="vertical" />
+			<Panel>
+				<Box p="3" h="full">
+					<Components />
+				</Box>
+			</Panel>
+		</PanelGroup>
 	);
 };

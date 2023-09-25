@@ -17,6 +17,7 @@ import {
 	AccordionPanel,
 	Button,
 	ButtonGroup,
+	Box,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
@@ -270,15 +271,36 @@ export const Components = () => {
 	const { isLoading, values } = useGetComponentProperties(widgetId || '');
 
 	return (
-		<Stack overflowY="auto" h="full">
-			<ContentLoader isLoading={isLoading}>
-				<Accordion bg="white" borderLeftWidth="1px" borderRightWidth="1px" allowMultiple>
-					{values.map((value: any) => (
-						<ComponentPropertyEditor key={value.id} {...value} />
-					))}
-				</Accordion>
-			</ContentLoader>
-			<NewComponent />
+		<Stack spacing="0" h="full">
+			<Text
+				flexShrink="0"
+				bg="white"
+				borderWidth="1px"
+				borderBottomWidth="0"
+				px="3"
+				py="2"
+				fontSize="sm"
+				fontWeight="semibold"
+			>
+				Components
+			</Text>
+			<Stack overflowY="auto">
+				<ContentLoader isLoading={isLoading}>
+					<Accordion
+						bg="white"
+						borderLeftWidth="1px"
+						borderRightWidth="1px"
+						allowMultiple
+					>
+						{values.map((value: any) => (
+							<ComponentPropertyEditor key={value.id} {...value} />
+						))}
+					</Accordion>
+				</ContentLoader>
+			</Stack>
+			<Box mt="2">
+				<NewComponent />
+			</Box>
 		</Stack>
 	);
 };
