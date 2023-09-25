@@ -271,7 +271,7 @@ export const Components = () => {
 	const { isLoading, values } = useGetComponentProperties(widgetId || '');
 
 	return (
-		<Stack spacing="0" h="full">
+		<Stack maxW="2xl" spacing="0" h="full">
 			<Text
 				flexShrink="0"
 				bg="white"
