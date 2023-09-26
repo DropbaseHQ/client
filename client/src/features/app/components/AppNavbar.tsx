@@ -31,7 +31,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 				variant="ghost"
 			/>
 			<Box fontWeight="semibold">{app?.name}</Box>
-			<Tooltip label="App preview">
+			<Tooltip label={isPreview ? 'App preview' : 'App Studio'}>
 				<IconButton
 					size="sm"
 					variant="ghost"

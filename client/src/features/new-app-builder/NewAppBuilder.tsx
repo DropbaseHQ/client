@@ -3,20 +3,20 @@ import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { PanelHandle } from '@/components/Panel';
 
-import { AppBuilderNavbar } from './components/Navbar';
 import { PropertiesEditor } from './components/PropertiesEditor';
 import { NewAppPreview } from '@/features/new-app-preview';
 import { NewSmartTable } from '@/features/new-smart-table';
 import { NewAppState } from '@/features/new-app-state';
 import { useInitPage } from '@/features/new-page';
 import { Loader } from '@/components/Loader';
+import { AppNavbar } from '@/features/new-app-builder/components/Navbar';
 
 export const NewAppBuilder = () => {
 	const { isLoading } = useInitPage();
 
 	return (
 		<Stack spacing="0" h="full">
-			<AppBuilderNavbar />
+			<AppNavbar />
 			<Box h="full" overflowY="auto">
 				<PanelGroup autoSaveId="main-panel" direction="vertical">
 					<Panel defaultSize={45}>

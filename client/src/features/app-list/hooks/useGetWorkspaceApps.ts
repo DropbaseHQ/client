@@ -1,5 +1,7 @@
+import { useAtomValue } from 'jotai';
 import { useQuery } from 'react-query';
 import { axios } from '@/lib/axios';
+import { workspaceAtom } from '@/features/workspaces';
 
 export type App = {
 	name: string;
@@ -15,7 +17,8 @@ const fetchWorkspaceApps = async () => {
 };
 
 export const useGetWorkspaceApps = () => {
-	const queryKey = ['workspaceApps'];
+	const workspaceId = useAtomValue(workspaceAtom);
+	const queryKey = ['workspaceApps', workspaceId];
 	const { data: response, ...rest } = useQuery(queryKey, fetchWorkspaceApps);
 	return {
 		apps: response || [],
