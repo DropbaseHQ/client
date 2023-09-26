@@ -34,7 +34,7 @@ resource_query_mapper = {
     RESOURCES.COMPONENTS: crud.components,
     RESOURCES.FUNCTIONS: crud.functions,
     RESOURCES.PAGE: crud.page,
-    RESOURCES.ROLE: crud.role,
+    RESOURCES.ROLE: crud.user_role,
     RESOURCES.SOURCE: crud.source,
     RESOURCES.USER: crud.user,
     RESOURCES.WORKSPACE: crud.workspace,
@@ -96,7 +96,7 @@ def generate_resource_dependency(resource_type: str, is_on_resource_creation: bo
                 detail=f"Resource {resource_id} of type {resource_type} not found",
             )
 
-        can_act_on_resource = crud.role.user_is_in_workspace(db, user.id, resource_workspace_id)
+        can_act_on_resource = crud.user_role.user_is_in_workspace(db, user.id, resource_workspace_id)
         if not can_act_on_resource:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
