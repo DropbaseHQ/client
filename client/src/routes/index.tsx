@@ -49,6 +49,7 @@ export const DashboardRoutes = () => {
 						</DashboardLayout>
 					}
 				>
+					<Route index element={<Navigate to="/apps" />} />
 					<Route path="login" element={<Login />} />
 					<Route path="register" element={<Register />} />
 					<Route path="reset" element={<ResetPassword />} />

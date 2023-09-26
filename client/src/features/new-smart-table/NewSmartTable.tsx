@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { Center, Spinner, Stack, Text, useColorMode, useTheme } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 
 import DataEditor, {
@@ -35,6 +35,15 @@ export const NewSmartTable = () => {
 	const [cellEdits, setCellEdits] = useAtom(cellEditsAtom);
 
 	const selectRow = useSetAtom(newSelectedRowAtom);
+
+	const [columnWidth, setColumnWidth] = useState<any>({});
+
+	const onColumnResize = useCallback((col: any, newSize: any) => {
+		setColumnWidth((c: any) => ({
+			...c,
+			[col.id]: newSize,
+		}));
+	}, []);
 
 	useEffect(() => {
 		setCellEdits([]);
@@ -118,7 +127,7 @@ export const NewSmartTable = () => {
 			const gridColumn = {
 				id: column.name,
 				title: column.name,
-				width: String(column.name).length * 10 + 35 + 30,
+				width: columnWidth[column.name] || String(column.name).length * 10 + 35 + 30,
 				icon,
 			};
 
@@ -278,6 +287,7 @@ export const NewSmartTable = () => {
 					highlightRegions={highlights}
 					onCellEdited={onCellEdited}
 					keybindings={{ search: true }}
+					onColumnResize={onColumnResize}
 				/>
 			)}
 		</Stack>
