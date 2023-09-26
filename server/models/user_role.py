@@ -5,7 +5,7 @@ from sqlalchemy.sql import func, text
 from .base import Base
 
 
-class Role(Base):
+class UserRole(Base):
     id = Column(UUID(as_uuid=True), server_default=text("uuid_generate_v4()"), primary_key=True)
 
     user_id = Column(UUID(as_uuid=True), ForeignKey("user.id", ondelete="CASCADE"))
@@ -14,4 +14,4 @@ class Role(Base):
 
     date = Column(TIMESTAMP, server_default=func.now())
 
-    __tablename__ = "role"
+    __tablename__ = "user_role"

@@ -5,7 +5,7 @@ from .components import Components
 from .functions import Functions
 from .page import Page
 from .pinned_filters import PinnedFilters
-from .role import Role
+from .user_role import UserRole
 from .source import Source
 from .tables import Tables
 from .user import User
