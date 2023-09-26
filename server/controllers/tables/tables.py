@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
 from server import crud
-from server.controllers.tables.helper import get_row_schema
+from server.controllers.tables.helper import get_row_schema, get_sql_variables, render_sql
 from server.models.columns import Columns
 from server.models.tables import Tables
 from server.schemas.columns import CreateColumns, PgDefinedColumnProperty
@@ -30,13 +30,17 @@ def get_table(db, table_id: UUID):
 
 
 def create_table(db, request: CreateTables) -> ReadTables:
+    user_sql = render_sql(request.property.code, request.state)
     # get columns
     user_db_engine = connect_to_user_db(db, request.source_id)
-    columns = get_table_columns(user_db_engine, request.property.code)
+    columns = get_table_columns(user_db_engine, user_sql)
     user_db_engine.dispose()
+
+    depends_on = get_sql_variables(request.property.code)
 
     # create table
     request.name = request.property.name
+    request.depends_on = depends_on
     table = crud.tables.create(db, obj_in=request)
 
     # save columns
@@ -54,9 +58,11 @@ def update_table(db: Session, table_id: UUID, request: UpdateTables, response: R
             table.source_id = request.source_id
             db.commit()
 
+        user_sql = render_sql(request.property.code, request.state)
         user_db_engine = connect_to_user_db(db, table.source_id)
-        table_columns = get_table_columns(user_db_engine, request.property.code)
+        table_columns = get_table_columns(user_db_engine, user_sql)
         user_db_engine.dispose()
+
         db_columns = crud.columns.get_table_columns(db, table_id=table_id)
 
         cols_to_add, cols_to_delete = [], []
@@ -83,6 +89,9 @@ def update_table(db: Session, table_id: UUID, request: UpdateTables, response: R
             create_column_record_from_name(db, column, table_id)
 
         # update table
+        depends_on = get_sql_variables(request.property.code)
+
+        request.depends_on = depends_on
         request.name = request.property.name
         table = crud.tables.update_by_pk(db, pk=table_id, obj_in=request)
 

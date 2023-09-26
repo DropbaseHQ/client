@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
 from server import crud
+from server.controllers.tables.helper import render_sql
 from server.schemas.pinned_filters import Filter, Sort
 from server.schemas.tables import QueryResponse, QueryTable
 from server.utils.connect_to_user_db import connect_to_user_db
@@ -15,12 +16,15 @@ def get_table_data(db: Session, request: QueryTable, response: Response) -> Quer
     if table.source_id is None:
         return QueryResponse(table_id=table.id, table_name=table.name, error="No source")
     try:
-        if table.property["code"] == "" or table.source_id is None:
+        if table.property["code"] == "":
             return QueryResponse(table_id=table.id, table_name=table.name)
         columns = crud.columns.get_table_columns(db, table_id=table.id)
 
+        # render sql with jigja2 and state variables
+        user_sql = render_sql(table.property["code"], request.state)
+
         # apply filters
-        filter_sql, filter_values = apply_filters(table.property["code"], request.filters, request.sorts)
+        filter_sql, filter_values = apply_filters(user_sql, request.filters, request.sorts)
 
         user_db_engine = connect_to_user_db(db, table.source_id)
         with user_db_engine.connect().execution_options(autocommit=True) as conn:

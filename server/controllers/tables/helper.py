@@ -154,3 +154,18 @@ def get_column_names(user_db_engine, user_sql: str) -> list[str]:
     with user_db_engine.connect().execution_options(autocommit=True) as conn:
         col_names = list(conn.execute(text(user_sql)).keys())
     return col_names
+
+
+from jinja2 import Environment, meta
+
+
+def get_sql_variables(user_sql: str):
+    env = Environment()
+    parsed_content = env.parse(user_sql)
+    return list(meta.find_undeclared_variables(parsed_content))
+
+
+def render_sql(user_sql: str, state: dict):
+    env = Environment()
+    template = env.from_string(user_sql)
+    return template.render(**state)
