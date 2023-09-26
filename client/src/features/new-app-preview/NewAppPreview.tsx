@@ -31,6 +31,12 @@ import { pageAtom } from '@/features/new-page';
 import { useCreateWidget } from '@/features/new-app-builder/hooks';
 import { Loader } from '@/components/Loader';
 
+const sizeMap: any = {
+	small: 'sm',
+	medium: 'md',
+	large: 'lg',
+};
+
 const AppComponent = (props: any) => {
 	const { pageId } = useParams();
 	const { type, property: component } = props;
@@ -73,7 +79,7 @@ const AppComponent = (props: any) => {
 	}
 
 	if (type === 'text') {
-		return <Text>{component.text}</Text>;
+		return <Text fontSize={sizeMap[component.size]}>{component.text}</Text>;
 	}
 
 	return (
