@@ -10,7 +10,7 @@ class UserRole(Base):
 
     user_id = Column(UUID(as_uuid=True), ForeignKey("user.id", ondelete="CASCADE"))
     workspace_id = Column(UUID(as_uuid=True), ForeignKey("workspace.id", ondelete="CASCADE"))
-    role = Column(String, nullable=False)
+    role_id = Column(UUID(as_uuid=True), ForeignKey("role.id", ondelete="CASCADE"))
 
     date = Column(TIMESTAMP, server_default=func.now())
 

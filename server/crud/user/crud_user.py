@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import User, UserRole, Workspace
+from server.models import UserRole, User, Workspace
 from server.schemas.user import CreateUser, UpdateUser
 
 

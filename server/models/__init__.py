@@ -11,3 +11,4 @@ from .tables import Tables
 from .user import User
 from .widget import Widget
 from .workspace import Workspace
+from .role import Role
