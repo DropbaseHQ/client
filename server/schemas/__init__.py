@@ -9,3 +9,4 @@ from .source import *
 from .user import *
 from .widget import *
 from .workspace import *
+from .user_role import *
