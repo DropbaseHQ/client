@@ -19,10 +19,13 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 import { Filter as FilterIcon, Plus, Star, Trash } from 'react-feather';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { filtersAtom } from '@/features/new-smart-table/atoms';
-import { useCurrentTableData, usePinFilters } from '@/features/new-smart-table/hooks';
-import { pageAtom } from '@/features/new-page';
+import {
+	useCurrentTableData,
+	useCurrentTableId,
+	usePinFilters,
+} from '@/features/new-smart-table/hooks';
 import { useGetTable } from '@/features/new-app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { PG_COLUMN_BASE_TYPE } from '@/utils';
@@ -110,10 +113,10 @@ const getConditionsByType = (type?: string) => {
 
 export const FilterButton = () => {
 	const toast = useToast();
-	const { tableId } = useAtomValue(pageAtom);
+	const tableId = useCurrentTableId();
 	const { isOpen, onToggle, onClose } = useDisclosure();
 
-	const { columns } = useCurrentTableData();
+	const { columns } = useCurrentTableData(tableId);
 
 	const [filters, setFilters] = useAtom(filtersAtom);
 

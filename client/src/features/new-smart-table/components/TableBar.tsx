@@ -1,10 +1,9 @@
 import { IconButton, Stack, Tooltip } from '@chakra-ui/react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 
 import { Save } from 'react-feather';
-import { useCurrentTableData, useSaveEdits } from '../hooks';
+import { useCurrentTableData, useCurrentTableId, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
-import { pageAtom } from '@/features/new-page';
 import { cellEditsAtom } from '@/features/new-smart-table/atoms';
 
 import { FilterButton } from './Filters';
@@ -13,9 +12,10 @@ import { PinnedFilters } from './PinnedFilters';
 
 export const TableBar = () => {
 	const toast = useToast();
-	const { tableId } = useAtomValue(pageAtom);
 
-	const { rows, columns } = useCurrentTableData();
+	const tableId = useCurrentTableId();
+
+	const { rows, columns } = useCurrentTableData(tableId);
 
 	const [cellEdits, setCellEdits] = useAtom(cellEditsAtom);
 
@@ -54,7 +54,6 @@ export const TableBar = () => {
 			<Stack spacing="0" alignItems="center" direction="row">
 				<FilterButton />
 				<SortButton />
-
 				<PinnedFilters />
 			</Stack>
 

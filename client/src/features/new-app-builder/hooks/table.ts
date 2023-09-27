@@ -7,7 +7,7 @@ import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/new-app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY } from '@/features/new-page';
 import { APP_STATE_QUERY_KEY } from '@/features/new-app-state';
 
-export const APP_QUERY_KEY = 'table';
+export const TABLE_QUERY_KEY = 'table';
 
 const fetchTablePropertiesInfo = async ({ tableId }: { tableId: string }) => {
 	const response = await axios.get<any>(`/tables/${tableId}`);
@@ -16,7 +16,7 @@ const fetchTablePropertiesInfo = async ({ tableId }: { tableId: string }) => {
 };
 
 export const useGetTable = (tableId: string, props?: any): any => {
-	const queryKey = [APP_QUERY_KEY, tableId];
+	const queryKey = [TABLE_QUERY_KEY, tableId];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
@@ -69,21 +69,21 @@ const updateTableProperties = async ({
 	tableId,
 	sourceId,
 	state,
-	pageId
+	pageId,
 }: {
 	payload: any;
 	tableId: string;
 	sourceId: string;
 	state: any;
-	pageId: any
+	pageId: any;
 }) => {
 	const response = await axios.put(`/tables/${tableId}`, {
 		property: payload,
 		source_id: sourceId,
 		state,
-		page_id: pageId
+		page_id: pageId,
 	});
-	
+
 	return response.data;
 };
 

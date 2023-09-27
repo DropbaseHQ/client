@@ -83,7 +83,7 @@ export const PropertiesEditor = () => {
 							{t.name}
 						</Button>
 					))}
-					<NewTable />
+					<NewTable variant="outline" />
 				</ButtonGroup>
 
 				{widget ? (

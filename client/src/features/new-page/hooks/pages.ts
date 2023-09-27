@@ -42,9 +42,8 @@ export const useInitPage = () => {
 	const { tables, widget, ...rest } = useGetPage(pageId || '');
 
 	useEffect(() => {
-		if (!(context.tableId || context.widgetId)) {
+		if (!context.widgetId) {
 			setPageContext({
-				tableId: tables?.[0]?.id,
 				widgetId: widget?.id,
 			});
 		}
@@ -53,7 +52,6 @@ export const useInitPage = () => {
 	useEffect(() => {
 		return () => {
 			setPageContext({
-				tableId: null,
 				widgetId: null,
 			});
 		};

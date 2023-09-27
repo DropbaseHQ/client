@@ -1,1 +1,1 @@
-export * from './NewSmartTable';
+export * from './StackedTables';
