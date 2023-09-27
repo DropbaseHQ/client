@@ -1,9 +1,4 @@
-from fastapi.testclient import TestClient
-
-from server.main import app
 from server.schemas.source import SourceType
-
-client = TestClient(app)
 
 from server.tests.conftest import ValueStorage
 
@@ -11,10 +6,11 @@ from server.tests.conftest import ValueStorage
 MOCK_NONEXISTENT_UUID = "4d181f7d-d00a-4899-8235-1308ef20b46f"
 
 
-def test_create_source(mocker):
+def test_create_source(client, mocker):
     mocker.patch("server.controllers.source.source.test_source_creds_postgres")
     data = {
         "name": "test_pg_source",
+        "workspace_id": ValueStorage.workspace_id,
         "description": "this is from server/tests/test_source.py in function test_create_source",
         "type": SourceType.POSTGRES,
         "creds": {
@@ -31,9 +27,10 @@ def test_create_source(mocker):
     ValueStorage.source_id = response.json()["id"]
 
 
-def test_create_source_invalid_creds():
+def test_create_source_invalid_creds(client):
     data = {
         "name": "test_pg_test_source",
+        "workspace_id": ValueStorage.workspace_id,
         "description": "this is from server/tests/test_source.py in function test_create_source_invalid_creds",
         "type": SourceType.POSTGRES,
         "creds": {
@@ -48,10 +45,11 @@ def test_create_source_invalid_creds():
     assert response.status_code == 400
 
 
-def test_create_source_invalid_type(mocker):
+def test_create_source_invalid_type(client, mocker):
     mocker.patch("server.controllers.source.source.test_source_creds_postgres")
     data = {
         "name": "test_pg_source",
+        "workspace_id": ValueStorage.workspace_id,
         "description": "this is from server/tests/test_source.py in function test_create_source_invalid_type",
         "type": "random invalid source type that has never before been seen",
         "creds": {
@@ -67,17 +65,17 @@ def test_create_source_invalid_type(mocker):
     assert response.json()["detail"][0]["type"] == "type_error.enum"
 
 
-def test_read_source():
+def test_read_source(client):
     response = client.get(f"/source/{ValueStorage.source_id}")
     assert response.status_code == 200
 
 
-def test_read_source_not_found():
+def test_read_source_not_found(client):
     response = client.get(f"/source/{MOCK_NONEXISTENT_UUID}")
     assert response.status_code == 404
 
 
-def test_update_source(mocker):
+def test_update_source(client, mocker):
     mocker.patch("server.controllers.source.source.test_source_creds_postgres")
     data = {
         "name": "test_pg_source_updated",
@@ -96,7 +94,7 @@ def test_update_source(mocker):
     assert response.json()["name"] == "test_pg_source_updated"
 
 
-def test_update_source_not_found():
+def test_update_source_not_found(client):
     data = {
         "name": "test_pg_source_updated",
         "description": "this is from server/tests/test_source.py in function test_update_source",
@@ -113,7 +111,7 @@ def test_update_source_not_found():
     assert response.status_code == 404
 
 
-def test_update_source_invalid_creds():
+def test_update_source_invalid_creds(client):
     data = {
         "name": "test_pg_test_source",
         "description": "this is from server/tests/test_source.py in function test_update_source_invalid_creds",
@@ -130,7 +128,7 @@ def test_update_source_invalid_creds():
     assert response.status_code == 400
 
 
-def test_update_source_invalid_type(mocker):
+def test_update_source_invalid_type(client, mocker):
     mocker.patch("server.controllers.source.source.test_source_creds_postgres")
     data = {
         "name": "test_pg_source",
@@ -149,12 +147,12 @@ def test_update_source_invalid_type(mocker):
     assert response.json()["detail"][0]["type"] == "type_error.enum"
 
 
-def test_delete_source():
+def test_delete_source(client):
     response = client.delete(f"/source/{ValueStorage.source_id}")
     assert response.status_code == 200
     ValueStorage.source_id = None
 
 
-def test_delete_source_not_found():
+def test_delete_source_not_found(client):
     response = client.delete(f"/source/{MOCK_NONEXISTENT_UUID}")
     assert response.status_code == 404
