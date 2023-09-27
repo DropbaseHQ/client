@@ -5,22 +5,23 @@ import { axios } from '@/lib/axios';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
-const fetchTableData = async ({ tableId, filters, sorts }: any) => {
+const fetchTableData = async ({ tableId, filters, sorts, state }: any) => {
 	const response = await axios.post<any>(`/tables/query`, {
 		table_id: tableId,
 		filters,
 		sorts,
+		state,
 	});
 
 	return response.data;
 };
 
-export const useTableData = ({ tableId, filters = [], sorts = [] }: any) => {
+export const useTableData = ({ tableId, filters = [], sorts = [], state }: any) => {
 	const queryKey = [TABLE_DATA_QUERY_KEY, tableId, JSON.stringify({ filters, sorts })];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchTableData({ tableId, filters, sorts }),
+		() => fetchTableData({ tableId, filters, sorts, state }),
 		{
 			enabled: !!tableId,
 		},

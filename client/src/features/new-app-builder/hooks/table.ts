@@ -67,14 +67,17 @@ const updateTableProperties = async ({
 	payload,
 	tableId,
 	sourceId,
+	state,
 }: {
 	payload: any;
 	tableId: string;
 	sourceId: string;
+	state: any;
 }) => {
 	const response = await axios.put(`/tables/${tableId}`, {
 		property: payload,
 		source_id: sourceId,
+		state,
 	});
 	return response.data;
 };

@@ -9,11 +9,13 @@ import { useSources } from '@/features/sources/hooks';
 import { workspaceAtom } from '@/features/workspaces';
 import { NewSourceForm } from '@/features/sources/routes/NewSource';
 import { InputLoader } from '@/components/Loader';
+import { newPageStateAtom } from '@/features/new-app-state';
 
 export const TableProperties = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const { tableId } = useAtomValue(pageAtom);
 	const { isLoading, values, sourceId, refetch } = useGetTable(tableId || '');
+	const state = useAtomValue(newPageStateAtom);
 
 	const { sources, isLoading: isLoadingSources } = useSources(workspaceId);
 
@@ -49,6 +51,7 @@ export const TableProperties = () => {
 			tableId: tableId || '',
 			payload: rest,
 			sourceId: newSourceId,
+			state: state.tables,
 		});
 	};
 
