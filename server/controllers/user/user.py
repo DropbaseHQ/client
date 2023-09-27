@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.constants import ACCESS_TOKEN_EXPIRE_SECONDS, REFRESH_TOKEN_EXPIRE_SECONDS
-from server.schemas.role import CreateRole
+from server.schemas.user_role import CreateUserRole
 from server.schemas.user import CreateUser, CreateUserRequest, LoginUser, ReadUser, ResetPasswordRequest
 from server.schemas.workspace import CreateWorkspace, ReadWorkspace
 from server.utils.authentication import authenticate_user, get_password_hash
@@ -89,13 +89,14 @@ def register_user(db: Session, request: CreateUserRequest):
             active=True,
         )
         workspace = crud.workspace.create(db, obj_in=workspace_obj)
-
-        role_obj = CreateRole(
+        # TODO: get admin role id from db
+        admin_role_id = "a1f129ef-3474-4aa9-93e0-2aa3ab13181c"
+        role_obj = CreateUserRole(
             user_id=user.id,
             workspace_id=workspace.id,
-            role="admin",
+            role_id=admin_role_id,
         )
-        crud.role.create(db, obj_in=role_obj)
+        crud.user_role.create(db, obj_in=role_obj)
 
         return {"message": "User successfully registered"}
     except Exception as e:
