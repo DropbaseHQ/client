@@ -52,12 +52,10 @@ run specific test:
 pytest server/tests/test_components.py -s
 ```
 
-make sure to install pytest, pytest-mock, and httpx
+make sure to install dev requirements
 
 ```
-pip install pytest
-pip install pytest-mock
-pip install httpx
+pip install -r requirements-dev.txt
 ```
 
 https://fastapi.tiangolo.com/tutorial/testing/
