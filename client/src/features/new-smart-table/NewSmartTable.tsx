@@ -266,6 +266,7 @@ export const NewSmartTable = ({ tableId }: any) => {
 	const memoizedContext = useMemo(() => ({ tableId }), [tableId]);
 
 	return (
+<<<<<<< HEAD
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="0">
 				<Text flexShrink="0" fontSize="sm" p="2" fontWeight="semibold">
@@ -298,5 +299,47 @@ export const NewSmartTable = ({ tableId }: any) => {
 				)}
 			</Stack>
 		</CurrentTableContext.Provider>
+=======
+		<Stack pos="relative" h="full" spacing="0">
+			<Text
+				bg="white"
+				borderBottomWidth="1px"
+				flexShrink="0"
+				pt="2"
+				px="2"
+				pb="1"
+				fontWeight="semibold"
+			>
+				{tableName}
+			</Text>
+			<TableBar />
+			{isLoading ? (
+				<Center h="full" as={Stack}>
+					<Spinner size="md" />
+					<Text>Loading data...</Text>
+				</Center>
+			) : (
+				<DataEditor
+					columns={gridColumns}
+					rows={rows.length}
+					width="100%"
+					height="100%"
+					getCellContent={getCellContent}
+					rowMarkers="both"
+					smoothScrollX
+					smoothScrollY
+					theme={gridTheme}
+					onGridSelectionChange={handleSetSelection}
+					gridSelection={selection}
+					highlightRegions={highlights}
+					onCellEdited={onCellEdited}
+					keybindings={{ search: true }}
+					onColumnResize={onColumnResize}
+					getCellsForSelection
+					onPaste
+				/>
+			)}
+		</Stack>
+>>>>>>> 6aac4bd8e2a5a9bf4e30bcdff6f64d7f9bce81de
 	);
 };
