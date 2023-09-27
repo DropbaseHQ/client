@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 
 import { axios } from '@/lib/axios';
+import { useAtomValue } from 'jotai';
+import { newPageStateAtom } from '@/features/new-app-state';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
@@ -50,7 +52,6 @@ const fetchTableData = async ({ pageId, filters, sorts }: any) => {
 
 export const useTableData = ({ pageId, filters = [], sorts = [] }: any) => {
 	const queryKey = [TABLE_DATA_QUERY_KEY, pageId, JSON.stringify({ filters, sorts })];
-
 	const { data: response, ...rest } = useQuery(queryKey, () =>
 		fetchTableData({ pageId, filters, sorts }),
 	);

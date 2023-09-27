@@ -1,29 +1,34 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useAtomValue } from 'jotai';
 
 import { axios } from '@/lib/axios';
+import { newPageStateAtom } from '@/features/new-app-state';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
-const fetchTableData = async ({ tableId, filters, sorts, state }: any) => {
+const fetchTableData = async ({ tableId, filters, sorts, state,pageId }: any) => {
 	const response = await axios.post<any>(`/tables/query`, {
 		table_id: tableId,
 		filters,
 		sorts,
 		state,
+		page_id: pageId,
 	});
 
 	return response.data;
 };
 
-export const useTableData = ({ tableId, filters = [], sorts = [], state }: any) => {
-	const queryKey = [TABLE_DATA_QUERY_KEY, tableId, JSON.stringify({ filters, sorts })];
+export const useTableData = ({ tableId, pageId, filters = [], sorts = [] }: any) => {
+	const state = useAtomValue(newPageStateAtom);
+
+	const queryKey = [TABLE_DATA_QUERY_KEY, tableId, JSON.stringify({ filters, sorts, state,pageId })];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchTableData({ tableId, filters, sorts, state }),
+		() => fetchTableData({ tableId, filters, sorts, state: state.tables,pageId }),
 		{
-			enabled: !!tableId,
+			enabled: !!(tableId && Object.keys(state?.tables || {}).length > 0),
 		},
 	);
 

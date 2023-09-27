@@ -55,7 +55,16 @@ class CreateTables(BaseModel):
     page_id: UUID
     source_id: Optional[UUID]
     type: Optional[Literal["postgres", "python"]] = "postgres"
-    state: Optional[dict]
+    depends_on: Optional[List[str]]
+
+
+class CreateTablesRequest(BaseModel):
+    name: Optional[str]
+    property: TablesBaseProperty
+    page_id: UUID
+    source_id: Optional[UUID]
+    type: Optional[Literal["postgres", "python"]] = "postgres"
+    state: Optional[dict] = {}
     depends_on: Optional[List[str]]
 
 
@@ -63,12 +72,21 @@ class UpdateTables(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
     source_id: UUID
+    depends_on: Optional[List[str]]
+
+
+class UpdateTablesRequest(BaseModel):
+    name: Optional[str]
+    property: TablesBaseProperty
+    source_id: UUID
+    page_id: UUID
     state: Optional[dict]
     depends_on: Optional[List[str]]
 
 
 class QueryTable(BaseModel):
     table_id: UUID
+    page_id: UUID
     filters: Optional[List[Filter]]
     sorts: Optional[List[Sort]]
     state: Optional[dict]

@@ -11,6 +11,7 @@ import { FunctionEditor } from './FunctionEditor';
 import { TableConfig } from './TableConfig';
 import { WidgetConfig } from './WidgetConfig';
 import { NewFunction } from './Functions';
+import { NewTable } from './NewTable';
 
 const componentsMap: any = {
 	table: TableConfig,
@@ -82,6 +83,7 @@ export const PropertiesEditor = () => {
 							{t.name}
 						</Button>
 					))}
+					<NewTable />
 				</ButtonGroup>
 
 				{widget ? (

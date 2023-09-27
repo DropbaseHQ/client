@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
 from server import crud
-from server.controllers.tables.helper import render_sql
+from server.controllers.tables.helper import parse_state, render_sql
 from server.schemas.pinned_filters import Filter, Sort
 from server.schemas.tables import QueryResponse, QueryTable
 from server.utils.connect_to_user_db import connect_to_user_db
@@ -20,8 +20,11 @@ def get_table_data(db: Session, request: QueryTable, response: Response) -> Quer
             return QueryResponse(table_id=table.id, table_name=table.name)
         columns = crud.columns.get_table_columns(db, table_id=table.id)
 
+        # parse state
+        state = parse_state(db, request.page_id, request.state)
+
         # render sql with jigja2 and state variables
-        user_sql = render_sql(table.property["code"], request.state)
+        user_sql = render_sql(table.property["code"], state)
 
         # apply filters
         filter_sql, filter_values = apply_filters(user_sql, request.filters, request.sorts)

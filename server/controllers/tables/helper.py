@@ -1,3 +1,7 @@
+from uuid import UUID
+
+from sqlalchemy.orm import Session
+
 from server import crud
 from server.schemas.columns import PgReadColumnProperty, PythonColumn
 from server.utils.helper import clean_name_for_class
@@ -165,7 +169,17 @@ def get_sql_variables(user_sql: str):
     return list(meta.find_undeclared_variables(parsed_content))
 
 
-def render_sql(user_sql: str, state: dict):
+def render_sql(user_sql: str, state):
     env = Environment()
     template = env.from_string(user_sql)
-    return template.render(**state)
+    return template.render(state)
+
+
+from server.controllers.task.task import get_model_from_str, get_selected_tables_states
+
+
+def parse_state(db: Session, page_id: UUID, state: dict):
+    model_str = get_selected_tables_states(db, page_id)
+    StateModel = get_model_from_str(model_str, "TableSelection")
+    state = StateModel(**state)
+    return state

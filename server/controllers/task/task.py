@@ -192,3 +192,31 @@ def get_tables_states(db, page_id):
     final_str += selected_row_model + "\n\n"
 
     return final_str
+
+
+def get_selected_tables_states(db, page_id):
+    tables = crud.tables.get_page_tables(db, page_id)
+
+    selected_row_model = "class TableSelection(BaseModel):\n"
+
+    all_selected_row_models = []
+
+    for table in tables:
+        pyd_model_str, pyd_model_name = get_table_pydantic_model(db, table.id)
+        selected_row_model += f"    {table.name}: Optional[{pyd_model_name}]\n"
+        all_selected_row_models.append(pyd_model_str)
+
+    final_str = ""
+
+    for row_model in all_selected_row_models:
+        final_str += row_model + "\n\n"
+    final_str += selected_row_model + "\n\n"
+
+    return final_str
+
+
+def get_model_from_str(model_code, model_name):
+    ldic = locals()
+    exec(model_code, ldic)
+    result = ldic[model_name]
+    return result

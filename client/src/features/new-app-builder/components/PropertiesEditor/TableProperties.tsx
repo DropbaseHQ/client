@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
+import { useParams } from 'react-router-dom';
 import { Stack, Box, Button, Text } from '@chakra-ui/react';
 import { useGetTable, useUpdateTableProperties } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
@@ -14,6 +15,7 @@ import { newPageStateAtom } from '@/features/new-app-state';
 export const TableProperties = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const { tableId } = useAtomValue(pageAtom);
+	const { pageId } = useParams();
 	const { isLoading, values, sourceId, refetch } = useGetTable(tableId || '');
 	const state = useAtomValue(newPageStateAtom);
 
@@ -52,6 +54,7 @@ export const TableProperties = () => {
 			payload: rest,
 			sourceId: newSourceId,
 			state: state.tables,
+			pageId,
 		});
 	};
 
