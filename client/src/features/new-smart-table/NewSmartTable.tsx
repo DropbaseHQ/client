@@ -296,6 +296,8 @@ export const NewSmartTable = () => {
 					onCellEdited={onCellEdited}
 					keybindings={{ search: true }}
 					onColumnResize={onColumnResize}
+					getCellsForSelection
+					onPaste
 				/>
 			)}
 		</Stack>
