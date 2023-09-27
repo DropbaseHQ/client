@@ -1,24 +1,20 @@
 from server.schemas.source import SourceType
-
 from server.tests.conftest import ValueStorage
+from server.tests.constants import *
 
 
-MOCK_NONEXISTENT_UUID = "4d181f7d-d00a-4899-8235-1308ef20b46f"
-
-
-def test_create_source(client, mocker):
-    mocker.patch("server.controllers.source.source.test_source_creds_postgres")
+def test_create_source(client):
     data = {
         "name": "test_pg_source",
         "workspace_id": ValueStorage.workspace_id,
         "description": "this is from server/tests/test_source.py in function test_create_source",
         "type": SourceType.POSTGRES,
         "creds": {
-            "host": "test_host",
-            "port": 5432,
-            "username": "test_username",
-            "password": "test_password",
-            "database": "test_database",
+            "host": TEST_DB_HOST,
+            "port": TEST_DB_PORT,
+            "username": TEST_DB_USER,
+            "password": TEST_DB_PASS,
+            "database": TEST_DB_NAME,
         },
     }
     response = client.post("/source/", json=data)
@@ -34,30 +30,29 @@ def test_create_source_invalid_creds(client):
         "description": "this is from server/tests/test_source.py in function test_create_source_invalid_creds",
         "type": SourceType.POSTGRES,
         "creds": {
-            "host": "test_host",
-            "port": 5432,
-            "username": "test_username",
-            "password": "test_password",
-            "database": "test_database",
+            "host": TEST_DB_HOST,
+            "port": TEST_DB_PORT,
+            "username": TEST_DB_USER,
+            "password": "",
+            "database": TEST_DB_NAME,
         },
     }
     response = client.post("/source/", json=data)
     assert response.status_code == 400
 
 
-def test_create_source_invalid_type(client, mocker):
-    mocker.patch("server.controllers.source.source.test_source_creds_postgres")
+def test_create_source_invalid_type(client):
     data = {
         "name": "test_pg_source",
         "workspace_id": ValueStorage.workspace_id,
         "description": "this is from server/tests/test_source.py in function test_create_source_invalid_type",
         "type": "random invalid source type that has never before been seen",
         "creds": {
-            "host": "test_host",
-            "port": 5432,
-            "username": "test_username",
-            "password": "test_password",
-            "database": "test_database",
+            "host": TEST_DB_HOST,
+            "port": TEST_DB_PORT,
+            "username": TEST_DB_USER,
+            "password": TEST_DB_PASS,
+            "database": TEST_DB_NAME,
         },
     }
     response = client.post("/source/", json=data)
@@ -75,18 +70,17 @@ def test_read_source_not_found(client):
     assert response.status_code == 404
 
 
-def test_update_source(client, mocker):
-    mocker.patch("server.controllers.source.source.test_source_creds_postgres")
+def test_update_source(client):
     data = {
         "name": "test_pg_source_updated",
         "description": "this is from server/tests/test_source.py in function test_update_source",
         "type": SourceType.POSTGRES,
         "creds": {
-            "host": "test_host",
-            "port": 5432,
-            "username": "test_username",
-            "password": "",
-            "database": "test_database",
+            "host": TEST_DB_HOST,
+            "port": TEST_DB_PORT,
+            "username": TEST_DB_USER,
+            "password": TEST_DB_PASS,
+            "database": TEST_DB_NAME,
         },
     }
     response = client.put(f"/source/{ValueStorage.source_id}", json=data)
@@ -100,11 +94,11 @@ def test_update_source_not_found(client):
         "description": "this is from server/tests/test_source.py in function test_update_source",
         "type": SourceType.POSTGRES,
         "creds": {
-            "host": "test_host",
-            "port": 5432,
-            "username": "test_username",
-            "password": "",
-            "database": "test_database",
+            "host": TEST_DB_HOST,
+            "port": TEST_DB_PORT,
+            "username": TEST_DB_USER,
+            "password": TEST_DB_PASS,
+            "database": TEST_DB_NAME,
         },
     }
     response = client.put(f"/source/{MOCK_NONEXISTENT_UUID}", json=data)
@@ -117,29 +111,28 @@ def test_update_source_invalid_creds(client):
         "description": "this is from server/tests/test_source.py in function test_update_source_invalid_creds",
         "type": SourceType.POSTGRES,
         "creds": {
-            "host": "test_host",
-            "port": 5432,
-            "username": "test_username",
-            "password": "test_password",
-            "database": "test_database",
+            "host": TEST_DB_HOST,
+            "port": TEST_DB_PORT,
+            "username": TEST_DB_USER,
+            "password": "",
+            "database": TEST_DB_NAME,
         },
     }
     response = client.put(f"/source/{ValueStorage.source_id}", json=data)
     assert response.status_code == 400
 
 
-def test_update_source_invalid_type(client, mocker):
-    mocker.patch("server.controllers.source.source.test_source_creds_postgres")
+def test_update_source_invalid_type(client):
     data = {
         "name": "test_pg_source",
         "description": "this is from server/tests/test_source.py in function test_update_source_invalid_type",
         "type": "random invalid source type that has never before been seen",
         "creds": {
-            "host": "test_host",
-            "port": 5432,
-            "username": "test_username",
-            "password": "test_password",
-            "database": "test_database",
+            "host": TEST_DB_HOST,
+            "port": TEST_DB_PORT,
+            "username": TEST_DB_USER,
+            "password": TEST_DB_PASS,
+            "database": TEST_DB_NAME,
         },
     }
     response = client.put(f"/source/{ValueStorage.source_id}", json=data)
