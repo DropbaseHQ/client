@@ -262,7 +262,15 @@ export const NewSmartTable = () => {
 
 	return (
 		<Stack pos="relative" h="full" spacing="0">
-			<Text flexShrink="0" fontSize="sm" p="2" fontWeight="semibold">
+			<Text
+				bg="white"
+				borderBottomWidth="1px"
+				flexShrink="0"
+				pt="2"
+				px="2"
+				pb="1"
+				fontWeight="semibold"
+			>
 				{tableName}
 			</Text>
 			<TableBar />

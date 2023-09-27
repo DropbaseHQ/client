@@ -1,4 +1,4 @@
-import { Box, IconButton, Stack, Tooltip } from '@chakra-ui/react';
+import { Text, IconButton, Stack, Tooltip } from '@chakra-ui/react';
 import { ArrowLeft, Eye, EyeOff } from 'react-feather';
 import { Link, useParams } from 'react-router-dom';
 import { DropbaseIcon } from '@/components/Logo';
@@ -21,7 +21,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 		>
 			<DropbaseIcon
 				icon={<ArrowLeft size="16" />}
-				w="12"
+				w="11"
 				h="12"
 				colorScheme="gray"
 				overflow="hidden"
@@ -30,7 +30,9 @@ export const AppNavbar = ({ isPreview }: any) => {
 				borderRadius="0"
 				variant="ghost"
 			/>
-			<Box fontWeight="semibold">{app?.name}</Box>
+			<Text fontWeight="semibold" fontSize="lg">
+				{app?.name}
+			</Text>
 			<Tooltip label={isPreview ? 'App preview' : 'App Studio'}>
 				<IconButton
 					size="sm"

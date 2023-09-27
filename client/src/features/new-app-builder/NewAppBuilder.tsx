@@ -9,7 +9,7 @@ import { NewSmartTable } from '@/features/new-smart-table';
 import { NewAppState } from '@/features/new-app-state';
 import { useInitPage } from '@/features/new-page';
 import { Loader } from '@/components/Loader';
-import { AppNavbar } from '@/features/new-app-builder/components/Navbar';
+import { AppNavbar } from '@/features/app/components/AppNavbar';
 
 export const NewAppBuilder = () => {
 	const { isLoading } = useInitPage();
