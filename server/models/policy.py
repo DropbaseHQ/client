@@ -19,3 +19,11 @@ class Policy(Base):
     date = Column(TIMESTAMP, server_default=func.now())
 
     __tablename__ = "policy"
+
+    def __str__(self):
+        arr = [self.ptype]
+        for v in (self.v0, self.v1, self.v2, self.v3, self.v4, self.v5):
+            if v is None:
+                break
+            arr.append(v)
+        return ", ".join(arr)

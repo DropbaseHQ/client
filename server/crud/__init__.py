@@ -3,9 +3,10 @@ from .columns.crud_columns import columns
 from .components.crud_components import components
 from .functions.crud_functions import functions
 from .page.crud_page import page
-from .role.crud_user_role import user_role
+from .user_role.crud_user_role import user_role
 from .source.crud_source import source
 from .tables.crud_tables import tables
 from .user.crud_user import user
 from .widget.crud_widget import widget
 from .workspace.crud_workspace import workspace
+from .role.crud_roles import role

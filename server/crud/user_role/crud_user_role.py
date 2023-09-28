@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import UserRole
+from server.models import UserRole, Role
 from server.schemas.role import CreateRole, UpdateRole
 
 
@@ -16,6 +16,15 @@ class CRUDUserRole(CRUDBase[UserRole, CreateRole, UpdateRole]):
             .filter(UserRole.workspace_id == str(workspace_id))
             .count()
             > 0
+        )
+
+    def get_user_role(self, db: Session, user_id: UUID, workspace_id: UUID) -> UserRole:
+        return (
+            db.query(Role)
+            .join(UserRole, UserRole.role_id == Role.id)
+            .filter(UserRole.user_id == user_id)
+            .filter(UserRole.workspace_id == workspace_id)
+            .one()
         )
 
 
