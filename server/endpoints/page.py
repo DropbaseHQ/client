@@ -31,12 +31,12 @@ authorize_page_creation = generate_resource_dependency(RESOURCES.APP, is_on_reso
 
 @router.post("/", dependencies=[Depends(authorize_page_creation)])
 def create_page(request: CreatePage, db: Session = Depends(get_db)):
-    return crud.page.create(db, request)
+    return crud.page.create(db, obj_in=request)
 
 
 @router.put("/{page_id}")
 def update_page(page_id: UUID, request: UpdatePage, db: Session = Depends(get_db)):
-    return crud.page.update_by_pk(db, page_id, request)
+    return crud.page.update_by_pk(db, pk=page_id, obj_in=request)
 
 
 @router.delete("/{page_id}")
