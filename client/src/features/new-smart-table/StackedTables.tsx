@@ -14,7 +14,7 @@ export const StackedTables = () => {
 		<PanelGroup autoSaveId="tables-panel" direction="vertical">
 			{tables.map((table: any, index: any) => (
 				<Fragment key={table.id}>
-					<Panel defaultSize={40}>
+					<Panel>
 						<NewSmartTable tableId={table.id} />
 					</Panel>
 					{index !== tables.length - 1 ? <PanelHandle direction="horizontal" /> : null}

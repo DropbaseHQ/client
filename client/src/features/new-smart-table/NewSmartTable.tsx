@@ -16,6 +16,8 @@ import { CurrentTableContext, useCurrentTableData } from './hooks';
 import { cellEditsAtom } from './atoms';
 import { TableBar } from './components';
 import { PG_COLUMN_BASE_TYPE } from '@/utils';
+import { useGetTable } from '@/features/new-app-builder/hooks';
+import { NavLoader } from '@/components/Loader';
 
 export const NewSmartTable = ({ tableId }: any) => {
 	const theme = useTheme();
@@ -27,13 +29,16 @@ export const NewSmartTable = ({ tableId }: any) => {
 		current: undefined,
 	});
 
-	const { isLoading, rows, columns, header, tableName } = useCurrentTableData(tableId);
+	const { isLoading, rows, columns, header } = useCurrentTableData(tableId);
+	const { values, isLoading: isLoadingTable } = useGetTable(tableId || '');
 
 	const [cellEdits, setCellEdits] = useAtom(cellEditsAtom);
 
 	const selectRow = useSetAtom(newSelectedRowAtom);
 
 	const [columnWidth, setColumnWidth] = useState<any>({});
+
+	const tableName = values?.name;
 
 	const onColumnResize = useCallback((col: any, newSize: any) => {
 		setColumnWidth((c: any) => ({
@@ -268,9 +273,11 @@ export const NewSmartTable = ({ tableId }: any) => {
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="0">
-				<Text flexShrink="0" fontSize="sm" p="2" fontWeight="semibold">
-					{tableName}
-				</Text>
+				<NavLoader isLoading={isLoadingTable}>
+					<Text flexShrink="0" fontSize="sm" p="2" fontWeight="semibold">
+						{tableName}
+					</Text>
+				</NavLoader>
 				<TableBar />
 				{isLoading ? (
 					<Center h="full" as={Stack}>
