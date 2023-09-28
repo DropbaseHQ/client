@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from server.tests.conftest import ValueStorage
+from server.tests.utils import has_obj_with_id
 
 FILE_NAME = Path(__file__).name
 
@@ -26,6 +27,20 @@ def test_create_app(client):
 def test_read_app(client):
     response = client.get(f"/app/{ValueStorage.app_id}")
     assert response.status_code == 200
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_get_user_apps(client):
+    response = client.get(f"/app/list")
+    assert response.status_code == 200
+    assert has_obj_with_id(response.json(), id=ValueStorage.app_id)
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_get_app_pages(client):
+    response = client.get(f"/app/{ValueStorage.app_id}/pages")
+    assert response.status_code == 200
+    assert has_obj_with_id(response.json(), id=ValueStorage.page_id)
 
 
 @pytest.mark.filename(FILE_NAME)

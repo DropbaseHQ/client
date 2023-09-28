@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from server.tests.conftest import ValueStorage
+from server.tests.utils import has_obj_with_id
 
 FILE_NAME = Path(__file__).name
 
@@ -25,6 +26,19 @@ def test_create_functions(client):
 @pytest.mark.filename(FILE_NAME)
 def test_read_functions(client):
     response = client.get(f"/functions/{ValueStorage.function_id}")
+    assert response.status_code == 200
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_get_page_functions(client):
+    response = client.get(f"/functions/page/{ValueStorage.page_id}")
+    assert response.status_code == 200
+    assert has_obj_with_id(response.json(), id=ValueStorage.function_id)
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_get_page_ui_functions(client):
+    response = client.get(f"/functions/page/ui/{ValueStorage.page_id}")
     assert response.status_code == 200
 
 

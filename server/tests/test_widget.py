@@ -30,6 +30,13 @@ def test_read_widget(client):
 
 
 @pytest.mark.filename(FILE_NAME)
+def test_get_widget_ui(client):
+    response = client.get(f"/widget/ui/{ValueStorage.widget_id}")
+    assert response.status_code == 200
+    assert response.json()["widget"]["id"] == ValueStorage.widget_id
+
+
+@pytest.mark.filename(FILE_NAME)
 def test_update_widget(client):
     update_desc = "updated test widget description"
     data = {

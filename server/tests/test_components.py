@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from server.tests.conftest import ValueStorage
+from server.tests.utils import has_obj_with_id
 
 FILE_NAME = Path(__file__).name
 
@@ -26,6 +27,13 @@ def test_read_components(client):
 
 
 @pytest.mark.filename(FILE_NAME)
+def test_get_widget_components(client):
+    response = client.get(f"/components/widget/{ValueStorage.widget_id}")
+    assert response.status_code == 200
+    assert has_obj_with_id(response.json()["values"], id=ValueStorage.component_id)
+
+
+@pytest.mark.filename(FILE_NAME)
 def test_update_components(client):
     data = {
         "property": {"name": "new my_button", "label": "my label"},
@@ -42,6 +50,12 @@ def test_delete_components(client):
     response = client.delete(f"/components/{ValueStorage.component_id}")
     assert response.status_code == 200
     test_create_components(client)  # recreate resource
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_reorder_components(client):
+    # TODO test POST /components/reorder
+    raise NotImplementedError
 
 
 @pytest.mark.filename(FILE_NAME)

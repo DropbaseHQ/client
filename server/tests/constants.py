@@ -8,11 +8,16 @@ from server.credentials import (
 )
 
 TEST_FILE_ORDER = {
-    "test_app.py": 0,
-    "test_widget.py": 1,
-    "test_components.py": 2,
-    "test_functions.py": 3,
-    "test_source.py": 4,
+    filename: ord
+    for ord, filename
+    in enumerate([
+        "test_app.py",
+        "test_columns.py",
+        "test_widget.py",
+        "test_components.py",
+        "test_functions.py",
+        "test_source.py",
+    ])
 }
 
 TEST_USER_EMAIL = str(uuid.uuid4())

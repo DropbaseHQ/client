@@ -14,6 +14,7 @@ class ValueStorage:
     app_id = None
     page_id = None
     table_id = None
+    columns_id = None
     widget_id = None
     component_id = None
     user_id = None
