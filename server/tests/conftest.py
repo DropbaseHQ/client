@@ -23,16 +23,11 @@ class ValueStorage:
 
 def pytest_sessionfinish():
     # delete db records created during testing
+    # only need to delete user and workspace, cascade handles the rest
     db = next(get_db())
     with suppress(SQLAlchemyError):
-        crud.app.remove(db, id=ValueStorage.app_id)
-        crud.page.remove(db, id=ValueStorage.page_id)
-        crud.tables.remove(db, id=ValueStorage.table_id)
-        crud.widget.remove(db, id=ValueStorage.widget_id)
-        crud.components.remove(db, id=ValueStorage.component_id)
         crud.user.remove(db, id=ValueStorage.user_id)
         crud.workspace.remove(db, id=ValueStorage.workspace_id)
-        crud.source.remove(db, id=ValueStorage.source_id)
 
 
 def pytest_collection_modifyitems(items):
@@ -72,18 +67,5 @@ def client():
     login_res_body = login_res.json()
     ValueStorage.user_id = login_res_body["user"]["id"]
     ValueStorage.workspace_id = login_res_body["workspace"]["id"]
-
-    # TODO move the following sections into test cases
-    #      and have the created test resources persist after the delete test
-
-    # set up test app
-    app_res = client.post("/app", json={
-        "name": "test app",
-        "workspace_id": ValueStorage.workspace_id,
-    })
-    app_res_body = app_res.json()
-    ValueStorage.app_id = app_res_body["app"]["id"]
-    ValueStorage.page_id = app_res_body["page"]["id"]
-    ValueStorage.table_id = app_res_body["table"]["id"]
 
     return client

@@ -8,6 +8,7 @@ from server.credentials import (
 )
 
 TEST_FILE_ORDER = {
+    "test_app.py": 0,
     "test_widget.py": 1,
     "test_components.py": 2,
     "test_functions.py": 3,

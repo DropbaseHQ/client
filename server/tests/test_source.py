@@ -159,7 +159,7 @@ def test_update_source_invalid_type(client):
 def test_delete_source(client):
     response = client.delete(f"/source/{ValueStorage.source_id}")
     assert response.status_code == 200
-    test_create_source(client)
+    test_create_source(client)  # recreate resource
 
 
 @pytest.mark.filename(FILE_NAME)
