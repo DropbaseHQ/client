@@ -2,8 +2,6 @@ import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 
 import { axios } from '@/lib/axios';
-import { useAtomValue } from 'jotai';
-import { newPageStateAtom } from '@/features/new-app-state';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 

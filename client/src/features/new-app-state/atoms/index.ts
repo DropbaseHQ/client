@@ -3,7 +3,7 @@ import lodashSet from 'lodash/set';
 import lodashGet from 'lodash/get';
 
 // Selected table rows atom
-export const newSelectedRowAtom = atom({});
+export const newSelectedRowAtom: any = atom({});
 
 // state is divided in two parts - tables & widget
 
