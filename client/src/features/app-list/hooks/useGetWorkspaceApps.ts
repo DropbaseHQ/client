@@ -16,9 +16,11 @@ const fetchWorkspaceApps = async () => {
 	return data;
 };
 
+export const APPS_QUERY_KEY = 'workspaceApps';
+
 export const useGetWorkspaceApps = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
-	const queryKey = ['workspaceApps', workspaceId];
+	const queryKey = [APPS_QUERY_KEY, workspaceId];
 	const { data: response, ...rest } = useQuery(queryKey, fetchWorkspaceApps);
 	return {
 		apps: response || [],

@@ -66,6 +66,8 @@ def get_table_pydantic_model(db, table_id):
         column = ColumnModel(**col.property)
         type = pg_pydantic_dtype_mapper.get(column.type)
         model_str += f"    {column.name}: Optional[{type if type else 'Any'}]\n"
+    if len(columns) == 0:
+        model_str += "    pass\n"
     return model_str, model_name
 
 

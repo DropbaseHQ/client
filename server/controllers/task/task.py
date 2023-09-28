@@ -197,7 +197,7 @@ def get_tables_states(db, page_id):
 def get_selected_tables_states(db, page_id):
     tables = crud.tables.get_page_tables(db, page_id)
 
-    selected_row_model = "class TableSelection(BaseModel):\n"
+    selected_row_model = """class TableSelection(BaseModel):\n"""
 
     all_selected_row_models = []
 
@@ -206,12 +206,12 @@ def get_selected_tables_states(db, page_id):
         selected_row_model += f"    {table.name}: Optional[{pyd_model_name}]\n"
         all_selected_row_models.append(pyd_model_str)
 
-    final_str = ""
+    final_str = """from pydantic import BaseModel
+from typing import Any, Optional, Literal, List, Dict\n\n\n"""
 
     for row_model in all_selected_row_models:
         final_str += row_model + "\n\n"
     final_str += selected_row_model + "\n\n"
-
     return final_str
 
 
