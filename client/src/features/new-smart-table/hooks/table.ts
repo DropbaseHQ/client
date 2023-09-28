@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 import { axios } from '@/lib/axios';
+import { useGetPage } from '@/features/new-page';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
@@ -18,15 +19,28 @@ const fetchTableData = async ({ tableId, filters, sorts, state, pageId }: any) =
 };
 
 export const useTableData = ({ tableId, pageId, filters = [], sorts = [], state }: any) => {
+	const { tables } = useGetPage(pageId);
+
+	const depends = tables.find((t: any) => t.id === tableId)?.depends_on || [];
+	const tablesState = state.tables;
+
+	const dependentTableData = depends.reduce(
+		(agg: any, tableName: any) => ({
+			...agg,
+			[tableName]: tablesState[tableName],
+		}),
+		{},
+	);
+
 	const queryKey = [
 		TABLE_DATA_QUERY_KEY,
 		tableId,
-		JSON.stringify({ filters, sorts, state, pageId }),
+		JSON.stringify({ filters, sorts, dependentTableData, pageId }),
 	];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchTableData({ tableId, filters, sorts, state: state.tables, pageId }),
+		() => fetchTableData({ tableId, filters, sorts, state: tablesState, pageId }),
 		{
 			enabled: !!(tableId && Object.keys(state?.tables || {}).length > 0),
 		},
