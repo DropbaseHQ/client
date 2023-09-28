@@ -55,7 +55,7 @@ def test_delete_components(client):
 @pytest.mark.filename(FILE_NAME)
 def test_reorder_components(client):
     # TODO test POST /components/reorder
-    raise NotImplementedError
+    raise NotImplementedError("test not implemented")
 
 
 @pytest.mark.filename(FILE_NAME)

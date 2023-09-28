@@ -18,6 +18,7 @@ class ValueStorage:
     widget_id = None
     component_id = None
     user_id = None
+    user_role_id = None
     workspace_id = None
     source_id = None
 
