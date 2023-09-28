@@ -29,6 +29,11 @@ def pytest_sessionfinish():
     # delete db records created during testing
     db = next(get_db())
     with suppress(SQLAlchemyError):
+        crud.app.remove(db, id=ValueStorage.app_id)
+        crud.page.remove(db, id=ValueStorage.page_id)
+        crud.tables.remove(db, id=ValueStorage.table_id)
+        crud.widget.remove(db, id=ValueStorage.widget_id)
+        crud.components.remove(db, id=ValueStorage.component_id)
         crud.user.remove(db, id=ValueStorage.user_id)
         crud.workspace.remove(db, id=ValueStorage.workspace_id)
         crud.source.remove(db, id=ValueStorage.source_id)

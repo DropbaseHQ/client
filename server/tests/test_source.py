@@ -5,7 +5,7 @@ from server.tests.conftest import ValueStorage
 from server.tests.constants import *
 
 
-@pytest.mark.order(2)
+@pytest.mark.order(3)
 class TestSource:
     def test_create_source(self, client):
         data = {
