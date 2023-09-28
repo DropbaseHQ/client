@@ -1,5 +1,5 @@
 import asyncio
-from typing import Optional
+from typing import Optional, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi_jwt_auth import AuthJWT
@@ -25,6 +25,12 @@ class RESOURCES:
     TABLE = "table"  # FIXME: columns endpoints take "table_id" instead of "tables_id"
     TABLES = "tables"
     TASK = "task"
+
+
+class ACTIONS:
+    USE: str = "use"
+    EDIT: str = "edit"
+    OWN: str = "own"
 
 
 resource_query_mapper = {
