@@ -11,6 +11,11 @@ from server.tests.constants import *
 
 
 class ValueStorage:
+    app_id = None
+    page_id = None
+    table_id = None
+    widget_id = None
+    component_id = None
     user_id = None
     workspace_id = None
     source_id = None
@@ -54,5 +59,30 @@ def client():
     login_res_body = login_res.json()
     ValueStorage.user_id = login_res_body["user"]["id"]
     ValueStorage.workspace_id = login_res_body["workspace"]["id"]
+
+    # TODO move the following sections into test cases
+    #      and have the created test resources persist after the delete test
+
+    # set up test app
+    app_res = client.post("/app", json={
+        "name": "test app",
+        "workspace_id": ValueStorage.workspace_id,
+    })
+    app_res_body = app_res.json()
+    ValueStorage.app_id = app_res_body["app"]["id"]
+    ValueStorage.page_id = app_res_body["page"]["id"]
+    ValueStorage.table_id = app_res_body["table"]["id"]
+
+    # set up test widget
+    widget_res = client.post("/widget", json={
+        "name": "test widget",
+        "property": {
+            "name": "test widget property",
+            "description": "test widget description",
+        },
+        "page_id": ValueStorage.page_id,
+    })
+    widget_res_body = widget_res.json()
+    ValueStorage.widget_id = widget_res_body["id"]
 
     return client
