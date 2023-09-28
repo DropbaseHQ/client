@@ -21,10 +21,6 @@ class ValueStorage:
     source_id = None
 
 
-def pytest_sessionstart():
-    pass
-
-
 def pytest_sessionfinish():
     # delete db records created during testing
     db = next(get_db())

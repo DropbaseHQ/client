@@ -47,4 +47,4 @@ def test_update_functions(client):
 def test_delete_functions(client):
     response = client.delete(f"/functions/{ValueStorage.function_id}")
     assert response.status_code == 200
-    ValueStorage.function_id = None
+    test_create_functions(client)  # recreate resource

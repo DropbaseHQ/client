@@ -41,7 +41,7 @@ def test_update_components(client):
 def test_delete_components(client):
     response = client.delete(f"/components/{ValueStorage.component_id}")
     assert response.status_code == 200
-    ValueStorage.component_id = None
+    test_create_components(client)  # recreate resource
 
 
 @pytest.mark.filename(FILE_NAME)
