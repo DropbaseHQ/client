@@ -20,7 +20,7 @@ from server.utils.authorization import (
     verify_user_id_belongs_to_current_user,
 )
 
-from server.utils.casbin_utils import enforce_action
+from server.utils.permissions.casbin_utils import enforce_action
 from server.utils.connect import get_db
 
 authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)

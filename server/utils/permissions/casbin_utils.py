@@ -1,11 +1,11 @@
 import casbin
 from server import crud
 from server.utils.connect import SQLALCHEMY_DATABASE_URL
-from server.utils.casbin_sqlalchemy_adaptor import Adapter
+from server.utils.permissions.casbin_sqlalchemy_adaptor import Adapter
 from server.models import Policy
 
 adapter = Adapter(SQLALCHEMY_DATABASE_URL, db_class=Policy)
-enforcer = casbin.Enforcer("server/utils/casbin_model.conf", adapter, True)
+enforcer = casbin.Enforcer("server/utils/permissions/casbin_model.conf", adapter, True)
 
 
 def enforce_action(db, user_id, workspace_id, resource, action):
