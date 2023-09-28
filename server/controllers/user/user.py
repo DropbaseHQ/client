@@ -90,7 +90,7 @@ def register_user(db: Session, request: CreateUserRequest):
         )
         workspace = crud.workspace.create(db, obj_in=workspace_obj)
         # TODO: get admin role id from db
-        admin_role_id = "a1f129ef-3474-4aa9-93e0-2aa3ab13181c"
+        admin_role_id = "00000000-0000-0000-0000-000000000001"
         role_obj = CreateUserRole(
             user_id=user.id,
             workspace_id=workspace.id,
