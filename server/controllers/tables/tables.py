@@ -5,11 +5,19 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
 from server import crud
-from server.controllers.tables.helper import get_row_schema
+from server.controllers.tables.helper import get_row_schema, get_sql_variables, parse_state, render_sql
 from server.models.columns import Columns
 from server.models.tables import Tables
 from server.schemas.columns import CreateColumns, PgDefinedColumnProperty
-from server.schemas.tables import CreateTables, PinFilters, ReadTables, TablesBaseProperty, UpdateTables
+from server.schemas.tables import (
+    CreateTables,
+    CreateTablesRequest,
+    PinFilters,
+    ReadTables,
+    TablesBaseProperty,
+    UpdateTables,
+    UpdateTablesRequest,
+)
 from server.utils.connect_to_user_db import connect_to_user_db
 from server.utils.converter import get_class_properties
 
@@ -29,24 +37,35 @@ def get_table(db, table_id: UUID):
     }
 
 
-def create_table(db, request: CreateTables) -> ReadTables:
-    # get columns
-    user_db_engine = connect_to_user_db(db, request.source_id)
-    columns = get_table_columns(user_db_engine, request.property.code)
-    user_db_engine.dispose()
+def create_table(db, request: CreateTablesRequest) -> ReadTables:
+    columns = []
+    if request.property.code:
+        # parse state
+        state = parse_state(db, request.page_id, request.state)
+        user_sql = render_sql(request.property.code, state)
+        # get columns
+        user_db_engine = connect_to_user_db(db, request.source_id)
+        columns = get_table_columns(user_db_engine, user_sql)
+        user_db_engine.dispose()
+
+        depends_on = get_sql_variables(request.property.code)
+        request.depends_on = depends_on
 
     # create table
     request.name = request.property.name
-    table = crud.tables.create(db, obj_in=request)
+    table = crud.tables.create(db, obj_in=CreateTables(**request.dict()))
 
     # save columns
-    for column in columns:
-        create_column_record_from_name(db, column, table.id)
+    if columns:
+        for column in columns:
+            create_column_record_from_name(db, column, table.id)
 
     return table
 
 
-def update_table(db: Session, table_id: UUID, request: UpdateTables, response: Response) -> ReadTables:
+def update_table(
+    db: Session, table_id: UUID, request: UpdateTablesRequest, response: Response
+) -> ReadTables:
     try:
         table = crud.tables.get_object_by_id_or_404(db, id=table_id)
         # NOTE: this is a patch. table should be created with source_id to begin with
@@ -54,9 +73,14 @@ def update_table(db: Session, table_id: UUID, request: UpdateTables, response: R
             table.source_id = request.source_id
             db.commit()
 
-        user_db_engine = connect_to_user_db(db, table.source_id)
-        table_columns = get_table_columns(user_db_engine, request.property.code)
-        user_db_engine.dispose()
+        table_columns = []
+        if request.property.code:
+            state = parse_state(db, request.page_id, request.state)
+            user_sql = render_sql(request.property.code, state)
+            user_db_engine = connect_to_user_db(db, table.source_id)
+            table_columns = get_table_columns(user_db_engine, user_sql)
+            user_db_engine.dispose()
+
         db_columns = crud.columns.get_table_columns(db, table_id=table_id)
 
         cols_to_add, cols_to_delete = [], []
@@ -83,8 +107,11 @@ def update_table(db: Session, table_id: UUID, request: UpdateTables, response: R
             create_column_record_from_name(db, column, table_id)
 
         # update table
+        depends_on = get_sql_variables(request.property.code)
+
+        request.depends_on = depends_on
         request.name = request.property.name
-        table = crud.tables.update_by_pk(db, pk=table_id, obj_in=request)
+        table = crud.tables.update_by_pk(db, pk=table_id, obj_in=UpdateTables(**request.dict()))
 
         return table
     except Exception as e:

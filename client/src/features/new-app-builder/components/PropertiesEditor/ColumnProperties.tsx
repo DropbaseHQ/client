@@ -23,8 +23,8 @@ import {
 	useGetColumnProperties,
 	useUpdateColumnProperties,
 } from '@/features/new-app-builder/hooks';
-import { pageAtom } from '@/features/new-page';
 import { useToast } from '@/lib/chakra-ui';
+import { selectedTableIdAtom } from '@/features/new-app-builder/atoms';
 
 const DISPLAY_COLUMN_PROPERTIES = [
 	'schema_name',
@@ -37,7 +37,8 @@ const DISPLAY_COLUMN_PROPERTIES = [
 
 const ColumnProperty = ({ id, property: properties }: any) => {
 	const toast = useToast();
-	const { tableId } = useAtomValue(pageAtom);
+	const tableId = useAtomValue(selectedTableIdAtom);
+
 	const { schema, refetch } = useGetColumnProperties(tableId || '');
 
 	const mutation = useUpdateColumnProperties({
@@ -127,7 +128,7 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 
 export const ColumnsProperties = () => {
 	const toast = useToast();
-	const { tableId } = useAtomValue(pageAtom);
+	const tableId = useAtomValue(selectedTableIdAtom);
 	const { isLoading, values } = useGetColumnProperties(tableId || '');
 
 	const convertMutation = useConvertSmartTable({

@@ -50,7 +50,6 @@ const fetchTableData = async ({ pageId, filters, sorts }: any) => {
 
 export const useTableData = ({ pageId, filters = [], sorts = [] }: any) => {
 	const queryKey = [TABLE_DATA_QUERY_KEY, pageId, JSON.stringify({ filters, sorts })];
-
 	const { data: response, ...rest } = useQuery(queryKey, () =>
 		fetchTableData({ pageId, filters, sorts }),
 	);

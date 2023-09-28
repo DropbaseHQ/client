@@ -1,19 +1,23 @@
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
+import { useParams } from 'react-router-dom';
 import { Stack, Box, Button, Text } from '@chakra-ui/react';
 import { useGetTable, useUpdateTableProperties } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
-import { pageAtom } from '@/features/new-page';
 import { useSources } from '@/features/sources/hooks';
 import { workspaceAtom } from '@/features/workspaces';
 import { NewSourceForm } from '@/features/sources/routes/NewSource';
 import { InputLoader } from '@/components/Loader';
+import { newPageStateAtom } from '@/features/new-app-state';
+import { selectedTableIdAtom } from '@/features/new-app-builder/atoms';
 
 export const TableProperties = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
-	const { tableId } = useAtomValue(pageAtom);
+	const tableId = useAtomValue(selectedTableIdAtom);
+	const { pageId } = useParams();
 	const { isLoading, values, sourceId, refetch } = useGetTable(tableId || '');
+	const state = useAtomValue(newPageStateAtom);
 
 	const { sources, isLoading: isLoadingSources } = useSources(workspaceId);
 
@@ -49,6 +53,8 @@ export const TableProperties = () => {
 			tableId: tableId || '',
 			payload: rest,
 			sourceId: newSourceId,
+			state: state.tables,
+			pageId,
 		});
 	};
 

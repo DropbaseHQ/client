@@ -9,11 +9,11 @@ from server.controllers.tables.convert import convert_to_smart_table
 from server.controllers.task.table import get_table_data
 from server.schemas.tables import (
     ConvertToSmart,
-    CreateTables,
+    CreateTablesRequest,
     PinFilters,
     QueryTable,
     TablesReadProperty,
-    UpdateTables,
+    UpdateTablesRequest,
 )
 from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.connect import get_db
@@ -45,13 +45,13 @@ authorize_tables_creation = generate_resource_dependency(RESOURCES.PAGE, is_on_r
 
 
 @router.post("/", dependencies=[Depends(authorize_tables_creation)])
-def create_tables(request: CreateTables, db: Session = Depends(get_db)):
+def create_tables(request: CreateTablesRequest, db: Session = Depends(get_db)):
     return create_table(db, request)
 
 
 @router.put("/{tables_id}")
 def update_tables(
-    tables_id: UUID, request: UpdateTables, response: Response, db: Session = Depends(get_db)
+    tables_id: UUID, request: UpdateTablesRequest, response: Response, db: Session = Depends(get_db)
 ):
     return update_table(db, tables_id, request, response)
 

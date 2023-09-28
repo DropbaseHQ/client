@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Column, ForeignKey, String, Boolean, or_, and_, CheckConstraint
+from sqlalchemy import TIMESTAMP, Boolean, CheckConstraint, Column, ForeignKey, String, and_, or_
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
@@ -19,8 +19,8 @@ class Role(Base):
     __table_args__ = (
         CheckConstraint(
             or_(
-                and_(is_default == False, workspace_id != None),
-                and_(is_default == True, workspace_id == None),
+                and_(is_default is False, workspace_id is not None),
+                and_(is_default is True, workspace_id is None),
             ),
             name="workspace_id_check",
         ),

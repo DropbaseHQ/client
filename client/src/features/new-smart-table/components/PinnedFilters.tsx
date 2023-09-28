@@ -1,12 +1,13 @@
 import { Box, Flex, Input, Stack } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
-import { useCurrentTableData } from '@/features/new-smart-table/hooks';
+import { useCurrentTableData, useCurrentTableId } from '@/features/new-smart-table/hooks';
 import { filtersAtom } from '@/features/new-smart-table/atoms';
 
 export const PinnedFilters = () => {
 	const [filters, setFilters] = useAtom(filtersAtom);
 
-	const { columns } = useCurrentTableData();
+	const tableId = useCurrentTableId();
+	const { columns } = useCurrentTableData(tableId);
 	const pinnedFilters = filters.filter((f) => f.pinned);
 
 	if (pinnedFilters.length === 0) {

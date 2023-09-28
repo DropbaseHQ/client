@@ -4,7 +4,7 @@ import { Panel, PanelGroup } from 'react-resizable-panels';
 import { useInitPage } from '@/features/new-page';
 import { PanelHandle } from '@/components/Panel';
 import { NewAppPreview } from '@/features/new-app-preview';
-import { NewSmartTable } from '@/features/new-smart-table';
+import { StackedTables } from '@/features/new-smart-table';
 import { Loader } from '@/components/Loader';
 
 import { AppNavbar } from './AppNavbar';
@@ -18,7 +18,7 @@ export const NewApp = () => {
 			<PanelGroup direction="horizontal">
 				<Panel defaultSize={80}>
 					<Loader isLoading={isLoading}>
-						<NewSmartTable />
+						<StackedTables />
 					</Loader>
 				</Panel>
 				<PanelHandle direction="vertical" />

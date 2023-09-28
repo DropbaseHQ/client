@@ -2,27 +2,47 @@ import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 import { axios } from '@/lib/axios';
+import { useGetPage } from '@/features/new-page';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
-const fetchTableData = async ({ tableId, filters, sorts }: any) => {
+const fetchTableData = async ({ tableId, filters, sorts, state, pageId }: any) => {
 	const response = await axios.post<any>(`/tables/query`, {
 		table_id: tableId,
 		filters,
 		sorts,
+		state,
+		page_id: pageId,
 	});
 
 	return response.data;
 };
 
-export const useTableData = ({ tableId, filters = [], sorts = [] }: any) => {
-	const queryKey = [TABLE_DATA_QUERY_KEY, tableId, JSON.stringify({ filters, sorts })];
+export const useTableData = ({ tableId, pageId, filters = [], sorts = [], state }: any) => {
+	const { tables } = useGetPage(pageId);
+
+	const depends = tables.find((t: any) => t.id === tableId)?.depends_on || [];
+	const tablesState = state.tables;
+
+	const dependentTableData = depends.reduce(
+		(agg: any, tableName: any) => ({
+			...agg,
+			[tableName]: tablesState[tableName],
+		}),
+		{},
+	);
+
+	const queryKey = [
+		TABLE_DATA_QUERY_KEY,
+		tableId,
+		JSON.stringify({ filters, sorts, dependentTableData, pageId }),
+	];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchTableData({ tableId, filters, sorts }),
+		() => fetchTableData({ tableId, filters, sorts, state: tablesState, pageId }),
 		{
-			enabled: !!tableId,
+			enabled: !!(tableId && Object.keys(state?.tables || {}).length > 0),
 		},
 	);
 
