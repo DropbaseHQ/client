@@ -34,6 +34,11 @@ def get_table_data(db: Session, request: QueryTable, response: Response) -> Quer
             res = conn.execute(text(filter_sql), filter_values).all()
         user_db_engine.dispose()
 
+        if not res:
+            return QueryResponse(
+                table_id=table.id, table_name=table.name, header=[], data=[], columns={}
+            )
+
         data = [list(row) for row in res]
         col_names = list(res[0].keys())
 
@@ -45,6 +50,7 @@ def get_table_data(db: Session, request: QueryTable, response: Response) -> Quer
             table_id=table.id, table_name=table.name, header=col_names, data=data, columns=column_schema
         )
     except Exception as e:
+        print(e)
         response.status_code = 400
         return QueryResponse(table_id=table.id, table_name=table.name, error=str(e))
 
