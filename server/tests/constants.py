@@ -7,6 +7,13 @@ from server.credentials import (
     POSTGRES_DB_USER,
 )
 
+TEST_FILE_ORDER = {
+    "test_widget.py": 1,
+    "test_components.py": 2,
+    "test_functions.py": 3,
+    "test_source.py": 4,
+}
+
 TEST_USER_EMAIL = str(uuid.uuid4())
 TEST_USER_PASSWORD = "test password"
 

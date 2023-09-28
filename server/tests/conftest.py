@@ -39,6 +39,18 @@ def pytest_sessionfinish():
         crud.source.remove(db, id=ValueStorage.source_id)
 
 
+def pytest_collection_modifyitems(items):
+    # modify order of tests
+    def get_ord(item):
+        try:
+            filename = next(item.iter_markers(name="filename")).args[0]
+        except StopIteration:
+            filename = ""
+        return TEST_FILE_ORDER.get(filename, float("inf"))
+
+    items.sort(key=lambda item: get_ord(item))
+
+
 @pytest.fixture(scope="session")
 def client():
     client = TestClient(app)
@@ -77,17 +89,5 @@ def client():
     ValueStorage.app_id = app_res_body["app"]["id"]
     ValueStorage.page_id = app_res_body["page"]["id"]
     ValueStorage.table_id = app_res_body["table"]["id"]
-
-    # set up test widget
-    widget_res = client.post("/widget", json={
-        "name": "test widget",
-        "property": {
-            "name": "test widget property",
-            "description": "test widget description",
-        },
-        "page_id": ValueStorage.page_id,
-    })
-    widget_res_body = widget_res.json()
-    ValueStorage.widget_id = widget_res_body["id"]
 
     return client
