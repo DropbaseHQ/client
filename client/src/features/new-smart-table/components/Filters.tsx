@@ -118,7 +118,8 @@ export const FilterButton = () => {
 
 	const { columns } = useCurrentTableData(tableId);
 
-	const [filters, setFilters] = useAtom(filtersAtom);
+	const [allFilters, setFilters] = useAtom(filtersAtom);
+	const filters = allFilters[tableId] || [];
 
 	const pinFilterMutation = usePinFilters({
 		onSuccess: () => {
@@ -131,36 +132,48 @@ export const FilterButton = () => {
 
 	useGetTable(tableId || '', {
 		onSuccess: (data: any) => {
-			setFilters(
-				(data?.values?.filters || []).map((f: any) => ({
+			setFilters((old: any) => ({
+				...old,
+				[tableId]: (data?.values?.filters || []).map((f: any) => ({
 					...f,
 					pinned: true,
 					id: crypto.randomUUID(),
 				})),
-			);
+			}));
 		},
 	});
 
-	const haveFiltersApplied = filters.length > 0 && filters.every((f) => f.column_name && f.value);
+	const haveFiltersApplied =
+		filters.length > 0 && filters.every((f: any) => f.column_name && f.value);
 
 	const handleAddFilter = () => {
-		setFilters([
-			...filters,
-			{
-				column_name: '',
-				value: null,
-				condition: '=',
-				id: crypto.randomUUID(),
-			},
-		]);
+		setFilters((old: any) => ({
+			...old,
+			[tableId]: [
+				...filters,
+				{
+					column_name: '',
+					value: null,
+					condition: '=',
+					id: crypto.randomUUID(),
+				},
+			],
+		}));
 	};
 
 	const handleReset = () => {
-		setFilters([]);
+		setFilters((old: any) => ({
+			...old,
+			[tableId]: [],
+		}));
 	};
 
 	const handlePinnedFilters = (updatedFilters: any) => {
-		setFilters(updatedFilters);
+		setFilters((old: any) => ({
+			...old,
+			[tableId]: updatedFilters,
+		}));
+
 		pinFilterMutation.mutate({
 			tableId,
 			filters: updatedFilters.filter((f: any) => f.pinned),
@@ -168,7 +181,7 @@ export const FilterButton = () => {
 	};
 
 	const handleRemoveFilter = (removedId: any) => {
-		handlePinnedFilters(filters.filter((f) => f.id !== removedId));
+		handlePinnedFilters(filters.filter((f: any) => f.id !== removedId));
 	};
 
 	return (
@@ -195,7 +208,7 @@ export const FilterButton = () => {
 						<Text color="gray">No filters applied</Text>
 					) : (
 						<VStack alignItems="start" w="full">
-							{filters.map((filter, index) => {
+							{filters.map((filter: any, index: any) => {
 								const colType = columns[filter?.column_name]?.type;
 								let inputType = 'text';
 
@@ -213,7 +226,7 @@ export const FilterButton = () => {
 											isDisabled={!filter.column_name}
 											variant={filter.pinned ? 'solid' : 'outline'}
 											onClick={() => {
-												const newFilters = filters.map((f, i) => {
+												const newFilters = filters.map((f: any, i: any) => {
 													if (i === index) {
 														return {
 															...f,
@@ -232,8 +245,9 @@ export const FilterButton = () => {
 											<Select
 												value={filter.column_name}
 												onChange={(e) => {
-													setFilters(
-														filters.map((f, i) => {
+													setFilters((old: any) => ({
+														...old,
+														[tableId]: filters.map((f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
@@ -243,7 +257,7 @@ export const FilterButton = () => {
 
 															return f;
 														}),
-													);
+													}));
 												}}
 												size="sm"
 												bg="bg-canvas"
@@ -261,8 +275,9 @@ export const FilterButton = () => {
 												colorScheme="blue"
 												value={filter.condition}
 												onChange={(e) => {
-													setFilters(
-														filters.map((f, i) => {
+													setFilters((old: any) => ({
+														...old,
+														[tableId]: filters.map((f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
@@ -272,7 +287,7 @@ export const FilterButton = () => {
 
 															return f;
 														}),
-													);
+													}));
 												}}
 												bg="bg-canvas"
 												size="sm"
@@ -294,8 +309,9 @@ export const FilterButton = () => {
 												colorScheme="blue"
 												value={filter.value}
 												onChange={(e) => {
-													setFilters(
-														filters.map((f, i) => {
+													setFilters((old: any) => ({
+														...old,
+														[tableId]: filters.map((f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
@@ -308,7 +324,7 @@ export const FilterButton = () => {
 
 															return f;
 														}),
-													);
+													}));
 												}}
 												borderRadius="sm"
 												bg="bg-canvas"

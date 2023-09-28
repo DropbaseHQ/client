@@ -32,7 +32,8 @@ export const NewSmartTable = ({ tableId }: any) => {
 	const { isLoading, rows, columns, header } = useCurrentTableData(tableId);
 	const { values, isLoading: isLoadingTable } = useGetTable(tableId || '');
 
-	const [cellEdits, setCellEdits] = useAtom(cellEditsAtom);
+	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
+	const cellEdits = allCellEdits?.[tableId] || [];
 
 	const selectRow = useSetAtom(newSelectedRowAtom);
 
@@ -48,7 +49,10 @@ export const NewSmartTable = ({ tableId }: any) => {
 	}, []);
 
 	useEffect(() => {
-		setCellEdits([]);
+		setCellEdits((old: any) => ({
+			...old,
+			[tableId]: [],
+		}));
 	}, [tableId, setCellEdits]);
 
 	const gridTheme =
@@ -219,18 +223,21 @@ export const NewSmartTable = ({ tableId }: any) => {
 		const column = columns[header[col]];
 
 		if (column?.edit_keys?.length > 0) {
-			setCellEdits((e: any) => [
-				...e,
-				{
-					new_value: newValue.data,
-					value: currentRow[column.name],
-					column_name: column.name,
+			setCellEdits((old: any) => ({
+				...old,
+				[tableId]: [
+					...(old?.[tableId] || []),
+					{
+						new_value: newValue.data,
+						value: currentRow[column.name],
+						column_name: column.name,
 
-					old_value: currentRow[column.name],
-					rowIndex: row,
-					columnIndex: col,
-				},
-			]);
+						old_value: currentRow[column.name],
+						rowIndex: row,
+						columnIndex: col,
+					},
+				],
+			}));
 		}
 	};
 
