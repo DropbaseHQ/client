@@ -23,8 +23,8 @@ class TestSource:
         }
         response = client.post("/source/", json=data)
         assert response.status_code == 200
-        assert response.json()["name"] == "test_pg_source"
         ValueStorage.source_id = response.json()["id"]
+        assert response.json()["name"] == "test_pg_source"
 
 
     def test_create_source_invalid_creds(self, client):

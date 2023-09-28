@@ -16,5 +16,5 @@ class TestWidget:
         }
         response = client.post("/widget/", json=data)
         assert response.status_code == 200
-        assert response.json()["name"] == "test widget property"
         ValueStorage.widget_id = response.json()["id"]
+        assert response.json()["name"] == "test widget property"

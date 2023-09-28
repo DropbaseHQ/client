@@ -11,8 +11,8 @@ class TestComponent:
             "type": "button",
         }
         response = client.post("/components/", json=data)
-        assert response.status_code == 200
         ValueStorage.component_id = response.json()["id"]
+        assert response.status_code == 200
 
 
     def test_read_components(self, client):

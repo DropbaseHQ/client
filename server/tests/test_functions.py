@@ -16,6 +16,7 @@ class TestFunctions:
         response = client.post("/functions/", json=data)
         assert response.status_code == 200
         ValueStorage.function_id = response.json()["id"]
+        assert response.json()["name"] == "test func"
 
 
     def test_read_functions(self, client):
