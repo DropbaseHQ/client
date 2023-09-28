@@ -41,10 +41,15 @@ pre-commit run --all-files
 run all tests:
 
 ```
-pytest -s
+coverage run -m pytest -s
 ```
 
 <i>-s for print statements</i>
+
+get coverage report
+```
+coverage report
+```
 
 run specific test:
 

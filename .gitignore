@@ -7,6 +7,7 @@
 *.env
 *.env.*
 !vars.env
+.coverage
 
 # client
 client/.DS_Store
