@@ -17,7 +17,8 @@ export const TableBar = () => {
 
 	const { rows, columns } = useCurrentTableData(tableId);
 
-	const [cellEdits, setCellEdits] = useAtom(cellEditsAtom);
+	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
+	const cellEdits = allCellEdits[tableId] || [];
 
 	const saveEditsMutation = useSaveEdits({
 		onSuccess: () => {
@@ -25,7 +26,10 @@ export const TableBar = () => {
 				status: 'success',
 				title: 'Cell edits saved',
 			});
-			setCellEdits([]);
+			setCellEdits((old: any) => ({
+				...old,
+				[tableId]: [],
+			}));
 		},
 	});
 

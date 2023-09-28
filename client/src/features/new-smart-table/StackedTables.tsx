@@ -17,7 +17,12 @@ export const StackedTables = () => {
 					<Panel>
 						<NewSmartTable tableId={table.id} />
 					</Panel>
-					{index !== tables.length - 1 ? <PanelHandle direction="horizontal" /> : null}
+					{index !== tables.length - 1 ? (
+						<PanelHandle
+							boxShadow="0 -1px 2px rgba(0,0,0,0.1)"
+							direction="horizontal"
+						/>
+					) : null}
 				</Fragment>
 			))}
 		</PanelGroup>
