@@ -100,7 +100,6 @@ def generate_resource_dependency(resource_type: str, is_on_resource_creation: bo
     ):
         resource_id = get_resource_id(request)
         request_action = request.method
-        print("request_action", request_action)
         if resource_id is None:
             return True
 
