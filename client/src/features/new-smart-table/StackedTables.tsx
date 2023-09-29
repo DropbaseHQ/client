@@ -9,9 +9,9 @@ export const StackedTables = () => {
 	const { tables } = useGetPage(pageId);
 
 	return (
-		<Stack spacing="0" h="full" overflow="auto">
+		<Stack bg="white" spacing="8" p="4" h="full" overflow="auto">
 			{tables.map((table: any) => (
-				<Box flexShrink="0" borderBottomWidth="1px">
+				<Box flexShrink="0">
 					<NewSmartTable tableId={table.id} />
 				</Box>
 			))}
