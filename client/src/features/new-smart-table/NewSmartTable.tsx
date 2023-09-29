@@ -1,5 +1,5 @@
 import { useAtom, useSetAtom } from 'jotai';
-import { Center, Spinner, Stack, Text, useColorMode, useTheme } from '@chakra-ui/react';
+import { Box, Center, Spinner, Stack, Text, useColorMode, useTheme } from '@chakra-ui/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 
@@ -286,30 +286,32 @@ export const NewSmartTable = ({ tableId }: any) => {
 					</Text>
 				</NavLoader>
 				<TableBar />
-				{isLoading ? (
-					<Center h="full" as={Stack}>
-						<Spinner size="md" />
-						<Text>Loading data...</Text>
-					</Center>
-				) : (
-					<DataEditor
-						columns={gridColumns}
-						rows={rows.length}
-						width="100%"
-						height="100%"
-						getCellContent={getCellContent}
-						rowMarkers="both"
-						smoothScrollX
-						smoothScrollY
-						theme={gridTheme}
-						onGridSelectionChange={handleSetSelection}
-						gridSelection={selection}
-						highlightRegions={highlights}
-						onCellEdited={onCellEdited}
-						keybindings={{ search: true }}
-						onColumnResize={onColumnResize}
-					/>
-				)}
+				<Box minH="72">
+					{isLoading ? (
+						<Center h="full" as={Stack}>
+							<Spinner size="md" />
+							<Text>Loading data...</Text>
+						</Center>
+					) : (
+						<DataEditor
+							columns={gridColumns}
+							rows={rows.length}
+							width="100%"
+							height="100%"
+							getCellContent={getCellContent}
+							rowMarkers="both"
+							smoothScrollX
+							smoothScrollY
+							theme={gridTheme}
+							onGridSelectionChange={handleSetSelection}
+							gridSelection={selection}
+							highlightRegions={highlights}
+							onCellEdited={onCellEdited}
+							keybindings={{ search: true }}
+							onColumnResize={onColumnResize}
+						/>
+					)}
+				</Box>
 			</Stack>
 		</CurrentTableContext.Provider>
 	);
