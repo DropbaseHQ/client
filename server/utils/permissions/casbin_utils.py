@@ -22,6 +22,7 @@ def unload_specific_policies(policies):
 
 
 def enforce_action(db, user_id, workspace_id, resource, action):
+    enforcer.load_policy()
     role = crud.user_role.get_user_role(db, user_id, workspace_id)
     formatted_policies = None
     try:
