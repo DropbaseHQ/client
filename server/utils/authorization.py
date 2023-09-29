@@ -9,6 +9,7 @@ from server import crud
 from server.models import User
 from server.utils.authentication import get_current_user
 from server.utils.connect import get_db
+from server.utils.permissions.casbin_utils import enforce_action
 
 
 class RESOURCES:
@@ -46,6 +47,12 @@ resource_query_mapper = {
     RESOURCES.WORKSPACE: crud.workspace,
     RESOURCES.TABLE: crud.tables,
     RESOURCES.TABLES: crud.tables,
+}
+request_action_mapper = {
+    "GET": ACTIONS.USE,
+    "POST": ACTIONS.OWN,
+    "PUT": ACTIONS.EDIT,
+    "DELETE": ACTIONS.OWN,
 }
 
 
@@ -92,6 +99,8 @@ def generate_resource_dependency(resource_type: str, is_on_resource_creation: bo
         user: User = Depends(get_current_user),
     ):
         resource_id = get_resource_id(request)
+        request_action = request.method
+        print("request_action", request_action)
         if resource_id is None:
             return True
 
@@ -101,8 +110,11 @@ def generate_resource_dependency(resource_type: str, is_on_resource_creation: bo
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Resource {resource_id} of type {resource_type} not found",
             )
-
-        can_act_on_resource = crud.user_role.user_is_in_workspace(db, user.id, resource_workspace_id)
+        can_act_on_resource = crud.user_role.user_is_in_workspace(
+            db, user.id, resource_workspace_id
+        ) and enforce_action(
+            db, user.id, resource_workspace_id, resource_type, request_action_mapper[request_action]
+        )
         if not can_act_on_resource:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

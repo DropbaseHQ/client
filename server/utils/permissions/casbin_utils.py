@@ -13,7 +13,6 @@ enforcer = casbin.Enforcer("server/utils/permissions/casbin_model.conf", adapter
 
 def load_specific_policies(policies):
     for policy in policies:
-        print("policy", policy)
         persist.load_policy_line(str(policy), enforcer.model)
 
 
@@ -24,19 +23,20 @@ def unload_specific_policies(policies):
 
 def enforce_action(db, user_id, workspace_id, resource, action):
     role = crud.user_role.get_user_role(db, user_id, workspace_id)
-
+    formatted_policies = None
     try:
         if not role.is_default:
             policies = crud.role.get_role_policies(db, role.id)
             formatted_policies = [str(policy) for policy in policies]
             load_specific_policies(formatted_policies)
-        policies = enforcer.get_policy()
+        loaded_policies = enforcer.get_policy()
         return enforcer.enforce(role.name, resource, action)
 
     except Exception as e:
         print("Permission enforcement error", e)
     finally:
-        unload_specific_policies(formatted_policies)
+        if formatted_policies:
+            unload_specific_policies(formatted_policies)
         policies = enforcer.get_policy()
 
 
