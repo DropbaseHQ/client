@@ -6,6 +6,8 @@ from sqlalchemy.sql import text
 
 from server import crud
 from server.controllers.tables.helper import parse_state, render_sql
+from server.controllers.tables.state_composer import get_selected_and_display_table_models
+from server.schemas.page import ReadPage
 from server.schemas.pinned_filters import Filter, Sort
 from server.schemas.tables import QueryResponse, QueryTable
 from server.utils.connect_to_user_db import connect_to_user_db
@@ -13,6 +15,9 @@ from server.utils.connect_to_user_db import connect_to_user_db
 
 def get_table_data(db: Session, request: QueryTable, response: Response) -> QueryResponse:
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
+
+    update_files(db, table)
+
     if table.source_id is None:
         return QueryResponse(table_id=table.id, table_name=table.name, error="No source")
     try:
@@ -90,3 +95,34 @@ def apply_filters(table_sql: str, filters: List[Filter], sorts: List[Sort]):
     filter_sql += "\n"
 
     return filter_sql, filter_values
+
+
+import json
+
+import requests
+
+
+def update_files(db, table):
+    page = crud.page.get_object_by_id_or_404(db, id=table.page_id)
+    data = get_selected_and_display_table_models(db, table)
+
+    page_name = clean_page_name(page.name)
+    path = f"app/{page_name}/state/table_state.py"
+    content = "from schemas import *\n\n\n" + data["display"]["tables"] + data["display"]["base"]
+    call_worker(path, content)
+
+    import_str = "from typing import Optional, Any\nfrom pydantic import BaseModel\n\n\n"
+    path = f"app/{page_name}/state/table_selection.py"
+    content = import_str + data["selected"]["tables"] + data["selected"]["base"]
+    call_worker(path, content)
+
+
+def clean_page_name(page_name):
+    return page_name.replace(" ", "").lower()
+
+
+def call_worker(path, content):
+    print("path", path)
+    print(" was called!!! ")
+    payload = {"path": path, "content": content}
+    return requests.post("http://localhost:5000/update", data=json.dumps(payload))

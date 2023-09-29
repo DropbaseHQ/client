@@ -6,6 +6,7 @@ from sqlalchemy.sql import text
 
 from server import crud
 from server.controllers.tables.helper import get_row_schema, get_sql_variables, parse_state, render_sql
+from server.controllers.task.task import get_tables_states
 from server.models.columns import Columns
 from server.models.tables import Tables
 from server.schemas.columns import CreateColumns, PgDefinedColumnProperty
@@ -76,6 +77,9 @@ def update_table(
         table_columns = []
         if request.property.code:
             state = parse_state(db, request.page_id, request.state)
+            table_models = get_tables_states(db, request.page_id)
+            print("TABLE_MODELS")
+            print(table_models)
             user_sql = render_sql(request.property.code, state)
             user_db_engine = connect_to_user_db(db, table.source_id)
             table_columns = get_table_columns(user_db_engine, user_sql)

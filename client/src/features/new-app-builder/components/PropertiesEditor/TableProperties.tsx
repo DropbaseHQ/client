@@ -129,19 +129,16 @@ export const TableProperties = () => {
 								</Box>
 							) : null}
 						</Stack>
-
-						{Object.keys(touchedFields).length > 0 || isDirty ? (
-							<Button
-								size="sm"
-								w="max-content"
-								variant="outline"
-								flexGrow="0"
-								isLoading={mutation.isLoading}
-								type="submit"
-							>
-								Run
-							</Button>
-						) : null}
+						<Button
+							size="sm"
+							w="max-content"
+							variant="outline"
+							flexGrow="0"
+							isLoading={mutation.isLoading}
+							type="submit"
+						>
+							Run
+						</Button>
 					</Stack>
 				</FormProvider>
 			</form>

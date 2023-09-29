@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.schemas.columns import PgReadColumnProperty, PythonColumn
+from server.schemas.tables import ReadTables
 from server.utils.helper import clean_name_for_class
 
 column_type_to_schema_mapper = {"postgres": PgReadColumnProperty, "python": PythonColumn}
@@ -180,8 +181,8 @@ def render_sql(user_sql: str, state):
 from server.controllers.task.task import get_model_from_str, get_selected_tables_states
 
 
-def parse_state(db: Session, page_id: UUID, state: dict):
-    model_str = get_selected_tables_states(db, page_id)
+def parse_state(db: Session, table: ReadTables, state: dict):
+    model_str = get_selected_tables_states(db, table)
     StateModel = get_model_from_str(model_str, "TableSelection")
     state = StateModel(**state)
     return state
