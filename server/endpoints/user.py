@@ -19,6 +19,8 @@ from server.utils.authorization import (
     generate_resource_dependency,
     verify_user_id_belongs_to_current_user,
 )
+
+from server.utils.permissions.casbin_utils import enforce_action
 from server.utils.connect import get_db
 
 authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
@@ -30,6 +32,7 @@ from server.utils.authentication import get_current_user
 
 @router.get("/workspaces")
 def get_user_worpsaces(db: Session = Depends(get_db), user: Any = Depends(get_current_user)):
+    # enforce_action(db, user.id, "bd596664-79b7-4bce-baed-b6a819ae3442", "app", "read")
     return crud.workspace.get_user_workspaces(db, user_id=user.id)
 
 
