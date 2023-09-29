@@ -1,8 +1,8 @@
 """add_policy_table
 
-Revision ID: 50fa4f4940a0
-Revises: 15235877d26e
-Create Date: 2023-09-26 17:11:10.607494
+Revision ID: 31ee615a2779
+Revises: a7a3fb212104
+Create Date: 2023-09-29 18:03:57.098369
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '50fa4f4940a0'
-down_revision = '15235877d26e'
+revision = '31ee615a2779'
+down_revision = 'a7a3fb212104'
 branch_labels = None
 depends_on = None
 
