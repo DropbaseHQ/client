@@ -43,6 +43,7 @@ class PgColumnBaseProperty(BaseModel):
             "VARIANT",
             "OBJECT",
             "ARRAY",
+            "UUID",
         ]
     ]
 

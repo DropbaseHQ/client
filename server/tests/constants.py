@@ -11,21 +11,23 @@ TEST_FILE_ORDER = {
     filename: ord
     for ord, filename
     in enumerate([
-        "test_role.py",
+        "test_user_role.py",
         "test_app.py",
         "test_page.py",
+        "test_source.py",
+        "test_tables.py",
         "test_columns.py",
         "test_widget.py",
         "test_components.py",
         "test_functions.py",
-        "test_source.py",
     ])
 }
 
 TEST_USER_EMAIL = str(uuid.uuid4())
 TEST_USER_PASSWORD = "test password"
 
-ADMIN_ROLE_ID = "a1f129ef-3474-4aa9-93e0-2aa3ab13181c"
+ADMIN_ROLE_ID = "00000000-0000-0000-0000-000000000001"
+DEV_ROLE_ID = "00000000-0000-0000-0000-000000000002"
 
 MOCK_NONEXISTENT_UUID = "4d181f7d-d00a-4899-8235-1308ef20b46f"
 
