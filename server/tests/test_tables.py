@@ -54,26 +54,6 @@ def test_get_table_req(client):
 
 
 @pytest.mark.filename(FILE_NAME)
-def test_get_table_req(client):
-    data = {
-        "table_id": ValueStorage.table_id,
-        "page_id": ValueStorage.page_id,
-    }
-    response = client.post(f"/tables/query", json=data)
-    assert response.status_code == 200
-
-
-@pytest.mark.filename(FILE_NAME)
-def test_get_table_req(client):
-    data = {
-        "table_id": ValueStorage.table_id,
-        "page_id": ValueStorage.page_id,
-    }
-    response = client.post(f"/tables/query", json=data)
-    assert response.status_code == 200
-
-
-@pytest.mark.filename(FILE_NAME)
 def test_update_tables(client):
     update_table_code = "select id, email from public.user;"
     data = {
@@ -93,12 +73,11 @@ def test_update_tables(client):
 
 @pytest.mark.filename(FILE_NAME)
 def test_convert_to_smart_req(client):
-    # data = {"table_id": ValueStorage.table_id}
-    # response = client.post(f"/tables/convert", json=data)
-    # assert response.status_code == 200
-    # assert response.json().get("id")
-    # assert response.json().get("email")
-    pass
+    data = {"table_id": ValueStorage.table_id}
+    response = client.post(f"/tables/convert", json=data)
+    assert response.status_code == 200
+    assert response.json().get("id")
+    assert response.json().get("email")
 
 
 @pytest.mark.filename(FILE_NAME)
