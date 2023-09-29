@@ -48,7 +48,7 @@ export const NewTable = (props: any) => {
 	const onSubmit = ({ name, sourceId }: any) => {
 		mutation.mutate({
 			pageId,
-			property: { name },
+			property: { name, code: '' },
 			sourceId,
 		});
 	};

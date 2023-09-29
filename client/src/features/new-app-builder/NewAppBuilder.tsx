@@ -5,11 +5,11 @@ import { PanelHandle } from '@/components/Panel';
 
 import { PropertiesEditor } from './components/PropertiesEditor';
 import { NewAppPreview } from '@/features/new-app-preview';
-import { NewSmartTable } from '@/features/new-smart-table';
+import { StackedTables } from '@/features/new-smart-table';
 import { NewAppState } from '@/features/new-app-state';
 import { useInitPage } from '@/features/new-page';
 import { Loader } from '@/components/Loader';
-import { AppNavbar } from '@/features/new-app-builder/components/Navbar';
+import { AppNavbar } from '@/features/app/components/AppNavbar';
 
 export const NewAppBuilder = () => {
 	const { isLoading } = useInitPage();
@@ -23,7 +23,7 @@ export const NewAppBuilder = () => {
 						<PanelGroup autoSaveId="data-panel" direction="horizontal">
 							<Panel defaultSize={80}>
 								<Loader isLoading={isLoading}>
-									<NewSmartTable />
+									<StackedTables />
 								</Loader>
 							</Panel>
 							<PanelHandle direction="vertical" />

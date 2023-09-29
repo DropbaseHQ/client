@@ -20,18 +20,27 @@ import {
 import { ChevronsUp as SortIcon, Plus, Trash } from 'react-feather';
 import { useAtom } from 'jotai';
 import { sortsAtom } from '@/features/new-smart-table/atoms';
-import { useCurrentTableData } from '@/features/new-smart-table/hooks';
+import { useCurrentTableData, useCurrentTableId } from '@/features/new-smart-table/hooks';
 
 export const SortButton = () => {
 	const { isOpen, onToggle, onClose } = useDisclosure();
-	const { columns } = useCurrentTableData();
+	const tableId = useCurrentTableId();
+	const { columns } = useCurrentTableData(tableId);
 
-	const [sorts, setSorts] = useAtom(sortsAtom);
+	const [allSorts, setSorts] = useAtom(sortsAtom);
+	const sorts: any = allSorts[tableId] || [];
 
-	const haveSortsApplied = sorts.length > 0 && sorts.every((f) => f.column_name);
+	const haveSortsApplied = sorts.length > 0 && sorts.every((f: any) => f.column_name);
+
+	const saveSorts = (newSorts: any) => {
+		setSorts((old: any) => ({
+			...old,
+			[tableId]: newSorts,
+		}));
+	};
 
 	const handleAddSort = () => {
-		setSorts([
+		saveSorts([
 			...sorts,
 			{
 				column_name: '',
@@ -41,11 +50,11 @@ export const SortButton = () => {
 	};
 
 	const handleReset = () => {
-		setSorts([]);
+		saveSorts([]);
 	};
 
 	const handleRemoveSort = (index: number) => {
-		setSorts(sorts.filter((_, i) => i !== index));
+		saveSorts(sorts.filter((_: any, i: any) => i !== index));
 	};
 
 	return (
@@ -72,15 +81,15 @@ export const SortButton = () => {
 						<Text color="gray">No sorts applied</Text>
 					) : (
 						<VStack alignItems="start" w="full">
-							{sorts.map((sort, index) => {
+							{sorts.map((sort: any, index: any) => {
 								return (
 									<HStack w="full" key={`sort-${index}`}>
 										<FormControl flexGrow="1">
 											<Select
 												value={sort.column_name}
 												onChange={(e) => {
-													setSorts(
-														sorts.map((f, i) => {
+													saveSorts(
+														sorts.map((f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
@@ -108,8 +117,8 @@ export const SortButton = () => {
 												colorScheme="blue"
 												value={sort.value}
 												onChange={(e) => {
-													setSorts(
-														sorts.map((f, i) => {
+													saveSorts(
+														sorts.map((f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,

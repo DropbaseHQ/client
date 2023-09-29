@@ -1,13 +1,16 @@
 import { Box, Flex, Input, Stack } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
-import { useCurrentTableData } from '@/features/new-smart-table/hooks';
+import { useCurrentTableData, useCurrentTableId } from '@/features/new-smart-table/hooks';
 import { filtersAtom } from '@/features/new-smart-table/atoms';
 
 export const PinnedFilters = () => {
-	const [filters, setFilters] = useAtom(filtersAtom);
+	const [allFilters, setFilters] = useAtom(filtersAtom);
 
-	const { columns } = useCurrentTableData();
-	const pinnedFilters = filters.filter((f) => f.pinned);
+	const tableId = useCurrentTableId();
+
+	const filters = allFilters?.[tableId] || [];
+	const { columns } = useCurrentTableData(tableId);
+	const pinnedFilters = filters.filter((f: any) => f.pinned);
 
 	if (pinnedFilters.length === 0) {
 		return null;
@@ -23,7 +26,7 @@ export const PinnedFilters = () => {
 			overflow="auto"
 			w="full"
 		>
-			{pinnedFilters.map((f) => {
+			{pinnedFilters.map((f: any) => {
 				const colType = columns?.[f.column]?.type;
 				let inputType = 'text';
 
@@ -45,8 +48,9 @@ export const PinnedFilters = () => {
 							size="sm"
 							borderWidth="0"
 							onChange={(e) => {
-								setFilters(
-									filters.map((filter) => {
+								setFilters((old: any) => ({
+									...old,
+									[tableId]: filters.map((filter: any) => {
 										if (filter.id === f.id) {
 											return {
 												...f,
@@ -59,7 +63,7 @@ export const PinnedFilters = () => {
 
 										return filter;
 									}),
-								);
+								}));
 							}}
 							borderRadius="sm"
 							h="full"

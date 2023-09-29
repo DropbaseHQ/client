@@ -49,7 +49,6 @@ export const ObjectRenderer = ({ obj, title, path, ...props }: any) => {
 								color="gray.900"
 								as="span"
 								onClick={() => {
-									console.log('hereee');
 									copy(path);
 									toast({
 										status: 'info',

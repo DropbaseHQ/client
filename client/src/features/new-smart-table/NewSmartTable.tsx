@@ -1,6 +1,6 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { Center, Spinner, Stack, Text, useColorMode, useTheme } from '@chakra-ui/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useAtom, useSetAtom } from 'jotai';
+import { Box, Center, Spinner, Stack, Text, useColorMode, useTheme } from '@chakra-ui/react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 
 import DataEditor, {
@@ -11,14 +11,15 @@ import DataEditor, {
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import { newSelectedRowAtom } from '@/features/new-app-state';
-import { pageAtom } from '@/features/new-page';
 
-import { useCurrentTableData } from './hooks';
+import { CurrentTableContext, useCurrentTableData } from './hooks';
 import { cellEditsAtom } from './atoms';
 import { TableBar } from './components';
 import { PG_COLUMN_BASE_TYPE } from '@/utils';
+import { useGetTable } from '@/features/new-app-builder/hooks';
+import { NavLoader } from '@/components/Loader';
 
-export const NewSmartTable = () => {
+export const NewSmartTable = ({ tableId }: any) => {
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
 
@@ -28,15 +29,17 @@ export const NewSmartTable = () => {
 		current: undefined,
 	});
 
-	const { tableId } = useAtomValue(pageAtom);
+	const { isLoading, rows, columns, header } = useCurrentTableData(tableId);
+	const { values, isLoading: isLoadingTable } = useGetTable(tableId || '');
 
-	const { isLoading, rows, columns, header, tableName } = useCurrentTableData();
-
-	const [cellEdits, setCellEdits] = useAtom(cellEditsAtom);
+	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
+	const cellEdits = allCellEdits?.[tableId] || [];
 
 	const selectRow = useSetAtom(newSelectedRowAtom);
 
 	const [columnWidth, setColumnWidth] = useState<any>({});
+
+	const tableName = values?.name;
 
 	const onColumnResize = useCallback((col: any, newSize: any) => {
 		setColumnWidth((c: any) => ({
@@ -46,7 +49,10 @@ export const NewSmartTable = () => {
 	}, []);
 
 	useEffect(() => {
-		setCellEdits([]);
+		setCellEdits((old: any) => ({
+			...old,
+			[tableId]: [],
+		}));
 	}, [tableId, setCellEdits]);
 
 	const gridTheme =
@@ -217,18 +223,21 @@ export const NewSmartTable = () => {
 		const column = columns[header[col]];
 
 		if (column?.edit_keys?.length > 0) {
-			setCellEdits((e: any) => [
-				...e,
-				{
-					new_value: newValue.data,
-					value: currentRow[column.name],
-					column_name: column.name,
+			setCellEdits((old: any) => ({
+				...old,
+				[tableId]: [
+					...(old?.[tableId] || []),
+					{
+						new_value: newValue.data,
+						value: currentRow[column.name],
+						column_name: column.name,
 
-					old_value: currentRow[column.name],
-					rowIndex: row,
-					columnIndex: col,
-				},
-			]);
+						old_value: currentRow[column.name],
+						rowIndex: row,
+						columnIndex: col,
+					},
+				],
+			}));
 		}
 	};
 
@@ -243,7 +252,13 @@ export const NewSmartTable = () => {
 				columns: newSelection.columns,
 				current: newSelection.current,
 			});
-			selectRow({ [tableName]: rows[currentRow] } as any);
+
+			const newSelectedRow = { [tableName]: rows[currentRow] } as any;
+
+			selectRow((old: any) => ({
+				...old,
+				...newSelectedRow,
+			}));
 		}
 	};
 
@@ -260,36 +275,46 @@ export const NewSmartTable = () => {
 		};
 	});
 
+	const memoizedContext = useMemo(() => ({ tableId }), [tableId]);
+
 	return (
-		<Stack pos="relative" h="full" spacing="0">
-			<Text flexShrink="0" fontSize="sm" p="2" fontWeight="semibold">
-				{tableName}
-			</Text>
-			<TableBar />
-			{isLoading ? (
-				<Center h="full" as={Stack}>
-					<Spinner size="md" />
-					<Text>Loading data...</Text>
-				</Center>
-			) : (
-				<DataEditor
-					columns={gridColumns}
-					rows={rows.length}
-					width="100%"
-					height="100%"
-					getCellContent={getCellContent}
-					rowMarkers="both"
-					smoothScrollX
-					smoothScrollY
-					theme={gridTheme}
-					onGridSelectionChange={handleSetSelection}
-					gridSelection={selection}
-					highlightRegions={highlights}
-					onCellEdited={onCellEdited}
-					keybindings={{ search: true }}
-					onColumnResize={onColumnResize}
-				/>
-			)}
-		</Stack>
+		<CurrentTableContext.Provider value={memoizedContext}>
+			<Stack pos="relative" h="full" spacing="1">
+				<NavLoader isLoading={isLoadingTable}>
+					<Text flexShrink="0" px="2" fontWeight="semibold">
+						{tableName}
+					</Text>
+				</NavLoader>
+				<Stack spacing="2">
+					<TableBar />
+					<Box minH="72" borderWidth="1px" borderRadius="sm">
+						{isLoading ? (
+							<Center h="full" as={Stack}>
+								<Spinner size="md" />
+								<Text>Loading data...</Text>
+							</Center>
+						) : (
+							<DataEditor
+								columns={gridColumns}
+								rows={rows.length}
+								width="100%"
+								height="100%"
+								getCellContent={getCellContent}
+								rowMarkers="both"
+								smoothScrollX
+								smoothScrollY
+								theme={gridTheme}
+								onGridSelectionChange={handleSetSelection}
+								gridSelection={selection}
+								highlightRegions={highlights}
+								onCellEdited={onCellEdited}
+								keybindings={{ search: true }}
+								onColumnResize={onColumnResize}
+							/>
+						)}
+					</Box>
+				</Stack>
+			</Stack>
+		</CurrentTableContext.Provider>
 	);
 };

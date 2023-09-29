@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
 from server import crud
+from server.controllers.tables.helper import parse_state, render_sql
 from server.schemas.pinned_filters import Filter, Sort
 from server.schemas.tables import QueryResponse, QueryTable
 from server.utils.connect_to_user_db import connect_to_user_db
@@ -15,17 +16,28 @@ def get_table_data(db: Session, request: QueryTable, response: Response) -> Quer
     if table.source_id is None:
         return QueryResponse(table_id=table.id, table_name=table.name, error="No source")
     try:
-        if table.property["code"] == "" or table.source_id is None:
+        if table.property["code"] == "":
             return QueryResponse(table_id=table.id, table_name=table.name)
         columns = crud.columns.get_table_columns(db, table_id=table.id)
 
+        # parse state
+        state = parse_state(db, request.page_id, request.state)
+
+        # render sql with jigja2 and state variables
+        user_sql = render_sql(table.property["code"], state)
+
         # apply filters
-        filter_sql, filter_values = apply_filters(table.property["code"], request.filters, request.sorts)
+        filter_sql, filter_values = apply_filters(user_sql, request.filters, request.sorts)
 
         user_db_engine = connect_to_user_db(db, table.source_id)
         with user_db_engine.connect().execution_options(autocommit=True) as conn:
             res = conn.execute(text(filter_sql), filter_values).all()
         user_db_engine.dispose()
+
+        if not res:
+            return QueryResponse(
+                table_id=table.id, table_name=table.name, header=[], data=[], columns={}
+            )
 
         data = [list(row) for row in res]
         col_names = list(res[0].keys())
@@ -38,6 +50,7 @@ def get_table_data(db: Session, request: QueryTable, response: Response) -> Quer
             table_id=table.id, table_name=table.name, header=col_names, data=data, columns=column_schema
         )
     except Exception as e:
+        print(e)
         response.status_code = 400
         return QueryResponse(table_id=table.id, table_name=table.name, error=str(e))
 

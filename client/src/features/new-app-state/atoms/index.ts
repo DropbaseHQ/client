@@ -3,7 +3,7 @@ import lodashSet from 'lodash/set';
 import lodashGet from 'lodash/get';
 
 // Selected table rows atom
-export const newSelectedRowAtom = atom(null);
+export const newSelectedRowAtom: any = atom({});
 
 // state is divided in two parts - tables & widget
 
@@ -45,6 +45,18 @@ export const widgetComponentsAtom: any = atom(
 		}
 	},
 );
+
+export const userInputAtom = atom((get) => {
+	const userInputState: any = get(widgetComponentsAtom) || {};
+
+	return Object.keys(userInputState).reduce(
+		(agg, field) => ({
+			...agg,
+			[field]: userInputState?.[field]?.value,
+		}),
+		{},
+	);
+});
 
 export const newPageStateAtom = atom((get) => {
 	const userInputState: any = get(widgetComponentsAtom) || {};

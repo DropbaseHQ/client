@@ -26,10 +26,12 @@ import {
 	allWidgetStateAtom,
 	useSyncState,
 	newPageStateAtom,
+	userInputAtom,
 } from '@/features/new-app-state';
 import { pageAtom } from '@/features/new-page';
 import { useCreateWidget } from '@/features/new-app-builder/hooks';
 import { Loader } from '@/components/Loader';
+import { checkAllRulesPass } from '@/features/new-app-preview/utils';
 
 const sizeMap: any = {
 	small: 'sm',
@@ -41,11 +43,19 @@ const AppComponent = (props: any) => {
 	const { pageId } = useParams();
 	const { type, property: component } = props;
 
+	const pageState = useAtomValue(newPageStateAtom);
+
 	const [widgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
 	const inputState = widgetComponents?.[component.name] || {};
 
-	const pageState = useAtomValue(newPageStateAtom);
+	const userInputValues = useAtomValue(userInputAtom);
+
 	const syncState = useSyncState();
+
+	const shouldDisplay = checkAllRulesPass({
+		values: userInputValues,
+		rules: component.display_rules,
+	});
 
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
@@ -60,6 +70,10 @@ const AppComponent = (props: any) => {
 			pageState,
 		});
 	};
+
+	if (!shouldDisplay) {
+		return null;
+	}
 
 	if (type === 'button') {
 		return (
