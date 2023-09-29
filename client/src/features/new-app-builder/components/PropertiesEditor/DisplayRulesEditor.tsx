@@ -40,6 +40,13 @@ const COMPERATOR_OPERATORS = [
 	},
 ];
 
+const formLabelProps = {
+	letterSpacing: 'wide',
+	fontSize: 'xs',
+	fontWeight: 'semibold',
+	mb: '1',
+};
+
 export const DisplayRulesEditor = ({ id }: any) => {
 	const { widgetId } = useAtomValue(pageAtom);
 	const { values: components } = useGetComponentProperties(widgetId || '');
@@ -63,7 +70,7 @@ export const DisplayRulesEditor = ({ id }: any) => {
 					const displayRules = value || [];
 
 					return (
-						<Stack p="3" borderWidth="1px" borderRadius="md" spacing="1">
+						<Stack p="3" borderWidth="1px" borderRadius="md" spacing="2.5">
 							{displayRules.map((rule: any, index: any) => {
 								const componentProperty = componentsProperties?.[rule?.name];
 
@@ -100,71 +107,27 @@ export const DisplayRulesEditor = ({ id }: any) => {
 												</Badge>
 											</Box>
 										)}
-										<InputRenderer
-											size="sm"
-											flex="1"
-											type="select"
-											placeholder="component name"
-											value={rule.name}
-											options={componentNames.map((c: any) => ({
-												name: c,
-												value: c,
-											}))}
-											onChange={(newValue: any) => {
-												onChange(
-													displayRules.map((r: any) => {
-														if (r.id === rule.id) {
-															return {
-																...r,
-																name: newValue,
-															};
-														}
-
-														return r;
-													}),
-												);
-											}}
-										/>
-										<InputRenderer
-											size="sm"
-											flex="1"
-											type="select"
-											placeholder="Operator"
-											value={rule.operator}
-											options={[
-												...OPERATORS,
-												...(isNumberInput ? COMPERATOR_OPERATORS : []),
-											]}
-											onChange={(newValue: any) => {
-												onChange(
-													displayRules.map((r: any) => {
-														if (r.id === rule.id) {
-															return {
-																...r,
-																operator: newValue,
-															};
-														}
-
-														return r;
-													}),
-												);
-											}}
-										/>
-										{OPERATOR_WITH_NO_VALUE.includes(rule.operator) ? null : (
+										<FormControl>
+											{index === 0 ? (
+												<FormLabel {...formLabelProps}>Component</FormLabel>
+											) : null}
 											<InputRenderer
 												size="sm"
 												flex="1"
-												disabled={!rule.name}
-												placeholder="select value"
-												{...input}
-												value={rule.value}
+												type="select"
+												placeholder="component name"
+												value={rule.name}
+												options={componentNames.map((c: any) => ({
+													name: c,
+													value: c,
+												}))}
 												onChange={(newValue: any) => {
 													onChange(
 														displayRules.map((r: any) => {
 															if (r.id === rule.id) {
 																return {
 																	...r,
-																	value: newValue,
+																	name: newValue,
 																};
 															}
 
@@ -173,6 +136,66 @@ export const DisplayRulesEditor = ({ id }: any) => {
 													);
 												}}
 											/>
+										</FormControl>
+
+										<FormControl>
+											{index === 0 ? (
+												<FormLabel {...formLabelProps}>Operator</FormLabel>
+											) : null}
+											<InputRenderer
+												size="sm"
+												flex="1"
+												type="select"
+												placeholder="Operator"
+												value={rule.operator}
+												options={[
+													...OPERATORS,
+													...(isNumberInput ? COMPERATOR_OPERATORS : []),
+												]}
+												onChange={(newValue: any) => {
+													onChange(
+														displayRules.map((r: any) => {
+															if (r.id === rule.id) {
+																return {
+																	...r,
+																	operator: newValue,
+																};
+															}
+
+															return r;
+														}),
+													);
+												}}
+											/>
+										</FormControl>
+										{OPERATOR_WITH_NO_VALUE.includes(rule.operator) ? null : (
+											<FormControl>
+												{index === 0 ? (
+													<FormLabel {...formLabelProps}>Value</FormLabel>
+												) : null}
+												<InputRenderer
+													size="sm"
+													flex="1"
+													disabled={!rule.name}
+													placeholder="select value"
+													{...input}
+													value={rule.value}
+													onChange={(newValue: any) => {
+														onChange(
+															displayRules.map((r: any) => {
+																if (r.id === rule.id) {
+																	return {
+																		...r,
+																		value: newValue,
+																	};
+																}
+
+																return r;
+															}),
+														);
+													}}
+												/>
+											</FormControl>
 										)}
 										<IconButton
 											aria-label="Delete"

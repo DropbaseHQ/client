@@ -281,7 +281,7 @@ export const NewSmartTable = ({ tableId }: any) => {
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="1">
 				<NavLoader isLoading={isLoadingTable}>
-					<Text flexShrink="0" fontSize="sm" fontWeight="semibold">
+					<Text flexShrink="0" px="2" fontWeight="semibold">
 						{tableName}
 					</Text>
 				</NavLoader>
