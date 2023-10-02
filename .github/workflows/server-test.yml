@@ -17,7 +17,9 @@ jobs:
         cache: "pip"
 
     - name: Install dependencies
-      run: pip install -r server/requirements.txt
+      run: |
+        pip install -r server/requirements.txt
+        pip install -r server/requirements-dev.txt
 
     - name: Run pytest with coverage
       working-directory: server/tests/
