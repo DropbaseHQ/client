@@ -18,6 +18,8 @@ class TablesBaseProperty(BaseModel):
     # on row change
     on_change: Optional[str]
 
+    appears_after: Optional[str]
+
 
 class TablesDefinedProperty(TablesBaseProperty, TableSharedProperty):
     pass
