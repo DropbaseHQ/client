@@ -1,0 +1,26 @@
+name: Run pytest with Coverage.py
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+        cache: "pip"
+
+    - name: Install dependencies
+      run: pip install -r server/requirements.txt
+
+    - name: Run pytest with coverage
+      working-directory: server/tests/
+      run: |
+        coverage run -m pytest
+        coverage report -m
