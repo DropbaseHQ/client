@@ -24,7 +24,7 @@ class InputBaseProperties(BaseModel):
     default: Optional[Any]
     placeholder: Optional[str]
     # ui events
-    rules: Optional[List[Dict]]
+    display_rules: Optional[List[Dict]]
 
 
 class InputDefined(InputBaseProperties, InputSharedProperties):
@@ -45,7 +45,7 @@ class SelectBaseProperties(BaseModel):
     # ui options
     default: Optional[Any]
     # ui events
-    rules: Optional[List[Dict]]
+    display_rules: Optional[List[Dict]]
     # server calls
     on_change: Optional[str]
 
@@ -66,6 +66,7 @@ class ButtonBaseProperties(BaseModel):
     # server call
     on_click: Optional[str]
     # = Field(..., description="function", Optional=True)
+    display_rules: Optional[List[Dict]]
 
 
 class ButtonDefined(ButtonBaseProperties, ButtonSharedProperties):
@@ -83,6 +84,7 @@ class TextBaseProperties(BaseModel):
     color: Optional[
         Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]
     ]
+    display_rules: Optional[List[Dict]]
 
 
 class TextDefined(TextBaseProperties, TextSharedProperties):

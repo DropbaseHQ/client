@@ -50,7 +50,8 @@ export const TableBar = () => {
 	return (
 		<Stack
 			bg="white"
-			borderBottomWidth="1px"
+			borderWidth="1px"
+			borderRadius="sm"
 			direction="row"
 			p="1.5"
 			justifyContent="space-between"

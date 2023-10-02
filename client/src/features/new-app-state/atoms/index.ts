@@ -46,6 +46,18 @@ export const widgetComponentsAtom: any = atom(
 	},
 );
 
+export const userInputAtom = atom((get) => {
+	const userInputState: any = get(widgetComponentsAtom) || {};
+
+	return Object.keys(userInputState).reduce(
+		(agg, field) => ({
+			...agg,
+			[field]: userInputState?.[field]?.value,
+		}),
+		{},
+	);
+});
+
 export const newPageStateAtom = atom((get) => {
 	const userInputState: any = get(widgetComponentsAtom) || {};
 

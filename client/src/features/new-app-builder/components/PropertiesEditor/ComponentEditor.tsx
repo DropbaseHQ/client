@@ -33,6 +33,7 @@ import {
 import { pageAtom } from '@/features/new-page';
 import { useToast } from '@/lib/chakra-ui';
 import { ContentLoader } from '@/components/Loader';
+import { DisplayRulesEditor } from './DisplayRulesEditor';
 
 const DISPLAY_COMPONENT_PROPERTIES = ['name', 'type', 'options', 'label', 'text', 'size'];
 
@@ -136,10 +137,18 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 					<AccordionPanel borderTopWidth="1px">
 						<Stack p="2" maxW="md">
 							{displayProperties.map((property: any) => {
+								if (
+									property.name === 'display_rules' ||
+									property.type === 'rules'
+								) {
+									return <DisplayRulesEditor id={id} />;
+								}
+
 								const showFunctionList =
 									property.type === 'function' ||
 									property.name === 'on_click' ||
 									property.name === 'on_change';
+
 								return (
 									<FormInput
 										{...property}

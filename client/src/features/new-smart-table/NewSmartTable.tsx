@@ -1,5 +1,5 @@
 import { useAtom, useSetAtom } from 'jotai';
-import { Center, Spinner, Stack, Text, useColorMode, useTheme } from '@chakra-ui/react';
+import { Box, Center, Spinner, Stack, Text, useColorMode, useTheme } from '@chakra-ui/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 
@@ -279,37 +279,41 @@ export const NewSmartTable = ({ tableId }: any) => {
 
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
-			<Stack pos="relative" h="full" spacing="0">
+			<Stack pos="relative" h="full" spacing="1">
 				<NavLoader isLoading={isLoadingTable}>
-					<Text flexShrink="0" fontSize="sm" p="2" fontWeight="semibold">
+					<Text flexShrink="0" px="2" fontWeight="semibold">
 						{tableName}
 					</Text>
 				</NavLoader>
-				<TableBar />
-				{isLoading ? (
-					<Center h="full" as={Stack}>
-						<Spinner size="md" />
-						<Text>Loading data...</Text>
-					</Center>
-				) : (
-					<DataEditor
-						columns={gridColumns}
-						rows={rows.length}
-						width="100%"
-						height="100%"
-						getCellContent={getCellContent}
-						rowMarkers="both"
-						smoothScrollX
-						smoothScrollY
-						theme={gridTheme}
-						onGridSelectionChange={handleSetSelection}
-						gridSelection={selection}
-						highlightRegions={highlights}
-						onCellEdited={onCellEdited}
-						keybindings={{ search: true }}
-						onColumnResize={onColumnResize}
-					/>
-				)}
+				<Stack spacing="2">
+					<TableBar />
+					<Box minH="72" borderWidth="1px" borderRadius="sm">
+						{isLoading ? (
+							<Center h="full" as={Stack}>
+								<Spinner size="md" />
+								<Text>Loading data...</Text>
+							</Center>
+						) : (
+							<DataEditor
+								columns={gridColumns}
+								rows={rows.length}
+								width="100%"
+								height="100%"
+								getCellContent={getCellContent}
+								rowMarkers="both"
+								smoothScrollX
+								smoothScrollY
+								theme={gridTheme}
+								onGridSelectionChange={handleSetSelection}
+								gridSelection={selection}
+								highlightRegions={highlights}
+								onCellEdited={onCellEdited}
+								keybindings={{ search: true }}
+								onColumnResize={onColumnResize}
+							/>
+						)}
+					</Box>
+				</Stack>
 			</Stack>
 		</CurrentTableContext.Provider>
 	);
