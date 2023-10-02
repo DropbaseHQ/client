@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from server.tests.conftest import ValueStorage
+from server.tests.constants import *
 from server.tests.utils import has_obj_with_id
 
 FILE_NAME = Path(__file__).name
@@ -24,9 +25,36 @@ def test_create_app(client):
 
 
 @pytest.mark.filename(FILE_NAME)
+def test_create_app_using_user_default_workspace(client):
+    data = {
+        "name": "test app"
+    }
+    response = client.post("/app/", json=data)
+    assert response.status_code == 200
+    response_body = response.json()
+    assert response.json()["app"]["workspace_id"] == ValueStorage.workspace_id
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_create_app_workspace_not_found(client):
+    data = {
+        "name": "test app",
+        "workspace_id": MOCK_NONEXISTENT_UUID,
+    }
+    response = client.post("/app/", json=data)
+    assert response.status_code == 404
+
+
+@pytest.mark.filename(FILE_NAME)
 def test_read_app(client):
     response = client.get(f"/app/{ValueStorage.app_id}")
     assert response.status_code == 200
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_read_app_not_found(client):
+    response = client.get(f"/app/{MOCK_NONEXISTENT_UUID}")
+    assert response.status_code == 404
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -44,6 +72,12 @@ def test_get_app_pages(client):
 
 
 @pytest.mark.filename(FILE_NAME)
+def test_get_app_pages_not_found(client):
+    response = client.get(f"/app/{MOCK_NONEXISTENT_UUID}/pages")
+    assert response.status_code == 404
+
+
+@pytest.mark.filename(FILE_NAME)
 def test_update_app(client):
     update_name = "test app updated"
     data = {
@@ -55,7 +89,19 @@ def test_update_app(client):
 
 
 @pytest.mark.filename(FILE_NAME)
+def test_update_app(client):
+    response = client.put(f"/app/{MOCK_NONEXISTENT_UUID}", json={})
+    assert response.status_code == 404
+
+
+@pytest.mark.filename(FILE_NAME)
 def test_delete_app(client):
     response = client.delete(f"/app/{ValueStorage.app_id}")
     assert response.status_code == 200
     test_create_app(client)  # recreate resource
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_delete_app(client):
+    response = client.delete(f"/app/{MOCK_NONEXISTENT_UUID}")
+    assert response.status_code == 404

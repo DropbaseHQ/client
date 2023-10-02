@@ -10,6 +10,9 @@ from server.utils.connect import get_db
 from server.tests.constants import *
 
 
+# TODO test authentication, authorization, permissions
+
+
 class ValueStorage:
     app_id = None
     page_id = None
