@@ -1,5 +1,6 @@
 import casbin
 from casbin import persist
+from pathlib import Path
 from uuid import UUID
 from sqlalchemy.orm import Session
 from server import crud
@@ -8,7 +9,7 @@ from server.utils.permissions.casbin_sqlalchemy_adaptor import Adapter
 from server.models import Policy
 
 adapter = Adapter(SQLALCHEMY_DATABASE_URL, db_class=Policy)
-enforcer = casbin.Enforcer("server/utils/permissions/casbin_model.conf", adapter, True)
+enforcer = casbin.Enforcer(str(Path(__file__).parent.absolute().joinpath("./casbin_model.conf")), adapter, True)
 
 
 def load_specific_policies(policies):
