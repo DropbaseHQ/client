@@ -11,6 +11,8 @@ TEST_FILE_ORDER = {
     filename: ord
     for ord, filename
     in enumerate([
+        "test_workspace.py",
+        "test_user.py",
         "test_user_role.py",
         "test_app.py",
         "test_page.py",

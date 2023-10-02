@@ -44,10 +44,7 @@ def pytest_collection_modifyitems(items):
     items.sort(key=lambda item: get_ord(item))
 
 
-@pytest.fixture(scope="session")
-def client():
-    client = TestClient(app)
-
+def register_test_user(client):
     # set up test user
     client.post("/user/register", json={
         "name": "test user",
@@ -55,7 +52,8 @@ def client():
         "password": TEST_USER_PASSWORD,
     })
 
-    # auth
+
+def login_test_user(client):
     login_res = client.post("/user/login", json={
         "email": TEST_USER_EMAIL,
         "password": TEST_USER_PASSWORD,
@@ -70,4 +68,10 @@ def client():
     ValueStorage.user_id = login_res_body["user"]["id"]
     ValueStorage.workspace_id = login_res_body["workspace"]["id"]
 
+
+@pytest.fixture(scope="session")
+def client():
+    client = TestClient(app)
+    register_test_user(client)
+    login_test_user(client)
     return client

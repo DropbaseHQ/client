@@ -91,7 +91,6 @@ def test_pin_filters_req(client):
         "filters": [test_filter],
     }
     response = client.post(f"/tables/pin_filters", json=data)
-    import pdb;pdb.set_trace()
     assert response.status_code == 200
     assert test_filter in response.json()["property"]["filters"]
 

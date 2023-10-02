@@ -54,10 +54,11 @@ def get_resource_workspace_id(db: Session, resource_id: str, resource_type: str)
     return None
 
 
-def verify_user_id_belongs_to_current_user(
-    user_id: str,
-    user: User = Depends(get_current_user),
+def authorize_user_actions(
+    request: Request,
+    user: User = Depends(get_current_user)
 ):
+    user_id = request.path_params.get("user_id")
     if not user_id == user.id:
         HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

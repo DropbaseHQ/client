@@ -17,7 +17,7 @@ from server.schemas.user import (
 from server.utils.authorization import (
     RESOURCES,
     generate_resource_dependency,
-    verify_user_id_belongs_to_current_user,
+    authorize_user_actions,
 )
 from server.utils.connect import get_db
 
@@ -53,14 +53,19 @@ def refresh_token(Authorize: AuthJWT = Depends()):
     return user.refresh_token(Authorize)
 
 
-@router.post("/reset_password", dependencies=[Depends(authorize_components_actions)])
+@router.post("/reset_password", dependencies=[
+    Depends(authorize_components_actions),
+    Depends(authorize_user_actions),
+])
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
     return user.reset_password(db, request)
 
 
-@router.get("/{user_id}", dependencies=[Depends(authorize_components_actions)])
+@router.get("/{user_id}", dependencies=[
+    Depends(authorize_components_actions),
+    Depends(authorize_user_actions),
+])
 def get_user(user_id: UUID, db: Session = Depends(get_db)):
-    verify_user_id_belongs_to_current_user(user_id)
     return crud.user.get_object_by_id_or_404(db, id=user_id)
 
 
@@ -70,13 +75,17 @@ def create_user(request: CreateUser, db: Session = Depends(get_db)):
     return crud.user.create(db, request)
 
 
-@router.put("/{user_id}", dependencies=[Depends(authorize_components_actions)])
+@router.put("/{user_id}", dependencies=[
+    Depends(authorize_components_actions),
+    Depends(authorize_user_actions),
+])
 def update_user(user_id: UUID, request: UpdateUser, db: Session = Depends(get_db)):
-    verify_user_id_belongs_to_current_user(user_id)
-    return crud.user.update_by_pk(db, user_id, request)
+    return crud.user.update_by_pk(db, pk=user_id, obj_in=request)
 
 
-@router.delete("/{user_id}", dependencies=[Depends(authorize_components_actions)])
+@router.delete("/{user_id}", dependencies=[
+    Depends(authorize_components_actions),
+    Depends(authorize_user_actions),
+])
 def delete_user(user_id: UUID, db: Session = Depends(get_db)):
-    verify_user_id_belongs_to_current_user(user_id)
     return crud.user.remove(db, id=user_id)
