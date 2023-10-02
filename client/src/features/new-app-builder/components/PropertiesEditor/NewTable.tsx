@@ -23,11 +23,13 @@ import { useCreateTable } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { useSources } from '@/features/sources/hooks';
 import { workspaceAtom } from '@/features/workspaces';
+import { useGetPage } from '@/features/new-page';
 
 export const NewTable = (props: any) => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const { pageId } = useParams();
 
+	const { tables } = useGetPage(pageId);
 	const toast = useToast();
 	const methods = useForm();
 	const { isOpen, onToggle, onClose } = useDisclosure();
@@ -45,10 +47,11 @@ export const NewTable = (props: any) => {
 		},
 	});
 
+	const currentLastTable = tables[tables.length - 1];
 	const onSubmit = ({ name, sourceId }: any) => {
 		mutation.mutate({
 			pageId,
-			property: { name, code: '' },
+			property: { name, code: '', appears_after: currentLastTable?.property?.name },
 			sourceId,
 		});
 	};
