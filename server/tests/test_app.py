@@ -31,7 +31,6 @@ def test_create_app_using_user_default_workspace(client):
     }
     response = client.post("/app/", json=data)
     assert response.status_code == 200
-    response_body = response.json()
     assert response.json()["app"]["workspace_id"] == ValueStorage.workspace_id
 
 
@@ -89,7 +88,7 @@ def test_update_app(client):
 
 
 @pytest.mark.filename(FILE_NAME)
-def test_update_app(client):
+def test_update_app_not_found(client):
     response = client.put(f"/app/{MOCK_NONEXISTENT_UUID}", json={})
     assert response.status_code == 404
 
@@ -102,6 +101,6 @@ def test_delete_app(client):
 
 
 @pytest.mark.filename(FILE_NAME)
-def test_delete_app(client):
+def test_delete_app_not_found(client):
     response = client.delete(f"/app/{MOCK_NONEXISTENT_UUID}")
     assert response.status_code == 404

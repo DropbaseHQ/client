@@ -31,6 +31,25 @@ def test_create_source(client):
 
 
 @pytest.mark.filename(FILE_NAME)
+def test_create_source_not_found(client):
+    data = {
+        "name": "test_pg_source",
+        "workspace_id": MOCK_NONEXISTENT_UUID,
+        "description": "this is from server/tests/test_source.py in function test_create_source",
+        "type": SourceType.POSTGRES,
+        "creds": {
+            "host": TEST_DB_HOST,
+            "port": TEST_DB_PORT,
+            "username": TEST_DB_USER,
+            "password": TEST_DB_PASS,
+            "database": TEST_DB_NAME,
+        },
+    }
+    response = client.post("/source/", json=data)
+    assert response.status_code == 404
+
+
+@pytest.mark.filename(FILE_NAME)
 def test_create_source_invalid_creds(client):
     data = {
         "name": "test_pg_test_source",
