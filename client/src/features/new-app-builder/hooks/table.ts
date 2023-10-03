@@ -100,9 +100,10 @@ export const useUpdateTableProperties = (props: any = {}) => {
 	});
 };
 
-const convertToSmartTable = async ({ tableId }: any) => {
+const convertToSmartTable = async ({ tableId, state }: any) => {
 	const response = await axios.post(`/tables/convert`, {
 		table_id: tableId,
+		state,
 	});
 
 	return response.data;
@@ -110,6 +111,7 @@ const convertToSmartTable = async ({ tableId }: any) => {
 
 export const useConvertSmartTable = (props: any = {}) => {
 	const queryClient = useQueryClient();
+
 	return useMutation(convertToSmartTable, {
 		...props,
 		onSettled: () => {
