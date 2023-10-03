@@ -151,7 +151,7 @@ export const NewSmartTable = ({ tableId }: any) => {
 		const currentRow = rows[row];
 		const column = columns[visibleColumns[col]];
 
-		const currentValue = currentRow?.[column.name];
+		const currentValue = currentRow?.[column?.name];
 
 		const editedValue = cellEdits.find((e: any) => e.columnIndex === col && e.rowIndex === row)
 			?.new_value;
