@@ -28,7 +28,7 @@ import {
 } from '@/features/new-smart-table/hooks';
 import { useGetTable } from '@/features/new-app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
-import { PG_COLUMN_BASE_TYPE } from '@/utils';
+import { getPGColumnBaseType } from '@/utils';
 
 const COMMON_OPERATORS = [
 	{
@@ -79,7 +79,7 @@ const TEXT_OPERATORS = [
 
 const getConditionsByType = (type?: string) => {
 	if (type) {
-		switch (PG_COLUMN_BASE_TYPE[type]) {
+		switch (getPGColumnBaseType(type)) {
 			case 'float':
 			case 'integer': {
 				return [...COMMON_OPERATORS, ...COMPARISON_OPERATORS];

@@ -15,7 +15,7 @@ import { newSelectedRowAtom } from '@/features/new-app-state';
 import { CurrentTableContext, useCurrentTableData } from './hooks';
 import { cellEditsAtom } from './atoms';
 import { TableBar } from './components';
-import { PG_COLUMN_BASE_TYPE } from '@/utils';
+import { getPGColumnBaseType } from '@/utils';
 import { useGetTable } from '@/features/new-app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 
@@ -100,7 +100,7 @@ export const NewSmartTable = ({ tableId }: any) => {
 		// ⚠️ only by passing undefined we can hide column icon
 		let icon = column?.type ? GridColumnIcon.HeaderString : undefined;
 
-		switch (PG_COLUMN_BASE_TYPE[column?.type]) {
+		switch (getPGColumnBaseType(column?.type)) {
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -177,7 +177,7 @@ export const NewSmartTable = ({ tableId }: any) => {
 			};
 		}
 
-		switch (PG_COLUMN_BASE_TYPE[column?.type]) {
+		switch (getPGColumnBaseType(column?.type)) {
 			case 'float':
 			case 'integer': {
 				kind = GridCellKind.Number;
