@@ -33,5 +33,6 @@ jobs:
     - name: Run pytest with coverage
       working-directory: server/tests/
       run: |
+        echo ${{POSTGRES_DB_HOST}}
         coverage run -m pytest
         coverage report -m
