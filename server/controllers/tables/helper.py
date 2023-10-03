@@ -120,13 +120,13 @@ def get_db_schema(user_db_engine) -> (FullDBSchema, GPTSchema):
             primary_keys = inspector.get_pk_constraint(table_name, schema=schema)["constrained_columns"]
 
             # get foreign keys
-            fk_constraints = inspector.get_foreign_keys("customer", schema="public")
+            fk_constraints = inspector.get_foreign_keys(table_name, schema="public")
             foreign_keys = []
             for fk_constraint in fk_constraints:
                 foreign_keys.extend(fk_constraint["constrained_columns"])
 
             # get unique columns
-            unique_constraints = inspector.get_unique_constraints("customer", schema="public")
+            unique_constraints = inspector.get_unique_constraints(table_name, schema="public")
             unique_columns = []
             for unique_constraint in unique_constraints:
                 unique_columns.extend(unique_constraint["column_names"])
