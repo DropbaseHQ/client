@@ -92,64 +92,64 @@ export const NewSmartTable = ({ tableId }: any) => {
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.3)(theme),
 			  };
 
-	const gridColumns = header
-		.filter((columnName: any) => columns[columnName]?.visible)
-		.map((columnName: any) => {
-			const column = columns[columnName];
+	const visibleColumns = header.filter((columnName: any) => columns[columnName]?.visible);
 
-			// ⚠️ only by passing undefined we can hide column icon
-			let icon = column?.type ? GridColumnIcon.HeaderString : undefined;
+	const gridColumns = visibleColumns.map((columnName: any) => {
+		const column = columns[columnName];
 
-			switch (PG_COLUMN_BASE_TYPE[column?.type]) {
-				case 'integer': {
-					icon = GridColumnIcon.HeaderNumber;
-					break;
-				}
+		// ⚠️ only by passing undefined we can hide column icon
+		let icon = column?.type ? GridColumnIcon.HeaderString : undefined;
 
-				case 'float': {
-					icon = GridColumnIcon.HeaderMath;
-					break;
-				}
-
-				case 'date': {
-					icon = GridColumnIcon.HeaderDate;
-					break;
-				}
-
-				case 'time':
-				case 'datetime': {
-					icon = GridColumnIcon.HeaderTime;
-					break;
-				}
-
-				case 'boolean': {
-					icon = GridColumnIcon.HeaderBoolean;
-					break;
-				}
-				default: {
-					break;
-				}
+		switch (PG_COLUMN_BASE_TYPE[column?.type]) {
+			case 'integer': {
+				icon = GridColumnIcon.HeaderNumber;
+				break;
 			}
 
-			const gridColumn = {
-				id: column.name,
-				title: column.name,
-				width: columnWidth[column.name] || String(column.name).length * 10 + 35 + 30,
-				icon,
+			case 'float': {
+				icon = GridColumnIcon.HeaderMath;
+				break;
+			}
+
+			case 'date': {
+				icon = GridColumnIcon.HeaderDate;
+				break;
+			}
+
+			case 'time':
+			case 'datetime': {
+				icon = GridColumnIcon.HeaderTime;
+				break;
+			}
+
+			case 'boolean': {
+				icon = GridColumnIcon.HeaderBoolean;
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+
+		const gridColumn = {
+			id: column.name,
+			title: column.name,
+			width: columnWidth[column.name] || String(column.name).length * 10 + 35 + 30,
+			icon,
+		};
+
+		if (column.editable) {
+			return {
+				...gridColumn,
 			};
+		}
 
-			if (column.editable) {
-				return {
-					...gridColumn,
-				};
-			}
-
-			return gridColumn;
-		});
+		return gridColumn;
+	});
 
 	const getCellContent: any = ([col, row]: any) => {
 		const currentRow = rows[row];
-		const column = columns[header[col]];
+		const column = columns[visibleColumns[col]];
 
 		const currentValue = currentRow?.[column.name];
 
@@ -216,7 +216,7 @@ export const NewSmartTable = ({ tableId }: any) => {
 		const [col, row] = cell;
 		const currentRow = rows[row];
 
-		const column = columns[header[col]];
+		const column = columns[visibleColumns[col]];
 
 		if (column?.edit_keys?.length > 0) {
 			setCellEdits((old: any) => ({
