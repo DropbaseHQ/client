@@ -10,6 +10,8 @@ POSTGRES_DB_NAME = os.environ.get("POSTGRES_DB_NAME")
 POSTGRES_DB_USER = os.environ.get("POSTGRES_DB_USER")
 POSTGRES_DB_PASS = os.environ.get("POSTGRES_DB_PASS")
 
+print(POSTGRES_DB_HOST.split())
+
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 
