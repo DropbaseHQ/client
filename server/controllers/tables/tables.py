@@ -69,9 +69,9 @@ def update_table(
     try:
         table = crud.tables.get_object_by_id_or_404(db, id=table_id)
         # NOTE: this is a patch. table should be created with source_id to begin with
-        if table.source_id is None:
+        if table.source_id is None or request.source_id is not None:
             table.source_id = request.source_id
-            db.commit()
+            db.flush()
 
         table_columns = []
         if request.property.code:
