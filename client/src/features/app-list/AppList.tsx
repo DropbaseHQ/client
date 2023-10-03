@@ -86,7 +86,7 @@ export const AppList = () => {
 				</Button>
 			}
 		>
-			<SimpleGrid spacing={6} columns={4}>
+			<SimpleGrid spacing={6} pb="4" columns={4}>
 				{isLoading ? (
 					<>
 						<Skeleton w="full" h={24} />

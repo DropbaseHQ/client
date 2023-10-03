@@ -35,7 +35,8 @@ export const useTableData = ({ tableId, pageId, filters = [], sorts = [], state 
 	const queryKey = [
 		TABLE_DATA_QUERY_KEY,
 		tableId,
-		JSON.stringify({ filters, sorts, dependentTableData, pageId }),
+		pageId,
+		JSON.stringify({ filters, sorts, dependentTableData }),
 	];
 
 	const { data: response, ...rest } = useQuery(

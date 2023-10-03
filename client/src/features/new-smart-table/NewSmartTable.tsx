@@ -140,11 +140,6 @@ export const NewSmartTable = ({ tableId }: any) => {
 			if (column.editable) {
 				return {
 					...gridColumn,
-					themeOverride: {
-						bgHeader: theme.colors.yellow['50'],
-						bgHeaderHovered: theme.colors.yellow['100'],
-						bgHeaderHasFocus: theme.colors.yellow['100'],
-					},
 				};
 			}
 
