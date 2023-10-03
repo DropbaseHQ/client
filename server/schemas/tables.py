@@ -105,6 +105,7 @@ class QueryResponse(BaseModel):
 
 class ConvertToSmart(BaseModel):
     table_id: UUID
+    state: Optional[dict]
 
 
 class PinFilters(BaseModel):

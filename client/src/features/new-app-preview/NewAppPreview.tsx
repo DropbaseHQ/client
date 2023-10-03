@@ -179,7 +179,9 @@ export const NewAppPreview = ({ isDevMode }: any) => {
 					</Box>
 				</Stack>
 				<Stack mt="6">
-					<Text fontWeight="medium">Extend your AI Table with Widgets and Functions</Text>
+					<Text fontWeight="medium">
+						Extend your Smart Table with Widgets and Functions
+					</Text>
 					<Button
 						w="fit-content"
 						colorScheme="blue"

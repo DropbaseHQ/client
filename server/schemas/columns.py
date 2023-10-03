@@ -13,6 +13,7 @@ class PgColumnBaseProperty(BaseModel):
         Literal[
             "TEXT",
             "VARCHAR",
+            "VARCHAR(255)",
             "CHAR",
             "CHARACTER",
             "STRING",

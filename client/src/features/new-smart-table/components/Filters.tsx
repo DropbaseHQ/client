@@ -19,7 +19,7 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 import { Filter as FilterIcon, Plus, Star, Trash } from 'react-feather';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { filtersAtom } from '@/features/new-smart-table/atoms';
 import {
 	useCurrentTableData,
@@ -28,7 +28,8 @@ import {
 } from '@/features/new-smart-table/hooks';
 import { useGetTable } from '@/features/new-app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
-import { PG_COLUMN_BASE_TYPE } from '@/utils';
+import { getPGColumnBaseType } from '@/utils';
+import { appModeAtom } from '@/features/app/atoms';
 
 const COMMON_OPERATORS = [
 	{
@@ -79,7 +80,7 @@ const TEXT_OPERATORS = [
 
 const getConditionsByType = (type?: string) => {
 	if (type) {
-		switch (PG_COLUMN_BASE_TYPE[type]) {
+		switch (getPGColumnBaseType(type)) {
 			case 'float':
 			case 'integer': {
 				return [...COMMON_OPERATORS, ...COMPARISON_OPERATORS];
@@ -115,6 +116,8 @@ export const FilterButton = () => {
 	const toast = useToast();
 	const tableId = useCurrentTableId();
 	const { isOpen, onToggle, onClose } = useDisclosure();
+
+	const { isPreview } = useAtomValue(appModeAtom);
 
 	const { columns } = useCurrentTableData(tableId);
 
@@ -174,10 +177,12 @@ export const FilterButton = () => {
 			[tableId]: updatedFilters,
 		}));
 
-		pinFilterMutation.mutate({
-			tableId,
-			filters: updatedFilters.filter((f: any) => f.pinned),
-		});
+		if (!isPreview) {
+			pinFilterMutation.mutate({
+				tableId,
+				filters: updatedFilters.filter((f: any) => f.pinned),
+			});
+		}
 	};
 
 	const handleRemoveFilter = (removedId: any) => {
@@ -218,28 +223,32 @@ export const FilterButton = () => {
 
 								return (
 									<HStack w="full" key={`filter-${index}`}>
-										<IconButton
-											aria-label="Pin filter"
-											icon={<Star size="14" />}
-											size="sm"
-											colorScheme="yellow"
-											isDisabled={!filter.column_name}
-											variant={filter.pinned ? 'solid' : 'outline'}
-											onClick={() => {
-												const newFilters = filters.map((f: any, i: any) => {
-													if (i === index) {
-														return {
-															...f,
-															pinned: !f.pinned,
-														};
-													}
+										{isPreview ? null : (
+											<IconButton
+												aria-label="Pin filter"
+												icon={<Star size="14" />}
+												size="sm"
+												colorScheme="yellow"
+												isDisabled={!filter.column_name}
+												variant={filter.pinned ? 'solid' : 'outline'}
+												onClick={() => {
+													const newFilters = filters.map(
+														(f: any, i: any) => {
+															if (i === index) {
+																return {
+																	...f,
+																	pinned: !f.pinned,
+																};
+															}
 
-													return f;
-												});
+															return f;
+														},
+													);
 
-												handlePinnedFilters(newFilters);
-											}}
-										/>
+													handlePinnedFilters(newFilters);
+												}}
+											/>
+										)}
 
 										<FormControl flexGrow="1">
 											<Select

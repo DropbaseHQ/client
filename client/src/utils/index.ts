@@ -32,3 +32,11 @@ export const PG_COLUMN_BASE_TYPE: any = {
 	OBJECT: 'text',
 	ARRAY: 'text',
 };
+
+export const getPGColumnBaseType = (type: any) => {
+	if (!type || type?.includes('VARCHAR')) {
+		return 'text';
+	}
+
+	return PG_COLUMN_BASE_TYPE[type];
+};

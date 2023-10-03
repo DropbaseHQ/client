@@ -15,7 +15,7 @@ import { newSelectedRowAtom } from '@/features/new-app-state';
 import { CurrentTableContext, useCurrentTableData } from './hooks';
 import { cellEditsAtom } from './atoms';
 import { TableBar } from './components';
-import { PG_COLUMN_BASE_TYPE } from '@/utils';
+import { getPGColumnBaseType } from '@/utils';
 import { useGetTable } from '@/features/new-app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 
@@ -92,70 +92,66 @@ export const NewSmartTable = ({ tableId }: any) => {
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.3)(theme),
 			  };
 
-	const gridColumns = header
-		.filter((columnName: any) => columns[columnName]?.visible)
-		.map((columnName: any) => {
-			let icon = GridColumnIcon.HeaderString;
+	const visibleColumns = header.filter((columnName: any) => columns[columnName]?.visible);
 
-			const column = columns[columnName];
+	const gridColumns = visibleColumns.map((columnName: any) => {
+		const column = columns[columnName];
 
-			switch (PG_COLUMN_BASE_TYPE[column?.type]) {
-				case 'integer': {
-					icon = GridColumnIcon.HeaderNumber;
-					break;
-				}
+		// ⚠️ only by passing undefined we can hide column icon
+		let icon = column?.type ? GridColumnIcon.HeaderString : undefined;
 
-				case 'float': {
-					icon = GridColumnIcon.HeaderMath;
-					break;
-				}
-
-				case 'date': {
-					icon = GridColumnIcon.HeaderDate;
-					break;
-				}
-
-				case 'time':
-				case 'datetime': {
-					icon = GridColumnIcon.HeaderTime;
-					break;
-				}
-
-				case 'boolean': {
-					icon = GridColumnIcon.HeaderBoolean;
-					break;
-				}
-				default: {
-					break;
-				}
+		switch (getPGColumnBaseType(column?.type)) {
+			case 'integer': {
+				icon = GridColumnIcon.HeaderNumber;
+				break;
 			}
 
-			const gridColumn = {
-				id: column.name,
-				title: column.name,
-				width: columnWidth[column.name] || String(column.name).length * 10 + 35 + 30,
-				icon,
+			case 'float': {
+				icon = GridColumnIcon.HeaderMath;
+				break;
+			}
+
+			case 'date': {
+				icon = GridColumnIcon.HeaderDate;
+				break;
+			}
+
+			case 'time':
+			case 'datetime': {
+				icon = GridColumnIcon.HeaderTime;
+				break;
+			}
+
+			case 'boolean': {
+				icon = GridColumnIcon.HeaderBoolean;
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+
+		const gridColumn = {
+			id: column.name,
+			title: column.name,
+			width: columnWidth[column.name] || String(column.name).length * 10 + 35 + 30,
+			icon,
+		};
+
+		if (column.editable) {
+			return {
+				...gridColumn,
 			};
+		}
 
-			if (column.editable) {
-				return {
-					...gridColumn,
-					themeOverride: {
-						bgHeader: theme.colors.yellow['50'],
-						bgHeaderHovered: theme.colors.yellow['100'],
-						bgHeaderHasFocus: theme.colors.yellow['100'],
-					},
-				};
-			}
-
-			return gridColumn;
-		});
+		return gridColumn;
+	});
 
 	const getCellContent: any = ([col, row]: any) => {
 		const currentRow = rows[row];
-		const column = columns[header[col]];
+		const column = columns[visibleColumns[col]];
 
-		const currentValue = currentRow?.[column.name];
+		const currentValue = currentRow?.[column?.name];
 
 		const editedValue = cellEdits.find((e: any) => e.columnIndex === col && e.rowIndex === row)
 			?.new_value;
@@ -181,7 +177,7 @@ export const NewSmartTable = ({ tableId }: any) => {
 			};
 		}
 
-		switch (PG_COLUMN_BASE_TYPE[column?.type]) {
+		switch (getPGColumnBaseType(column?.type)) {
 			case 'float':
 			case 'integer': {
 				kind = GridCellKind.Number;
@@ -220,7 +216,7 @@ export const NewSmartTable = ({ tableId }: any) => {
 		const [col, row] = cell;
 		const currentRow = rows[row];
 
-		const column = columns[header[col]];
+		const column = columns[visibleColumns[col]];
 
 		if (column?.edit_keys?.length > 0) {
 			setCellEdits((old: any) => ({
@@ -242,7 +238,10 @@ export const NewSmartTable = ({ tableId }: any) => {
 	};
 
 	const handleSetSelection = (newSelection: any) => {
-		const currentRow = newSelection?.rows?.toArray()?.[0] || newSelection?.current?.cell?.[1];
+		const rowSelected = newSelection?.rows?.toArray()?.[0];
+		const cellSelected = newSelection?.current?.cell?.[1];
+
+		const currentRow = typeof rowSelected === 'number' ? rowSelected : cellSelected;
 
 		if (typeof currentRow === 'number') {
 			setSelection({
