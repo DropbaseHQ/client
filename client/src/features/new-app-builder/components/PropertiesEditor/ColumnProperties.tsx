@@ -25,6 +25,7 @@ import {
 } from '@/features/new-app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { selectedTableIdAtom } from '@/features/new-app-builder/atoms';
+import { newPageStateAtom } from '@/features/new-app-state';
 
 const DISPLAY_COLUMN_PROPERTIES = [
 	'schema_name',
@@ -130,6 +131,7 @@ export const ColumnsProperties = () => {
 	const toast = useToast();
 	const tableId = useAtomValue(selectedTableIdAtom);
 	const { isLoading, values } = useGetColumnProperties(tableId || '');
+	const state = useAtomValue(newPageStateAtom);
 
 	const convertMutation = useConvertSmartTable({
 		onSuccess: () => {
@@ -144,6 +146,7 @@ export const ColumnsProperties = () => {
 		if (tableId)
 			convertMutation.mutate({
 				tableId,
+				state: state.tables,
 			});
 	};
 

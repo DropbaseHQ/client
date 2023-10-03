@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from server import crud
+from server.controllers.tables.helper import parse_state, render_sql
 from server.constants import GPT_MODEL, GPT_TEMPERATURE
 from server.credentials import OPENAI_API_KEY, OPENAI_ORG_ID
 from server.schemas.columns import PgDefinedColumnProperty
@@ -36,6 +37,15 @@ def convert_to_smart_table(db: Session, request: ConvertToSmart):
     user_db_engine = connect_to_user_db(db, table.source_id)
     db_schema, gpt_schema = get_db_schema(user_db_engine)
     user_sql = table.property["code"]
+
+    # TODO: Does it make sense to have state here
+    # Patch for video making. Does it make sense to snapshot state for creating a smart table?
+    # parse state
+    state = parse_state(db, table.page_id, request.state)
+
+    # render sql with jigja2 and state variables
+    user_sql = render_sql(table.property["code"], state)
+
     # clean up user_sql, remove trailing semicolons and newlines
     user_sql = user_sql.strip("\n ;")
     column_names = get_column_names(user_db_engine, user_sql)
