@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import { useQuery } from 'react-query';
 
 import { useAtom } from 'jotai';
@@ -39,15 +39,22 @@ export const useInitPage = () => {
 	const { pageId } = useParams();
 	const [context, setPageContext] = useAtom(pageAtom);
 
-	const { tables, widget, ...rest } = useGetPage(pageId || '');
+	const ref = useRef(false);
+
+	const { widget, isLoading, ...rest } = useGetPage(pageId || '');
 
 	useEffect(() => {
-		if (!context.widgetId) {
+		ref.current = false;
+	}, [pageId]);
+
+	useEffect(() => {
+		if (!context.widgetId && !isLoading && !ref.current) {
 			setPageContext({
-				widgetId: widget?.id,
+				widgetId: widget?.id || null,
 			});
+			ref.current = true;
 		}
-	}, [tables, widget, context, setPageContext]);
+	}, [widget, isLoading, context, setPageContext]);
 
 	useEffect(() => {
 		return () => {
@@ -57,5 +64,5 @@ export const useInitPage = () => {
 		};
 	}, [setPageContext]);
 
-	return { tables, widget, ...rest };
+	return { widget, isLoading, ...rest };
 };

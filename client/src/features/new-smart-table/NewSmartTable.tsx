@@ -95,9 +95,10 @@ export const NewSmartTable = ({ tableId }: any) => {
 	const gridColumns = header
 		.filter((columnName: any) => columns[columnName]?.visible)
 		.map((columnName: any) => {
-			let icon = GridColumnIcon.HeaderString;
-
 			const column = columns[columnName];
+
+			// ⚠️ only by passing undefined we can hide column icon
+			let icon = column?.type ? GridColumnIcon.HeaderString : undefined;
 
 			switch (PG_COLUMN_BASE_TYPE[column?.type]) {
 				case 'integer': {
@@ -237,7 +238,10 @@ export const NewSmartTable = ({ tableId }: any) => {
 	};
 
 	const handleSetSelection = (newSelection: any) => {
-		const currentRow = newSelection?.rows?.toArray()?.[0] || newSelection?.current?.cell?.[1];
+		const rowSelected = newSelection?.rows?.toArray()?.[0];
+		const cellSelected = newSelection?.current?.cell?.[1];
+
+		const currentRow = typeof rowSelected === 'number' ? rowSelected : cellSelected;
 
 		if (typeof currentRow === 'number') {
 			setSelection({
