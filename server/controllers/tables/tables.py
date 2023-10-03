@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
 from server import crud
+from server.constants import WORKER_URL
 from server.controllers.tables.helper import get_row_schema, get_sql_variables, parse_state, render_sql
 from server.controllers.task.task import get_tables_states
 from server.models.columns import Columns
@@ -64,29 +65,47 @@ def create_table(db, request: CreateTablesRequest) -> ReadTables:
     return table
 
 
+import json
+
+import requests
+
+
 def update_table(
     db: Session, table_id: UUID, request: UpdateTablesRequest, response: Response
 ) -> ReadTables:
+    # query worker to get table columns and db schema
+    # call gpt to map query columns
+    # update table and column schemas in db
+    # update table and column schemas in worker
+    # respond to client to rerun query on worker
+
+    table = crud.tables.get_object_by_id_or_404(db, id=table_id)
+    page = crud.page.get_object_by_id_or_404(db, id=table.page_id)
+
+    # 1. test run query
+    payload = {
+        "user_sql": request.property.code,
+        "source_id": table.id,
+        "page_name": page.replace(" ", "").lower(),
+        "tables": request.state,
+    }
+    res = requests.post(f"{WORKER_URL}/test_query", data=json.dumps(payload))
+    res_json = res.json()
+
+    table_columns = res_json["columns"]
+
+    # 2. map columns with gpt
+    # skipped for now
+
+    # 3. update table and column schemas in db
+
+    # TODO: LEFT OUR HERE
+    """
+    SPLIT FILES INTO SEPARATE FILES FOR EACH TABLE AND COLUMN
+    """
+
     try:
-        table = crud.tables.get_object_by_id_or_404(db, id=table_id)
-        # NOTE: this is a patch. table should be created with source_id to begin with
-        if table.source_id is None:
-            table.source_id = request.source_id
-            db.commit()
-
-        table_columns = []
-        if request.property.code:
-            state = parse_state(db, request.page_id, request.state)
-            table_models = get_tables_states(db, request.page_id)
-            print("TABLE_MODELS")
-            print(table_models)
-            user_sql = render_sql(request.property.code, state)
-            user_db_engine = connect_to_user_db(db, table.source_id)
-            table_columns = get_table_columns(user_db_engine, user_sql)
-            user_db_engine.dispose()
-
         db_columns = crud.columns.get_table_columns(db, table_id=table_id)
-
         cols_to_add, cols_to_delete = [], []
 
         if not db_columns:

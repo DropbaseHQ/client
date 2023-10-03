@@ -110,43 +110,28 @@ def get_table_selection_model(table_model_name: str, columns: List[ReadColumns])
     return table_selection_model_str
 
 
-# get table selection
-# def get_table_selection(db, table: ReadTables):
-#     page_tables = crud.tables.get_page_tables(db, table.page_id)
+def get_selected_table_models(db, table: ReadTables):
+    tables_selection_model = "class TablesSelectionState(BaseModel):\n"
 
-#     """
-#     in this loop we are composing root TableSelection model and all the selected row models. example:
-#     class  TableSelection(BaseModel):
-#         tabe1: Optional[Table1]
-#         tabe2: Optional[Table2]
-#     """
-#     selected_root_model = """class TableSelection(BaseModel):\n"""
-#     all_table_selection_model = []
+    table_selection_models = []
+    # get table selection
+    tables = crud.tables.get_page_tables(db, table.page_id)
+    for table in tables:
+        # get table models
+        columns = crud.columns.get_table_columns(db, table.id)
+        # get table name for model name
+        table_model_name = clean_name_for_class(table.name)
 
-#     for page_table in page_tables:
-#         if page_table.id == table.id:
-#             continue
+        # add table model name to root TableSelection model
+        tables_selection_model += f"    {table.name}: Optional[{table_model_name}SelectionState]\n"
+        # get table selection model
+        table_selection_model = get_table_selection_model(table_model_name, columns)
+        table_selection_models.append(table_selection_model)
 
-#         # add model name to root TableSelection model
-#         table_model_name = clean_name_for_class(table.name)
-#         selected_root_model += f"    {page_table.name}: Optional[{table_model_name}]\n"
+    # if no tables are present, add pass to StateTables class
+    if len(tables) == 0:
+        tables_selection_model += "    pass\n"
 
-#         """
-#         get table selection model for each table that looks like this:
-#         class Table1(BaseModel):
-#             id: Optional[int]
-#             name: Optional[str]
-#         """
-#         table_selection_model = get_table_selection_model(db, page_table, table_model_name)
-#         all_table_selection_model.append(table_selection_model)
+    all_table_selection_models = "\n\n".join(table_selection_models) + "\n\n"
 
-#     # if no tables are present, add pass to TableSelection class
-#     if len(all_table_selection_model) == 0:
-#         selected_root_model += "    pass\n"
-
-#     # adding selected model types for each table
-#     all_table_selection_model_str = "\n\n".join(all_table_selection_model)
-
-#     # combine all the models together
-#     final_str = imports_str + all_table_selection_model_str + selected_root_model
-#     return final_str
+    return {"tables": all_table_selection_models, "base": tables_selection_model}
