@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.source import source
-from server.schemas.source import CreateSourceRequest, UpdateSourceRequest
+from server.schemas.source import CreateSourceRequest, UpdateSourceRequest, DatabaseCredentials
 from server.utils.authorization import RESOURCES, generate_resource_dependency
 from server.utils.connect import get_db
 
@@ -45,6 +45,10 @@ def update_source(source_id: UUID, request: UpdateSourceRequest, db: Session = D
 def delete_source(source_id: UUID, db: Session = Depends(get_db)):
     return source.delete_source(db, source_id)
 
+@router.post("/test")
+def test_source(request: DatabaseCredentials, db: Session = Depends(get_db)):
+    # TODO implement for non-postgres sources in the future
+    return source.test_source_creds_postgres(db, request)
 
 @router.get("/workspace/{workspace_id}")
 def get_workspace_sources(workspace_id: UUID, db: Session = Depends(get_db)):
