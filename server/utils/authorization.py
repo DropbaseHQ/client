@@ -50,9 +50,9 @@ resource_query_mapper = {
 }
 request_action_mapper = {
     "GET": ACTIONS.USE,
-    "POST": ACTIONS.OWN,
+    "POST": ACTIONS.EDIT,
     "PUT": ACTIONS.EDIT,
-    "DELETE": ACTIONS.OWN,
+    "DELETE": ACTIONS.EDIT,
 }
 
 
@@ -101,6 +101,7 @@ def generate_resource_dependency(resource_type: str, is_on_resource_creation: bo
         resource_id = get_resource_id(request)
         request_action = request.method
         if resource_id is None:
+            print("here")
             return True
 
         resource_workspace_id = get_resource_workspace_id(db, resource_id, resource_type)
@@ -109,6 +110,8 @@ def generate_resource_dependency(resource_type: str, is_on_resource_creation: bo
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Resource {resource_id} of type {resource_type} not found",
             )
+        print("action", request_action)
+        print("resource action", request_action_mapper[request_action])
         can_act_on_resource = crud.user_role.user_is_in_workspace(
             db, user.id, resource_workspace_id
         ) and enforce_action(
