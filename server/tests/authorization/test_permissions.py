@@ -14,6 +14,7 @@ client = TestClient(app)
 TEST_ADMIN_EMAIL = "jon+100@dropbase.io"
 TEST_DEV_EMAIL = "jon+101@dropbase.io"
 TEST_USER_EMAIL = "jon+102@dropbase.io"
+TEST_MEMBER_EMAIL = "jon+103@dropbase.io"
 
 
 def get_client(email):
@@ -229,3 +230,6 @@ def test_user_cannot_create_sources(user_client):
 def test_user_cannot_delete_sources(user_client):
     response = user_client.delete_source(TEST_SOURCE_ID)
     assert response.status_code == 403
+
+
+# --------MEMBER TESTS--------#
