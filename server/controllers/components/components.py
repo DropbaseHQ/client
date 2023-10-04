@@ -15,12 +15,16 @@ from server.schemas.components import (
 )
 from server.utils.components import component_type_mapper, order_components
 from server.utils.converter import get_class_properties
+from server.utils.helper import raise_http_exception
 
 logger = logging.getLogger(__name__)
 
 
 def create_component(db: Session, request: CreateComponents):
-    ComponentClass = component_type_mapper[request.type]
+    try:
+        ComponentClass = component_type_mapper[request.type]
+    except KeyError:
+        raise_http_exception(400, f"Component type {request.type} is invalid.")
     comp_property = ComponentClass(**request.property)
     request.property = comp_property
     return crud.components.create(db, obj_in=request)

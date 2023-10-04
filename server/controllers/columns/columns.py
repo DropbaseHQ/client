@@ -11,12 +11,16 @@ from server.schemas.columns import (
     UpdateColumns,
 )
 from server.utils.converter import get_class_properties
+from server.utils.helper import raise_http_exception
 
 column_type_to_schema_mapper = {"postgres": PgDefinedColumnProperty, "python": PythonColumn}
 
 
 def create_column(db: Session, request: CreateColumns):
-    ColumnClass = column_type_to_schema_mapper[request.type]
+    try:
+        ColumnClass = column_type_to_schema_mapper[request.type]
+    except KeyError:
+        raise_http_exception(400, f"Column type {request.type} is invalid.")
     column = ColumnClass(**request.property)
     request.property = column.dict()
     return crud.columns.create(db, obj_in=request)

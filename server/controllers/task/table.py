@@ -21,7 +21,8 @@ def get_table_data(db: Session, request: QueryTable, response: Response) -> Quer
         columns = crud.columns.get_table_columns(db, table_id=table.id)
 
         # parse state
-        state = parse_state(db, request.page_id, request.state)
+        if crud.page.get_object_by_id_or_404(db, request.page_id):
+            state = parse_state(db, request.page_id, request.state)
 
         # render sql with jigja2 and state variables
         user_sql = render_sql(table.property["code"], state)

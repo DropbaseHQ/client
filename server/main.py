@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi_jwt_auth.exceptions import AuthJWTException
+from sqlalchemy.exc import SQLAlchemyError
 
 from server import endpoints
 from server.utils.authentication import get_current_user
@@ -55,6 +56,11 @@ app.include_router(require_authentication_routes)
 @app.exception_handler(AuthJWTException)
 def authjwt_exception_handler(_: Request, exc: AuthJWTException):
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
+
+
+@app.exception_handler(SQLAlchemyError)
+def sqlalchemy_exception_handler(_: Request, exc: SQLAlchemyError):
+    return JSONResponse(status_code=500, content={})
 
 
 @app.get("/")
