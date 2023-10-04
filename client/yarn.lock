@@ -1628,22 +1628,6 @@
   resolved "https://registry.npmjs.org/@remix-run/router/-/router-1.8.0.tgz"
   integrity sha512-mrfKqIHnSZRyIzBcanNJmVQELTnX+qagEDlcKO90RgRBVOZGSGvZKeDihTRfWcqoDn5N/NkUcwWTccnpN18Tfg==
 
-"@tanstack/match-sorter-utils@^8.7.0":
-  version "8.8.4"
-  resolved "https://registry.npmjs.org/@tanstack/match-sorter-utils/-/match-sorter-utils-8.8.4.tgz"
-  integrity sha512-rKH8LjZiszWEvmi01NR72QWZ8m4xmXre0OOwlRGnjU01Eqz/QnN+cqpty2PJ0efHblq09+KilvyR7lsbzmXVEw==
-  dependencies:
-    remove-accents "0.4.2"
-
-"@tanstack/react-query-devtools@^4.33.0":
-  version "4.33.0"
-  resolved "https://registry.npmjs.org/@tanstack/react-query-devtools/-/react-query-devtools-4.33.0.tgz"
-  integrity sha512-6gegkuDmOoiY5e6ZKj1id48vlCXchjfE/6tIpYO8dFlVMQ7t1bYna/Ce6qQJ69+kfEHbYiTTn2lj+FDjIBH7Hg==
-  dependencies:
-    "@tanstack/match-sorter-utils" "^8.7.0"
-    superjson "^1.10.0"
-    use-sync-external-store "^1.2.0"
-
 "@toast-ui/editor@3.1.10":
   version "3.1.10"
   resolved "https://registry.npmjs.org/@toast-ui/editor/-/editor-3.1.10.tgz"
@@ -2291,13 +2275,6 @@ convert-source-map@^1.5.0, convert-source-map@^1.7.0:
   version "1.9.0"
   resolved "https://registry.npmjs.org/convert-source-map/-/convert-source-map-1.9.0.tgz"
   integrity sha512-ASFBup0Mz1uyiIjANan1jzLQami9z1PoYSZCiiYW2FczPbenXc45FZdBZLzOT+r6+iciuEModtmCti+hjaAk0A==
-
-copy-anything@^3.0.2:
-  version "3.0.5"
-  resolved "https://registry.npmjs.org/copy-anything/-/copy-anything-3.0.5.tgz"
-  integrity sha512-yCEafptTtb4bk7GLEQoM8KVJpxAfdBJYaXyzQEgQQQgYrZiDp8SJmGKlYza6CYjEDNstAdNdKA3UuoULlEbS6w==
-  dependencies:
-    is-what "^4.1.8"
 
 copy-to-clipboard@3.3.3, copy-to-clipboard@^3.3.3:
   version "3.3.3"
@@ -3395,11 +3372,6 @@ is-weakref@^1.0.2:
   integrity sha512-qctsuLZmIQ0+vSSMfoVvyFe2+GSEvnmZ2ezTup1SBse9+twCCeial6EEi3Nc2KFcf6+qz2FBPnjXsk8xhKSaPQ==
   dependencies:
     call-bind "^1.0.2"
-
-is-what@^4.1.8:
-  version "4.1.15"
-  resolved "https://registry.npmjs.org/is-what/-/is-what-4.1.15.tgz"
-  integrity sha512-uKua1wfy3Yt+YqsD6mTUEa2zSi3G1oPlqTflgaPJ7z63vUGN5pxFpnQfeSLMFnJDEsdvOtkp1rUWkYjB4YfhgA==
 
 is-wsl@^2.2.0:
   version "2.2.0"
@@ -4528,13 +4500,6 @@ stylis@4.2.0:
   resolved "https://registry.npmjs.org/stylis/-/stylis-4.2.0.tgz"
   integrity sha512-Orov6g6BB1sDfYgzWfTHDOxamtX1bE/zo104Dh9e6fqJ3PooipYyfJ0pUmrZO2wAvO8YbEyeFrkV91XTsGMSrw==
 
-superjson@^1.10.0:
-  version "1.13.1"
-  resolved "https://registry.npmjs.org/superjson/-/superjson-1.13.1.tgz"
-  integrity sha512-AVH2eknm9DEd3qvxM4Sq+LTCkSXE2ssfh1t11MHMXyYXFQyQ1HLgVvV+guLTsaQnJU3gnaVo34TohHPulY/wLg==
-  dependencies:
-    copy-anything "^3.0.2"
-
 supports-color@^5.3.0:
   version "5.5.0"
   resolved "https://registry.npmjs.org/supports-color/-/supports-color-5.5.0.tgz"
@@ -4737,11 +4702,6 @@ use-sidecar@^1.1.2:
   dependencies:
     detect-node-es "^1.1.0"
     tslib "^2.0.0"
-
-use-sync-external-store@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz"
-  integrity sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==
 
 util@^0.10.3:
   version "0.10.4"

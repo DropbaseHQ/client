@@ -170,3 +170,21 @@ export const useRunFunction = (props: any = {}) => {
 		},
 	});
 };
+
+const deleteFunction = async ({ functionId }: any) => {
+	const response = await axios.delete(`/functions/${functionId}`);
+
+	return response.data;
+};
+
+export const useDeleteFunction = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(deleteFunction, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(ALL_PAGE_FUNCTIONS_QUERY_KEY);
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY);
+		},
+	});
+};

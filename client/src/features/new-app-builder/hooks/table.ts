@@ -121,3 +121,19 @@ export const useConvertSmartTable = (props: any = {}) => {
 		},
 	});
 };
+
+const deleteTable = async ({ tableId }: any) => {
+	const response = await axios.delete(`/tables/${tableId}`);
+	return response.data;
+};
+
+export const useDeleteTable = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(deleteTable, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+		},
+	});
+};
