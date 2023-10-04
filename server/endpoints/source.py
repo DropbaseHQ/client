@@ -48,7 +48,7 @@ def delete_source(source_id: UUID, db: Session = Depends(get_db)):
 @router.post("/test")
 def test_source(request: DatabaseCredentials, db: Session = Depends(get_db)):
     # TODO implement for non-postgres sources in the future
-    return source.test_source_creds_postgres(db, request)
+    return source.test_source_creds_postgres(request)
 
 @router.get("/workspace/{workspace_id}")
 def get_workspace_sources(workspace_id: UUID, db: Session = Depends(get_db)):
