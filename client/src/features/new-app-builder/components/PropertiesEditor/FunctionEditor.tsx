@@ -21,6 +21,7 @@ import {
 	generateFunctionCallSuggestions,
 	logBuilder,
 } from '@/features/new-app-builder/utils';
+import { DeleteFunction } from '@/features/new-app-builder/components/PropertiesEditor/DeleteFunction';
 
 export const FunctionEditor = ({ id }: any) => {
 	const { pageId } = useParams();
@@ -182,6 +183,14 @@ export const FunctionEditor = ({ id }: any) => {
 					</Stack>
 				</Stack>
 			) : null}
+
+			<DeleteFunction
+				w="fit-content"
+				mt="4"
+				variant="outline"
+				functionId={id}
+				functionName={name}
+			/>
 		</Stack>
 	);
 };
