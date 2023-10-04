@@ -2,6 +2,7 @@ from typing import Any, Dict, Generic, List, Type, TypeVar, Union
 from uuid import UUID
 
 from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import HTTPException
 from pydantic import BaseModel
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
@@ -30,7 +31,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def get_object_by_id_or_404(self, db: Session, id: Any) -> ModelType:
         object = db.query(self.model).get(id)
         if not object:
-            raise Exception(self.model.__name__, self.model.__name__)
+            raise HTTPException(status_code=404)
+            # raise Exception(self.model.__name__, self.model.__name__)
             # raise ResourceNotFound(self.model.__name__, self.model.__name__)
         return object
 

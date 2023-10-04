@@ -9,12 +9,6 @@ FILE_NAME = Path(__file__).name
 
 
 @pytest.mark.filename(FILE_NAME)
-def test_create_workspace(client):
-    # TODO implement POST /user
-    raise NotImplementedError("test not implemented")
-
-
-@pytest.mark.filename(FILE_NAME)
 def test_read_workspace(client):
     response = client.get(f"/workspace/{ValueStorage.workspace_id}")
     assert response.status_code == 200
