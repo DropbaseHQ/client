@@ -27,6 +27,7 @@ export const TableProperties = () => {
 	const mutation = useUpdateTableProperties({
 		onSuccess: () => {
 			refetch();
+			setErrorLog('');
 		},
 		onError: (error: any) => {
 			setErrorLog(error?.response?.data?.error || '');
@@ -48,6 +49,10 @@ export const TableProperties = () => {
 			},
 		);
 	}, [values, sourceId, reset]);
+
+	useEffect(() => {
+		setErrorLog('');
+	}, [tableId]);
 
 	const onSubmit = ({ sourceId: newSourceId, ...rest }: any) => {
 		mutation.mutate({

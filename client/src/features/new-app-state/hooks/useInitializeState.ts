@@ -18,7 +18,31 @@ export const useInitializePageState = (pageId: any) => {
 	const setNonInteractiveState = useSetAtom(nonWidgetStateAtom);
 
 	useEffect(() => {
-		setRowData(tables as any);
+		setRowData((oldTables: any) => {
+			console.log('oldtabkle', oldTables, tables);
+
+			if (
+				oldTables &&
+				tables &&
+				String(Object.keys(oldTables)) === String(Object.keys(tables))
+			) {
+				return Object.keys(oldTables).reduce((agg: any, tableName: any) => {
+					console.log(agg, tableName);
+					return {
+						...agg,
+						[tableName]: Object.keys(tables?.[tableName] || {}).reduce(
+							(acc: any, field) => ({
+								...acc,
+								[field]: oldTables?.[tableName]?.[field],
+							}),
+							{},
+						),
+					};
+				}, {});
+			}
+
+			return tables;
+		});
 	}, [tables, setRowData]);
 
 	useEffect(() => {
