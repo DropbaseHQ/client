@@ -1,4 +1,4 @@
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import { Box, Center, Spinner, Stack, Text, useColorMode, useTheme } from '@chakra-ui/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
@@ -35,7 +35,8 @@ export const NewSmartTable = ({ tableId }: any) => {
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
 	const cellEdits = allCellEdits?.[tableId] || [];
 
-	const selectRow = useSetAtom(newSelectedRowAtom);
+	const [selectedData, selectRow] = useAtom(newSelectedRowAtom);
+	const selectedRow = (selectedData as any)?.[values.name];
 
 	const [columnWidth, setColumnWidth] = useState<any>({});
 
@@ -47,6 +48,19 @@ export const NewSmartTable = ({ tableId }: any) => {
 			[col.id]: newSize,
 		}));
 	}, []);
+
+	useEffect(() => {
+		const selectedIndex = rows.findIndex(
+			(r: any) => JSON.stringify(r) === JSON.stringify(selectedRow),
+		);
+
+		if (selectedIndex !== -1 && selectedIndex !== selection.rows.toArray()[0]) {
+			setSelection((old: any) => ({
+				...old,
+				rows: CompactSelection.fromSingleSelection([selectedIndex, selectedIndex + 1]),
+			}));
+		}
+	}, [selectedRow, rows, selection]);
 
 	useEffect(() => {
 		setCellEdits((old: any) => ({
