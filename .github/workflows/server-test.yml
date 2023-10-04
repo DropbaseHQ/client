@@ -1,6 +1,6 @@
 name: Run pytest with Coverage.py
 
-on: [push, pull_request]
+on: 
 
 env:
   POSTGRES_DB_HOST: ${{ secrets.DEV_POSTGRES_DB_HOST }}
