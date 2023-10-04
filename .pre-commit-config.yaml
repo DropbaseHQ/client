@@ -2,6 +2,17 @@
 # https://rednafi.github.io/digressions/python/2020/04/06/python-precommit.html
 
 repos:
+  # server tests
+  - repo: local
+    hooks:
+    - id: server-test
+      name: Test
+      description: Unit and integration tests for Dropbase server
+      entry: pytest ./server/tests/ -c ./server/tests/pytest.ini
+      language: python
+      verbose: true
+      pass_filenames: false
+
   # isort
   # https://pycqa.github.io/isort/docs/configuration/pre-commit.html#seed-isort-config
   - repo: https://github.com/pycqa/isort
