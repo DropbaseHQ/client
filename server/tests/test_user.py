@@ -10,12 +10,6 @@ FILE_NAME = Path(__file__).name
 
 
 @pytest.mark.filename(FILE_NAME)
-def test_create_user(client):
-    # TODO implement POST /user
-    raise NotImplementedError("test not implemented")
-
-
-@pytest.mark.filename(FILE_NAME)
 def test_read_user(client):
     response = client.get(f"/user/{ValueStorage.user_id}")
     assert response.status_code == 200

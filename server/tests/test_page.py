@@ -39,7 +39,7 @@ def test_read_page(client):
 @pytest.mark.filename(FILE_NAME)
 def test_read_page_not_found(client):
     response = client.get(f"/page/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 200
+    assert response.status_code == 404
 
 
 @pytest.mark.filename(FILE_NAME)
