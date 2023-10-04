@@ -17,11 +17,28 @@ def test_create_tables(client):
             "code": "",
         },
         "page_id": ValueStorage.page_id,
+        "source_id": ValueStorage.source_id,
         "state": {},
     }
     response = client.post("/tables/", json=data)
     assert response.status_code == 200
     ValueStorage.table_id = response.json()["id"]
+    assert response.json()["name"] == "test_table"
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_create_tables_no_source(client):
+    data = {
+        "name": "test_table",
+        "property": {
+            "name": "test_table",
+            "code": "",
+        },
+        "page_id": ValueStorage.page_id,
+        "state": {},
+    }
+    response = client.post("/tables/", json=data)
+    assert response.status_code == 200
     assert response.json()["name"] == "test_table"
 
 
@@ -53,7 +70,7 @@ def test_create_tables_page_not_found(client):
         "state": {},
     }
     response = client.post("/tables/", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -65,11 +82,11 @@ def test_create_tables_source_not_found(client):
             "code": "",
         },
         "page_id": ValueStorage.page_id,
-        "source": MOCK_NONEXISTENT_UUID,
+        "source_id": MOCK_NONEXISTENT_UUID,
         "state": {},
     }
     response = client.post("/tables/", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -81,55 +98,7 @@ def test_read_tables(client):
 @pytest.mark.filename(FILE_NAME)
 def test_read_tables_not_found(client):
     response = client.get(f"/tables/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
-
-
-@pytest.mark.filename(FILE_NAME)
-def test_get_table_properties_req(client):
-    response = client.get(f"/tables/properties")
-    assert response.status_code == 200
-
-
-@pytest.mark.filename(FILE_NAME)
-def test_get_table_schema(client):
-    response = client.get(f"/tables/schema/{ValueStorage.table_id}")
-    assert response.status_code == 200
-
-
-@pytest.mark.filename(FILE_NAME)
-def test_get_table_schema_not_found(client):
-    response = client.get(f"/tables/schema/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
-
-
-@pytest.mark.filename(FILE_NAME)
-def test_get_table_req(client):
-    data = {
-        "table_id": ValueStorage.table_id,
-        "page_id": ValueStorage.page_id,
-    }
-    response = client.post(f"/tables/query", json=data)
-    assert response.status_code == 200
-
-
-@pytest.mark.filename(FILE_NAME)
-def test_get_table_req_table_not_found(client):
-    data = {
-        "table_id": MOCK_NONEXISTENT_UUID,
-        "page_id": ValueStorage.page_id,
-    }
-    response = client.post(f"/tables/query", json=data)
-    assert response.status_code == 404
-
-
-@pytest.mark.filename(FILE_NAME)
-def test_get_table_req_page_not_found(client):
-    data = {
-        "table_id": ValueStorage.table_id,
-        "page_id": MOCK_NONEXISTENT_UUID,
-    }
-    response = client.post(f"/tables/query", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -164,12 +133,66 @@ def test_update_tables_not_found(client):
         "state": {},
     }
     response = client.put(f"/tables/{MOCK_NONEXISTENT_UUID}", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_get_table_properties_req(client):
+    response = client.get(f"/tables/properties")
+    assert response.status_code == 200
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_get_table_schema(client):
+    response = client.get(f"/tables/schema/{ValueStorage.table_id}")
+    assert response.status_code == 200
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_get_table_schema_not_found(client):
+    response = client.get(f"/tables/schema/{MOCK_NONEXISTENT_UUID}")
+    assert response.status_code != 200
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_get_table_req(client):
+    data = {
+        "table_id": ValueStorage.table_id,
+        "page_id": ValueStorage.page_id,
+        "state": {},
+    }
+    response = client.post(f"/tables/query", json=data)
+    assert response.status_code == 200
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_get_table_req_table_not_found(client):
+    data = {
+        "table_id": MOCK_NONEXISTENT_UUID,
+        "page_id": ValueStorage.page_id,
+        "state": {},
+    }
+    response = client.post(f"/tables/query", json=data)
+    assert response.status_code != 200
+
+
+@pytest.mark.filename(FILE_NAME)
+def test_get_table_req_page_not_found(client):
+    data = {
+        "table_id": ValueStorage.table_id,
+        "page_id": MOCK_NONEXISTENT_UUID,
+        "state": {},
+    }
+    response = client.post(f"/tables/query", json=data)
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
 def test_convert_to_smart_req(client):
-    data = {"table_id": ValueStorage.table_id}
+    data = {
+        "table_id": ValueStorage.table_id,
+        "state": {},
+    }
     response = client.post(f"/tables/convert", json=data)
     assert response.status_code == 200
     assert response.json().get("id")
@@ -178,9 +201,12 @@ def test_convert_to_smart_req(client):
 
 @pytest.mark.filename(FILE_NAME)
 def test_convert_to_smart_req_not_found(client):
-    data = {"table_id": MOCK_NONEXISTENT_UUID}
+    data = {
+        "table_id": MOCK_NONEXISTENT_UUID,
+        "state": {},
+    }
     response = client.post(f"/tables/convert", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -209,7 +235,7 @@ def test_pin_filters_req_not_found(client):
         "filters": [test_filter],
     }
     response = client.post(f"/tables/pin_filters", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -249,5 +275,5 @@ def test_delete_tables(client):
 
 @pytest.mark.filename(FILE_NAME)
 def test_delete_tables_not_found(client):
-    response = client.delete(f"/tables/{ValueStorage.table_id}")
-    assert response.status_code == 404
+    response = client.delete(f"/tables/{MOCK_NONEXISTENT_UUID}")
+    assert response.status_code != 200

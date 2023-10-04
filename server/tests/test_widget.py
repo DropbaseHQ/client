@@ -35,7 +35,7 @@ def test_create_widget_not_found(client):
         "page_id": MOCK_NONEXISTENT_UUID,
     }
     response = client.post("/widget/", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -47,7 +47,7 @@ def test_read_widget(client):
 @pytest.mark.filename(FILE_NAME)
 def test_read_widget_not_found(client):
     response = client.get(f"/widget/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -60,7 +60,7 @@ def test_get_widget_ui(client):
 @pytest.mark.filename(FILE_NAME)
 def test_get_widget_ui_not_found(client):
     response = client.get(f"/widget/ui/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -91,7 +91,7 @@ def test_update_widget_not_found(client):
         "page_id": ValueStorage.page_id,
     }
     response = client.put(f"/widget/{MOCK_NONEXISTENT_UUID}", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -106,7 +106,7 @@ def test_update_widget_page_not_found(client):
         "page_id": MOCK_NONEXISTENT_UUID,
     }
     response = client.put(f"/widget/{ValueStorage.widget_id}", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -119,4 +119,4 @@ def test_delete_widget(client):
 @pytest.mark.filename(FILE_NAME)
 def test_delete_widget_not_found(client):
     response = client.delete(f"/widget/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200

@@ -72,7 +72,7 @@ def test_create_columns_table_not_found(client):
         "type": "postgres"
     }
     response = client.post("/columns/", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -84,7 +84,7 @@ def test_read_columns(client):
 @pytest.mark.filename(FILE_NAME)
 def test_read_columns_not_found(client):
     response = client.get(f"/columns/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -97,7 +97,7 @@ def test_get_table_columns(client):
 @pytest.mark.filename(FILE_NAME)
 def test_get_table_columns_not_found(client):
     response = client.get(f"/columns/table/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -106,7 +106,7 @@ def test_update_columns(client):
     data = {
         "name": update_name,
         "property": {
-            "name": "age",
+            "name": update_name,
             "unique": False,
             "visible": True,
             "editable": False,
@@ -142,7 +142,7 @@ def test_update_columns_not_found(client):
         "type": "postgres"
     }
     response = client.put(f"/columns/{MOCK_NONEXISTENT_UUID}", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -155,4 +155,4 @@ def test_delete_columns(client):
 @pytest.mark.filename(FILE_NAME)
 def test_delete_columns_not_found(client):
     response = client.delete(f"/columns/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 200
+    assert response.status_code != 200

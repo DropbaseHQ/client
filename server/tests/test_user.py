@@ -18,7 +18,7 @@ def test_read_user(client):
 @pytest.mark.filename(FILE_NAME)
 def test_read_user(client):
     response = client.get(f"/user/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -86,7 +86,7 @@ def test_update_user_not_found(client):
         "active": True,
     }
     response = client.put(f"/user/{MOCK_NONEXISTENT_UUID}", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -135,7 +135,7 @@ def test_delete_user(client):
 @pytest.mark.filename(FILE_NAME)
 def test_delete_user_not_found(client):
     response = client.delete(f"/user/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)

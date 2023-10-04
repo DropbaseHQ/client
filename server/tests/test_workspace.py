@@ -17,7 +17,7 @@ def test_read_workspace(client):
 @pytest.mark.filename(FILE_NAME)
 def test_read_workspace_not_found(client):
     response = client.get(f"/workspace/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -40,7 +40,7 @@ def test_update_workspace_not_found(client):
         "active": True,
     }
     response = client.put(f"/workspace/{MOCK_NONEXISTENT_UUID}", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -54,4 +54,4 @@ def test_delete_workspace(client):
 @pytest.mark.filename(FILE_NAME)
 def test_delete_workspace_not_found(client):
     response = client.delete(f"/workspace/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200

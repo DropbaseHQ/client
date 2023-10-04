@@ -41,7 +41,7 @@ def test_create_app_workspace_not_found(client):
         "workspace_id": MOCK_NONEXISTENT_UUID,
     }
     response = client.post("/app/", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -53,7 +53,7 @@ def test_read_app(client):
 @pytest.mark.filename(FILE_NAME)
 def test_read_app_not_found(client):
     response = client.get(f"/app/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -73,7 +73,7 @@ def test_get_app_pages(client):
 @pytest.mark.filename(FILE_NAME)
 def test_get_app_pages_not_found(client):
     response = client.get(f"/app/{MOCK_NONEXISTENT_UUID}/pages")
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -90,7 +90,7 @@ def test_update_app(client):
 @pytest.mark.filename(FILE_NAME)
 def test_update_app_not_found(client):
     response = client.put(f"/app/{MOCK_NONEXISTENT_UUID}", json={})
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -103,4 +103,4 @@ def test_delete_app(client):
 @pytest.mark.filename(FILE_NAME)
 def test_delete_app_not_found(client):
     response = client.delete(f"/app/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200

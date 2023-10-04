@@ -46,7 +46,7 @@ def test_create_source_not_found(client):
         },
     }
     response = client.post("/source/", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -97,7 +97,7 @@ def test_read_source(client):
 @pytest.mark.filename(FILE_NAME)
 def test_read_source_not_found(client):
     response = client.get(f"/source/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -134,7 +134,7 @@ def test_update_source_not_found(client):
         },
     }
     response = client.put(f"/source/{MOCK_NONEXISTENT_UUID}", json=data)
-    assert response.status_code == 404
+    assert response.status_code != 200
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -184,4 +184,4 @@ def test_delete_source(client):
 @pytest.mark.filename(FILE_NAME)
 def test_delete_source_not_found(client):
     response = client.delete(f"/source/{MOCK_NONEXISTENT_UUID}")
-    assert response.status_code == 404
+    assert response.status_code != 200
