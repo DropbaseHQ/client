@@ -62,7 +62,6 @@ def order_tables(tables):
 
     def dfs(node, chain):
         if node not in visited:
-            print("node", node)
             visited.add(node)
             chain.append(node)
 
