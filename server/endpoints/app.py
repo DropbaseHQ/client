@@ -7,19 +7,20 @@ from server import crud
 from server.controllers import app as app_controller
 from server.models import User
 from server.schemas.app import CreateApp, UpdateApp
-from server.utils.authorization import RESOURCES, generate_resource_dependency, get_current_user
+from server.utils.authorization import (
+    RESOURCES,
+    get_current_user,
+    AuthZDepFactory,
+)
 from server.utils.connect import get_db
 
-authorize_app_actions = generate_resource_dependency(RESOURCES.APP)
 
-
-authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+app_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.APP)
 router = APIRouter(
     prefix="/app",
     tags=["app"],
     dependencies=[
-        Depends(authorize_app_actions),
-        Depends(authorize_components_actions),
+        Depends(app_authorizer),
     ],
 )
 
@@ -34,10 +35,7 @@ def get_app(app_id: UUID, db: Session = Depends(get_db)):
     return crud.app.get_object_by_id_or_404(db, id=app_id)
 
 
-authorize_app_creation = generate_resource_dependency(RESOURCES.WORKSPACE, is_on_resource_creation=True)
-
-
-@router.post("/", dependencies=[Depends(authorize_app_creation)])
+@router.post("/")
 def create_app(
     request: CreateApp, db: Session = Depends(get_db), user: User = Depends(get_current_user)
 ):

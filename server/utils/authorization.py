@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from typing import Optional, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -10,6 +11,9 @@ from server.models import User
 from server.utils.authentication import get_current_user
 from server.utils.connect import get_db
 from server.utils.permissions.casbin_utils import enforce_action
+
+
+logger = logging.getLogger(__name__)
 
 
 class RESOURCES:
@@ -50,21 +54,10 @@ resource_query_mapper = {
 }
 request_action_mapper = {
     "GET": ACTIONS.USE,
-    "POST": ACTIONS.OWN,
+    "POST": ACTIONS.EDIT,
     "PUT": ACTIONS.EDIT,
-    "DELETE": ACTIONS.OWN,
+    "DELETE": ACTIONS.EDIT,
 }
-
-
-def get_resource_workspace_id(db: Session, resource_id: str, resource_type: str):
-    if resource_type in resource_query_mapper:
-        crud_handler = resource_query_mapper[resource_type]
-        if hasattr(crud_handler, "get_workspace_id"):
-            return crud_handler.get_workspace_id(db, resource_id)
-        resource = crud_handler.get(db, resource_id)
-        if hasattr(resource, "workspace_id"):
-            return resource.workspace_id
-    return None
 
 
 def verify_user_id_belongs_to_current_user(
@@ -78,47 +71,136 @@ def verify_user_id_belongs_to_current_user(
         )
 
 
-def generate_resource_dependency(resource_type: str, is_on_resource_creation: bool = False):
-    resource_id_accessor = f"{resource_type}_id"
+class AuthZDepFactory:
+    def __init__(self, default_resource_type: str):
+        self.default_resource_type = default_resource_type
 
-    def get_resource_id_from_path_params(request: Request) -> Optional[str]:
+    @staticmethod
+    def _get_resource_id_from_path_params(resource_id_accessor: str, request: Request) -> Optional[str]:
         return request.path_params.get(resource_id_accessor, None)
 
-    def get_resource_id_from_req_body(request: Request) -> Optional[str]:
+    @staticmethod
+    def _get_resource_id_from_req_body(resource_id_accessor: str, request: Request) -> Optional[str]:
+        if request.headers.get("content-type") == "application/json":
+            body = asyncio.run(request.json())
+            return body.get(resource_id_accessor)
+        return None
+
+    @staticmethod
+    def _get_workspace_id_from_req_body(request: Request) -> Optional[str]:
         body = asyncio.run(request.json())
-        return body.get(resource_id_accessor)
+        return body.get("workspace_id")
 
-    if is_on_resource_creation:
-        get_resource_id = get_resource_id_from_req_body
-    else:
-        get_resource_id = get_resource_id_from_path_params
+    def _get_resource_id(self, resource_id_accessor: str, request: Request) -> Optional[str]:
+        resource_id = None
 
-    def verify_user_can_act_on_resource(
-        request: Request,
-        db: Session = Depends(get_db),
-        user: User = Depends(get_current_user),
-    ):
-        resource_id = get_resource_id(request)
-        request_action = request.method
+        resource_id = self._get_resource_id_from_path_params(resource_id_accessor, request)
         if resource_id is None:
-            return True
+            resource_id = self._get_resource_id_from_req_body(resource_id_accessor, request)
 
-        resource_workspace_id = get_resource_workspace_id(db, resource_id, resource_type)
+        if resource_id is None:
+            # logger.warning(
+            #     f"Resource ID not found in request {request.url}. Authorization passes for now."
+            # )
+            return False
+        return resource_id
+
+    def _get_workspace_id(self, resource_id: str, request: Request) -> Optional[str]:
+        workspace_id = None
+        workspace_id = self._get_workspace_id_from_req_body(request)
+
+        if workspace_id is None and resource_id is None:
+            logger.warning(f"Workspace ID not found in request {request}. Resource ID not found either.")
+            return False
+
+    @staticmethod
+    def _get_resource_workspace_id(db: Session, resource_id, resource_type):
+        if resource_type in resource_query_mapper:
+            crud_handler = resource_query_mapper[resource_type]
+            if hasattr(crud_handler, "get_workspace_id"):
+                return crud_handler.get_workspace_id(db, resource_id)
+            resource = crud_handler.get(db, resource_id)
+            if hasattr(resource, "workspace_id"):
+                return resource.workspace_id
+        return None
+
+    def _get_enforcement_params(
+        self, db: Session, request: Request, user: User, resource_type: str = None, action: str = None
+    ):
+        if resource_type is None:
+            resource_type = self.default_resource_type
+        resource_id_accessor = f"{resource_type}_id"
+
+        # We want to find the resource id so that we can find the workspace id.
+        # The workspace id is used to check if the user is in the workspace and what role they are.
+        resource_id = self._get_resource_id(resource_id_accessor, request)
+        if resource_id is False:
+            return None, None, None, None
+        resource_workspace_id = self._get_resource_workspace_id(db, resource_id, resource_type)
+
         if resource_workspace_id is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Resource {resource_id} of type {resource_type} not found",
             )
-        can_act_on_resource = crud.user_role.user_is_in_workspace(
-            db, user.id, resource_workspace_id
-        ) and enforce_action(
-            db, user.id, resource_workspace_id, resource_type, request_action_mapper[request_action]
-        )
-        if not can_act_on_resource:
+
+        user_role = crud.user_role.get_user_role(db, user.id, resource_workspace_id)
+        if user_role is None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"User {user.id} cannot act on resource {resource_id}",
+                detail=f"User {user.id} is not in workspace {resource_workspace_id}",
             )
-        return True
 
-    return verify_user_can_act_on_resource
+        if action is None:
+            action = request_action_mapper.get(request.method)
+
+        return resource_workspace_id, resource_type, action, resource_id
+
+    @staticmethod
+    def _raise_forbidden(user: User, resource_id: str):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"User {user.id} cannot act on resource {resource_id}",
+        )
+
+    def __call__(
+        self, request: Request, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+    ):
+        workspace_id, resource_type, action, resource_id = self._get_enforcement_params(
+            db=db, request=request, user=user
+        )
+        # TODO: Remove this hack. Get endpoints need workspace_id
+        if workspace_id is None:
+            return True
+        is_authorized = enforce_action(
+            db=db, user_id=user.id, workspace_id=workspace_id, resource=resource_type, action=action
+        )
+        if not is_authorized:
+            self._raise_forbidden(user, resource_id)
+
+    def use_params(self, resource_type: str = None, action: str = None):
+        """Returns a one time dependency that uses the given resource type and action."""
+
+        def verify_user_can_act_on_resource(
+            request: Request,
+            db: Session = Depends(get_db),
+            user: User = Depends(get_current_user),
+        ):
+            workspace_id, resource_type_inner, action_inner, resource_id = self._get_enforcement_params(
+                db, request, user, resource_type, action
+            )
+            # TODO: Remove this hack. Get endpoints need workspace_id
+            if workspace_id is None:
+                return True
+            is_authorized = enforce_action(
+                db=db,
+                user_id=user.id,
+                workspace_id=workspace_id,
+                resource=resource_type_inner,
+                action=action_inner,
+            )
+
+            if not is_authorized:
+                self._raise_forbidden(user, resource_id)
+
+        return verify_user_can_act_on_resource
