@@ -16,14 +16,17 @@ from server.schemas.user import (
 )
 from server.utils.authorization import (
     RESOURCES,
+<<<<<<< HEAD
     generate_resource_dependency,
     authorize_user_actions,
+=======
+    verify_user_id_belongs_to_current_user,
+>>>>>>> dev
 )
 
-from server.utils.permissions.casbin_utils import enforce_action
 from server.utils.connect import get_db
 
-authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+
 router = APIRouter(prefix="/user", tags=["user"])
 
 
@@ -32,7 +35,6 @@ from server.utils.authentication import get_current_user
 
 @router.get("/workspaces")
 def get_user_worpsaces(db: Session = Depends(get_db), user: Any = Depends(get_current_user)):
-    # enforce_action(db, user.id, "bd596664-79b7-4bce-baed-b6a819ae3442", "app", "read")
     return crud.workspace.get_user_workspaces(db, user_id=user.id)
 
 
@@ -46,7 +48,7 @@ def login_user(request: LoginUser, db: Session = Depends(get_db), Authorize: Aut
     return user.login_user(db, Authorize, request)
 
 
-@router.delete("/logout", dependencies=[Depends(authorize_components_actions)])
+@router.delete("/logout")
 def logout_user(response: Response, Authorize: AuthJWT = Depends()):
     return user.logout_user(response, Authorize)
 
@@ -56,18 +58,12 @@ def refresh_token(Authorize: AuthJWT = Depends()):
     return user.refresh_token(Authorize)
 
 
-@router.post("/reset_password", dependencies=[
-    Depends(authorize_components_actions),
-    Depends(authorize_user_actions),
-])
+@router.post("/reset_password")
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
     return user.reset_password(db, request)
 
 
-@router.get("/{user_id}", dependencies=[
-    Depends(authorize_components_actions),
-    Depends(authorize_user_actions),
-])
+@router.get("/{user_id}")
 def get_user(user_id: UUID, db: Session = Depends(get_db)):
     return crud.user.get_object_by_id_or_404(db, id=user_id)
 
@@ -78,17 +74,11 @@ def create_user(request: CreateUser, db: Session = Depends(get_db)):
     return crud.user.create(db, request)
 
 
-@router.put("/{user_id}", dependencies=[
-    Depends(authorize_components_actions),
-    Depends(authorize_user_actions),
-])
+@router.put("/{user_id}")
 def update_user(user_id: UUID, request: UpdateUser, db: Session = Depends(get_db)):
     return crud.user.update_by_pk(db, pk=user_id, obj_in=request)
 
 
-@router.delete("/{user_id}", dependencies=[
-    Depends(authorize_components_actions),
-    Depends(authorize_user_actions),
-])
+@router.delete("/{user_id}")
 def delete_user(user_id: UUID, db: Session = Depends(get_db)):
     return crud.user.remove(db, id=user_id)

@@ -15,19 +15,17 @@ from server.schemas.tables import (
     TablesReadProperty,
     UpdateTablesRequest,
 )
-from server.utils.authorization import RESOURCES, generate_resource_dependency
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
 
-authorize_tables_actions = generate_resource_dependency(RESOURCES.TABLES)
-authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+
+table_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.TABLES)
+
 router = APIRouter(
     prefix="/tables",
     tags=["tables"],
-    dependencies=[
-        Depends(authorize_tables_actions),
-        Depends(authorize_components_actions),
-    ],
+    dependencies=[Depends(table_authorizer)],
 )
 
 
@@ -41,10 +39,7 @@ def get_tables(tables_id: UUID, db: Session = Depends(get_db)):
     return get_table(db, tables_id)
 
 
-authorize_tables_creation = generate_resource_dependency(RESOURCES.PAGE, is_on_resource_creation=True)
-
-
-@router.post("/", dependencies=[Depends(authorize_tables_creation)])
+@router.post("/", dependencies=[Depends(table_authorizer.use_params(resource_type=RESOURCES.PAGE))])
 def create_tables(request: CreateTablesRequest, db: Session = Depends(get_db)):
     return create_table(db, request)
 

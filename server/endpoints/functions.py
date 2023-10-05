@@ -6,18 +6,15 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers.functions import get_ui_functions
 from server.schemas.functions import CreateFunctions, UpdateFunctions
-from server.utils.authorization import RESOURCES, generate_resource_dependency
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 
-authorize_functions_actions = generate_resource_dependency(RESOURCES.FUNCTIONS)
-authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+
+function_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.FUNCTIONS)
 router = APIRouter(
     prefix="/functions",
     tags=["functions"],
-    dependencies=[
-        Depends(authorize_functions_actions),
-        Depends(authorize_components_actions),
-    ],
+    dependencies=[Depends(function_authorizer)],
 )
 
 
@@ -26,10 +23,8 @@ def get_functions(functions_id: UUID, db: Session = Depends(get_db)):
     return crud.functions.get_object_by_id_or_404(db, id=functions_id)
 
 
-authorize_functions_creation = generate_resource_dependency(RESOURCES.PAGE, is_on_resource_creation=True)
-
-
-@router.post("/", dependencies=[Depends(authorize_functions_creation)])
+# We overwrite the default resource type here because only page_id is available in the request body
+@router.post("/", dependencies=[Depends(function_authorizer.use_params(resource_type=RESOURCES.PAGE))])
 def create_functions(request: CreateFunctions, db: Session = Depends(get_db)):
     if request.name is None:
         page_funcs = crud.functions.get_page_functions(db, page_id=request.page_id)
@@ -51,11 +46,18 @@ def delete_functions(functions_id: UUID, db: Session = Depends(get_db)):
     return crud.functions.remove(db, id=functions_id)
 
 
-@router.get("/page/{page_id}")
+# TODO: Does it make more sense to put these in the page endpoint?
+@router.get(
+    "/page/{page_id}",
+    dependencies=[Depends(function_authorizer.use_params(resource_type=RESOURCES.PAGE))],
+)
 def get_page_functions(page_id: UUID, db: Session = Depends(get_db)):
     return crud.functions.get_page_functions(db, page_id=page_id)
 
 
-@router.get("/page/ui/{page_id}")
+@router.get(
+    "/page/ui/{page_id}",
+    dependencies=[Depends(function_authorizer.use_params(resource_type=RESOURCES.PAGE))],
+)
 def get_page_ui_functions(page_id: UUID, db: Session = Depends(get_db)):
     return get_ui_functions(db, page_id=page_id)

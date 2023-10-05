@@ -5,18 +5,16 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.schemas.role import CreateRole, UpdateRole
-from server.utils.authorization import RESOURCES, generate_resource_dependency
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 
-authorize_workspace_actions = generate_resource_dependency(RESOURCES.WORKSPACE)
-authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+
+role_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WORKSPACE)
+
 router = APIRouter(
     prefix="/role",
     tags=["role"],
-    dependencies=[
-        Depends(authorize_workspace_actions),
-        Depends(authorize_components_actions),
-    ],
+    dependencies=[Depends(role_authorizer)],
 )
 
 
@@ -25,10 +23,7 @@ def get_role(role_id: UUID, db: Session = Depends(get_db)):
     return crud.user_role.get_object_by_id_or_404(db, id=role_id)
 
 
-authorize_role_creation = generate_resource_dependency(RESOURCES.WORKSPACE, is_on_resource_creation=True)
-
-
-@router.post("/", dependencies=[Depends(authorize_role_creation)])
+@router.post("/")
 def create_role(request: CreateRole, db: Session = Depends(get_db)):
     return crud.user_role.create(db, obj_in=request)
 
