@@ -99,7 +99,9 @@ class AuthZDepFactory:
             resource_id = self._get_resource_id_from_req_body(resource_id_accessor, request)
 
         if resource_id is None:
-            logger.warning(f"Resource ID not found in request {request}")
+            logger.warning(
+                f"Resource ID not found in request {request.url}. Authorization passes for now."
+            )
             return False
         return resource_id
 
