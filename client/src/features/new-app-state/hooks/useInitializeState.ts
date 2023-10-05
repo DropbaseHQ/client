@@ -19,24 +19,24 @@ export const useInitializePageState = (pageId: any) => {
 
 	useEffect(() => {
 		setRowData((oldTables: any) => {
-			console.log('oldtabkle', oldTables, tables);
+			if (oldTables && tables) {
+				return Object.keys(tables).reduce((agg: any, tableName: any) => {
+					if (oldTables[tableName]) {
+						return {
+							...agg,
+							[tableName]: Object.keys(tables?.[tableName] || {}).reduce(
+								(acc: any, field) => ({
+									...acc,
+									[field]: oldTables?.[tableName]?.[field],
+								}),
+								{},
+							),
+						};
+					}
 
-			if (
-				oldTables &&
-				tables &&
-				String(Object.keys(oldTables)) === String(Object.keys(tables))
-			) {
-				return Object.keys(oldTables).reduce((agg: any, tableName: any) => {
-					console.log(agg, tableName);
 					return {
 						...agg,
-						[tableName]: Object.keys(tables?.[tableName] || {}).reduce(
-							(acc: any, field) => ({
-								...acc,
-								[field]: oldTables?.[tableName]?.[field],
-							}),
-							{},
-						),
+						[tableName]: tables[tableName],
 					};
 				}, {});
 			}

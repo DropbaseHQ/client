@@ -181,7 +181,7 @@ export const NewSmartTable = ({ tableId }: any) => {
 
 		let cellContent = {};
 
-		if (column.primary_key) {
+		if (column?.primary_key) {
 			cellContent = {
 				kind,
 				data: String(cellValue),
