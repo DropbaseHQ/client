@@ -6,6 +6,8 @@ import { useInitializePageState } from './hooks';
 import { ObjectRenderer } from '@/components/ObjectRenderer';
 import { newPageStateAtom } from '@/features/new-app-state';
 
+const DEFAULT_OPEN_PATH = ['user_input', 'state', 'tables'];
+
 export const NewAppState = () => {
 	const { pageId } = useParams();
 
@@ -23,7 +25,7 @@ export const NewAppState = () => {
 				State Manager
 			</Text>
 			<Box p="2" flex="1" h="full" overflowY="auto">
-				<ObjectRenderer obj={pageState} />
+				<ObjectRenderer obj={pageState} expandedPaths={DEFAULT_OPEN_PATH} />
 			</Box>
 		</Stack>
 	);
