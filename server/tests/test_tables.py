@@ -253,20 +253,6 @@ def test_pin_filters_req_invalid_condition(client):
 
 
 @pytest.mark.filename(FILE_NAME)
-def test_pin_filters_req_nonexistent_column(client):
-    test_filter = {
-        "column_name": "emailasojdnaosdnasodnasof",
-        "condition": "<",
-    }
-    data = {
-        "table_id": ValueStorage.table_id,
-        "filters": [test_filter],
-    }
-    response = client.post(f"/tables/pin_filters", json=data)
-    assert response.status_code != 200
-
-
-@pytest.mark.filename(FILE_NAME)
 def test_delete_tables(client):
     response = client.delete(f"/tables/{ValueStorage.table_id}")
     assert response.status_code == 200

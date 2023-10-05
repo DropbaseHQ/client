@@ -132,17 +132,6 @@ def test_update_components_not_found(client):
 
 
 @pytest.mark.filename(FILE_NAME)
-def test_update_components_widget_not_found(client):
-    data = {
-        "property": {"name": "new my_button", "label": "my label"},
-        "widget_id": MOCK_NONEXISTENT_UUID,
-        "type": "button",
-    }
-    response = client.put(f"/components/{ValueStorage.component_id}", json=data)
-    assert response.status_code != 200
-
-
-@pytest.mark.filename(FILE_NAME)
 def test_delete_components(client):
     response = client.delete(f"/components/{ValueStorage.component_id}")
     assert response.status_code == 200

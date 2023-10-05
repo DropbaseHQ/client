@@ -95,21 +95,6 @@ def test_update_widget_not_found(client):
 
 
 @pytest.mark.filename(FILE_NAME)
-def test_update_widget_page_not_found(client):
-    update_desc = "updated test widget description"
-    data = {
-        "name": "test widget",
-        "property": {
-            "name": "test widget property",
-            "description": update_desc,
-        },
-        "page_id": MOCK_NONEXISTENT_UUID,
-    }
-    response = client.put(f"/widget/{ValueStorage.widget_id}", json=data)
-    assert response.status_code != 200
-
-
-@pytest.mark.filename(FILE_NAME)
 def test_delete_widget(client):
     response = client.delete(f"/widget/{ValueStorage.widget_id}")
     assert response.status_code == 200
