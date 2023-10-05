@@ -1,8 +1,13 @@
 from datetime import datetime
+from enum import StrEnum
 from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
+
+
+class FunctionType(StrEnum):
+    PYTHON = "python"
 
 
 class BaseFunctions(BaseModel):
@@ -10,7 +15,7 @@ class BaseFunctions(BaseModel):
     code: str
     test_code: Optional[str]
     page_id: UUID
-    type: Optional[str]
+    type: Optional[FunctionType]
 
     class Config:
         orm_mode = True
