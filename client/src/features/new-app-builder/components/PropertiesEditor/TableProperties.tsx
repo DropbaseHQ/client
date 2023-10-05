@@ -11,6 +11,7 @@ import { NewSourceForm } from '@/features/sources/routes/NewSource';
 import { InputLoader } from '@/components/Loader';
 import { newPageStateAtom } from '@/features/new-app-state';
 import { selectedTableIdAtom } from '@/features/new-app-builder/atoms';
+import { DeleteTable } from '@/features/new-app-builder/components/PropertiesEditor/DeleteTable';
 
 export const TableProperties = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
@@ -26,6 +27,7 @@ export const TableProperties = () => {
 	const mutation = useUpdateTableProperties({
 		onSuccess: () => {
 			refetch();
+			setErrorLog('');
 		},
 		onError: (error: any) => {
 			setErrorLog(error?.response?.data?.error || '');
@@ -47,6 +49,10 @@ export const TableProperties = () => {
 			},
 		);
 	}, [values, sourceId, reset]);
+
+	useEffect(() => {
+		setErrorLog('');
+	}, [tableId]);
 
 	const onSubmit = ({ sourceId: newSourceId, ...rest }: any) => {
 		mutation.mutate({
@@ -95,7 +101,15 @@ export const TableProperties = () => {
 	}
 
 	return (
-		<Stack p="3" m="3" maxH="full" borderRadius="sm" borderWidth="1px" bg="white">
+		<Stack
+			p="3"
+			m="3"
+			maxH="full"
+			overflow="auto"
+			borderRadius="sm"
+			borderWidth="1px"
+			bg="white"
+		>
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
 					<Stack p="3" spacing="4">
@@ -145,6 +159,10 @@ export const TableProperties = () => {
 					</Stack>
 				</FormProvider>
 			</form>
+
+			<Box p="2">
+				<DeleteTable tableId={tableId} tableName={values.name} />
+			</Box>
 		</Stack>
 	);
 };

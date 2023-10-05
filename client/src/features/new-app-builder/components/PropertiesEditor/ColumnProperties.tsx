@@ -16,6 +16,7 @@ import {
 	Spinner,
 	Button,
 	Divider,
+	SimpleGrid,
 } from '@chakra-ui/react';
 import { InputRenderer } from '@/components/FormInput';
 import {
@@ -61,6 +62,13 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 	};
 
 	const hasNoEditKeys = properties.edit_keys?.length === 0;
+
+	const allVisibleProperties = schema.filter((property: any) =>
+		DISPLAY_COLUMN_PROPERTIES.includes(property.name),
+	);
+
+	const nonBooleanProperties = allVisibleProperties.filter((p: any) => p.type !== 'boolean');
+	const booleanProperties = allVisibleProperties.filter((p: any) => p.type === 'boolean');
 
 	return (
 		<AccordionItem>
@@ -110,17 +118,22 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 				</Stack>
 			</AccordionButton>
 			<AccordionPanel borderTopWidth="1px">
-				<Stack p="2">
-					{schema
-						.filter((property: any) =>
-							DISPLAY_COLUMN_PROPERTIES.includes(property.name),
-						)
-						.map((property: any) => (
+				<Stack py="2" px="8">
+					{nonBooleanProperties.map((property: any) => (
+						<FormControl key={property.name}>
+							<FormLabel>{property.name}</FormLabel>
+							<InputRenderer {...property} value={properties[property.name]} />
+						</FormControl>
+					))}
+
+					<SimpleGrid columns={2} spacing={2}>
+						{booleanProperties.map((property: any) => (
 							<FormControl key={property.name}>
 								<FormLabel>{property.name}</FormLabel>
 								<InputRenderer {...property} value={properties[property.name]} />
 							</FormControl>
 						))}
+					</SimpleGrid>
 				</Stack>
 			</AccordionPanel>
 		</AccordionItem>
