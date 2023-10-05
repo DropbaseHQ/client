@@ -72,7 +72,7 @@ def test_get_page_functions(client):
 @pytest.mark.filename(FILE_NAME)
 def test_get_page_functions_not_found(client):
     response = client.get(f"/functions/page/{MOCK_NONEXISTENT_UUID}")
-    assert response.json() == []
+    assert response.json() == {}
 
 
 @pytest.mark.filename(FILE_NAME)
@@ -84,7 +84,7 @@ def test_get_page_ui_functions(client):
 @pytest.mark.filename(FILE_NAME)
 def test_get_page_ui_functions_not_found(client):
     response = client.get(f"/functions/page/ui/{MOCK_NONEXISTENT_UUID}")
-    assert response.json() == []
+    assert response.json() == {}
 
 
 @pytest.mark.filename(FILE_NAME)
