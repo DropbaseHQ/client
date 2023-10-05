@@ -5,20 +5,18 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.schemas.widget import CreateWidget, UpdateWidget, WidgetBaseProperty
-from server.utils.authorization import RESOURCES, generate_resource_dependency
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.components import order_components
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
 
-authorize_widget_actions = generate_resource_dependency(RESOURCES.WIDGET)
-authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+
+widget_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WIDGET)
+
 router = APIRouter(
     prefix="/widget",
     tags=["widget"],
-    dependencies=[
-        Depends(authorize_widget_actions),
-        Depends(authorize_components_actions),
-    ],
+    dependencies=[Depends(widget_authorizer)],
 )
 
 
@@ -29,10 +27,7 @@ def get_widget(widget_id: UUID, db: Session = Depends(get_db)):
     return {"schema": widget_props, "values": widget}
 
 
-authorize_widget_creation = generate_resource_dependency(RESOURCES.PAGE, is_on_resource_creation=True)
-
-
-@router.post("/", dependencies=[Depends(authorize_widget_creation)])
+@router.post("/", dependencies=[Depends(widget_authorizer.use_params(resource_type=RESOURCES.PAGE))])
 def create_widget(request: CreateWidget, db: Session = Depends(get_db)):
     request.name = request.property.name
     return crud.widget.create(db, obj_in=request)

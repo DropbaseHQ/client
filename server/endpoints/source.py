@@ -6,18 +6,15 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers.source import source
 from server.schemas.source import CreateSourceRequest, UpdateSourceRequest, DatabaseCredentials
-from server.utils.authorization import RESOURCES, generate_resource_dependency
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 
-authorize_source_actions = generate_resource_dependency(RESOURCES.SOURCE)
-authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+source_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.SOURCE)
+
 router = APIRouter(
     prefix="/source",
     tags=["source"],
-    dependencies=[
-        Depends(authorize_source_actions),
-        Depends(authorize_components_actions),
-    ],
+    dependencies=[Depends(source_authorizer)],
 )
 
 
@@ -26,12 +23,9 @@ def get_source(source_id: UUID, db: Session = Depends(get_db)):
     return source.get_source(db, source_id)
 
 
-authorize_source_creation = generate_resource_dependency(
-    RESOURCES.WORKSPACE, is_on_resource_creation=True
+@router.post(
+    "/", dependencies=[Depends(source_authorizer.use_params(resource_type=RESOURCES.WORKSPACE))]
 )
-
-
-@router.post("/", dependencies=[Depends(authorize_source_creation)])
 def create_source(request: CreateSourceRequest, db: Session = Depends(get_db)):
     return source.create_source(db, request)
 
@@ -45,11 +39,16 @@ def update_source(source_id: UUID, request: UpdateSourceRequest, db: Session = D
 def delete_source(source_id: UUID, db: Session = Depends(get_db)):
     return source.delete_source(db, source_id)
 
+
 @router.post("/test")
 def test_source(request: DatabaseCredentials, db: Session = Depends(get_db)):
     # TODO implement for non-postgres sources in the future
     return source.test_source_creds_postgres(request)
 
-@router.get("/workspace/{workspace_id}")
+
+@router.get(
+    "/workspace/{workspace_id}",
+    dependencies=[Depends(source_authorizer.use_params(resource_type=RESOURCES.WORKSPACE))],
+)
 def get_workspace_sources(workspace_id: UUID, db: Session = Depends(get_db)):
     return crud.source.get_workspace_sources(db, workspace_id=workspace_id)

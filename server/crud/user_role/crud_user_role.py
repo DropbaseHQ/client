@@ -24,7 +24,7 @@ class CRUDUserRole(CRUDBase[UserRole, CreateRole, UpdateRole]):
             .join(UserRole, UserRole.role_id == Role.id)
             .filter(UserRole.user_id == user_id)
             .filter(UserRole.workspace_id == workspace_id)
-            .one()
+            .one_or_none()
         )
 
 
