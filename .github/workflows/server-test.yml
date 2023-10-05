@@ -32,6 +32,4 @@ jobs:
 
     - name: Run pytest with coverage
       working-directory: server/tests/
-      run: |
-        coverage run -m pytest
-        coverage report -m
+      run: pytest -s
