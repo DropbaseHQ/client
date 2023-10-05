@@ -16,12 +16,7 @@ from server.schemas.user import (
 )
 from server.utils.authorization import (
     RESOURCES,
-<<<<<<< HEAD
-    generate_resource_dependency,
-    authorize_user_actions,
-=======
     verify_user_id_belongs_to_current_user,
->>>>>>> dev
 )
 
 from server.utils.connect import get_db
