@@ -20,6 +20,7 @@ class ValueStorage:
     columns_id = None
     widget_id = None
     component_id = None
+    after_component_id = None
     user_id = None
     user_role_id = None
     workspace_id = None

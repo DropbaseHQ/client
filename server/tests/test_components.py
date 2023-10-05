@@ -31,6 +31,7 @@ def test_create_components_select(client):
     }
     response = client.post("/components/", json=data)
     ValueStorage.component_id = response.json()["id"]
+    ValueStorage.after_component_id = response.json()["id"]
     assert response.status_code == 200
 
 
@@ -156,8 +157,13 @@ def test_delete_components_not_found(client):
 
 @pytest.mark.filename(FILE_NAME)
 def test_reorder_components(client):
-    # TODO test POST /components/reorder
-    raise NotImplementedError("test not implemented")
+    data = {
+        "widget_id": ValueStorage.widget_id,
+        "component_id": ValueStorage.component_id,
+        "after": ValueStorage.after_component_id,
+    }
+    response = client.post("components/reorder", json=data)
+    assert response.status_code == 200
 
 
 @pytest.mark.filename(FILE_NAME)
