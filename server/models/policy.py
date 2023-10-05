@@ -8,6 +8,7 @@ from .base import Base
 class Policy(Base):
     id = Column(UUID(as_uuid=True), server_default=text("uuid_generate_v4()"), primary_key=True)
     role_id = Column(UUID(as_uuid=True), ForeignKey("role.id", ondelete="CASCADE"))
+    workspace_id = Column(UUID(as_uuid=True), ForeignKey("workspace.id", ondelete="CASCADE"))
     ptype = Column(String, nullable=False)
     v0 = Column(String)
     v1 = Column(String)
