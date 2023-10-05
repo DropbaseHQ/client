@@ -6,18 +6,15 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.schemas.workspace import CreateWorkspace, UpdateWorkspace
 from server.utils.connect import get_db
-from server.utils.authorization import generate_resource_dependency, RESOURCES
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 
 
-authorize_workspace_actions = generate_resource_dependency(RESOURCES.WORKSPACE)
-authorize_components_actions = generate_resource_dependency(RESOURCES.COMPONENTS)
+workspace_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WORKSPACE)
+
 router = APIRouter(
     prefix="/workspace",
     tags=["workspace"],
-    dependencies=[
-        Depends(authorize_workspace_actions),
-        Depends(authorize_components_actions),
-    ],
+    dependencies=[Depends(workspace_authorizer)],
 )
 
 
@@ -28,10 +25,7 @@ def get_workspace(workspace_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/")
 def create_workspace(request: CreateWorkspace, db: Session = Depends(get_db)):
-    raise HTTPException(
-        status_code=501,
-        detail="Endpoint POST /workspace is not implemented"
-    )
+    raise HTTPException(status_code=501, detail="Endpoint POST /workspace is not implemented")
     return crud.workspace.create(db, obj_in=request)
 
 
