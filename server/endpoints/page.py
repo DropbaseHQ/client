@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers.page import page
 from server.schemas.page import CreatePage, UpdatePage
-from server.utils.authorization import RESOURCES, generate_resource_dependency, AuthZDepFactory
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 
 page_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.PAGE)
@@ -21,9 +21,6 @@ router = APIRouter(
 @router.get("/{page_id}")
 def get_page(page_id: UUID, db: Session = Depends(get_db)):
     return page.get_page_details(db, page_id=page_id)
-
-
-authorize_page_creation = generate_resource_dependency(RESOURCES.APP, is_on_resource_creation=True)
 
 
 @router.post("/")
