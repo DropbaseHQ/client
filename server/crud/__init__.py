@@ -10,3 +10,4 @@ from .user.crud_user import user
 from .widget.crud_widget import widget
 from .workspace.crud_workspace import workspace
 from .role.crud_roles import role
+from .user_group.crud_user_group import user_group
