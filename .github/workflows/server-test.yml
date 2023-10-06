@@ -10,6 +10,7 @@ env:
   POSTGRES_DB_PORT: ${{ secrets.DEV_POSTGRES_DB_PORT }}
   OPENAI_ORG_ID: ${{ secrets.DEV_OPENAI_ORG_ID }}
   OPENAI_API_KEY: ${{ secrets.DEV_OPENAI_API_KEY }}
+  ENCRYPT_SECRET: ${{ secrets.DEV_ENCRYPT_SECRET }}
 
 jobs:
   test:
