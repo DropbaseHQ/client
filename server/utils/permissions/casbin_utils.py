@@ -9,12 +9,18 @@ from server.utils.permissions.casbin_sqlalchemy_adaptor import Adapter
 from server.models import Policy
 
 adapter = Adapter(SQLALCHEMY_DATABASE_URL, db_class=Policy)
-enforcer = casbin.Enforcer(str(Path(__file__).parent.absolute().joinpath("./casbin_model.conf")), adapter, True)
+enforcer = casbin.Enforcer(
+    str(Path(__file__).parent.absolute().joinpath("./casbin_model.conf")), adapter, True
+)
+enforcer.auto_build_role_links = True
 
 
 def load_specific_policies(policies):
     for policy in policies:
-        persist.load_policy_line(str(policy), enforcer.model)
+        try:
+            persist.load_policy_line(str(policy), enforcer.model)
+        except Exception as e:
+            print("Error loading policy", e)
 
 
 def unload_specific_policies(policies):
@@ -23,17 +29,27 @@ def unload_specific_policies(policies):
 
 
 def enforce_action(db, user_id, workspace_id, resource, action):
+    # Refreshes policy. Allows dynamic policy changes while deployed.
     enforcer.load_policy()
-    role = crud.user_role.get_user_role(db, user_id, workspace_id)
-    formatted_policies = None
-    try:
-        if not role.is_default:
-            policies = crud.role.get_role_policies(db, role.id)
-            formatted_policies = [str(policy) for policy in policies]
-            load_specific_policies(formatted_policies)
-        loaded_policies = enforcer.get_policy()
-        return enforcer.enforce(role.name, resource, action)
 
+    # Load workspace policies
+    policies = crud.workspace.get_workspace_policies(db, workspace_id)
+    formatted_policies = [str(policy) for policy in policies]
+    load_specific_policies(formatted_policies)
+
+    # Load grouping policies
+    grouping_policies = crud.workspace.get_workspace_grouping_policies(db, workspace_id)
+    formatted_groups = [str(policy).split(", ")[1:] for policy in grouping_policies]
+    enforcer.add_grouping_policies(formatted_groups)
+
+    try:
+        # Check if user themselves has permission to perform action on resource
+        if enforcer.enforce(str(user_id), resource, action):
+            return True
+
+        # role = crud.user_role.get_user_role(db, user_id, workspace_id)
+        # return enforcer.enforce(role.name, resource, action)
+        return False
     except Exception as e:
         print("Permission enforcement error", e)
     finally:
