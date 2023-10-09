@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -14,6 +14,7 @@ from server.schemas.user import (
     ResetPasswordRequest,
     UpdateUser,
 )
+from server.schemas import PolicyTemplate
 from server.utils.authorization import (
     RESOURCES,
     verify_user_id_belongs_to_current_user,
@@ -80,3 +81,8 @@ def update_user(user_id: UUID, request: UpdateUser, db: Session = Depends(get_db
 def delete_user(user_id: UUID, db: Session = Depends(get_db)):
     verify_user_id_belongs_to_current_user(user_id)
     return crud.user.remove(db, id=user_id)
+
+
+@router.post("/add_policies/{user_id}")
+def add_policies_to_user(user_id: UUID, policies: List[PolicyTemplate], db: Session = Depends(get_db)):
+    return user.add_policy(db, user_id, policies)

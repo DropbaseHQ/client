@@ -158,3 +158,45 @@ class HomeTestClient:
     def delete_source(self, source_id):
         response = self.client.delete(f"/source/{source_id}")
         return response
+
+    # Groups
+    def create_group(self):
+        data = {
+            "name": "test group",
+            "workspace_id": TEST_WORKSPACE,
+        }
+        response = self.client.post("/groups/", json=data)
+        return response
+
+    def edit_group(self, group_id):
+        data = {"name": "test group edit"}
+        response = self.client.put(f"/groups/{group_id}", json=data)
+        return response
+
+    def delete_group(self, group_id):
+        response = self.client.delete(f"/groups/{group_id}")
+        return response
+
+    def add_group_policy(self, group_id):
+        data = {
+            "resource": "app",
+            "action": "edit",
+        }
+        response = self.client.post(f"/groups/add_policies/{group_id}", json=data)
+        return response
+
+    def remove_group_policy(self, group_id):
+        data = {
+            "resource": "app",
+            "action": "edit",
+        }
+        response = self.client.post(f"/groups/remove_policies/{group_id}", json=data)
+        return response
+
+    def add_user_to_group(self, group_id, user_id):
+        response = self.client.post(f"/groups/add_user/{group_id}", json={"user_id": user_id})
+        return response
+
+    def remove_user_from_group(self, group_id, user_id):
+        response = self.client.post(f"/groups/remove_user/{group_id}", json={"user_id": user_id})
+        return response
