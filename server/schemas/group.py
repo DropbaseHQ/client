@@ -29,3 +29,16 @@ class AddUser(BaseModel):
 
 class RemoveUser(BaseModel):
     user_id: UUID
+
+
+class AddGroupPolicy(BaseModel):
+    resource: str
+    action: str
+
+
+class AddGroupPolicyRequest(BaseModel):
+    policies: list[AddGroupPolicy]
+
+
+class RemoveGroupPolicyRequest(BaseModel):
+    policies: list[AddGroupPolicy]

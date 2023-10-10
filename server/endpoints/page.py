@@ -38,6 +38,6 @@ def delete_page(page_id: UUID, db: Session = Depends(get_db)):
     return crud.page.remove(db, id=page_id)
 
 
-@router.get("/schema/{page_id}", dependencies=[Depends(page_authorizer.use_params(action=ACTIONS.EDIT))])
+@router.get("/schema/{page_id}")
 def get_page_schema(page_id: str, db: Session = Depends(get_db)):
     return page.get_page_schema(db, page_id)

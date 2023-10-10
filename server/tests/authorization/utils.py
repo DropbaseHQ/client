@@ -13,6 +13,7 @@ TEST_CODE = "select * from customer"
 TEST_CODE_EDIT = "select * from customer limit 10"
 TEST_TABLE_ID = "a90ca748-dc02-4d0e-9bbc-4411f2158e03"
 TEST_COLUMN = "aa178fc3-1b9b-4ea6-a9ed-2fd2e68bde24"
+TEST_GROUP = "2be7a065-d5a9-4785-b880-7e5ba53f5ca9"
 
 TEST_DB_HOST = "dropbase-dev.cvprjrvvsnqi.us-east-1.rds.amazonaws.com"
 TEST_DB_NAME = "replica"
@@ -165,38 +166,73 @@ class HomeTestClient:
             "name": "test group",
             "workspace_id": TEST_WORKSPACE,
         }
-        response = self.client.post("/groups/", json=data)
+        response = self.client.post("/group/", json=data)
         return response
 
     def edit_group(self, group_id):
         data = {"name": "test group edit"}
-        response = self.client.put(f"/groups/{group_id}", json=data)
+        response = self.client.put(f"/group/{group_id}", json=data)
         return response
 
     def delete_group(self, group_id):
-        response = self.client.delete(f"/groups/{group_id}")
+        response = self.client.delete(f"/group/{group_id}")
         return response
 
-    def add_group_policy(self, group_id):
+    def add_group_policy(self, group_id, resource, action):
         data = {
-            "resource": "app",
-            "action": "edit",
+            "policies": [
+                {
+                    "resource": resource,
+                    "action": action,
+                }
+            ]
         }
-        response = self.client.post(f"/groups/add_policies/{group_id}", json=data)
+        response = self.client.post(f"/group/add_policies/{group_id}", json=data)
         return response
 
-    def remove_group_policy(self, group_id):
+    def remove_group_policy(self, group_id, resource, action):
         data = {
-            "resource": "app",
-            "action": "edit",
+            "policies": [
+                {
+                    "resource": resource,
+                    "action": action,
+                }
+            ]
         }
-        response = self.client.post(f"/groups/remove_policies/{group_id}", json=data)
+        response = self.client.post(f"/group/remove_policies/{group_id}", json=data)
         return response
 
     def add_user_to_group(self, group_id, user_id):
-        response = self.client.post(f"/groups/add_user/{group_id}", json={"user_id": user_id})
+        response = self.client.post(f"/group/add_user/{group_id}", json={"user_id": user_id})
         return response
 
     def remove_user_from_group(self, group_id, user_id):
-        response = self.client.post(f"/groups/remove_user/{group_id}", json={"user_id": user_id})
+        response = self.client.post(f"/group/remove_user/{group_id}", json={"user_id": user_id})
+        return response
+
+    # Users
+    def add_user_policy(self, user_id, resource, action):
+        data = {
+            "workspace_id": TEST_WORKSPACE,
+            "policies": [
+                {
+                    "resource": resource,
+                    "action": action,
+                }
+            ],
+        }
+        response = self.client.post(f"/user/add_policies/{user_id}", json=data)
+        return response
+
+    def remove_user_policy(self, user_id, resource, action):
+        data = {
+            "workspace_id": TEST_WORKSPACE,
+            "policies": [
+                {
+                    "resource": resource,
+                    "action": action,
+                }
+            ],
+        }
+        response = self.client.post(f"/user/remove_policies/{user_id}", json=data)
         return response

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from server.models import Policy
 from server.schemas import PolicyTemplate
+from server.schemas.group import AddGroupPolicyRequest, RemoveGroupPolicyRequest
 from server import crud
 from typing import List
 
@@ -81,11 +82,11 @@ class GroupController:
             raise e
 
     @staticmethod
-    def add_policies(db: Session, group_id: str, policies: List[PolicyTemplate]):
+    def add_policies(db: Session, group_id: str, request: AddGroupPolicyRequest):
         group = crud.group.get_object_by_id_or_404(db, id=group_id)
         try:
             # Add policies to policy table
-            for policy in policies:
+            for policy in request.policies:
                 crud.policy.create(
                     db,
                     obj_in=Policy(
@@ -106,11 +107,11 @@ class GroupController:
             raise e
 
     @staticmethod
-    def remove_policies(db: Session, group_id: str, policies: List[PolicyTemplate]):
+    def remove_policies(db: Session, group_id: str, request: RemoveGroupPolicyRequest):
         group = crud.group.get_object_by_id_or_404(db, id=group_id)
         try:
             # Remove policies from policy table
-            for policy in policies:
+            for policy in request.policies:
                 db.query(Policy).filter(
                     Policy.v1 == str(group.id),
                     Policy.v2 == policy.resource,

@@ -59,6 +59,10 @@ class ResetPasswordRequest(BaseModel):
 
 
 class AddPolicy(BaseModel):
-    workspace_id: str
     resource: str
     action: str
+
+
+class AddPolicyRequest(BaseModel):
+    workspace_id: str
+    policies: list[AddPolicy]

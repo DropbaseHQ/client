@@ -9,7 +9,14 @@ from server.models import Policy
 from server.schemas import PolicyTemplate
 from server.constants import ACCESS_TOKEN_EXPIRE_SECONDS, REFRESH_TOKEN_EXPIRE_SECONDS
 from server.schemas.user_role import CreateUserRole
-from server.schemas.user import CreateUser, CreateUserRequest, LoginUser, ReadUser, ResetPasswordRequest
+from server.schemas.user import (
+    CreateUser,
+    CreateUserRequest,
+    LoginUser,
+    ReadUser,
+    ResetPasswordRequest,
+    AddPolicyRequest,
+)
 from server.schemas.workspace import CreateWorkspace, ReadWorkspace
 from server.utils.authentication import authenticate_user, get_password_hash
 from server.utils.helper import raise_http_exception
@@ -122,9 +129,9 @@ def reset_password(db: Session, request: ResetPasswordRequest):
         raise_http_exception(status_code=500, message="Internal server error")
 
 
-def add_policy(db: Session, user_id: UUID, policies: List[PolicyTemplate]):
+def add_policy(db: Session, user_id: UUID, request: AddPolicyRequest):
     try:
-        for policy in policies:
+        for policy in request.policies:
             crud.policy.create(
                 db,
                 obj_in=Policy(
@@ -133,12 +140,30 @@ def add_policy(db: Session, user_id: UUID, policies: List[PolicyTemplate]):
                     v1=user_id,
                     v2=policy.resource,
                     v3=policy.action,
-                    workspace_id=policy.workspace_id,
+                    workspace_id=request.workspace_id,
                 ),
                 auto_commit=False,
             )
             db.commit()
             return {"message": "Polices successfully added"}
+
+    except Exception as e:
+        print("error", e)
+        db.rollback()
+        raise_http_exception(status_code=500, message="Internal server error")
+
+
+def remove_policy(db: Session, user_id: UUID, request: AddPolicyRequest):
+    try:
+        for policy in request.policies:
+            db.query(Policy).filter(
+                Policy.v1 == str(user_id),
+                Policy.v2 == policy.resource,
+                Policy.v3 == policy.action,
+                Policy.workspace_id == request.workspace_id,
+            ).delete()
+            db.commit()
+            return {"message": "Polices successfully removed"}
 
     except Exception as e:
         print("error", e)

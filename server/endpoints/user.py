@@ -13,6 +13,7 @@ from server.schemas.user import (
     LoginUser,
     ResetPasswordRequest,
     UpdateUser,
+    AddPolicyRequest,
 )
 from server.schemas import PolicyTemplate
 from server.utils.authorization import (
@@ -84,5 +85,10 @@ def delete_user(user_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/add_policies/{user_id}")
-def add_policies_to_user(user_id: UUID, policies: List[PolicyTemplate], db: Session = Depends(get_db)):
-    return user.add_policy(db, user_id, policies)
+def add_policies_to_user(user_id: UUID, request: AddPolicyRequest, db: Session = Depends(get_db)):
+    return user.add_policy(db, user_id, request)
+
+
+@router.post("/remove_policies/{user_id}")
+def remove_policies_from_user(user_id: UUID, request: AddPolicyRequest, db: Session = Depends(get_db)):
+    return user.remove_policy(db, user_id, request)

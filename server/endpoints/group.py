@@ -4,7 +4,14 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.group import CreateGroup, UpdateGroup, AddUser, RemoveUser
+from server.schemas.group import (
+    CreateGroup,
+    UpdateGroup,
+    AddUser,
+    RemoveUser,
+    AddGroupPolicyRequest,
+    RemoveGroupPolicyRequest,
+)
 from server.schemas import PolicyTemplate
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
@@ -47,12 +54,12 @@ def remove_user_from_group(group_id: UUID, request: RemoveUser, db: Session = De
 
 
 @router.post("/add_policies/{group_id}")
-def add_policies_to_group(group_id: UUID, policies: List[PolicyTemplate], db: Session = Depends(get_db)):
-    return GroupController.add_policies(db, group_id, policies)
+def add_policies_to_group(group_id: UUID, request: AddGroupPolicyRequest, db: Session = Depends(get_db)):
+    return GroupController.add_policies(db, group_id, request)
 
 
 @router.post("/remove_policies/{group_id}")
 def remove_policies_from_group(
-    group_id: UUID, policies: List[PolicyTemplate], db: Session = Depends(get_db)
+    group_id: UUID, request: RemoveGroupPolicyRequest, db: Session = Depends(get_db)
 ):
-    return GroupController.remove_policies(db, group_id, policies)
+    return GroupController.remove_policies(db, group_id, request)
