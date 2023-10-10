@@ -8,6 +8,7 @@ TEST_WORKSPACE = "4dee8d8f-c483-4ed7-9dbd-a5104f00d69f"
 TEST_APP_ID = "5b4699fa-402f-4f15-936b-bcae24ea54a7"
 TEST_PAGE_ID = "5f5a860e-91c1-47c8-bbaa-ca8f29d21297"
 TEST_FUNCTION_ID = "cff5b62c-e504-4829-b7b6-3f5fa7e69875"
+TEST_FUNCTION_ID_2 = "61c53a64-eb18-461e-b4ab-23676a10c242"
 TEST_SOURCE_ID = "c6bd8b77-8ba9-4296-8953-ba95e89aac92"  # source1 id
 TEST_CODE = "select * from customer"
 TEST_CODE_EDIT = "select * from customer limit 10"
@@ -50,6 +51,7 @@ class HomeTestClient:
         return response
 
     def edit_function(self, function_id):
+        print("function_id", function_id)
         data = {"name": "test function edit", "code": "edit code", "test_code": "edit test code"}
         response = self.client.put(f"/functions/{function_id}", json=data)
         return response

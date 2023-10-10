@@ -3,6 +3,7 @@ from server.tests.authorization.utils import (
     HomeTestClient,
     TEST_APP_ID,
     TEST_FUNCTION_ID,
+    TEST_FUNCTION_ID_2,
     TEST_SOURCE_ID,
     TEST_GROUP,
 )
@@ -278,3 +279,34 @@ def test_user_given_special_permission_can_create_function(admin_client, user_cl
 
     new_delete_function = new_admin_client.delete_function(new_create_function.json().get("id"))
     assert new_delete_function.status_code == 200
+
+
+def test_user_can_edit_specific_function(user_client):
+    # User is already in test group
+    edit_response = user_client.edit_function(TEST_FUNCTION_ID)
+    assert edit_response.status_code == 403
+
+    # Admin adds policy to user
+    new_admin_client = get_client(email=TEST_ADMIN_EMAIL)
+    policy_add_response = new_admin_client.add_user_policy(TEST_USER_ID, TEST_FUNCTION_ID, "edit")
+    assert policy_add_response.status_code == 200
+
+    # User can now edit function
+    new_user_client = get_client(email=TEST_USER_EMAIL)
+    new_edit_response = new_user_client.edit_function(TEST_FUNCTION_ID)
+    assert new_edit_response.status_code == 200
+
+    # User cannot edit other function
+
+    bad_edit_response = new_user_client.edit_function(TEST_FUNCTION_ID_2)
+    assert bad_edit_response.status_code == 403
+
+    # Admin removes policy from user
+    new_admin_client = get_client(email=TEST_ADMIN_EMAIL)
+    policy_remove_response = new_admin_client.remove_user_policy(TEST_USER_ID, TEST_FUNCTION_ID, "edit")
+    assert policy_remove_response.status_code == 200
+
+    # User can now no longer edit function
+    new_user_client = get_client(email=TEST_USER_EMAIL)
+    bad_edit_response = new_user_client.edit_function(TEST_FUNCTION_ID)
+    assert bad_edit_response.status_code == 403

@@ -28,7 +28,7 @@ def unload_specific_policies(policies):
         unload_policy_line(str(policy), enforcer.model)
 
 
-def enforce_action(db, user_id, workspace_id, resource, action):
+def enforce_action(db, user_id, workspace_id, resource, action, resource_id=None):
     # Refreshes policy. Allows dynamic policy changes while deployed.
     enforcer.load_policy()
 
@@ -43,6 +43,10 @@ def enforce_action(db, user_id, workspace_id, resource, action):
     enforcer.add_grouping_policies(formatted_groups)
 
     try:
+        if resource_id:
+            # Check if user has permission to perform action on specific resource
+            if enforcer.enforce(str(user_id), resource_id, action):
+                return True
         # Check if user themselves has permission to perform action on resource
         if enforcer.enforce(str(user_id), resource, action):
             return True
