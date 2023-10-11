@@ -1,12 +1,16 @@
 import { Box, Stack } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { useGetPage } from '@/features/new-page';
 import { NewSmartTable } from './NewSmartTable';
 import { InspectorContainer } from '@/features/new-app-builder';
+import { appModeAtom } from '@/features/app/atoms';
+import { NewTable } from '@/features/new-app-builder/components/PropertiesEditor/NewTable';
 
 export const StackedTables = () => {
 	const { pageId } = useParams();
 
+	const { isPreview } = useAtomValue(appModeAtom);
 	const { tables } = useGetPage(pageId);
 
 	return (
@@ -18,6 +22,8 @@ export const StackedTables = () => {
 					</InspectorContainer>
 				</Box>
 			))}
+
+			{isPreview ? null : <NewTable w="fit-content" ml="auto" />}
 		</Stack>
 	);
 };

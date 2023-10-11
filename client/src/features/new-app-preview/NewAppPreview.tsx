@@ -33,6 +33,8 @@ import { useCreateWidget } from '@/features/new-app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { checkAllRulesPass } from '@/features/new-app-preview/utils';
 import { InspectorContainer } from '@/features/new-app-builder';
+import { NewComponent } from '@/features/new-app-builder/components/PropertiesEditor/ComponentEditor';
+import { appModeAtom } from '@/features/app/atoms';
 
 const sizeMap: any = {
 	small: 'sm',
@@ -122,10 +124,13 @@ const AppComponent = (props: any) => {
 	);
 };
 
-export const NewAppPreview = ({ isDevMode }: any) => {
+export const NewAppPreview = () => {
 	const { pageId } = useParams();
 
 	const { widgetId } = useAtomValue(pageAtom);
+
+	const { isPreview } = useAtomValue(appModeAtom);
+	const isDevMode = !isPreview;
 
 	const { isLoading, refetch, components, widget, isRefetching } = useGetWidgetPreview(
 		widgetId || '',
@@ -247,6 +252,13 @@ export const NewAppPreview = ({ isDevMode }: any) => {
 						);
 					})}
 				</Stack>
+
+				{isDevMode ? (
+					<Box p="3" mt="auto">
+						<NewComponent />
+					</Box>
+				) : null}
+
 				{widgetState?.message ? (
 					<Stack
 						flexShrink="0"

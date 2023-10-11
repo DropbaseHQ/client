@@ -2,7 +2,6 @@ import { useParams } from 'react-router-dom';
 import {
 	Button,
 	ButtonGroup,
-	IconButton,
 	Popover,
 	PopoverArrow,
 	PopoverBody,
@@ -59,13 +58,15 @@ export const NewTable = (props: any) => {
 	return (
 		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur={false}>
 			<PopoverTrigger>
-				<IconButton
+				<Button
 					aria-label="Add table"
-					icon={<Plus size="14" />}
+					leftIcon={<Plus size="14" />}
 					onClick={onToggle}
 					isLoading={mutation.isLoading}
 					{...props}
-				/>
+				>
+					New Table
+				</Button>
 			</PopoverTrigger>
 
 			<Portal>
