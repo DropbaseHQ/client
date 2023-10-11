@@ -32,7 +32,7 @@ export const NewAppBuilder = () => {
 									<PanelHandle direction="vertical" />
 									<Panel>
 										<Loader isLoading={isLoading}>
-											<NewAppPreview isDevMode />
+											<NewAppPreview />
 										</Loader>
 									</Panel>
 								</PanelGroup>
