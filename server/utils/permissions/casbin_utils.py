@@ -28,6 +28,23 @@ def unload_specific_policies(policies):
         unload_policy_line(str(policy), enforcer.model)
 
 
+def get_contexted_enforcer(db, workspace_id):
+    # Refreshes policy. Allows dynamic policy changes while deployed.
+    enforcer.load_policy()
+
+    # Load workspace policies
+    policies = crud.workspace.get_workspace_policies(db, workspace_id)
+    formatted_policies = [str(policy) for policy in policies]
+    load_specific_policies(formatted_policies)
+
+    # Load grouping policies
+    grouping_policies = crud.workspace.get_workspace_grouping_policies(db, workspace_id)
+    formatted_groups = [str(policy).split(", ")[1:] for policy in grouping_policies]
+    enforcer.add_grouping_policies(formatted_groups)
+
+    return enforcer
+
+
 def enforce_action(db, user_id, workspace_id, resource, action, resource_id=None):
     # Refreshes policy. Allows dynamic policy changes while deployed.
     enforcer.load_policy()

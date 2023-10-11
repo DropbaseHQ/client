@@ -1,7 +1,13 @@
 from sqlalchemy.orm import Session
-from server.models import Policy
+from server.models import Policy, UserGroup
 from server.schemas import PolicyTemplate
-from server.schemas.group import AddGroupPolicyRequest, RemoveGroupPolicyRequest
+from server.schemas.group import (
+    AddGroupPolicyRequest,
+    RemoveGroupPolicyRequest,
+    UpdateGroupPolicyRequest,
+)
+
+from server.utils.permissions.casbin_utils import get_contexted_enforcer
 from server import crud
 from typing import List
 
@@ -123,3 +129,83 @@ class GroupController:
         except Exception as e:
             db.rollback()
             raise e
+
+    @staticmethod
+    def update_policy(db: Session, group_id: str, request: UpdateGroupPolicyRequest):
+        group = crud.group.get_object_by_id_or_404(db, id=group_id)
+        try:
+            # Query if the policy exists in the policy table
+            existing_policy = (
+                db.query(Policy)
+                .filter(
+                    Policy.ptype == "p",
+                    Policy.v1 == str(group.id),
+                    Policy.v2 == request.resource,
+                    Policy.v3 == request.action,
+                )
+                .filter(Policy.workspace_id == str(group.workspace_id))
+                .one_or_none()
+            )
+            if existing_policy and request.effect == "deny":
+                # Remove the policy from the policy table
+                db.query(Policy).filter(
+                    Policy.v1 == str(group.id),
+                    Policy.v2 == request.resource,
+                    Policy.v3 == request.action,
+                ).filter(Policy.workspace_id == str(group.workspace_id)).delete()
+
+            elif not existing_policy and request.effect == "allow":
+                # Add the policy to the policy table
+                crud.policy.create(
+                    db,
+                    obj_in=Policy(
+                        ptype="p",
+                        v0=10,
+                        v1=group.id,
+                        v2=request.resource,
+                        v3=request.action,
+                        workspace_id=group.workspace_id,
+                    ),
+                    auto_commit=False,
+                )
+
+            db.commit()
+            return {"message": "success"}
+        except Exception as e:
+            db.rollback()
+            raise e
+
+
+def get_group(db: Session, group_id: str):
+    """Returns all permissions for a group."""
+    group = crud.group.get_object_by_id_or_404(db, id=group_id)
+    enforcer = get_contexted_enforcer(db, group.workspace_id)
+    permissions = enforcer.get_filtered_policy(1, str(group.id))
+    formatted_permissions = []
+    for permission in permissions:
+        formatted_permissions.append(
+            {
+                "group_id": permission[1],
+                "resource": permission[2],
+                "action": permission[3],
+            }
+        )
+    print("permissions", permissions)
+    return {"group": group, "permissions": formatted_permissions}
+
+
+def delete_group(db: Session, group_id: str):
+    try:
+        # Delete user group associations
+        db.query(UserGroup).filter(UserGroup.group_id == str(group_id)).delete()
+
+        # Delete group policies
+        db.query(Policy).filter(Policy.v1 == str(group_id)).delete()
+
+        # Delete group
+        crud.group.remove(db, id=str(group_id), auto_commit=False)
+
+        db.commit()
+    except Exception as e:
+        db.rollback
+        raise e

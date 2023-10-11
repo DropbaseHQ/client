@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.schemas.workspace import CreateWorkspace, UpdateWorkspace
 from server.utils.connect import get_db
+from server.controllers import workspace as workspace_controller
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 
 
@@ -21,6 +22,16 @@ router = APIRouter(
 @router.get("/{workspace_id}")
 def get_workspace(workspace_id: UUID, db: Session = Depends(get_db)):
     return crud.workspace.get_object_by_id_or_404(db, id=workspace_id)
+
+
+@router.get("/{workspace_id}/users")
+def get_workspace_users(workspace_id: UUID, db: Session = Depends(get_db)):
+    return workspace_controller.get_workspace_users(db, workspace_id=workspace_id)
+
+
+@router.get("/{workspace_id}/groups")
+def get_workspace_groups(workspace_id: UUID, db: Session = Depends(get_db)):
+    return workspace_controller.get_workspace_groups(db, workspace_id=workspace_id)
 
 
 @router.post("/")

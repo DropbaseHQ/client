@@ -11,11 +11,16 @@ from server.schemas.group import (
     RemoveUser,
     AddGroupPolicyRequest,
     RemoveGroupPolicyRequest,
+    UpdateGroupPolicyRequest,
 )
 from server.schemas import PolicyTemplate
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
-from server.controllers.group import GroupController
+from server.controllers.group import (
+    GroupController,
+    get_group as c_get_group,
+    delete_group as c_delete_group,
+)
 
 
 group_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WORKSPACE)
@@ -25,7 +30,7 @@ router = APIRouter(prefix="/group", tags=["group"])
 
 @router.get("/{group_id}")
 def get_group(group_id: UUID, db: Session = Depends(get_db)):
-    return crud.group.get_object_by_id_or_404(db, id=group_id)
+    return c_get_group(db, group_id)
 
 
 @router.post("/")
@@ -40,7 +45,7 @@ def update_group(group_id: UUID, request: UpdateGroup, db: Session = Depends(get
 
 @router.delete("/{group_id}")
 def delete_group(group_id: UUID, db: Session = Depends(get_db)):
-    return crud.group.remove(db, id=group_id)
+    return c_delete_group(db, group_id)
 
 
 @router.post("/add_user/{group_id}")
@@ -63,3 +68,10 @@ def remove_policies_from_group(
     group_id: UUID, request: RemoveGroupPolicyRequest, db: Session = Depends(get_db)
 ):
     return GroupController.remove_policies(db, group_id, request)
+
+
+@router.post("/update_policy/{group_id}")
+def update_policy_from_group(
+    group_id: UUID, request: UpdateGroupPolicyRequest, db: Session = Depends(get_db)
+):
+    return GroupController.update_policy(db, group_id, request)

@@ -42,3 +42,9 @@ class AddGroupPolicyRequest(BaseModel):
 
 class RemoveGroupPolicyRequest(BaseModel):
     policies: list[AddGroupPolicy]
+
+
+class UpdateGroupPolicyRequest(BaseModel):
+    resource: str
+    action: str
+    effect: str
