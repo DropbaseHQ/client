@@ -9,15 +9,11 @@ import {
 	MenuList,
 	MenuItem,
 	Accordion,
-	AccordionItem,
-	AccordionButton,
-	Spinner,
-	AccordionIcon,
 	Text,
-	AccordionPanel,
 	Button,
 	ButtonGroup,
 	Box,
+	Skeleton,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
@@ -32,15 +28,17 @@ import {
 } from '@/features/new-app-builder/hooks';
 import { pageAtom } from '@/features/new-page';
 import { useToast } from '@/lib/chakra-ui';
-import { ContentLoader } from '@/components/Loader';
+import { ContentLoader, NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 
 const DISPLAY_COMPONENT_PROPERTIES = ['name', 'type', 'options', 'label', 'text', 'size'];
 
-const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
+export const ComponentPropertyEditor = ({ id }: any) => {
 	const { pageId } = useParams();
 	const { widgetId } = useAtomValue(pageAtom);
-	const { schema, refetch } = useGetComponentProperties(widgetId || '');
+	const { schema, refetch, values, isLoading } = useGetComponentProperties(widgetId || '');
+
+	const { type, property: properties } = values.find((v: any) => v.id === id) || {};
 
 	const { functions } = useAllPageFunctionNames(pageId || '');
 
@@ -96,108 +94,118 @@ const ComponentPropertyEditor = ({ id, type, property: properties }: any) => {
 		(p: any) => !displayPropertiesNames.includes(p.name),
 	);
 
+	if (isLoading) {
+		return (
+			<Stack bg="white" h="full">
+				<NavLoader isLoading />
+				<Stack borderBottomWidth="1px" p="5">
+					<Skeleton startColor="gray.100" endColor="gray.200" h={8} />
+					<Skeleton startColor="gray.100" endColor="gray.200" h={8} />
+					<Skeleton startColor="gray.100" endColor="gray.200" h={8} />
+				</Stack>
+			</Stack>
+		);
+	}
+
 	return (
-		<AccordionItem>
+		<Stack h="full" w="full" bg="white">
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
-					<AccordionButton w="full">
-						{updateMutation.isLoading ? <Spinner size="sm" /> : <AccordionIcon />}
+					<Stack
+						py="2"
+						px="4"
+						borderBottomWidth="1px"
+						flex="1"
+						alignItems="center"
+						direction="row"
+					>
+						<Text fontWeight="semibold" size="sm">
+							{properties.name} Properties
+						</Text>
 
-						<Stack flex="1" ml="4" alignItems="center" direction="row">
-							<Text size="sm">{properties.name}</Text>
-
-							<ButtonGroup ml="auto" size="xs">
-								{isDirty ? (
-									<IconButton
-										aria-label="Update component"
-										isLoading={updateMutation.isLoading}
-										type="submit"
-										onClick={(e) => {
-											e.stopPropagation();
-										}}
-										icon={<Save size="14" />}
-									/>
-								) : null}
+						<ButtonGroup ml="auto" size="xs">
+							{isDirty ? (
 								<IconButton
-									aria-label="Delete component"
-									variant="ghost"
-									colorScheme="red"
-									isLoading={deleteMutation.isLoading}
+									aria-label="Update component"
+									isLoading={updateMutation.isLoading}
+									type="submit"
 									onClick={(e) => {
 										e.stopPropagation();
-										deleteMutation.mutate({
-											componentId: id,
-										});
 									}}
-									icon={<Trash size="14" />}
+									icon={<Save size="14" />}
 								/>
-							</ButtonGroup>
-						</Stack>
-					</AccordionButton>
-					<AccordionPanel borderTopWidth="1px">
-						<Stack p="2" maxW="md">
-							{displayProperties.map((property: any) => {
-								if (
-									property.name === 'display_rules' ||
-									property.type === 'rules'
-								) {
-									return <DisplayRulesEditor id={id} />;
-								}
+							) : null}
+							<IconButton
+								aria-label="Delete component"
+								variant="ghost"
+								colorScheme="red"
+								isLoading={deleteMutation.isLoading}
+								onClick={(e) => {
+									e.stopPropagation();
+									deleteMutation.mutate({
+										componentId: id,
+									});
+								}}
+								icon={<Trash size="14" />}
+							/>
+						</ButtonGroup>
+					</Stack>
+					<Stack maxW="md" p="4">
+						{displayProperties.map((property: any) => {
+							if (property.name === 'display_rules' || property.type === 'rules') {
+								return <DisplayRulesEditor id={id} />;
+							}
 
-								const showFunctionList =
-									property.type === 'function' ||
-									property.name === 'on_click' ||
-									property.name === 'on_change';
+							const showFunctionList =
+								property.type === 'function' ||
+								property.name === 'on_click' ||
+								property.name === 'on_change';
 
-								return (
-									<FormInput
-										{...property}
-										id={property.name}
-										type={showFunctionList ? 'select' : property.type}
-										options={(
-											(showFunctionList
-												? functions
-												: property.enum || property.options) || []
-										).map((o: any) => ({
-											name: o,
-											value: o,
-										}))}
-										key={property.name}
-									/>
-								);
-							})}
+							return (
+								<FormInput
+									{...property}
+									id={property.name}
+									type={showFunctionList ? 'select' : property.type}
+									options={(
+										(showFunctionList
+											? functions
+											: property.enum || property.options) || []
+									).map((o: any) => ({
+										name: o,
+										value: o,
+									}))}
+									key={property.name}
+								/>
+							);
+						})}
 
-							<Menu>
-								<MenuButton
-									as={Button}
-									size="sm"
-									variant="ghost"
-									colorScheme="blue"
-									flexShrink="0"
-								>
-									Add property
-								</MenuButton>
-								<MenuList>
-									{propertiesToBeAdded.map((p: any) => (
-										<MenuItem
-											onClick={() => {
-												setVisibleProperties([
-													...visibleProperties,
-													p.name,
-												]);
-											}}
-											key={p.name}
-										>
-											{p.name}
-										</MenuItem>
-									))}
-								</MenuList>
-							</Menu>
-						</Stack>
-					</AccordionPanel>
+						<Menu>
+							<MenuButton
+								as={Button}
+								size="sm"
+								variant="ghost"
+								colorScheme="blue"
+								flexShrink="0"
+							>
+								Add property
+							</MenuButton>
+							<MenuList>
+								{propertiesToBeAdded.map((p: any) => (
+									<MenuItem
+										onClick={() => {
+											setVisibleProperties([...visibleProperties, p.name]);
+										}}
+										key={p.name}
+									>
+										{p.name}
+									</MenuItem>
+								))}
+							</MenuList>
+						</Menu>
+					</Stack>
 				</FormProvider>
 			</form>
-		</AccordionItem>
+		</Stack>
 	);
 };
 

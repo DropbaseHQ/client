@@ -32,6 +32,7 @@ import { pageAtom } from '@/features/new-page';
 import { useCreateWidget } from '@/features/new-app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { checkAllRulesPass } from '@/features/new-app-preview/utils';
+import { InspectorContainer } from '@/features/new-app-builder';
 
 const sizeMap: any = {
 	small: 'sm',
@@ -236,7 +237,11 @@ export const NewAppPreview = ({ isDevMode }: any) => {
 				</Stack>
 				<Stack p="4" spacing="3">
 					{components.map((c: any) => {
-						return <AppComponent key={c.id} {...c} />;
+						return (
+							<InspectorContainer key={c.id} id={c.id} type="component">
+								<AppComponent key={c.id} {...c} />
+							</InspectorContainer>
+						);
 					})}
 				</Stack>
 				{widgetState?.message ? (
