@@ -5,7 +5,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { inspectedResourceAtom } from '@/features/new-app-builder/atoms';
 import { appModeAtom } from '@/features/app/atoms';
 
-export const InspectorContainer = ({ children, id, type }: any) => {
+export const InspectorContainer = ({ children, noPadding, id, type, ...props }: any) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [activeInspect, setActiveInspect] = useAtom(inspectedResourceAtom);
 
@@ -41,12 +41,11 @@ export const InspectorContainer = ({ children, id, type }: any) => {
 
 	return (
 		<Box
-			w="full"
-			h="full"
 			onMouseEnter={onOpen}
 			onMouseOver={onOpen}
 			onMouseLeave={onClose}
 			onClick={handleInspect}
+			{...props}
 			pos="relative"
 		>
 			{children}

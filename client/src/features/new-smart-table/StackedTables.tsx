@@ -13,7 +13,7 @@ export const StackedTables = () => {
 		<Stack bg="white" spacing="8" p="4" h="full" overflow="auto">
 			{tables.map((table: any) => (
 				<Box flexShrink="0" key={table.id}>
-					<InspectorContainer type="table" id={table.id}>
+					<InspectorContainer h="full" w="full" type="table" id={table.id}>
 						<NewSmartTable tableId={table.id} />
 					</InspectorContainer>
 				</Box>

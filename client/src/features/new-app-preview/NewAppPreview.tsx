@@ -213,16 +213,18 @@ export const NewAppPreview = ({ isDevMode }: any) => {
 					alignItems="center"
 					justifyContent="space-between"
 				>
-					<Stack spacing="0">
-						<Text fontSize="md" fontWeight="semibold">
-							{widget?.property?.name}
-						</Text>
-						{widget?.property?.description ? (
-							<Text fontSize="sm" color="gray.600">
-								{widget?.property?.description}
+					<InspectorContainer noPadding type="widget" id={widgetId}>
+						<Stack spacing="0">
+							<Text fontSize="md" fontWeight="semibold">
+								{widget?.property?.name}
 							</Text>
-						) : null}
-					</Stack>
+							{widget?.property?.description ? (
+								<Text fontSize="sm" color="gray.600">
+									{widget?.property?.description}
+								</Text>
+							) : null}
+						</Stack>
+					</InspectorContainer>
 
 					{isDevMode ? (
 						<IconButton
@@ -235,6 +237,7 @@ export const NewAppPreview = ({ isDevMode }: any) => {
 						/>
 					) : null}
 				</Stack>
+
 				<Stack p="4" spacing="3">
 					{components.map((c: any) => {
 						return (

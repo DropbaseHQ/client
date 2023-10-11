@@ -2,14 +2,10 @@ import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { Stack, Skeleton, Button, Text } from '@chakra-ui/react';
-import { useAtomValue } from 'jotai';
-
 import { useGetWidget, useUpdateWidgetProperties } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
-import { pageAtom } from '@/features/new-page';
 
-export const WidgetProperties = () => {
-	const { widgetId } = useAtomValue(pageAtom);
+export const WidgetProperties = ({ widgetId }: any) => {
 	const {
 		isLoading,
 		schema,
@@ -45,21 +41,14 @@ export const WidgetProperties = () => {
 	};
 
 	return (
-		<Stack bg="white" borderWidth="1px" borderRadius="sm">
-			<Text
-				flexShrink="0"
-				fontSize="sm"
-				px="3"
-				py="2"
-				borderBottomWidth="1px"
-				fontWeight="semibold"
-			>
-				Widget
+		<Stack spacing="0.5" h="full" bg="white">
+			<Text p="3" borderBottomWidth="1px" fontWeight="semibold" size="sm">
+				{properties?.name} Properties
 			</Text>
 			<Skeleton isLoaded={!isLoading}>
 				<form onSubmit={methods.handleSubmit(onSubmit)}>
 					<FormProvider {...methods}>
-						<Stack p="3">
+						<Stack p="4" spacing="3">
 							{schema.map((property: any) => (
 								<FormInput {...property} id={property.name} key={property.name} />
 							))}

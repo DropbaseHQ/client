@@ -34,7 +34,7 @@ export const PinnedFilters = () => {
 					inputType = 'number';
 				}
 				return (
-					<Flex fontSize="sm" borderWidth="1px" borderRadius="sm">
+					<Flex key={f.id} fontSize="sm" borderWidth="1px" borderRadius="sm">
 						<Box h="full" py="1" px="3" borderRightWidth="1px">
 							{f.column_name}
 						</Box>
