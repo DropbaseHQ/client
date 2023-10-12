@@ -1,8 +1,14 @@
 import functools
+import random
 from datetime import datetime, timedelta
 from enum import StrEnum
 
 from pydantic import BaseModel
+
+
+def _parse_proxy_name(name: str) -> (str, str):
+    # returns (proxy type, token)
+    return name.split()
 
 
 def _clean_stale_clients(func):
@@ -31,7 +37,9 @@ class FRPClient(BaseModel):
 
 
 class _FRPClientManager:
-    def __init__(self):
+    def __init__(self, port_min: int=20000, port_max: int=40000):
+        self.port_min = port_min
+        self.port_max = port_max
         self.stale_time = timedelta(minutes=5)
         self.clean_interval = timedelta(minutes=30)
         self.last_clean = datetime.now()
@@ -69,6 +77,9 @@ class _FRPClientManager:
             client.tunnels.pop(type, None)
         except KeyError:
             pass
+    
+    def choose_port(self) -> int:
+        return random.randint(self.port_min, self.port_max)
 
     def _should_clean(self) -> bool:
         return datetime.now() - self.last_clean > self.clean_interval
@@ -112,14 +123,17 @@ def auth_tunnel_op(request: dict):
 def new_tunnel_op(request: dict):
     token = _get_token(request)
     content = request["content"]
+    type = _parse_proxy_name(content["proxy_name"])[0]
+    port = CLIENT_MANAGER.choose_port()
 
     CLIENT_MANAGER.add_tunnel(
         token,
-        type=content["proxy_name"],
-        port=content.get("remote_port") or 0,
+        type=type,
+        port=port,
         host=FRPS_HOST,
     )
 
+    content["remote_port"] = port
     return {
         "unchange": False,
         "content": content,
@@ -129,10 +143,11 @@ def new_tunnel_op(request: dict):
 def close_tunnel_op(request: dict):
     token = _get_token(request)
     content = request["content"]
+    type = _parse_proxy_name(content["proxy_name"])[0]
 
     CLIENT_MANAGER.remove_tunnel(
         token,
-        type=content["proxy_name"]
+        type=type
     )
 
     return {"unchange": True}
