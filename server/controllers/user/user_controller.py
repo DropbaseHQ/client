@@ -102,28 +102,32 @@ def register_user(db: Session, request: CreateUserRequest):
             name="workspace",
             active=True,
         )
-        workspace = crud.workspace.create(db, obj_in=workspace_obj)
+        workspace = crud.workspace.create(db, obj_in=workspace_obj, auto_commit=False)
         # TODO: get admin role id from db
+        db.flush()
         admin_role_id = "00000000-0000-0000-0000-000000000001"
         role_obj = CreateUserRole(
             user_id=user.id,
             workspace_id=workspace.id,
             role_id=admin_role_id,
         )
-        crud.user_role.create(db, obj_in=role_obj)
+        crud.user_role.create(db, obj_in=role_obj, auto_commit=False)
+        db.flush()
+        admin_role = crud.role.get(db, id=admin_role_id)
         crud.policy.create(
             db,
             obj_in=Policy(
                 ptype="g",
                 v0=str(user.id),
-                v1=admin_role_id,
+                v1=admin_role.name,
                 workspace_id=workspace.id,
             ),
             auto_commit=False,
         )
-
+        db.commit()
         return {"message": "User successfully registered"}
     except Exception as e:
+        db.rollback()
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")
 
