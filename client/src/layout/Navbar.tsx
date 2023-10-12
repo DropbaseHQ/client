@@ -8,7 +8,7 @@ import {
 	Tooltip,
 	Box,
 } from '@chakra-ui/react';
-import { Settings, LogOut, Grid, Database } from 'react-feather';
+import { Settings, LogOut, Grid, Database, Repeat } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 
 import { useLogout } from '@/features/authorization/hooks/useLogout';
@@ -30,6 +30,17 @@ export const Navbar = () => {
 				<Box mb="8" w="12" as={Link} to="/apps">
 					<DropbaseLogo />
 				</Box>
+				<Tooltip label="Workspace Switcher" placement="right">
+					<IconButton
+						variant="ghost"
+						as={Link}
+						to="/workspaces"
+						color={pathname === '/workspaces' ? 'blue.500' : 'body'}
+						colorScheme={pathname === '/workspaces' ? 'blue' : 'gray'}
+						aria-label="Apps"
+						icon={<Repeat size="22" />}
+					/>
+				</Tooltip>
 				<Tooltip label="Apps" placement="right">
 					<IconButton
 						variant="ghost"

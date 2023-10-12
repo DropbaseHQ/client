@@ -229,3 +229,19 @@ def update_policy(db: Session, user_id: UUID, request: UpdateUserPolicyRequest):
     except Exception as e:
         db.rollback()
         raise e
+
+
+def get_user_workspaces(db: Session, user_id: UUID):
+    workspaces = crud.workspace.get_user_workspaces(db, user_id=user_id)
+    formatted_workspaces = []
+    for workspace in workspaces:
+        workspace_oldest_user = crud.workspace.get_oldest_user(db, workspace_id=workspace.id)
+        formatted_workspaces.append(
+            {
+                "id": workspace.id,
+                "name": workspace.name,
+                "oldest_user": workspace_oldest_user,
+            }
+        )
+
+    return formatted_workspaces

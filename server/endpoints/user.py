@@ -6,7 +6,7 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.user import user, get_user_details as c_get_user_details
+from server.controllers.user import get_user_details as c_get_user_details, user_controller
 from server.schemas.user import (
     CreateUser,
     CreateUserRequest,
@@ -33,32 +33,32 @@ from server.utils.authentication import get_current_user
 
 @router.get("/workspaces")
 def get_user_worpsaces(db: Session = Depends(get_db), user: Any = Depends(get_current_user)):
-    return crud.workspace.get_user_workspaces(db, user_id=user.id)
+    return user_controller.get_user_workspaces(db, user_id=user.id)
 
 
 @router.post("/register")
 def register_user(request: CreateUserRequest, db: Session = Depends(get_db)):
-    return user.register_user(db, request)
+    return user_controller.register_user(db, request)
 
 
 @router.post("/login")
 def login_user(request: LoginUser, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
-    return user.login_user(db, Authorize, request)
+    return user_controller.login_user(db, Authorize, request)
 
 
 @router.delete("/logout")
 def logout_user(response: Response, Authorize: AuthJWT = Depends()):
-    return user.logout_user(response, Authorize)
+    return user_controller.logout_user(response, Authorize)
 
 
 @router.post("/refresh")
 def refresh_token(Authorize: AuthJWT = Depends()):
-    return user.refresh_token(Authorize)
+    return user_controller.refresh_token(Authorize)
 
 
 @router.post("/reset_password")
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
-    return user.reset_password(db, request)
+    return user_controller.reset_password(db, request)
 
 
 @router.get("/{user_id}/details/{workspace_id}")
@@ -93,16 +93,16 @@ def delete_user(user_id: UUID, db: Session = Depends(get_db)):
 
 @router.post("/add_policies/{user_id}")
 def add_policies_to_user(user_id: UUID, request: AddPolicyRequest, db: Session = Depends(get_db)):
-    return user.add_policy(db, user_id, request)
+    return user_controller.add_policy(db, user_id, request)
 
 
 @router.post("/remove_policies/{user_id}")
 def remove_policies_from_user(user_id: UUID, request: AddPolicyRequest, db: Session = Depends(get_db)):
-    return user.remove_policy(db, user_id, request)
+    return user_controller.remove_policy(db, user_id, request)
 
 
 @router.post("/update_policy/{user_id}")
 def update_policy_from_user(
     user_id: UUID, request: UpdateUserPolicyRequest, db: Session = Depends(get_db)
 ):
-    return user.update_policy(db, user_id, request)
+    return user_controller.update_policy(db, user_id, request)

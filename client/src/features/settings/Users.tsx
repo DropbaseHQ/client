@@ -47,7 +47,6 @@ export const UserCard = ({
 	setSelectedUser: any;
 	user: any;
 }) => {
-	console.log('user', user);
 	return (
 		<Box
 			key={user.user_id}

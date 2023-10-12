@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import UserRole, Workspace, Policy, Group
+from server.models import UserRole, Workspace, Policy, Group, User
 from server.schemas.workspace import CreateWorkspace, UpdateWorkspace
 
 
@@ -57,6 +57,16 @@ class CRUDWorkspace(CRUDBase[Workspace, CreateWorkspace, UpdateWorkspace]):
 
     def get_workspace_groups(self, db: Session, workspace_id: UUID):
         return db.query(Group).filter(Group.workspace_id == workspace_id).all()
+
+    def get_oldest_user(self, db: Session, workspace_id: UUID):
+        return (
+            db.query(UserRole)
+            .join(User, User.id == UserRole.user_id)
+            .filter(UserRole.workspace_id == workspace_id)
+            .order_by(UserRole.date)
+            .with_entities(User.id, User.email)
+            .first()
+        )
 
 
 workspace = CRUDWorkspace(Workspace)
