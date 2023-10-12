@@ -8,6 +8,7 @@ FRPS_DIR = Path(__file__).parent.absolute()
 TEMPLATES_DIR = FRPS_DIR.joinpath("templates/")
 FRPS_FILE = FRPS_DIR.joinpath("frps")
 
+
 templates_env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
 frps_config_template = templates_env.get_template("frps.toml")
 

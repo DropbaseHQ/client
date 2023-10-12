@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-import worker_proxy_server.controller as controller
+import worker_proxy_server.server.controller as controller
 
 
 app = FastAPI()
