@@ -45,10 +45,9 @@ def get_contexted_enforcer(db, workspace_id):
     return enforcer
 
 
-def enforce_action(db, user_id, workspace_id, resource, action, resource_id=None):
+def enforce_action(db, user_id, workspace_id, resource, action, resource_crud, resource_id=None):
     # Refreshes policy. Allows dynamic policy changes while deployed.
     enforcer.load_policy()
-
     # Load workspace policies
     policies = crud.workspace.get_workspace_policies(db, workspace_id)
     formatted_policies = [str(policy) for policy in policies]
@@ -64,6 +63,12 @@ def enforce_action(db, user_id, workspace_id, resource, action, resource_id=None
             # Check if user has permission to perform action on specific resource
             if enforcer.enforce(str(user_id), resource_id, action):
                 return True
+            # Check if user has permission to perform action parent app
+            if hasattr(resource_crud, "get_app_id"):
+                app_id = resource_crud.get_app_id(db, resource_id)
+                if enforcer.enforce(str(user_id), str(app_id), action):
+                    return True
+
         # Check if user themselves has permission to perform action on resource
         if enforcer.enforce(str(user_id), resource, action):
             return True

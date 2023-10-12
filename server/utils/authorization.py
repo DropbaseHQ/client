@@ -179,6 +179,7 @@ class AuthZDepFactory:
             resource=resource_type,
             action=action,
             resource_id=resource_id,
+            resource_crud=resource_query_mapper[resource_type],
         )
         if not is_authorized:
             self._raise_forbidden(user, resource_id)
@@ -204,6 +205,7 @@ class AuthZDepFactory:
                 resource=resource_type_inner,
                 action=action_inner,
                 resource_id=resource_id,
+                resource_crud=resource_query_mapper[resource_type],
             )
 
             if not is_authorized:

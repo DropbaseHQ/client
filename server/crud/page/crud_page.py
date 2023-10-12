@@ -20,5 +20,8 @@ class CRUDPage(CRUDBase[Page, CreatePage, UpdatePage]):
     def get_app_pages(self, db: Session, app_id: UUID) -> List[Page]:
         return db.query(Page).filter(Page.app_id == app_id).all()
 
+    def get_app_id(self, db: Session, page_id: UUID) -> str:
+        return (db.query(Page.app_id).filter(Page.id == str(page_id)).one()).app_id
+
 
 page = CRUDPage(Page)
