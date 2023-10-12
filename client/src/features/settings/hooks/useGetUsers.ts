@@ -6,8 +6,9 @@ const fetchWorkspaceUsers = async ({ workspaceId }: { workspaceId: string }) => 
 	return data;
 };
 
+export const GET_WORKSPACE_USERS_QUERY_KEY = 'workspaceUsers';
 export const useGetWorkspaceUsers = ({ workspaceId }: { workspaceId: any }) => {
-	const queryKey = ['workspaceUsers', workspaceId];
+	const queryKey = [GET_WORKSPACE_USERS_QUERY_KEY, workspaceId];
 	const { data: response, ...rest } = useQuery(queryKey, () =>
 		fetchWorkspaceUsers({ workspaceId }),
 	);

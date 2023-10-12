@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.workspace import CreateWorkspace, UpdateWorkspace
+from server.schemas.workspace import CreateWorkspace, UpdateWorkspace, AddUserRequest
 from server.utils.connect import get_db
 from server.controllers import workspace as workspace_controller
 from server.utils.authorization import RESOURCES, AuthZDepFactory
@@ -32,6 +32,13 @@ def get_workspace_users(workspace_id: UUID, db: Session = Depends(get_db)):
 @router.get("/{workspace_id}/groups")
 def get_workspace_groups(workspace_id: UUID, db: Session = Depends(get_db)):
     return workspace_controller.get_workspace_groups(db, workspace_id=workspace_id)
+
+
+@router.post("/{workspace_id}/add_user")
+def add_user_to_workspace(workspace_id: UUID, request: AddUserRequest, db: Session = Depends(get_db)):
+    return workspace_controller.add_user_to_workspace(
+        db, workspace_id, request.user_email, request.role_id
+    )
 
 
 @router.post("/")

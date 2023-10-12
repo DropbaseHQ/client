@@ -63,25 +63,16 @@ class GroupController:
         group = crud.group.get_object_by_id_or_404(db, id=group_id)
         try:
             # Remove the user from the group in policy table
-            crud.policy.remove(
-                db,
-                obj_in=Policy(
-                    ptype="g",
-                    v0=user_id,
-                    v1=group.id,
-                    workspace_id=group.workspace_id,
-                ),
-                auto_commit=False,
-            )
+            db.query(Policy).filter(
+                Policy.ptype == "g", Policy.v0 == str(user_id), Policy.v1 == str(group.id)
+            ).filter(Policy.workspace_id == str(group.workspace_id)).delete()
 
             # Remove the user from the group in user_group table
-            crud.user_group.remove(
-                db,
-                obj_in={"user_id": user_id, "group_id": group_id},
-                auto_commit=False,
-            )
+            db.query(UserGroup).filter(
+                UserGroup.user_id == str(user_id), UserGroup.group_id == str(group.id)
+            ).delete()
 
-            db.rollback()
+            db.commit()
 
         except Exception as e:
             db.rollback()
