@@ -111,6 +111,16 @@ def register_user(db: Session, request: CreateUserRequest):
             role_id=admin_role_id,
         )
         crud.user_role.create(db, obj_in=role_obj)
+        crud.policy.create(
+            db,
+            obj_in=Policy(
+                ptype="g",
+                v0=str(user.id),
+                v1=admin_role_id,
+                workspace_id=workspace.id,
+            ),
+            auto_commit=False,
+        )
 
         return {"message": "User successfully registered"}
     except Exception as e:
