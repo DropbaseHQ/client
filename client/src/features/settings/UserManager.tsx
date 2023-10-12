@@ -49,7 +49,6 @@ const MEMBER_UUID = '00000000-0000-0000-0000-000000000004';
 const UserRow = (item: any) => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
-
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [groupId, setGroupId] = useState('');
 	const [action, setAction] = useState('');

@@ -11,7 +11,6 @@ export const Workspaces = () => {
 	const handleSwitchWorkspace = (workspaceId: string) => {
 		updateWorkspace(workspaceId);
 	};
-	console.log('workspaces', workspaces);
 	return (
 		<PageLayout title="Workspaces">
 			<SimpleGrid columns={4} spacing={4}>
