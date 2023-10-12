@@ -66,15 +66,7 @@ export const TableProperties = () => {
 
 	if (!isLoadingSources && sources.length === 0) {
 		return (
-			<Stack
-				p="4"
-				m="3"
-				maxH="full"
-				borderRadius="sm"
-				borderWidth="1px"
-				bg="white"
-				spacing="4"
-			>
+			<Stack p="4" maxH="full" borderRadius="sm" borderWidth="1px" bg="white" spacing="4">
 				<Stack spacing="0">
 					<Text fontSize="lg" fontWeight="semibold">
 						Create source
@@ -92,7 +84,7 @@ export const TableProperties = () => {
 
 	if (isLoading) {
 		return (
-			<Stack p="6" m="3" borderRadius="sm" spacing="3" borderWidth="1px" bg="white">
+			<Stack p="6" borderRadius="sm" spacing="3" borderWidth="1px" bg="white">
 				<InputLoader isLoading />
 				<InputLoader isLoading />
 				<InputLoader isLoading />
@@ -101,18 +93,10 @@ export const TableProperties = () => {
 	}
 
 	return (
-		<Stack
-			p="3"
-			m="3"
-			maxH="full"
-			overflow="auto"
-			borderRadius="sm"
-			borderWidth="1px"
-			bg="white"
-		>
+		<Stack px="3" h="full" overflowY="auto" bg="white">
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
-					<Stack p="3" spacing="4">
+					<Stack spacing="4">
 						<FormInput
 							type="select"
 							id="sourceId"
@@ -160,7 +144,7 @@ export const TableProperties = () => {
 				</FormProvider>
 			</form>
 
-			<Box p="2">
+			<Box mt="3">
 				<DeleteTable tableId={tableId} tableName={values.name} />
 			</Box>
 		</Stack>

@@ -1,6 +1,4 @@
-import { Stack, Text } from '@chakra-ui/react';
-import { Panel, PanelGroup } from 'react-resizable-panels';
-import { PanelHandle } from '@/components/Panel';
+import { Box, Divider, Stack, Text } from '@chakra-ui/react';
 import { ColumnsProperties } from './ColumnProperties';
 import { TableProperties } from './TableProperties';
 
@@ -10,15 +8,14 @@ export const TableConfig = () => {
 			<Text p="3" borderBottomWidth="1px" fontWeight="semibold" size="sm">
 				Table Properties
 			</Text>
-			<PanelGroup direction="vertical">
-				<Panel defaultSize={45}>
+			<Stack h="full" overflowY="auto" divider={<Divider />}>
+				<Box p="4">
 					<TableProperties />
-				</Panel>
-				<PanelHandle direction="horizontal" />
-				<Panel>
+				</Box>
+				<Box p="4">
 					<ColumnsProperties />
-				</Panel>
-			</PanelGroup>
+				</Box>
+			</Stack>
 		</Stack>
 	);
 };
