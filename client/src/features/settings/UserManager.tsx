@@ -29,7 +29,6 @@ import {
 	PopoverFooter,
 	PopoverArrow,
 	PopoverCloseButton,
-	PopoverAnchor,
 	ButtonGroup,
 } from '@chakra-ui/react';
 import { useGetWorkspaceUsers, GET_WORKSPACE_USERS_QUERY_KEY } from './hooks/useGetUsers';
@@ -212,7 +211,7 @@ export const Users = () => {
 					</Tr>
 				</Thead>
 				<Tbody>
-					{users.map((item: any, index: number) => (
+					{users.map((item: any) => (
 						<UserRow user={item} key={item.id} />
 					))}
 				</Tbody>
