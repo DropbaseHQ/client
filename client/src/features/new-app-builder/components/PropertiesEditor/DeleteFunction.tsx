@@ -17,16 +17,13 @@ import { useParams } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
 
 import { Trash } from 'react-feather';
-import { FormProvider, useForm } from 'react-hook-form';
 import { useToast } from '@/lib/chakra-ui';
 import { useDeleteFunction } from '@/features/new-app-builder/hooks';
-import { FormInput } from '@/components/FormInput';
 import { developerTabAtom } from '@/features/new-app-builder/atoms';
 import { useGetPage } from '@/features/new-page';
 
 export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
 	const toast = useToast();
-	const methods = useForm();
 	const { pageId } = useParams();
 
 	const setDevTab = useSetAtom(developerTabAtom);
@@ -38,7 +35,6 @@ export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
 
 	const { isOpen, onToggle, onClose } = useDisclosure({
 		onClose: () => {
-			methods.reset();
 			if (nextFunctionSelection) {
 				setDevTab({
 					type: 'function',
@@ -63,7 +59,8 @@ export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
 		},
 	});
 
-	const onSubmit = () => {
+	const onSubmit = (e: any) => {
+		e?.preventDefault();
 		mutation.mutate({
 			functionId,
 		});
@@ -93,40 +90,30 @@ export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
 					</PopoverHeader>
 					<PopoverArrow />
 					<PopoverCloseButton />
-					<FormProvider {...methods}>
-						<form onSubmit={methods.handleSubmit(onSubmit)}>
-							<PopoverBody>
-								<FormInput
-									name="Table name"
-									id="name"
-									placeholder={`Write ${functionName} to delete`}
-									validation={{
-										validate: (value: any) =>
-											value === functionName || 'Function name didnt match',
-									}}
-								/>
-							</PopoverBody>
-							<PopoverFooter
-								border="0"
-								display="flex"
-								justifyContent="space-between"
-								pb={4}
-							>
-								<ButtonGroup ml="auto" size="sm">
-									<Button onClick={onClose} colorScheme="gray" variant="ghost">
-										Cancel
-									</Button>
-									<Button
-										colorScheme="red"
-										type="submit"
-										isLoading={mutation.isLoading}
-									>
-										Delete
-									</Button>
-								</ButtonGroup>
-							</PopoverFooter>
-						</form>
-					</FormProvider>
+					<form onSubmit={onSubmit}>
+						<PopoverBody>
+							Are you sure you want to delete {functionName} function?
+						</PopoverBody>
+						<PopoverFooter
+							border="0"
+							display="flex"
+							justifyContent="space-between"
+							pb={4}
+						>
+							<ButtonGroup ml="auto" size="sm">
+								<Button onClick={onClose} colorScheme="gray" variant="ghost">
+									Cancel
+								</Button>
+								<Button
+									colorScheme="red"
+									type="submit"
+									isLoading={mutation.isLoading}
+								>
+									Delete
+								</Button>
+							</ButtonGroup>
+						</PopoverFooter>
+					</form>
 				</PopoverContent>
 			</Portal>
 		</Popover>

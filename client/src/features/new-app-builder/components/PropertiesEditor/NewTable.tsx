@@ -13,6 +13,7 @@ import {
 	Portal,
 	useDisclosure,
 } from '@chakra-ui/react';
+import { useEffect } from 'react';
 import { useAtomValue } from 'jotai';
 
 import { Plus } from 'react-feather';
@@ -23,6 +24,7 @@ import { FormInput } from '@/components/FormInput';
 import { useSources } from '@/features/sources/hooks';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetPage } from '@/features/new-page';
+import { generateSequentialName } from '@/utils';
 
 export const NewTable = (props: any) => {
 	const workspaceId = useAtomValue(workspaceAtom);
@@ -32,6 +34,11 @@ export const NewTable = (props: any) => {
 	const toast = useToast();
 	const methods = useForm();
 	const { isOpen, onToggle, onClose } = useDisclosure();
+
+	const nextName = generateSequentialName({
+		currentNames: tables.map((t: any) => t.name) || [],
+		prefix: 'table',
+	});
 
 	const { sources } = useSources(workspaceId);
 
@@ -54,6 +61,10 @@ export const NewTable = (props: any) => {
 			sourceId,
 		});
 	};
+
+	useEffect(() => {
+		methods.setValue('name', nextName);
+	}, [methods, nextName]);
 
 	return (
 		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur={false}>

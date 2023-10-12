@@ -40,3 +40,15 @@ export const getPGColumnBaseType = (type: any) => {
 
 	return PG_COLUMN_BASE_TYPE[type];
 };
+
+export const generateSequentialName = ({ currentNames, prefix }: any) => {
+	let nameIndex = 1;
+
+	while (currentNames.includes(`${prefix}${nameIndex}`)) {
+		nameIndex += 1;
+	}
+
+	const newName = `${prefix}${nameIndex}`;
+
+	return newName;
+};
