@@ -181,7 +181,6 @@ def get_group(db: Session, group_id: str):
                 "action": permission[3],
             }
         )
-    print("permissions", permissions)
     return {"group": group, "permissions": formatted_permissions}
 
 

@@ -66,3 +66,14 @@ class AddPolicy(BaseModel):
 class AddPolicyRequest(BaseModel):
     workspace_id: str
     policies: list[AddPolicy]
+
+
+class GetUserDetails(BaseModel):
+    workspace_id: str
+
+
+class UpdateUserPolicyRequest(BaseModel):
+    resource: str
+    action: str
+    effect: str
+    workspace_id: str

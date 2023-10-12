@@ -6,7 +6,7 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.user import user
+from server.controllers.user import user, get_user_details as c_get_user_details
 from server.schemas.user import (
     CreateUser,
     CreateUserRequest,
@@ -14,6 +14,7 @@ from server.schemas.user import (
     ResetPasswordRequest,
     UpdateUser,
     AddPolicyRequest,
+    UpdateUserPolicyRequest,
 )
 from server.schemas import PolicyTemplate
 from server.utils.authorization import (
@@ -60,6 +61,12 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
     return user.reset_password(db, request)
 
 
+@router.get("/{user_id}/details/{workspace_id}")
+def get_user_details(user_id: UUID, workspace_id: UUID, db: Session = Depends(get_db)):
+    # verify_user_id_belongs_to_current_user(user_id)
+    return c_get_user_details(db=db, user_id=user_id, workspace_id=workspace_id)
+
+
 @router.get("/{user_id}")
 def get_user(user_id: UUID, db: Session = Depends(get_db)):
     verify_user_id_belongs_to_current_user(user_id)
@@ -92,3 +99,10 @@ def add_policies_to_user(user_id: UUID, request: AddPolicyRequest, db: Session =
 @router.post("/remove_policies/{user_id}")
 def remove_policies_from_user(user_id: UUID, request: AddPolicyRequest, db: Session = Depends(get_db)):
     return user.remove_policy(db, user_id, request)
+
+
+@router.post("/update_policy/{user_id}")
+def update_policy_from_user(
+    user_id: UUID, request: UpdateUserPolicyRequest, db: Session = Depends(get_db)
+):
+    return user.update_policy(db, user_id, request)
