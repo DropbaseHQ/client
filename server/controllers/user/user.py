@@ -1,11 +1,25 @@
 from fastapi import HTTPException, Response, status
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
+from typing import List
+from uuid import UUID
 
 from server import crud
+from server.models import Policy
+from server.schemas import PolicyTemplate
 from server.constants import ACCESS_TOKEN_EXPIRE_SECONDS, REFRESH_TOKEN_EXPIRE_SECONDS
 from server.schemas.user_role import CreateUserRole
-from server.schemas.user import CreateUser, CreateUserRequest, LoginUser, ReadUser, ResetPasswordRequest
+from server.utils.permissions.casbin_utils import get_contexted_enforcer
+
+from server.schemas.user import (
+    CreateUser,
+    CreateUserRequest,
+    LoginUser,
+    ReadUser,
+    ResetPasswordRequest,
+    AddPolicyRequest,
+    UpdateUserPolicyRequest,
+)
 from server.schemas.workspace import CreateWorkspace, ReadWorkspace
 from server.utils.authentication import authenticate_user, get_password_hash
 from server.utils.helper import raise_http_exception
@@ -116,3 +130,102 @@ def reset_password(db: Session, request: ResetPasswordRequest):
     except Exception as e:
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")
+
+
+def add_policy(db: Session, user_id: UUID, request: AddPolicyRequest):
+    try:
+        for policy in request.policies:
+            crud.policy.create(
+                db,
+                obj_in=Policy(
+                    ptype="p",
+                    v0=10,
+                    v1=user_id,
+                    v2=policy.resource,
+                    v3=policy.action,
+                    workspace_id=request.workspace_id,
+                ),
+                auto_commit=False,
+            )
+            db.commit()
+            return {"message": "Polices successfully added"}
+
+    except Exception as e:
+        print("error", e)
+        db.rollback()
+        raise_http_exception(status_code=500, message="Internal server error")
+
+
+def remove_policy(db: Session, user_id: UUID, request: AddPolicyRequest):
+    try:
+        for policy in request.policies:
+            db.query(Policy).filter(
+                Policy.v1 == str(user_id),
+                Policy.v2 == policy.resource,
+                Policy.v3 == policy.action,
+                Policy.workspace_id == request.workspace_id,
+            ).delete()
+            db.commit()
+            return {"message": "Polices successfully removed"}
+
+    except Exception as e:
+        print("error", e)
+        db.rollback()
+        raise_http_exception(status_code=500, message="Internal server error")
+
+
+def get_user_details(db: Session, user_id: UUID, workspace_id: UUID):
+    user = crud.user.get_object_by_id_or_404(db, id=user_id)
+    enforcer = get_contexted_enforcer(db, workspace_id)
+    permissions = enforcer.get_filtered_policy(1, str(user.id))
+    formatted_permissions = []
+    for permission in permissions:
+        formatted_permissions.append(
+            {
+                "user_id": permission[1],
+                "resource": permission[2],
+                "action": permission[3],
+            }
+        )
+    return {"user": user, "permissions": formatted_permissions}
+
+
+def update_policy(db: Session, user_id: UUID, request: UpdateUserPolicyRequest):
+    user = crud.user.get_object_by_id_or_404(db, id=user_id)
+    try:
+        exisiting_policy = (
+            db.query(Policy)
+            .filter(
+                Policy.v1 == str(user.id),
+                Policy.v2 == request.resource,
+                Policy.v3 == request.action,
+            )
+            .filter(Policy.workspace_id == request.workspace_id)
+            .one_or_none()
+        )
+
+        if exisiting_policy and request.effect == "deny":
+            db.query(Policy).filter(
+                Policy.v1 == str(user.id),
+                Policy.v2 == request.resource,
+                Policy.v3 == request.action,
+            ).filter(Policy.workspace_id == request.workspace_id).delete()
+
+        elif not exisiting_policy and request.effect == "allow":
+            crud.policy.create(
+                db,
+                obj_in=Policy(
+                    ptype="p",
+                    v0=10,
+                    v1=user.id,
+                    v2=request.resource,
+                    v3=request.action,
+                    workspace_id=request.workspace_id,
+                ),
+                auto_commit=False,
+            )
+        db.commit()
+        return {"message": "success"}
+    except Exception as e:
+        db.rollback()
+        raise e

@@ -133,7 +133,7 @@ class Adapter(persist.Adapter, persist.adapters.UpdateAdapter):
             line = self._db_class(ptype=ptype)
             for i, v in enumerate(rule):
                 setattr(line, "v{}".format(i), v)
-            session.add(line)
+            # session.add(line)
 
     def save_policy(self, model):
         """saves all policy rules to the storage."""
