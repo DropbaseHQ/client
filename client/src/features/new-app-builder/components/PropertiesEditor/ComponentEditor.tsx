@@ -108,7 +108,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	}
 
 	return (
-		<Stack h="full" w="full" bg="white">
+		<Stack h="full" overflowY="auto" w="full" bg="white">
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
 					<Stack
@@ -209,7 +209,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	);
 };
 
-export const NewComponent = () => {
+export const NewComponent = (props: any) => {
 	const toast = useToast();
 	const { widgetId } = useAtomValue(pageAtom);
 	const { values } = useGetComponentProperties(widgetId || '');
@@ -258,14 +258,17 @@ export const NewComponent = () => {
 		<Menu>
 			<MenuButton
 				as={Button}
-				leftIcon={<Plus size="14" />}
 				variant="ghost"
 				size="sm"
 				flexShrink="0"
 				mr="auto"
 				isLoading={mutation.isLoading}
+				{...props}
 			>
-				New Component
+				<Stack alignItems="center" justifyContent="center" direction="row">
+					<Plus size="14" />
+					<Box>Add Component</Box>
+				</Stack>
 			</MenuButton>
 			<MenuList>
 				{['input', 'text', 'select', 'button'].map((c) => (

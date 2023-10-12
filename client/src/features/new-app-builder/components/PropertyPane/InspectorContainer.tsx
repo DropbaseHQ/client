@@ -11,7 +11,8 @@ export const InspectorContainer = ({ children, noPadding, id, type, ...props }: 
 
 	const { isPreview } = useAtomValue(appModeAtom);
 
-	const activeHover = isOpen || (id === activeInspect.id && activeInspect.type === type);
+	const isCurrentComponent = id === activeInspect.id && activeInspect.type === type;
+	const activeHover = isOpen || isCurrentComponent;
 
 	const handleInspect = () => {
 		setActiveInspect({
@@ -55,7 +56,7 @@ export const InspectorContainer = ({ children, noPadding, id, type, ...props }: 
 				borderRadius="sm"
 				borderWidth="5px"
 				borderColor="gray.50"
-				outlineColor="blue.500"
+				outlineColor={isCurrentComponent ? 'blue.500' : 'gray.500'}
 				pos="absolute"
 				top="-5px"
 				left="-5px"

@@ -23,7 +23,18 @@ export const StackedTables = () => {
 				</Box>
 			))}
 
-			{isPreview ? null : <NewTable w="fit-content" ml="auto" />}
+			{isPreview ? null : (
+				<Box
+					ml="auto"
+					borderWidth="1px"
+					borderStyle="dashed"
+					p="2"
+					borderRadius="md"
+					minW="48"
+				>
+					<NewTable w="full" variant="secondary" />
+				</Box>
+			)}
 		</Stack>
 	);
 };

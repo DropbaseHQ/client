@@ -251,13 +251,19 @@ export const NewAppPreview = () => {
 							</InspectorContainer>
 						);
 					})}
+					{isDevMode ? (
+						<Box
+							w="full"
+							p="2"
+							borderWidth="1px"
+							borderStyle="dashed"
+							borderRadius="md"
+							mt="auto"
+						>
+							<NewComponent w="full" variant="secondary" />
+						</Box>
+					) : null}
 				</Stack>
-
-				{isDevMode ? (
-					<Box p="3" mt="auto">
-						<NewComponent />
-					</Box>
-				) : null}
 
 				{widgetState?.message ? (
 					<Stack
