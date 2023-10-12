@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 
-import controller
+import worker_proxy_server.controller as controller
+
 
 app = FastAPI()
-
 
 @app.get("/")
 async def root():

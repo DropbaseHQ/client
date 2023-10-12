@@ -3,7 +3,6 @@ import tempfile
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
-DROPBASE_PROXY_SERVER_TOKEN = "test-token"
 
 FRPS_DIR = Path(__file__).parent.absolute()
 TEMPLATES_DIR = FRPS_DIR.joinpath("templates/")
@@ -15,7 +14,6 @@ frps_config_template = templates_env.get_template("frps.toml")
 with tempfile.NamedTemporaryFile("w") as frps_config_file:
     config_str = frps_config_template.render(
         bindPort=7000,
-        authToken=DROPBASE_PROXY_SERVER_TOKEN,
     )
     frps_config_file.write(config_str)
     frps_config_file.flush()
