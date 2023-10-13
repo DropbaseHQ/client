@@ -24,8 +24,16 @@ class GroupController:
     """
 
     @staticmethod
-    def add_user(db: Session, user: User, group_id: str, user_id: str, role: str = "member"):
-        require_group_leader(db, group_id, user)
+    def add_user(
+        db: Session,
+        user: User,
+        group_id: str,
+        user_id: str,
+        role: str = "member",
+        require_leader: bool = True,
+    ):
+        if require_leader:
+            require_group_leader(db, group_id, user)
         group = crud.group.get_object_by_id_or_404(db, id=group_id)
         try:
             # Are there any existing user_group policies for this user in this workspace IN the policy table?
@@ -177,7 +185,14 @@ class GroupController:
         try:
             new_group = crud.group.create(db, obj_in=request, auto_commit=False)
             db.flush()
-            GroupController.add_user(db=db, group_id=new_group.id, user_id=user.id, role="leader")
+            GroupController.add_user(
+                db=db,
+                user=user,
+                group_id=new_group.id,
+                user_id=user.id,
+                role="leader",
+                require_leader=False,
+            )
 
             db.commit()
             return new_group
