@@ -30,6 +30,8 @@ import { useCreateApp } from './hooks/useCreateApp';
 import { PageLayout } from '@/layout';
 import { FormInput } from '@/components/FormInput';
 import { useDeleteApp } from '@/features/app-list/hooks/useDeleteApp';
+import { useAtomValue } from 'jotai';
+import { workspaceAtom } from '@/features/workspaces';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
@@ -155,6 +157,8 @@ const AppCard = ({ app }: { app: AppType }) => {
 export const AppList = () => {
 	// Will need to pass workspace in here but for now we only have one workspace (backend spits out the first workspace)
 	const navigate = useNavigate();
+	const workspaceId = useAtomValue(workspaceAtom);
+
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
 	const [appName, setAppName] = useState('');
 	const { isOpen, onOpen, onClose } = useDisclosure();
@@ -170,6 +174,7 @@ export const AppList = () => {
 	const handleCreateApp = async () => {
 		await createAppMutation.mutateAsync({
 			name: appName,
+			workspaceId: workspaceId || '',
 		});
 	};
 
