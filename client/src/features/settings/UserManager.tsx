@@ -172,7 +172,7 @@ export const Users = () => {
 	const [newMemberRole, setNewMemberRole] = useState(MEMBER_UUID);
 
 	const queryClient = useQueryClient();
-	const { users } = useGetWorkspaceUsers({ workspaceId: workspaceId || '' });
+	const { users } = useGetWorkspaceUsers();
 	const inviteMemberMutation = useInviteMember({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);

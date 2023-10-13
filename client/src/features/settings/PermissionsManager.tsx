@@ -90,7 +90,7 @@ export const Permissions = () => {
 	} = useDisclosure();
 
 	const { groups } = useGetWorkspaceGroups({ workspaceId: workspaceId || '' });
-	const { users } = useGetWorkspaceUsers({ workspaceId: workspaceId || '' });
+	const { users } = useGetWorkspaceUsers();
 	const { apps } = useGetWorkspaceApps();
 	const createGroupMutation = useCreateGroup({
 		onSuccess: () => {
