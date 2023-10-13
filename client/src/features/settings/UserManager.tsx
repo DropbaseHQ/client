@@ -138,6 +138,7 @@ const UserRow = (item: any) => {
 									onChange={(e) => {
 										setGroupId(e.target.value);
 									}}
+									placeholder="Select a group"
 								>
 									{groups.map((group: any) => (
 										<option value={group.id}>{group.name}</option>
