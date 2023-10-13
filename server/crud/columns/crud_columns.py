@@ -22,5 +22,14 @@ class CRUDColumns(CRUDBase[Columns, CreateColumns, UpdateColumns]):
             .one()
         ).workspace_id
 
+    def get_app_id(self, db: Session, columns_id: UUID) -> str:
+        return (
+            db.query(Page.app_id)
+            .join(Tables, Tables.page_id == Page.id)
+            .join(Columns, Columns.table_id == Tables.id)
+            .filter(Columns.id == columns_id)
+            .one()
+        ).app_id
+
 
 columns = CRUDColumns(Columns)

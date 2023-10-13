@@ -1,9 +1,9 @@
 import { Box, Skeleton, Stack } from '@chakra-ui/react';
 
-export const NavLoader = ({ children, isLoading }: any) => {
+export const NavLoader = ({ children, isLoading, ...props }: any) => {
 	if (isLoading) {
 		return (
-			<Stack p={4} h={14} bg="white" borderBottomWidth="1px">
+			<Stack p={4} h={14} bg="white" borderBottomWidth="1px" {...props}>
 				<Skeleton h="full" />
 			</Stack>
 		);

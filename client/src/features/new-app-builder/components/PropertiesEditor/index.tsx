@@ -1,17 +1,16 @@
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { Box, Button, ButtonGroup, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
-import { Code, Box as BoxIcon, Table } from 'react-feather';
+import { Code } from 'react-feather';
 
-import { pageAtom, useGetPage } from '@/features/new-page';
+import { useGetPage } from '@/features/new-page';
 import { developerTabAtom } from '@/features/new-app-builder/atoms';
 
 import { FunctionEditor } from './FunctionEditor';
 import { TableConfig } from './TableConfig';
 import { WidgetConfig } from './WidgetConfig';
 import { NewFunction } from './Functions';
-import { NewTable } from './NewTable';
 
 const componentsMap: any = {
 	table: TableConfig,
@@ -21,21 +20,9 @@ const componentsMap: any = {
 
 export const PropertiesEditor = () => {
 	const { pageId } = useParams();
-	const { functions, tables, widget, isLoading } = useGetPage(pageId || '');
+	const { functions, isLoading } = useGetPage(pageId || '');
 
-	const { widgetId } = useAtomValue(pageAtom);
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
-
-	const firstTableId = tables?.[0]?.id;
-
-	useEffect(() => {
-		if (!devTab?.type && !devTab?.id && firstTableId) {
-			setDevTab({
-				type: 'table',
-				id: firstTableId,
-			});
-		}
-	}, [devTab, setDevTab, firstTableId]);
 
 	useEffect(() => {
 		return () => {
@@ -66,48 +53,6 @@ export const PropertiesEditor = () => {
 				direction="row"
 			>
 				<ButtonGroup isAttached size="sm">
-					{(tables || []).map((t: any) => (
-						<Button
-							variant={
-								devTab.type === 'table' && t.id === devTab.id ? 'solid' : 'outline'
-							}
-							onClick={() => {
-								setDevTab({
-									type: 'table',
-									id: t.id,
-								});
-							}}
-							leftIcon={<Table size="14" />}
-							key={t.id}
-						>
-							{t.name}
-						</Button>
-					))}
-					<NewTable variant="outline" />
-				</ButtonGroup>
-
-				{widget ? (
-					<Button
-						isDisabled={!widgetId}
-						size="sm"
-						variant={
-							devTab.type === 'widget' && widget.id === devTab.id
-								? 'solid'
-								: 'outline'
-						}
-						onClick={() => {
-							setDevTab({
-								type: 'widget',
-								id: widget.id,
-							});
-						}}
-						leftIcon={<BoxIcon size="14" />}
-					>
-						{widget.name}
-					</Button>
-				) : null}
-
-				<ButtonGroup isAttached size="sm">
 					{(functions || []).map((f: any) => (
 						<Button
 							variant={
@@ -137,7 +82,7 @@ export const PropertiesEditor = () => {
 				) : (
 					<Center p="4" h="full">
 						<Text size="sm" fontWeight="medium">
-							Select a tab
+							{functions.length > 0 ? 'Selec a function' : 'Create a function'}
 						</Text>
 					</Center>
 				)}

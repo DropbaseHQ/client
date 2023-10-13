@@ -32,6 +32,9 @@ import { pageAtom } from '@/features/new-page';
 import { useCreateWidget } from '@/features/new-app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { checkAllRulesPass } from '@/features/new-app-preview/utils';
+import { InspectorContainer } from '@/features/new-app-builder';
+import { NewComponent } from '@/features/new-app-builder/components/PropertiesEditor/ComponentEditor';
+import { appModeAtom } from '@/features/app/atoms';
 
 const sizeMap: any = {
 	small: 'sm',
@@ -121,10 +124,13 @@ const AppComponent = (props: any) => {
 	);
 };
 
-export const NewAppPreview = ({ isDevMode }: any) => {
+export const NewAppPreview = () => {
 	const { pageId } = useParams();
 
 	const { widgetId } = useAtomValue(pageAtom);
+
+	const { isPreview } = useAtomValue(appModeAtom);
+	const isDevMode = !isPreview;
 
 	const { isLoading, refetch, components, widget, isRefetching } = useGetWidgetPreview(
 		widgetId || '',
@@ -212,16 +218,18 @@ export const NewAppPreview = ({ isDevMode }: any) => {
 					alignItems="center"
 					justifyContent="space-between"
 				>
-					<Stack spacing="0">
-						<Text fontSize="md" fontWeight="semibold">
-							{widget?.property?.name}
-						</Text>
-						{widget?.property?.description ? (
-							<Text fontSize="sm" color="gray.600">
-								{widget?.property?.description}
+					<InspectorContainer noPadding type="widget" id={widgetId}>
+						<Stack spacing="0">
+							<Text fontSize="md" fontWeight="semibold">
+								{widget?.property?.name}
 							</Text>
-						) : null}
-					</Stack>
+							{widget?.property?.description ? (
+								<Text fontSize="sm" color="gray.600">
+									{widget?.property?.description}
+								</Text>
+							) : null}
+						</Stack>
+					</InspectorContainer>
 
 					{isDevMode ? (
 						<IconButton
@@ -234,11 +242,29 @@ export const NewAppPreview = ({ isDevMode }: any) => {
 						/>
 					) : null}
 				</Stack>
+
 				<Stack p="4" spacing="3">
 					{components.map((c: any) => {
-						return <AppComponent key={c.id} {...c} />;
+						return (
+							<InspectorContainer key={c.id} id={c.id} type="component">
+								<AppComponent key={c.id} {...c} />
+							</InspectorContainer>
+						);
 					})}
+					{isDevMode ? (
+						<Box
+							w="full"
+							p="2"
+							borderWidth="1px"
+							borderStyle="dashed"
+							borderRadius="md"
+							mt="auto"
+						>
+							<NewComponent w="full" variant="secondary" />
+						</Box>
+					) : null}
 				</Stack>
+
 				{widgetState?.message ? (
 					<Stack
 						flexShrink="0"

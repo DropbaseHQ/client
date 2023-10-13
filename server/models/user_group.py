@@ -10,6 +10,7 @@ class UserGroup(Base):
 
     user_id = Column(UUID(as_uuid=True), ForeignKey("user.id", ondelete="CASCADE"))
     group_id = Column(UUID(as_uuid=True), ForeignKey("group.id", ondelete="CASCADE"))
+    role = Column(String, default="member")
 
     date = Column(TIMESTAMP, server_default=func.now())
 

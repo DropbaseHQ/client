@@ -6,6 +6,7 @@ from .page import router as page_router
 from .role import router as role_router
 from .source import router as source_router
 from .tables import router as tables_router
+from .group import router as group_router
 
 # temp
 from .task import router as task_router

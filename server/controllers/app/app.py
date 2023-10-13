@@ -7,11 +7,15 @@ from server.models import User
 from server.schemas import CreateApp, ReadApp, ReadPage
 
 
-def get_user_apps(db: Session, user: User):
-    first_workspace = crud.user.get_user_first_workspace(db, user.id)
-    if first_workspace is None:
-        return []
-    apps = crud.app.get_workspace_apps(db, workspace_id=first_workspace.id)
+def get_user_apps(db: Session, user: User, workspace_id: UUID):
+    workspace = None
+    if workspace_id is None:
+        workspace = crud.user.get_user_first_workspace(db, user.id)
+        if workspace is None:
+            return []
+    else:
+        workspace = crud.workspace.get_object_by_id_or_404(db, id=workspace_id)
+    apps = crud.app.get_workspace_apps(db, workspace_id=workspace.id)
     for app in apps:
         app.pages = crud.page.get_app_pages(db, app.id)
     return apps
@@ -19,13 +23,15 @@ def get_user_apps(db: Session, user: User):
 
 def create_app(db: Session, request: CreateApp, user: User):
     first_workspace = crud.user.get_user_first_workspace(db, user.id)
-    if first_workspace is None:
-        raise Exception("User has no workspace")
     if request.workspace_id is None:
         request.workspace_id = first_workspace.id
+    else:
+        workspace = crud.workspace.get_object_by_id_or_404(db, id=request.workspace_id)
+        if workspace not in crud.workspace.get_user_workspaces(db, user_id=user.id):
+            raise Exception("User does not have access to the workspace")
     app = crud.app.create(db, obj_in=request)
     page = crud.page.create(db, obj_in={"name": "Page 1", "app_id": app.id})
-    source = crud.source.get_workspace_sources(db, workspace_id=first_workspace.id)
+    source = crud.source.get_workspace_sources(db, workspace_id=request.workspace_id)
     source_id = None
     if source:
         source_id = source[0].id
@@ -45,7 +51,4 @@ def create_app(db: Session, request: CreateApp, user: User):
 
 
 def get_app_pages(db: Session, user: User, app_id: UUID):
-    first_workspace = crud.user.get_user_first_workspace(db, user.id)
-    if first_workspace is None:
-        return []
     return crud.page.get_app_pages(db, app_id)

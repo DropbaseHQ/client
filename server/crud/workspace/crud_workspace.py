@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import UserRole, Workspace, Policy
+from server.models import UserRole, Workspace, Policy, Group, User
 from server.schemas.workspace import CreateWorkspace, UpdateWorkspace
 
 
@@ -34,6 +34,38 @@ class CRUDWorkspace(CRUDBase[Workspace, CreateWorkspace, UpdateWorkspace]):
             .filter(Policy.workspace_id == workspace_id)
             .filter(Policy.ptype.startswith("g"))
             .all()
+        )
+
+    def get_workspace_users(self, db: Session, workspace_id: UUID):
+        sql = """
+            SELECT
+                u.id AS user_id,
+                u.email,
+                r.name AS role_name,
+                ARRAY_AGG(DISTINCT g.id) AS group_ids,
+                ARRAY_AGG(DISTINCT g.name) AS group_names
+            FROM "user" AS u
+            LEFT JOIN user_role AS ur ON u.id = ur.user_id
+            LEFT JOIN role AS r ON ur.role_id = r.id
+            LEFT JOIN "user_group" AS ug ON u.id = ug.user_id
+            LEFT JOIN "group" AS g ON ug.group_id = g.id
+            WHERE ur.workspace_id = :workspace_id
+            OR g.workspace_id = :workspace_id
+            GROUP BY u.id, u.email, r.name
+        """
+        return db.execute(sql, {"workspace_id": workspace_id}).all()
+
+    def get_workspace_groups(self, db: Session, workspace_id: UUID):
+        return db.query(Group).filter(Group.workspace_id == workspace_id).all()
+
+    def get_oldest_user(self, db: Session, workspace_id: UUID):
+        return (
+            db.query(UserRole)
+            .join(User, User.id == UserRole.user_id)
+            .filter(UserRole.workspace_id == workspace_id)
+            .order_by(UserRole.date)
+            .with_entities(User.id, User.email)
+            .first()
         )
 
 

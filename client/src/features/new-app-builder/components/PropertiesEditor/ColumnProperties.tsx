@@ -185,7 +185,7 @@ export const ColumnsProperties = () => {
 	}
 
 	return (
-		<Stack h="full" p="3" overflowY="auto">
+		<Stack h="full" px="3" overflowY="auto">
 			<Button
 				leftIcon={<Zap size="14" />}
 				size="sm"
