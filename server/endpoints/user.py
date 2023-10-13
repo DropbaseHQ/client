@@ -6,7 +6,8 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.user import get_user_details as c_get_user_details, user_controller
+from server.models import User
+from server.controllers.user import get_user_permissions, user_controller
 from server.schemas.user import (
     CreateUser,
     CreateUserRequest,
@@ -20,6 +21,7 @@ from server.schemas import PolicyTemplate
 from server.utils.authorization import (
     RESOURCES,
     verify_user_id_belongs_to_current_user,
+    get_current_user,
 )
 
 from server.utils.connect import get_db
@@ -64,13 +66,12 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
 @router.get("/{user_id}/details/{workspace_id}")
 def get_user_details(user_id: UUID, workspace_id: UUID, db: Session = Depends(get_db)):
     # verify_user_id_belongs_to_current_user(user_id)
-    return c_get_user_details(db=db, user_id=user_id, workspace_id=workspace_id)
+    return get_user_permissions(db=db, user_id=user_id, workspace_id=workspace_id)
 
 
-@router.get("/{user_id}")
-def get_user(user_id: UUID, db: Session = Depends(get_db)):
-    verify_user_id_belongs_to_current_user(user_id)
-    return crud.user.get_object_by_id_or_404(db, id=user_id)
+@router.get("")
+def get_user(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    return crud.user.get_object_by_id_or_404(db, id=user.id)
 
 
 @router.post("/")

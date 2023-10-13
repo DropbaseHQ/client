@@ -8,18 +8,28 @@ import {
 	Tooltip,
 	Box,
 } from '@chakra-ui/react';
+
+import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { Settings, LogOut, Grid, Database, Repeat, Users, Lock } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
-
+import { workspaceAtom } from '@/features/workspaces';
+import { useAtomValue } from 'jotai';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
+import { useGetWorkspaceUsers } from '@/features/settings/hooks/useGetUsers';
 
 export const Navbar = () => {
 	const { pathname } = useLocation();
 	const { mutate: logout } = useLogout();
+	const workspaceId = useAtomValue(workspaceAtom);
+	const { user } = useGetCurrentUser();
+	const { users } = useGetWorkspaceUsers({ workspaceId: workspaceId || '' });
+	const userRole = users?.find((u: any) => u.user_id === user?.id)?.role_name;
 
-	// const { colorMode, toggleColorMode } = useColorMode();
-
+	// const { colorMode, toggleColorMode } = useColorMode();;
+	const userHasRole = (roles: string[]) => {
+		return roles.includes(userRole);
+	};
 	const handleLogout = () => {
 		logout();
 	};
@@ -52,39 +62,48 @@ export const Navbar = () => {
 						icon={<Grid size="22" />}
 					/>
 				</Tooltip>
-				<Tooltip label="Sources" placement="right">
-					<IconButton
-						variant="ghost"
-						as={Link}
-						to="/source"
-						color={pathname === '/source' ? 'blue.500' : 'body'}
-						colorScheme={pathname === '/source' ? 'blue' : 'gray'}
-						aria-label="Sources"
-						icon={<Database size="22" />}
-					/>
-				</Tooltip>
-				<Tooltip label="Members" placement="right">
-					<IconButton
-						variant="ghost"
-						as={Link}
-						to="/settings/members"
-						color={pathname === '/settings/members' ? 'blue.500' : 'body'}
-						colorScheme={pathname === '/settings/members' ? 'blue' : 'gray'}
-						aria-label="Members"
-						icon={<Users size="22" />}
-					/>
-				</Tooltip>
-				<Tooltip label="Permissions" placement="right">
-					<IconButton
-						variant="ghost"
-						as={Link}
-						to="/settings/permissions"
-						color={pathname === '/settings/permissions' ? 'blue.500' : 'body'}
-						colorScheme={pathname === '/settings/permissions' ? 'blue' : 'gray'}
-						aria-label="Permissions"
-						icon={<Lock size="22" />}
-					/>
-				</Tooltip>
+				{userHasRole(['admin', 'dev']) && (
+					<Tooltip label="Sources" placement="right">
+						<IconButton
+							variant="ghost"
+							as={Link}
+							to="/source"
+							color={pathname === '/source' ? 'blue.500' : 'body'}
+							colorScheme={pathname === '/source' ? 'blue' : 'gray'}
+							aria-label="Sources"
+							icon={<Database size="22" />}
+						/>
+					</Tooltip>
+				)}
+
+				{userHasRole(['admin']) && (
+					<Tooltip label="Members" placement="right">
+						<IconButton
+							variant="ghost"
+							as={Link}
+							to="/settings/members"
+							color={pathname === '/settings/members' ? 'blue.500' : 'body'}
+							colorScheme={pathname === '/settings/members' ? 'blue' : 'gray'}
+							aria-label="Members"
+							icon={<Users size="22" />}
+						/>
+					</Tooltip>
+				)}
+
+				{userHasRole(['admin']) && (
+					<Tooltip label="Permissions" placement="right">
+						<IconButton
+							variant="ghost"
+							as={Link}
+							to="/settings/permissions"
+							color={pathname === '/settings/permissions' ? 'blue.500' : 'body'}
+							colorScheme={pathname === '/settings/permissions' ? 'blue' : 'gray'}
+							aria-label="Permissions"
+							icon={<Lock size="22" />}
+						/>
+					</Tooltip>
+				)}
+
 				<Stack mt="auto" alignItems="center">
 					{/* <Tooltip
 						label={`Toggle to ${colorMode === 'dark' ? 'light' : 'dark'} theme`}

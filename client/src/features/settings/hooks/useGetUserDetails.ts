@@ -7,6 +7,7 @@ export type UserResponse = {
 		name: string;
 		workspace_id: string;
 	};
+	workspace_role: string;
 	permissions: {
 		group_id: string;
 		resource: string;
@@ -27,6 +28,7 @@ export const useGetUserDetails = ({ userId, workspaceId }: { userId: any; worksp
 	return {
 		user: response?.user || {},
 		permissions: response?.permissions || [],
+		workspaceRole: response?.workspace_role || '',
 		...rest,
 	};
 };

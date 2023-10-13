@@ -188,8 +188,9 @@ def remove_policy(db: Session, user_id: UUID, request: AddPolicyRequest):
         raise_http_exception(status_code=500, message="Internal server error")
 
 
-def get_user_details(db: Session, user_id: UUID, workspace_id: UUID):
+def get_user_permissions(db: Session, user_id: UUID, workspace_id: UUID):
     user = crud.user.get_object_by_id_or_404(db, id=user_id)
+    user_role = crud.user_role.get_user_role(db, user_id=user_id, workspace_id=workspace_id)
     enforcer = get_contexted_enforcer(db, workspace_id)
     permissions = enforcer.get_filtered_policy(1, str(user.id))
     formatted_permissions = []
@@ -201,7 +202,7 @@ def get_user_details(db: Session, user_id: UUID, workspace_id: UUID):
                 "action": permission[3],
             }
         )
-    return {"user": user, "permissions": formatted_permissions}
+    return {"user": user, "workspace_role": user_role, "permissions": formatted_permissions}
 
 
 def update_policy(db: Session, user_id: UUID, request: UpdateUserPolicyRequest):
