@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
+import pureAxios from 'axios';
 
 import { axios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/new-app-preview/hooks';
@@ -126,12 +127,15 @@ export const useUpdateFunction = (props: any = {}) => {
 };
 
 const createFunction = async ({ pageId, name }: any) => {
-	const response = await axios.post(`/functions/`, {
-		page_id: pageId,
-		name,
-		code: 'def action() -> State:\n    # your code goes here\n    return state',
-		type: 'python',
-	});
+	const response = await pureAxios.post(
+		`${import.meta.env.VITE_WORKER_API_ENDPOINT}/functions/`,
+		{
+			page_id: pageId,
+			name,
+			code: 'def action() -> State:\n    # your code goes here\n    return state',
+			type: 'python',
+		},
+	);
 
 	return response.data;
 };
