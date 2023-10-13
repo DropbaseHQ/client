@@ -10,7 +10,6 @@ class Group(Base):
 
     name = Column(String)
     workspace_id = Column(UUID(as_uuid=True), ForeignKey("workspace.id", ondelete="CASCADE"))
-    role = Column(String, default="member")
     date = Column(TIMESTAMP, server_default=func.now())
 
     __tablename__ = "group"
