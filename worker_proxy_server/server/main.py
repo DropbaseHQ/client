@@ -5,9 +5,9 @@ import worker_proxy_server.server.controller as controller
 
 app = FastAPI()
 
-@app.get("/")
+@app.get("/static")
 async def root():
-    return {"message": "Dropbase worker proxy backend"}
+    return controller.CLIENT_MANAGER.clients
 
 @app.post("/tunnel/auth")
 def auth_tunnel_op(request: dict):
