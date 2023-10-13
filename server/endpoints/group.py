@@ -1,0 +1,77 @@
+from uuid import UUID
+from typing import List
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from server import crud
+from server.schemas.group import (
+    CreateGroup,
+    UpdateGroup,
+    AddUser,
+    RemoveUser,
+    AddGroupPolicyRequest,
+    RemoveGroupPolicyRequest,
+    UpdateGroupPolicyRequest,
+)
+from server.schemas import PolicyTemplate
+from server.utils.authorization import RESOURCES, AuthZDepFactory
+from server.utils.connect import get_db
+from server.controllers.group import (
+    GroupController,
+    get_group as c_get_group,
+    delete_group as c_delete_group,
+)
+
+
+group_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WORKSPACE)
+
+router = APIRouter(prefix="/group", tags=["group"])
+
+
+@router.get("/{group_id}")
+def get_group(group_id: UUID, db: Session = Depends(get_db)):
+    return c_get_group(db, group_id)
+
+
+@router.post("/")
+def create_group(request: CreateGroup, db: Session = Depends(get_db)):
+    return crud.group.create(db, obj_in=request)
+
+
+@router.put("/{group_id}")
+def update_group(group_id: UUID, request: UpdateGroup, db: Session = Depends(get_db)):
+    return crud.group.update_by_pk(db, pk=group_id, obj_in=request)
+
+
+@router.delete("/{group_id}")
+def delete_group(group_id: UUID, db: Session = Depends(get_db)):
+    return c_delete_group(db, group_id)
+
+
+@router.post("/add_user/{group_id}")
+def add_user_to_group(group_id: UUID, request: AddUser, db: Session = Depends(get_db)):
+    return GroupController.add_user(db, group_id, request.user_id)
+
+
+@router.post("/remove_user/{group_id}")
+def remove_user_from_group(group_id: UUID, request: RemoveUser, db: Session = Depends(get_db)):
+    return GroupController.remove_user(db, group_id, request.user_id)
+
+
+@router.post("/add_policies/{group_id}")
+def add_policies_to_group(group_id: UUID, request: AddGroupPolicyRequest, db: Session = Depends(get_db)):
+    return GroupController.add_policies(db, group_id, request)
+
+
+@router.post("/remove_policies/{group_id}")
+def remove_policies_from_group(
+    group_id: UUID, request: RemoveGroupPolicyRequest, db: Session = Depends(get_db)
+):
+    return GroupController.remove_policies(db, group_id, request)
+
+
+@router.post("/update_policy/{group_id}")
+def update_policy_from_group(
+    group_id: UUID, request: UpdateGroupPolicyRequest, db: Session = Depends(get_db)
+):
+    return GroupController.update_policy(db, group_id, request)

@@ -23,5 +23,13 @@ class CRUDFunctions(CRUDBase[Functions, CreateFunctions, UpdateFunctions]):
             .one()
         ).workspace_id
 
+    def get_app_id(self, db: Session, functions_id: UUID) -> str:
+        return (
+            db.query(Page.app_id)
+            .join(Functions, Functions.page_id == Page.id)
+            .filter(Functions.id == functions_id)
+            .one()
+        ).app_id
+
 
 functions = CRUDFunctions(Functions)

@@ -30,5 +30,14 @@ class CRUDComponents(CRUDBase[Components, CreateComponents, UpdateComponents]):
             .first()
         )
 
+    def get_app_id(self, db: Session, components_id: UUID) -> str:
+        return (
+            db.query(Page.app_id)
+            .join(Widget, Widget.page_id == Page.id)
+            .join(Components, Components.widget_id == Widget.id)
+            .filter(Components.id == components_id)
+            .one()
+        ).app_id
+
 
 components = CRUDComponents(Components)

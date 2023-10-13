@@ -24,5 +24,13 @@ class CRUDTables(CRUDBase[Tables, CreateTables, UpdateTables]):
             .one()
         ).workspace_id
 
+    def get_app_id(self, db: Session, tables_id: UUID) -> str:
+        return (
+            db.query(Page.app_id)
+            .join(Tables, Tables.page_id == Page.id)
+            .filter(Tables.id == tables_id)
+            .one()
+        ).app_id
+
 
 tables = CRUDTables(Tables)

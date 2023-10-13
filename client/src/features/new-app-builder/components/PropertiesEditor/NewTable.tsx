@@ -2,7 +2,6 @@ import { useParams } from 'react-router-dom';
 import {
 	Button,
 	ButtonGroup,
-	IconButton,
 	Popover,
 	PopoverArrow,
 	PopoverBody,
@@ -14,6 +13,7 @@ import {
 	Portal,
 	useDisclosure,
 } from '@chakra-ui/react';
+import { useEffect } from 'react';
 import { useAtomValue } from 'jotai';
 
 import { Plus } from 'react-feather';
@@ -24,6 +24,7 @@ import { FormInput } from '@/components/FormInput';
 import { useSources } from '@/features/sources/hooks';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetPage } from '@/features/new-page';
+import { generateSequentialName } from '@/utils';
 
 export const NewTable = (props: any) => {
 	const workspaceId = useAtomValue(workspaceAtom);
@@ -33,6 +34,11 @@ export const NewTable = (props: any) => {
 	const toast = useToast();
 	const methods = useForm();
 	const { isOpen, onToggle, onClose } = useDisclosure();
+
+	const nextName = generateSequentialName({
+		currentNames: tables.map((t: any) => t.name) || [],
+		prefix: 'table',
+	});
 
 	const { sources } = useSources(workspaceId);
 
@@ -56,16 +62,22 @@ export const NewTable = (props: any) => {
 		});
 	};
 
+	useEffect(() => {
+		methods.setValue('name', nextName);
+	}, [methods, nextName]);
+
 	return (
 		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur={false}>
 			<PopoverTrigger>
-				<IconButton
+				<Button
 					aria-label="Add table"
-					icon={<Plus size="14" />}
+					leftIcon={<Plus size="14" />}
 					onClick={onToggle}
 					isLoading={mutation.isLoading}
 					{...props}
-				/>
+				>
+					New Table
+				</Button>
 			</PopoverTrigger>
 
 			<Portal>

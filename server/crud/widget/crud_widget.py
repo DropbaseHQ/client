@@ -21,5 +21,13 @@ class CRUDWidget(CRUDBase[Widget, CreateWidget, UpdateWidget]):
             .one()
         ).workspace_id
 
+    def get_app_id(self, db: Session, widget_id: UUID) -> App:
+        return (
+            db.query(Page.app_id)
+            .join(Widget, Widget.page_id == Page.id)
+            .filter(Widget.id == widget_id)
+            .one()
+        ).app_id
+
 
 widget = CRUDWidget(Widget)

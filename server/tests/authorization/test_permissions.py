@@ -3,7 +3,9 @@ from server.tests.authorization.utils import (
     HomeTestClient,
     TEST_APP_ID,
     TEST_FUNCTION_ID,
+    TEST_FUNCTION_ID_2,
     TEST_SOURCE_ID,
+    TEST_GROUP,
 )
 from server.main import app
 import pytest
@@ -14,6 +16,7 @@ client = TestClient(app)
 TEST_ADMIN_EMAIL = "jon+100@dropbase.io"
 TEST_DEV_EMAIL = "jon+101@dropbase.io"
 TEST_USER_EMAIL = "jon+102@dropbase.io"
+TEST_USER_ID = "b97f49a9-b8cc-4e17-bc0f-568457f3e86c"
 TEST_MEMBER_EMAIL = "jon+103@dropbase.io"
 
 
@@ -233,3 +236,77 @@ def test_user_cannot_delete_sources(user_client):
 
 
 # --------MEMBER TESTS--------#
+
+
+# --------GROUP TESTS--------#
+def test_user_in_group_can_create_function(admin_client, user_client):
+    # User is already in test group
+    # Admin adds policy to group
+    policy_add_response = admin_client.add_group_policy(TEST_GROUP, "page", "edit")
+    assert policy_add_response.status_code == 200
+
+    # User can now create function
+    create_function = user_client.create_function()
+    assert create_function.status_code == 200
+
+    # Admin removes policy from group
+    policy_remove_response = admin_client.remove_group_policy(TEST_GROUP, "page", "edit")
+    assert policy_remove_response.status_code == 200
+
+    # User can now no longer create function
+    bad_create_function = user_client.create_function()
+    assert bad_create_function.status_code == 403
+
+    # Admin removes created function
+    new_admin_client = get_client(email=TEST_ADMIN_EMAIL)
+    delete_function = new_admin_client.delete_function(create_function.json().get("id"))
+    assert delete_function.status_code == 200
+
+
+def test_user_given_special_permission_can_create_function(admin_client, user_client):
+    create_function = user_client.create_function()
+    assert create_function.status_code == 403
+
+    new_admin_client = get_client(email=TEST_ADMIN_EMAIL)
+    policy_add_response = new_admin_client.add_user_policy(TEST_USER_ID, "page", "edit")
+    assert policy_add_response.status_code == 200
+
+    new_create_function = user_client.create_function()
+    assert new_create_function.status_code == 200
+
+    new_policy_remove_response = new_admin_client.remove_user_policy(TEST_USER_ID, "page", "edit")
+    assert new_policy_remove_response.status_code == 200
+
+    new_delete_function = new_admin_client.delete_function(new_create_function.json().get("id"))
+    assert new_delete_function.status_code == 200
+
+
+def test_user_can_edit_specific_function(user_client):
+    # User is already in test group
+    edit_response = user_client.edit_function(TEST_FUNCTION_ID)
+    assert edit_response.status_code == 403
+
+    # Admin adds policy to user
+    new_admin_client = get_client(email=TEST_ADMIN_EMAIL)
+    policy_add_response = new_admin_client.add_user_policy(TEST_USER_ID, TEST_FUNCTION_ID, "edit")
+    assert policy_add_response.status_code == 200
+
+    # User can now edit function
+    new_user_client = get_client(email=TEST_USER_EMAIL)
+    new_edit_response = new_user_client.edit_function(TEST_FUNCTION_ID)
+    assert new_edit_response.status_code == 200
+
+    # User cannot edit other function
+
+    bad_edit_response = new_user_client.edit_function(TEST_FUNCTION_ID_2)
+    assert bad_edit_response.status_code == 403
+
+    # Admin removes policy from user
+    new_admin_client = get_client(email=TEST_ADMIN_EMAIL)
+    policy_remove_response = new_admin_client.remove_user_policy(TEST_USER_ID, TEST_FUNCTION_ID, "edit")
+    assert policy_remove_response.status_code == 200
+
+    # User can now no longer edit function
+    new_user_client = get_client(email=TEST_USER_EMAIL)
+    bad_edit_response = new_user_client.edit_function(TEST_FUNCTION_ID)
+    assert bad_edit_response.status_code == 403

@@ -5,8 +5,13 @@ export const developerTabAtom = atom<any>({
 	id: null,
 });
 
+export const inspectedResourceAtom = atom<any>({
+	type: null,
+	id: null,
+});
+
 export const selectedTableIdAtom = atom((get) => {
-	const devTab = get(developerTabAtom);
+	const devTab = get(inspectedResourceAtom);
 
 	return devTab.type === 'table' ? devTab.id : null;
 });

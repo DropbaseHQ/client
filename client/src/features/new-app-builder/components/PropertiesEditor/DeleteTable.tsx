@@ -13,42 +13,26 @@ import {
 	useDisclosure,
 } from '@chakra-ui/react';
 
-import { useParams } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
 
 import { Trash } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useToast } from '@/lib/chakra-ui';
 import { useDeleteTable } from '@/features/new-app-builder/hooks';
-import { FormInput } from '@/components/FormInput';
-import { developerTabAtom } from '@/features/new-app-builder/atoms';
-import { useGetPage } from '@/features/new-page';
+import { inspectedResourceAtom } from '@/features/new-app-builder/atoms';
 
 export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 	const toast = useToast();
 	const methods = useForm();
-	const { pageId } = useParams();
 
-	const setDevTab = useSetAtom(developerTabAtom);
-
-	const { tables } = useGetPage(pageId);
-
-	const nextTableSelection = tables.filter((t: any) => t.id !== tableId)?.[0]?.id || null;
+	const setDevTab = useSetAtom(inspectedResourceAtom);
 
 	const { isOpen, onToggle, onClose } = useDisclosure({
 		onClose: () => {
-			methods.reset();
-			if (nextTableSelection) {
-				setDevTab({
-					type: 'table',
-					id: nextTableSelection,
-				});
-			} else {
-				setDevTab({
-					type: null,
-					id: null,
-				});
-			}
+			setDevTab({
+				type: null,
+				id: null,
+			});
 		},
 	});
 
@@ -95,15 +79,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 					<FormProvider {...methods}>
 						<form onSubmit={methods.handleSubmit(onSubmit)}>
 							<PopoverBody>
-								<FormInput
-									name="Table name"
-									id="name"
-									placeholder={`Write ${tableName} to delete`}
-									validation={{
-										validate: (value: any) =>
-											value === tableName || 'Table name didnt match',
-									}}
-								/>
+								Are you sure you want to delete {tableName} table?
 							</PopoverBody>
 							<PopoverFooter
 								border="0"

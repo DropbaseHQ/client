@@ -25,9 +25,11 @@ router = APIRouter(
 )
 
 
-@router.get("/list")
-def get_user_apps(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    return app_controller.get_user_apps(db, user)
+@router.get("/list/{workspace_id}")
+def get_user_apps(
+    workspace_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
+    return app_controller.get_user_apps(db, user, workspace_id)
 
 
 @router.get("/{app_id}")

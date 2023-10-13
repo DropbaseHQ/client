@@ -173,7 +173,13 @@ class AuthZDepFactory:
         if workspace_id is None:
             return True
         is_authorized = enforce_action(
-            db=db, user_id=user.id, workspace_id=workspace_id, resource=resource_type, action=action
+            db=db,
+            user_id=user.id,
+            workspace_id=workspace_id,
+            resource=resource_type,
+            action=action,
+            resource_id=resource_id,
+            resource_crud=resource_query_mapper[resource_type],
         )
         if not is_authorized:
             self._raise_forbidden(user, resource_id)
@@ -198,6 +204,8 @@ class AuthZDepFactory:
                 workspace_id=workspace_id,
                 resource=resource_type_inner,
                 action=action_inner,
+                resource_id=resource_id,
+                resource_crud=resource_query_mapper[resource_type],
             )
 
             if not is_authorized:

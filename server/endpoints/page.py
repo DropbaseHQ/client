@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers.page import page
 from server.schemas.page import CreatePage, UpdatePage
-from server.utils.authorization import RESOURCES, AuthZDepFactory
+from server.utils.authorization import RESOURCES, AuthZDepFactory, ACTIONS
 from server.utils.connect import get_db
 
 page_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.PAGE)
