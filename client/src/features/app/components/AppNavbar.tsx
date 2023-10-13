@@ -22,10 +22,33 @@ import { Link, useParams } from 'react-router-dom';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
+import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
+import { useGetWorkspaceUsers } from '@/features/settings/hooks/useGetUsers';
+import { useAtomValue } from 'jotai';
+import { workspaceAtom } from '@/features/workspaces';
+import { useGetUserDetails } from '@/features/settings/hooks/useGetUserDetails';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const { appId } = useParams();
 	const { apps } = useGetWorkspaceApps();
+	const { user } = useGetCurrentUser();
+	const workspaceId = useAtomValue(workspaceAtom);
+	const { permissions, workspaceRole } = useGetUserDetails({
+		userId: user?.id || '',
+		workspaceId,
+	});
+
+	// Permissions decisions ideally should be kept on the backend. However
+	// for the mvp we are doing it on the frontend. This is a temporary
+	// solution.
+	const userCanAccessStudio = () => {
+		const hasSpecifiPermission = permissions.find((p: any) => {
+			p.user_id === user?.id && p.resource === appId && p.action === 'edit';
+		});
+		if (hasSpecifiPermission) return true;
+		if (workspaceRole?.name === 'admin' || workspaceRole?.name === 'dev') return true;
+		return false;
+	};
 
 	const [name, setAppName] = useState('');
 
@@ -131,19 +154,22 @@ export const AppNavbar = ({ isPreview }: any) => {
 					</Popover>
 				)}
 			</Stack>
-			<Tooltip label={isPreview ? 'App preview' : 'App Studio'}>
-				<IconButton
-					size="sm"
-					variant="ghost"
-					colorScheme="blue"
-					icon={isPreview ? <EyeOff size="14" /> : <Eye size="14" />}
-					aria-label="Preview"
-					ml="auto"
-					mr="4"
-					as={Link}
-					to={isPreview ? '../new-editor' : '../new-preview'}
-				/>
-			</Tooltip>
+
+			{userCanAccessStudio() && (
+				<Tooltip label={isPreview ? 'App preview' : 'App Studio'}>
+					<IconButton
+						size="sm"
+						variant="ghost"
+						colorScheme="blue"
+						icon={isPreview ? <EyeOff size="14" /> : <Eye size="14" />}
+						aria-label="Preview"
+						ml="auto"
+						mr="4"
+						as={Link}
+						to={isPreview ? '../new-editor' : '../new-preview'}
+					/>
+				</Tooltip>
+			)}
 		</Stack>
 	);
 };
