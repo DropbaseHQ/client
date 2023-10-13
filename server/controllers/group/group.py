@@ -1,10 +1,13 @@
+from uuid import UUID
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from server.models import Policy, UserGroup
+from server.models import Policy, UserGroup, User
 from server.schemas import PolicyTemplate
 from server.schemas.group import (
     AddGroupPolicyRequest,
     RemoveGroupPolicyRequest,
     UpdateGroupPolicyRequest,
+    CreateGroup,
 )
 
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
@@ -21,7 +24,8 @@ class GroupController:
     """
 
     @staticmethod
-    def add_user(db: Session, group_id: str, user_id: str):
+    def add_user(db: Session, user: User, group_id: str, user_id: str, role: str = "member"):
+        require_group_leader(db, group_id, user)
         group = crud.group.get_object_by_id_or_404(db, id=group_id)
         try:
             # Are there any existing user_group policies for this user in this workspace IN the policy table?
@@ -47,7 +51,7 @@ class GroupController:
             # Add the user to the group
             crud.user_group.create(
                 db,
-                obj_in={"user_id": user_id, "group_id": group_id},
+                obj_in={"user_id": user_id, "group_id": group_id, "role": role},
                 auto_commit=False,
             )
 
@@ -59,7 +63,9 @@ class GroupController:
             raise e
 
     @staticmethod
-    def remove_user(db: Session, group_id: str, user_id: str):
+    def remove_user(db: Session, user: User, group_id: str, user_id: str):
+        require_group_leader(db, group_id, user)
+
         group = crud.group.get_object_by_id_or_404(db, id=group_id)
         try:
             # Remove the user from the group in policy table
@@ -166,6 +172,37 @@ class GroupController:
             db.rollback()
             raise e
 
+    @staticmethod
+    def create_group(db: Session, request: CreateGroup, user: User):
+        try:
+            new_group = crud.group.create(db, obj_in=request, auto_commit=False)
+            db.flush()
+            GroupController.add_user(db=db, group_id=new_group.id, user_id=user.id, role="leader")
+
+            db.commit()
+            return new_group
+        except Exception as e:
+            db.rollback()
+            raise e
+
+    @staticmethod
+    def delete_group(db: Session, user: User, group_id: str):
+        require_group_leader(db, group_id, user)
+        try:
+            # Delete user group associations
+            db.query(UserGroup).filter(UserGroup.group_id == str(group_id)).delete()
+
+            # Delete group policies
+            db.query(Policy).filter(Policy.v1 == str(group_id)).delete()
+
+            # Delete group
+            crud.group.remove(db, id=str(group_id), auto_commit=False)
+
+            db.commit()
+        except Exception as e:
+            db.rollback
+            raise e
+
 
 def get_group(db: Session, group_id: str):
     """Returns all permissions for a group."""
@@ -184,18 +221,18 @@ def get_group(db: Session, group_id: str):
     return {"group": group, "permissions": formatted_permissions}
 
 
-def delete_group(db: Session, group_id: str):
-    try:
-        # Delete user group associations
-        db.query(UserGroup).filter(UserGroup.group_id == str(group_id)).delete()
+def is_group_leader(db: Session, group_id: UUID, user: User):
+    user_role = crud.user_group.get_user_role(db, user.id, group_id)
+    if user_role is None:
+        return False
+    if user_role.role == "leader":
+        return True
+    return False
 
-        # Delete group policies
-        db.query(Policy).filter(Policy.v1 == str(group_id)).delete()
 
-        # Delete group
-        crud.group.remove(db, id=str(group_id), auto_commit=False)
-
-        db.commit()
-    except Exception as e:
-        db.rollback
-        raise e
+def require_group_leader(db: Session, group_id: UUID, user: User):
+    if not is_group_leader(db, group_id, user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"User {user.id} is not a leader of group {group_id}",
+        )
