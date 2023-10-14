@@ -78,13 +78,13 @@ const UserRow = (item: any) => {
 
 	const handleAddUserToGroup = () => {
 		addUserToGroupMutation.mutate({
-			userId: item.user.user_id,
+			userId: item.user.id,
 			groupId,
 		});
 	};
 	const handleRemoveUserFromGroup = () => {
 		removeUserFromGroupMutation.mutate({
-			userId: item.user.user_id,
+			userId: item.user.id,
 			groupId,
 		});
 	};
@@ -97,12 +97,12 @@ const UserRow = (item: any) => {
 	};
 
 	return (
-		<Tr key={item.user.user_id}>
+		<Tr key={item.user.id}>
 			<Td>{item.user.email}</Td>
 			<Td>{item.user.role_name}</Td>
 			<Td>
 				<Flex justifyContent="space-between">
-					<Text>{item.user?.group_names}</Text>
+					<Text>{item.user?.groups?.map((obj: any) => obj.name).join(', ')}</Text>
 					<Popover
 						returnFocusOnClose={false}
 						isOpen={isOpen}

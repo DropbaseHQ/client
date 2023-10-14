@@ -55,13 +55,18 @@ class GroupController:
                     ),
                     auto_commit=False,
                 )
-
-            # Add the user to the group
-            crud.user_group.create(
-                db,
-                obj_in={"user_id": user_id, "group_id": group_id, "role": role},
-                auto_commit=False,
+            existing_user_group = (
+                db.query(UserGroup)
+                .filter(UserGroup.user_id == str(user_id), UserGroup.group_id == str(group.id))
+                .one_or_none()
             )
+            if not existing_user_group:
+                # Add the user to the group
+                crud.user_group.create(
+                    db,
+                    obj_in={"user_id": user_id, "group_id": group_id, "role": role},
+                    auto_commit=False,
+                )
 
             db.commit()
 
