@@ -49,14 +49,14 @@ export const UserCard = ({
 }) => {
 	return (
 		<Box
-			key={user.user_id}
+			key={user.id}
 			p={3}
 			borderWidth="2px"
 			borderRadius="lg"
-			boxShadow={selectedUser === user.user_id ? 'sm' : 'md'}
+			boxShadow={selectedUser === user.id ? 'sm' : 'md'}
 			_hover={{ cursor: 'pointer' }}
-			borderColor={selectedUser === user.user_id ? 'blue.500' : 'gray.200'}
-			onClick={() => setSelectedUser(user.user_id)}
+			borderColor={selectedUser === user.id ? 'blue.500' : 'gray.200'}
+			onClick={() => setSelectedUser(user.id)}
 			display="flex"
 			justifyContent="space-between"
 		>
