@@ -30,6 +30,7 @@ import {
 	PopoverArrow,
 	PopoverCloseButton,
 	ButtonGroup,
+	Tag,
 } from '@chakra-ui/react';
 import { useGetWorkspaceUsers, GET_WORKSPACE_USERS_QUERY_KEY } from './hooks/useGetUsers';
 import { workspaceAtom } from '@/features/workspaces';
@@ -102,7 +103,10 @@ const UserRow = (item: any) => {
 			<Td>{item.user.role_name}</Td>
 			<Td>
 				<Flex justifyContent="space-between">
-					<Text>{item.user?.groups?.map((obj: any) => obj.name).join(', ')}</Text>
+					<Flex>
+						{item.user?.groups?.map((obj: any) => <Tag size="sm">{obj.name}</Tag>)}
+					</Flex>
+
 					<Popover
 						returnFocusOnClose={false}
 						isOpen={isOpen}
