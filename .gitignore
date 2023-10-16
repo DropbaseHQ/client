@@ -15,3 +15,4 @@ client/node_modules/
 .venv
 .venvlsp
 .test
+notebooks/

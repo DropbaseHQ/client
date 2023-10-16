@@ -1,9 +1,9 @@
 from uuid import UUID
 
-import crud
 from pydantic import create_model
 from sqlalchemy.orm import Session
 
+from server import crud
 from server.controllers.state.models import *
 
 
@@ -13,12 +13,14 @@ def get_component_props(db: Session, page_id: UUID):
     widgets = crud.widget.get_page_widgets(db, page_id=page.id)
     for widget in widgets:
         components = crud.components.get_widget_component(db, widget_id=widget.id)
-        page_widgets[widget.name] = {"props": widget.property, "components": components}
+        components = [comp.__dict__ for comp in components]
+        page_widgets["widgets"][widget.name] = {"property": widget.property, "components": components}
 
     tables = crud.tables.get_page_tables(db, page_id=page.id)
     for table in tables:
         columns = crud.columns.get_table_columns(db, table_id=table.id)
-        page_widgets[table.name] = {"props": table.property, "columns": columns}
+        columns = [col.__dict__ for col in columns]
+        page_widgets["tables"][table.name] = {"property": table.property, "columns": columns}
 
     return page_widgets
 
@@ -28,7 +30,7 @@ base_property_mapper = {
         "Widgets": {
             "base": WidgetContextProperty,
             "dir": "components",
-            "children": {"input": InputContextProperty},
+            "children": {"input": InputContextProperty, "button": ButtonContextProperty},
         },
         "Tables": {
             "base": TableContextProperty,
@@ -40,7 +42,7 @@ base_property_mapper = {
         "Widgets": {
             "base": WidgetDefinedProperty,
             "dir": "components",
-            "children": {"input": InputDefinedProperty},
+            "children": {"input": InputDefinedProperty, "button": ButtonDefinedProperty},
         },
         "Tables": {
             "base": TableDefinedProperty,
@@ -50,12 +52,15 @@ base_property_mapper = {
     },
 }
 
+non_editable_components = {"Widgets": ["button", "text"], "Tables": []}
+
 
 class GenerateReourceClass:
     # TODO: refactor, maybe simplify back to a function
     def __init__(self, resource_type: str = "defined", resource: str = "Widgets"):
         self.resource = resource
         self.resource_type = resource_type
+        self.non_editable_components = non_editable_components.get(resource)
         self.resource_mapper = base_property_mapper.get(resource_type).get(resource)
         self.BaseProperty = self.resource_mapper.get("base")
         self.children_dir = self.resource_mapper.get("dir")
@@ -68,7 +73,7 @@ class GenerateReourceClass:
 
             components_props = {}
             for component in resource_data[self.children_dir]:
-                components_props[component["props"]["name"]] = (
+                components_props[component["property"]["name"]] = (
                     self.resource_mapper.get("children").get(component["type"]),
                     ...,
                 )
@@ -99,13 +104,14 @@ class GenerateReourceClass:
         for resource_name, resource_data in resources.items():
             components_props = {}
             for component in resource_data[self.children_dir]:
+                if component["type"] in self.non_editable_components:
+                    continue
                 # to find a state type, component must be first initiated
-                # find component type
                 component_type = self.resource_mapper.get("children").get(component["type"])
                 # initiate component
-                init_component = component_type(**component["props"])
+                init_component = component_type(**component["property"])
                 # state is pulled from ComponentDefined class
-                components_props[component["props"]["name"]] = (Optional[init_component.state], None)
+                components_props[component["property"]["name"]] = (Optional[init_component.state], None)
 
             resource_class_name = resource_name.capitalize() + "State"
             locals()[resource_class_name] = create_model(resource_class_name, **components_props)
