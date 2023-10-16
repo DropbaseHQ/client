@@ -12,7 +12,6 @@ import {
 	Tr,
 	Th,
 	Td,
-	Select,
 	Modal,
 	ModalOverlay,
 	ModalContent,
