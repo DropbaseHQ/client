@@ -24,6 +24,10 @@ def get_user_apps(db: Session, user: User, workspace_id: UUID):
             str(user.id), "app", "use"
         ):
             app.pages = crud.page.get_app_pages(db, app.id)
+            if enforcer.enforce(str(user.id), str(app.id), "edit") or enforcer.enforce(
+                str(user.id), "app", "edit"
+            ):
+                app.editable = True
             allowed_apps.append(app)
 
     return allowed_apps
