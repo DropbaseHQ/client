@@ -47,4 +47,3 @@ class RemoveGroupPolicyRequest(BaseModel):
 class UpdateGroupPolicyRequest(BaseModel):
     resource: str
     action: str
-    effect: str

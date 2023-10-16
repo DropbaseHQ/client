@@ -1,42 +1,45 @@
 import { useEffect, useState } from 'react';
-import { Box, Text, Switch } from '@chakra-ui/react';
+import { Box, Text, Select, Skeleton } from '@chakra-ui/react';
 
 import { useUpdateUserPolicy } from './hooks/useUpdateUserPolicy';
 import { useGetUserDetails } from './hooks/useGetUserDetails';
 import { workspaceAtom } from '@/features/workspaces';
 import { useAtomValue } from 'jotai';
 
-export const UserPolicyToggle = ({
-	userId,
-	appId,
-	action,
-}: {
-	userId: string;
-	appId: string;
-	action: string;
-}) => {
+export const UserPolicySelector = ({ userId, appId }: { userId: string; appId: string }) => {
 	const workspaceId = useAtomValue<string>(workspaceAtom);
-	const [isChecked, setIsChecked] = useState(false);
+	const [option, setOption] = useState<string>('none');
 	const updateUserPolicyMutation = useUpdateUserPolicy();
-	const { permissions } = useGetUserDetails({ userId, workspaceId });
-	const policy = permissions?.find((item) => item.resource === appId && item.action === action);
+	const { permissions, isLoading: permissionsIsLoading } = useGetUserDetails({
+		userId,
+		workspaceId,
+	});
+	const policy = permissions?.find((item) => item.resource === appId);
 
 	useEffect(() => {
-		setIsChecked(policy ? true : false);
+		setOption(policy?.action || 'none');
 	}, [policy]);
 
-	const handleToggle = () => {
-		setIsChecked(!isChecked);
+	const handleSelect = (e: any) => {
+		setOption(e.target.value);
 		updateUserPolicyMutation.mutate({
 			workspaceId,
 			userId,
 			resource: appId,
-			action,
-			effect: isChecked ? 'deny' : 'allow',
+			action: e.target.value,
 		});
 	};
 
-	return <Switch isChecked={isChecked} onChange={handleToggle} size="md" colorScheme="blue" />;
+	return (
+		<Skeleton isLoaded={!permissionsIsLoading}>
+			<Select onChange={handleSelect} value={option}>
+				<option value="none">None</option>
+				<option value="use">Use</option>
+				<option value="edit">Edit</option>
+				<option value="own">Own</option>
+			</Select>
+		</Skeleton>
+	);
 };
 export const UserCard = ({
 	selectedUser,
@@ -49,14 +52,14 @@ export const UserCard = ({
 }) => {
 	return (
 		<Box
-			key={user.user_id}
+			key={user.id}
 			p={3}
 			borderWidth="2px"
 			borderRadius="lg"
-			boxShadow={selectedUser === user.user_id ? 'sm' : 'md'}
+			boxShadow={selectedUser === user.id ? 'sm' : 'md'}
 			_hover={{ cursor: 'pointer' }}
-			borderColor={selectedUser === user.user_id ? 'blue.500' : 'gray.200'}
-			onClick={() => setSelectedUser(user.user_id)}
+			borderColor={selectedUser === user.id ? 'blue.500' : 'gray.200'}
+			onClick={() => setSelectedUser(user.id)}
 			display="flex"
 			justifyContent="space-between"
 		>

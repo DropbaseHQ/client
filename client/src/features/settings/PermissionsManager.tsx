@@ -12,6 +12,7 @@ import {
 	Tr,
 	Th,
 	Td,
+	Select,
 	Modal,
 	ModalOverlay,
 	ModalContent,
@@ -31,9 +32,9 @@ import {
 } from './hooks/useGetWorkspaceGroups';
 import { useQueryClient } from 'react-query';
 import { useGetWorkspaceApps, App } from '../app-list/hooks/useGetWorkspaceApps';
-
-import { GroupCard, GroupPolicyToggle } from './Group';
-import { UserCard, UserPolicyToggle } from './Users';
+import { UserPolicySelector, GroupPolicySelector } from './components/PolicySelector';
+import { GroupCard } from './Group';
+import { UserCard } from './Users';
 import { useGetWorkspaceUsers } from './hooks/useGetUsers';
 
 const PolicyTable = ({
@@ -45,12 +46,12 @@ const PolicyTable = ({
 	apps: App[];
 	resourceType: string;
 }) => {
-	const getToggle = (selectedResourceId: string, appId: string, action: string) => {
+	const getSelector = (selectedResourceId: string, appId: string) => {
 		if (resourceType === 'users') {
-			return <UserPolicyToggle userId={selectedResourceId} appId={appId} action={action} />;
+			return <UserPolicySelector userId={selectedResourceId} appId={appId} />;
 		}
 
-		return <GroupPolicyToggle groupId={selectedResourceId} appId={appId} action={action} />;
+		return <GroupPolicySelector groupId={selectedResourceId} appId={appId} />;
 	};
 	return (
 		<Box flexGrow="4" ml="8">
@@ -59,18 +60,14 @@ const PolicyTable = ({
 					<Thead>
 						<Tr>
 							<Th>App</Th>
-							<Th>Use</Th>
-							<Th>Edit</Th>
-							<Th>Own</Th>
+							<Th>Permission Level</Th>
 						</Tr>
 					</Thead>
 					<Tbody>
 						{apps.map((app: any) => (
 							<Tr key={app.id}>
 								<Td>{app.name}</Td>
-								<Td>{getToggle(selectedResourceId, app.id, 'use')}</Td>
-								<Td>{getToggle(selectedResourceId, app.id, 'edit')}</Td>
-								<Td>{getToggle(selectedResourceId, app.id, 'own')}</Td>
+								<Td>{getSelector(selectedResourceId, app.id)}</Td>
 							</Tr>
 						))}
 					</Tbody>
