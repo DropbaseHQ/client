@@ -31,15 +31,15 @@ import {
 	PopoverCloseButton,
 	ButtonGroup,
 	Tag,
+	IconButton,
 } from '@chakra-ui/react';
+import { UserMinus } from 'react-feather';
 import { useGetWorkspaceUsers, GET_WORKSPACE_USERS_QUERY_KEY } from './hooks/useGetUsers';
 import { workspaceAtom } from '@/features/workspaces';
 import { useAtomValue } from 'jotai';
 import { useInviteMember } from './hooks/useInviteMember';
 import { useQueryClient } from 'react-query';
-import { useGetWorkspaceGroups } from './hooks/useGetWorkspaceGroups';
-import { useAddUserToGroup } from './hooks/useAddUserToGroup';
-import { useRemoveUserFromGroup } from './hooks/useRemoveUserFromGroup';
+import { useRemoveMember } from './hooks/useRemoveUserFromWorkspace';
 
 // Will get this from the server later
 const ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
@@ -51,50 +51,18 @@ const UserRow = (item: any) => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
 	const { isOpen, onOpen, onClose } = useDisclosure();
-	const [groupId, setGroupId] = useState('');
-	const [action, setAction] = useState('');
-
-	const { groups } = useGetWorkspaceGroups({ workspaceId });
-	const addUserToGroupMutation = useAddUserToGroup({
-		onSuccess: () => {
-			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
-			onClose();
-		},
-	});
-	const removeUserFromGroupMutation = useRemoveUserFromGroup({
+	const removeMemberMutation = useRemoveMember({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
 			onClose();
 		},
 	});
 
-	const onOpenAddGroup = () => {
-		setAction('add');
-		onOpen();
-	};
-	const onOpenRemoveGroup = () => {
-		setAction('remove');
-		onOpen();
-	};
-
-	const handleAddUserToGroup = () => {
-		addUserToGroupMutation.mutate({
+	const handleRemoveMember = () => {
+		removeMemberMutation.mutate({
 			userId: item.user.id,
-			groupId,
+			workspaceId,
 		});
-	};
-	const handleRemoveUserFromGroup = () => {
-		removeUserFromGroupMutation.mutate({
-			userId: item.user.id,
-			groupId,
-		});
-	};
-	const handleAction = () => {
-		if (action === 'add') {
-			handleAddUserToGroup();
-		} else if (action === 'remove') {
-			handleRemoveUserFromGroup();
-		}
 	};
 
 	return (
@@ -106,57 +74,30 @@ const UserRow = (item: any) => {
 					<Flex>
 						{item.user?.groups?.map((obj: any) => <Tag size="sm">{obj.name}</Tag>)}
 					</Flex>
-
-					<Popover
-						returnFocusOnClose={false}
-						isOpen={isOpen}
-						onOpen={onOpen}
-						onClose={onClose}
-						placement="bottom"
-						closeOnBlur={true}
-					>
+					<Popover isOpen={isOpen} onClose={onClose} onOpen={onOpen} placement="left">
 						<PopoverTrigger>
-							<ButtonGroup>
-								<Button size="xs" variant="outline" onClick={onOpenAddGroup}>
-									Add Group
-								</Button>
-								<Button
-									size="xs"
-									variant="outline"
-									color="red"
-									onClick={onOpenRemoveGroup}
-								>
-									Remove Group
-								</Button>
-							</ButtonGroup>
+							<IconButton
+								aria-label="Remove Member"
+								size="xs"
+								colorScheme="red"
+								icon={<UserMinus size="18" />}
+							/>
 						</PopoverTrigger>
 						<PopoverContent>
 							<PopoverArrow />
 							<PopoverCloseButton />
-							<PopoverHeader>
-								{action === 'add' ? 'Add User to Group' : 'Remove User from Group'}
-							</PopoverHeader>
+							<PopoverHeader>Confirm member removal</PopoverHeader>
 							<PopoverBody>
-								<Select
-									value={groupId}
-									onChange={(e) => {
-										setGroupId(e.target.value);
-									}}
-									placeholder="Select a group"
-								>
-									{groups.map((group: any) => (
-										<option value={group.id}>{group.name}</option>
-									))}
-								</Select>
+								<Text>{`Are you sure you want to\nremove ${item.user.email}?`}</Text>
 							</PopoverBody>
 							<PopoverFooter display="flex" justifyContent="flex-end">
 								<ButtonGroup size="sm">
 									<Button
 										colorScheme="blue"
-										onClick={handleAction}
-										isLoading={addUserToGroupMutation.isLoading}
+										onClick={handleRemoveMember}
+										isLoading={removeMemberMutation.isLoading}
 									>
-										{action === 'add' ? 'Add' : 'Remove'}
+										Remove
 									</Button>
 									<Button variant="outline" onClick={onClose}>
 										Cancel

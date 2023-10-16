@@ -18,10 +18,18 @@ class CRUDUserRole(CRUDBase[UserRole, CreateRole, UpdateRole]):
             > 0
         )
 
-    def get_user_role(self, db: Session, user_id: UUID, workspace_id: UUID) -> UserRole:
+    def get_user_role(self, db: Session, user_id: UUID, workspace_id: UUID) -> Role:
         return (
             db.query(Role)
             .join(UserRole, UserRole.role_id == Role.id)
+            .filter(UserRole.user_id == user_id)
+            .filter(UserRole.workspace_id == workspace_id)
+            .one_or_none()
+        )
+
+    def get_user_user_role(self, db: Session, user_id: UUID, workspace_id: UUID) -> UserRole:
+        return (
+            db.query(UserRole)
             .filter(UserRole.user_id == user_id)
             .filter(UserRole.workspace_id == workspace_id)
             .one_or_none()
