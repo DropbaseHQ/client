@@ -21,7 +21,7 @@ export const Navbar = () => {
 	const { mutate: logout } = useLogout();
 	const { user } = useGetCurrentUser();
 	const { users } = useGetWorkspaceUsers();
-	const userRole = users?.find((u: any) => u.user_id === user?.id)?.role_name;
+	const userRole = users?.find((u: any) => u.id === user?.id)?.role_name;
 
 	// const { colorMode, toggleColorMode } = useColorMode();;
 	const userHasRole = (roles: string[]) => {

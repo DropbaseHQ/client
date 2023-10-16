@@ -2,8 +2,16 @@ from server import crud
 
 
 def get_workspace_users(db, workspace_id):
-    workspace_user = crud.workspace.get_workspace_users(db, workspace_id)
-    return workspace_user
+    workspace_users = crud.workspace.get_workspace_users(db, workspace_id)
+    formatted_users = []
+    for workspace_user in workspace_users:
+        user_workspace_groups = crud.user_group.get_user_workspace_groups(
+            db=db, user_id=workspace_user.id, workspace_id=workspace_id
+        )
+        workspace_users_dict = dict(workspace_user)
+        workspace_users_dict["groups"] = user_workspace_groups
+        formatted_users.append(workspace_users_dict)
+    return formatted_users
 
 
 def get_workspace_groups(db, workspace_id):
