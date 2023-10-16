@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Text, Select, Skeleton } from '@chakra-ui/react';
+import { Select, Skeleton } from '@chakra-ui/react';
 import { useUpdateUserPolicy } from '../../hooks/useUpdateUserPolicy';
 import { useGetUserDetails } from '../../hooks/useGetUserDetails';
 import { useUpdateGroupPolicy } from '../../hooks/useUpdateGroupPolicy';
