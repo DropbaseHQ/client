@@ -50,6 +50,7 @@ require_authentication_routes.include_router(endpoints.task_router)
 
 app.include_router(endpoints.user_router)
 app.include_router(endpoints.group_router)
+app.include_router(endpoints.tunnel_router)
 app.include_router(require_authentication_routes)
 
 

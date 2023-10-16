@@ -3,24 +3,24 @@ bindPort = {{ bindPort }}
 
 [[httpPlugins]]
 name = "auth"
-addr = "127.0.0.1:7001"
+addr = "127.0.0.1:8000"
 path = "/tunnel/auth"
 ops = ["Login", "NewProxy", "CloseProxy", "Ping", "NewWorkConn", "NewUserConn"]
 
 [[httpPlugins]]
 name = "new-proxy-handler"
-addr = "127.0.0.1:7001"
+addr = "127.0.0.1:8000"
 path = "/tunnel/new"
 ops = ["NewProxy"]
 
 [[httpPlugins]]
 name = "close-proxy-handler"
-addr = "127.0.0.1:7001"
+addr = "127.0.0.1:8000"
 path = "/tunnel/close"
 ops = ["CloseProxy"]
 
 [[httpPlugins]]
 name = "ping-handler"
-addr = "127.0.0.1:7001"
+addr = "127.0.0.1:8000"
 path = "/tunnel/ping"
 ops = ["Ping"]
