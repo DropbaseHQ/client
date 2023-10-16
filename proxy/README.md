@@ -2,5 +2,5 @@
 
 From dropbase root:
 ```
-python3 proxy/main.py
+python proxy/main.py
 ```
