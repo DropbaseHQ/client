@@ -23,7 +23,6 @@ import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
-import { useGetWorkspaceUsers } from '@/features/settings/hooks/useGetUsers';
 import { useAtomValue } from 'jotai';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetUserDetails } from '@/features/settings/hooks/useGetUserDetails';
