@@ -103,7 +103,7 @@ def remove_policies_from_user(user_id: UUID, request: AddPolicyRequest, db: Sess
 
 
 @router.post("/update_policy/{user_id}")
-def update_policy_from_user(
+def update_policy_for_user(
     user_id: UUID, request: UpdateUserPolicyRequest, db: Session = Depends(get_db)
 ):
     return user_controller.update_policy(db, user_id, request)

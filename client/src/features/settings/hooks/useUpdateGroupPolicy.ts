@@ -5,17 +5,14 @@ const updateGroupPolicy = async ({
 	groupId,
 	resource,
 	action,
-	effect,
 }: {
 	groupId: string;
 	resource: string;
 	action: string;
-	effect: string;
 }) => {
 	const response = await axios.post(`/group/update_policy/${groupId}`, {
 		resource,
 		action,
-		effect,
 	});
 	return response.data;
 };

@@ -12,7 +12,7 @@ from server.schemas.group import (
 
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
 from server import crud
-from typing import List
+from server.constants import ALLOWED_ACTIONS
 
 
 class GroupController:
@@ -151,33 +151,39 @@ class GroupController:
                     Policy.ptype == "p",
                     Policy.v1 == str(group.id),
                     Policy.v2 == request.resource,
-                    Policy.v3 == request.action,
                 )
                 .filter(Policy.workspace_id == str(group.workspace_id))
                 .one_or_none()
             )
-            if existing_policy and request.effect == "deny":
-                # Remove the policy from the policy table
-                db.query(Policy).filter(
-                    Policy.v1 == str(group.id),
-                    Policy.v2 == request.resource,
-                    Policy.v3 == request.action,
-                ).filter(Policy.workspace_id == str(group.workspace_id)).delete()
+            if existing_policy:
+                # Remove the policy if the action is none
+                if request.action == "none":
+                    db.query(Policy).filter(
+                        Policy.v1 == str(group.id),
+                        Policy.v2 == request.resource,
+                    ).filter(Policy.workspace_id == group.workspace_id).delete()
+                # Update the action if the action is not none
+                elif request.action in ALLOWED_ACTIONS:
+                    db.query(Policy).filter(
+                        Policy.v1 == str(group.id),
+                        Policy.v2 == request.resource,
+                    ).filter(Policy.workspace_id == group.workspace_id).update({"v3": request.action})
 
-            elif not existing_policy and request.effect == "allow":
-                # Add the policy to the policy table
-                crud.policy.create(
-                    db,
-                    obj_in=Policy(
-                        ptype="p",
-                        v0=10,
-                        v1=group.id,
-                        v2=request.resource,
-                        v3=request.action,
-                        workspace_id=group.workspace_id,
-                    ),
-                    auto_commit=False,
-                )
+            else:
+                # Create a new policy if the action is not none and there is no existing policy
+                if request.action in ALLOWED_ACTIONS:
+                    crud.policy.create(
+                        db,
+                        obj_in=Policy(
+                            ptype="p",
+                            v0=10,
+                            v1=group.id,
+                            v2=request.resource,
+                            v3=request.action,
+                            workspace_id=group.workspace_id,
+                        ),
+                        auto_commit=False,
+                    )
 
             db.commit()
             return {"message": "success"}

@@ -75,5 +75,4 @@ class GetUserDetails(BaseModel):
 class UpdateUserPolicyRequest(BaseModel):
     resource: str
     action: str
-    effect: str
     workspace_id: str

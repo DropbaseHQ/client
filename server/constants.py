@@ -12,3 +12,5 @@ GPT_TEMPERATURE = 0.0
 
 ACCESS_TOKEN_EXPIRE_SECONDS = 60 * 60 * 24 * 1  # 1 day
 REFRESH_TOKEN_EXPIRE_SECONDS = 60 * 60 * 24 * 7  # 7 days
+
+ALLOWED_ACTIONS = ["use", "edit", "own"]
