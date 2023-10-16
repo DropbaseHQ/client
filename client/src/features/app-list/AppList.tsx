@@ -45,7 +45,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 	});
 
 	const handleClick = () => {
-		navigate(`/apps/${app.id}/${app?.pages?.[0]?.id}/new-editor`);
+		navigate(`/apps/${app.id}/${app?.pages?.[0]?.id}/new-preview`);
 	};
 
 	const onSubmit = () => {

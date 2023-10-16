@@ -12,8 +12,6 @@ import {
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { Settings, LogOut, Grid, Database, Repeat, Users, Lock } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
-import { workspaceAtom } from '@/features/workspaces';
-import { useAtomValue } from 'jotai';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
 import { useGetWorkspaceUsers } from '@/features/settings/hooks/useGetUsers';
@@ -21,9 +19,8 @@ import { useGetWorkspaceUsers } from '@/features/settings/hooks/useGetUsers';
 export const Navbar = () => {
 	const { pathname } = useLocation();
 	const { mutate: logout } = useLogout();
-	const workspaceId = useAtomValue(workspaceAtom);
 	const { user } = useGetCurrentUser();
-	const { users } = useGetWorkspaceUsers({ workspaceId: workspaceId || '' });
+	const { users } = useGetWorkspaceUsers();
 	const userRole = users?.find((u: any) => u.id === user?.id)?.role_name;
 
 	// const { colorMode, toggleColorMode } = useColorMode();;

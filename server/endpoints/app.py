@@ -46,7 +46,7 @@ def create_app(
 
 @router.put("/{app_id}")
 def update_app(app_id: UUID, request: UpdateApp, db: Session = Depends(get_db)):
-    return crud.app.update_by_pk(db, app_id, request)
+    return crud.app.update_by_pk(db=db, pk=app_id, obj_in={"name": request.name})
 
 
 @router.delete("/{app_id}")
