@@ -2,5 +2,5 @@
 
 From dropbase root:
 ```
-bash worker_proxy_server/start.sh
+python3 proxy/main.py
 ```
