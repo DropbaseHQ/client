@@ -34,21 +34,31 @@ def get_state_context_for_client(db: Session, page_id: UUID):
     widgets = crud.widget.get_page_widgets(db, page_id=page.id)
     components_mapper = {"input": InputContextProperty, "button": ButtonContextProperty}
     for widget in widgets:
+        widget_init = WidgetContextProperty(**widget.property)
         components = crud.components.get_widget_component(db, widget_id=widget.id)
         components_contexts = {}
         components_state = {}
         for comp in components:
             comp_name = comp.property.get("name")
+            # for state, we just need to return an empty value
             components_state[comp_name] = None
+            # for context, we first need to find a class (XxxContextProperty)
             component_class = components_mapper.get(comp.type)
+            # then initiate it with component properties
             component_def = component_class(**comp.property)
+            # then get dict values from that initiated class
             components_contexts[comp_name] = component_def.dict()
-        state["widgets"][widget.name] = components_state
-        context["widgets"][widget.name] = components_contexts
 
+        state["widgets"][widget.name] = components_state
+        widget_context = widget_init.dict()
+        widget_context["components"] = components_contexts
+        context["widgets"][widget.name] = widget_context
+
+    # same logic for tables
     tables = crud.tables.get_page_tables(db, page_id=page.id)
     columns_mapper = {"postgres": PgColumnContextProperty}
     for table in tables:
+        table_init = TableContextProperty(**table.property)
         columns = crud.columns.get_table_columns(db, table_id=table.id)
         columns_contexts = {}
         columns_state = {}
@@ -59,7 +69,9 @@ def get_state_context_for_client(db: Session, page_id: UUID):
             column_def = column_class(**comp.property)
             columns_contexts[comp_name] = column_def.dict()
         state["tables"][table.name] = columns_state
-        context["tables"][table.name] = columns_contexts
+        table_context = table_init.dict()
+        table_context["columns"] = columns_contexts
+        context["tables"][table.name] = table_context
     return state, context
 
 
