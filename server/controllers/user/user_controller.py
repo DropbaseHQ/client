@@ -22,7 +22,7 @@ from server.schemas.user import (
 )
 from server.schemas.workspace import CreateWorkspace, ReadWorkspace
 from server.utils.authentication import authenticate_user, get_password_hash
-from server.controllers.policy import PolicyUpdater
+from server.controllers.policy import PolicyUpdater, format_permissions_for_highest_action
 from server.utils.helper import raise_http_exception
 from server.constants import ALLOWED_ACTIONS
 
@@ -196,36 +196,13 @@ def get_user_permissions(db: Session, user_id: UUID, workspace_id: UUID):
     enforcer = get_contexted_enforcer(db, workspace_id)
     permissions = enforcer.get_filtered_policy(1, str(user.id))
 
-    logged_resources = {}
-    for permission in permissions:
-        user_id = permission[1]
-        resource = permission[2]
-        action = permission[3]
-
-        if resource in logged_resources:
-            new_action_has_higher_priority = ALLOWED_ACTIONS.index(action) < ALLOWED_ACTIONS.index(
-                logged_resources[resource].get("action")
-            )
-
-            if new_action_has_higher_priority:
-                logged_resources[resource] = {
-                    "action": action,
-                    "user_id": user_id,
-                    "resource": resource,
-                }
-        else:
-            logged_resources[resource] = {
-                "action": action,
-                "user_id": user_id,
-                "resource": resource,
-            }
-
-    formatted_permissions = list(logged_resources.values())
+    formatted_permissions = format_permissions_for_highest_action(permissions)
 
     formatted_user = user.__dict__
     formatted_user.pop("hashed_password")
     formatted_user.pop("active")
     formatted_user.pop("date")
+
     return {"user": formatted_user, "workspace_role": user_role, "permissions": formatted_permissions}
 
 

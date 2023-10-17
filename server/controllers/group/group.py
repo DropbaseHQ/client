@@ -11,9 +11,8 @@ from server.schemas.group import (
 )
 
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
-from server.controllers.policy import PolicyUpdater
+from server.controllers.policy import PolicyUpdater, format_permissions_for_highest_action
 from server import crud
-from server.constants import ALLOWED_ACTIONS
 
 
 class GroupController:
@@ -260,15 +259,9 @@ def get_group(db: Session, group_id: str):
     group = crud.group.get_object_by_id_or_404(db, id=group_id)
     enforcer = get_contexted_enforcer(db, group.workspace_id)
     permissions = enforcer.get_filtered_policy(1, str(group.id))
-    formatted_permissions = []
-    for permission in permissions:
-        formatted_permissions.append(
-            {
-                "group_id": permission[1],
-                "resource": permission[2],
-                "action": permission[3],
-            }
-        )
+
+    formatted_permissions = format_permissions_for_highest_action(permissions)
+
     return {"group": group, "permissions": formatted_permissions}
 
 

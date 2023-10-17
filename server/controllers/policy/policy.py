@@ -106,3 +106,32 @@ class PolicyUpdater:
         except Exception as e:
             self.db.rollback()
             raise e
+
+
+def format_permissions_for_highest_action(permissions: list):
+    logged_resources = {}
+    for permission in permissions:
+        subject_id = permission[1]
+        resource = permission[2]
+        action = permission[3]
+
+        if resource in logged_resources:
+            new_action_has_higher_priority = ALLOWED_ACTIONS.index(action) < ALLOWED_ACTIONS.index(
+                logged_resources[resource].get("action")
+            )
+
+            if new_action_has_higher_priority:
+                logged_resources[resource] = {
+                    "action": action,
+                    "user_id": subject_id,
+                    "resource": resource,
+                }
+        else:
+            logged_resources[resource] = {
+                "action": action,
+                "user_id": subject_id,
+                "resource": resource,
+            }
+    formatted_permissions = list(logged_resources.values())
+
+    return formatted_permissions
