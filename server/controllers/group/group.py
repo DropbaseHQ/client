@@ -189,6 +189,18 @@ class GroupController:
             db.rollback
             raise e
 
+    @staticmethod
+    def get_group_users(db: Session, group_id: str):
+        """Returns all users in a group."""
+        users = (
+            db.query(User)
+            .join(UserGroup, UserGroup.user_id == User.id)
+            .filter(UserGroup.group_id == group_id)
+            .with_entities(User.id, User.email, User.name, UserGroup.role)
+            .all()
+        )
+        return users
+
 
 def get_group(db: Session, group_id: str):
     """Returns all permissions for a group."""
