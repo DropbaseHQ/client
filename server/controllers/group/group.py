@@ -11,6 +11,7 @@ from server.schemas.group import (
 )
 
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
+from server.controllers.policy import PolicyUpdater
 from server import crud
 from server.constants import ALLOWED_ACTIONS
 
@@ -143,53 +144,77 @@ class GroupController:
     @staticmethod
     def update_policy(db: Session, group_id: str, request: UpdateGroupPolicyRequest):
         group = crud.group.get_object_by_id_or_404(db, id=group_id)
-        try:
-            # Query if the policy exists in the policy table
-            existing_policy = (
-                db.query(Policy)
-                .filter(
-                    Policy.ptype == "p",
-                    Policy.v1 == str(group.id),
-                    Policy.v2 == request.resource,
-                )
-                .filter(Policy.workspace_id == str(group.workspace_id))
-                .one_or_none()
-            )
-            if existing_policy:
-                # Remove the policy if the action is none
-                if request.action == "none":
-                    db.query(Policy).filter(
-                        Policy.v1 == str(group.id),
-                        Policy.v2 == request.resource,
-                    ).filter(Policy.workspace_id == group.workspace_id).delete()
-                # Update the action if the action is not none
-                elif request.action in ALLOWED_ACTIONS:
-                    db.query(Policy).filter(
-                        Policy.v1 == str(group.id),
-                        Policy.v2 == request.resource,
-                    ).filter(Policy.workspace_id == group.workspace_id).update({"v3": request.action})
+        policy_updater = PolicyUpdater(
+            db=db,
+            subject_id=group_id,
+            workspace_id=group.workspace_id,
+            request=request,
+        )
+        return policy_updater.update_policy()
 
-            else:
-                # Create a new policy if the action is not none and there is no existing policy
-                if request.action in ALLOWED_ACTIONS:
-                    crud.policy.create(
-                        db,
-                        obj_in=Policy(
-                            ptype="p",
-                            v0=10,
-                            v1=group.id,
-                            v2=request.resource,
-                            v3=request.action,
-                            workspace_id=group.workspace_id,
-                        ),
-                        auto_commit=False,
-                    )
+        # group = crud.group.get_object_by_id_or_404(db, id=group_id)
+        # try:
+        #     # Query if the policy exists in the policy table
+        #     existing_policies = (
+        #         db.query(Policy)
+        #         .filter(
+        #             Policy.ptype == "p",
+        #             Policy.v1 == str(group.id),
+        #             Policy.v2 == request.resource,
+        #         )
+        #         .filter(Policy.workspace_id == str(group.workspace_id))
+        #         .all()
+        #     )
+        #     if existing_policies:
+        #         # Remove all policies if the action is none
+        #         if request.action == "none":
+        #             db.query(Policy).filter(
+        #                 Policy.v1 == str(group.id),
+        #                 Policy.v2 == request.resource,
+        #             ).filter(Policy.workspace_id == group.workspace_id).delete()
+        #         # Update the action if the action is not none
+        #         elif request.action in ALLOWED_ACTIONS:
+        #             updated_list_of_actions = ALLOWED_ACTIONS[ALLOWED_ACTIONS.index(request.action) :]
+        #             stored_actions = [policy.v3 for policy in existing_policies]
+        #             for policy in existing_policies:
+        #                 if policy.v3 not in updated_list_of_actions:
+        #                     crud.policy.remove(db, id=policy.id, auto_commit=False)
+        #             for action in updated_list_of_actions:
+        #                 if action not in stored_actions:
+        #                     crud.policy.create(
+        #                         db,
+        #                         obj_in=Policy(
+        #                             ptype="p",
+        #                             v0=10,
+        #                             v1=group.id,
+        #                             v2=request.resource,
+        #                             v3=action,
+        #                             workspace_id=group.workspace_id,
+        #                         ),
+        #                         auto_commit=False,
+        #                     )
 
-            db.commit()
-            return {"message": "success"}
-        except Exception as e:
-            db.rollback()
-            raise e
+        #     else:
+        #         # Create a new policy if the action is not none and there is no existing policy
+        #         if request.action in ALLOWED_ACTIONS:
+        #             crud.policy.create(
+        #                 db,
+        #                 obj_in=Policy(
+        #                     ptype="p",
+        #                     v0=10,
+        #                     v1=group.id,
+        #                     v2=request.resource,
+        #                     v3=request.action,
+        #                     workspace_id=group.workspace_id,
+        #                 ),
+        #                 auto_commit=False,
+        #             )
+
+        #     # db.commit()
+        #     return {"message": "success"}
+        # except Exception as e:
+        #     db.rollback()
+        #     raise e
 
     @staticmethod
     def create_group(db: Session, request: CreateGroup, user: User):
