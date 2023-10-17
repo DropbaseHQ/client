@@ -204,7 +204,11 @@ def get_user_permissions(db: Session, user_id: UUID, workspace_id: UUID):
                 "action": permission[3],
             }
         )
-    return {"user": user, "workspace_role": user_role, "permissions": formatted_permissions}
+    formatted_user = user.__dict__
+    formatted_user.pop("hashed_password")
+    formatted_user.pop("active")
+    formatted_user.pop("date")
+    return {"user": formatted_user, "workspace_role": user_role, "permissions": formatted_permissions}
 
 
 def update_policy(db: Session, user_id: UUID, request: UpdateUserPolicyRequest):
