@@ -2,32 +2,40 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
 import pureAxios from 'axios';
 
-import { axios } from '@/lib/axios';
+import { axios, workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/new-app-preview/hooks';
 import { PAGE_DATA_QUERY_KEY } from '@/features/new-page';
 
 export const ALL_PAGE_FUNCTIONS_QUERY_KEY = 'functions';
 
-const fetchAllPageFunctions = async ({ pageId }: { pageId: string }) => {
-	const response = await axios.get<any>(`/functions/page/${pageId}`);
+const fetchAllPageFunctions = async ({
+	pageName,
+	appName,
+}: {
+	pageName: string;
+	appName: string;
+}) => {
+	const response = await workerAxios.get<{ files: string[] }>(
+		`/files/python/${appName}/${pageName}`,
+	);
 
 	return response.data;
 };
 
-export const usePageFunctions = (pageId: string) => {
-	const queryKey = [ALL_PAGE_FUNCTIONS_QUERY_KEY, pageId];
+export const usePageFunctions = ({ pageName, appName }: { pageName: string; appName: string }) => {
+	const queryKey = [ALL_PAGE_FUNCTIONS_QUERY_KEY, pageName, appName];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchAllPageFunctions({ pageId }),
+		() => fetchAllPageFunctions({ pageName, appName }),
 		{
-			enabled: Boolean(pageId),
+			enabled: Boolean(appName) && Boolean(pageName),
 		},
 	);
 
 	const info = useMemo(() => {
 		return {
-			functions: response || [],
+			functions: response?.files || [],
 		};
 	}, [response]);
 
@@ -40,26 +48,26 @@ export const usePageFunctions = (pageId: string) => {
 
 export const ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY = 'functionNames';
 
-const fetchAllPageFunctionNames = async ({ pageId }: { pageId: string }) => {
-	const response = await axios.get<any>(`/functions/page/ui/${pageId}`);
+const fetchAllPageFunctionNames = async ({ appName, pageName }: any) => {
+	const response = await workerAxios.get<any>(`files/functions/${appName}/${pageName}/context`);
 
 	return response.data;
 };
 
-export const useAllPageFunctionNames = (pageId: string) => {
-	const queryKey = [ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY, pageId];
+export const useAllPageFunctionNames = ({ appName, pageName }: any) => {
+	const queryKey = [ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY, appName, pageName];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchAllPageFunctionNames({ pageId }),
+		() => fetchAllPageFunctionNames({ appName, pageName }),
 		{
-			enabled: Boolean(pageId),
+			enabled: Boolean(pageName && appName),
 		},
 	);
 
 	const info = useMemo(() => {
 		return {
-			functions: response || [],
+			functions: response?.files || [],
 		};
 	}, [response]);
 
@@ -70,26 +78,28 @@ export const useAllPageFunctionNames = (pageId: string) => {
 	};
 };
 
-const fetchPageFunction = async ({ functionId }: { functionId: string }) => {
-	const response = await axios.get<any>(`/functions/${functionId}`);
+const fetchPageFunction = async ({ functionName, appName, pageName }: any) => {
+	const response = await workerAxios.get<string>(
+		`/workspace/${appName}/${pageName}/scripts/${functionName}`,
+	);
 
 	return response.data;
 };
 
-export const usePageFunction = (functionId: string) => {
-	const queryKey = [ALL_PAGE_FUNCTIONS_QUERY_KEY, functionId];
+export const usePageFunction = ({ functionName, appName, pageName }: any) => {
+	const queryKey = [ALL_PAGE_FUNCTIONS_QUERY_KEY, functionName, appName, pageName];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchPageFunction({ functionId }),
+		() => fetchPageFunction({ functionName, appName, pageName }),
 		{
-			enabled: Boolean(functionId),
+			enabled: Boolean(functionName && appName && pageName),
 		},
 	);
 
 	const info = useMemo(() => {
 		return {
-			...(response || {}),
+			code: response || '',
 		};
 	}, [response]);
 

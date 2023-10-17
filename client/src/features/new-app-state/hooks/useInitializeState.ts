@@ -4,22 +4,25 @@ import {
 	newSelectedRowAtom,
 	allWidgetStateAtom,
 	nonWidgetStateAtom,
+	allWidgetsInputAtom,
 } from '@/features/new-app-state';
 import { useAppState } from '@/features/new-app-state/hooks';
 
 export const useInitializePageState = (pageId: any) => {
 	const {
-		state: { tables, state },
+		state: { context, state },
 		...rest
 	} = useAppState(pageId || '');
 
 	const setRowData = useSetAtom(newSelectedRowAtom);
 	const setWidgetState = useSetAtom(allWidgetStateAtom);
 	const setNonInteractiveState = useSetAtom(nonWidgetStateAtom);
+	const setWidgetsInputs = useSetAtom(allWidgetsInputAtom);
 
 	useEffect(() => {
 		setRowData((oldTables: any) => {
-			if (oldTables && tables) {
+			const { tables } = state;
+			if (oldTables && state.tables) {
 				return Object.keys(tables).reduce((agg: any, tableName: any) => {
 					if (oldTables[tableName]) {
 						return {
@@ -43,14 +46,18 @@ export const useInitializePageState = (pageId: any) => {
 
 			return tables;
 		});
-	}, [tables, setRowData]);
+	}, [state, setRowData]);
 
 	useEffect(() => {
-		const { widget, ...other } = state || {};
+		setWidgetsInputs(state.widgets);
+	}, [state, setWidgetsInputs]);
 
-		setWidgetState((s) => ({ ...s, state: widget || {} }));
+	useEffect(() => {
+		const { widgets, ...other } = context || {};
+
+		setWidgetState((s) => ({ ...s, state: widgets || {} }));
 		setNonInteractiveState(other || {});
-	}, [state, setNonInteractiveState, setWidgetState]);
+	}, [context, setNonInteractiveState, setWidgetState]);
 
 	useEffect(() => {
 		return () => {

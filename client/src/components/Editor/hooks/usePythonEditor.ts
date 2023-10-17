@@ -3,7 +3,7 @@ import { initServices, MonacoLanguageClient } from 'monaco-languageclient';
 import { CloseAction, ErrorAction, MessageTransports } from 'vscode-languageclient';
 import { toSocket, WebSocketMessageReader, WebSocketMessageWriter } from 'vscode-ws-jsonrpc';
 import { createModelReference, createConfiguredEditor } from 'vscode/monaco';
-import { createRef, useEffect, useRef, useState } from 'react';
+import { createRef, useCallback, useEffect, useRef, useState } from 'react';
 import { language, conf } from 'monaco-editor/esm/vs/basic-languages/python/python';
 import { buildWorkerDefinition } from 'monaco-editor-workers';
 
@@ -95,8 +95,20 @@ const createPythonEditor = async (config: { htmlElement: HTMLElement; filepath: 
 		lightbulb: {
 			enabled: true,
 		},
+		overviewRulerBorder: false,
+		overviewRulerLanes: 0,
 		automaticLayout: true,
 		language: languageId,
+		scrollBeyondLastLine: false,
+		minimap: {
+			enabled: false,
+		},
+		scrollbar: {
+			verticalHasArrows: true,
+			alwaysConsumeMouseWheel: false,
+			vertical: 'auto',
+			horizontal: 'auto',
+		},
 	});
 
 	return editor;
@@ -170,6 +182,29 @@ export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
 			}
 		}
 	}, [code, isEditorReady, editorInstanceRef]);
+
+	const updateHeight = useCallback(() => {
+		const editorInstance = editorInstanceRef.current;
+		if (editorInstance && isEditorReady) {
+			try {
+				editorInstance.layout({
+					height: editorInstance.getContentHeight(),
+					width: editorInstance.getDomNode()?.clientWidth || 100,
+				});
+			} finally {
+				//
+			}
+		}
+	}, [editorInstanceRef, isEditorReady]);
+
+	useEffect(() => {
+		if (editorInstanceRef.current && isEditorReady) {
+			const editorInstance = editorInstanceRef.current;
+			editorInstance.onDidContentSizeChange(updateHeight);
+
+			updateHeight();
+		}
+	}, [editorInstanceRef, isEditorReady, updateHeight]);
 
 	return ref;
 };

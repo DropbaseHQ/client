@@ -26,7 +26,7 @@ import {
 	allWidgetStateAtom,
 	useSyncState,
 	newPageStateAtom,
-	userInputAtom,
+	allWidgetsInputAtom,
 } from '@/features/new-app-state';
 import { pageAtom } from '@/features/new-page';
 import { useCreateWidget } from '@/features/new-app-builder/hooks';
@@ -48,15 +48,21 @@ const AppComponent = (props: any) => {
 
 	const pageState = useAtomValue(newPageStateAtom);
 
-	const [widgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
+	const { widgetId } = useAtomValue(pageAtom);
+	const { widget } = useGetWidgetPreview(widgetId || '');
+
+	const [allWidgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
+	const widgetComponents = allWidgetComponents[widget.name];
 	const inputState = widgetComponents?.[component.name] || {};
 
-	const userInputValues = useAtomValue(userInputAtom);
+	const allUserInputValues: any = useAtomValue(allWidgetsInputAtom);
+
+	const widgetInputs = allUserInputValues?.[widget.name] || {};
 
 	const syncState = useSyncState();
 
 	const shouldDisplay = checkAllRulesPass({
-		values: userInputValues,
+		values: widgetInputs,
 		rules: component.display_rules,
 	});
 
@@ -68,7 +74,8 @@ const AppComponent = (props: any) => {
 
 	const handleAction = (actionName: string) => {
 		actionMutation.mutate({
-			pageId,
+			pageName: 'page1',
+			appName: 'app',
 			functionName: actionName,
 			pageState,
 		});
@@ -140,6 +147,7 @@ export const NewAppPreview = () => {
 
 	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
 	const allWidgetState = widgetData.state;
+
 	const widgetState: any = allWidgetState[widget?.name];
 
 	const handleRemoveAlert = () => {

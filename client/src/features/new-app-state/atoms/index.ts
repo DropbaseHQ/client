@@ -1,6 +1,5 @@
 import { atom } from 'jotai';
 import lodashSet from 'lodash/set';
-import lodashGet from 'lodash/get';
 
 // Selected table rows atom
 export const newSelectedRowAtom: any = atom({});
@@ -16,29 +15,31 @@ export const allWidgetStateAtom = atom({
 	state: {},
 });
 
+export const allWidgetsInputAtom = atom({});
+
 // read-write atom for widget components based on widgetState
 export const widgetComponentsAtom: any = atom(
 	(get) => {
 		const currentState = get(allWidgetStateAtom) as any;
 
-		const currentWidgetComponents = lodashGet(
-			currentState.state,
-			`${currentState.selected}.components`,
-			{},
-		);
-
-		return currentWidgetComponents;
+		return currentState.state;
 	},
 	(get, set, inputs: any) => {
 		let widgetState: any = get(allWidgetStateAtom);
+		let currentInputs = get(allWidgetsInputAtom);
 
 		if (widgetState.selected) {
 			Object.keys(inputs).forEach((i) => {
 				widgetState = lodashSet(
 					widgetState,
-					`state.${widgetState.selected}.components.${i}.value`,
+					`state.${widgetState.selected}.${i}.value`,
 					inputs[i],
 				);
+				currentInputs = lodashSet(currentInputs, `${widgetState.selected}.${i}`, inputs[i]);
+			});
+
+			set(allWidgetsInputAtom, {
+				...JSON.parse(JSON.stringify(currentInputs)),
 			});
 
 			set(allWidgetStateAtom, { ...JSON.parse(JSON.stringify(widgetState)) });
@@ -46,30 +47,14 @@ export const widgetComponentsAtom: any = atom(
 	},
 );
 
-export const userInputAtom = atom((get) => {
-	const userInputState: any = get(widgetComponentsAtom) || {};
-
-	return Object.keys(userInputState).reduce(
-		(agg, field) => ({
-			...agg,
-			[field]: userInputState?.[field]?.value,
-		}),
-		{},
-	);
-});
-
 export const newPageStateAtom = atom((get) => {
-	const userInputState: any = get(widgetComponentsAtom) || {};
+	const userInputState: any = get(allWidgetsInputAtom) || {};
 
 	return {
-		tables: get(newSelectedRowAtom) || {},
-		user_input: Object.keys(userInputState).reduce(
-			(agg, field) => ({
-				...agg,
-				[field]: userInputState?.[field]?.value,
-			}),
-			{},
-		),
-		state: { ...get(nonWidgetStateAtom), widget: get(allWidgetStateAtom).state || {} },
+		state: {
+			tables: get(newSelectedRowAtom) || {},
+			widgets: userInputState || {},
+		},
+		context: { ...get(nonWidgetStateAtom), widgets: get(allWidgetStateAtom).state || {} },
 	};
 });

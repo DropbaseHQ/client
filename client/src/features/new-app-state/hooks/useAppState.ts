@@ -6,7 +6,7 @@ import { axios } from '@/lib/axios';
 export const APP_STATE_QUERY_KEY = 'appState';
 
 const fetchAppState = async ({ pageId }: { pageId: string }) => {
-	const response = await axios.get<any>(`/page/schema/${pageId}`);
+	const response = await axios.get<any>(`/page/state/${pageId}`);
 
 	return response.data;
 };
@@ -21,10 +21,7 @@ export const useAppState = (pageId: string) => {
 
 	const info = useMemo(() => {
 		return {
-			state: response || {
-				user_input: {},
-				tables: {},
-			},
+			state: response || { context: {}, state: {} },
 		};
 	}, [response]);
 
