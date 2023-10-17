@@ -30,15 +30,18 @@ import {
 	PopoverArrow,
 	PopoverCloseButton,
 	ButtonGroup,
+	Tag,
+	IconButton,
+	HStack,
 } from '@chakra-ui/react';
+import { UserMinus, Edit } from 'react-feather';
 import { useGetWorkspaceUsers, GET_WORKSPACE_USERS_QUERY_KEY } from './hooks/useGetUsers';
 import { workspaceAtom } from '@/features/workspaces';
 import { useAtomValue } from 'jotai';
 import { useInviteMember } from './hooks/useInviteMember';
 import { useQueryClient } from 'react-query';
-import { useGetWorkspaceGroups } from './hooks/useGetWorkspaceGroups';
-import { useAddUserToGroup } from './hooks/useAddUserToGroup';
-import { useRemoveUserFromGroup } from './hooks/useRemoveUserFromGroup';
+import { useRemoveMember } from './hooks/useRemoveUserFromWorkspace';
+import { useUpdateUserRole } from './hooks/useUpdateUserRole';
 
 // Will get this from the server later
 const ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
@@ -49,112 +52,129 @@ const MEMBER_UUID = '00000000-0000-0000-0000-000000000004';
 const UserRow = (item: any) => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
-	const { isOpen, onOpen, onClose } = useDisclosure();
-	const [groupId, setGroupId] = useState('');
-	const [action, setAction] = useState('');
 
-	const { groups } = useGetWorkspaceGroups({ workspaceId });
-	const addUserToGroupMutation = useAddUserToGroup({
+	const [newRole, setNewRole] = useState(item.user.role_id);
+
+	const { isOpen: isOpenRemove, onOpen: onOpenRemove, onClose: onCloseRemove } = useDisclosure();
+	const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
+	const removeMemberMutation = useRemoveMember({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
-			onClose();
+			onCloseRemove();
 		},
 	});
-	const removeUserFromGroupMutation = useRemoveUserFromGroup({
+	const changeUserRoleMutation = useUpdateUserRole({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
-			onClose();
+			onCloseEdit();
 		},
 	});
 
-	const onOpenAddGroup = () => {
-		setAction('add');
-		onOpen();
-	};
-	const onOpenRemoveGroup = () => {
-		setAction('remove');
-		onOpen();
-	};
-
-	const handleAddUserToGroup = () => {
-		addUserToGroupMutation.mutate({
+	const handleRemoveMember = () => {
+		removeMemberMutation.mutate({
 			userId: item.user.id,
-			groupId,
+			workspaceId,
 		});
 	};
-	const handleRemoveUserFromGroup = () => {
-		removeUserFromGroupMutation.mutate({
+	const handleChangeRole = () => {
+		changeUserRoleMutation.mutate({
 			userId: item.user.id,
-			groupId,
+			workspaceId,
+			roleId: newRole,
 		});
-	};
-	const handleAction = () => {
-		if (action === 'add') {
-			handleAddUserToGroup();
-		} else if (action === 'remove') {
-			handleRemoveUserFromGroup();
-		}
 	};
 
 	return (
 		<Tr key={item.user.id}>
 			<Td>{item.user.email}</Td>
-			<Td>{item.user.role_name}</Td>
 			<Td>
-				<Flex justifyContent="space-between">
-					<Text>{item.user?.groups?.map((obj: any) => obj.name).join(', ')}</Text>
+				<HStack spacing="6">
+					<Text>{item.user.role_name}</Text>
 					<Popover
-						returnFocusOnClose={false}
-						isOpen={isOpen}
-						onOpen={onOpen}
-						onClose={onClose}
-						placement="bottom"
-						closeOnBlur={true}
+						isOpen={isOpenEdit}
+						onClose={onCloseEdit}
+						onOpen={onOpenEdit}
+						placement="right"
 					>
 						<PopoverTrigger>
-							<ButtonGroup>
-								<Button size="xs" variant="outline" onClick={onOpenAddGroup}>
-									Add Group
-								</Button>
-								<Button
-									size="xs"
-									variant="outline"
-									color="red"
-									onClick={onOpenRemoveGroup}
-								>
-									Remove Group
-								</Button>
-							</ButtonGroup>
+							<IconButton
+								aria-label="Edit Role"
+								size="xs"
+								p="0"
+								variant="outline"
+								icon={<Edit size="14" />}
+							/>
 						</PopoverTrigger>
 						<PopoverContent>
 							<PopoverArrow />
 							<PopoverCloseButton />
-							<PopoverHeader>
-								{action === 'add' ? 'Add User to Group' : 'Remove User from Group'}
-							</PopoverHeader>
+							<PopoverHeader>Change member role</PopoverHeader>
 							<PopoverBody>
 								<Select
-									value={groupId}
-									onChange={(e) => {
-										setGroupId(e.target.value);
-									}}
-									placeholder="Select a group"
+									size="sm"
+									value={newRole}
+									onChange={(e) => setNewRole(e.target.value)}
 								>
-									{groups.map((group: any) => (
-										<option value={group.id}>{group.name}</option>
-									))}
+									<option value={ADMIN_UUID}>Admin</option>
+									<option value={DEV_UUID}>Dev</option>
+									<option value={USER_UUID}>User</option>
+									<option value={MEMBER_UUID}>Member</option>
 								</Select>
 							</PopoverBody>
 							<PopoverFooter display="flex" justifyContent="flex-end">
 								<ButtonGroup size="sm">
 									<Button
 										colorScheme="blue"
-										onClick={handleAction}
-										isLoading={addUserToGroupMutation.isLoading}
+										onClick={handleChangeRole}
+										isLoading={changeUserRoleMutation.isLoading}
 									>
-										{action === 'add' ? 'Add' : 'Remove'}
+										Change
 									</Button>
-									<Button variant="outline" onClick={onClose}>
+									<Button variant="outline" onClick={onCloseEdit}>
+										Cancel
+									</Button>
+								</ButtonGroup>
+							</PopoverFooter>
+						</PopoverContent>
+					</Popover>
+				</HStack>
+			</Td>
+			<Td>
+				<Flex justifyContent="space-between">
+					<Flex>
+						{item.user?.groups?.map((obj: any) => <Tag size="sm">{obj.name}</Tag>)}
+					</Flex>
+					<Popover
+						isOpen={isOpenRemove}
+						onClose={onCloseRemove}
+						onOpen={onOpenRemove}
+						placement="left"
+					>
+						<PopoverTrigger>
+							<IconButton
+								aria-label="Remove Member"
+								size="xs"
+								colorScheme="red"
+								icon={<UserMinus size="18" />}
+							/>
+						</PopoverTrigger>
+						<PopoverContent>
+							<PopoverArrow />
+							<PopoverCloseButton />
+							<PopoverHeader>Confirm member removal</PopoverHeader>
+							<PopoverBody>
+								<Text>{`Are you sure you want to\nremove ${item.user.email}?`}</Text>
+							</PopoverBody>
+							<PopoverFooter display="flex" justifyContent="flex-end">
+								<ButtonGroup size="sm">
+									<Button
+										colorScheme="blue"
+										onClick={handleRemoveMember}
+										isLoading={removeMemberMutation.isLoading}
+									>
+										Remove
+									</Button>
+									<Button variant="outline" onClick={onCloseRemove}>
 										Cancel
 									</Button>
 								</ButtonGroup>

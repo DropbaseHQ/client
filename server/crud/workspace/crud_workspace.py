@@ -60,7 +60,9 @@ class CRUDWorkspace(CRUDBase[Workspace, CreateWorkspace, UpdateWorkspace]):
             .join(UserRole, UserRole.user_id == User.id)
             .join(Role, Role.id == UserRole.role_id)
             .filter(UserRole.workspace_id == workspace_id)
-            .with_entities(User.id, User.email, User.name, Role.name.label("role_name"))
+            .with_entities(
+                User.id, User.email, User.name, Role.name.label("role_name"), Role.id.label("role_id")
+            )
             .all()
         )
 
