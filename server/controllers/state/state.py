@@ -25,6 +25,44 @@ def get_component_props(db: Session, page_id: UUID):
     return page_widgets
 
 
+def get_state_context_for_client(db: Session, page_id: UUID):
+    # TODO: refactor this
+    page = crud.page.get_object_by_id_or_404(db, id=page_id)
+    state = {"widgets": {}, "tables": {}}
+    context = {"widgets": {}, "tables": {}}
+    # page_widgets = {"widgets": {}, "tables": {}}
+    widgets = crud.widget.get_page_widgets(db, page_id=page.id)
+    components_mapper = {"input": InputContextProperty, "button": ButtonContextProperty}
+    for widget in widgets:
+        components = crud.components.get_widget_component(db, widget_id=widget.id)
+        components_contexts = {}
+        components_state = {}
+        for comp in components:
+            comp_name = comp.property.get("name")
+            components_state[comp_name] = None
+            component_class = components_mapper.get(comp.type)
+            component_def = component_class(**comp.property)
+            components_contexts[comp_name] = component_def.dict()
+        state["widgets"][widget.name] = components_state
+        context["widgets"][widget.name] = components_contexts
+
+    tables = crud.tables.get_page_tables(db, page_id=page.id)
+    columns_mapper = {"postgres": PgColumnContextProperty}
+    for table in tables:
+        columns = crud.columns.get_table_columns(db, table_id=table.id)
+        columns_contexts = {}
+        columns_state = {}
+        for comp in columns:
+            comp_name = comp.property.get("name")
+            columns_state[comp_name] = None
+            column_class = columns_mapper.get(comp.type)
+            column_def = column_class(**comp.property)
+            columns_contexts[comp_name] = column_def.dict()
+        state["tables"][table.name] = columns_state
+        context["tables"][table.name] = columns_contexts
+    return state, context
+
+
 base_property_mapper = {
     "context": {
         "Widgets": {

@@ -203,7 +203,7 @@ import { usePythonEditor } from '@/components/Editor';
 
 const fetchPageFunction = async () => {
 	const response = await axios.get<any>(
-		`${import.meta.env.VITE_WORKER_API_ENDPOINT}/workspace/app/page1/functions/function1.py`,
+		`${import.meta.env.VITE_WORKER_API_ENDPOINT}/workspace/app/page1/scripts/function1.py`,
 	);
 
 	return response.data;
@@ -215,7 +215,7 @@ export const FunctionEditor = () => {
 	const { data: response, isLoading } = useQuery('code', () => fetchPageFunction());
 
 	const editorRef = usePythonEditor({
-		filepath: '/Users/ayazhan/dropbase/worker/workspace/app/page1/functions/function1.py',
+		filepath: '/Users/ayazhan/dropbase/worker/workspace/app/page1/scripts/function1.py',
 		code,
 		onChange: (newValue) => {
 			setCode(newValue);
