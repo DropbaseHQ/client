@@ -19,13 +19,13 @@ import { GET_WORKSPACE_GROUPS_QUERY_KEY } from '../../hooks/useGetWorkspaceGroup
 import { useDeleteGroup } from '../../hooks/useDeleteGroup';
 import { useQueryClient } from 'react-query';
 
-const PermissionsCard = ({
-	isSelected,
+export const PermissionsCard = ({
+	isSelected = false,
 	entity,
 	children,
 	...props
 }: {
-	isSelected: boolean;
+	isSelected?: boolean;
 	entity: any;
 	children: React.ReactNode;
 }) => {
@@ -42,9 +42,7 @@ const PermissionsCard = ({
 			justifyContent="space-between"
 			{...props}
 		>
-			<Text fontSize="xl" fontWeight="bold">
-				{children}
-			</Text>
+			{children}
 		</Box>
 	);
 };
