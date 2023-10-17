@@ -6,8 +6,7 @@ import { DashboardLayout } from '@/layout';
 import { AppRoutes } from '@/features/app';
 import { SourceRoutes } from '@/features/sources';
 import { Users, Permissions } from '@/features/settings';
-import { Workspaces } from '@/features/workspaces';
-import { useWorkspaces } from '@/features/workspaces';
+import { Workspaces, useWorkspaces } from '@/features/workspaces';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();

@@ -11,6 +11,7 @@ import { FunctionEditor } from './FunctionEditor';
 import { TableConfig } from './TableConfig';
 import { WidgetConfig } from './WidgetConfig';
 import { NewFunction } from './Functions';
+import { useMonacoLoader } from '@/components/Editor';
 
 const componentsMap: any = {
 	table: TableConfig,
@@ -21,6 +22,7 @@ const componentsMap: any = {
 export const PropertiesEditor = () => {
 	const { pageId } = useParams();
 	const { functions, isLoading } = useGetPage(pageId || '');
+	const isReady = useMonacoLoader();
 
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
 
@@ -33,7 +35,7 @@ export const PropertiesEditor = () => {
 		};
 	}, [setDevTab]);
 
-	if (isLoading) {
+	if (isLoading || !isReady) {
 		return <Skeleton />;
 	}
 
