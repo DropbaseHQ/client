@@ -71,8 +71,6 @@ class PolicyUpdater:
         )
 
     def add_diff_policies(self, updated_list_of_actions: list[str], stored_actions: list[str]):
-        print("updated_list_of_actions", updated_list_of_actions)
-        print("stored_actions", stored_actions)
         for action in updated_list_of_actions:
             if action not in stored_actions:
                 self._add_policy(action)
