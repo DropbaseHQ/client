@@ -62,7 +62,7 @@ def remove_user_from_workspace(db, workspace_id, user_id):
         crud.user_role.remove(db, id=user_role.id, auto_commit=False)
 
         # Remove specific workspace user permissions from policy table
-        db.query(Policy).filter(Policy.ptype == "g", Policy.v0 == str(user.id)).filter(
+        db.query(Policy).filter(Policy.ptype == "p", Policy.v1 == str(user.id)).filter(
             Policy.workspace_id == str(workspace_id)
         ).delete()
 
