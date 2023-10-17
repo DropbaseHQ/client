@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from server.crud.base import CRUDBase
 from server.models import UserGroup, Group
 from server.schemas.user import CreateUser, UpdateUser
+from typing import List
 
 
 class CRUDUserGroup(CRUDBase[UserGroup, UserGroup, UserGroup]):
@@ -13,6 +14,16 @@ class CRUDUserGroup(CRUDBase[UserGroup, UserGroup, UserGroup]):
         return (
             db.query(Group)
             .join(UserGroup, UserGroup.group_id == Group.id)
+            .filter(UserGroup.user_id == user_id, Group.workspace_id == workspace_id)
+            .all()
+        )
+
+    def get_user_workspace_user_groups(
+        self, db: Session, user_id: str, workspace_id: str
+    ) -> List[UserGroup]:
+        return (
+            db.query(UserGroup)
+            .join(Group, UserGroup.group_id == Group.id)
             .filter(UserGroup.user_id == user_id, Group.workspace_id == workspace_id)
             .all()
         )
