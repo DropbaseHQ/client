@@ -123,21 +123,21 @@ class GenerateReourceClass:
 
 
 def get_state_context(db: Session, page_id: UUID):
-    page_widgets = get_component_props(db, page_id)
+    page_table_widgets = get_component_props(db, page_id)
     # compose defined context and state
     class_generator = GenerateReourceClass(resource_type="defined", resource="Widgets")
-    WidgetState = class_generator.get_state_class(page_widgets.get("widgets"))
+    WidgetState = class_generator.get_state_class(page_table_widgets.get("widgets"))
     class_generator = GenerateReourceClass(resource_type="defined", resource="Tables")
-    TableState = class_generator.get_state_class(page_widgets.get("tables"))
+    TableState = class_generator.get_state_class(page_table_widgets.get("tables"))
 
     class State(BaseModel):
         widgets: WidgetState
         tables: TableState
 
     class_generator = GenerateReourceClass(resource_type="context", resource="Widgets")
-    WidgetContext = class_generator.get_defined_context_class(page_widgets.get("widgets"))
+    WidgetContext = class_generator.get_defined_context_class(page_table_widgets.get("widgets"))
     class_generator = GenerateReourceClass(resource_type="context", resource="Tables")
-    TablesContext = class_generator.get_defined_context_class(page_widgets.get("tables"))
+    TablesContext = class_generator.get_defined_context_class(page_table_widgets.get("tables"))
 
     class Context(BaseModel):
         widgets: WidgetContext
