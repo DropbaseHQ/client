@@ -22,6 +22,7 @@ from server.schemas.user import (
 )
 from server.schemas.workspace import CreateWorkspace, ReadWorkspace
 from server.utils.authentication import authenticate_user, get_password_hash
+from server.controllers.policy import PolicyUpdater, format_permissions_for_highest_action
 from server.utils.helper import raise_http_exception
 from server.constants import ALLOWED_ACTIONS
 
@@ -194,68 +195,25 @@ def get_user_permissions(db: Session, user_id: UUID, workspace_id: UUID):
     user_role = crud.user_role.get_user_role(db, user_id=user_id, workspace_id=workspace_id)
     enforcer = get_contexted_enforcer(db, workspace_id)
     permissions = enforcer.get_filtered_policy(1, str(user.id))
-    formatted_permissions = []
-    for permission in permissions:
-        formatted_permissions.append(
-            {
-                "user_id": permission[1],
-                "resource": permission[2],
-                "action": permission[3],
-            }
-        )
-    return {"user": user, "workspace_role": user_role, "permissions": formatted_permissions}
+
+    formatted_permissions = format_permissions_for_highest_action(permissions)
+
+    formatted_user = user.__dict__
+    formatted_user.pop("hashed_password")
+    formatted_user.pop("active")
+    formatted_user.pop("date")
+
+    return {"user": formatted_user, "workspace_role": user_role, "permissions": formatted_permissions}
 
 
 def update_policy(db: Session, user_id: UUID, request: UpdateUserPolicyRequest):
-    user = crud.user.get_object_by_id_or_404(db, id=user_id)
-    try:
-        exisiting_policy = (
-            db.query(Policy)
-            .filter(
-                Policy.v1 == str(user.id),
-                Policy.v2 == request.resource,
-                # We don't need to check for action because if we find the same
-                # resource, we will update the action instead of creating a new one
-                # Policy.v3 == request.action,
-            )
-            .filter(Policy.workspace_id == request.workspace_id)
-            .one_or_none()
-        )
-
-        if exisiting_policy:
-            # Remove the policy if the action is none
-            if request.action == "none":
-                db.query(Policy).filter(
-                    Policy.v1 == str(user.id),
-                    Policy.v2 == request.resource,
-                ).filter(Policy.workspace_id == request.workspace_id).delete()
-            # Update the action if the action is not none
-            elif request.action in ALLOWED_ACTIONS:
-                db.query(Policy).filter(
-                    Policy.v1 == str(user.id),
-                    Policy.v2 == request.resource,
-                ).filter(Policy.workspace_id == request.workspace_id).update({"v3": request.action})
-
-        else:
-            # Create a new policy if the action is not none and there is no existing policy
-            if request.action in ALLOWED_ACTIONS:
-                crud.policy.create(
-                    db,
-                    obj_in=Policy(
-                        ptype="p",
-                        v0=10,
-                        v1=user.id,
-                        v2=request.resource,
-                        v3=request.action,
-                        workspace_id=request.workspace_id,
-                    ),
-                    auto_commit=False,
-                )
-        db.commit()
-        return {"message": "success"}
-    except Exception as e:
-        db.rollback()
-        raise e
+    policy_updater = PolicyUpdater(
+        db=db,
+        subject_id=user_id,
+        workspace_id=request.workspace_id,
+        request=request,
+    )
+    return policy_updater.update_policy()
 
 
 def get_user_workspaces(db: Session, user_id: UUID):

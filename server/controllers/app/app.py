@@ -34,13 +34,11 @@ def get_user_apps(db: Session, user: User, workspace_id: UUID):
 
 
 def create_app(db: Session, request: CreateApp, user: User):
-    first_workspace = crud.user.get_user_first_workspace(db, user.id)
     if request.workspace_id is None:
-        request.workspace_id = first_workspace.id
-    else:
-        workspace = crud.workspace.get_object_by_id_or_404(db, id=request.workspace_id)
-        if workspace not in crud.workspace.get_user_workspaces(db, user_id=user.id):
-            raise Exception("User does not have access to the workspace")
+        raise Exception("Workspace ID is required")
+    workspace = crud.workspace.get_object_by_id_or_404(db, id=request.workspace_id)
+    if workspace not in crud.workspace.get_user_workspaces(db, user_id=user.id):
+        raise Exception("User does not have access to the workspace")
     app = crud.app.create(db, obj_in=request)
     page = crud.page.create(db, obj_in={"name": "Page 1", "app_id": app.id})
     source = crud.source.get_workspace_sources(db, workspace_id=request.workspace_id)
