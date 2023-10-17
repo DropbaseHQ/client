@@ -84,15 +84,18 @@ class PolicyUpdater:
     def update_policy(self):
         try:
             existing_policies = self.get_existing_policies()
+
+            # Remove all policies if the action is none
+            if self.request.action == "none":
+                self.remove_existing_policies()
+                self.db.commit()
+                return {"message": "Policy updated!"}
+
             updated_list_of_actions = ALLOWED_ACTIONS[ALLOWED_ACTIONS.index(self.request.action) :]
 
             if existing_policies:
-                # Remove all policies if the action is none
-                if self.request.action == "none":
-                    self.remove_existing_policies()
-
                 # Update the action if the action is not none
-                elif self.request.action in ALLOWED_ACTIONS:
+                if self.request.action in ALLOWED_ACTIONS:
                     stored_actions = [policy.v3 for policy in existing_policies]
 
                     self.remove_disallowed_actions(existing_policies, updated_list_of_actions)
