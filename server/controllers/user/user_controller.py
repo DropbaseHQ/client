@@ -215,56 +215,6 @@ def update_policy(db: Session, user_id: UUID, request: UpdateUserPolicyRequest):
     )
     return policy_updater.update_policy()
 
-    # user = crud.user.get_object_by_id_or_404(db, id=user_id)
-    # try:
-    #     exisiting_policy = (
-    #         db.query(Policy)
-    #         .filter(
-    #             Policy.v1 == str(user.id),
-    #             Policy.v2 == request.resource,
-    #             # We don't need to check for action because if we find the same
-    #             # resource, we will update the action instead of creating a new one
-    #             # Policy.v3 == request.action,
-    #         )
-    #         .filter(Policy.workspace_id == request.workspace_id)
-    #         .one_or_none()
-    #     )
-
-    #     if exisiting_policy:
-    #         # Remove the policy if the action is none
-    #         if request.action == "none":
-    #             db.query(Policy).filter(
-    #                 Policy.v1 == str(user.id),
-    #                 Policy.v2 == request.resource,
-    #             ).filter(Policy.workspace_id == request.workspace_id).delete()
-    #         # Update the action if the action is not none
-    #         elif request.action in ALLOWED_ACTIONS:
-    #             db.query(Policy).filter(
-    #                 Policy.v1 == str(user.id),
-    #                 Policy.v2 == request.resource,
-    #             ).filter(Policy.workspace_id == request.workspace_id).update({"v3": request.action})
-
-    #     else:
-    #         # Create a new policy if the action is not none and there is no existing policy
-    #         if request.action in ALLOWED_ACTIONS:
-    #             crud.policy.create(
-    #                 db,
-    #                 obj_in=Policy(
-    #                     ptype="p",
-    #                     v0=10,
-    #                     v1=user.id,
-    #                     v2=request.resource,
-    #                     v3=request.action,
-    #                     workspace_id=request.workspace_id,
-    #                 ),
-    #                 auto_commit=False,
-    #             )
-    #     db.commit()
-    #     return {"message": "success"}
-    # except Exception as e:
-    #     db.rollback()
-    #     raise e
-
 
 def get_user_workspaces(db: Session, user_id: UUID):
     workspaces = crud.workspace.get_user_workspaces(db, user_id=user_id)
