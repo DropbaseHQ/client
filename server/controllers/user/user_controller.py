@@ -195,15 +195,33 @@ def get_user_permissions(db: Session, user_id: UUID, workspace_id: UUID):
     user_role = crud.user_role.get_user_role(db, user_id=user_id, workspace_id=workspace_id)
     enforcer = get_contexted_enforcer(db, workspace_id)
     permissions = enforcer.get_filtered_policy(1, str(user.id))
-    formatted_permissions = []
+
+    logged_resources = {}
     for permission in permissions:
-        formatted_permissions.append(
-            {
-                "user_id": permission[1],
-                "resource": permission[2],
-                "action": permission[3],
+        user_id = permission[1]
+        resource = permission[2]
+        action = permission[3]
+
+        if resource in logged_resources:
+            new_action_has_higher_priority = ALLOWED_ACTIONS.index(action) < ALLOWED_ACTIONS.index(
+                logged_resources[resource].get("action")
+            )
+
+            if new_action_has_higher_priority:
+                logged_resources[resource] = {
+                    "action": action,
+                    "user_id": user_id,
+                    "resource": resource,
+                }
+        else:
+            logged_resources[resource] = {
+                "action": action,
+                "user_id": user_id,
+                "resource": resource,
             }
-        )
+
+    formatted_permissions = list(logged_resources.values())
+
     formatted_user = user.__dict__
     formatted_user.pop("hashed_password")
     formatted_user.pop("active")
