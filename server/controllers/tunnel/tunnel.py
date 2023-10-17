@@ -4,8 +4,17 @@ import random
 import sys
 from datetime import datetime, timedelta
 from enum import StrEnum
+from urllib.parse import urljoin
 
+import httpx
+from fastapi import Request
+from fastapi.responses import StreamingResponse
+from starlette.background import BackgroundTask
+from sqlalchemy.orm import Session
 from pydantic import BaseModel
+
+from server import crud
+from server.utils.helper import raise_http_exception
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -72,6 +81,7 @@ class _FRPClientManager:
             return (tunnel.host, tunnel.port)
         except KeyError:
             self.logger.error(f"Failed to get tunnel \"{type}\" from client \"{token}\".")
+            return (None, None)
 
     @_clean_stale_clients
     def add_tunnel(self, token: str, *, type: TunnelType, host: str, port: int):
@@ -183,3 +193,33 @@ def ping_tunnel_op(request: dict):
         }
     else:
         return {"unchange": True}
+
+
+async def forward_request_to_tunnel(
+    workspace_id: str,
+    tunnel_type: TunnelType,
+    request: Request,
+    client_path: str,
+    db: Session
+):
+    token = "test-token2" #crud.workspace.get_token(db, workspace_id)
+    host, port = TUNNEL_MANAGER.get_tunnel(token, tunnel_type)
+
+    if not host or not port:
+        raise_http_exception(404, f"tunnel \"{tunnel_type}\" not found for workspace {workspace_id}")
+
+    async with httpx.AsyncClient() as client:
+        url = urljoin(f"http://{host}:{port}/", client_path)
+        req = client.build_request(
+            method=request.method,
+            url=url,
+            headers=request.headers.raw,
+            content=request.stream(),
+        )
+        res = await client.send(req, stream=True)
+        return StreamingResponse(
+            content=res.aiter_raw(),
+            status_code=res.status_code,
+            headers=res.headers,
+            background=BackgroundTask(res.aclose),
+        )

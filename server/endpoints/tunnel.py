@@ -1,7 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, Depends
+
+from sqlalchemy.orm import Session
 
 import server.controllers.tunnel as tunnel_controller
-from server.controllers.tunnel import TUNNEL_MANAGER
+from server.controllers.tunnel import TUNNEL_MANAGER, TunnelType
+from server.utils.connect import get_db
 
 
 router = APIRouter(
@@ -44,3 +47,15 @@ def ping_tunnel_op(request: dict):
     # FRPS server plugin RPC endpoint
     # https://github.com/fatedier/frp/blob/dev/doc/server_plugin.md
     return tunnel_controller.ping_tunnel_op(request)
+
+
+@router.api_route("/{workspace_id}/{tunnel_name}/{client_path:path}", methods=["POST", "GET", "PUT", "DELETE"])
+async def forward_request_to_tunnel(
+    workspace_id: str,
+    tunnel_name: TunnelType,
+    request: Request,
+    client_path: str,
+    db: Session=Depends(get_db)
+):
+    # Routes an HTTP request through a tunnel to a client
+    return await tunnel_controller.forward_request_to_tunnel(workspace_id, tunnel_name, request, client_path, db)
