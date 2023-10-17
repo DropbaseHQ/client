@@ -1,12 +1,15 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/new-app-preview/hooks';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 
-const executeAction = async ({ pageId, pageState, functionName }: any) => {
-	const response = await axios.post(`/task/function`, {
-		page_id: pageId,
+const executeAction = async ({ pageName, appName, pageState, functionName }: any) => {
+	const response = await workerAxios.post(`/function/`, {
+		page_name: pageName,
+		app_name: appName,
 		function_name: functionName,
-		state: pageState,
+		payload: JSON.stringify({"state":pageState.state, "context":pageState.context})
+		// state: JSON.stringify(pageState.state),
+		// context: JSON.stringify(pageState.context),
 	});
 
 	return response.data;

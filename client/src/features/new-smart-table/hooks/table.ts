@@ -27,7 +27,7 @@ export const useTableData = ({ tableId, pageId, filters = [], sorts = [], state 
 	const dependentTableData = depends.reduce(
 		(agg: any, tableName: any) => ({
 			...agg,
-			[tableName]: tablesState[tableName],
+			[tableName]: tablesState?.[tableName],
 		}),
 		{},
 	);

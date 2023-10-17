@@ -1,10 +1,8 @@
-import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { Box, Button, ButtonGroup, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { Code } from 'react-feather';
 
-import { useGetPage } from '@/features/new-page';
 import { developerTabAtom } from '@/features/new-app-builder/atoms';
 
 import { FunctionEditor } from './FunctionEditor';
@@ -12,6 +10,7 @@ import { TableConfig } from './TableConfig';
 import { WidgetConfig } from './WidgetConfig';
 import { NewFunction } from './Functions';
 import { useMonacoLoader } from '@/components/Editor';
+import { usePageFunctions } from '@/features/new-app-builder/hooks';
 
 const componentsMap: any = {
 	table: TableConfig,
@@ -20,8 +19,11 @@ const componentsMap: any = {
 };
 
 export const PropertiesEditor = () => {
-	const { pageId } = useParams();
-	const { functions, isLoading } = useGetPage(pageId || '');
+	const { functions, isLoading } = usePageFunctions({
+		appName: 'app',
+		pageName: 'page1',
+	});
+
 	const isReady = useMonacoLoader();
 
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
@@ -35,7 +37,7 @@ export const PropertiesEditor = () => {
 		};
 	}, [setDevTab]);
 
-	if (isLoading || !isReady) {
+	if (!isReady || isLoading) {
 		return <Skeleton />;
 	}
 
@@ -58,20 +60,18 @@ export const PropertiesEditor = () => {
 					{(functions || []).map((f: any) => (
 						<Button
 							variant={
-								devTab.type === 'function' && f.id === devTab.id
-									? 'solid'
-									: 'outline'
+								devTab.type === 'function' && f === devTab.id ? 'solid' : 'outline'
 							}
 							onClick={() => {
 								setDevTab({
 									type: 'function',
-									id: f.id,
+									id: f,
 								});
 							}}
 							leftIcon={<Code size="14" />}
-							key={f.id}
+							key={f}
 						>
-							{f.name}
+							{f.split('/').pop()}
 						</Button>
 					))}
 					<NewFunction variant="outline" />
@@ -84,7 +84,7 @@ export const PropertiesEditor = () => {
 				) : (
 					<Center p="4" h="full">
 						<Text size="sm" fontWeight="medium">
-							{functions.length > 0 ? 'Selec a function' : 'Create a function'}
+							{functions.length > 0 ? 'Select a function' : 'Create a function'}
 						</Text>
 					</Center>
 				)}
