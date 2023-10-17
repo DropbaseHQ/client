@@ -133,10 +133,14 @@ class AuthZDepFactory:
 
         # We want to find the resource id so that we can find the workspace id.
         # The workspace id is used to check if the user is in the workspace and what role they are.
+        resource_workspace_id = None
         resource_id = self._get_resource_id(resource_id_accessor, request)
         if resource_id is False:
-            return None, None, None, None
-        resource_workspace_id = self._get_resource_workspace_id(db, resource_id, resource_type)
+            resource_workspace_id = self._get_resource_id_from_req_body("workspace_id", request)
+            if resource_workspace_id is None:
+                return None, None, None, None
+        else:
+            resource_workspace_id = self._get_resource_workspace_id(db, resource_id, resource_type)
 
         if resource_workspace_id is None:
             raise HTTPException(

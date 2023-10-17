@@ -20,7 +20,6 @@ class ReadApp(BaseApp):
 
 class CreateApp(BaseApp):
     workspace_id: UUID
-    pass
 
 
 class UpdateApp(BaseModel):
