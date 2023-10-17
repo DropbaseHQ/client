@@ -32,14 +32,16 @@ import {
 	ButtonGroup,
 	Tag,
 	IconButton,
+	HStack,
 } from '@chakra-ui/react';
-import { UserMinus } from 'react-feather';
+import { UserMinus, Edit } from 'react-feather';
 import { useGetWorkspaceUsers, GET_WORKSPACE_USERS_QUERY_KEY } from './hooks/useGetUsers';
 import { workspaceAtom } from '@/features/workspaces';
 import { useAtomValue } from 'jotai';
 import { useInviteMember } from './hooks/useInviteMember';
 import { useQueryClient } from 'react-query';
 import { useRemoveMember } from './hooks/useRemoveUserFromWorkspace';
+import { useUpdateUserRole } from './hooks/useUpdateUserRole';
 
 // Will get this from the server later
 const ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
@@ -50,11 +52,21 @@ const MEMBER_UUID = '00000000-0000-0000-0000-000000000004';
 const UserRow = (item: any) => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
-	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	const [newRole, setNewRole] = useState(item.user.role_id);
+
+	const { isOpen: isOpenRemove, onOpen: onOpenRemove, onClose: onCloseRemove } = useDisclosure();
+	const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
 	const removeMemberMutation = useRemoveMember({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
-			onClose();
+			onCloseRemove();
+		},
+	});
+	const changeUserRoleMutation = useUpdateUserRole({
+		onSuccess: () => {
+			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
+			onCloseEdit();
 		},
 	});
 
@@ -64,17 +76,80 @@ const UserRow = (item: any) => {
 			workspaceId,
 		});
 	};
+	const handleChangeRole = () => {
+		changeUserRoleMutation.mutate({
+			userId: item.user.id,
+			workspaceId,
+			roleId: newRole,
+		});
+	};
 
 	return (
 		<Tr key={item.user.id}>
 			<Td>{item.user.email}</Td>
-			<Td>{item.user.role_name}</Td>
+			<Td>
+				<HStack spacing="6">
+					<Text>{item.user.role_name}</Text>
+					<Popover
+						isOpen={isOpenEdit}
+						onClose={onCloseEdit}
+						onOpen={onOpenEdit}
+						placement="right"
+					>
+						<PopoverTrigger>
+							<IconButton
+								aria-label="Edit Role"
+								size="xs"
+								p="0"
+								variant="outline"
+								icon={<Edit size="14" />}
+							/>
+						</PopoverTrigger>
+						<PopoverContent>
+							<PopoverArrow />
+							<PopoverCloseButton />
+							<PopoverHeader>Change member role</PopoverHeader>
+							<PopoverBody>
+								<Select
+									size="sm"
+									value={newRole}
+									onChange={(e) => setNewRole(e.target.value)}
+								>
+									<option value={ADMIN_UUID}>Admin</option>
+									<option value={DEV_UUID}>Dev</option>
+									<option value={USER_UUID}>User</option>
+									<option value={MEMBER_UUID}>Member</option>
+								</Select>
+							</PopoverBody>
+							<PopoverFooter display="flex" justifyContent="flex-end">
+								<ButtonGroup size="sm">
+									<Button
+										colorScheme="blue"
+										onClick={handleChangeRole}
+										isLoading={changeUserRoleMutation.isLoading}
+									>
+										Change
+									</Button>
+									<Button variant="outline" onClick={onCloseEdit}>
+										Cancel
+									</Button>
+								</ButtonGroup>
+							</PopoverFooter>
+						</PopoverContent>
+					</Popover>
+				</HStack>
+			</Td>
 			<Td>
 				<Flex justifyContent="space-between">
 					<Flex>
 						{item.user?.groups?.map((obj: any) => <Tag size="sm">{obj.name}</Tag>)}
 					</Flex>
-					<Popover isOpen={isOpen} onClose={onClose} onOpen={onOpen} placement="left">
+					<Popover
+						isOpen={isOpenRemove}
+						onClose={onCloseRemove}
+						onOpen={onOpenRemove}
+						placement="left"
+					>
 						<PopoverTrigger>
 							<IconButton
 								aria-label="Remove Member"
@@ -99,7 +174,7 @@ const UserRow = (item: any) => {
 									>
 										Remove
 									</Button>
-									<Button variant="outline" onClick={onClose}>
+									<Button variant="outline" onClick={onCloseRemove}>
 										Cancel
 									</Button>
 								</ButtonGroup>

@@ -34,3 +34,8 @@ class AddUserRequest(BaseModel):
 
 class RemoveUserRequest(BaseModel):
     user_id: UUID
+
+
+class UpdateUserRoleRequest(BaseModel):
+    user_id: UUID
+    role_id: UUID
