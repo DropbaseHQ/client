@@ -327,6 +327,3 @@ async def connect_websocket_through_tunnel(ws: WebSocket, nonce: str):
             await asyncio.gather(fwd_task, rev_task)
     except WebSocketDisconnect:
         pass
-
-
-# FIXME proxy already exists error on frps if only dropbase server crashes and restarts
