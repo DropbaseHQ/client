@@ -19,7 +19,7 @@ import {
 import { GET_WORKSPACE_GROUPS_QUERY_KEY } from './hooks/useGetWorkspaceGroups';
 import { useQueryClient } from 'react-query';
 
-import { useDeleteGroup } from './hooks/useDeleteGroup';
+import { useDeleteGroup } from './hooks/group';
 
 export const GroupCard = ({
 	selectedGroup,

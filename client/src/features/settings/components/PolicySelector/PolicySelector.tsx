@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Select, Skeleton } from '@chakra-ui/react';
 import { useUpdateUserPolicy } from '../../hooks/useUpdateUserPolicy';
 import { useGetUserDetails } from '../../hooks/useGetUserDetails';
-import { useUpdateGroupPolicy } from '../../hooks/useUpdateGroupPolicy';
-import { useGetGroup } from '../../hooks/useGetGroup';
+import { useUpdateGroupPolicy } from '../../hooks/group';
+import { useGetGroup } from '../../hooks/group';
 import { workspaceAtom } from '@/features/workspaces';
 import { useAtomValue } from 'jotai';
 

@@ -16,7 +16,7 @@ import {
 	ButtonGroup,
 } from '@chakra-ui/react';
 import { GET_WORKSPACE_GROUPS_QUERY_KEY } from '../../hooks/useGetWorkspaceGroups';
-import { useDeleteGroup } from '../../hooks/useDeleteGroup';
+import { useDeleteGroup } from '../../hooks/group';
 import { useQueryClient } from 'react-query';
 
 export const PermissionsCard = ({
