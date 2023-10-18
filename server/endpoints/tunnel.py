@@ -62,5 +62,10 @@ async def forward_request_through_tunnel(
 
 
 @router.websocket("/{workspace_id}/{tunnel_name}")
-async def connect_websocket_through_tunnel(workspace_id: str, tunnel_name: TunnelType, ws: WebSocket):
-    return await tunnel_controller.connect_websocket_through_tunnel(workspace_id, tunnel_name, ws)
+async def connect_websocket_through_tunnel(
+    workspace_id: str,
+    tunnel_name: TunnelType,
+    ws: WebSocket,
+    db: Session=Depends(get_db)
+):
+    return await tunnel_controller.connect_websocket_through_tunnel(db, workspace_id, tunnel_name, ws)

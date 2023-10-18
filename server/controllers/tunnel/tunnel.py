@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 
 import httpx
 import websockets
-from fastapi import Request, WebSocket, WebSocketDisconnect
+from fastapi import Request, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import StreamingResponse
 from starlette.background import BackgroundTask
 from sqlalchemy.orm import Session
@@ -249,8 +249,17 @@ async def ws_reverse(ws_a: WebSocket, ws_b: websockets.WebSocketClientProtocol):
         await ws_a.send_text(data)
 
 
-async def connect_websocket_through_tunnel(workspace_id: str, tunnel_name: str, ws: WebSocket):
-    token = "test-token2" #crud.workspace.get_token(db, workspace_id)
+async def connect_websocket_through_tunnel(db: Session, workspace_id: str, tunnel_name: str, ws: WebSocket):
+    await ws.accept()
+    try:
+        token = crud.workspace.get_workspace_proxy_token(db, workspace_id)
+    except (NoResultFound, DataError):
+        await ws.close(
+            code=status.WS_1008_POLICY_VIOLATION,
+            reason=f"workspace {workspace_id} not found",
+        )
+        return
+
     host, port = TUNNEL_MANAGER.get_tunnel(token, tunnel_name)
 
     if not host or not port:
@@ -259,13 +268,12 @@ async def connect_websocket_through_tunnel(workspace_id: str, tunnel_name: str, 
     url = f"ws://{host}:{port}/"
 
     try:
-        await ws.accept()
         async with websockets.connect(url) as ws_client:
             fwd_task = asyncio.create_task(ws_forward(ws, ws_client))
             rev_task = asyncio.create_task(ws_reverse(ws, ws_client))
             await asyncio.gather(fwd_task, rev_task)
     except WebSocketDisconnect:
-        pass
+        return
 
 
 # FIXME proxy already exists error on frps if only dropbase server crashes and restarts
