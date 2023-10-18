@@ -5,11 +5,20 @@ from sqlalchemy.orm import Session
 import server.controllers.tunnel as tunnel_controller
 from server.controllers.tunnel import TUNNEL_MANAGER, TunnelType
 from server.utils.connect import get_db
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 
+
+workspace_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WORKSPACE)
 
 router = APIRouter(
     prefix="/tunnel",
     tags=["tunnel"],
+)
+
+authed_router = APIRouter(
+    prefix="/tunnel",
+    tags=["tunnel"],
+    dependencies=[Depends(workspace_authorizer)],
 )
 
 
@@ -49,7 +58,7 @@ def ping_tunnel_op(request: dict):
     return tunnel_controller.ping_tunnel_op(request)
 
 
-@router.api_route("/{workspace_id}/{tunnel_name}/{client_path:path}", methods=["POST", "GET", "PUT", "DELETE"])
+@authed_router.api_route("/{workspace_id}/{tunnel_name}/{client_path:path}", methods=["POST", "GET", "PUT", "DELETE"])
 async def forward_request_through_tunnel(
     workspace_id: str,
     tunnel_name: TunnelType,
@@ -61,7 +70,7 @@ async def forward_request_through_tunnel(
     return await tunnel_controller.forward_request_through_tunnel(workspace_id, tunnel_name, request, client_path, db)
 
 
-@router.websocket("/{workspace_id}/{tunnel_name}")
+@authed_router.websocket("/{workspace_id}/{tunnel_name}")
 async def connect_websocket_through_tunnel(
     workspace_id: str,
     tunnel_name: TunnelType,

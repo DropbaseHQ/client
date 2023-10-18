@@ -8,6 +8,7 @@ from .source import router as source_router
 from .tables import router as tables_router
 from .group import router as group_router
 from .tunnel import router as tunnel_router
+from .tunnel import authed_router as tunnel_authed_router
 
 # temp
 from .task import router as task_router

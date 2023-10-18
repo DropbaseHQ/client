@@ -47,6 +47,7 @@ require_authentication_routes.include_router(endpoints.columns_router)
 require_authentication_routes.include_router(endpoints.functions_router)
 require_authentication_routes.include_router(endpoints.components_router)
 require_authentication_routes.include_router(endpoints.task_router)
+require_authentication_routes.include_router(endpoints.tunnel_authed_router)
 
 app.include_router(endpoints.user_router)
 app.include_router(endpoints.group_router)
