@@ -16,3 +16,4 @@ passlib==1.7.4
 openai==0.28.0
 casbin==1.31.0
 sendgrid==6.10.0
+websockets==11.0.3

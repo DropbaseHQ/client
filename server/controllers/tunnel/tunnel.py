@@ -1,3 +1,4 @@
+import asyncio
 import functools
 import logging
 import random
@@ -7,7 +8,8 @@ from enum import StrEnum
 from urllib.parse import urljoin
 
 import httpx
-from fastapi import Request
+import websockets
+from fastapi import Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse
 from starlette.background import BackgroundTask
 from sqlalchemy.orm import Session
@@ -195,21 +197,25 @@ def ping_tunnel_op(request: dict):
         return {"unchange": True}
 
 
-async def forward_request_to_tunnel(
+async def forward_request_through_tunnel(
     workspace_id: str,
-    tunnel_type: TunnelType,
+    tunnel_name: TunnelType,
     request: Request,
     client_path: str,
     db: Session
 ):
     token = "test-token2" #crud.workspace.get_token(db, workspace_id)
-    host, port = TUNNEL_MANAGER.get_tunnel(token, tunnel_type)
+    host, port = TUNNEL_MANAGER.get_tunnel(token, tunnel_name)
 
     if not host or not port:
-        raise_http_exception(404, f"tunnel \"{tunnel_type}\" not found for workspace {workspace_id}")
+        raise_http_exception(404, f"tunnel \"{tunnel_name}\" not found for workspace {workspace_id}")
+    
+    # TODO use https
+    #      although not needed, host should always be 127.0.0.1
+    #      and frp automatically uses TLS.
+    url = urljoin(f"http://{host}:{port}/", client_path)
 
     async with httpx.AsyncClient() as client:
-        url = urljoin(f"http://{host}:{port}/", client_path)
         req = client.build_request(
             method=request.method,
             url=url,
@@ -223,3 +229,37 @@ async def forward_request_to_tunnel(
             headers=res.headers,
             background=BackgroundTask(res.aclose),
         )
+
+
+async def ws_forward(ws_a: WebSocket, ws_b: websockets.WebSocketClientProtocol):
+    while True:
+        data = await ws_a.receive_bytes()
+        await ws_b.send(data)
+
+
+async def ws_reverse(ws_a: WebSocket, ws_b: websockets.WebSocketClientProtocol):
+    while True:
+        data = await ws_b.recv()
+        await ws_a.send_text(data)
+
+
+async def connect_websocket_through_tunnel(workspace_id: str, tunnel_name: str, ws: WebSocket):
+    token = "test-token2" #crud.workspace.get_token(db, workspace_id)
+    host, port = TUNNEL_MANAGER.get_tunnel(token, tunnel_name)
+
+    if not host or not port:
+        raise_http_exception(404, f"tunnel \"{tunnel_name}\" not found for workspace {workspace_id}")
+
+    url = f"ws://{host}:{port}/"
+
+    try:
+        await ws.accept()
+        async with websockets.connect(url) as ws_client:
+            fwd_task = asyncio.create_task(ws_forward(ws, ws_client))
+            rev_task = asyncio.create_task(ws_reverse(ws, ws_client))
+            await asyncio.gather(fwd_task, rev_task)
+    except WebSocketDisconnect:
+        pass
+
+
+# FIXME proxy already exists error on frps if only dropbase server crashes and restarts

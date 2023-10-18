@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, WebSocket
 
 from sqlalchemy.orm import Session
 
@@ -50,12 +50,17 @@ def ping_tunnel_op(request: dict):
 
 
 @router.api_route("/{workspace_id}/{tunnel_name}/{client_path:path}", methods=["POST", "GET", "PUT", "DELETE"])
-async def forward_request_to_tunnel(
+async def forward_request_through_tunnel(
     workspace_id: str,
     tunnel_name: TunnelType,
     request: Request,
     client_path: str,
     db: Session=Depends(get_db)
 ):
-    # Routes an HTTP request through a tunnel to a client
-    return await tunnel_controller.forward_request_to_tunnel(workspace_id, tunnel_name, request, client_path, db)
+    # Acts as a reverse-proxy that routes HTTP requests through a tunnels to a client
+    return await tunnel_controller.forward_request_through_tunnel(workspace_id, tunnel_name, request, client_path, db)
+
+
+@router.websocket("/{workspace_id}/{tunnel_name}")
+async def connect_websocket_through_tunnel(workspace_id: str, tunnel_name: TunnelType, ws: WebSocket):
+    return await tunnel_controller.connect_websocket_through_tunnel(workspace_id, tunnel_name, ws)
