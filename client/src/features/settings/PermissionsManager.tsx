@@ -34,24 +34,21 @@ import {
 	PopoverCloseButton,
 	Select,
 } from '@chakra-ui/react';
-import { useCreateGroup } from './hooks/useCreateGroup';
+import { useCreateGroup } from './hooks/group';
 import { workspaceAtom } from '@/features/workspaces';
 import { UserPlus, UserMinus } from 'react-feather';
 import { useAtomValue } from 'jotai';
-import {
-	useGetWorkspaceGroups,
-	GET_WORKSPACE_GROUPS_QUERY_KEY,
-} from './hooks/useGetWorkspaceGroups';
-import { useAddUserToGroup } from './hooks/useAddUserToGroup';
+import { useGetWorkspaceGroups, GET_WORKSPACE_GROUPS_QUERY_KEY } from './hooks/workspace';
+import { useAddUserToGroup } from './hooks/group';
 import { useQueryClient } from 'react-query';
 import { useGetWorkspaceApps, App } from '../app-list/hooks/useGetWorkspaceApps';
 import { UserPolicySelector, GroupPolicySelector } from './components/PolicySelector';
 import { GroupCard } from './Group';
 import { UserCard } from './Users';
 import { PermissionsCard } from './components/EntityCard/EntityCard';
-import { useGetWorkspaceUsers } from './hooks/useGetUsers';
-import { useGetGroupUsers } from './hooks/useGetGroupUsers';
-import { useRemoveUserFromGroup } from './hooks/useRemoveUserFromGroup';
+import { useGetWorkspaceUsers } from './hooks/workspace';
+import { useGetGroupUsers } from './hooks/group';
+import { useRemoveUserFromGroup } from './hooks/group';
 
 const PolicyTable = ({
 	selectedResourceId,
@@ -177,6 +174,7 @@ export const Permissions = () => {
 	const [newGroupName, setNewGroupName] = useState('' as string);
 	const [resourceType, setResourceType] = useState('groups' as string);
 	const [invitedMember, setInviteMember] = useState('' as string);
+
 	const workspaceId = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
 	const {
@@ -191,7 +189,7 @@ export const Permissions = () => {
 		onClose: inviteMemberOnClose,
 	} = useDisclosure();
 
-	const { groups } = useGetWorkspaceGroups({ workspaceId: workspaceId || '' });
+	const { groups } = useGetWorkspaceGroups();
 	const { users } = useGetWorkspaceUsers();
 	const { apps } = useGetWorkspaceApps();
 	const { users: groupUsers, refetch: refetchGroupUsers } = useGetGroupUsers({
@@ -222,6 +220,7 @@ export const Permissions = () => {
 			workspaceId: workspaceId || '',
 			name: newGroupName,
 		});
+		createGroupOnClose();
 	};
 	const handleAddUserToGroup = () => {
 		addUserToGroupMutation.mutate({

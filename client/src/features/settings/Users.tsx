@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Box, Text, Select, Skeleton } from '@chakra-ui/react';
-
-import { useUpdateUserPolicy } from './hooks/useUpdateUserPolicy';
-import { useGetUserDetails } from './hooks/useGetUserDetails';
+import { useGetUserDetails, useUpdateUserPolicy } from './hooks/user';
 import { workspaceAtom } from '@/features/workspaces';
 import { useAtomValue } from 'jotai';
 
@@ -12,7 +10,6 @@ export const UserPolicySelector = ({ userId, appId }: { userId: string; appId: s
 	const updateUserPolicyMutation = useUpdateUserPolicy();
 	const { permissions, isLoading: permissionsIsLoading } = useGetUserDetails({
 		userId,
-		workspaceId,
 	});
 	const policy = permissions?.find((item) => item.resource === appId);
 

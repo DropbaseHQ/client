@@ -35,13 +35,12 @@ import {
 	HStack,
 } from '@chakra-ui/react';
 import { UserMinus, Edit } from 'react-feather';
-import { useGetWorkspaceUsers, GET_WORKSPACE_USERS_QUERY_KEY } from './hooks/useGetUsers';
+import { useGetWorkspaceUsers, GET_WORKSPACE_USERS_QUERY_KEY } from './hooks/workspace';
 import { workspaceAtom } from '@/features/workspaces';
 import { useAtomValue } from 'jotai';
-import { useInviteMember } from './hooks/useInviteMember';
+import { useInviteMember } from './hooks/workspace';
 import { useQueryClient } from 'react-query';
-import { useRemoveMember } from './hooks/useRemoveUserFromWorkspace';
-import { useUpdateUserRole } from './hooks/useUpdateUserRole';
+import { useUpdateUserRole, useRemoveMember } from './hooks/workspace';
 
 // Will get this from the server later
 const ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
@@ -142,7 +141,11 @@ const UserRow = (item: any) => {
 			<Td>
 				<Flex justifyContent="space-between">
 					<Flex>
-						{item.user?.groups?.map((obj: any) => <Tag size="sm">{obj.name}</Tag>)}
+						{item.user?.groups?.map((obj: any) => (
+							<Tag size="sm" key={obj?.id}>
+								{obj.name}
+							</Tag>
+						))}
 					</Flex>
 					<Popover
 						isOpen={isOpenRemove}
