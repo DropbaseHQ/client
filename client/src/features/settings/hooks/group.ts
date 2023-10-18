@@ -21,7 +21,9 @@ const fetchGroup = async ({ groupId }: { groupId: string }) => {
 
 export const useGetGroup = ({ groupId }: { groupId: any }) => {
 	const queryKey = ['group', groupId];
-	const { data: response, ...rest } = useQuery(queryKey, () => fetchGroup({ groupId }));
+	const { data: response, ...rest } = useQuery(queryKey, () => fetchGroup({ groupId }), {
+		enabled: !!groupId,
+	});
 	return {
 		group: response?.group || {},
 		permissions: response?.permissions || [],

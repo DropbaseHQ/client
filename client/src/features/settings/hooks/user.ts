@@ -30,8 +30,10 @@ export const useGetUserDetails = ({ userId }: { userId: any }) => {
 	const currentWorkspaceId = useAtomValue(workspaceAtom);
 
 	const queryKey = ['user', userId, currentWorkspaceId];
-	const { data: response, ...rest } = useQuery(queryKey, () =>
-		fetchUser({ userId, workspaceId: currentWorkspaceId }),
+	const { data: response, ...rest } = useQuery(
+		queryKey,
+		() => fetchUser({ userId, workspaceId: currentWorkspaceId }),
+		{ enabled: !!userId && !!currentWorkspaceId },
 	);
 	return {
 		user: response?.user || {},
