@@ -29,5 +29,7 @@ export const useCurrentTableData = (tableId: any) => {
 		sorts,
 		state,
 		pageId,
+		appName: 'app',
+		pageName: 'page1',
 	});
 };

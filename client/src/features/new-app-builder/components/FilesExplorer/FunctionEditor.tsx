@@ -2,13 +2,13 @@ import { Box, Code, IconButton, Skeleton, SkeletonCircle, Stack, Text } from '@c
 import { Play, X } from 'react-feather';
 import * as monacoLib from 'monaco-editor';
 import { useAtomValue } from 'jotai';
-import { useParams } from 'react-router-dom';
+// import { useParams } from 'react-router-dom';
 
 import { useMonaco } from '@monaco-editor/react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { MonacoEditor, usePythonEditor } from '@/components/Editor';
-import { usePageFunction, useRunFunction } from '@/features/new-app-builder/hooks';
+import { useFile, useRunTableQuery } from '@/features/new-app-builder/hooks';
 import { newPageStateAtom, useSyncState } from '@/features/new-app-state';
 import {
 	MODEL_PATH,
@@ -17,7 +17,8 @@ import {
 	generateFunctionCallSuggestions,
 	logBuilder,
 } from '@/features/new-app-builder/utils';
-import { DeleteFunction } from '@/features/new-app-builder/components/PropertiesEditor/DeleteFunction';
+import { DeleteFunction } from '@/features/new-app-builder/components/FilesExplorer/DeleteFunction';
+import { ChakraTable } from '@/components/Table';
 
 const PythonEditorLSP = ({ code: defaultCode, id }: any) => {
 	const [code, setCode] = useState(defaultCode);
@@ -35,37 +36,56 @@ const PythonEditorLSP = ({ code: defaultCode, id }: any) => {
 
 export const FunctionEditor = ({ id }: any) => {
 	const functionName = id.split('/').pop();
-	const { pageId } = useParams();
+	// const { pageId } = useParams();
 
-	const { isLoading, code } = usePageFunction({
+	const { isLoading, code } = useFile({
 		appName: 'app',
 		pageName: 'page1',
-		functionName,
+		fileName: functionName,
 	});
 
 	const monaco = useMonaco();
 
 	const [testCode, setTestCode] = useState('');
 	const [log, setLog] = useState<any>(null);
+	const [previewData, setPreviewData] = useState<any>(null);
 
 	const pageState = useAtomValue(newPageStateAtom);
 
 	const syncState = useSyncState();
 
-	const runMutation = useRunFunction({
+	const resetRunData = () => {
+		setLog(null);
+		setPreviewData(null);
+	};
+
+	const runMutation = useRunTableQuery({
 		onSuccess: (data: any) => {
 			syncState(data);
-
 			setLog(logBuilder(data));
+
+			if (data?.result?.columns) {
+				setPreviewData({
+					rows: data?.result?.data || [],
+					columns: data?.result?.columns || [],
+				});
+			}
 		},
 		onMutate: () => {
-			setLog(null);
+			resetRunData();
 		},
 	});
 
-	// useEffect(() => {
-	// 	setTestCode(defaultTestCode);
-	// }, [defaultTestCode]);
+	const handleRun = () => {
+		runMutation.mutate({
+			pageName: 'page1',
+			appName: 'app',
+			pageState,
+			code: testCode,
+			fileName: functionName,
+			type: 'python',
+		});
+	};
 
 	const functionDeclarations = useMemo(() => {
 		return findFunctionDeclarations(code || '');
@@ -88,10 +108,6 @@ export const FunctionEditor = ({ id }: any) => {
 
 		return dispose;
 	}, [monaco, code, functionDeclarations]);
-
-	const handleRun = () => {
-		runMutation.mutate({ pageId, functionId: id, pageState, testCode, code });
-	};
 
 	if (isLoading) {
 		return (
@@ -141,7 +157,7 @@ export const FunctionEditor = ({ id }: any) => {
 							variant="outline"
 							borderRadius="full"
 							icon={<X size={14} />}
-							onClick={() => setLog(null)}
+							onClick={resetRunData}
 						/>
 
 						<Stack>
@@ -160,6 +176,10 @@ export const FunctionEditor = ({ id }: any) => {
 						</Stack>
 					</Stack>
 				</Stack>
+			) : null}
+
+			{previewData?.columns ? (
+				<ChakraTable {...previewData} maxH="sm" borderRadius="sm" />
 			) : null}
 
 			<DeleteFunction

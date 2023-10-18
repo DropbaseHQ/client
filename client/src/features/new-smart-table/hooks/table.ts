@@ -1,68 +1,80 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 
-import { axios } from '@/lib/axios';
-import { useGetPage } from '@/features/new-page';
+import { axios, workerAxios } from '@/lib/axios';
+import { useGetTable } from '@/features/new-app-builder/hooks';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
-const fetchTableData = async ({ tableId, filters, sorts, state, pageId }: any) => {
-	const response = await axios.post<any>(`/tables/query`, {
-		table_id: tableId,
-		filters,
-		sorts,
-		state,
-		page_id: pageId,
+const fetchTableData = async ({ code, type, appName, pageName, state }: any) => {
+	const response = await workerAxios.post<any>(`/query`, {
+		app_name: appName,
+		page_name: pageName,
+		payload: state,
+		table: {
+			code,
+			type,
+		},
 	});
 
 	return response.data;
 };
 
-export const useTableData = ({ tableId, pageId, filters = [], sorts = [], state }: any) => {
-	const { tables } = useGetPage(pageId);
+export const useTableData = ({
+	tableId,
+	filters = [],
+	sorts = [],
+	state,
+	appName,
+	pageName,
+}: any) => {
+	const { type, values } = useGetTable(tableId || '');
 
-	const depends = tables.find((t: any) => t.id === tableId)?.depends_on || [];
-	const tablesState = state.tables;
-
-	const dependentTableData = depends.reduce(
-		(agg: any, tableName: any) => ({
-			...agg,
-			[tableName]: tablesState?.[tableName],
-		}),
-		{},
-	);
+	const { code } = values || {};
 
 	const queryKey = [
 		TABLE_DATA_QUERY_KEY,
-		tableId,
-		pageId,
-		JSON.stringify({ filters, sorts, dependentTableData }),
+		code,
+		appName,
+		pageName,
+		type,
+		JSON.stringify({ filters, sorts, state }),
 	];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchTableData({ tableId, filters, sorts, state: tablesState, pageId }),
+		() => fetchTableData({ code, type, appName, pageName, state }),
 		{
-			enabled: !!(tableId && Object.keys(state?.tables || {}).length > 0),
+			enabled: !!(code && type && appName && pageName),
 		},
 	);
 
 	const parsedData: any = useMemo(() => {
 		if (response) {
+			const header = response?.columns || [];
+
 			const rows: any =
 				response?.data?.map((r: any) => {
 					return r.reduce((agg: any, item: any, index: any) => {
 						return {
 							...agg,
-							[response?.header?.[index]]: item,
+							[header?.[index]]: item,
 						};
 					}, {});
 				}) || [];
 
+			const columns = header.reduce(
+				(agg: any, colName: any) => ({
+					...agg,
+					[colName]: { name: colName, visible: true },
+				}),
+				{},
+			);
+
 			return {
 				rows,
-				columns: response.columns || {},
-				header: response.header || [],
+				columns,
+				header,
 				tableName: response.table_name,
 				tableId: response.table_id,
 			};

@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
 
-import { axios } from '@/lib/axios';
+import { axios, workerAxios } from '@/lib/axios';
 import { TABLE_DATA_QUERY_KEY } from '@/features/new-smart-table/hooks';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/new-app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY } from '@/features/new-page';
 import { APP_STATE_QUERY_KEY } from '@/features/new-app-state';
+import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/new-app-preview/hooks';
 
 export const TABLE_QUERY_KEY = 'table';
 
@@ -32,6 +33,42 @@ export const useGetTable = (tableId: string, props?: any): any => {
 			properties: response?.properties || [],
 			values: response?.values || {},
 			sourceId: response?.source_id,
+			type: response?.type,
+		};
+	}, [response]);
+
+	return {
+		...rest,
+		queryKey,
+		...info,
+	};
+};
+
+export const QUERY_NAMES_KEY = 'queryFetcher';
+
+const fetchQueryNames = async ({ pageName, appName }: any) => {
+	const response = await workerAxios.get<any>(`/files/table_options/${appName}/${pageName}`);
+
+	return response.data;
+};
+
+export const useQueryNames = ({ pageName, appName }: any) => {
+	const queryKey = [QUERY_NAMES_KEY, pageName, appName];
+
+	const { data: response, ...rest } = useQuery(
+		queryKey,
+		() => fetchQueryNames({ pageName, appName }),
+		{
+			enabled: Boolean(pageName && appName),
+		},
+	);
+
+	const info = useMemo(() => {
+		return {
+			queryNames: {
+				sql: response?.sql || [],
+				python: response?.python || [],
+			},
 		};
 	}, [response]);
 
@@ -68,20 +105,23 @@ const updateTableProperties = async ({
 	payload,
 	tableId,
 	sourceId,
-	state,
 	pageId,
+	name,
+	type,
 }: {
 	payload: any;
 	tableId: string;
 	sourceId: string;
-	state: any;
 	pageId: any;
+	name: string;
+	type: any;
 }) => {
 	const response = await axios.put(`/tables/${tableId}`, {
+		name,
 		property: payload,
 		source_id: sourceId,
-		state,
 		page_id: pageId,
+		type,
 	});
 
 	return response.data;
@@ -134,6 +174,33 @@ export const useDeleteTable = (props: any = {}) => {
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+		},
+	});
+};
+
+const runTableQuery = async ({ code, appName, pageName, pageState, type, fileName }: any) => {
+	const response = await workerAxios.post(`/query/test`, {
+		app_name: appName,
+		page_name: pageName,
+		payload: pageState,
+		table: {
+			code,
+			type,
+			file_name: fileName,
+		},
+	});
+
+	return response.data;
+};
+
+export const useRunTableQuery = (props: any = {}) => {
+	const queryClient = useQueryClient();
+
+	return useMutation(runTableQuery, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
 		},
 	});
 };

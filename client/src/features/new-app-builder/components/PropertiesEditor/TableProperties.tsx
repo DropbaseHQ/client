@@ -3,13 +3,16 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { Stack, Box, Button, Text } from '@chakra-ui/react';
-import { useGetTable, useUpdateTableProperties } from '@/features/new-app-builder/hooks';
+import {
+	useGetTable,
+	useQueryNames,
+	useUpdateTableProperties,
+} from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { useSources } from '@/features/sources/hooks';
 import { workspaceAtom } from '@/features/workspaces';
 import { NewSourceForm } from '@/features/sources/routes/NewSource';
 import { InputLoader } from '@/components/Loader';
-import { newPageStateAtom } from '@/features/new-app-state';
 import { selectedTableIdAtom } from '@/features/new-app-builder/atoms';
 import { DeleteTable } from '@/features/new-app-builder/components/PropertiesEditor/DeleteTable';
 
@@ -17,10 +20,14 @@ export const TableProperties = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const tableId = useAtomValue(selectedTableIdAtom);
 	const { pageId } = useParams();
-	const { isLoading, values, sourceId, refetch } = useGetTable(tableId || '');
-	const state = useAtomValue(newPageStateAtom);
+	const { isLoading, values, sourceId, refetch, type } = useGetTable(tableId || '');
 
 	const { sources, isLoading: isLoadingSources } = useSources(workspaceId);
+
+	const { queryNames } = useQueryNames({
+		pageName: 'page1',
+		appName: 'app',
+	});
 
 	const [errorLog, setErrorLog] = useState('');
 
@@ -40,15 +47,17 @@ export const TableProperties = () => {
 		formState: { touchedFields, isDirty },
 	} = methods;
 
+	const codeType = methods.watch('type');
+
 	useEffect(() => {
 		reset(
-			{ ...values, sourceId },
+			{ ...values, sourceId, type },
 			{
 				keepDirty: false,
 				keepDirtyValues: false,
 			},
 		);
-	}, [values, sourceId, reset]);
+	}, [values, sourceId, type, reset]);
 
 	useEffect(() => {
 		setErrorLog('');
@@ -59,7 +68,8 @@ export const TableProperties = () => {
 			tableId: tableId || '',
 			payload: rest,
 			sourceId: newSourceId,
-			state: state.tables,
+			type: codeType,
+			name: rest.name,
 			pageId,
 		});
 	};
@@ -111,8 +121,37 @@ export const TableProperties = () => {
 
 						<FormInput id="name" name="Table Name" type="text" />
 
+						<FormInput
+							type="select"
+							id="type"
+							name="Type"
+							placeholder="Select type"
+							validation={{ required: 'Type is required' }}
+							options={[
+								{
+									name: 'Python',
+									value: 'python',
+								},
+
+								{
+									name: 'SQL',
+									value: 'sql',
+								},
+							]}
+						/>
+
 						<Stack spacing="0">
-							<FormInput id="code" name="SQL Code" type="sql" />
+							<FormInput
+								type="select"
+								id="code"
+								name="code"
+								placeholder="Select code"
+								validation={{ required: 'option is required' }}
+								options={((queryNames as any)[codeType] || []).map((name: any) => ({
+									name,
+									value: name,
+								}))}
+							/>
 							{errorLog ? (
 								<Box
 									fontSize="xs"

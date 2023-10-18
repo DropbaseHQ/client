@@ -1,25 +1,23 @@
 import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { Box, Button, ButtonGroup, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
-import { Code } from 'react-feather';
+import { Code, Table } from 'react-feather';
+import { useMonacoLoader } from '@/components/Editor';
+import { usePageFiles } from '@/features/new-app-builder/hooks';
 
 import { developerTabAtom } from '@/features/new-app-builder/atoms';
 
+import { NewFile } from './NewFile';
 import { FunctionEditor } from './FunctionEditor';
-import { TableConfig } from './TableConfig';
-import { WidgetConfig } from './WidgetConfig';
-import { NewFunction } from './Functions';
-import { useMonacoLoader } from '@/components/Editor';
-import { usePageFunctions } from '@/features/new-app-builder/hooks';
+import { SQLEditor } from './SQLEditor';
 
 const componentsMap: any = {
-	table: TableConfig,
-	widget: WidgetConfig,
 	function: FunctionEditor,
+	sql: SQLEditor,
 };
 
-export const PropertiesEditor = () => {
-	const { functions, isLoading } = usePageFunctions({
+export const FilesExplorer = () => {
+	const { files, isLoading, error } = usePageFiles({
 		appName: 'app',
 		pageName: 'page1',
 	});
@@ -41,6 +39,10 @@ export const PropertiesEditor = () => {
 		return <Skeleton />;
 	}
 
+	if (error) {
+		return <Box>{JSON.stringify(error)}</Box>;
+	}
+
 	const Component = componentsMap[devTab.type];
 
 	return (
@@ -57,34 +59,35 @@ export const PropertiesEditor = () => {
 				direction="row"
 			>
 				<ButtonGroup isAttached size="sm">
-					{(functions || []).map((f: any) => (
-						<Button
-							variant={
-								devTab.type === 'function' && f === devTab.id ? 'solid' : 'outline'
-							}
-							onClick={() => {
-								setDevTab({
-									type: 'function',
-									id: f,
-								});
-							}}
-							leftIcon={<Code size="14" />}
-							key={f}
-						>
-							{f.split('/').pop()}
-						</Button>
-					))}
-					<NewFunction variant="outline" />
+					{(files || []).map((f: any) => {
+						const isSQLFile = f.endsWith('.sql');
+						return (
+							<Button
+								variant={f === devTab.id ? 'solid' : 'outline'}
+								onClick={() => {
+									setDevTab({
+										type: isSQLFile ? 'sql' : 'function',
+										id: f,
+									});
+								}}
+								leftIcon={isSQLFile ? <Table size="14" /> : <Code size="14" />}
+								key={f}
+							>
+								{f.split('/').pop()}
+							</Button>
+						);
+					})}
+					<NewFile variant="outline" />
 				</ButtonGroup>
 			</Stack>
 
 			<Box h="calc(100% - 55px)" overflowX="hidden" overflowY="auto">
 				{Component ? (
-					<Component id={devTab.type === 'function' ? devTab.id : ''} />
+					<Component id={devTab.id} />
 				) : (
 					<Center p="4" h="full">
 						<Text size="sm" fontWeight="medium">
-							{functions.length > 0 ? 'Select a function' : 'Create a function'}
+							{files.length > 0 ? 'Select a file' : 'Create a File'}
 						</Text>
 					</Center>
 				)}
