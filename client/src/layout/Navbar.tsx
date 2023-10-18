@@ -25,6 +25,7 @@ export const Navbar = () => {
 
 	// const { colorMode, toggleColorMode } = useColorMode();;
 	const userHasRole = (roles: string[]) => {
+		if (!userRole) return false;
 		return roles.includes(userRole);
 	};
 	const handleLogout = () => {
