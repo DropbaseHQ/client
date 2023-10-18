@@ -17,13 +17,13 @@ import { useParams } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
 
 import { Trash } from 'react-feather';
-import { useToast } from '@/lib/chakra-ui';
-import { useDeleteFunction } from '@/features/new-app-builder/hooks';
+// import { useToast } from '@/lib/chakra-ui';
+// import { useDeleteFunction } from '@/features/new-app-builder/hooks';
 import { developerTabAtom } from '@/features/new-app-builder/atoms';
 import { useGetPage } from '@/features/new-page';
 
 export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
-	const toast = useToast();
+	// const toast = useToast();
 	const { pageId } = useParams();
 
 	const setDevTab = useSetAtom(developerTabAtom);
@@ -49,21 +49,21 @@ export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
 		},
 	});
 
-	const mutation = useDeleteFunction({
-		onSuccess: () => {
-			onClose();
-			toast({
-				status: 'success',
-				title: 'Function Deleted',
-			});
-		},
-	});
+	// const mutation = useDeleteFunction({
+	// 	onSuccess: () => {
+	// 		onClose();
+	// 		toast({
+	// 			status: 'success',
+	// 			title: 'Function Deleted',
+	// 		});
+	// 	},
+	// });
 
 	const onSubmit = (e: any) => {
 		e?.preventDefault();
-		mutation.mutate({
-			functionId,
-		});
+		// mutation.mutate({
+		// 	functionId,
+		// });
 	};
 
 	return (
@@ -73,7 +73,7 @@ export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
 					aria-label="Delete function"
 					leftIcon={<Trash size="14" />}
 					onClick={onToggle}
-					isLoading={mutation.isLoading}
+					// isLoading={mutation.isLoading}
 					colorScheme="red"
 					size="sm"
 					variant="outline"
@@ -107,7 +107,7 @@ export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
 								<Button
 									colorScheme="red"
 									type="submit"
-									isLoading={mutation.isLoading}
+									// isLoading={mutation.isLoading}
 								>
 									Delete
 								</Button>

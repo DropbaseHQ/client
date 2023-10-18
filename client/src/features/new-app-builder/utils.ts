@@ -19,11 +19,11 @@ export const logBuilder = (data: any) => {
 		outputPreview += data.traceback;
 	}
 
-	if (data?.result) {
+	if (data?.result && typeof data?.result !== 'object') {
 		if (outputPreview) {
 			outputPreview += '\n';
 		}
-		outputPreview += data.result;
+		outputPreview += JSON.stringify(data.result);
 	}
 
 	return outputPreview;
