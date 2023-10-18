@@ -19,10 +19,10 @@ def root():
 
 
 @router.post("/auth")
-def auth_tunnel_op(request: dict):
+def auth_tunnel_op(request: dict, db: Session=Depends(get_db)):
     # FRPS server plugin RPC endpoint
     # https://github.com/fatedier/frp/blob/dev/doc/server_plugin.md
-    return tunnel_controller.auth_tunnel_op(request)
+    return tunnel_controller.auth_tunnel_op(db, request)
 
 
 @router.post("/new")

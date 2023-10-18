@@ -13,6 +13,7 @@ from fastapi import Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse
 from starlette.background import BackgroundTask
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import NoResultFound, DataError
 from pydantic import BaseModel
 
 from server import crud
@@ -138,16 +139,17 @@ def _get_token(request: dict) -> str | None:
         return None
 
 
-def auth_tunnel_op(request: dict):
+def auth_tunnel_op(db: Session, request: dict):
     token = _get_token(request)
-    # TODO auth from tokens in db
-    if token in ["test-token", "test-token2"]:
-        return {"unchange": True}
-    else:
+    try:
+        crud.workspace.get_workspace_by_proxy_token(db, token)
+    except NoResultFound:
         return {
             "reject": True,
             "reject_reason": "auth failure.",
         }
+    else:
+        return {"unchange": True}
 
 
 def new_tunnel_op(request: dict):
@@ -204,7 +206,11 @@ async def forward_request_through_tunnel(
     client_path: str,
     db: Session
 ):
-    token = "test-token2" #crud.workspace.get_token(db, workspace_id)
+    try:
+        token = crud.workspace.get_workspace_proxy_token(db, workspace_id)
+    except (NoResultFound, DataError) as e:
+        raise_http_exception(404, f"workspace {workspace_id} not found", e)
+
     host, port = TUNNEL_MANAGER.get_tunnel(token, tunnel_name)
 
     if not host or not port:
