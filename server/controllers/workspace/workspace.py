@@ -95,13 +95,16 @@ def update_user_role_in_workspace(db: Session, workspace_id: UUID, request: Upda
         user_role = crud.user_role.get_user_user_role(
             db=db, user_id=request.user_id, workspace_id=workspace_id
         )
-        user_role.role_id = request.role_id
+        old_role_name = user_role.name
+        crud.user_role.update_by_pk(
+            db, pk=user_role.id, obj_in={"role_id": request.role_id}, auto_commit=False
+        )
 
         role = crud.role.get(db, id=request.role_id)
         # Update user role in policy table
-        db.query(Policy).filter(Policy.ptype == "g", Policy.v0 == str(request.user_id)).filter(
-            Policy.workspace_id == str(workspace_id)
-        ).update({"v1": str(role.name)})
+        db.query(Policy).filter(
+            Policy.ptype == "g", Policy.v0 == str(request.user_id), Policy.v1 == old_role_name
+        ).filter(Policy.workspace_id == str(workspace_id)).update({"v1": str(role.name)})
 
         db.commit()
 
