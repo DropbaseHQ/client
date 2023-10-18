@@ -188,7 +188,7 @@ export const Permissions = () => {
 		onClose: inviteMemberOnClose,
 	} = useDisclosure();
 
-	const { groups } = useGetWorkspaceGroups({ workspaceId: workspaceId || '' });
+	const { groups } = useGetWorkspaceGroups();
 	const { users } = useGetWorkspaceUsers();
 	const { apps } = useGetWorkspaceApps();
 	const { users: groupUsers, refetch: refetchGroupUsers } = useGetGroupUsers({

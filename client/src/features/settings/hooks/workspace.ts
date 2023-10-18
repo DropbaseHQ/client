@@ -9,16 +9,17 @@ export type Group = {
 	workspace_id: string;
 	date: string;
 };
-const fetchWorkspaceGroups = async ({ workspaceId }: { workspaceId: string }) => {
+const fetchWorkspaceGroups = async ({ workspaceId }: { workspaceId: any }) => {
 	const { data } = await axios.get<Group[]>(`/workspace/${workspaceId}/groups`);
 	return data;
 };
 
 export const GET_WORKSPACE_GROUPS_QUERY_KEY = 'workspaceGroups';
-export const useGetWorkspaceGroups = ({ workspaceId }: { workspaceId: any }) => {
-	const queryKey = [GET_WORKSPACE_GROUPS_QUERY_KEY, workspaceId];
+export const useGetWorkspaceGroups = () => {
+	const currentWorkspaceId = useAtomValue(workspaceAtom);
+	const queryKey = [GET_WORKSPACE_GROUPS_QUERY_KEY, currentWorkspaceId];
 	const { data: response, ...rest } = useQuery(queryKey, () =>
-		fetchWorkspaceGroups({ workspaceId }),
+		fetchWorkspaceGroups({ workspaceId: currentWorkspaceId }),
 	);
 	return {
 		groups: response || [],

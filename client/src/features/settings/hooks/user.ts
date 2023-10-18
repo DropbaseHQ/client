@@ -1,5 +1,7 @@
 import { axios } from '@/lib/axios';
 import { useQuery, useMutation } from 'react-query';
+import { workspaceAtom } from '@/features/workspaces';
+import { useAtomValue } from 'jotai';
 
 export type UserResponse = {
 	user: {
@@ -19,15 +21,17 @@ export type UserResponse = {
 	}[];
 };
 
-const fetchUser = async ({ userId, workspaceId }: { userId: string; workspaceId: string }) => {
+const fetchUser = async ({ userId, workspaceId }: { userId: string; workspaceId: any }) => {
 	const { data } = await axios.get<UserResponse>(`/user/${userId}/details/${workspaceId}`);
 	return data;
 };
 
-export const useGetUserDetails = ({ userId, workspaceId }: { userId: any; workspaceId: any }) => {
-	const queryKey = ['user', userId];
+export const useGetUserDetails = ({ userId }: { userId: any }) => {
+	const currentWorkspaceId = useAtomValue(workspaceAtom);
+
+	const queryKey = ['user', userId, currentWorkspaceId];
 	const { data: response, ...rest } = useQuery(queryKey, () =>
-		fetchUser({ userId, workspaceId }),
+		fetchUser({ userId, workspaceId: currentWorkspaceId }),
 	);
 	return {
 		user: response?.user || {},

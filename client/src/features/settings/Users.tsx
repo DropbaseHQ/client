@@ -10,7 +10,6 @@ export const UserPolicySelector = ({ userId, appId }: { userId: string; appId: s
 	const updateUserPolicyMutation = useUpdateUserPolicy();
 	const { permissions, isLoading: permissionsIsLoading } = useGetUserDetails({
 		userId,
-		workspaceId,
 	});
 	const policy = permissions?.find((item) => item.resource === appId);
 
