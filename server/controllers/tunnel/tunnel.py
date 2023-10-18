@@ -296,7 +296,7 @@ def generate_ws_url(db: Session, request: Request, workspace_id: str, tunnel_nam
         raise_http_exception(404, f"tunnel \"{tunnel_name}\" not found for workspace {workspace_id}")
 
     url = f"ws://{host}:{port}/"
-    nonce = EXPOSED_WEBSOCKETS.add(url, timedelta(minutes=30))
+    nonce = EXPOSED_WEBSOCKETS.add(url)
     return {"url": f"ws://{request.url.netloc}/tunnel/{nonce}"}
 
 
