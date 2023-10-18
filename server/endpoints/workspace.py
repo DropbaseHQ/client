@@ -41,6 +41,11 @@ def add_user_to_workspace(workspace_id: UUID, request: AddUserRequest, db: Sessi
     )
 
 
+@router.post("/{workspace_id}/generate_token")
+def add_token_to_workspace(workspace_id: UUID, db: Session = Depends(get_db)):
+    return workspace_controller.add_token_to_workspace(db, workspace_id=workspace_id)
+
+
 @router.post("/")
 def create_workspace(request: CreateWorkspace, db: Session = Depends(get_db)):
     raise HTTPException(status_code=501, detail="Endpoint POST /workspace is not implemented")

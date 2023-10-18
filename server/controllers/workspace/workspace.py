@@ -1,3 +1,5 @@
+import secrets
+
 from server import crud
 
 
@@ -35,6 +37,17 @@ def add_user_to_workspace(db, workspace_id, user_email, role_id):
         )
         db.commit()
         return workspace_user
+    except Exception as e:
+        db.rollback()
+        raise e
+
+
+def add_token_to_workspace(db, workspace_id):
+    try:
+        workspace = crud.workspace.get_object_by_id_or_404(db, workspace_id)
+        workspace.api_token = secrets.token_urlsafe(32)
+        db.commit()
+        return workspace.api_token
     except Exception as e:
         db.rollback()
         raise e

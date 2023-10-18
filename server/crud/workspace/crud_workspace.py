@@ -67,6 +67,12 @@ class CRUDWorkspace(CRUDBase[Workspace, CreateWorkspace, UpdateWorkspace]):
             .with_entities(User.id, User.email)
             .first()
         )
+    
+    def get_workspace_proxy_token(self, db: Session, workspace_id: UUID):
+        (db.query(Workspace.id).filter(Workspace.id == workspace_id).one()).api_token
+    
+    def get_workspace_by_proxy_token(self, db: Session, token: str):
+        (db.query(Workspace.id).filter(Workspace.api_token == token).one()).id
 
 
 workspace = CRUDWorkspace(Workspace)
