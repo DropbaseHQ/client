@@ -3,8 +3,14 @@ import { useQuery, useMutation } from 'react-query';
 import { workspaceAtom } from '@/features/workspaces';
 import { useAtomValue } from 'jotai';
 
+export type Group = {
+	id: string;
+	name: string;
+	workspace_id: string;
+	date: string;
+};
 const fetchWorkspaceGroups = async ({ workspaceId }: { workspaceId: string }) => {
-	const { data } = await axios.get(`/workspace/${workspaceId}/groups`);
+	const { data } = await axios.get<Group[]>(`/workspace/${workspaceId}/groups`);
 	return data;
 };
 
@@ -20,8 +26,18 @@ export const useGetWorkspaceGroups = ({ workspaceId }: { workspaceId: any }) => 
 	};
 };
 
+export type WorkspaceUser = {
+	id: string;
+	name: string;
+	email: string;
+	role_name: string;
+	role_id: string;
+	date: string;
+	groups: Group[];
+};
+
 const fetchWorkspaceUsers = async ({ workspaceId }: { workspaceId: any }) => {
-	const { data } = await axios.get(`/workspace/${workspaceId}/users`);
+	const { data } = await axios.get<WorkspaceUser[]>(`/workspace/${workspaceId}/users`);
 	return data;
 };
 
