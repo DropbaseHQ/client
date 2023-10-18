@@ -10,12 +10,12 @@ from server.schemas.page import CreatePage, UpdatePage
 from server.utils.authorization import ACTIONS, RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 
-page_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.PAGE)
+# page_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.PAGE)
 
 router = APIRouter(
     prefix="/page",
     tags=["page"],
-    dependencies=[Depends(page_authorizer)],
+    # dependencies=[Depends(page_authorizer)],
 )
 
 

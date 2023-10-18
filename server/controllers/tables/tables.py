@@ -67,56 +67,61 @@ def update_table(
     db: Session, table_id: UUID, request: UpdateTablesRequest, response: Response
 ) -> ReadTables:
     try:
-        table = crud.tables.get_object_by_id_or_404(db, id=table_id)
-        # NOTE: this is a patch. table should be created with source_id to begin with
-        if table.source_id is None or request.source_id is not None:
-            table.source_id = request.source_id
-            db.flush()
-
-        table_columns = []
-        if request.property.code:
-            state = parse_state(db, request.page_id, request.state)
-            user_sql = render_sql(request.property.code, state)
-            user_db_engine = connect_to_user_db(db, table.source_id)
-            table_columns = get_table_columns(user_db_engine, user_sql)
-            user_db_engine.dispose()
-
-        db_columns = crud.columns.get_table_columns(db, table_id=table_id)
-
-        cols_to_add, cols_to_delete = [], []
-
-        if not db_columns:
-            cols_to_add = table_columns
-        else:
-            # check for delta
-            db_cols_names = [col.property["name"] for col in db_columns]
-            for col in db_columns:
-                if col.property["name"] not in table_columns:
-                    cols_to_delete.append(col)
-
-            for col in table_columns:
-                if col not in db_cols_names:
-                    cols_to_add.append(col)
-
-        # delete columns
-        for col in cols_to_delete:
-            crud.columns.remove(db, id=col.id)
-
-        # add columns
-        for column in cols_to_add:
-            create_column_record_from_name(db, column, table_id)
-
-        # update table
-        depends_on = get_sql_variables(request.property.code)
-
-        request.depends_on = depends_on
-        request.name = request.property.name
-        table = crud.tables.update_by_pk(db, pk=table_id, obj_in=UpdateTables(**request.dict()))
-
+        table = crud.tables.update_by_pk(db, pk=table_id, obj_in=request)
         return table
     except Exception as e:
         response.status_code = 400
         return {"error": str(e)}
+    #     table = crud.tables.get_object_by_id_or_404(db, id=table_id)
+    #     # NOTE: this is a patch. table should be created with source_id to begin with
+    #     if table.source_id is None or request.source_id is not None:
+    #         table.source_id = request.source_id
+    #         db.flush()
+
+    #     table_columns = []
+    #     # if request.property.code:
+    #     #     state = parse_state(db, request.page_id, request.state)
+    #     #     user_sql = render_sql(request.property.code, state)
+    #     #     user_db_engine = connect_to_user_db(db, table.source_id)
+    #     #     table_columns = get_table_columns(user_db_engine, user_sql)
+    #     #     user_db_engine.dispose()
+
+    #     db_columns = crud.columns.get_table_columns(db, table_id=table_id)
+
+    #     cols_to_add, cols_to_delete = [], []
+
+    #     if not db_columns:
+    #         cols_to_add = table_columns
+    #     else:
+    #         # check for delta
+    #         db_cols_names = [col.property["name"] for col in db_columns]
+    #         for col in db_columns:
+    #             if col.property["name"] not in table_columns:
+    #                 cols_to_delete.append(col)
+
+    #         for col in table_columns:
+    #             if col not in db_cols_names:
+    #                 cols_to_add.append(col)
+
+    #     # delete columns
+    #     for col in cols_to_delete:
+    #         crud.columns.remove(db, id=col.id)
+
+    #     # add columns
+    #     for column in cols_to_add:
+    #         create_column_record_from_name(db, column, table_id)
+
+    #     # update table
+    #     depends_on = get_sql_variables(request.property.code)
+
+    #     request.depends_on = depends_on
+    #     request.name = request.property.name
+    #     table = crud.tables.update_by_pk(db, pk=table_id, obj_in=UpdateTables(**request.dict()))
+
+    #     return table
+    # except Exception as e:
+    #     response.status_code = 400
+    #     return {"error": str(e)}
 
 
 def get_table_columns(user_db_engine, table_str):

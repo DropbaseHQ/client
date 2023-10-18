@@ -82,8 +82,9 @@ class UpdateTablesRequest(BaseModel):
     property: TablesBaseProperty
     source_id: UUID
     page_id: UUID
-    state: Optional[dict]
+    # state: Optional[dict]
     depends_on: Optional[List[str]]
+    type: Optional[str]
 
 
 class QueryTable(BaseModel):
