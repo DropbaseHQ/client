@@ -141,7 +141,11 @@ const UserRow = (item: any) => {
 			<Td>
 				<Flex justifyContent="space-between">
 					<Flex>
-						{item.user?.groups?.map((obj: any) => <Tag size="sm">{obj.name}</Tag>)}
+						{item.user?.groups?.map((obj: any) => (
+							<Tag size="sm" key={obj?.id}>
+								{obj.name}
+							</Tag>
+						))}
 					</Flex>
 					<Popover
 						isOpen={isOpenRemove}

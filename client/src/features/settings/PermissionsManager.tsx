@@ -174,6 +174,7 @@ export const Permissions = () => {
 	const [newGroupName, setNewGroupName] = useState('' as string);
 	const [resourceType, setResourceType] = useState('groups' as string);
 	const [invitedMember, setInviteMember] = useState('' as string);
+
 	const workspaceId = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
 	const {
@@ -219,6 +220,7 @@ export const Permissions = () => {
 			workspaceId: workspaceId || '',
 			name: newGroupName,
 		});
+		createGroupOnClose();
 	};
 	const handleAddUserToGroup = () => {
 		addUserToGroupMutation.mutate({
