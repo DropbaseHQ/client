@@ -1,5 +1,5 @@
 import { axios } from '@/lib/axios';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 
 export type UserResponse = {
 	user: {
@@ -35,4 +35,29 @@ export const useGetUserDetails = ({ userId, workspaceId }: { userId: any; worksp
 		workspaceRole: response?.workspace_role,
 		...rest,
 	};
+};
+
+const updateUserPolicy = async ({
+	userId,
+	resource,
+	action,
+	workspaceId,
+}: {
+	userId: string;
+	resource: string;
+	action: string;
+	workspaceId: string;
+}) => {
+	const response = await axios.post(`/user/update_policy/${userId}`, {
+		resource,
+		action,
+		workspace_id: workspaceId,
+	});
+	return response.data;
+};
+
+export const useUpdateUserPolicy = (mutationConfig?: any) => {
+	return useMutation(updateUserPolicy, {
+		...(mutationConfig || {}),
+	});
 };

@@ -38,10 +38,7 @@ import { useCreateGroup } from './hooks/group';
 import { workspaceAtom } from '@/features/workspaces';
 import { UserPlus, UserMinus } from 'react-feather';
 import { useAtomValue } from 'jotai';
-import {
-	useGetWorkspaceGroups,
-	GET_WORKSPACE_GROUPS_QUERY_KEY,
-} from './hooks/useGetWorkspaceGroups';
+import { useGetWorkspaceGroups, GET_WORKSPACE_GROUPS_QUERY_KEY } from './hooks/workspace';
 import { useAddUserToGroup } from './hooks/group';
 import { useQueryClient } from 'react-query';
 import { useGetWorkspaceApps, App } from '../app-list/hooks/useGetWorkspaceApps';
@@ -49,7 +46,7 @@ import { UserPolicySelector, GroupPolicySelector } from './components/PolicySele
 import { GroupCard } from './Group';
 import { UserCard } from './Users';
 import { PermissionsCard } from './components/EntityCard/EntityCard';
-import { useGetWorkspaceUsers } from './hooks/useGetUsers';
+import { useGetWorkspaceUsers } from './hooks/workspace';
 import { useGetGroupUsers } from './hooks/group';
 import { useRemoveUserFromGroup } from './hooks/group';
 
