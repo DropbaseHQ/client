@@ -3,7 +3,7 @@ from fastapi import APIRouter, Request, Depends, WebSocket
 from sqlalchemy.orm import Session
 
 import server.controllers.tunnel as tunnel_controller
-from server.controllers.tunnel import TUNNEL_MANAGER, TunnelType
+from server.controllers.tunnel import EXPOSED_WEBSOCKETS, TUNNEL_MANAGER, TunnelType
 from server.utils.connect import get_db
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 
@@ -23,8 +23,13 @@ authed_router = APIRouter(
 
 
 @router.get("/clients")
-def root():
+def clients():
     return TUNNEL_MANAGER.clients
+
+
+@router.get("/exposed_websockets")
+def exposed_websockets():
+    return EXPOSED_WEBSOCKETS.websockets
 
 
 @router.post("/auth")
@@ -58,7 +63,7 @@ def ping_tunnel_op(request: dict):
     return tunnel_controller.ping_tunnel_op(request)
 
 
-@authed_router.api_route("/{workspace_id}/{tunnel_name}/{client_path:path}", methods=["POST", "GET", "PUT", "DELETE"])
+@authed_router.api_route("/http/{workspace_id}/{tunnel_name}/{client_path:path}", methods=["POST", "GET", "PUT", "DELETE"])
 async def forward_request_through_tunnel(
     workspace_id: str,
     tunnel_name: TunnelType,
@@ -70,11 +75,16 @@ async def forward_request_through_tunnel(
     return await tunnel_controller.forward_request_through_tunnel(workspace_id, tunnel_name, request, client_path, db)
 
 
-@authed_router.websocket("/{workspace_id}/{tunnel_name}")
-async def connect_websocket_through_tunnel(
+@authed_router.get("/ws/{workspace_id}/{tunnel_name}")
+def generate_ws_url(
+    request: Request,
     workspace_id: str,
     tunnel_name: TunnelType,
-    ws: WebSocket,
     db: Session=Depends(get_db)
 ):
-    return await tunnel_controller.connect_websocket_through_tunnel(db, workspace_id, tunnel_name, ws)
+    return tunnel_controller.generate_ws_url(db, request, workspace_id, tunnel_name)
+
+
+@router.websocket("/{nonce}")
+async def connect_websocket_through_tunnel(ws: WebSocket, nonce: str):
+    return await tunnel_controller.connect_websocket_through_tunnel(ws, nonce)

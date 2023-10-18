@@ -2,6 +2,7 @@ import asyncio
 import functools
 import logging
 import random
+import secrets
 import sys
 from datetime import datetime, timedelta
 from enum import StrEnum
@@ -28,7 +29,7 @@ def _parse_proxy_name(name: str) -> (str, str):
     return name.split()
 
 
-def _clean_stale_clients(func):
+def _clean_stale(func):
     @functools.wraps(func)
     def wrapped(self, *args, **kwargs):
         if self._should_clean():
@@ -61,11 +62,11 @@ class _FRPClientManager:
         self.port_min = port_min
         self.port_max = port_max
         self.stale_time = timedelta(minutes=5)
-        self.clean_interval = timedelta(minutes=30)
+        self.clean_interval = timedelta(hours=1)
         self.last_clean = datetime.now()
         self.clients: dict[str, FRPClient] = {}
 
-    @_clean_stale_clients
+    @_clean_stale
     def handle_client_ping(self, token: str):
         client = self.clients.get(token)
         if client:
@@ -75,7 +76,7 @@ class _FRPClientManager:
             self.logger.error(f"Ping failed: client \"{token}\" does not exist.")
             raise KeyError
 
-    @_clean_stale_clients
+    @_clean_stale
     def get_tunnel(self, token: str, type: TunnelType) -> tuple[str, int] | None:
         try:
             client = self.clients[token]
@@ -86,7 +87,7 @@ class _FRPClientManager:
             self.logger.error(f"Failed to get tunnel \"{type}\" from client \"{token}\".")
             return (None, None)
 
-    @_clean_stale_clients
+    @_clean_stale
     def add_tunnel(self, token: str, *, type: TunnelType, host: str, port: int):
         if not self.clients.get(token):
             self.clients[token] = FRPClient(last_ping=datetime.now())
@@ -95,7 +96,7 @@ class _FRPClientManager:
         client.tunnels[type] = Tunnel(host=host, port=port)
         self.logger.info(f"Created tunnel \"{type}\" from client \"{token}\".")
     
-    @_clean_stale_clients
+    @_clean_stale
     def remove_tunnel(self, token: str, *, type: TunnelType):
         try:
             client = self.clients[token]
@@ -124,7 +125,54 @@ class _FRPClientManager:
         self.last_clean = datetime.now()
 
 
+class ExposedWebSocket(BaseModel):
+    url: str
+    ttl: timedelta
+    created_time: datetime
+
+
+class _ExposedWebSocketManager:
+    def __init__(self):
+        self.logger = logging.getLogger("ExposedWebSocketManager")
+        self.clean_interval = timedelta(hours=2)
+        self.last_clean = datetime.now()
+        self.websockets: dict[str, ExposedWebSocket] = {}
+    
+    @_clean_stale
+    def add(self, url: str, ttl: timedelta=timedelta(minutes=30), nonce_bytes=64) -> str:
+        nonce = secrets.token_urlsafe(nonce_bytes)
+        self.websockets[nonce] = ExposedWebSocket(url=url, ttl=ttl, created_time=datetime.now())
+        self.logger.info(f"Exposed ws endpoint {url} to ws://0.0.0.0/tunnel/{nonce}")
+        return nonce
+    
+    @_clean_stale
+    def pop(self, nonce: str, default=None) -> str:
+        ws = self.websockets.pop(nonce, default)
+        if ws:
+            self.logger.info(f"Popped endpoint ws://0.0.0.0/tunnel/{nonce}")
+            return ws.url
+        else:
+            return default
+
+    def _should_clean(self) -> bool:
+        return datetime.now() - self.last_clean > self.clean_interval
+
+    def _is_stale(self, ws: ExposedWebSocket) -> bool:
+        return datetime.now() - ws.created_time > ws.ttl
+    
+    def _clean(self):
+        stale_nonces = []
+        for nonce, ws in self.websockets.items():
+            if self._is_stale(ws):
+                stale_nonces.append(nonce)
+        for nonce in stale_nonces:
+            self.websockets.pop(nonce, None)
+            self.logger.info(f"Removed endpoint ws://0.0.0.0/tunnel/{nonce}")
+        self.last_clean = datetime.now()
+
+
 TUNNEL_MANAGER = _FRPClientManager()
+EXPOSED_WEBSOCKETS = _ExposedWebSocketManager()
 FRPS_HOST = "127.0.0.1"
 
 
@@ -237,6 +285,21 @@ async def forward_request_through_tunnel(
         )
 
 
+def generate_ws_url(db: Session, request: Request, workspace_id: str, tunnel_name: str):
+    try:
+        token = crud.workspace.get_workspace_proxy_token(db, workspace_id)
+    except (NoResultFound, DataError) as e:
+        raise_http_exception(404, f"workspace {workspace_id} not found", e)
+    host, port = TUNNEL_MANAGER.get_tunnel(token, tunnel_name)
+
+    if not host or not port:
+        raise_http_exception(404, f"tunnel \"{tunnel_name}\" not found for workspace {workspace_id}")
+
+    url = f"ws://{host}:{port}/"
+    nonce = EXPOSED_WEBSOCKETS.add(url, timedelta(minutes=30))
+    return {"url": f"ws://{request.url.netloc}/tunnel/{nonce}"}
+
+
 async def ws_forward(ws_a: WebSocket, ws_b: websockets.WebSocketClientProtocol):
     while True:
         data = await ws_a.receive_bytes()
@@ -249,23 +312,13 @@ async def ws_reverse(ws_a: WebSocket, ws_b: websockets.WebSocketClientProtocol):
         await ws_a.send_text(data)
 
 
-async def connect_websocket_through_tunnel(db: Session, workspace_id: str, tunnel_name: str, ws: WebSocket):
+async def connect_websocket_through_tunnel(ws: WebSocket, nonce: str):
     await ws.accept()
-    try:
-        token = crud.workspace.get_workspace_proxy_token(db, workspace_id)
-    except (NoResultFound, DataError):
-        await ws.close(
-            code=status.WS_1008_POLICY_VIOLATION,
-            reason=f"workspace {workspace_id} not found",
-        )
+
+    url = EXPOSED_WEBSOCKETS.pop(nonce)
+    if not url:
+        await ws.close(code=status.WS_1008_POLICY_VIOLATION, reason="not found")
         return
-
-    host, port = TUNNEL_MANAGER.get_tunnel(token, tunnel_name)
-
-    if not host or not port:
-        raise_http_exception(404, f"tunnel \"{tunnel_name}\" not found for workspace {workspace_id}")
-
-    url = f"ws://{host}:{port}/"
 
     try:
         async with websockets.connect(url) as ws_client:
@@ -273,7 +326,7 @@ async def connect_websocket_through_tunnel(db: Session, workspace_id: str, tunne
             rev_task = asyncio.create_task(ws_reverse(ws, ws_client))
             await asyncio.gather(fwd_task, rev_task)
     except WebSocketDisconnect:
-        return
+        pass
 
 
 # FIXME proxy already exists error on frps if only dropbase server crashes and restarts
