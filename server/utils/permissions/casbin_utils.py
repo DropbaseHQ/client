@@ -9,13 +9,13 @@ from server.utils.permissions.casbin_sqlalchemy_adaptor import Adapter
 from server.models import Policy
 
 adapter = Adapter(SQLALCHEMY_DATABASE_URL, db_class=Policy)
-enforcer = casbin.Enforcer(
-    str(Path(__file__).parent.absolute().joinpath("./casbin_model.conf")), adapter, True
-)
-enforcer.auto_build_role_links = True
+
+casbin_config = ""
+with open(str(Path(__file__).parent.absolute().joinpath("./casbin_model.conf")), "r") as f:
+    casbin_config = f.read()
 
 
-def load_specific_policies(policies):
+def load_specific_policies(enforcer: casbin.Enforcer, policies):
     for policy in policies:
         try:
             persist.load_policy_line(str(policy), enforcer.model)
@@ -23,19 +23,24 @@ def load_specific_policies(policies):
             print("Error loading policy", e)
 
 
-def unload_specific_policies(policies):
+def unload_specific_policies(enforcer: casbin.Enforcer, policies):
     for policy in policies:
         unload_policy_line(str(policy), enforcer.model)
 
 
 def get_contexted_enforcer(db, workspace_id):
+    model = casbin.Model()
+    model.load_model_from_text(casbin_config)
+    enforcer = casbin.Enforcer(model, adapter, True)
+    enforcer.auto_build_role_links = True
+
     # Refreshes policy. Allows dynamic policy changes while deployed.
     enforcer.load_policy()
 
     # Load workspace policies
     policies = crud.workspace.get_workspace_policies(db, workspace_id)
     formatted_policies = [str(policy) for policy in policies]
-    load_specific_policies(formatted_policies)
+    load_specific_policies(enforcer, formatted_policies)
     # formatted_policies = [str(policy).split(", ")[1:] for policy in policies]
     # enforcer.add_policies(formatted_policies)
 
