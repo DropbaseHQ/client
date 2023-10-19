@@ -16,6 +16,7 @@ import {
 	FormLabel,
 } from '@chakra-ui/react';
 import { ArrowLeft, Edit, Eye, EyeOff } from 'react-feather';
+import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 
 import { Link, useParams } from 'react-router-dom';
@@ -23,7 +24,6 @@ import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
-import { useAtomValue } from 'jotai';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetUserDetails } from '@/features/settings/hooks/useGetUserDetails';
 
@@ -42,7 +42,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 	// solution.
 	const userCanAccessStudio = () => {
 		const hasSpecifiPermission = permissions.find((p: any) => {
-			p.user_id === user?.id && p.resource === appId && p.action === 'edit';
+			return p.user_id === user?.id && p.resource === appId && p.action === 'edit';
 		});
 		if (hasSpecifiPermission) return true;
 		if (workspaceRole?.name === 'admin' || workspaceRole?.name === 'dev') return true;

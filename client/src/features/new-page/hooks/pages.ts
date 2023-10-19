@@ -25,6 +25,8 @@ export const useGetPage = (pageId: any) => {
 			tables: response?.tables || [],
 			widget: response?.widget || null,
 			functions: response?.functions || [],
+			page: response?.page || {},
+			app: response?.app || {},
 		};
 	}, [response]);
 
@@ -41,7 +43,9 @@ export const useInitPage = () => {
 
 	const ref = useRef(false);
 
-	const { widget, isLoading, ...rest } = useGetPage(pageId || '');
+	const { widget, isLoading, app, page, ...rest } = useGetPage(pageId || '');
+	const pageName = page?.name;
+	const appName = app?.name;
 
 	useEffect(() => {
 		ref.current = false;
@@ -51,15 +55,19 @@ export const useInitPage = () => {
 		if (!context.widgetId && !isLoading && !ref.current) {
 			setPageContext({
 				widgetId: widget?.id || null,
+				pageName,
+				appName,
 			});
 			ref.current = true;
 		}
-	}, [widget, isLoading, context, setPageContext]);
+	}, [widget, isLoading, appName, pageName, context, setPageContext]);
 
 	useEffect(() => {
 		return () => {
 			setPageContext({
 				widgetId: null,
+				pageName: null,
+				appName: null,
 			});
 		};
 	}, [setPageContext]);

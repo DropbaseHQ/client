@@ -15,7 +15,6 @@ import {
 	Box,
 	Skeleton,
 } from '@chakra-ui/react';
-import { useParams } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { FormInput } from '@/components/FormInput';
@@ -35,14 +34,13 @@ import { inspectedResourceAtom } from '@/features/new-app-builder/atoms';
 const DISPLAY_COMPONENT_PROPERTIES = ['name', 'type', 'options', 'label', 'text', 'size'];
 
 export const ComponentPropertyEditor = ({ id }: any) => {
-	const { pageId } = useParams();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
-	const { widgetId } = useAtomValue(pageAtom);
+	const { widgetId, pageName, appName } = useAtomValue(pageAtom);
 	const { schema, refetch, values, isLoading } = useGetComponentProperties(widgetId || '');
 
 	const { type, property: properties } = values.find((v: any) => v.id === id) || {};
 
-	const { functions } = useAllPageFunctionNames({ pageName: 'page1', appName: 'app' });
+	const { functions } = useAllPageFunctionNames({ pageName, appName });
 
 	const [visibleProperties, setVisibleProperties] = useState<any>(DISPLAY_COMPONENT_PROPERTIES);
 

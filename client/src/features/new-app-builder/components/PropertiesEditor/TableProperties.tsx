@@ -15,6 +15,7 @@ import { NewSourceForm } from '@/features/sources/routes/NewSource';
 import { InputLoader } from '@/components/Loader';
 import { selectedTableIdAtom } from '@/features/new-app-builder/atoms';
 import { DeleteTable } from '@/features/new-app-builder/components/PropertiesEditor/DeleteTable';
+import { pageAtom } from '@/features/new-page';
 
 export const TableProperties = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
@@ -24,9 +25,11 @@ export const TableProperties = () => {
 
 	const { sources, isLoading: isLoadingSources } = useSources(workspaceId);
 
+	const { pageName, appName } = useAtomValue(pageAtom);
+
 	const { queryNames } = useQueryNames({
-		pageName: 'page1',
-		appName: 'app',
+		pageName,
+		appName,
 	});
 
 	const [errorLog, setErrorLog] = useState('');

@@ -10,7 +10,6 @@ import {
 } from '@chakra-ui/react';
 import { Play, X } from 'react-feather';
 import { useAtomValue } from 'jotai';
-// import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 
 import { usePythonEditor } from '@/components/Editor';
@@ -19,6 +18,7 @@ import { newPageStateAtom, useSyncState } from '@/features/new-app-state';
 import { logBuilder } from '@/features/new-app-builder/utils';
 import { DeleteFunction } from '@/features/new-app-builder/components/FilesExplorer/DeleteFunction';
 import { ChakraTable } from '@/components/Table';
+import { pageAtom } from '@/features/new-page';
 
 const PythonEditorLSP = ({ code: defaultCode, id }: any) => {
 	const [code, setCode] = useState(defaultCode);
@@ -36,11 +36,11 @@ const PythonEditorLSP = ({ code: defaultCode, id }: any) => {
 
 export const FunctionEditor = ({ id }: any) => {
 	const functionName = id.split('/').pop();
-	// const { pageId } = useParams();
+	const { pageName, appName } = useAtomValue(pageAtom);
 
 	const { isLoading, code } = useFile({
-		appName: 'app',
-		pageName: 'page1',
+		pageName,
+		appName,
 		fileName: functionName,
 	});
 
@@ -75,8 +75,8 @@ export const FunctionEditor = ({ id }: any) => {
 
 	const handleRun = () => {
 		runMutation.mutate({
-			pageName: 'page1',
-			appName: 'app',
+			pageName,
+			appName,
 			pageState,
 			fileName: functionName,
 			type: 'python',

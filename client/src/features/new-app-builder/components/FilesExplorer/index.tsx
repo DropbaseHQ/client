@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { Box, Button, ButtonGroup, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { Code, Table } from 'react-feather';
 import { useMonacoLoader } from '@/components/Editor';
@@ -10,6 +10,7 @@ import { developerTabAtom } from '@/features/new-app-builder/atoms';
 import { NewFile } from './NewFile';
 import { FunctionEditor } from './FunctionEditor';
 import { SQLEditor } from './SQLEditor';
+import { pageAtom } from '@/features/new-page';
 
 const componentsMap: any = {
 	function: FunctionEditor,
@@ -17,9 +18,10 @@ const componentsMap: any = {
 };
 
 export const FilesExplorer = () => {
+	const { pageName, appName } = useAtomValue(pageAtom);
 	const { files, isLoading, error } = usePageFiles({
-		appName: 'app',
-		pageName: 'page1',
+		pageName: pageName || '',
+		appName: appName || '',
 	});
 
 	const isReady = useMonacoLoader();

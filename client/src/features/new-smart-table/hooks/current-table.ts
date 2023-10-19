@@ -4,6 +4,7 @@ import { useAtomValue } from 'jotai';
 import { useTableData } from './table';
 import { filtersAtom, sortsAtom } from '@/features/new-smart-table/atoms';
 import { newPageStateAtom } from '@/features/new-app-state';
+import { pageAtom } from '@/features/new-page';
 
 export const CurrentTableContext: any = createContext({ tableId: null });
 
@@ -14,6 +15,8 @@ export const useCurrentTableId = () => {
 };
 
 export const useCurrentTableData = (tableId: any) => {
+	const { pageName, appName } = useAtomValue(pageAtom);
+
 	const allFilters = useAtomValue(filtersAtom);
 	const filters = (allFilters[tableId] || []).filter((f: any) => f.column_name && f.value);
 
@@ -29,7 +32,7 @@ export const useCurrentTableData = (tableId: any) => {
 		sorts,
 		state,
 		pageId,
-		appName: 'app',
-		pageName: 'page1',
+		pageName,
+		appName,
 	});
 };

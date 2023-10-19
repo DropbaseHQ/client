@@ -43,7 +43,7 @@ const sizeMap: any = {
 };
 
 const AppComponent = (props: any) => {
-	const { pageId } = useParams();
+	const { pageName, appName } = useAtomValue(pageAtom);
 	const { type, property: component } = props;
 
 	const pageState = useAtomValue(newPageStateAtom);
@@ -74,8 +74,8 @@ const AppComponent = (props: any) => {
 
 	const handleAction = (actionName: string) => {
 		actionMutation.mutate({
-			pageName: 'page1',
-			appName: 'app',
+			pageName,
+			appName,
 			functionName: actionName,
 			pageState,
 		});
