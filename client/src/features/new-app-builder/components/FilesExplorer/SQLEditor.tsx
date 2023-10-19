@@ -49,7 +49,6 @@ export const SQLEditor = ({ id }: any) => {
 			pageName: 'page1',
 			appName: 'app',
 			pageState,
-			code,
 			fileName: sqlName,
 			type: 'sql',
 		});

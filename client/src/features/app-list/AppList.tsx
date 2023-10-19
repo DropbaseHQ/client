@@ -22,6 +22,7 @@ import {
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Layout, MoreVertical, Trash } from 'react-feather';
+import { useAtomValue } from 'jotai';
 
 import { useState } from 'react';
 
@@ -30,7 +31,6 @@ import { useCreateApp } from './hooks/useCreateApp';
 import { PageLayout } from '@/layout';
 import { FormInput } from '@/components/FormInput';
 import { useDeleteApp } from '@/features/app-list/hooks/useDeleteApp';
-import { useAtomValue } from 'jotai';
 import { workspaceAtom } from '@/features/workspaces';
 
 const AppCard = ({ app }: { app: AppType }) => {
