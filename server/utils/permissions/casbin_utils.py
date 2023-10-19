@@ -34,9 +34,10 @@ def get_contexted_enforcer(db, workspace_id):
 
     # Load workspace policies
     policies = crud.workspace.get_workspace_policies(db, workspace_id)
-    formatted_policies = [str(policy).split(", ")[1:] for policy in policies]
-    enforcer.add_policies(formatted_policies)
-    # load_specific_policies(formatted_policies)
+    formatted_policies = [str(policy) for policy in policies]
+    load_specific_policies(formatted_policies)
+    # formatted_policies = [str(policy).split(", ")[1:] for policy in policies]
+    # enforcer.add_policies(formatted_policies)
 
     # Load grouping policies
     grouping_policies = crud.workspace.get_workspace_grouping_policies(db, workspace_id)
