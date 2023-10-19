@@ -16,7 +16,7 @@ import {
 	Skeleton,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { FormInput } from '@/components/FormInput';
 import {
@@ -30,6 +30,7 @@ import { pageAtom } from '@/features/new-page';
 import { useToast } from '@/lib/chakra-ui';
 import { ContentLoader, NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
+import { inspectedResourceAtom } from '@/features/new-app-builder/atoms';
 
 const DISPLAY_COMPONENT_PROPERTIES = ['name', 'type', 'options', 'label', 'text', 'size'];
 
@@ -39,6 +40,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const { schema, refetch, values, isLoading } = useGetComponentProperties(widgetId || '');
 
 	const { type, property: properties } = values.find((v: any) => v.id === id) || {};
+
+	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 
 	const { functions } = useAllPageFunctionNames(pageId || '');
 
@@ -58,6 +61,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 	const deleteMutation = useDeleteComponent({
 		onSuccess: () => {
+			setInspectedResource({
+				id: null,
+				type: null,
+			});
 			refetch();
 		},
 	});
