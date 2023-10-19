@@ -78,10 +78,9 @@ def enforce_action(db, user_id, workspace_id, resource, action, resource_crud, r
         return False
     except Exception as e:
         print("Permission enforcement error", e)
-    finally:
-        if formatted_policies:
-            unload_specific_policies(formatted_policies)
-        policies = enforcer.get_policy()
+    # finally:
+    #     if formatted_policies:
+    #         unload_specific_policies(formatted_policies)
 
 
 def add_policy(db: Session, role_id: UUID, resource, action):
