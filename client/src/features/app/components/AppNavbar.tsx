@@ -16,38 +16,16 @@ import {
 	FormLabel,
 } from '@chakra-ui/react';
 import { ArrowLeft, Edit, Eye, EyeOff } from 'react-feather';
-import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 
 import { Link, useParams } from 'react-router-dom';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
-import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
-import { workspaceAtom } from '@/features/workspaces';
-import { useGetUserDetails } from '@/features/settings/hooks/useGetUserDetails';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const { appId } = useParams();
 	const { apps } = useGetWorkspaceApps();
-	const { user } = useGetCurrentUser();
-	const workspaceId = useAtomValue(workspaceAtom);
-	const { permissions, workspaceRole } = useGetUserDetails({
-		userId: user?.id || '',
-		workspaceId,
-	});
-
-	// Permissions decisions ideally should be kept on the backend. However
-	// for the mvp we are doing it on the frontend. This is a temporary
-	// solution.
-	const userCanAccessStudio = () => {
-		const hasSpecifiPermission = permissions.find((p: any) => {
-			return p.user_id === user?.id && p.resource === appId && p.action === 'edit';
-		});
-		if (hasSpecifiPermission) return true;
-		if (workspaceRole?.name === 'admin' || workspaceRole?.name === 'dev') return true;
-		return false;
-	};
 
 	const [name, setAppName] = useState('');
 
@@ -154,7 +132,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 				)}
 			</Stack>
 
-			{userCanAccessStudio() && (
+			{app?.editable && (
 				<Tooltip label={isPreview ? 'App preview' : 'App Studio'}>
 					<IconButton
 						size="sm"

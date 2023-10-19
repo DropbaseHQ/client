@@ -32,6 +32,11 @@ def get_group(group_id: UUID, db: Session = Depends(get_db)):
     return c_get_group(db, group_id)
 
 
+@router.get("/{group_id}/users")
+def get_group_users(group_id: UUID, db: Session = Depends(get_db)):
+    return GroupController.get_group_users(db, group_id)
+
+
 @router.post("/")
 def create_group(
     request: CreateGroup, db: Session = Depends(get_db), user: User = Depends(get_current_user)

@@ -5,7 +5,7 @@ from server.controllers import task
 from server.controllers.task.edit_cell import edit_cell
 from server.schemas.task import EditCell, RunFunction, RunTask
 from server.utils.connect import get_db
-from server.utils.authorization import RESOURCES, AuthZDepFactory
+from server.utils.authorization import RESOURCES, AuthZDepFactory, ACTIONS
 
 
 # authorize_page_actions = generate_resource_dependency(RESOURCES.PAGE)
@@ -26,12 +26,18 @@ def run_task(request: RunTask, db: Session = Depends(get_db)):
 
 
 @router.post(
-    "/function", dependencies=[Depends(task_authorizer.use_params(resource_type=RESOURCES.PAGE))]
+    "/function",
+    dependencies=[Depends(task_authorizer.use_params(resource_type=RESOURCES.PAGE, action=ACTIONS.USE))],
 )
 def run_function(request: RunFunction, db: Session = Depends(get_db)):
     return task.run_function(request, db)
 
 
-@router.post("/edit", dependencies=[Depends(task_authorizer.use_params(resource_type=RESOURCES.TABLE))])
+@router.post(
+    "/edit",
+    dependencies=[
+        Depends(task_authorizer.use_params(resource_type=RESOURCES.TABLE, action=ACTIONS.USE))
+    ],
+)
 def edit_cell_task(request: EditCell, db: Session = Depends(get_db)):
     return edit_cell(db, request)

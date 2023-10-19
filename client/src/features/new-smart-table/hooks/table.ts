@@ -6,7 +6,7 @@ import { useGetTable } from '@/features/new-app-builder/hooks';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
-const fetchTableData = async ({ code, type, appName, pageName, state }: any) => {
+const fetchTableData = async ({ code, source, type, appName, pageName, state }: any) => {
 	const response = await workerAxios.post<any>(`/query`, {
 		app_name: appName,
 		page_name: pageName,
@@ -14,6 +14,7 @@ const fetchTableData = async ({ code, type, appName, pageName, state }: any) => 
 		table: {
 			code,
 			type,
+			source
 		},
 	});
 
@@ -30,7 +31,7 @@ export const useTableData = ({
 }: any) => {
 	const { type, values } = useGetTable(tableId || '');
 
-	const { code } = values || {};
+	const { code, source } = values || {};
 
 	const queryKey = [
 		TABLE_DATA_QUERY_KEY,
@@ -43,7 +44,7 @@ export const useTableData = ({
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchTableData({ code, type, appName, pageName, state }),
+		() => fetchTableData({ code, source, type, appName, pageName, state }),
 		{
 			enabled: !!(code && type && appName && pageName),
 		},

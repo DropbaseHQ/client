@@ -40,7 +40,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 	const { type, property: properties } = values.find((v: any) => v.id === id) || {};
 
-	const { functions } = useAllPageFunctionNames({ pageName, appName });
+	const { functions } = useAllPageFunctionNames(pageId || '');
 
 	const [visibleProperties, setVisibleProperties] = useState<any>(DISPLAY_COMPONENT_PROPERTIES);
 
@@ -58,6 +58,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 	const deleteMutation = useDeleteComponent({
 		onSuccess: () => {
+			setInspectedResource({
+				id: null,
+				type: null,
+			});
 			refetch();
 			setInspectedResource({
 				id: null,

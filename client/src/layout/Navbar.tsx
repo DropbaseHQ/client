@@ -14,7 +14,7 @@ import { Settings, LogOut, Grid, Database, Repeat, Users, Lock } from 'react-fea
 import { Link, useLocation } from 'react-router-dom';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
-import { useGetWorkspaceUsers } from '@/features/settings/hooks/useGetUsers';
+import { useGetWorkspaceUsers } from '@/features/settings/hooks/workspace';
 
 export const Navbar = () => {
 	const { pathname } = useLocation();
@@ -25,6 +25,7 @@ export const Navbar = () => {
 
 	// const { colorMode, toggleColorMode } = useColorMode();;
 	const userHasRole = (roles: string[]) => {
+		if (!userRole) return false;
 		return roles.includes(userRole);
 	};
 	const handleLogout = () => {

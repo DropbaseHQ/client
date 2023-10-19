@@ -4,7 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.workspace import CreateWorkspace, UpdateWorkspace, AddUserRequest
+from server.schemas.workspace import (
+    CreateWorkspace,
+    UpdateWorkspace,
+    AddUserRequest,
+    RemoveUserRequest,
+    UpdateUserRoleRequest,
+)
 from server.utils.connect import get_db
 from server.controllers import workspace as workspace_controller
 from server.utils.authorization import RESOURCES, AuthZDepFactory
@@ -39,6 +45,20 @@ def add_user_to_workspace(workspace_id: UUID, request: AddUserRequest, db: Sessi
     return workspace_controller.add_user_to_workspace(
         db, workspace_id, request.user_email, request.role_id
     )
+
+
+@router.post("/{workspace_id}/remove_user")
+def remove_user_from_workspace(
+    workspace_id: UUID, request: RemoveUserRequest, db: Session = Depends(get_db)
+):
+    return workspace_controller.remove_user_from_workspace(db, workspace_id, request.user_id)
+
+
+@router.put("/{workspace_id}/user_role")
+def update_user_role_in_workspace(
+    workspace_id: UUID, request: UpdateUserRoleRequest, db: Session = Depends(get_db)
+):
+    return workspace_controller.update_user_role_in_workspace(db, workspace_id, request)
 
 
 @router.post("/")
