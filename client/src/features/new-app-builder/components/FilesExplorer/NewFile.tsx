@@ -15,18 +15,22 @@ import {
 } from '@chakra-ui/react';
 import { Plus } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useAtomValue } from 'jotai';
 
 import { useCreateFile, usePageFiles } from '@/features/new-app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
+import { pageAtom } from '@/features/new-page';
 
 export const NewFile = (props: any) => {
 	const toast = useToast();
 	const methods = useForm();
 
+	const { pageName, appName } = useAtomValue(pageAtom);
+
 	const { refetch } = usePageFiles({
-		appName: 'app',
-		pageName: 'page1',
+		pageName: pageName || '',
+		appName: appName || '',
 	});
 
 	const { isOpen, onToggle, onClose } = useDisclosure();
@@ -44,8 +48,8 @@ export const NewFile = (props: any) => {
 
 	const onSubmit = ({ type, name }: any) => {
 		mutation.mutate({
-			pageName: 'page1',
-			appName: 'app',
+			pageName,
+			appName,
 			fileName: `${name}.${type === 'python' ? 'py' : 'sql'}`,
 		});
 	};

@@ -8,13 +8,15 @@ import { useFile, useRunSQLQuery } from '@/features/new-app-builder/hooks';
 import { newPageStateAtom, useSyncState } from '@/features/new-app-state';
 import { logBuilder } from '@/features/new-app-builder/utils';
 import { ChakraTable } from '@/components/Table';
+import { pageAtom } from '@/features/new-page';
 
 export const SQLEditor = ({ id }: any) => {
 	const sqlName = id.split('/').pop();
+	const { pageName, appName } = useAtomValue(pageAtom);
 
 	const { isLoading, code: defaultCode } = useFile({
-		appName: 'app',
-		pageName: 'page1',
+		pageName,
+		appName,
 		fileName: sqlName,
 	});
 
@@ -46,8 +48,8 @@ export const SQLEditor = ({ id }: any) => {
 
 	const handleRun = () => {
 		runMutation.mutate({
-			pageName: 'page1',
-			appName: 'app',
+			pageName,
+			appName,
 			pageState,
 			fileName: sqlName,
 			fileContent: code,
