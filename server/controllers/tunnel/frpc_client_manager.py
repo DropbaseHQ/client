@@ -41,8 +41,8 @@ class _FRPClientManager:
     def add_tunnel(self, token: str, *, type: TunnelType, host: str, port: int):
         try:
             TunnelType(type)
-        except:
-            error_msg = f"{type} is not a valid TunnelType. Must be one of: {', '.join([e.value for e in TunnelType])}"
+        except ValueError as e:
+            error_msg = f"{e}. Must be one of: {', '.join([e.value for e in TunnelType])}"
             self.logger.error(error_msg)
             raise ValueError(error_msg)
         if not self.clients.get(token):
