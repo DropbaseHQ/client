@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from enum import StrEnum
+from typing import Dict
 
 from pydantic import BaseModel
 
@@ -15,7 +16,7 @@ class Tunnel(BaseModel):
 
 
 class FRPClient(BaseModel):
-    tunnels: dict[TunnelType, Tunnel] = {}
+    tunnels: Dict[TunnelType, Tunnel] = {}
     last_ping: datetime
 
 

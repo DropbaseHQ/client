@@ -54,12 +54,18 @@ def new_tunnel_op(request: dict):
     type = _parse_proxy_name(content["proxy_name"])[0]
     port = TUNNEL_MANAGER.choose_port()
 
-    TUNNEL_MANAGER.add_tunnel(
-        token,
-        type=type,
-        port=port,
-        host=FRPS_HOST,
-    )
+    try:
+        TUNNEL_MANAGER.add_tunnel(
+            token,
+            type=type,
+            port=port,
+            host=FRPS_HOST,
+        )
+    except ValueError as e:
+        return {
+            "reject": True,
+            "reject_reason": str(e),
+        }
 
     content["remote_port"] = port
     return {
