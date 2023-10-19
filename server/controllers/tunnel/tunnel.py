@@ -79,12 +79,18 @@ def close_tunnel_op(request: dict):
     content = request["content"]
     type = _parse_proxy_name(content["proxy_name"])
 
-    TUNNEL_MANAGER.remove_tunnel(
-        token,
-        type=type
-    )
-
-    return {"unchange": True}
+    try:
+        TUNNEL_MANAGER.remove_tunnel(
+            token,
+            type=type
+        )
+    except KeyError:
+        return {
+            "reject": True,
+            "reject_reason": f"Failed to remove tunnel \"{type}\" from client \"{token}\": not found.",
+        }
+    else:
+        return {"unchange": True}
 
 
 def ping_tunnel_op(request: dict):

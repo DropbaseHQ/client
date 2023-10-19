@@ -60,6 +60,7 @@ class _FRPClientManager:
             self.logger.info(f"Removed tunnel \"{type}\" from client \"{token}\".")
         except KeyError:
             self.logger.error(f"Failed to remove tunnel \"{type}\" from client \"{token}\": not found.")
+            raise KeyError
     
     def choose_port(self) -> int:
         return random.randint(self.port_min, self.port_max)

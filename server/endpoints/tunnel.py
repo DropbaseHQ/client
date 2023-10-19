@@ -50,9 +50,6 @@ def new_tunnel_op(request: dict):
 def close_tunnel_op(request: dict):
     # FRPS server plugin RPC endpoint
     # https://github.com/fatedier/frp/blob/dev/doc/server_plugin.md
-
-    # TODO investigate resource usage of this. FRP docs mention
-    #      that it is expensive to have this plugin with many proxies.
     return tunnel_controller.close_tunnel_op(request)
 
 
