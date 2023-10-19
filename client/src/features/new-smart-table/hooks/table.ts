@@ -51,10 +51,10 @@ export const useTableData = ({
 
 	const parsedData: any = useMemo(() => {
 		if (response) {
-			const header = response?.columns || [];
+			const header = response?.result?.columns || [];
 
 			const rows: any =
-				response?.data?.map((r: any) => {
+				response?.result?.data?.map((r: any) => {
 					return r.reduce((agg: any, item: any, index: any) => {
 						return {
 							...agg,

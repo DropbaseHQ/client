@@ -96,11 +96,13 @@ def order_tables(tables):
 
 def get_page_details(db: Session, page_id: str):
     page = crud.page.get_object_by_id_or_404(db, id=page_id)
+    app = crud.app.get_object_by_id_or_404(db, id=page.app_id)
     tables = crud.tables.get_page_tables(db, page_id=page_id)
     functions = crud.functions.get_page_functions(db, page_id=page.id)
     widget = crud.widget.get_page_widget(db, page_id=page_id)
     return {
         "page": page,
+        "app": app,
         "widget": widget,
         "tables": order_tables(tables),
         "functions": functions,
