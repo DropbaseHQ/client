@@ -201,3 +201,28 @@ export const useRunTableQuery = (props: any = {}) => {
 		},
 	});
 };
+
+
+const runSQLQuery = async ({ appName, pageName, pageState, fileName, fileContent }: any) => {
+	const response = await workerAxios.post(`/query/run_sql`, {
+		app_name: appName,
+		page_name: pageName,
+		payload: pageState,
+		file_content: fileContent,
+		file_name: fileName,
+	});
+
+	return response.data;
+};
+
+export const useRunSQLQuery = (props: any = {}) => {
+	const queryClient = useQueryClient();
+
+	return useMutation(runSQLQuery, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
+		},
+	});
+};

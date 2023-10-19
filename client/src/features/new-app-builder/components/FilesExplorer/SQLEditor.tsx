@@ -4,7 +4,7 @@ import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 
 import { MonacoEditor } from '@/components/Editor';
-import { useFile, useRunTableQuery } from '@/features/new-app-builder/hooks';
+import { useFile, useRunSQLQuery } from '@/features/new-app-builder/hooks';
 import { newPageStateAtom, useSyncState } from '@/features/new-app-state';
 import { logBuilder } from '@/features/new-app-builder/utils';
 import { ChakraTable } from '@/components/Table';
@@ -26,7 +26,7 @@ export const SQLEditor = ({ id }: any) => {
 
 	const syncState = useSyncState();
 
-	const runMutation = useRunTableQuery({
+	const runMutation = useRunSQLQuery({
 		onSuccess: (data: any) => {
 			syncState(data);
 			setLog(logBuilder(data));
@@ -50,7 +50,7 @@ export const SQLEditor = ({ id }: any) => {
 			appName: 'app',
 			pageState,
 			fileName: sqlName,
-			type: 'sql',
+			fileContent: code,
 		});
 	};
 
