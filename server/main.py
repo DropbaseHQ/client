@@ -1,3 +1,6 @@
+import logging
+import sys
+
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +13,7 @@ from server.utils.exception_handlers import catch_exceptions_middleware
 
 load_dotenv()
 
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 app = FastAPI()
 
