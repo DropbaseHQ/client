@@ -10,6 +10,7 @@ from server.utils.permissions.casbin_utils import get_contexted_enforcer
 
 def get_user_apps(db: Session, user: User, workspace_id: UUID):
     workspace = None
+
     if workspace_id is None:
         workspace = crud.user.get_user_first_workspace(db, user.id)
         if workspace is None:
@@ -17,16 +18,26 @@ def get_user_apps(db: Session, user: User, workspace_id: UUID):
     else:
         workspace = crud.workspace.get_object_by_id_or_404(db, id=workspace_id)
     apps = crud.app.get_workspace_apps(db, workspace_id=workspace.id)
+
     enforcer = get_contexted_enforcer(db, workspace.id)
     allowed_apps = []
+    app_requests = []
+
     for app in apps:
-        if enforcer.enforce(str(user.id), str(app.id), "use") or enforcer.enforce(
-            str(user.id), "app", "use"
-        ):
+        app_requests.append([str(user.id), str(app.id), "use"])
+        app_requests.append([str(user.id), "app", "use"])
+        app_requests.append([str(user.id), str(app.id), "edit"])
+        app_requests.append([str(user.id), "app", "edit"])
+
+    result = enforcer.batch_enforce(app_requests)
+    for permission_chunk, app in zip(zip(*[iter(result)] * 4), apps):
+        user_can_use_specific_app = permission_chunk[0]
+        user_can_use_app = permission_chunk[1]
+        user_can_edit_specific_app = permission_chunk[2]
+        user_can_edit_app = permission_chunk[3]
+        if user_can_use_specific_app or user_can_use_app:
             app.pages = crud.page.get_app_pages(db, app.id)
-            if enforcer.enforce(str(user.id), str(app.id), "edit") or enforcer.enforce(
-                str(user.id), "app", "edit"
-            ):
+            if user_can_edit_specific_app or user_can_edit_app:
                 app.editable = True
             allowed_apps.append(app)
 
