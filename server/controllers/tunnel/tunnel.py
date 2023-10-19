@@ -19,9 +19,9 @@ from server.controllers.tunnel.exposed_websocket_manager import EXPOSED_WEBSOCKE
 FRPS_HOST = "127.0.0.1"
 
 
-def _parse_proxy_name(name: str) -> (str, str):
-    # returns (proxy type, token)
-    return name.split()
+def _parse_proxy_name(name: str) -> (str, TunnelType):
+    # returns (token, TunnelType)
+    return name.split("/")[1]
 
 
 def _get_token(request: dict) -> str | None:
@@ -51,7 +51,7 @@ def auth_tunnel_op(db: Session, request: dict):
 def new_tunnel_op(request: dict):
     token = _get_token(request)
     content = request["content"]
-    type = _parse_proxy_name(content["proxy_name"])[0]
+    type = _parse_proxy_name(content["proxy_name"])
     port = TUNNEL_MANAGER.choose_port()
 
     try:
@@ -77,7 +77,7 @@ def new_tunnel_op(request: dict):
 def close_tunnel_op(request: dict):
     token = _get_token(request)
     content = request["content"]
-    type = _parse_proxy_name(content["proxy_name"])[0]
+    type = _parse_proxy_name(content["proxy_name"])
 
     TUNNEL_MANAGER.remove_tunnel(
         token,
