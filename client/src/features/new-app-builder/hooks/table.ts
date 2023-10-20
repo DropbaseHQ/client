@@ -179,7 +179,7 @@ export const useDeleteTable = (props: any = {}) => {
 };
 
 const runTableQuery = async ({ appName, pageName, pageState, type, fileName }: any) => {
-	const response = await workerAxios.post(`/query/test`, {
+	const response = await workerAxios.post(`/query/run_python`, {
 		app_name: appName,
 		page_name: pageName,
 		payload: pageState,
