@@ -9,6 +9,7 @@ export type App = {
 	date: string;
 	id: string;
 	pages: any[];
+	editable: boolean;
 };
 
 const fetchWorkspaceApps = async ({ workspaceId }: { workspaceId: any }) => {

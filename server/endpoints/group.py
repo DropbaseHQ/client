@@ -13,13 +13,12 @@ from server.schemas.group import (
     RemoveGroupPolicyRequest,
     UpdateGroupPolicyRequest,
 )
-from server.schemas import PolicyTemplate
-from server.utils.authorization import RESOURCES, AuthZDepFactory
+from server.models import User
+from server.utils.authorization import RESOURCES, AuthZDepFactory, get_current_user
 from server.utils.connect import get_db
 from server.controllers.group import (
     GroupController,
     get_group as c_get_group,
-    delete_group as c_delete_group,
 )
 
 
@@ -33,29 +32,46 @@ def get_group(group_id: UUID, db: Session = Depends(get_db)):
     return c_get_group(db, group_id)
 
 
+@router.get("/{group_id}/users")
+def get_group_users(group_id: UUID, db: Session = Depends(get_db)):
+    return GroupController.get_group_users(db, group_id)
+
+
 @router.post("/")
-def create_group(request: CreateGroup, db: Session = Depends(get_db)):
-    return crud.group.create(db, obj_in=request)
+def create_group(
+    request: CreateGroup, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
+    return GroupController.create_group(db=db, request=request, user=user)
 
 
 @router.put("/{group_id}")
 def update_group(group_id: UUID, request: UpdateGroup, db: Session = Depends(get_db)):
-    return crud.group.update_by_pk(db, pk=group_id, obj_in=request)
+    return crud.group.update_by_pk(db=db, pk=group_id, obj_in=request)
 
 
 @router.delete("/{group_id}")
-def delete_group(group_id: UUID, db: Session = Depends(get_db)):
-    return c_delete_group(db, group_id)
+def delete_group(group_id: UUID, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    return GroupController.delete_group(db=db, group_id=group_id, user=user)
 
 
 @router.post("/add_user/{group_id}")
-def add_user_to_group(group_id: UUID, request: AddUser, db: Session = Depends(get_db)):
-    return GroupController.add_user(db, group_id, request.user_id)
+def add_user_to_group(
+    group_id: UUID,
+    request: AddUser,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    return GroupController.add_user(db=db, user=user, group_id=group_id, user_id=request.user_id)
 
 
 @router.post("/remove_user/{group_id}")
-def remove_user_from_group(group_id: UUID, request: RemoveUser, db: Session = Depends(get_db)):
-    return GroupController.remove_user(db, group_id, request.user_id)
+def remove_user_from_group(
+    group_id: UUID,
+    request: RemoveUser,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    return GroupController.remove_user(db=db, user=user, group_id=group_id, user_id=request.user_id)
 
 
 @router.post("/add_policies/{group_id}")

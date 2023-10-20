@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Trash } from 'react-feather';
 import {
-	Button,
-	IconButton,
 	Box,
 	Text,
+	Button,
+	IconButton,
 	Popover,
 	PopoverTrigger,
 	PopoverContent,
@@ -15,20 +15,60 @@ import {
 	PopoverCloseButton,
 	ButtonGroup,
 } from '@chakra-ui/react';
-
-import { GET_WORKSPACE_GROUPS_QUERY_KEY } from './hooks/workspace';
+import { GET_WORKSPACE_GROUPS_QUERY_KEY } from '../../hooks/workspace';
+import { useDeleteGroup } from '../../hooks/group';
 import { useQueryClient } from 'react-query';
 
-import { useDeleteGroup } from './hooks/group';
+export const PermissionsCard = ({
+	isSelected = false,
+	entity,
+	children,
+	...props
+}: {
+	isSelected?: boolean;
+	entity: any;
+	children: React.ReactNode;
+}) => {
+	return (
+		<Box
+			key={entity.id}
+			p={3}
+			borderWidth="2px"
+			borderRadius="lg"
+			boxShadow={isSelected ? 'sm' : 'md'}
+			_hover={{ cursor: 'pointer' }}
+			borderColor={isSelected ? 'blue.500' : 'gray.200'}
+			display="flex"
+			justifyContent="space-between"
+			{...props}
+		>
+			{children}
+		</Box>
+	);
+};
+
+export const UserCard = ({
+	isSelected,
+	user,
+}: {
+	isSelected: boolean;
+	user: any;
+	children: React.ReactNode;
+}) => {
+	return (
+		<PermissionsCard isSelected={isSelected} entity={user}>
+			<Text>{user.email}</Text>
+		</PermissionsCard>
+	);
+};
 
 export const GroupCard = ({
-	selectedGroup,
-	setSelectedGroup,
+	isSelected,
 	group,
 }: {
-	selectedGroup: string;
-	setSelectedGroup: any;
+	isSelected: boolean;
 	group: any;
+	children: React.ReactNode;
 }) => {
 	const [isDeletePopoverOpen, setDeletePopoverOpen] = useState(false);
 	const queryClient = useQueryClient();
@@ -53,18 +93,7 @@ export const GroupCard = ({
 		});
 	};
 	return (
-		<Box
-			key={group.id}
-			p={3}
-			borderWidth="2px"
-			borderRadius="lg"
-			boxShadow={selectedGroup === group.id ? 'sm' : 'md'}
-			_hover={{ cursor: 'pointer' }}
-			borderColor={selectedGroup === group.id ? 'blue.500' : 'gray.200'}
-			onClick={() => setSelectedGroup(group.id)}
-			display="flex"
-			justifyContent="space-between"
-		>
+		<PermissionsCard isSelected={isSelected} entity={group}>
 			<Text fontSize="xl" fontWeight="bold">
 				{group.name}
 			</Text>
@@ -106,6 +135,6 @@ export const GroupCard = ({
 					</PopoverFooter>
 				</PopoverContent>
 			</Popover>
-		</Box>
+		</PermissionsCard>
 	);
 };

@@ -131,19 +131,22 @@ export const AppNavbar = ({ isPreview }: any) => {
 					</Popover>
 				)}
 			</Stack>
-			<Tooltip label={isPreview ? 'App preview' : 'App Studio'}>
-				<IconButton
-					size="sm"
-					variant="ghost"
-					colorScheme="blue"
-					icon={isPreview ? <EyeOff size="14" /> : <Eye size="14" />}
-					aria-label="Preview"
-					ml="auto"
-					mr="4"
-					as={Link}
-					to={isPreview ? '../new-editor' : '../new-preview'}
-				/>
-			</Tooltip>
+
+			{app?.editable && (
+				<Tooltip label={isPreview ? 'App preview' : 'App Studio'}>
+					<IconButton
+						size="sm"
+						variant="ghost"
+						colorScheme="blue"
+						icon={isPreview ? <EyeOff size="14" /> : <Eye size="14" />}
+						aria-label="Preview"
+						ml="auto"
+						mr="4"
+						as={Link}
+						to={isPreview ? '../new-editor' : '../new-preview'}
+					/>
+				</Tooltip>
+			)}
 		</Stack>
 	);
 };

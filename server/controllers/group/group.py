@@ -1,15 +1,18 @@
+from uuid import UUID
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from server.models import Policy, UserGroup
+from server.models import Policy, UserGroup, User
 from server.schemas import PolicyTemplate
 from server.schemas.group import (
     AddGroupPolicyRequest,
     RemoveGroupPolicyRequest,
     UpdateGroupPolicyRequest,
+    CreateGroup,
 )
 
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
+from server.controllers.policy import PolicyUpdater, format_permissions_for_highest_action
 from server import crud
-from typing import List
 
 
 class GroupController:
@@ -21,7 +24,16 @@ class GroupController:
     """
 
     @staticmethod
-    def add_user(db: Session, group_id: str, user_id: str):
+    def add_user(
+        db: Session,
+        user: User,
+        group_id: str,
+        user_id: str,
+        role: str = "member",
+        require_leader: bool = True,
+    ):
+        if require_leader:
+            require_group_leader(db, group_id, user)
         group = crud.group.get_object_by_id_or_404(db, id=group_id)
         try:
             # Are there any existing user_group policies for this user in this workspace IN the policy table?
@@ -43,13 +55,18 @@ class GroupController:
                     ),
                     auto_commit=False,
                 )
-
-            # Add the user to the group
-            crud.user_group.create(
-                db,
-                obj_in={"user_id": user_id, "group_id": group_id},
-                auto_commit=False,
+            existing_user_group = (
+                db.query(UserGroup)
+                .filter(UserGroup.user_id == str(user_id), UserGroup.group_id == str(group.id))
+                .one_or_none()
             )
+            if not existing_user_group:
+                # Add the user to the group
+                crud.user_group.create(
+                    db,
+                    obj_in={"user_id": user_id, "group_id": group_id, "role": role},
+                    auto_commit=False,
+                )
 
             db.commit()
 
@@ -59,7 +76,9 @@ class GroupController:
             raise e
 
     @staticmethod
-    def remove_user(db: Session, group_id: str, user_id: str):
+    def remove_user(db: Session, user: User, group_id: str, user_id: str):
+        require_group_leader(db, group_id, user)
+
         group = crud.group.get_object_by_id_or_404(db, id=group_id)
         try:
             # Remove the user from the group in policy table
@@ -124,47 +143,63 @@ class GroupController:
     @staticmethod
     def update_policy(db: Session, group_id: str, request: UpdateGroupPolicyRequest):
         group = crud.group.get_object_by_id_or_404(db, id=group_id)
-        try:
-            # Query if the policy exists in the policy table
-            existing_policy = (
-                db.query(Policy)
-                .filter(
-                    Policy.ptype == "p",
-                    Policy.v1 == str(group.id),
-                    Policy.v2 == request.resource,
-                    Policy.v3 == request.action,
-                )
-                .filter(Policy.workspace_id == str(group.workspace_id))
-                .one_or_none()
-            )
-            if existing_policy and request.effect == "deny":
-                # Remove the policy from the policy table
-                db.query(Policy).filter(
-                    Policy.v1 == str(group.id),
-                    Policy.v2 == request.resource,
-                    Policy.v3 == request.action,
-                ).filter(Policy.workspace_id == str(group.workspace_id)).delete()
+        policy_updater = PolicyUpdater(
+            db=db,
+            subject_id=group_id,
+            workspace_id=group.workspace_id,
+            request=request,
+        )
+        return policy_updater.update_policy()
 
-            elif not existing_policy and request.effect == "allow":
-                # Add the policy to the policy table
-                crud.policy.create(
-                    db,
-                    obj_in=Policy(
-                        ptype="p",
-                        v0=10,
-                        v1=group.id,
-                        v2=request.resource,
-                        v3=request.action,
-                        workspace_id=group.workspace_id,
-                    ),
-                    auto_commit=False,
-                )
+    @staticmethod
+    def create_group(db: Session, request: CreateGroup, user: User):
+        try:
+            new_group = crud.group.create(db, obj_in=request, auto_commit=False)
+            db.flush()
+            GroupController.add_user(
+                db=db,
+                user=user,
+                group_id=new_group.id,
+                user_id=user.id,
+                role="leader",
+                require_leader=False,
+            )
 
             db.commit()
-            return {"message": "success"}
+            return new_group
         except Exception as e:
             db.rollback()
             raise e
+
+    @staticmethod
+    def delete_group(db: Session, user: User, group_id: str):
+        require_group_leader(db, group_id, user)
+        try:
+            # Delete user group associations
+            db.query(UserGroup).filter(UserGroup.group_id == str(group_id)).delete()
+
+            # Delete group policies
+            db.query(Policy).filter(Policy.v1 == str(group_id)).delete()
+
+            # Delete group
+            crud.group.remove(db, id=str(group_id), auto_commit=False)
+
+            db.commit()
+        except Exception as e:
+            db.rollback
+            raise e
+
+    @staticmethod
+    def get_group_users(db: Session, group_id: str):
+        """Returns all users in a group."""
+        users = (
+            db.query(User)
+            .join(UserGroup, UserGroup.user_id == User.id)
+            .filter(UserGroup.group_id == group_id)
+            .with_entities(User.id, User.email, User.name, UserGroup.role)
+            .all()
+        )
+        return users
 
 
 def get_group(db: Session, group_id: str):
@@ -172,30 +207,24 @@ def get_group(db: Session, group_id: str):
     group = crud.group.get_object_by_id_or_404(db, id=group_id)
     enforcer = get_contexted_enforcer(db, group.workspace_id)
     permissions = enforcer.get_filtered_policy(1, str(group.id))
-    formatted_permissions = []
-    for permission in permissions:
-        formatted_permissions.append(
-            {
-                "group_id": permission[1],
-                "resource": permission[2],
-                "action": permission[3],
-            }
-        )
+
+    formatted_permissions = format_permissions_for_highest_action(permissions)
+
     return {"group": group, "permissions": formatted_permissions}
 
 
-def delete_group(db: Session, group_id: str):
-    try:
-        # Delete user group associations
-        db.query(UserGroup).filter(UserGroup.group_id == str(group_id)).delete()
+def is_group_leader(db: Session, group_id: UUID, user: User):
+    user_role = crud.user_group.get_user_role(db, user.id, group_id)
+    if user_role is None:
+        return False
+    if user_role.role == "leader":
+        return True
+    return False
 
-        # Delete group policies
-        db.query(Policy).filter(Policy.v1 == str(group_id)).delete()
 
-        # Delete group
-        crud.group.remove(db, id=str(group_id), auto_commit=False)
-
-        db.commit()
-    except Exception as e:
-        db.rollback
-        raise e
+def require_group_leader(db: Session, group_id: UUID, user: User):
+    if not is_group_leader(db, group_id, user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"User {user.id} is not a leader of group {group_id}",
+        )
