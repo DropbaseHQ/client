@@ -1,14 +1,6 @@
 from fastapi.testclient import TestClient
 
 from server.main import app
-from server.tests.authorization.utils import (
-    HomeTestClient,
-    TEST_APP_ID,
-    TEST_FUNCTION_ID,
-    TEST_FUNCTION_ID_2,
-    TEST_SOURCE_ID,
-    TEST_GROUP,
-)
 import pytest
 import re
 
@@ -16,10 +8,6 @@ import re
 client = TestClient(app)
 
 TEST_ADMIN_EMAIL = "jon+100@dropbase.io"
-TEST_DEV_EMAIL = "jon+101@dropbase.io"
-TEST_USER_EMAIL = "jon+102@dropbase.io"
-TEST_USER_ID = "b97f49a9-b8cc-4e17-bc0f-568457f3e86c"
-TEST_MEMBER_EMAIL = "jon+103@dropbase.io"
 TEST_API_TOKEN = "test-token"
 
 
