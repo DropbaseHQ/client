@@ -10,9 +10,6 @@ class Workspace(Base):
 
     name = Column(String, nullable=False)
     active = Column(Boolean, default=True)
-    api_token = Column(String)
-    api_port = Column(String)
-    lsp_port = Column(String)
 
     date = Column(TIMESTAMP, server_default=func.now())
 
