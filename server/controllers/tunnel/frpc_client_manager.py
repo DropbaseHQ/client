@@ -1,7 +1,11 @@
 import logging
 import random
 from datetime import datetime, timedelta
+from uuid import UUID
 
+from sqlalchemy.orm import Session
+
+from server import crud
 from server.schemas.tunnel import TunnelType, Tunnel, FRPClient
 from server.controllers.tunnel.manager_util import clean_stale
 
@@ -15,6 +19,10 @@ class _FRPClientManager:
         self.clean_interval = timedelta(hours=1)
         self.last_clean = datetime.now()
         self.clients: dict[str, FRPClient] = {}
+    
+    def get_tunnel_url(self, db: Session, workspace_id: UUID, type: TunnelType) -> str:
+        token = crud.workspace.get_workspace_proxy_token(db, workspace_id)
+        return self.get_tunnel(token, type)
 
     @clean_stale
     def handle_client_ping(self, token: str):

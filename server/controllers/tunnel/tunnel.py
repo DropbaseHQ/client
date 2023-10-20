@@ -108,7 +108,7 @@ def ping_tunnel_op(request: dict):
 
 
 async def forward_request_through_tunnel(
-    workspace_id: str,
+    workspace_id: str,  # TODO change this to UUID
     tunnel_name: TunnelType,
     request: Request,
     client_path: str,
