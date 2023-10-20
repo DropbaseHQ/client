@@ -40,7 +40,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 	const { type, property: properties } = values.find((v: any) => v.id === id) || {};
 
-	const { functions } = useAllPageFunctionNames(pageId || '');
+	const { functions } = useAllPageFunctionNames({ pageName, appName });
 
 	const [visibleProperties, setVisibleProperties] = useState<any>(DISPLAY_COMPONENT_PROPERTIES);
 
@@ -176,7 +176,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 									type={showFunctionList ? 'select' : property.type}
 									options={(
 										(showFunctionList
-											? functions
+											? functions?.map((f: any) => ({ name: f, value: f }))
 											: property.enum || property.options) || []
 									).map((o: any) => ({
 										name: o,

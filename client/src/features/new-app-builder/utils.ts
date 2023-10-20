@@ -69,10 +69,10 @@ export const generateFunctionCallSuggestions = (
 
 		return {
 			suggestions: functions.map((f) => ({
-				label: `${f.name}`,
+				label: `${f}`,
 				kind: monacoLib.languages.CompletionItemKind.Function,
-				documentation: `Function call for ${f.name}`,
-				insertText: `${f.call}`,
+				documentation: `Function call for ${f}`,
+				insertText: `${f}`,
 				range,
 			})),
 		};

@@ -57,6 +57,8 @@ export const useFile = ({ fileName, appName, pageName }: any) => {
 		() => fetchFile({ fileName, appName, pageName }),
 		{
 			enabled: Boolean(fileName && appName && pageName),
+			cacheTime: 0,
+			staleTime: 0,
 		},
 	);
 

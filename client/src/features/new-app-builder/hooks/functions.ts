@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
 
-import { axios, workerAxios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/new-app-preview/hooks';
 
 export const ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY = 'functionNames';
@@ -36,13 +36,12 @@ export const useAllPageFunctionNames = ({ appName, pageName }: any) => {
 	};
 };
 
-const runFunction = async ({ testCode, pageId, pageState, functionId, code }: any) => {
-	const response = await axios.post(`/task/`, {
-		page_id: pageId,
-		function_id: functionId,
-		test_code: testCode,
-		state: pageState,
-		code,
+const runPythonFunction = async ({ pageName, appName, code, pageState }: any) => {
+	const response = await workerAxios.post(`query/run_python_string`, {
+		page_name: pageName,
+		app_name: appName,
+		payload: pageState,
+		python_string: code,
 	});
 
 	return response.data;
@@ -50,7 +49,7 @@ const runFunction = async ({ testCode, pageId, pageState, functionId, code }: an
 
 export const useRunFunction = (props: any = {}) => {
 	const queryClient = useQueryClient();
-	return useMutation(runFunction, {
+	return useMutation(runPythonFunction, {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
