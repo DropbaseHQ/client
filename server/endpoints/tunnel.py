@@ -4,8 +4,10 @@ from sqlalchemy.orm import Session
 
 import server.controllers.tunnel as tunnel_controller
 from server.controllers.tunnel import EXPOSED_WEBSOCKETS, TUNNEL_MANAGER, TunnelType
+from server.models import User
+from server.utils.authorization import RESOURCES, AuthZDepFactory, get_current_user
 from server.utils.connect import get_db
-from server.utils.authorization import RESOURCES, AuthZDepFactory
+from server.utils.helper import raise_http_exception
 
 
 workspace_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WORKSPACE)
@@ -23,13 +25,19 @@ authed_router = APIRouter(
 
 
 @router.get("/clients")
-def clients():
-    return TUNNEL_MANAGER.clients
+def clients(user: User=Depends(get_current_user)):
+    if user.email == "az@dropbase.io":
+        return TUNNEL_MANAGER.clients
+    else:
+        raise_http_exception(401, "")
 
 
 @router.get("/exposed_websockets")
-def exposed_websockets():
-    return EXPOSED_WEBSOCKETS.websockets
+def exposed_websockets(user: User=Depends(get_current_user)):
+    if user.email == "az@dropbase.io":
+        return EXPOSED_WEBSOCKETS.websockets
+    else:
+        raise_http_exception(401, "")
 
 
 @router.post("/auth")
