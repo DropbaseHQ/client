@@ -1,6 +1,7 @@
 from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from server.models import Policy, UserGroup, User
 from server.schemas import PolicyTemplate
 from server.schemas.group import (
@@ -179,7 +180,7 @@ class GroupController:
             db.query(UserGroup).filter(UserGroup.group_id == str(group_id)).delete()
 
             # Delete group policies
-            db.query(Policy).filter(Policy.v1 == str(group_id)).delete()
+            db.query(Policy).filter(or_(Policy.v0 == str(group_id), Policy.v1 == str(group_id))).delete()
 
             # Delete group
             crud.group.remove(db, id=str(group_id), auto_commit=False)

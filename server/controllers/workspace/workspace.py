@@ -111,3 +111,13 @@ def update_user_role_in_workspace(db: Session, workspace_id: UUID, request: Upda
     except Exception as e:
         db.rollback()
         raise e
+
+
+def delete_workspace(db: Session, workspace_id: UUID):
+    try:
+        crud.workspace.remove(db, id=workspace_id, auto_commit=False)
+        db.commit()
+        return {"message": "Workspace deleted"}
+    except Exception as e:
+        db.rollback()
+        raise e

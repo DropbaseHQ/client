@@ -74,4 +74,4 @@ def update_workspace(workspace_id: UUID, request: UpdateWorkspace, db: Session =
 
 @router.delete("/{workspace_id}")
 def delete_workspace(workspace_id: UUID, db: Session = Depends(get_db)):
-    return crud.workspace.remove(db, id=workspace_id)
+    return workspace_controller.delete_workspace(db, workspace_id)
