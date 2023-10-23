@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Column, ForeignKey, String
+from sqlalchemy import TIMESTAMP, Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
@@ -20,6 +20,11 @@ class Policy(Base):
     date = Column(TIMESTAMP, server_default=func.now())
 
     __tablename__ = "policy"
+    __table_args__ = (
+        UniqueConstraint(
+            "ptype", "v0", "v1", "v2", "v3", "v4", "v5", "workspace_id", name="unique_policy_constraint"
+        ),
+    )
 
     def __str__(self):
         arr = [self.ptype]
