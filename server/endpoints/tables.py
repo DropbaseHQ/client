@@ -5,8 +5,6 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.tables import create_table, get_table, get_table_row, pin_filters, update_table
-
-# from server.controllers.tables.convert import convert_to_smart_table
 from server.schemas.tables import (
     CreateTablesRequest,
     PinFilters,

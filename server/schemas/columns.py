@@ -115,5 +115,5 @@ class UpdateColumns(BaseModel):
 
 class UpdateColumnsRequest(BaseModel):
     table_id: UUID
-    table_sql: str
-    column: List[str]
+    # table_sql: str
+    columns: List[str]

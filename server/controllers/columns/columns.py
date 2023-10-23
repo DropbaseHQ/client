@@ -1,22 +1,24 @@
+import json
 from uuid import UUID
 
+import requests
 from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.tables.helper import get_sql_variables
+from server.credentials import WORKER_API
 from server.models.columns import Columns
 from server.schemas.columns import (
     CreateColumns,
     PgDefinedColumnProperty,
-    PgReadColumnProperty,
-    PyColumnBaseProperty,
+    PyDefinedColumnProperty,
     UpdateColumns,
     UpdateColumnsRequest,
 )
 from server.schemas.tables import ReadTables
 from server.utils.converter import get_class_properties
 
-column_type_to_schema_mapper = {"postgres": PgDefinedColumnProperty, "python": PyColumnBaseProperty}
+column_type_to_schema_mapper = {"sql": PgDefinedColumnProperty, "python": PyDefinedColumnProperty}
 
 
 def create_column(db: Session, request: CreateColumns):
@@ -35,32 +37,38 @@ def update_column(db: Session, column_id: UUID, request: UpdateColumns):
 
 
 def get_table_columns_and_props(db: Session, table_id: UUID):
+    table = crud.tables.get_object_by_id_or_404(db, id=table_id)
     columns = crud.columns.get_table_columns(db, table_id=table_id)
     values = []
     for column in columns:
         values.append({"name": column.name, "property": column.property})
 
-    column_props = get_class_properties(PgReadColumnProperty)
-    return {"schema": column_props, "columns": values}
+    column_class = column_type_to_schema_mapper.get(table.type)
+    column_props = get_class_properties(column_class)
+    return {"schema": column_props, "values": values}
+
+
+from server.controllers.state.state import get_state_context
 
 
 def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
 
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
+    page = crud.page.get_table_page(db, table.id)
     db_columns = crud.columns.get_table_columns(db, table_id=request.table_id)
 
     cols_to_add, cols_to_delete = [], []
 
     if not db_columns:
-        cols_to_add = request.table_columns
+        cols_to_add = request.columns
     else:
         # check for delta
         db_cols_names = [col.property["name"] for col in db_columns]
         for col in db_columns:
-            if col.property["name"] not in request.table_columns:
+            if col.property["name"] not in request.columns:
                 cols_to_delete.append(col)
 
-        for col in request.table_columns:
+        for col in request.columns:
             if col not in db_cols_names:
                 cols_to_add.append(col)
 
@@ -73,10 +81,19 @@ def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
         create_column_record_from_name(db, column, table)
 
     # update table
-    depends_on = get_sql_variables(request.table_sql)
-    table.depends_on = depends_on
-    db.commit()
+    # depends_on = get_sql_variables(request.table_sql)
+    # table.depends_on = depends_on
+    # db.commit()
 
+    State, Context = get_state_context(db, page.id)
+
+    payload = {
+        "app_name": "app",
+        "page_name": "page1",
+        "state": State.schema(),
+        "context": Context.schema(),
+    }
+    requests.post(f"{WORKER_API}/generate_schema", data=json.dumps(payload))
     return table
 
 

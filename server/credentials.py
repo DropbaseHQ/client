@@ -18,3 +18,6 @@ ENVIRONMENT = os.environ.get("ENVIRONMENT")
 
 OPENAI_ORG_ID = os.getenv("OPENAI_ORG_ID")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+WORKER_API = os.getenv("WORKER_API")
+LSP_SERVER = os.getenv("LSP_SERVER")
