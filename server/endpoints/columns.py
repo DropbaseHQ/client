@@ -4,11 +4,15 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.columns import create_column, get_table_columns_and_props, update_column
-from server.schemas.columns import CreateColumns, UpdateColumns
+from server.controllers.columns import (
+    create_column,
+    get_table_columns_and_props,
+    update_column,
+    update_table_columns_and_props,
+)
+from server.schemas.columns import CreateColumns, UpdateColumns, UpdateColumnsRequest
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
-
 
 col_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.COLUMNS)
 
@@ -33,6 +37,14 @@ def get_columns(columns_id: UUID, db: Session = Depends(get_db)):
 )
 def get_table_columns(table_id: UUID, db: Session = Depends(get_db)):
     return get_table_columns_and_props(db, table_id=table_id)
+
+
+@router.put(
+    "/table/",
+    dependencies=[Depends(col_authorizer.use_params(resource_type=RESOURCES.TABLE))],
+)
+def update_table_columns(request: UpdateColumnsRequest, db: Session = Depends(get_db)):
+    return update_table_columns_and_props(db, request)
 
 
 @router.post("/")

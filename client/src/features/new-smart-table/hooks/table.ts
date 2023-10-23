@@ -7,7 +7,7 @@ import { useGetTable } from '@/features/new-app-builder/hooks';
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
 const fetchTableData = async ({ code, source, type, filters, sorts, appName, pageName, state }: any) => {
-	const response = await workerAxios.post<any>(`/query`, {
+	const response = await workerAxios.post<any>(`/query/`, {
 		app_name: appName,
 		page_name: pageName,
 		payload: state,

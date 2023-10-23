@@ -1,10 +1,10 @@
 from datetime import datetime
-from typing import Any, Literal, Optional, Union
+from typing import List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel
 
-from server.schemas.states import PgColumnDisplayProperty, PgColumnSharedProperty
+from server.schemas.states import ColumnDisplayProperty, ColumnSharedProperty
 
 
 class PgColumnBaseProperty(BaseModel):
@@ -60,21 +60,30 @@ class PgColumnBaseProperty(BaseModel):
     edit_keys: list = []
 
 
-class PgDefinedColumnProperty(PgColumnBaseProperty, PgColumnSharedProperty):
+class PgDefinedColumnProperty(PgColumnBaseProperty, ColumnSharedProperty):
     pass
 
 
-class PgReadColumnProperty(PgColumnBaseProperty, PgColumnDisplayProperty, PgColumnSharedProperty):
+class PgReadColumnProperty(PgColumnBaseProperty, ColumnDisplayProperty, ColumnSharedProperty):
     pass
 
 
-class PythonColumn(BaseModel):
+class PyColumnBaseProperty(BaseModel):
     name: str
+    type: Optional[Literal["str", "int", "float", "bool"]]
+
+
+class PyDefinedColumnProperty(PyColumnBaseProperty, ColumnSharedProperty):
+    pass
+
+
+class PyReadColumnProperty(PyColumnBaseProperty, ColumnDisplayProperty, ColumnSharedProperty):
+    pass
 
 
 class BaseColumns(BaseModel):
     name: Optional[str]
-    property: Union[PgDefinedColumnProperty, PythonColumn]
+    property: Union[PgDefinedColumnProperty, PyColumnBaseProperty]
     table_id: UUID
     type: str
 
@@ -85,7 +94,7 @@ class BaseColumns(BaseModel):
 class ReadColumns(BaseColumns):
     id: UUID
     name: str
-    property: Union[PgReadColumnProperty, PythonColumn]
+    property: Union[PgReadColumnProperty, PyColumnBaseProperty]
     table_id: UUID
     type: str
     date: datetime
@@ -102,3 +111,9 @@ class UpdateColumns(BaseModel):
     name: Optional[str]
     type: str
     property: dict
+
+
+class UpdateColumnsRequest(BaseModel):
+    table_id: UUID
+    table_sql: str
+    column: List[str]

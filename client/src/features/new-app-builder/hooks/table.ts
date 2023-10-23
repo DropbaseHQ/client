@@ -47,7 +47,7 @@ export const useGetTable = (tableId: string, props?: any): any => {
 export const QUERY_NAMES_KEY = 'queryFetcher';
 
 const fetchQueryNames = async ({ pageName, appName }: any) => {
-	const response = await workerAxios.get<any>(`/files/table_options/${appName}/${pageName}`);
+	const response = await workerAxios.get<any>(`/files/table_options/${appName}/${pageName}/`);
 
 	return response.data;
 };
@@ -179,7 +179,7 @@ export const useDeleteTable = (props: any = {}) => {
 };
 
 const runTableQuery = async ({ appName, pageName, pageState, type, fileName }: any) => {
-	const response = await workerAxios.post(`/query/run_python`, {
+	const response = await workerAxios.post(`/query/run_python/`, {
 		app_name: appName,
 		page_name: pageName,
 		payload: pageState,
@@ -204,7 +204,7 @@ export const useRunTableQuery = (props: any = {}) => {
 
 
 const runSQLQuery = async ({ appName, pageName, pageState, fileName, fileContent }: any) => {
-	const response = await workerAxios.post(`/query/run_sql_string`, {
+	const response = await workerAxios.post(`/query/run_sql_string/`, {
 		app_name: appName,
 		page_name: pageName,
 		payload: pageState,

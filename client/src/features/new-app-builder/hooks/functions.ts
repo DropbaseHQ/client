@@ -7,7 +7,7 @@ import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/new-app-preview/hooks';
 export const ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY = 'functionNames';
 
 const fetchAllPageFunctionNames = async ({ appName, pageName }: any) => {
-	const response = await workerAxios.get<any>(`files/functions/${appName}/${pageName}/context`);
+	const response = await workerAxios.get<any>(`files/functions/${appName}/${pageName}/context/`);
 
 	return response.data;
 };
@@ -37,7 +37,7 @@ export const useAllPageFunctionNames = ({ appName, pageName }: any) => {
 };
 
 const runPythonFunction = async ({ pageName, appName, code, pageState }: any) => {
-	const response = await workerAxios.post(`query/run_python_string`, {
+	const response = await workerAxios.post(`query/run_python_string/`, {
 		page_name: pageName,
 		app_name: appName,
 		payload: pageState,

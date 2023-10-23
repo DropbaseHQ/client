@@ -34,11 +34,6 @@ class CellEdit(BaseModel):
     columns: Dict[str, CellProps]
 
 
-class EditCell(BaseModel):
-    edits: List[CellEdit]
-    table_id: UUID
-
-
 class RunCodeResponse(BaseModel):
     # is_state: bool
     is_state: Optional[bool]

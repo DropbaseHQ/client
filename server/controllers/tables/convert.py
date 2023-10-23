@@ -6,8 +6,8 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.tables.helper import parse_state, render_sql
 from server.constants import GPT_MODEL, GPT_TEMPERATURE
+from server.controllers.tables.helper import parse_state, render_sql
 from server.credentials import OPENAI_API_KEY, OPENAI_ORG_ID
 from server.schemas.columns import PgDefinedColumnProperty
 from server.schemas.tables import ConvertToSmart
@@ -30,6 +30,9 @@ class ColumnInfo(BaseModel):
 
 class OutputSchema(BaseModel):
     output: Dict[str, ColumnInfo]
+
+
+# TODO: AZ refactor me
 
 
 def convert_to_smart_table(db: Session, request: ConvertToSmart):

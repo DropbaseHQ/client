@@ -5,20 +5,17 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.tables import create_table, get_table, get_table_row, pin_filters, update_table
-from server.controllers.tables.convert import convert_to_smart_table
-from server.controllers.task.table import get_table_data
+
+# from server.controllers.tables.convert import convert_to_smart_table
 from server.schemas.tables import (
-    ConvertToSmart,
     CreateTablesRequest,
     PinFilters,
-    QueryTable,
     TablesReadProperty,
     UpdateTablesRequest,
 )
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
-
 
 table_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.TABLES)
 
@@ -61,14 +58,9 @@ def get_table_schema(tables_id: UUID, db: Session = Depends(get_db)):
     return get_table_row(db, tables_id)
 
 
-@router.post("/query")
-def get_table_req(request: QueryTable, response: Response, db: Session = Depends(get_db)):
-    return get_table_data(db, request, response)
-
-
-@router.post("/convert")
-def convert_to_smart_req(request: ConvertToSmart, db: Session = Depends(get_db)):
-    return convert_to_smart_table(db, request)
+# @router.post("/convert")
+# def convert_to_smart_req(request: ConvertToSmart, db: Session = Depends(get_db)):
+#     return convert_to_smart_table(db, request)
 
 
 @router.post("/pin_filters")

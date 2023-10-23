@@ -59,17 +59,17 @@ class WidgetStateProperty(WidgetDisplayProperty, WidgetSharedProperty):
 
 
 # columns
-class PgColumnDisplayProperty(BaseModel):
+class ColumnDisplayProperty(BaseModel):
     message: Optional[str]
     message_type: Optional[str]
 
 
-class PgColumnSharedProperty(BaseModel):
+class ColumnSharedProperty(BaseModel):
     editable: Optional[bool] = False
     visible: Optional[bool] = True
 
 
-class PgColumnStateProperty(PgColumnDisplayProperty, PgColumnSharedProperty):
+class ColumnStateProperty(ColumnDisplayProperty, ColumnSharedProperty):
     pass
 
 

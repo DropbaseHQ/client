@@ -9,7 +9,7 @@ export const ALL_PAGE_FILES_QUERY_KEY = 'allFiles';
 
 const fetchAllPageFiles = async ({ pageName, appName }: { pageName: string; appName: string }) => {
 	const response = await workerAxios.get<{ files: string[] }>(
-		`/files/all/${appName}/${pageName}`,
+		`/files/all/${appName}/${pageName}/`,
 	);
 
 	return response.data;
@@ -41,7 +41,7 @@ export const usePageFiles = ({ pageName, appName }: { pageName: string; appName:
 
 const fetchFile = async ({ fileName, appName, pageName }: any) => {
 	const response = await workerAxios.get<string>(
-		`/workspace/${appName}/${pageName}/scripts/${fileName}`,
+		`/workspace/${appName}/${pageName}/scripts/${fileName}/`,
 	);
 
 	return response.data;
@@ -76,7 +76,7 @@ export const useFile = ({ fileName, appName, pageName }: any) => {
 };
 
 const createFile = async ({ pageName, fileName, appName }: any) => {
-	const response = await workerAxios.post(`/files/create`, {
+	const response = await workerAxios.post(`/files/create/`, {
 		app_name: appName,
 		page_name: pageName,
 		file_name: fileName,
