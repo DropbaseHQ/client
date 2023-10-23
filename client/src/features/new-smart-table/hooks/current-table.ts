@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { useTableData } from './table';
+import { useTableColumns, useTableData } from './table';
 import { filtersAtom, sortsAtom } from '@/features/new-smart-table/atoms';
 import { newPageStateAtom } from '@/features/new-app-state';
 import { pageAtom } from '@/features/new-page';
@@ -26,7 +26,7 @@ export const useCurrentTableData = (tableId: any) => {
 	const state = useAtomValue(newPageStateAtom);
 	const { pageId } = useParams();
 
-	return useTableData({
+	const tableData = useTableData({
 		tableId,
 		filters,
 		sorts,
@@ -35,4 +35,12 @@ export const useCurrentTableData = (tableId: any) => {
 		pageName,
 		appName,
 	});
+
+	const tableColumns = useTableColumns(tableId);
+
+	return {
+		...tableData,
+		isLoading: tableColumns.isLoading || tableData.isLoading,
+		columns: tableColumns.columns,
+	};
 };

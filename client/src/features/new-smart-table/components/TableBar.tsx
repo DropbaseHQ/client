@@ -9,11 +9,14 @@ import { cellEditsAtom } from '@/features/new-smart-table/atoms';
 import { FilterButton } from './Filters';
 import { SortButton } from './Sorts';
 import { PinnedFilters } from './PinnedFilters';
+import { useGetTable } from '@/features/new-app-builder/hooks';
 
 export const TableBar = () => {
 	const toast = useToast();
 
 	const tableId = useCurrentTableId();
+
+	const { values, type: tableType } = useGetTable(tableId || '');
 
 	const { rows, columns } = useCurrentTableData(tableId);
 
@@ -34,9 +37,11 @@ export const TableBar = () => {
 	});
 
 	const handleCellEdits = () => {
-		if (tableId)
+		if (tableType && values?.source)
 			saveEditsMutation.mutate({
-				tableId,
+				tableType,
+				source: values?.source,
+				code: values?.code,
 				edits: cellEdits.map((edit: any) => ({
 					row: rows[edit.rowIndex],
 					column_name: edit.column_name,

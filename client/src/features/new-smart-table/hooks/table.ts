@@ -3,10 +3,20 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 import { axios, workerAxios } from '@/lib/axios';
 import { useGetTable } from '@/features/new-app-builder/hooks';
+import { useGetPage } from '@/features/new-page';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
-const fetchTableData = async ({ code, source, type, filters, sorts, appName, pageName, state }: any) => {
+const fetchTableData = async ({
+	code,
+	source,
+	type,
+	filters,
+	sorts,
+	appName,
+	pageName,
+	state,
+}: any) => {
 	const response = await workerAxios.post<any>(`/query/`, {
 		app_name: appName,
 		page_name: pageName,
@@ -16,7 +26,7 @@ const fetchTableData = async ({ code, source, type, filters, sorts, appName, pag
 			type,
 			source,
 			filters,
-			sorts
+			sorts,
 		},
 	});
 
@@ -30,8 +40,22 @@ export const useTableData = ({
 	state,
 	appName,
 	pageName,
+	pageId,
 }: any) => {
 	const { type, values } = useGetTable(tableId || '');
+	const { tables } = useGetPage(pageId);
+
+	const depends = tables.find((t: any) => t.id === tableId)?.depends_on || [];
+
+	const tablesState = state?.state?.tables;
+
+	const dependentTableData = depends.reduce(
+		(agg: any, tableName: any) => ({
+			...agg,
+			[tableName]: tablesState[tableName],
+		}),
+		{},
+	);
 
 	const { code, source } = values || {};
 
@@ -41,7 +65,7 @@ export const useTableData = ({
 		appName,
 		pageName,
 		type,
-		JSON.stringify({ filters, sorts, state }),
+		JSON.stringify({ filters, sorts, dependentTableData }),
 	];
 
 	const { data: response, ...rest } = useQuery(
@@ -66,17 +90,8 @@ export const useTableData = ({
 					}, {});
 				}) || [];
 
-			const columns = header.reduce(
-				(agg: any, colName: any) => ({
-					...agg,
-					[colName]: { name: colName, visible: true },
-				}),
-				{},
-			);
-
 			return {
 				rows,
-				columns,
 				header,
 				tableName: response.table_name,
 				tableId: response.table_id,
@@ -86,7 +101,6 @@ export const useTableData = ({
 		return {
 			rows: [],
 			header: [],
-			columns: {},
 		};
 	}, [response]);
 
@@ -98,8 +112,15 @@ export const useTableData = ({
 	};
 };
 
-const saveEdits = async ({ edits, tableId }: { edits: any; tableId: any }) => {
-	const response = await axios.post(`/task/edit`, { table_id: tableId, edits });
+const saveEdits = async ({ tableType, source, edits, code }: any) => {
+	const response = await workerAxios.post(`/query/edit_sql_table/`, {
+		table: {
+			source,
+			type: tableType,
+			code,
+		},
+		edits,
+	});
 	return response.data;
 };
 
@@ -126,4 +147,26 @@ export const usePinFilters = (props: any = {}) => {
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 		},
 	});
+};
+
+const fetchTableColumns = async ({ tableId }: { tableId: any }) => {
+	const response = await axios.get(`/columns/table/${tableId}`);
+
+	return response.data;
+};
+
+export const useTableColumns = (tableId: any) => {
+	const queryKey = [TABLE_DATA_QUERY_KEY, 'columns', tableId];
+	const { data: response, ...rest } = useQuery(queryKey, () => fetchTableColumns({ tableId }), {
+		enabled: !!tableId,
+	});
+
+	const columns = useMemo(() => {
+		return response || {};
+	}, [response]);
+
+	return {
+		...rest,
+		columns,
+	};
 };
