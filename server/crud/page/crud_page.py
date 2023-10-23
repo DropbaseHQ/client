@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import App, Page
+from server.models import App, Page, Tables
 from server.schemas.page import CreatePage, UpdatePage
 
 
@@ -22,6 +22,9 @@ class CRUDPage(CRUDBase[Page, CreatePage, UpdatePage]):
 
     def get_app_id(self, db: Session, page_id: UUID) -> str:
         return (db.query(Page.app_id).filter(Page.id == str(page_id)).one()).app_id
+
+    def get_table_page(self, db: Session, table_id: UUID) -> Page:
+        return db.query(Page).join(Tables, Tables.page_id == Page.id).first()
 
 
 page = CRUDPage(Page)

@@ -1,12 +1,14 @@
-import casbin
-from casbin import persist
 from pathlib import Path
 from uuid import UUID
+
+import casbin
+from casbin import persist
 from sqlalchemy.orm import Session
+
 from server import crud
+from server.models import Policy
 from server.utils.connect import SQLALCHEMY_DATABASE_URL
 from server.utils.permissions.casbin_sqlalchemy_adaptor import Adapter
-from server.models import Policy
 
 adapter = Adapter(SQLALCHEMY_DATABASE_URL, db_class=Policy)
 
@@ -49,10 +51,10 @@ def get_contexted_enforcer(db, workspace_id):
     formatted_groups = [str(g_policy).split(", ")[1:] for g_policy in grouping_policies]
     enforcer.add_grouping_policies(formatted_groups)
 
-    loaded_policies = enforcer.get_policy()
-    print("Loaded policies", loaded_policies)
+    _ = enforcer.get_policy()
+    # print("Loaded policies", loaded_policies)
     grouping_policies = enforcer.get_grouping_policy()
-    print("Loaded grouping policies", grouping_policies)
+    # print("Loaded grouping policies", grouping_policies)
 
     return enforcer
 
