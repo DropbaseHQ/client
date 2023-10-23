@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 import { axios, workerAxios } from '@/lib/axios';
-import { useGetTable } from '@/features/new-app-builder/hooks';
+import { COLUMN_PROPERTIES_QUERY_KEY, useGetTable } from '@/features/new-app-builder/hooks';
 import { useGetPage } from '@/features/new-page';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
@@ -72,7 +72,13 @@ export const useTableData = ({
 		queryKey,
 		() => fetchTableData({ code, source, type, filters, sorts, appName, pageName, state }),
 		{
-			enabled: !!(code && type && appName && pageName),
+			enabled: !!(
+				code &&
+				type &&
+				appName &&
+				pageName &&
+				Object.keys(state?.state?.tables || {}).length > 0
+			),
 		},
 	);
 
@@ -149,24 +155,21 @@ export const usePinFilters = (props: any = {}) => {
 	});
 };
 
-const fetchTableColumns = async ({ tableId }: { tableId: any }) => {
-	const response = await axios.get(`/columns/table/${tableId}`);
-
+const syncDropbaseColumns = async ({ tableId, columns }: any) => {
+	const response = await axios.put(`/columns/table/`, {
+		table_id: tableId,
+		columns,
+	});
 	return response.data;
 };
 
-export const useTableColumns = (tableId: any) => {
-	const queryKey = [TABLE_DATA_QUERY_KEY, 'columns', tableId];
-	const { data: response, ...rest } = useQuery(queryKey, () => fetchTableColumns({ tableId }), {
-		enabled: !!tableId,
+export const useSyncDropbaseColumns = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(syncDropbaseColumns, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
+		},
 	});
-
-	const columns = useMemo(() => {
-		return response || {};
-	}, [response]);
-
-	return {
-		...rest,
-		columns,
-	};
 };

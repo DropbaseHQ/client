@@ -1,10 +1,11 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { useTableColumns, useTableData } from './table';
+import { useSyncDropbaseColumns, useTableData } from './table';
 import { filtersAtom, sortsAtom } from '@/features/new-smart-table/atoms';
 import { newPageStateAtom } from '@/features/new-app-state';
 import { pageAtom } from '@/features/new-page';
+import { useGetColumnProperties } from '@/features/new-app-builder/hooks';
 
 export const CurrentTableContext: any = createContext({ tableId: null });
 
@@ -36,11 +37,32 @@ export const useCurrentTableData = (tableId: any) => {
 		appName,
 	});
 
-	const tableColumns = useTableColumns(tableId);
+	const dropbaseStoredData = useGetColumnProperties(tableId);
 
 	return {
 		...tableData,
-		isLoading: tableColumns.isLoading || tableData.isLoading,
-		columns: tableColumns.columns,
+		isLoading: dropbaseStoredData.isLoading || tableData.isLoading,
+		columns: dropbaseStoredData.columns,
 	};
+};
+
+export const useSyncCurrentTable = (tableId: any) => {
+	const syncRef = useRef(false);
+	const { header, columns, isLoading } = useCurrentTableData(tableId);
+
+	const mutation = useSyncDropbaseColumns();
+
+	useEffect(() => {
+		if (!isLoading && !syncRef.current) {
+			const isSynced = header.every((c: any) => (columns as any)[c]);
+
+			if (!isSynced) {
+				syncRef.current = true;
+				mutation.mutate({
+					tableId,
+					columns: header,
+				});
+			}
+		}
+	}, [header, isLoading, columns, mutation, tableId]);
 };

@@ -13,7 +13,7 @@ const fetchTableColumnProperties = async ({ tableId }: { tableId: string }) => {
 	return response.data;
 };
 
-export const useGetColumnProperties = (tableId: string) => {
+export const useGetColumnProperties = (tableId: string, props: any = {}) => {
 	const queryKey = [COLUMN_PROPERTIES_QUERY_KEY, tableId];
 
 	const { data: response, ...rest } = useQuery(
@@ -21,6 +21,7 @@ export const useGetColumnProperties = (tableId: string) => {
 		() => fetchTableColumnProperties({ tableId }),
 		{
 			enabled: Boolean(tableId),
+			...props,
 		},
 	);
 
@@ -28,6 +29,13 @@ export const useGetColumnProperties = (tableId: string) => {
 		return {
 			schema: response?.schema || [],
 			values: response?.values || [],
+			columns: (response?.values || []).reduce(
+				(agg: any, col: any) => ({
+					...agg,
+					[col.name]: col.property || {},
+				}),
+				{},
+			),
 		};
 	}, [response]);
 
