@@ -156,7 +156,7 @@ export const usePinFilters = (props: any = {}) => {
 };
 
 const syncDropbaseColumns = async ({ tableId, columns }: any) => {
-	const response = await axios.put(`/columns/table/`, {
+	const response = await axios.post(`/columns/sync/`, {
 		table_id: tableId,
 		columns,
 	});
