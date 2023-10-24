@@ -208,7 +208,7 @@ const runSQLQuery = async ({ appName, pageName, pageState, source, fileContent }
 		page_name: pageName,
 		payload: pageState,
 		file_content: fileContent,
-		source
+		source,
 	});
 
 	return response.data;
@@ -223,5 +223,22 @@ export const useRunSQLQuery = (props: any = {}) => {
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
 		},
+	});
+};
+
+const saveSql = async ({ pageName, appName, fileName, sql }: any) => {
+	const response = await workerAxios.post(`files/save_sql/`, {
+		page_name: pageName,
+		app_name: appName,
+		file_name: fileName,
+		sql,
+	});
+
+	return response.data;
+};
+
+export const useSaveSql = (props: any = {}) => {
+	return useMutation(saveSql, {
+		...props,
 	});
 };
