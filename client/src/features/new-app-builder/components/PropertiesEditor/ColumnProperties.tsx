@@ -159,7 +159,7 @@ export const ColumnsProperties = () => {
 		if (tableId)
 			convertMutation.mutate({
 				tableId,
-				state: state.tables,
+				state: state.state.tables,
 			});
 	};
 
