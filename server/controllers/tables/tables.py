@@ -48,9 +48,8 @@ def update_table(
 ) -> ReadTables:
     try:
         table = crud.tables.update_by_pk(db, pk=table_id, obj_in=request)
-        page = crud.page.get_table_page(db, table_id=table_id)
         # get current state
-        state = get_state_for_client(db, page.id)
+        state = get_state_for_client(db, table.page_id)
         # get columns from worker
         resp = get_columns_from_worker(table.property, state)
         columns = resp.get("columns")
@@ -59,7 +58,7 @@ def update_table(
         update_table_columns(db, table, columns)
 
         # create new state and context
-        State, Context = get_state_context(db, page.id)
+        State, Context = get_state_context(db, table.page_id)
         # update state and context in worker
         update_state_context_in_worker(State, Context)
 

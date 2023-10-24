@@ -9,6 +9,7 @@ from server.schemas.columns import (
     CreateColumns,
     PgDefinedColumnProperty,
     PyDefinedColumnProperty,
+    SyncColumns,
     UpdateColumns,
     UpdateColumnsRequest,
 )
@@ -124,3 +125,18 @@ def create_column_record_from_name(db: Session, col_name: str, table_id: UUID, c
         type="postgres",
     )
     return crud.columns.create(db, obj_in=column_obj)
+
+
+from server.controllers.state.state import get_state_context
+
+
+def sync_columns(db: Session, request: SyncColumns):
+    table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
+    update_table_columns(db, table, request.columns)
+
+    # create new state and context
+    State, Context = get_state_context(db, table.page_id)
+    # update state and context in worker
+    update_state_context_in_worker(State, Context)
+
+    return table

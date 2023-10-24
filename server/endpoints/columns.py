@@ -7,10 +7,11 @@ from server import crud
 from server.controllers.columns import (
     create_column,
     get_table_columns_and_props,
+    sync_columns,
     update_column,
     update_table_columns_and_props,
 )
-from server.schemas.columns import CreateColumns, UpdateColumns, UpdateColumnsRequest
+from server.schemas.columns import CreateColumns, SyncColumns, UpdateColumns, UpdateColumnsRequest
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 
@@ -60,3 +61,8 @@ def update_columns(columns_id: UUID, request: UpdateColumns, db: Session = Depen
 @router.delete("/{columns_id}")
 def delete_columns(columns_id: UUID, db: Session = Depends(get_db)):
     return crud.columns.remove(db, id=columns_id)
+
+
+@router.post("/sync/")
+def sync_columns_req(request: SyncColumns, db: Session = Depends(get_db)):
+    return sync_columns(db, request)
