@@ -38,11 +38,31 @@ def create_table(db, request: CreateTablesRequest) -> ReadTables:
     return table
 
 
+from server.controllers.columns import update_table_columns
+from server.controllers.state.state import get_state_context, get_state_for_client
+from server.controllers.state.update import get_columns_from_worker, update_state_context_in_worker
+
+
 def update_table(
     db: Session, table_id: UUID, request: UpdateTablesRequest, response: Response
 ) -> ReadTables:
     try:
         table = crud.tables.update_by_pk(db, pk=table_id, obj_in=request)
+        page = crud.page.get_table_page(db, table_id=table_id)
+        # get current state
+        state = get_state_for_client(db, page.id)
+        # get columns from worker
+        resp = get_columns_from_worker(table.property, state)
+        columns = resp.get("columns")
+
+        # update columns in db
+        update_table_columns(db, table, columns)
+
+        # create new state and context
+        State, Context = get_state_context(db, page.id)
+        # update state and context in worker
+        update_state_context_in_worker(State, Context)
+
         return table
     except Exception as e:
         response.status_code = 400

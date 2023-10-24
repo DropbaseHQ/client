@@ -202,13 +202,13 @@ export const useRunTableQuery = (props: any = {}) => {
 	});
 };
 
-const runSQLQuery = async ({ appName, pageName, pageState, fileName, fileContent }: any) => {
+const runSQLQuery = async ({ appName, pageName, pageState, source, fileContent }: any) => {
 	const response = await workerAxios.post(`/query/run_sql_string/`, {
 		app_name: appName,
 		page_name: pageName,
 		payload: pageState,
 		file_content: fileContent,
-		file_name: fileName,
+		source
 	});
 
 	return response.data;

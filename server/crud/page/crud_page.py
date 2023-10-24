@@ -24,7 +24,9 @@ class CRUDPage(CRUDBase[Page, CreatePage, UpdatePage]):
         return (db.query(Page.app_id).filter(Page.id == str(page_id)).one()).app_id
 
     def get_table_page(self, db: Session, table_id: UUID) -> Page:
-        return db.query(Page).join(Tables, Tables.page_id == Page.id).first()
+        return (
+            db.query(Page).join(Tables, Tables.page_id == Page.id).filter(Tables.id == table_id).first()
+        )
 
 
 page = CRUDPage(Page)

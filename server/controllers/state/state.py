@@ -75,6 +75,34 @@ def get_state_context_for_client(db: Session, page_id: UUID):
     return state, context
 
 
+def get_state_for_client(db: Session, page_id: UUID):
+    # TODO: refactor this
+    page = crud.page.get_object_by_id_or_404(db, id=page_id)
+
+    state = {"widgets": {}, "tables": {}}
+    widgets = crud.widget.get_page_widgets(db, page_id=page.id)
+    for widget in widgets:
+        components = crud.components.get_widget_component(db, widget_id=widget.id)
+        components_state = {}
+        for comp in components:
+            comp_name = comp.property.get("name")
+            # for state, we just need to return an empty value
+            components_state[comp_name] = None
+        state["widgets"][widget.name] = components_state
+
+    # same logic for tables
+    tables = crud.tables.get_page_tables(db, page_id=page.id)
+    for table in tables:
+        columns = crud.columns.get_table_columns(db, table_id=table.id)
+        columns_state = {}
+        for comp in columns:
+            comp_name = comp.property.get("name")
+            columns_state[comp_name] = None
+        state["tables"][table.name] = columns_state
+
+    return state
+
+
 base_property_mapper = {
     "context": {
         "Widgets": {
@@ -194,3 +222,18 @@ def get_state_context(db: Session, page_id: UUID):
         tables: TablesContext
 
     return State, Context
+
+
+def get_page_state(db: Session, page_id: UUID):
+
+    page_table_widgets = get_component_props(db, page_id)
+    class_generator = GenerateReourceClass(resource_type="defined", resource="Widgets")
+    WidgetState = class_generator.get_state_class(page_table_widgets.get("widgets"))
+    class_generator = GenerateReourceClass(resource_type="defined", resource="Tables")
+    TableState = class_generator.get_state_class(page_table_widgets.get("tables"))
+
+    class State(BaseModel):
+        widgets: WidgetState
+        tables: TableState
+
+    return State

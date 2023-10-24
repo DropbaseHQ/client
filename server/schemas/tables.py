@@ -11,7 +11,7 @@ from server.schemas.states import TableDisplayProperty, TableSharedProperty
 class TablesBaseProperty(BaseModel):
     name: str
     # source: Optional[str]
-    # type: Literal["postgres", "python"]
+    type: Literal["postgres", "python"] = "python"
     code: str = Field(..., description="sql")
     filters: Optional[List[PinnedFilter]]
 
@@ -80,7 +80,7 @@ class UpdateTables(BaseModel):
 class UpdateTablesRequest(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
-    source_id: UUID
+    # source_id: UUID
     page_id: UUID
     # state: Optional[dict]
     depends_on: Optional[List[str]]

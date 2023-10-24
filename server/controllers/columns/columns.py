@@ -1,12 +1,9 @@
-import json
 from uuid import UUID
 
-import requests
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.tables.helper import get_sql_variables
-from server.credentials import WORKER_API
+from server.controllers.state.update import update_state_context_in_worker
 from server.models.columns import Columns
 from server.schemas.columns import (
     CreateColumns,
@@ -15,7 +12,6 @@ from server.schemas.columns import (
     UpdateColumns,
     UpdateColumnsRequest,
 )
-from server.schemas.tables import ReadTables
 from server.utils.converter import get_class_properties
 
 column_type_to_schema_mapper = {"sql": PgDefinedColumnProperty, "python": PyDefinedColumnProperty}
@@ -48,9 +44,6 @@ def get_table_columns_and_props(db: Session, table_id: UUID):
     return {"schema": column_props, "values": values}
 
 
-from server.controllers.state.state import get_state_context
-
-
 def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
 
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
@@ -77,32 +70,57 @@ def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
         crud.columns.remove(db, id=col.id)
 
     # add columns
+    column_class = column_type_to_schema_mapper.get(table.type)
     for column in cols_to_add:
-        create_column_record_from_name(db, column, table)
+        create_column_record_from_name(db, column, table.id, column_class)
 
-    # update table
-    # depends_on = get_sql_variables(request.table_sql)
-    # table.depends_on = depends_on
-    # db.commit()
+    db.commit()
 
-    State, Context = get_state_context(db, page.id)
+    update_state_context_in_worker(db, page.id)
 
-    payload = {
-        "app_name": "app",
-        "page_name": "page1",
-        "state": State.schema(),
-        "context": Context.schema(),
-    }
-    requests.post(f"{WORKER_API}/generate_schema", data=json.dumps(payload))
     return table
 
 
-def create_column_record_from_name(db: Session, col_name: str, table: ReadTables) -> Columns:
+from typing import List
+
+from server.schemas.tables import ReadTables
+
+
+def update_table_columns(db: Session, table: ReadTables, columns: List[str]):
+
+    cols_to_add, cols_to_delete = [], []
+    db_columns = crud.columns.get_table_columns(db, table_id=table.id)
+
+    if not db_columns:
+        cols_to_add = columns
+    else:
+        # check for delta
+        db_cols_names = [col.property["name"] for col in db_columns]
+        for col in db_columns:
+            if col.property["name"] not in columns:
+                cols_to_delete.append(col)
+
+        for col in columns:
+            if col not in db_cols_names:
+                cols_to_add.append(col)
+
+    # delete columns
+    for col in cols_to_delete:
+        crud.columns.remove(db, id=col.id)
+
+    # add columns
     column_class = column_type_to_schema_mapper.get(table.type)
+    for column in cols_to_add:
+        create_column_record_from_name(db, column, table.id, column_class)
+
+    db.commit()
+
+
+def create_column_record_from_name(db: Session, col_name: str, table_id: UUID, column_class) -> Columns:
     column_obj = CreateColumns(
         name=col_name,
         property=column_class(name=col_name),
-        table_id=table.id,
+        table_id=table_id,
         type="postgres",
     )
     return crud.columns.create(db, obj_in=column_obj)
