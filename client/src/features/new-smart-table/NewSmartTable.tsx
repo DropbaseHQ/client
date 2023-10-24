@@ -1,5 +1,16 @@
+import { useRef } from 'react';
 import { useAtom } from 'jotai';
-import { Box, Center, Spinner, Stack, Text, useColorMode, useTheme } from '@chakra-ui/react';
+import {
+	Box,
+	Button,
+	Center,
+	Flex,
+	Spinner,
+	Stack,
+	Text,
+	useColorMode,
+	useTheme,
+} from '@chakra-ui/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 
@@ -12,12 +23,20 @@ import '@glideapps/glide-data-grid/dist/index.css';
 
 import { newSelectedRowAtom } from '@/features/new-app-state';
 
-import { CurrentTableContext, useCurrentTableData, useSyncCurrentTable } from './hooks';
+import {
+	CurrentTableContext,
+	useCurrentTableData,
+	useSyncCurrentTable,
+	useSyncDropbaseColumns,
+	useTableSyncStatus,
+} from './hooks';
+
 import { cellEditsAtom } from './atoms';
 import { TableBar } from './components';
 import { getPGColumnBaseType } from '@/utils';
 import { useGetTable } from '@/features/new-app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
+import { has } from 'lodash';
 
 export const NewSmartTable = ({ tableId }: any) => {
 	const theme = useTheme();
@@ -31,8 +50,8 @@ export const NewSmartTable = ({ tableId }: any) => {
 
 	const { isLoading, rows, columns, header } = useCurrentTableData(tableId);
 	const { values, isLoading: isLoadingTable } = useGetTable(tableId || '');
-
-	useSyncCurrentTable(tableId);
+	const tableIsUnsynced = useTableSyncStatus(tableId);
+	const syncMutation = useSyncDropbaseColumns();
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
 	const cellEdits = allCellEdits?.[tableId] || [];
@@ -276,6 +295,12 @@ export const NewSmartTable = ({ tableId }: any) => {
 			}));
 		}
 	};
+	const handleSyncColumns = () => {
+		syncMutation.mutate({
+			tableId,
+			columns: header,
+		});
+	};
 
 	const highlights: any = cellEdits.map((edit: any) => {
 		return {
@@ -296,9 +321,21 @@ export const NewSmartTable = ({ tableId }: any) => {
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="1">
 				<NavLoader isLoading={isLoadingTable}>
-					<Text flexShrink="0" px="2" fontWeight="semibold">
-						{tableName}
-					</Text>
+					<Flex justifyContent="space-between">
+						<Text flexShrink="0" px="2" fontWeight="semibold">
+							{tableName}
+						</Text>
+						{tableIsUnsynced && (
+							<Button
+								colorScheme="yellow"
+								size="sm"
+								onClick={handleSyncColumns}
+								isLoading={syncMutation.isLoading}
+							>
+								Please Sync
+							</Button>
+						)}
+					</Flex>
 				</NavLoader>
 				<Stack spacing="2">
 					<TableBar />

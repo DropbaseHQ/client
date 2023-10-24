@@ -66,3 +66,22 @@ export const useSyncCurrentTable = (tableId: any) => {
 		}
 	}, [header, isLoading, columns, mutation, tableId]);
 };
+
+export const useTableSyncStatus = (tableId: any) => {
+	const syncRef = useRef(false);
+	const { header, columns, isLoading } = useCurrentTableData(tableId);
+
+	let hasChanged = false;
+
+	useEffect(() => {
+		if (!isLoading && !syncRef.current) {
+			const isSynced = header.every((c: any) => (columns as any)[c]);
+
+			if (!isSynced) {
+				hasChanged = true;
+				syncRef.current = true;
+			}
+		}
+	}, [header, isLoading, columns, tableId]);
+	return hasChanged;
+};
