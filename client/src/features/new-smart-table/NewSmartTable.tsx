@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { useAtom } from 'jotai';
 import {
 	Box,
@@ -26,7 +25,6 @@ import { newSelectedRowAtom } from '@/features/new-app-state';
 import {
 	CurrentTableContext,
 	useCurrentTableData,
-	useSyncCurrentTable,
 	useSyncDropbaseColumns,
 	useTableSyncStatus,
 } from './hooks';
@@ -36,7 +34,6 @@ import { TableBar } from './components';
 import { getPGColumnBaseType } from '@/utils';
 import { useGetTable } from '@/features/new-app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
-import { has } from 'lodash';
 
 export const NewSmartTable = ({ tableId }: any) => {
 	const theme = useTheme();
