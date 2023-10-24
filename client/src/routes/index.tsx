@@ -5,7 +5,7 @@ import { Login, Register, ResetPassword } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
 import { AppRoutes } from '@/features/app';
 import { SourceRoutes } from '@/features/sources';
-import { Users, Permissions } from '@/features/settings';
+import { Users, Permissions, DeveloperSettings } from '@/features/settings';
 import { Workspaces, useWorkspaces } from '@/features/workspaces';
 
 export const DashboardRoutes = () => {
@@ -59,6 +59,7 @@ export const DashboardRoutes = () => {
 					<Route path="source/*" element={<SourceRoutes />} />
 					<Route path="settings/members" element={<Users />} />
 					<Route path="settings/permissions" element={<Permissions />} />
+					<Route path="settings/developer" element={<DeveloperSettings />} />
 					<Route path="*" element={<Navigate to="/apps" />} />
 				</Route>
 			</Routes>

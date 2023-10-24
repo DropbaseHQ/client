@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
-import { Settings, LogOut, Grid, Database, Repeat, Users, Lock } from 'react-feather';
+import { Settings, LogOut, Grid, Database, Repeat, Users, Lock, Menu as MenuIcon } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
@@ -120,6 +120,9 @@ export const Navbar = () => {
 							<Settings size="22" />
 						</MenuButton>
 						<MenuList>
+							<MenuItem icon={<MenuIcon size="14" />} as='a' href='/settings/developer'>
+								Developer Settings
+							</MenuItem>
 							<MenuItem icon={<LogOut size="14" />} onClick={handleLogout}>
 								Logout
 							</MenuItem>
