@@ -9,6 +9,8 @@ environment_variables:
   OPENAI_ORG_ID: org-1OgmJLbPOnqo0ek9HpUMA8cN
   OPENAI_API_KEY: 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
   ENCRYPT_SECRET: dropbase
+  WORKER_API: https://proxy.dev.dropbase.io
+  LSP_SERVER: wss://proxy.dev.dropbase.io
 
 # environment variables with values from AWS Secret Manager that will be
 # fetched and deployed by the CI/CD automatically
