@@ -69,9 +69,8 @@ export const SQLEditor = ({ id }: any) => {
 		saveSQLMutation.mutate({
 			pageName,
 			appName,
-			pageState,
 			fileName: sqlName,
-			fileContent: code,
+			sql: code,
 		});
 	};
 
