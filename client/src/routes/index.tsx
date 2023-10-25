@@ -1,30 +1,37 @@
 import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
 import { Suspense } from 'react';
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { Login, Register, ResetPassword } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
 import { AppRoutes } from '@/features/app';
 import { SourceRoutes } from '@/features/sources';
 import { Users, Permissions, DeveloperSettings } from '@/features/settings';
 import { Workspaces, useWorkspaces } from '@/features/workspaces';
+import { useSyncProxyToken } from '@/features/settings/hooks/token';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
+	const { pathname } = useLocation();
 
-	if (isLoading) {
+	const { isLoading: isLoadingTokens, isValid: isValidToken } = useSyncProxyToken();
+
+	if (isLoading || isLoadingTokens) {
 		return (
 			<DashboardLayout>
 				<Center as={Stack} spacing="6" w="full" h="full">
 					<Stack alignItems="center" spacing="0">
 						<Text color="heading" fontSize="lg" fontWeight="medium">
-							Checking user...
+							{isLoadingTokens ? 'Validating proxy tokens...' : 'Checking user...'}
 						</Text>
-						<Text color="gray.700">Please wait while we fetch your details</Text>
 					</Stack>
 					<Progress minW="sm" size="xs" isIndeterminate />
 				</Center>
 			</DashboardLayout>
 		);
+	}
+
+	if (!isValidToken && !pathname.includes('/settings/developer')) {
+		return <Navigate to="/settings/developer" />;
 	}
 
 	return (

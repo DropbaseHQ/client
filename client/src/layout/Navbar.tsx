@@ -9,12 +9,13 @@ import {
 	Box,
 } from '@chakra-ui/react';
 
-import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
-import { Settings, LogOut, Grid, Database, Repeat, Users, Lock, Menu as MenuIcon } from 'react-feather';
+import { Settings, LogOut, Grid, Database, Repeat, Users, Lock, Key } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
 import { useGetWorkspaceUsers } from '@/features/settings/hooks/workspace';
+
+import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 
 export const Navbar = () => {
 	const { pathname } = useLocation();
@@ -28,6 +29,7 @@ export const Navbar = () => {
 		if (!userRole) return false;
 		return roles.includes(userRole);
 	};
+
 	const handleLogout = () => {
 		logout();
 	};
@@ -103,24 +105,12 @@ export const Navbar = () => {
 				)}
 
 				<Stack mt="auto" alignItems="center">
-					{/* <Tooltip
-						label={`Toggle to ${colorMode === 'dark' ? 'light' : 'dark'} theme`}
-						placement="right"
-					>
-						<IconButton
-							variant="ghost"
-							colorScheme="gray"
-							onClick={toggleColorMode}
-							aria-label="Toggle theme"
-							icon={colorMode === 'dark' ? <Sun size="22" /> : <Moon size="22" />}
-						/>
-					</Tooltip> */}
 					<Menu>
 						<MenuButton mt="auto">
 							<Settings size="22" />
 						</MenuButton>
 						<MenuList>
-							<MenuItem icon={<MenuIcon size="14" />} as='a' href='/settings/developer'>
+							<MenuItem icon={<Key size="14" />} as={Link} to="/settings/developer">
 								Developer Settings
 							</MenuItem>
 							<MenuItem icon={<LogOut size="14" />} onClick={handleLogout}>

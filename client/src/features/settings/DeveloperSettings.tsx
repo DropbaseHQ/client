@@ -1,43 +1,83 @@
-import { axios } from '@/lib/axios';
-import { useState, useEffect } from 'react';
-import { Button, Stack, Box } from '@chakra-ui/react';
+import { Button, Stack, Skeleton, Text, SimpleGrid, Icon } from '@chakra-ui/react';
+import { useAtom, useAtomValue } from 'jotai';
+import { CheckCircle, Circle } from 'react-feather';
 import { PageLayout } from '@/layout';
-import { useAtomValue } from 'jotai';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
+import { useCreateProxyToken, useProxyTokens } from '@/features/settings/hooks/token';
+import { proxyTokenAtom } from '@/features/settings/atoms';
+import { useToast } from '@/lib/chakra-ui';
 
 export const DeveloperSettings = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
-    const { user } = useGetCurrentUser();
-    const [userProxyTokens, setUserProxyTokens] = useState<string[]>([]);
+	const { user } = useGetCurrentUser();
+	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
+	const [selectedToken, setToken] = useAtom(proxyTokenAtom);
 
-    const handleButtonClick = async () => {
-        const response = await axios.post(`/token/`, {
-            token: "",
-            user_id: user.id,
-            workspace_id: workspaceId,
-        });
-        setUserProxyTokens([...userProxyTokens, response.data.token]);
-    };
+	const toast = useToast();
 
-    useEffect(() => {
-        async function getProxyTokens() {
-            const response = await axios.get(`/token/${workspaceId}/${user.id}`);
-            setUserProxyTokens(response.data);
-        }
-        getProxyTokens();
-    }, []);
+	const createMutation = useCreateProxyToken();
 
-    return (
-        <PageLayout title="Developer Settings">
-            <Button onClick={handleButtonClick}>Generate Proxy Token</Button>
-            <Stack mt="4" spacing={2}>
-                {userProxyTokens.map((token, index) => (
-                    <Box key={index} bg="gray.100" p="3">
-                        {token}
-                    </Box>
-                ))}
-            </Stack>
-        </PageLayout>
-    );
+	const handleButtonClick = async () => {
+		createMutation.mutate({
+			workspaceId,
+			userId: user.id,
+		});
+	};
+
+	if (isLoading) {
+		return <Skeleton />;
+	}
+
+	return (
+		<PageLayout title="Developer Settings">
+			<Stack>
+				<Button
+					size="sm"
+					alignSelf="end"
+					w="fit-content"
+					isLoading={createMutation.isLoading}
+					onClick={handleButtonClick}
+				>
+					Generate Proxy Token
+				</Button>
+				<SimpleGrid columns={3} spacing={4}>
+					{tokens.map((token: any) => {
+						const isSelected = selectedToken === token;
+						return (
+							<Stack
+								direction="row"
+								key={token}
+								cursor="pointer"
+								borderWidth="1px"
+								borderColor={isSelected ? 'blue.500' : 'gray.200'}
+								borderRadius="sm"
+								bg="white"
+								alignItems="center"
+								p="6"
+								as="button"
+								onClick={() => {
+									setToken(token);
+									toast({
+										title: 'Token updated',
+										status: 'info',
+									});
+								}}
+								_hover={{
+									shadow: 'sm',
+								}}
+							>
+								<Icon
+									color={isSelected ? 'blue.500' : 'gray.500'}
+									as={isSelected ? CheckCircle : Circle}
+									boxSize={5}
+								/>
+								<Text fontSize="lg">{token}</Text>
+							</Stack>
+						);
+					})}
+				</SimpleGrid>
+			</Stack>
+		</PageLayout>
+	);
 };

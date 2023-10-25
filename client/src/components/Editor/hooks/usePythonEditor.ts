@@ -54,7 +54,7 @@ const createWebSocket = (url: string): WebSocket => {
 	return webSocket;
 };
 
-export const initializeLanguageServices = async () => {
+export const initializeLanguageServices = async (url: string) => {
 	await initServices({
 		// Use our own themes
 		enableThemeService: false,
@@ -79,7 +79,7 @@ export const initializeLanguageServices = async () => {
 	monaco.languages.setLanguageConfiguration(languageId, conf);
 	monaco.languages.setMonarchTokensProvider(languageId, language);
 
-	return createWebSocket(import.meta.env.VITE_PYTHON_LSP_SERVER);
+	return createWebSocket(url);
 };
 
 const createPythonEditor = async (config: { htmlElement: HTMLElement; filepath: string }) => {

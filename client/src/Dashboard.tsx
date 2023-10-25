@@ -13,7 +13,7 @@ export const Dashboard = () => {
 			<ChakraProvider theme={theme}>
 				<QueryClientProvider client={queryClient}>
 					<DashboardRoutes />
-					<ReactQueryDevtools />
+					<ReactQueryDevtools position="bottom-right" />
 				</QueryClientProvider>
 			</ChakraProvider>
 		</BrowserRouter>
