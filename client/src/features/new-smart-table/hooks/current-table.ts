@@ -6,6 +6,7 @@ import { filtersAtom, sortsAtom } from '@/features/new-smart-table/atoms';
 import { newPageStateAtom } from '@/features/new-app-state';
 import { pageAtom } from '@/features/new-page';
 import { useGetColumnProperties } from '@/features/new-app-builder/hooks';
+import { proxyTokenAtom } from '@/features/settings/atoms';
 
 export const CurrentTableContext: any = createContext({ tableId: null });
 
@@ -47,6 +48,11 @@ export const useCurrentTableData = (tableId: any) => {
 };
 
 export const useSyncCurrentTable = (tableId: any) => {
+
+	const token = useAtomValue(proxyTokenAtom);
+	const { pageName, appName } = useAtomValue(pageAtom);
+
+
 	const syncRef = useRef(false);
 	const { header, columns, isLoading } = useCurrentTableData(tableId);
 
@@ -61,6 +67,10 @@ export const useSyncCurrentTable = (tableId: any) => {
 				mutation.mutate({
 					tableId,
 					columns: header,
+					appName,
+					pageName,
+					token
+
 				});
 			}
 		}

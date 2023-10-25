@@ -10,8 +10,8 @@ from server.schemas.states import TableDisplayProperty, TableSharedProperty
 
 class TablesBaseProperty(BaseModel):
     name: str
-    # source: Optional[str]
-    type: Literal["postgres", "python"] = "python"
+    source: Optional[str]
+    type: Literal["postgres", "sql", "python"] = "python"
     code: str = Field(..., description="sql")
     filters: Optional[List[PinnedFilter]]
 
@@ -85,6 +85,9 @@ class UpdateTablesRequest(BaseModel):
     # state: Optional[dict]
     depends_on: Optional[List[str]]
     type: Optional[str]
+    app_name: str
+    page_name: str
+    token: str
 
 
 class QueryTable(BaseModel):

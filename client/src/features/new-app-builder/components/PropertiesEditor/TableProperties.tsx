@@ -16,8 +16,11 @@ import { InputLoader } from '@/components/Loader';
 import { selectedTableIdAtom } from '@/features/new-app-builder/atoms';
 import { DeleteTable } from '@/features/new-app-builder/components/PropertiesEditor/DeleteTable';
 import { pageAtom } from '@/features/new-page';
+import { proxyTokenAtom } from '@/features/settings/atoms';
 
 export const TableProperties = () => {
+	const token = useAtomValue(proxyTokenAtom);
+
 	const workspaceId = useAtomValue(workspaceAtom);
 	const tableId = useAtomValue(selectedTableIdAtom);
 	const { pageId } = useParams();
@@ -74,6 +77,9 @@ export const TableProperties = () => {
 			type: codeType,
 			name: rest.name,
 			pageId,
+			appName,
+			pageName,
+			token,
 		});
 	};
 

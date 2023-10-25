@@ -15,7 +15,11 @@ from server.schemas.columns import (
 )
 from server.utils.converter import get_class_properties
 
-column_type_to_schema_mapper = {"sql": PgDefinedColumnProperty, "python": PyDefinedColumnProperty}
+column_type_to_schema_mapper = {
+    "sql": PgDefinedColumnProperty,  # noqa TODO: delete, only need one, sql or postgres
+    "postgres": PgDefinedColumnProperty,
+    "python": PyDefinedColumnProperty,
+}
 
 
 def create_column(db: Session, request: CreateColumns):
@@ -77,7 +81,7 @@ def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
 
     db.commit()
 
-    update_state_context_in_worker(db, page.id)
+    update_state_context_in_worker(db, page.id, request.app_name, request.page_name, request.token)
 
     return table
 

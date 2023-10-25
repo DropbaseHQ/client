@@ -117,6 +117,9 @@ class UpdateColumnsRequest(BaseModel):
     table_id: UUID
     # table_sql: str
     columns: List[str]
+    app_name: str
+    page_name: str
+    token: str
 
 
 class SyncColumns(BaseModel):

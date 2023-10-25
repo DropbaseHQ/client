@@ -84,7 +84,7 @@ const createTable = async ({ property, pageId, sourceId }: any) => {
 		property,
 		page_id: pageId,
 		source_id: sourceId,
-		type: 'postgres',
+		type: 'sql',
 		state: {},
 	});
 	return response.data;
@@ -108,6 +108,9 @@ const updateTableProperties = async ({
 	pageId,
 	name,
 	type,
+	appName,
+	pageName,
+	token,
 }: {
 	payload: any;
 	tableId: string;
@@ -115,6 +118,9 @@ const updateTableProperties = async ({
 	pageId: any;
 	name: string;
 	type: any;
+	appName: any;
+	pageName: any;
+	token: any;
 }) => {
 	const response = await axios.put(`/tables/${tableId}`, {
 		name,
@@ -122,6 +128,9 @@ const updateTableProperties = async ({
 		source_id: sourceId,
 		page_id: pageId,
 		type,
+		app_name: appName,
+		page_name: pageName,
+		token
 	});
 
 	return response.data;

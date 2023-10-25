@@ -51,8 +51,14 @@ def update_table(
         # get current state
         state = get_state_for_client(db, table.page_id)
         # get columns from worker
-        resp = get_columns_from_worker(table.property, state)
+        resp = get_columns_from_worker(
+            table.property, state, request.app_name, request.page_name, request.token
+        )
+        print(resp)
         columns = resp.get("columns")
+        if not columns:
+            return {"message": "no columns returned"}
+        print("here!")
 
         # update columns in db
         update_table_columns(db, table, columns)
@@ -60,7 +66,9 @@ def update_table(
         # create new state and context
         State, Context = get_state_context(db, table.page_id)
         # update state and context in worker
-        update_state_context_in_worker(State, Context)
+        update_state_context_in_worker(
+            State, Context, request.app_name, request.page_name, request.token
+        )
 
         return table
     except Exception as e:
