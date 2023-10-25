@@ -1,5 +1,5 @@
-import { axios } from '@/lib/axios';
 import { useQuery } from 'react-query';
+import { axios } from '@/lib/axios';
 
 const fetchCurrentUser = async () => {
 	const { data } = await axios.get(`/user`);

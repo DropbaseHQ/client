@@ -1,4 +1,14 @@
-import { Button, Stack, Skeleton, Text, SimpleGrid, Icon } from '@chakra-ui/react';
+import {
+	Button,
+	Stack,
+	Skeleton,
+	Text,
+	SimpleGrid,
+	Icon,
+	Alert,
+	AlertIcon,
+	AlertTitle,
+} from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import { CheckCircle, Circle } from 'react-feather';
 import { PageLayout } from '@/layout';
@@ -32,6 +42,12 @@ export const DeveloperSettings = () => {
 	return (
 		<PageLayout title="Developer Settings">
 			<Stack>
+				{selectedToken ? null : (
+					<Alert status="error">
+						<AlertIcon />
+						<AlertTitle>Please select a token to continue!</AlertTitle>
+					</Alert>
+				)}
 				<Button
 					size="sm"
 					alignSelf="end"
