@@ -49,6 +49,8 @@ export const DeveloperSettings = () => {
 								direction="row"
 								key={token}
 								cursor="pointer"
+								textOverflow="ellipsis"
+								overflow="hidden"
 								borderWidth="1px"
 								borderColor={isSelected ? 'blue.500' : 'gray.200'}
 								borderRadius="sm"
