@@ -26,7 +26,7 @@ import {
 	CurrentTableContext,
 	useCurrentTableData,
 	useSyncDropbaseColumns,
-	useTableSyncStatus,
+	// useTableSyncStatus,
 } from './hooks';
 
 import { cellEditsAtom } from './atoms';
@@ -47,7 +47,7 @@ export const SmartTable = ({ tableId }: any) => {
 
 	const { isLoading, rows, columns, header } = useCurrentTableData(tableId);
 	const { values, isLoading: isLoadingTable } = useGetTable(tableId || '');
-	const tableIsUnsynced = useTableSyncStatus(tableId);
+	// const tableIsUnsynced = useTableSyncStatus(tableId);
 	const syncMutation = useSyncDropbaseColumns();
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
@@ -322,16 +322,15 @@ export const SmartTable = ({ tableId }: any) => {
 						<Text flexShrink="0" px="2" fontWeight="semibold">
 							{tableName}
 						</Text>
-						{tableIsUnsynced && (
-							<Button
-								colorScheme="yellow"
-								size="sm"
-								onClick={handleSyncColumns}
-								isLoading={syncMutation.isLoading}
-							>
-								Please Sync
-							</Button>
-						)}
+
+						<Button
+							colorScheme="yellow"
+							size="sm"
+							onClick={handleSyncColumns}
+							isLoading={syncMutation.isLoading}
+						>
+							Resync
+						</Button>
 					</Flex>
 				</NavLoader>
 				<Stack spacing="2">
