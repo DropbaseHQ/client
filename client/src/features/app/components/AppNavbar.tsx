@@ -15,7 +15,7 @@ import {
 	FormControl,
 	FormLabel,
 } from '@chakra-ui/react';
-import { ArrowLeft, Edit, Eye, EyeOff } from 'react-feather';
+import { ArrowLeft, Edit, Eye } from 'react-feather';
 import { useEffect, useState } from 'react';
 
 import { Link, useParams } from 'react-router-dom';
@@ -134,17 +134,19 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 			{app?.editable && (
 				<Tooltip label={isPreview ? 'App preview' : 'App Studio'}>
-					<IconButton
+					<Button
 						size="sm"
-						variant="ghost"
+						variant="secondary"
 						colorScheme="blue"
-						icon={isPreview ? <EyeOff size="14" /> : <Eye size="14" />}
+						leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
 						aria-label="Preview"
 						ml="auto"
 						mr="4"
 						as={Link}
 						to={isPreview ? '../editor' : '../preview'}
-					/>
+					>
+						{isPreview ? 'Edit' : 'Preview'}
+					</Button>
 				</Tooltip>
 			)}
 		</Stack>
