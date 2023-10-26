@@ -19,7 +19,7 @@ class RESOURCES:
     APP = "app"
     COLUMNS = "columns"
     COMPONENTS = "components"
-    FUNCTIONS = "functions"
+    FILES = "files"
     PAGE = "page"
     ROLE = "role"
     SOURCE = "source"
@@ -42,7 +42,7 @@ resource_query_mapper = {
     RESOURCES.APP: crud.app,
     RESOURCES.COLUMNS: crud.columns,
     RESOURCES.COMPONENTS: crud.components,
-    RESOURCES.FUNCTIONS: crud.functions,
+    RESOURCES.FILES: crud.files,
     RESOURCES.PAGE: crud.page,
     RESOURCES.ROLE: crud.user_role,
     RESOURCES.USER: crud.user,

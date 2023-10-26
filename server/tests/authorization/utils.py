@@ -43,22 +43,6 @@ class HomeTestClient:
         response = self.client.put(f"/app/{app_id}", json=data)
         return response
 
-    # Functions
-    def create_function(self):
-        data = {"name": "test function", "page_id": TEST_PAGE_ID, "code": ""}
-        response = self.client.post("/functions/", json=data)
-        return response
-
-    def edit_function(self, function_id):
-        print("function_id", function_id)
-        data = {"name": "test function edit", "code": "edit code", "test_code": "edit test code"}
-        response = self.client.put(f"/functions/{function_id}", json=data)
-        return response
-
-    def delete_function(self, function_id):
-        response = self.client.delete(f"/functions/{function_id}")
-        return response
-
     # Widget
     def create_widget(self):
         data = {
