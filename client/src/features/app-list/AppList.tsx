@@ -45,7 +45,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 	});
 
 	const handleClick = () => {
-		navigate(`/apps/${app.id}/${app?.pages?.[0]?.id}/new-preview`);
+		navigate(`/apps/${app.id}/${app?.pages?.[0]?.id}/preview`);
 	};
 
 	const onSubmit = () => {
@@ -164,7 +164,7 @@ export const AppList = () => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const createAppMutation = useCreateApp({
 		onSuccess: (data: any) => {
-			navigate(`/apps/${data.app?.id}/${data?.page?.id}/new-editor`);
+			navigate(`/apps/${data.app?.id}/${data?.page?.id}/editor`);
 			refetch();
 			setAppName('');
 			onClose();

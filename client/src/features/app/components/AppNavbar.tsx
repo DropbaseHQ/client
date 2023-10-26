@@ -143,7 +143,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 						ml="auto"
 						mr="4"
 						as={Link}
-						to={isPreview ? '../new-editor' : '../new-preview'}
+						to={isPreview ? '../editor' : '../preview'}
 					/>
 				</Tooltip>
 			)}

@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { Login, Register, ResetPassword } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
-import { AppRoutes } from '@/features/app';
+import { App } from '@/features/app';
 import { Users, Permissions, DeveloperSettings } from '@/features/settings';
 import { Workspaces, useWorkspaces } from '@/features/workspaces';
 
@@ -53,7 +53,7 @@ export const DashboardRoutes = () => {
 					<Route path="register" element={<Register />} />
 					<Route path="reset" element={<ResetPassword />} />
 					<Route path="workspaces" element={<Workspaces />} />
-					<Route path="apps/*" element={<AppRoutes />} />
+					<Route path="apps/*" element={<App />} />
 					<Route path="settings/members" element={<Users />} />
 					<Route path="settings/permissions" element={<Permissions />} />
 					<Route path="settings/developer" element={<DeveloperSettings />} />
