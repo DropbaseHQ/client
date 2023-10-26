@@ -37,10 +37,7 @@ export const TableProperties = () => {
 	});
 
 	const methods = useForm();
-	const {
-		reset,
-		formState: { touchedFields, isDirty },
-	} = methods;
+	const { reset } = methods;
 
 	const codeType = methods.watch('type');
 
@@ -135,7 +132,7 @@ export const TableProperties = () => {
 							) : null}
 						</Stack>
 
-						{Object.keys(touchedFields).length > 0 || isDirty ? (
+						<Stack direction="row" justifyContent="space-between">
 							<Button
 								size="sm"
 								w="max-content"
@@ -146,14 +143,12 @@ export const TableProperties = () => {
 							>
 								Run
 							</Button>
-						) : null}
+
+							<DeleteTable tableId={tableId} tableName={values.name} />
+						</Stack>
 					</Stack>
 				</FormProvider>
 			</form>
-
-			<Box mt="3">
-				<DeleteTable tableId={tableId} tableName={values.name} />
-			</Box>
 		</Stack>
 	);
 };
