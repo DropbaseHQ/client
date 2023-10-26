@@ -176,7 +176,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 									type={showFunctionList ? 'select' : property.type}
 									options={(
 										(showFunctionList
-											? functions?.map((f: any) => ({ name: f, value: f }))
+											? functions
 											: property.enum || property.options) || []
 									).map((o: any) => ({
 										name: o,
