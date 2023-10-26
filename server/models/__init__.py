@@ -2,7 +2,7 @@ from .app import App
 from .base import Base
 from .columns import Columns
 from .components import Components
-from .functions import Functions
+from .files import Files
 from .group import Group
 from .page import Page
 from .pinned_filters import PinnedFilters
