@@ -251,7 +251,7 @@ export const AppPreview = () => {
 					) : null}
 				</Stack>
 
-				<Stack p="4" spacing="3">
+				<Stack p="4" h="full" overflow="auto" spacing="3">
 					{components.map((c: any) => {
 						return (
 							<InspectorContainer key={c.id} id={c.id} type="component">
@@ -263,6 +263,7 @@ export const AppPreview = () => {
 						<Box
 							w="full"
 							p="2"
+							bg="white"
 							borderWidth="1px"
 							borderStyle="dashed"
 							borderRadius="md"
