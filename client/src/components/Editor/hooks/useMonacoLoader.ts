@@ -10,10 +10,15 @@ export const useMonacoLoader = () => {
 	useEffect(() => {
 		(async () => {
 			setReady(false);
-			await initializeLanguageServices(
-				`${import.meta.env.VITE_PYTHON_LSP_SERVER}/${token}/lsp`,
-			);
-			setReady(true);
+			try {
+				await initializeLanguageServices(
+					`${import.meta.env.VITE_PYTHON_LSP_SERVER}/${token}/lsp`,
+				);
+			} catch (e) {
+				// TODO: add error handling
+			} finally {
+				setReady(true);
+			}
 		})();
 	}, [token]);
 

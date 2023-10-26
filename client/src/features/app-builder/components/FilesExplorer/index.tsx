@@ -38,7 +38,15 @@ export const FilesExplorer = () => {
 	}, [setDevTab]);
 
 	if (!isReady || isLoading) {
-		return <Skeleton />;
+		return (
+			<Stack borderBottomWidth="1px" bg="white" p="2">
+				<Stack direction="row">
+					<Skeleton h="7" w="32" />
+					<Skeleton h="7" w="32" />
+					<Skeleton h="7" w="32" />
+				</Stack>
+			</Stack>
+		);
 	}
 
 	if (error) {
