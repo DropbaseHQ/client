@@ -33,7 +33,6 @@ class BaseTables(BaseModel):
     name: str
     property: TablesDefinedProperty
     page_id: UUID
-    source_id: Optional[UUID]
     type: Optional[Literal["postgres", "python"]]
 
     class Config:
@@ -45,7 +44,6 @@ class ReadTables(BaseModel):
     name: str
     property: TablesReadProperty
     page_id: UUID
-    source_id: Optional[UUID]
     type: Optional[Literal["postgres", "python"]]
     depends_on: Optional[List[str]]
     date: datetime
@@ -55,7 +53,6 @@ class CreateTables(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
     page_id: UUID
-    source_id: Optional[UUID]
     type: Optional[Literal["postgres", "python"]] = "postgres"
     depends_on: Optional[List[str]]
 
@@ -64,7 +61,6 @@ class CreateTablesRequest(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
     page_id: UUID
-    source_id: Optional[UUID]
     type: Optional[Literal["postgres", "python"]] = "postgres"
     state: Optional[dict] = {}
     depends_on: Optional[List[str]]
@@ -73,14 +69,12 @@ class CreateTablesRequest(BaseModel):
 class UpdateTables(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
-    source_id: UUID
     depends_on: Optional[List[str]]
 
 
 class UpdateTablesRequest(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
-    # source_id: UUID
     page_id: UUID
     # state: Optional[dict]
     depends_on: Optional[List[str]]

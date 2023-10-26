@@ -8,7 +8,6 @@ from .page import Page
 from .pinned_filters import PinnedFilters
 from .policy import Policy
 from .role import Role
-from .source import Source
 from .tables import Tables
 from .token import Token
 from .user import User

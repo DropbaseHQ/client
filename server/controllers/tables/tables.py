@@ -28,7 +28,6 @@ def get_table(db, table_id: UUID):
     return {
         "properties": table_props,
         "values": table.property,
-        "source_id": table.source_id,
         "type": table.type,
     }
 

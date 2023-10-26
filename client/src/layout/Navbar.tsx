@@ -9,7 +9,7 @@ import {
 	Box,
 } from '@chakra-ui/react';
 
-import { Settings, LogOut, Grid, Database, Repeat, Users, Lock, Key } from 'react-feather';
+import { Settings, LogOut, Grid, Repeat, Users, Lock, Key } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
@@ -62,19 +62,6 @@ export const Navbar = () => {
 						icon={<Grid size="22" />}
 					/>
 				</Tooltip>
-				{userHasRole(['admin', 'dev']) && (
-					<Tooltip label="Sources" placement="right">
-						<IconButton
-							variant="ghost"
-							as={Link}
-							to="/source"
-							color={pathname === '/source' ? 'blue.500' : 'body'}
-							colorScheme={pathname === '/source' ? 'blue' : 'gray'}
-							aria-label="Sources"
-							icon={<Database size="22" />}
-						/>
-					</Tooltip>
-				)}
 
 				{userHasRole(['admin']) && (
 					<Tooltip label="Members" placement="right">
