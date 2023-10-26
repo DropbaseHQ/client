@@ -7,11 +7,13 @@ import {
 	Spinner,
 	Stack,
 	Text,
+	Tooltip,
 	useColorMode,
 	useTheme,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
+import { RefreshCw } from 'react-feather';
 
 import DataEditor, {
 	CompactSelection,
@@ -323,14 +325,17 @@ export const SmartTable = ({ tableId }: any) => {
 							{tableName}
 						</Text>
 
-						<Button
-							colorScheme="yellow"
-							size="sm"
-							onClick={handleSyncColumns}
-							isLoading={syncMutation.isLoading}
-						>
-							Resync
-						</Button>
+						<Tooltip label="Sync columns">
+							<Button
+								colorScheme="yellow"
+								size="sm"
+								leftIcon={<RefreshCw size="14" />}
+								onClick={handleSyncColumns}
+								isLoading={syncMutation.isLoading}
+							>
+								Resync
+							</Button>
+						</Tooltip>
 					</Flex>
 				</NavLoader>
 				<Stack spacing="2">
