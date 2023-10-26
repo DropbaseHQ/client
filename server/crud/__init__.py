@@ -6,7 +6,6 @@ from .group.crud_group import group
 from .page.crud_page import page
 from .policy.crud_policy import policy
 from .role.crud_roles import role
-from .source.crud_source import source
 from .tables.crud_tables import tables
 from .token.crud_token import token
 from .user.crud_user import user

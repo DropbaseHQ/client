@@ -11,7 +11,6 @@ class Tables(Base):
     name = Column(String, nullable=False)
     property = Column(JSONB)
     page_id = Column(UUID(as_uuid=True), ForeignKey("page.id", ondelete="CASCADE"))
-    source_id = Column(UUID(as_uuid=True), ForeignKey("source.id", ondelete="CASCADE"))
     depends_on = Column(ARRAY(String))
     type = Column(String)
 

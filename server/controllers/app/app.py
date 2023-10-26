@@ -52,10 +52,7 @@ def create_app(db: Session, request: CreateApp, user: User):
         raise Exception("User does not have access to the workspace")
     app = crud.app.create(db, obj_in=request)
     page = crud.page.create(db, obj_in={"name": "Page 1", "app_id": app.id})
-    source = crud.source.get_workspace_sources(db, workspace_id=request.workspace_id)
-    source_id = None
-    if source:
-        source_id = source[0].id
+
     table_name = "table1"
     table_property = {"name": table_name, "code": "", "type": "postgres"}
     table = crud.tables.create(
@@ -64,7 +61,6 @@ def create_app(db: Session, request: CreateApp, user: User):
             "name": table_name,
             "page_id": page.id,
             "property": table_property,
-            "source_id": source_id,
             "type": "postgres",
         },
     )

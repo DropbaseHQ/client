@@ -14,20 +14,16 @@ import {
 	useDisclosure,
 } from '@chakra-ui/react';
 import { useEffect } from 'react';
-import { useAtomValue } from 'jotai';
 
 import { Plus } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useToast } from '@/lib/chakra-ui';
 import { useCreateTable } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
-import { useSources } from '@/features/sources/hooks';
-import { workspaceAtom } from '@/features/workspaces';
 import { useGetPage } from '@/features/new-page';
 import { generateSequentialName } from '@/utils';
 
 export const NewTable = (props: any) => {
-	const workspaceId = useAtomValue(workspaceAtom);
 	const { pageId } = useParams();
 
 	const { tables } = useGetPage(pageId);
@@ -39,8 +35,6 @@ export const NewTable = (props: any) => {
 		currentNames: tables.map((t: any) => t.name) || [],
 		prefix: 'table',
 	});
-
-	const { sources } = useSources(workspaceId);
 
 	const mutation = useCreateTable({
 		onSuccess: () => {
@@ -96,18 +90,6 @@ export const NewTable = (props: any) => {
 									name="Table name"
 									placeholder="Enter table name"
 									validation={{ required: 'Table name is required' }}
-								/>
-
-								<FormInput
-									type="select"
-									id="sourceId"
-									name="Source"
-									placeholder="Select source "
-									validation={{ required: 'Source is required' }}
-									options={sources.map((s: any) => ({
-										value: s.id,
-										name: s.name,
-									}))}
 								/>
 							</PopoverBody>
 							<PopoverFooter

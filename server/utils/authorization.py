@@ -1,9 +1,8 @@
 import asyncio
 import logging
-from typing import Literal, Optional
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from fastapi_jwt_auth import AuthJWT
+from fastapi import Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from server import crud
@@ -46,7 +45,6 @@ resource_query_mapper = {
     RESOURCES.FUNCTIONS: crud.functions,
     RESOURCES.PAGE: crud.page,
     RESOURCES.ROLE: crud.user_role,
-    RESOURCES.SOURCE: crud.source,
     RESOURCES.USER: crud.user,
     RESOURCES.WORKSPACE: crud.workspace,
     RESOURCES.TABLE: crud.tables,

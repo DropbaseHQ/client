@@ -2,16 +2,13 @@ import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
-import { Stack, Box, Button, Text } from '@chakra-ui/react';
+import { Stack, Box, Button } from '@chakra-ui/react';
 import {
 	useGetTable,
 	useQueryNames,
 	useUpdateTableProperties,
 } from '@/features/new-app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
-import { useSources } from '@/features/sources/hooks';
-import { workspaceAtom } from '@/features/workspaces';
-import { NewSourceForm } from '@/features/sources/routes/NewSource';
 import { InputLoader } from '@/components/Loader';
 import { selectedTableIdAtom } from '@/features/new-app-builder/atoms';
 import { DeleteTable } from '@/features/new-app-builder/components/PropertiesEditor/DeleteTable';
@@ -20,13 +17,9 @@ import { proxyTokenAtom } from '@/features/settings/atoms';
 
 export const TableProperties = () => {
 	const token = useAtomValue(proxyTokenAtom);
-
-	const workspaceId = useAtomValue(workspaceAtom);
 	const tableId = useAtomValue(selectedTableIdAtom);
 	const { pageId } = useParams();
 	const { isLoading, values, sourceId, refetch, type } = useGetTable(tableId || '');
-
-	const { sources, isLoading: isLoadingSources } = useSources(workspaceId);
 
 	const { pageName, appName } = useAtomValue(pageAtom);
 
@@ -83,24 +76,6 @@ export const TableProperties = () => {
 		});
 	};
 
-	if (!isLoadingSources && sources.length === 0) {
-		return (
-			<Stack p="4" maxH="full" borderRadius="sm" borderWidth="1px" bg="white" spacing="4">
-				<Stack spacing="0">
-					<Text fontSize="lg" fontWeight="semibold">
-						Create source
-					</Text>
-					<Text color="gray.600" fontSize="sm">
-						Create source to build tables & apps
-					</Text>
-				</Stack>
-				<Box h="full" overflow="auto">
-					<NewSourceForm />
-				</Box>
-			</Stack>
-		);
-	}
-
 	if (isLoading) {
 		return (
 			<Stack p="6" borderRadius="sm" spacing="3" borderWidth="1px" bg="white">
@@ -116,18 +91,6 @@ export const TableProperties = () => {
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
 					<Stack spacing="4">
-						<FormInput
-							type="select"
-							id="sourceId"
-							name="Source"
-							placeholder="Select source "
-							validation={{ required: 'Source is required' }}
-							options={sources.map((s: any) => ({
-								value: s.id,
-								name: s.name,
-							}))}
-						/>
-
 						<FormInput id="name" name="Table Name" type="text" />
 
 						<FormInput
