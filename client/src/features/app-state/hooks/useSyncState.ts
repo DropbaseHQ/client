@@ -8,10 +8,10 @@ export const useSyncState = () => {
 
 	const handleSyncState = useCallback(
 		(data: any) => {
-			if (data.status === 'success' && data.is_state && data.state) {
-				const { widget, ...other } = data?.state || {};
+			if (data?.context) {
+				const { widgets, ...other } = data.context;
 
-				setWidgetState((s) => ({ ...s, state: widget || {} }));
+				setWidgetState((s) => ({ ...s, state: widgets || {} }));
 				setNonInteractiveState(other || {});
 			}
 		},
