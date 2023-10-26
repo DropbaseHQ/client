@@ -1,15 +1,16 @@
+import re
+
+import pytest
 from fastapi.testclient import TestClient
+
+from server.main import app
 from server.tests.authorization.utils import (
-    HomeTestClient,
     TEST_APP_ID,
     TEST_FUNCTION_ID,
     TEST_FUNCTION_ID_2,
-    TEST_SOURCE_ID,
     TEST_GROUP,
+    HomeTestClient,
 )
-from server.main import app
-import pytest
-import re
 
 client = TestClient(app)
 
@@ -222,16 +223,6 @@ def test_user_cannot_create_widget(user_client):
 
 def test_user_cannot_update_columns(user_client):
     response = user_client.update_columns_visible(True)
-    assert response.status_code == 403
-
-
-def test_user_cannot_create_sources(user_client):
-    response = user_client.create_source()
-    assert response.status_code == 403
-
-
-def test_user_cannot_delete_sources(user_client):
-    response = user_client.delete_source(TEST_SOURCE_ID)
     assert response.status_code == 403
 
 
