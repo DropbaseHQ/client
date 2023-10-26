@@ -1,7 +1,7 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from server.main import app
-import pytest
 
 # Constants
 TEST_WORKSPACE = "4dee8d8f-c483-4ed7-9dbd-a5104f00d69f"
@@ -9,7 +9,6 @@ TEST_APP_ID = "5b4699fa-402f-4f15-936b-bcae24ea54a7"
 TEST_PAGE_ID = "5f5a860e-91c1-47c8-bbaa-ca8f29d21297"
 TEST_FUNCTION_ID = "cff5b62c-e504-4829-b7b6-3f5fa7e69875"
 TEST_FUNCTION_ID_2 = "61c53a64-eb18-461e-b4ab-23676a10c242"
-TEST_SOURCE_ID = "c6bd8b77-8ba9-4296-8953-ba95e89aac92"  # source1 id
 TEST_CODE = "select * from customer"
 TEST_CODE_EDIT = "select * from customer limit 10"
 TEST_TABLE_ID = "a90ca748-dc02-4d0e-9bbc-4411f2158e03"
@@ -85,7 +84,6 @@ class HomeTestClient:
         data = {
             "name": "test table",
             "page_id": TEST_PAGE_ID,
-            "source_id": TEST_SOURCE_ID,
             "property": table_property,
             "state": {},
             "type": "postgres",
@@ -99,7 +97,6 @@ class HomeTestClient:
         data = {
             "name": "test table edit",
             "page_id": TEST_PAGE_ID,
-            "source_id": TEST_SOURCE_ID,
             "property": table_property,
         }
         response = self.client.put(f"/tables/{table_id}", json=data)
@@ -134,32 +131,6 @@ class HomeTestClient:
             "date": "2023-10-03T20:37:53.566633",
         }
         response = self.client.put(f"/columns/{TEST_COLUMN}", json=data)
-        return response
-
-    # Sources
-    def create_source(self):
-        data = {
-            "name": "test source",
-            "workspace_id": TEST_WORKSPACE,
-            "type": "postgres",
-            "creds": {
-                "host": TEST_DB_HOST,
-                "port": TEST_DB_PORT,
-                "database": TEST_DB_NAME,
-                "username": TEST_DB_USER,
-                "password": TEST_DB_PASS,
-            },
-        }
-        response = self.client.post("/source/", json=data)
-        return response
-
-    def edit_source(self, source_id):
-        data = {"name": "test source edit"}
-        response = self.client.put(f"/source/{source_id}", json=data)
-        return response
-
-    def delete_source(self, source_id):
-        response = self.client.delete(f"/source/{source_id}")
         return response
 
     # Groups
