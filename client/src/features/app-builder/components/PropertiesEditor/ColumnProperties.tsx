@@ -22,6 +22,7 @@ import { InputRenderer } from '@/components/FormInput';
 import {
 	useConvertSmartTable,
 	useGetColumnProperties,
+	useGetTable,
 	useUpdateColumnProperties,
 } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
@@ -143,6 +144,7 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 export const ColumnsProperties = () => {
 	const toast = useToast();
 	const tableId = useAtomValue(selectedTableIdAtom);
+	const { type } = useGetTable(tableId || '');
 	const { isLoading, values } = useGetColumnProperties(tableId || '');
 	const state = useAtomValue(newPageStateAtom);
 
@@ -186,17 +188,19 @@ export const ColumnsProperties = () => {
 
 	return (
 		<Stack h="full" px="3" overflowY="auto">
-			<Button
-				leftIcon={<Zap size="14" />}
-				size="sm"
-				colorScheme="yellow"
-				onClick={handleConvert}
-				isLoading={convertMutation.isLoading}
-				mr="auto"
-				variant="ghost"
-			>
-				Convert to Smart Table
-			</Button>
+			{type === 'sql' ? (
+				<Button
+					leftIcon={<Zap size="14" />}
+					size="sm"
+					colorScheme="yellow"
+					onClick={handleConvert}
+					isLoading={convertMutation.isLoading}
+					mr="auto"
+					variant="ghost"
+				>
+					Convert to Smart Table
+				</Button>
+			) : null}
 			<Accordion bg="white" borderLeftWidth="1px" borderRightWidth="1px" allowMultiple>
 				<Stack
 					fontWeight="medium"
