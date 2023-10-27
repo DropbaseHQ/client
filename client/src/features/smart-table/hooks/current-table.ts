@@ -1,12 +1,11 @@
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { useSyncDropbaseColumns, useTableData } from './table';
+import { useTableData } from './table';
 import { filtersAtom, sortsAtom } from '@/features/smart-table/atoms';
 import { newPageStateAtom } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { useGetColumnProperties } from '@/features/app-builder/hooks';
-import { proxyTokenAtom } from '@/features/settings/atoms';
 
 export const CurrentTableContext: any = createContext({ tableId: null });
 
@@ -47,48 +46,19 @@ export const useCurrentTableData = (tableId: any) => {
 	};
 };
 
-export const useSyncCurrentTable = (tableId: any) => {
-	const token = useAtomValue(proxyTokenAtom);
-	const { pageName, appName } = useAtomValue(pageAtom);
-
-	const syncRef = useRef(false);
-	const { header, columns, isLoading } = useCurrentTableData(tableId);
-
-	const mutation = useSyncDropbaseColumns();
-
-	useEffect(() => {
-		if (!isLoading && !syncRef.current) {
-			const isSynced = header.every((c: any) => (columns as any)[c]);
-
-			if (!isSynced) {
-				syncRef.current = true;
-				mutation.mutate({
-					tableId,
-					columns: header,
-					appName,
-					pageName,
-					token,
-				});
-			}
-		}
-	}, [header, isLoading, columns, mutation, tableId]);
-};
-
 export const useTableSyncStatus = (tableId: any) => {
-	const syncRef = useRef(false);
 	const { header, columns, isLoading } = useCurrentTableData(tableId);
-
-	let hasChanged = false;
+	const [needsSync, setSync] = useState(false);
 
 	useEffect(() => {
-		if (!isLoading && !syncRef.current) {
+		if (!isLoading) {
 			const isSynced = header.every((c: any) => (columns as any)[c]);
 
 			if (!isSynced) {
-				hasChanged = true;
-				syncRef.current = true;
+				setSync(true);
 			}
 		}
 	}, [header, isLoading, columns, tableId]);
-	return hasChanged;
+
+	return needsSync;
 };
