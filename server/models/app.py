@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Column, ForeignKey, String
+from sqlalchemy import TIMESTAMP, Column, ForeignKey, String, BOOLEAN
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
@@ -10,7 +10,7 @@ class App(Base):
 
     name = Column(String, nullable=False)
     workspace_id = Column(UUID(as_uuid=True), ForeignKey("workspace.id", ondelete="CASCADE"))
-
+    is_draft = Column(BOOLEAN, default=False)
     date = Column(TIMESTAMP, server_default=func.now())
 
     __tablename__ = "app"
