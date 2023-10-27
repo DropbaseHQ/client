@@ -244,17 +244,6 @@ const saveSql = async ({ pageName, appName, fileName, sql }: any) => {
 		sql,
 	});
 
-	// return response.data;
-	
-
-	// update file in dropbase
-	const dropbase_response = await axios.post(`files/save_sql/`, {
-		page_name: pageName,
-		app_name: appName,
-		file_name: fileName,
-		sql,
-	});
-
 	return response.data;
 };
 

@@ -10,6 +10,7 @@ class Tables(Base):
 
     name = Column(String, nullable=False)
     property = Column(JSONB)
+    data_fetcher_id = Column(UUID(as_uuid=True), ForeignKey("data_fetcher.id", ondelete="SET NULL"))
     page_id = Column(UUID(as_uuid=True), ForeignKey("page.id", ondelete="CASCADE"))
     depends_on = Column(ARRAY(String))
     type = Column(String)
