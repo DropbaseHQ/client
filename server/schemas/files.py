@@ -24,7 +24,14 @@ class CreateFiles(BaseFiles):
     pass
 
 
-class UpdateFiles(BaseModel):
+class UpdateFiles(BaseFiles):
     name: str
     type: str
     source: Optional[str]
+    page_id: UUID
+
+
+class RenameFile(BaseModel):
+    old_name: str
+    new_name: str
+    page_id: UUID

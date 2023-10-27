@@ -67,17 +67,20 @@ export const SQLEditor = ({ id }: any) => {
 		runMutation.mutate({
 			pageName,
 			appName,
-			pageState,
+			state: pageState.state,
 			fileName: sqlName,
 			fileContent: code,
+			source: selectedSource,
 		});
 	};
+
 	const handleSave = () => {
 		saveSQLMutation.mutate({
 			pageName,
 			appName,
 			fileName: sqlName,
 			sql: code,
+			source: selectedSource,
 		});
 	};
 

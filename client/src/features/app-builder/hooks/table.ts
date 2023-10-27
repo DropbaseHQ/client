@@ -211,13 +211,14 @@ export const useRunTableQuery = (props: any = {}) => {
 	});
 };
 
-const runSQLQuery = async ({ appName, pageName, pageState, source, fileContent }: any) => {
+const runSQLQuery = async ({ appName, pageName, state, source, fileContent }: any) => {
+	console.log('here')
 	const response = await workerAxios.post(`/query/run_sql_string/`, {
 		app_name: appName,
 		page_name: pageName,
-		payload: pageState,
-		file_content: fileContent,
+		state,
 		source,
+		file_content: fileContent,
 	});
 
 	return response.data;
@@ -237,6 +238,17 @@ export const useRunSQLQuery = (props: any = {}) => {
 
 const saveSql = async ({ pageName, appName, fileName, sql }: any) => {
 	const response = await workerAxios.post(`files/save_sql/`, {
+		page_name: pageName,
+		app_name: appName,
+		file_name: fileName,
+		sql,
+	});
+
+	// return response.data;
+	
+
+	// update file in dropbase
+	const dropbase_response = await axios.post(`files/save_sql/`, {
 		page_name: pageName,
 		app_name: appName,
 		file_name: fileName,

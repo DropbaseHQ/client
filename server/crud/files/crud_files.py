@@ -12,6 +12,15 @@ class CRUDFiles(CRUDBase[Files, CreateFiles, UpdateFiles]):
     def get_page_files(self, db: Session, page_id: UUID) -> List[Files]:
         return db.query(Files).filter(Files.page_id == str(page_id)).order_by(Files.date).all()
 
+    def get_page_file_by_name(self, db: Session, page_id: UUID, file_name: str) -> Files:
+        return (
+            db.query(Files)
+            .join(Page, Files.page_id == Page.id)
+            .filter(Page.name == file_name)
+            .filter(Page.id == page_id)
+            .first()
+        )
+
     def get_workspace_id(self, db: Session, files_id: UUID) -> str:
         return (
             db.query(App.workspace_id)
