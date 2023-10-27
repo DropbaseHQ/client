@@ -13,39 +13,24 @@ import {
 	useDisclosure,
 } from '@chakra-ui/react';
 
-import { useParams } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
 
 import { Trash } from 'react-feather';
 // import { useToast } from '@/lib/chakra-ui';
 // import { useDeleteFunction } from '@/features/new-app-builder/hooks';
 import { developerTabAtom } from '@/features/app-builder/atoms';
-import { useGetPage } from '@/features/page';
 
 export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
 	// const toast = useToast();
-	const { pageId } = useParams();
 
 	const setDevTab = useSetAtom(developerTabAtom);
 
-	const { functions } = useGetPage(pageId);
-
-	const nextFunctionSelection =
-		functions.filter((t: any) => t.id !== functionId)?.[0]?.id || null;
-
 	const { isOpen, onToggle, onClose } = useDisclosure({
 		onClose: () => {
-			if (nextFunctionSelection) {
-				setDevTab({
-					type: 'function',
-					id: nextFunctionSelection,
-				});
-			} else {
-				setDevTab({
-					type: null,
-					id: null,
-				});
-			}
+			setDevTab({
+				type: null,
+				id: null,
+			});
 		},
 	});
 
