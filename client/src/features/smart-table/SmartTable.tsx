@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import {
 	Box,
 	Button,
@@ -22,7 +22,7 @@ import DataEditor, {
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
 
-import { selectedRowAtom } from '@/features/app-state';
+import { newPageStateAtom, selectedRowAtom } from '@/features/app-state';
 
 import {
 	CurrentTableContext,
@@ -36,6 +36,8 @@ import { TableBar } from './components';
 import { getPGColumnBaseType } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
+import { pageAtom, useGetPage } from '../page';
+import { useParams } from 'react-router-dom';
 
 export const SmartTable = ({ tableId }: any) => {
 	const theme = useTheme();
@@ -61,6 +63,13 @@ export const SmartTable = ({ tableId }: any) => {
 	const [columnWidth, setColumnWidth] = useState<any>({});
 
 	const tableName = values?.name;
+
+	const { pageName, appName } = useAtomValue(pageAtom);
+
+	const { pageId } = useParams();
+	const { tables } = useGetPage(pageId);
+
+	const pageState = useAtomValue(newPageStateAtom);
 
 	const onColumnResize = useCallback((col: any, newSize: any) => {
 		setColumnWidth((c: any) => ({
@@ -296,8 +305,10 @@ export const SmartTable = ({ tableId }: any) => {
 	};
 	const handleSyncColumns = () => {
 		syncMutation.mutate({
-			tableId,
-			columns: header,
+			pageName,
+			appName,
+			tables: tables.map((t: any) => t.property),
+			state: pageState.state,
 		});
 	};
 
