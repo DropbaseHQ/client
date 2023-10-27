@@ -23,6 +23,7 @@ import {
 	useCreateComponents,
 	useDeleteComponent,
 	useGetComponentProperties,
+	useSyncComponents,
 	useUpdateComponentProperties,
 } from '@/features/app-builder/hooks';
 import { pageAtom } from '@/features/page';
@@ -50,8 +51,14 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		reset,
 	} = methods;
 
+	const syncToWorker = useSyncComponents();
+
 	const updateMutation = useUpdateComponentProperties({
-		onSuccess: () => {
+		onSuccess: (_: any, variables: any) => {
+			if (variables.payload?.name !== properties?.name) {
+				syncToWorker.mutate({ appName, pageName });
+			}
+
 			refetch();
 		},
 	});
@@ -219,11 +226,17 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 export const NewComponent = (props: any) => {
 	const toast = useToast();
-	const { widgetId } = useAtomValue(pageAtom);
+	const { widgetId, appName, pageName } = useAtomValue(pageAtom);
 	const { values } = useGetComponentProperties(widgetId || '');
+
+	const syncComponents = useSyncComponents();
 
 	const mutation = useCreateComponents({
 		onSuccess: () => {
+			syncComponents.mutate({
+				appName,
+				pageName,
+			});
 			toast({
 				status: 'success',
 				title: 'Component added',
