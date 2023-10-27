@@ -61,11 +61,13 @@ export const TableBar = () => {
 			p="1.5"
 			justifyContent="space-between"
 		>
-			<Stack spacing="0" alignItems="center" direction="row">
-				<FilterButton />
-				<SortButton />
-				<PinnedFilters />
-			</Stack>
+			{tableType === 'sql' ? (
+				<Stack spacing="0" alignItems="center" direction="row">
+					<FilterButton />
+					<SortButton />
+					<PinnedFilters />
+				</Stack>
+			) : null}
 
 			<Stack direction="row">
 				{cellEdits.length > 0 ? (
