@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import App, Page, Tables
+from server.models import App, Page, Tables, Token, Workspace
 from server.schemas.tables import CreateTables, UpdateTables
 
 
@@ -31,6 +31,22 @@ class CRUDTables(CRUDBase[Tables, CreateTables, UpdateTables]):
             .filter(Tables.id == tables_id)
             .one()
         ).app_id
+
+    def get_table_by_app_page_token(
+        self, db: Session, table_name: str, page_name: str, app_name: str, token: str
+    ):
+        return (
+            db.query(Tables)
+            .join(Page, Page.id == Tables.page_id)
+            .join(App, App.id == Page.app_id)
+            .join(Workspace, Workspace.id == App.workspace_id)
+            .join(Token, Workspace.id == Token.workspace_id)
+            .filter(Page.name == page_name)
+            .filter(App.name == app_name)
+            .filter(Token.token == token)
+            .filter(Tables.name == table_name)
+            .first()
+        )
 
 
 tables = CRUDTables(Tables)

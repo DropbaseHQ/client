@@ -20,7 +20,7 @@ const fetchTableData = async ({
 	const response = await workerAxios.post<any>(`/query/`, {
 		app_name: appName,
 		page_name: pageName,
-		payload: state,
+		state: state.state,
 		table: {
 			code,
 			type,

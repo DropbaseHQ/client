@@ -46,11 +46,11 @@ require_authentication_routes.include_router(endpoints.tables_router)
 require_authentication_routes.include_router(endpoints.columns_router)
 require_authentication_routes.include_router(endpoints.files_router)
 require_authentication_routes.include_router(endpoints.components_router)
-# require_authentication_routes.include_router(endpoints.task_router)
 
 app.include_router(endpoints.user_router)
 app.include_router(endpoints.group_router)
 app.include_router(endpoints.token_router)
+app.include_router(endpoints.worker_router)
 app.include_router(require_authentication_routes)
 
 
