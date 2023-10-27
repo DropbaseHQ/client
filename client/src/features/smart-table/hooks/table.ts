@@ -155,13 +155,12 @@ export const usePinFilters = (props: any = {}) => {
 	});
 };
 
-const syncDropbaseColumns = async ({ tableId, columns, appName, pageName, token }: any) => {
-	const response = await axios.post(`/columns/sync/`, {
-		table_id: tableId,
-		columns,
+const syncDropbaseColumns = async ({ appName, pageName, tables, state }: any) => {
+	const response = await workerAxios.post(`/sync/columns/`, {
 		app_name: appName,
 		page_name: pageName,
-		token,
+		tables,
+		state
 	});
 	return response.data;
 };
