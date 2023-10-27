@@ -2,6 +2,8 @@ import {
 	Button,
 	ButtonGroup,
 	Code,
+	FormControl,
+	FormLabel,
 	IconButton,
 	Skeleton,
 	SkeletonCircle,
@@ -13,15 +15,18 @@ import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 
 import { MonacoEditor } from '@/components/Editor';
-import { useFile, useRunSQLQuery, useSaveSql } from '@/features/app-builder/hooks';
+import { useFile, useRunSQLQuery, useSaveSql, useSources } from '@/features/app-builder/hooks';
 import { newPageStateAtom, useSyncState } from '@/features/app-state';
 import { logBuilder } from '@/features/app-builder/utils';
 import { ChakraTable } from '@/components/Table';
 import { pageAtom } from '@/features/page';
+import { InputRenderer } from '@/components/FormInput';
 
 export const SQLEditor = ({ id }: any) => {
 	const sqlName = id.split('/').pop();
 	const { pageName, appName } = useAtomValue(pageAtom);
+
+	const [selectedSource, setSource] = useState();
 
 	const { isLoading, code: defaultCode } = useFile({
 		pageName,
@@ -32,6 +37,8 @@ export const SQLEditor = ({ id }: any) => {
 	const [code, setCode] = useState('');
 	const [log, setLog] = useState<any>(null);
 	const [previewData, setPreviewData] = useState<any>(null);
+
+	const { sources, isLoading: isLoadingSources } = useSources();
 
 	const pageState = useAtomValue(newPageStateAtom);
 
@@ -83,7 +90,7 @@ export const SQLEditor = ({ id }: any) => {
 		setCode(defaultCode);
 	}, [defaultCode]);
 
-	if (isLoading) {
+	if (isLoading || isLoadingSources) {
 		return (
 			<Stack p="3" spacing="2">
 				<Skeleton startColor="gray.200" endColor="gray.300" h="32" />
@@ -97,12 +104,28 @@ export const SQLEditor = ({ id }: any) => {
 
 	return (
 		<Stack p="3" spacing="3">
+			<FormControl>
+				<FormLabel>Source</FormLabel>
+				<InputRenderer
+					size="sm"
+					flex="1"
+					maxW="sm"
+					type="select"
+					placeholder="Sources"
+					value={selectedSource}
+					options={sources.map((s) => ({ name: s, value: s }))}
+					onChange={(newSelectedSource: any) => {
+						setSource(newSelectedSource);
+					}}
+				/>
+			</FormControl>
 			<MonacoEditor value={code} onChange={setCode} language="sql" />
 			<ButtonGroup variant="outline" size="sm" isAttached>
 				<Button
 					w="fit-content"
 					isLoading={runMutation.isLoading}
 					onClick={handleRun}
+					isDisabled={!selectedSource}
 					leftIcon={<Play size="14" />}
 				>
 					Run Query
@@ -151,14 +174,6 @@ export const SQLEditor = ({ id }: any) => {
 			{previewData?.columns ? (
 				<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
 			) : null}
-
-			{/* <DeleteFunction
-				w="fit-content"
-				mt="4"
-				variant="outline"
-				functionId={id}
-				functionName={functionName}
-			/> */}
 		</Stack>
 	);
 };
