@@ -41,11 +41,11 @@ def sync_components(request: SyncComponentsRequest, response: Response, db: Sess
     return response
 
 
-@router.get("/{app_id}")
+@router.get("/app/{app_id}")
 def get_app(app_id: UUID, db: Session = Depends(get_db)):
     return crud.app.get_object_by_id_or_404(db, id=app_id)
 
 
-@router.put("/{app_id}")
+@router.put("/app/{app_id}")
 def update_app(app_id: UUID, request: UpdateApp, db: Session = Depends(get_db)):
     return crud.app.update_by_pk(db=db, pk=app_id, obj_in={"is_draft": request.is_draft})
