@@ -61,8 +61,6 @@ export const DisplayRulesEditor = ({ id }: any) => {
 
 	return (
 		<FormControl>
-			<FormLabel>Display Rules</FormLabel>
-
 			<Controller
 				control={control}
 				name="display_rules"
