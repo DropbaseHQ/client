@@ -1,6 +1,5 @@
 from uuid import UUID
 
-from fastapi import Response
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
@@ -27,45 +26,6 @@ def get_table(db, table_id: UUID):
     file = crud.files.get_file_by_table_id(db, table_id=table_id)
     table_props = get_class_properties(TablesBaseProperty)
     return {"properties": table_props, "table": table, "file": file}
-
-
-def create_table(db, request: CreateTablesRequest) -> ReadTables:
-    table = crud.tables.create(db, obj_in=CreateTables(**request.dict()))
-    return table
-
-
-# from server.controllers.columns import update_table_columns
-# from server.controllers.state.state import get_state_context, get_state_for_client
-# from server.controllers.state.update import get_columns_from_worker, update_state_context_in_worker
-
-
-def update_table(
-    db: Session, table_id: UUID, request: UpdateTablesRequest, response: Response
-) -> ReadTables:
-    try:
-        table = crud.tables.update_by_pk(db, pk=table_id, obj_in=request)
-        # get current state
-        # page_name, app_name = crud.tables.get_page_app_names_from_table(db, table_id)
-
-        # state = get_state_for_client(db, table.page_id)
-        # # get columns from worker
-        # resp = get_columns_from_worker(table.property, state, app_name, page_name, request.token)
-        # columns = resp.get("columns")
-        # if not columns:
-        #     return {"message": "no columns returned"}
-
-        # # update columns in db
-        # update_table_columns(db, table, columns)
-
-        # # create new state and context
-        # State, Context = get_state_context(db, table.page_id)
-        # # update state and context in worker
-        # update_state_context_in_worker(State, Context, app_name, page_name, request.token)
-
-        return table
-    except Exception as e:
-        response.status_code = 400
-        return {"error": str(e)}
 
 
 def get_table_columns(user_db_engine, table_str):
