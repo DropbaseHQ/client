@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Annotated, Any, List, Literal, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
+from server.schemas.properties import PropertyCategory
 from server.schemas.states import (
     ButtonSharedProperties,
     ComponentDisplayProperties,
@@ -12,27 +13,25 @@ from server.schemas.states import (
     TextSharedProperties,
 )
 
-DisplayRules = List[str]
-
 
 class InputBaseProperties(BaseModel):
-    name: str
-    type: Optional[Literal["text", "number", "date"]] = "text"
-    label: Optional[str]
-    placeholder: Optional[str]
+    name: Annotated[str, PropertyCategory.default]
+    label: Annotated[Optional[str], PropertyCategory.default]
+    type: Annotated[Optional[Literal["text", "number", "date"]], PropertyCategory.default] = "text"
+    placeholder: Annotated[Optional[str], PropertyCategory.default]
 
     # events
-    on_change: Optional[str]
+    on_change: Annotated[Optional[str], PropertyCategory.events]
 
     # display rules
-    display_rules: Optional[DisplayRules]
+    display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
 
     # validation
-    validation_rules: Optional[List[str]]
+    validation_rules: Annotated[Optional[List[str]], PropertyCategory.validation]
 
     # other
-    required: Optional[bool]
-    default: Optional[Any]
+    required: Annotated[Optional[bool], PropertyCategory.other]
+    default: Annotated[Optional[Any], PropertyCategory.other]
 
 
 class InputDefined(InputBaseProperties, InputSharedProperties):
@@ -44,18 +43,18 @@ class InputRead(InputBaseProperties, ComponentDisplayProperties, InputSharedProp
 
 
 class SelectBaseProperties(BaseModel):
-    name: str
-    label: Optional[str]
+    name: Annotated[str, PropertyCategory.default]
+    label: Annotated[Optional[str], PropertyCategory.default]
 
     # events
-    on_change: Optional[str]
+    on_change: Annotated[Optional[str], PropertyCategory.events]
 
     # display_rules
-    display_rules: Optional[DisplayRules]
+    display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
 
     # other
-    required: Optional[bool]
-    default: Optional[Any]
+    required: Annotated[Optional[bool], PropertyCategory.other]
+    default: Annotated[Optional[Any], PropertyCategory.other]
 
 
 class SelectDefined(SelectBaseProperties, SelectSharedProperties):
@@ -67,17 +66,18 @@ class SelectRead(SelectBaseProperties, ComponentDisplayProperties, SelectSharedP
 
 
 class ButtonBaseProperties(BaseModel):
-    name: str
-    label: Optional[str]
-    color: Optional[
-        Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]
+    name: Annotated[str, PropertyCategory.default]
+    label: Annotated[Optional[str], PropertyCategory.default]
+    color: Annotated[
+        Optional[Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]],
+        PropertyCategory.default
     ]
 
     # events
-    on_click: Optional[str]
+    on_click: Annotated[Optional[str], PropertyCategory.events]
 
     # display rules
-    display_rules: Optional[DisplayRules]
+    display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
 
 
 class ButtonDefined(ButtonBaseProperties, ButtonSharedProperties):
@@ -89,15 +89,16 @@ class ButtonRead(ButtonBaseProperties, ComponentDisplayProperties, ButtonSharedP
 
 
 class TextBaseProperties(BaseModel):
-    name: str
-    text: Optional[str]
-    size: Optional[Literal["small", "medium", "large"]]
-    color: Optional[
-        Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]
+    name: Annotated[str, PropertyCategory.default]
+    text: Annotated[Optional[str], PropertyCategory.default]
+    size: Annotated[Optional[Literal["small", "medium", "large"]], PropertyCategory.default]
+    color: Annotated[
+        Optional[Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]],
+        PropertyCategory.default,
     ]
 
     # display_rules
-    display_rules: Optional[DisplayRules]
+    display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
 
 
 class TextDefined(TextBaseProperties, TextSharedProperties):
