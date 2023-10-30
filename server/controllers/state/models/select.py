@@ -30,6 +30,11 @@ class SelectBaseProperties(BaseModel):
     # server calls
     on_change: Optional[str]
 
+    @property
+    def state(self):
+        # TODO: match based on value type
+        return "str"
+
 
 class SelectDefinedProperty(SelectBaseProperties, SelectSharedProperties):
     pass

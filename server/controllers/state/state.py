@@ -113,7 +113,12 @@ base_property_mapper = {
         "Widgets": {
             "base": WidgetContextProperty,
             "dir": "components",
-            "children": {"input": InputContextProperty, "button": ButtonContextProperty},
+            "children": {
+                "input": InputContextProperty,
+                "button": ButtonContextProperty,
+                "select": SelectContextProperty,
+                "text": TextContextProperty,
+            },
         },
         "Tables": {
             "base": TableContextProperty,
@@ -125,7 +130,12 @@ base_property_mapper = {
         "Widgets": {
             "base": WidgetDefinedProperty,
             "dir": "components",
-            "children": {"input": InputDefinedProperty, "button": ButtonDefinedProperty},
+            "children": {
+                "input": InputDefinedProperty,
+                "button": ButtonDefinedProperty,
+                "select": SelectDefinedProperty,
+                "text": TextDefinedProperty,
+            },
         },
         "Tables": {
             "base": TableDefinedProperty,
