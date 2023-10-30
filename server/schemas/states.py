@@ -1,6 +1,8 @@
-from typing import Any, Dict, List, Optional
+from typing import Annotated, Dict, List, Optional
 
 from pydantic import BaseModel
+
+from server.schemas.properties import PropertyCategory
 
 
 # input
@@ -21,7 +23,7 @@ class InputStateProperties(ComponentDisplayProperties, InputSharedProperties):
 class SelectSharedProperties(BaseModel):
     visible: Optional[bool]
     value: Optional[str]
-    options: Optional[List[Dict]]  # {name : value, ...}
+    options: Annotated[Optional[List[Dict]], PropertyCategory.default]  # {name : value, ...}
 
 
 class SelectStateProperties(ComponentDisplayProperties, SelectSharedProperties):

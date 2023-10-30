@@ -2,11 +2,12 @@
 # TODO: hide behind protected route
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
-
+from uuid import UUID
 from server import crud
 from server.controllers.columns import update_table_columns
 from server.controllers.state.state import get_state_context
 from server.schemas.worker import SyncColumnsRequest, SyncComponentsRequest
+from server.schemas import UpdateApp
 from server.utils.connect import get_db
 
 router = APIRouter(prefix="/worker", tags=["worker"])
@@ -14,7 +15,6 @@ router = APIRouter(prefix="/worker", tags=["worker"])
 
 @router.post("/sync/columns/")
 def sync_table_columns(request: SyncColumnsRequest, response: Response, db: Session = Depends(get_db)):
-
     # TODO: maybe user worksapce id instead of token later, once proxy is added
     # for each table, update columns
     for table_name, columns in request.table_columns.items():
@@ -39,3 +39,13 @@ def sync_components(request: SyncComponentsRequest, response: Response, db: Sess
     State, Context = get_state_context(db, page.id)
     response = {"state": State.schema(), "context": Context.schema(), "status": "success"}
     return response
+
+
+@router.get("/app/{app_id}")
+def get_app(app_id: UUID, db: Session = Depends(get_db)):
+    return crud.app.get_object_by_id_or_404(db, id=app_id)
+
+
+@router.put("/app/{app_id}")
+def update_app(app_id: UUID, request: UpdateApp, db: Session = Depends(get_db)):
+    return crud.app.update_by_pk(db=db, pk=app_id, obj_in={"is_draft": request.is_draft})

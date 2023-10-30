@@ -44,6 +44,13 @@ def create_app(
     return app_controller.create_app(db, request, user)
 
 
+@router.post("/draft")
+def create_draft_app(
+    request: CreateApp, db: Session = Depends(get_db), user: User = Depends(get_current_user)
+):
+    return app_controller.create_draft_app(db, request, user)
+
+
 @router.put("/{app_id}")
 def update_app(app_id: UUID, request: UpdateApp, db: Session = Depends(get_db)):
     return crud.app.update_by_pk(db=db, pk=app_id, obj_in={"name": request.name})
