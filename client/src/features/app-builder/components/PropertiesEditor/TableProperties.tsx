@@ -3,7 +3,11 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { Stack, Box, Button } from '@chakra-ui/react';
-import { useGetTable, useQueryNames, useUpdateTableProperties } from '@/features/app-builder/hooks';
+import {
+	useDataFetchers,
+	useGetTable,
+	useUpdateTableProperties,
+} from '@/features/app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { InputLoader } from '@/components/Loader';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
@@ -15,14 +19,12 @@ export const TableProperties = () => {
 	const token = useAtomValue(proxyTokenAtom);
 	const tableId = useAtomValue(selectedTableIdAtom);
 	const { pageId } = useParams();
-	const { isLoading, values, sourceId, refetch, type } = useGetTable(tableId || '');
+
+	const { isLoading, table, refetch } = useGetTable(tableId || '');
 
 	const { pageName, appName } = useAtomValue(pageAtom);
 
-	const { queryNames } = useQueryNames({
-		pageName,
-		appName,
-	});
+	const { fetchers } = useDataFetchers(pageId);
 
 	const [errorLog, setErrorLog] = useState('');
 
@@ -39,33 +41,29 @@ export const TableProperties = () => {
 	const methods = useForm();
 	const { reset } = methods;
 
-	const codeType = methods.watch('type');
-
 	useEffect(() => {
 		reset(
-			{ ...values, sourceId, type },
+			{ name: table?.name, fileId: table?.file_id },
 			{
 				keepDirty: false,
 				keepDirtyValues: false,
 			},
 		);
-	}, [values, sourceId, type, reset]);
+	}, [table, reset]);
 
 	useEffect(() => {
 		setErrorLog('');
 	}, [tableId]);
 
-	const onSubmit = ({ sourceId: newSourceId, ...rest }: any) => {
+	const onSubmit = ({ fileId, ...rest }: any) => {
 		mutation.mutate({
 			tableId: tableId || '',
-			payload: rest,
-			sourceId: newSourceId,
-			type: codeType,
 			name: rest.name,
 			pageId,
 			appName,
 			pageName,
 			token,
+			fileId,
 		});
 	};
 
@@ -88,49 +86,29 @@ export const TableProperties = () => {
 
 						<FormInput
 							type="select"
-							id="type"
-							name="Type"
-							placeholder="Select type"
-							validation={{ required: 'Type is required' }}
-							options={[
-								{
-									name: 'Python',
-									value: 'python',
-								},
-
-								{
-									name: 'SQL',
-									value: 'sql',
-								},
-							]}
+							id="fileId"
+							name="Fetcher"
+							placeholder="Select data fetcher"
+							validation={{ required: 'option is required' }}
+							options={(fetchers as any).map((file: any) => ({
+								name: file.name,
+								value: file.id,
+							}))}
 						/>
 
-						<Stack spacing="0">
-							<FormInput
-								type="select"
-								id="code"
-								name="code"
-								placeholder="Select code"
-								validation={{ required: 'option is required' }}
-								options={((queryNames as any)[codeType] || []).map((name: any) => ({
-									name,
-									value: name,
-								}))}
-							/>
-							{errorLog ? (
-								<Box
-									fontSize="xs"
-									color="red.500"
-									bg="white"
-									p="2"
-									borderRadius="sm"
-									as="pre"
-									fontFamily="mono"
-								>
-									{errorLog}
-								</Box>
-							) : null}
-						</Stack>
+						{errorLog ? (
+							<Box
+								fontSize="xs"
+								color="red.500"
+								bg="white"
+								p="2"
+								borderRadius="sm"
+								as="pre"
+								fontFamily="mono"
+							>
+								{errorLog}
+							</Box>
+						) : null}
 
 						<Stack direction="row" justifyContent="space-between">
 							<Button
@@ -144,7 +122,7 @@ export const TableProperties = () => {
 								Run
 							</Button>
 
-							<DeleteTable tableId={tableId} tableName={values.name} />
+							<DeleteTable tableId={tableId} tableName={table?.name} />
 						</Stack>
 					</Stack>
 				</FormProvider>
