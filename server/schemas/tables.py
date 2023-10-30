@@ -11,7 +11,7 @@ from server.schemas.states import TableDisplayProperty, TableSharedProperty
 class TablesBaseProperty(BaseModel):
     # name: Optional[str]
     # source: Optional[str]
-    # type: Literal["postgres", "sql", "python"] = "python"
+    type: Literal["postgres", "sql", "python"] = "python"
     # code: str = Field(..., description="sql")
     filters: Optional[List[PinnedFilter]]
 

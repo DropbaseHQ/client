@@ -9,7 +9,7 @@ from server import crud
 from server.controllers.columns import update_table_columns
 from server.controllers.state.state import get_state_context
 from server.schemas import UpdateApp
-from server.schemas.files import CreateFiles
+from server.schemas.files import CreateFiles, UpdateFiles
 from server.schemas.worker import SyncColumnsRequest, SyncComponentsRequest
 from server.utils.connect import get_db
 
@@ -54,6 +54,11 @@ def update_app(app_id: UUID, request: UpdateApp, db: Session = Depends(get_db)):
     return crud.app.update_by_pk(db=db, pk=app_id, obj_in={"is_draft": request.is_draft})
 
 
-@router.post("/create_file/")
+@router.post("/file/")
 def create_file(request: CreateFiles, db: Session = Depends(get_db)):
     return crud.files.create(db, obj_in=request)
+
+
+@router.put("/file/{file_id}")
+def update_file(file_id: UUID, request: UpdateFiles, db: Session = Depends(get_db)):
+    return crud.files.update_by_pk(db, pk=file_id, obj_in=request)

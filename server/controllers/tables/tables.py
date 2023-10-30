@@ -24,11 +24,9 @@ def get_table_properties():
 
 def get_table(db, table_id: UUID):
     table = crud.tables.get_object_by_id_or_404(db, id=table_id)
+    file = crud.files.get_file_by_table_id(db, table_id=table_id)
     table_props = get_class_properties(TablesBaseProperty)
-    return {
-        "properties": table_props,
-        "table": table,
-    }
+    return {"properties": table_props, "table": table, "file": file}
 
 
 def create_table(db, request: CreateTablesRequest) -> ReadTables:

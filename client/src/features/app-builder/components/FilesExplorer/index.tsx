@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { Box, Button, ButtonGroup, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { Code, Table } from 'react-feather';
 import { useMonacoLoader } from '@/components/Editor';
-import { usePageFiles } from '@/features/app-builder/hooks';
 
 import { developerTabAtom } from '@/features/app-builder/atoms';
 
 import { NewFile } from './NewFile';
 import { FunctionEditor } from './FunctionEditor';
 import { SQLEditor } from './SQLEditor';
-import { pageAtom } from '@/features/page';
+import { useGetPage } from '@/features/page';
+import { useParams } from 'react-router-dom';
 
 const componentsMap: any = {
 	function: FunctionEditor,
@@ -18,11 +18,8 @@ const componentsMap: any = {
 };
 
 export const FilesExplorer = () => {
-	const { pageName, appName } = useAtomValue(pageAtom);
-	const { files, isLoading, error } = usePageFiles({
-		pageName: pageName || '',
-		appName: appName || '',
-	});
+	const { pageId } = useParams();
+	const { files, isLoading, error } = useGetPage(pageId);
 
 	const isReady = useMonacoLoader();
 
@@ -70,20 +67,20 @@ export const FilesExplorer = () => {
 			>
 				<ButtonGroup isAttached size="sm">
 					{(files || []).map((f: any) => {
-						const isSQLFile = f.endsWith('.sql');
+						const isSQLFile = f.name.endsWith('.sql');
 						return (
 							<Button
-								variant={f === devTab.id ? 'solid' : 'outline'}
+								variant={f.id === devTab.id ? 'solid' : 'outline'}
 								onClick={() => {
 									setDevTab({
 										type: isSQLFile ? 'sql' : 'function',
-										id: f,
+										id: f.id,
 									});
 								}}
 								leftIcon={isSQLFile ? <Table size="14" /> : <Code size="14" />}
-								key={f}
+								key={f.id}
 							>
-								{f.split('/').pop()}
+								{f.name}
 							</Button>
 						);
 					})}

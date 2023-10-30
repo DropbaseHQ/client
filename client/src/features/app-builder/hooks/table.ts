@@ -32,6 +32,7 @@ export const useGetTable = (tableId: string, props?: any): any => {
 		return {
 			properties: response?.properties || [],
 			table: response?.table || {},
+			type:  response?.file?.type
 		};
 	}, [response]);
 
@@ -221,12 +222,14 @@ export const useRunSQLQuery = (props: any = {}) => {
 	});
 };
 
-const saveSql = async ({ pageName, appName, fileName, sql }: any) => {
-	const response = await workerAxios.post(`files/save_sql/`, {
+const saveSql = async ({ pageName, appName, fileName,fileId, sql, source }: any) => {
+	const response = await workerAxios.post(`files/update_file/`, {
 		page_name: pageName,
 		app_name: appName,
-		file_name: fileName,
+		name: fileName,
 		sql,
+		source,
+		file_id: fileId
 	});
 
 	return response.data;

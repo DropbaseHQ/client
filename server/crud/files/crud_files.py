@@ -1,10 +1,11 @@
 from typing import List
 from uuid import UUID
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import App, Files, Page
+from server.models import App, Files, Page, Tables
 from server.schemas.files import CreateFiles, UpdateFiles
 
 
@@ -16,7 +17,7 @@ class CRUDFiles(CRUDBase[Files, CreateFiles, UpdateFiles]):
         return (
             db.query(Files)
             .filter(Files.page_id == str(page_id))
-            .filter(Files.type == "data_fetchers" or Files.type == "sql")
+            .filter(or_(Files.type == "data_fetcher", Files.type == "sql"))
             .order_by(Files.date)
             .all()
         )
@@ -38,6 +39,14 @@ class CRUDFiles(CRUDBase[Files, CreateFiles, UpdateFiles]):
             .filter(Files.id == files_id)
             .one()
         ).workspace_id
+
+    def get_file_by_table_id(self, db: Session, table_id: UUID):
+        return (
+            db.query(Files)
+            .join(Tables, Tables.file_id == Files.id)
+            .filter(Tables.id == table_id)
+            .first()
+        )
 
 
 files = CRUDFiles(Files)
