@@ -21,14 +21,14 @@ logger = logging.getLogger(__name__)
 
 def create_component(db: Session, request: CreateComponents):
     ComponentClass = component_type_mapper[request.type]
-    comp_property = ComponentClass(**request.property)
+    comp_property = ComponentClass(**request.property.dict())
     request.property = comp_property
     return crud.components.create(db, obj_in=request)
 
 
 def update_component(db: Session, components_id: UUID, request: UpdateComponents):
     ComponentClass = component_type_mapper[request.type]
-    component = ComponentClass(**request.property)
+    component = ComponentClass(**request.property.dict())
     request.property = component.dict()
     return crud.components.update_by_pk(db=db, pk=components_id, obj_in=request)
 

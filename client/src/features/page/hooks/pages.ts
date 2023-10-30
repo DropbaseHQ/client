@@ -24,7 +24,6 @@ export const useGetPage = (pageId: any) => {
 		return {
 			tables: response?.tables || [],
 			widget: response?.widget || null,
-			functions: response?.functions || [],
 			page: response?.page || {},
 			app: response?.app || {},
 		};

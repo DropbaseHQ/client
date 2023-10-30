@@ -15,9 +15,11 @@ class TablesBaseProperty(BaseModel):
     code: str = Field(..., description="sql")
     filters: Optional[List[PinnedFilter]]
 
-    # on row change
-    on_change: Optional[str]
+    # events
+    on_row_change: Optional[str]
+    on_row_selection: Optional[str]
 
+    # other
     appears_after: Optional[str]
 
 

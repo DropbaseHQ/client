@@ -123,7 +123,7 @@ const AppComponent = (props: any) => {
 						handleAction(component.on_change);
 					}
 				}}
-				options={inputState.options}
+				options={inputState.options || component.options}
 			/>
 
 			{inputState?.message ? <FormHelperText>{inputState.message}</FormHelperText> : null}

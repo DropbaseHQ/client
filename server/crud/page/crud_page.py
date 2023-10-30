@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import App, Page, Tables
+from server.models import App, Page, Tables, Token, Workspace
 from server.schemas.page import CreatePage, UpdatePage
 
 
@@ -26,6 +26,18 @@ class CRUDPage(CRUDBase[Page, CreatePage, UpdatePage]):
     def get_table_page(self, db: Session, table_id: UUID) -> Page:
         return (
             db.query(Page).join(Tables, Tables.page_id == Page.id).filter(Tables.id == table_id).first()
+        )
+
+    def get_page_by_app_page_token(self, db: Session, page_name: str, app_name: str, token: str) -> Page:
+        return (
+            db.query(Page)
+            .join(App, App.id == Page.app_id)
+            .join(Workspace, Workspace.id == App.workspace_id)
+            .join(Token, Workspace.id == Token.workspace_id)
+            .filter(Page.name == page_name)
+            .filter(App.name == app_name)
+            .filter(Token.token == token)
+            .first()
         )
 
 

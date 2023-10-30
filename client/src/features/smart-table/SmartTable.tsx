@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import {
 	Box,
 	Button,
@@ -21,13 +21,15 @@ import DataEditor, {
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
+import { useParams } from 'react-router-dom';
 
-import { selectedRowAtom } from '@/features/app-state';
+import { newPageStateAtom, selectedRowAtom } from '@/features/app-state';
 
 import {
 	CurrentTableContext,
 	useCurrentTableData,
 	useSyncDropbaseColumns,
+	useTableSyncStatus,
 	// useTableSyncStatus,
 } from './hooks';
 
@@ -36,6 +38,7 @@ import { TableBar } from './components';
 import { getPGColumnBaseType } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
+import { pageAtom, useGetPage } from '../page';
 
 export const SmartTable = ({ tableId }: any) => {
 	const theme = useTheme();
@@ -49,7 +52,7 @@ export const SmartTable = ({ tableId }: any) => {
 
 	const { isLoading, rows, columns, header } = useCurrentTableData(tableId);
 	const { values, isLoading: isLoadingTable } = useGetTable(tableId || '');
-	// const tableIsUnsynced = useTableSyncStatus(tableId);
+	const tableIsUnsynced = useTableSyncStatus(tableId);
 	const syncMutation = useSyncDropbaseColumns();
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
@@ -61,6 +64,13 @@ export const SmartTable = ({ tableId }: any) => {
 	const [columnWidth, setColumnWidth] = useState<any>({});
 
 	const tableName = values?.name;
+
+	const { pageName, appName } = useAtomValue(pageAtom);
+
+	const { pageId } = useParams();
+	const { tables } = useGetPage(pageId);
+
+	const pageState = useAtomValue(newPageStateAtom);
 
 	const onColumnResize = useCallback((col: any, newSize: any) => {
 		setColumnWidth((c: any) => ({
@@ -296,8 +306,10 @@ export const SmartTable = ({ tableId }: any) => {
 	};
 	const handleSyncColumns = () => {
 		syncMutation.mutate({
-			tableId,
-			columns: header,
+			pageName,
+			appName,
+			tables: tables.map((t: any) => t.property),
+			state: pageState.state,
 		});
 	};
 
@@ -325,17 +337,19 @@ export const SmartTable = ({ tableId }: any) => {
 							{tableName}
 						</Text>
 
-						<Tooltip label="Sync columns">
-							<Button
-								colorScheme="yellow"
-								size="sm"
-								leftIcon={<RefreshCw size="14" />}
-								onClick={handleSyncColumns}
-								isLoading={syncMutation.isLoading}
-							>
-								Resync
-							</Button>
-						</Tooltip>
+						{tableIsUnsynced ? (
+							<Tooltip label="Sync columns">
+								<Button
+									colorScheme="yellow"
+									size="sm"
+									leftIcon={<RefreshCw size="14" />}
+									onClick={handleSyncColumns}
+									isLoading={syncMutation.isLoading}
+								>
+									Resync
+								</Button>
+							</Tooltip>
+						) : null}
 					</Flex>
 				</NavLoader>
 				<Stack spacing="2">

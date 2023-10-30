@@ -32,7 +32,12 @@ def get_state_context_for_client(db: Session, page_id: UUID):
     context = {"widgets": {}, "tables": {}}
     # page_widgets = {"widgets": {}, "tables": {}}
     widgets = crud.widget.get_page_widgets(db, page_id=page.id)
-    components_mapper = {"input": InputContextProperty, "button": ButtonContextProperty}
+    components_mapper = {
+        "input": InputContextProperty,
+        "button": ButtonContextProperty,
+        "text": TextContextProperty,
+        "select": SelectContextProperty,
+    }
     for widget in widgets:
         widget_init = WidgetContextProperty(**widget.property)
         components = crud.components.get_widget_component(db, widget_id=widget.id)

@@ -12,19 +12,27 @@ from server.schemas.states import (
     TextSharedProperties,
 )
 
+DisplayRules = List[str]
+
 
 class InputBaseProperties(BaseModel):
     name: str
     type: Optional[Literal["text", "number", "date"]] = "text"
     label: Optional[str]
-    # ui logic
-    required: Optional[bool]
-    validation: Optional[str]
-    # ui options
-    default: Optional[Any]
     placeholder: Optional[str]
-    # ui events
-    display_rules: Optional[List[Dict]]
+
+    # events
+    on_change: Optional[str]
+
+    # display rules
+    display_rules: Optional[DisplayRules]
+
+    # validation
+    validation_rules: Optional[List[str]]
+
+    # other
+    required: Optional[bool]
+    default: Optional[Any]
 
 
 class InputDefined(InputBaseProperties, InputSharedProperties):
@@ -37,17 +45,17 @@ class InputRead(InputBaseProperties, ComponentDisplayProperties, InputSharedProp
 
 class SelectBaseProperties(BaseModel):
     name: str
-    # multi: bool
     label: Optional[str]
-    # ui logic
-    required: Optional[bool]
-    validation: Optional[str]
-    # ui options
-    default: Optional[Any]
-    # ui events
-    display_rules: Optional[List[Dict]]
-    # server calls
+
+    # events
     on_change: Optional[str]
+
+    # display_rules
+    display_rules: Optional[DisplayRules]
+
+    # other
+    required: Optional[bool]
+    default: Optional[Any]
 
 
 class SelectDefined(SelectBaseProperties, SelectSharedProperties):
@@ -61,12 +69,15 @@ class SelectRead(SelectBaseProperties, ComponentDisplayProperties, SelectSharedP
 class ButtonBaseProperties(BaseModel):
     name: str
     label: Optional[str]
-    # editable
-    visible: Optional[bool]
-    # server call
+    color: Optional[
+        Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]
+    ]
+
+    # events
     on_click: Optional[str]
-    # = Field(..., description="function", Optional=True)
-    display_rules: Optional[List[Dict]]
+
+    # display rules
+    display_rules: Optional[DisplayRules]
 
 
 class ButtonDefined(ButtonBaseProperties, ButtonSharedProperties):
@@ -84,7 +95,9 @@ class TextBaseProperties(BaseModel):
     color: Optional[
         Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]
     ]
-    display_rules: Optional[List[Dict]]
+
+    # display_rules
+    display_rules: Optional[DisplayRules]
 
 
 class TextDefined(TextBaseProperties, TextSharedProperties):
@@ -112,14 +125,14 @@ class ReadComponents(BaseModel):
 
 
 class CreateComponents(BaseModel):
-    property: dict  # Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
+    property: Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
     after: Optional[UUID]
     type: str
 
 
 class UpdateComponents(BaseModel):
-    property: dict
+    property: Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     type: str
 
 
