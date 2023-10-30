@@ -29,7 +29,7 @@ export const NewFile = (props: any) => {
 
 	const { pageId } = useParams();
 
-	const { sources, isLoading: isLoadingSources } = useSources();
+	const { sources } = useSources();
 
 	const { pageName, appName } = useAtomValue(pageAtom);
 
