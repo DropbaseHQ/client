@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Column, ForeignKey, String
+from sqlalchemy import TIMESTAMP, Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func, text
 
@@ -14,5 +14,7 @@ class Files(Base):
     page_id = Column(UUID(as_uuid=True), ForeignKey("page.id", ondelete="CASCADE"))
 
     date = Column(TIMESTAMP, server_default=func.now())
+
+    UniqueConstraint("name", "page_id", name="unique_name_per_page")
 
     __tablename__ = "files"
