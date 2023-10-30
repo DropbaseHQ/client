@@ -17,7 +17,7 @@ def get_page_files(page_id: UUID, db: Session = Depends(get_db)):
     return crud.files.get_page_files(db, page_id=page_id)
 
 
-@router.get_data_fetchers("/data_fetchers/{page_id}/")
+@router.get("/data_fetchers/{page_id}/")
 def get_page_data_fetchers(page_id: UUID, db: Session = Depends(get_db)):
     return crud.files.get_page_data_fetchers(db, page_id=page_id)
 
