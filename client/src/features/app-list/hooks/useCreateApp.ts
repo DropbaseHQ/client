@@ -33,7 +33,7 @@ export const useCreateDraftApp = (mutationConfig?: any) => {
 };
 
 const createWorkerApp = async ({ appId }: { appId: string }) => {
-	const response = await workerAxios.post('/workspace_admin/create_app/', { app_id: appId });
+	const response = await workerAxios.post('/workspace_admin/create_app', { app_id: appId });
 	return response.data;
 };
 
