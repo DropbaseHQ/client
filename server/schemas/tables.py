@@ -78,7 +78,7 @@ class UpdateTablesRequest(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
     page_id: UUID
-    # state: Optional[dict]
+    file_id: UUID
     depends_on: Optional[List[str]]
     type: Optional[str]
     app_name: str

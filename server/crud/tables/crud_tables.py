@@ -48,5 +48,14 @@ class CRUDTables(CRUDBase[Tables, CreateTables, UpdateTables]):
             .first()
         )
 
+    def get_page_app_names_from_table(self, db: Session, table_id: UUID):
+        return (
+            db.query(Page.name, App.name)
+            .join(Tables, Page.id == Tables.page_id)
+            .join(App, App.id == Page.app_id)
+            .filter(Tables.id == table_id)
+            .first()
+        )
+
 
 tables = CRUDTables(Tables)

@@ -48,16 +48,14 @@ def update_table(
     try:
         table = crud.tables.update_by_pk(db, pk=table_id, obj_in=request)
         # get current state
+        page_name, app_name = crud.tables.get_page_app_names_from_table(db, table_id)
+
         state = get_state_for_client(db, table.page_id)
         # get columns from worker
-        resp = get_columns_from_worker(
-            table.property, state, request.app_name, request.page_name, request.token
-        )
-        print(resp)
+        resp = get_columns_from_worker(table.property, state, app_name, page_name, request.token)
         columns = resp.get("columns")
         if not columns:
             return {"message": "no columns returned"}
-        print("here!")
 
         # update columns in db
         update_table_columns(db, table, columns)
@@ -65,9 +63,7 @@ def update_table(
         # create new state and context
         State, Context = get_state_context(db, table.page_id)
         # update state and context in worker
-        update_state_context_in_worker(
-            State, Context, request.app_name, request.page_name, request.token
-        )
+        update_state_context_in_worker(State, Context, app_name, page_name, request.token)
 
         return table
     except Exception as e:
