@@ -6,7 +6,6 @@ import { filtersAtom, sortsAtom } from '@/features/smart-table/atoms';
 import { newPageStateAtom } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { useGetColumnProperties } from '@/features/app-builder/hooks';
-import { head } from 'lodash';
 
 export const CurrentTableContext: any = createContext({ tableId: null });
 
