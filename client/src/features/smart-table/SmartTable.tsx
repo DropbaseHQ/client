@@ -51,24 +51,24 @@ export const SmartTable = ({ tableId }: any) => {
 	});
 
 	const { isLoading, rows, columns, header } = useCurrentTableData(tableId);
-	const { values, isLoading: isLoadingTable } = useGetTable(tableId || '');
+	const { table, isLoading: isLoadingTable } = useGetTable(tableId || '');
 	const tableIsUnsynced = useTableSyncStatus(tableId);
 	const syncMutation = useSyncDropbaseColumns();
+
+	const tableName = table?.name;
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
 	const cellEdits = allCellEdits?.[tableId] || [];
 
 	const [selectedData, selectRow] = useAtom(selectedRowAtom);
-	const selectedRow = (selectedData as any)?.[values.name];
+	const selectedRow = (selectedData as any)?.[tableName];
 
 	const [columnWidth, setColumnWidth] = useState<any>({});
-
-	const tableName = values?.name;
 
 	const { pageName, appName } = useAtomValue(pageAtom);
 
 	const { pageId } = useParams();
-	const { tables } = useGetPage(pageId);
+	const { tables, files } = useGetPage(pageId);
 
 	const pageState = useAtomValue(newPageStateAtom);
 
@@ -308,7 +308,10 @@ export const SmartTable = ({ tableId }: any) => {
 		syncMutation.mutate({
 			pageName,
 			appName,
-			tables: tables.map((t: any) => t.property),
+			tables: tables.map((t: any) => ({
+				table: t,
+				file: files.find((f: any) => f.id === t?.file_id),
+			})),
 			state: pageState.state,
 		});
 	};

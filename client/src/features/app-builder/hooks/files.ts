@@ -75,11 +75,14 @@ export const useFile = ({ fileName, appName, pageName }: any) => {
 	};
 };
 
-const createFile = async ({ pageName, fileName, appName }: any) => {
+const createFile = async ({ pageName, fileName, appName, pageId, type, source }: any) => {
 	const response = await workerAxios.post(`/files/create/`, {
+		name: fileName,
+		page_id: pageId,
 		app_name: appName,
 		page_name: pageName,
-		file_name: fileName,
+		type,
+		source,
 	});
 
 	return response.data;

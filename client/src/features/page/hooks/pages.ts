@@ -26,6 +26,7 @@ export const useGetPage = (pageId: any) => {
 			widget: response?.widget || null,
 			page: response?.page || {},
 			app: response?.app || {},
+			files: response?.files || [],
 		};
 	}, [response]);
 

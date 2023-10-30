@@ -9,10 +9,10 @@ from server.schemas.states import TableDisplayProperty, TableSharedProperty
 
 
 class TablesBaseProperty(BaseModel):
-    name: str
-    source: Optional[str]
+    # name: Optional[str]
+    # source: Optional[str]
     type: Literal["postgres", "sql", "python"] = "python"
-    code: str = Field(..., description="sql")
+    # code: str = Field(..., description="sql")
     filters: Optional[List[PinnedFilter]]
 
     # events
@@ -77,13 +77,13 @@ class UpdateTables(BaseModel):
 class UpdateTablesRequest(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
-    page_id: UUID
-    # state: Optional[dict]
+    # page_id: UUID
+    file_id: UUID
     depends_on: Optional[List[str]]
-    type: Optional[str]
-    app_name: str
-    page_name: str
-    token: str
+    # type: Optional[str]
+    # app_name: str
+    # page_name: str
+    # token: str
 
 
 class QueryTable(BaseModel):

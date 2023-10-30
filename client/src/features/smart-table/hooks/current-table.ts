@@ -6,6 +6,7 @@ import { filtersAtom, sortsAtom } from '@/features/smart-table/atoms';
 import { newPageStateAtom } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { useGetColumnProperties } from '@/features/app-builder/hooks';
+import { head } from 'lodash';
 
 export const CurrentTableContext: any = createContext({ tableId: null });
 
@@ -47,18 +48,18 @@ export const useCurrentTableData = (tableId: any) => {
 };
 
 export const useTableSyncStatus = (tableId: any) => {
-	const { header, columns, isLoading } = useCurrentTableData(tableId);
-	const [needsSync, setSync] = useState(false);
+	const { header, columns, isLoading, isRefetching } = useCurrentTableData(tableId);
+	
+	const [needsSync, setNeedSync] = useState(false);
 
 	useEffect(() => {
-		if (!isLoading) {
-			const isSynced = header.every((c: any) => (columns as any)[c]);
+		if (!isLoading || !isRefetching) {
+			const isSynced = header.every((c: any) => (columns as any)[c]) &&
+			header.length === Object.keys(columns).length; 
 
-			if (!isSynced) {
-				setSync(true);
-			}
+			setNeedSync(!isSynced); 
 		}
-	}, [header, isLoading, columns, tableId]);
+	}, [header, isLoading,isRefetching, columns, tableId]);
 
 	return needsSync;
 };
