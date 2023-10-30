@@ -27,7 +27,7 @@ import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
-import { useCreateApp } from './hooks/useCreateApp';
+import { useCreateAppFlow } from './hooks/useCreateApp';
 import { PageLayout } from '@/layout';
 import { FormInput } from '@/components/FormInput';
 import { useDeleteApp } from '@/features/app-list/hooks/useDeleteApp';
@@ -156,23 +156,25 @@ const AppCard = ({ app }: { app: AppType }) => {
 
 export const AppList = () => {
 	// Will need to pass workspace in here but for now we only have one workspace (backend spits out the first workspace)
-	const navigate = useNavigate();
+	// const navigate = useNavigate();
 	const workspaceId = useAtomValue(workspaceAtom);
 
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
 	const [appName, setAppName] = useState('');
 	const { isOpen, onOpen, onClose } = useDisclosure();
-	const createAppMutation = useCreateApp({
-		onSuccess: (data: any) => {
-			navigate(`/apps/${data.app?.id}/${data?.page?.id}/editor`);
-			refetch();
-			setAppName('');
-			onClose();
-		},
-	});
+
+	const { handleCreateApp: handleCreateAppFlow, isLoading: createAppIsLoading } =
+		useCreateAppFlow({
+			onSuccess: (_: any) => {
+				// navigate(`/apps/${data?.app_id}/${defaultPage}/editor`);
+				refetch();
+				// setAppName('');
+				onClose();
+			},
+		});
 
 	const handleCreateApp = async () => {
-		await createAppMutation.mutateAsync({
+		await handleCreateAppFlow({
 			name: appName,
 			workspaceId: workspaceId || '',
 		});
@@ -218,7 +220,7 @@ export const AppList = () => {
 						<Button
 							colorScheme="blue"
 							mr={3}
-							isLoading={createAppMutation.isLoading}
+							isLoading={createAppIsLoading}
 							onClick={handleCreateApp}
 						>
 							Create

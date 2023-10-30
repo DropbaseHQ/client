@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.models import User
-from server.schemas import CreateApp, ReadApp, ReadPage
+from server.schemas import CreateApp, ReadApp, ReadPage, CreateApp
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
 
 
@@ -69,3 +69,39 @@ def create_app(db: Session, request: CreateApp, user: User):
 
 def get_app_pages(db: Session, user: User, app_id: UUID):
     return crud.page.get_app_pages(db, app_id)
+
+
+def create_draft_app(db: Session, request: CreateApp, user: User):
+    try:
+        if request.workspace_id is None:
+            raise Exception("Workspace ID is required")
+        workspace = crud.workspace.get_object_by_id_or_404(db, id=request.workspace_id)
+        if workspace not in crud.workspace.get_user_workspaces(db, user_id=user.id):
+            raise Exception("User does not have access to the workspace")
+
+        new_draft_app = crud.app.create(
+            db,
+            obj_in={"name": request.name, "workspace_id": request.workspace_id, "is_draft": True},
+            auto_commit=False,
+        )
+        db.flush()
+        new_draft_page = crud.page.create(
+            db, obj_in={"name": "page1", "app_id": new_draft_app.id}, auto_commit=False
+        )
+        db.flush()
+        crud.tables.create(
+            db,
+            obj_in={
+                "name": "table1",
+                "page_id": new_draft_page.id,
+                "property": {"name": "table1", "code": "", "type": "postgres"},
+                "type": "postgres",
+            },
+            auto_commit=False,
+        )
+        db.commit()
+    except Exception as e:
+        print("Error creating draft app", e)
+        db.rollback()
+        return {"message": "Error creating draft app"}
+    return {"message": "Success", "app_id": new_draft_app.id, "page_id": new_draft_page.id}
