@@ -24,3 +24,4 @@ class CreateApp(BaseApp):
 
 class UpdateApp(BaseModel):
     name: Optional[str]
+    is_draft: Optional[bool]
