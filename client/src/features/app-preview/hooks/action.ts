@@ -7,9 +7,7 @@ const executeAction = async ({ pageName, appName, pageState, functionName }: any
 		page_name: pageName,
 		app_name: appName,
 		function_name: functionName,
-		payload: JSON.stringify({ state: pageState.state, context: pageState.context }),
-		// state: JSON.stringify(pageState.state),
-		// context: JSON.stringify(pageState.context),
+		payload: JSON.stringify(pageState),
 	});
 
 	return response.data;

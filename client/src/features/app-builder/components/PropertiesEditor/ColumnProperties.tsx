@@ -1,22 +1,21 @@
-import { Zap } from 'react-feather';
+import { MoreVertical, Zap } from 'react-feather';
+import { Fragment } from 'react';
 import { useAtomValue } from 'jotai';
 import {
 	Stack,
 	Box,
 	Skeleton,
-	Accordion,
-	AccordionItem,
-	AccordionButton,
-	AccordionIcon,
-	AccordionPanel,
 	Text,
 	Tooltip,
 	FormLabel,
-	FormControl,
-	Spinner,
 	Button,
 	Divider,
 	SimpleGrid,
+	PopoverTrigger,
+	Popover,
+	PopoverContent,
+	PopoverBody,
+	PopoverHeader,
 } from '@chakra-ui/react';
 import { InputRenderer } from '@/components/FormInput';
 import {
@@ -68,76 +67,87 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 		DISPLAY_COLUMN_PROPERTIES.includes(property.name),
 	);
 
-	const nonBooleanProperties = allVisibleProperties.filter((p: any) => p.type !== 'boolean');
-	const booleanProperties = allVisibleProperties.filter((p: any) => p.type === 'boolean');
-
 	return (
-		<AccordionItem>
-			<AccordionButton w="full">
-				{mutation.isLoading ? <Spinner size="sm" /> : <AccordionIcon />}
-
-				<Stack flex="1" ml="4" alignItems="center" direction="row">
-					<Text size="sm">{properties.name}</Text>
-
-					<Stack
-						minW="48"
-						ml="auto"
-						spacing="4"
-						justifyContent="space-around"
-						direction="row"
-						alignItems="center"
-					>
-						<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
-							<Box>
-								<InputRenderer
-									type="boolean"
-									isDisabled={hasNoEditKeys || mutation.isLoading}
-									id="editable"
-									value={properties.editable}
-									onChange={(newValue: any) => {
-										handleUpdate({
-											editable: newValue,
-										});
-									}}
-								/>
-							</Box>
-						</Tooltip>
-						<Box>
-							<InputRenderer
-								type="boolean"
-								id="visible"
-								isDisabled={mutation.isLoading}
-								value={properties.visible}
-								onChange={(newValue: any) => {
-									handleUpdate({
-										visible: newValue,
-									});
-								}}
-							/>
+		<SimpleGrid alignItems="center" gap={3} columns={3}>
+			<Box overflow="hidden">
+				<Text
+					fontSize="sm"
+					whiteSpace="nowrap"
+					w="full"
+					overflow="hidden"
+					textOverflow="ellipsis"
+					size="sm"
+				>
+					{properties.name}
+				</Text>
+			</Box>
+			<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
+				<Box>
+					<InputRenderer
+						type="boolean"
+						isDisabled={hasNoEditKeys || mutation.isLoading}
+						id="editable"
+						value={properties.editable}
+						onChange={(newValue: any) => {
+							handleUpdate({
+								editable: newValue,
+							});
+						}}
+					/>
+				</Box>
+			</Tooltip>
+			<Stack alignItems="center" justifyContent="space-between" direction="row">
+				<InputRenderer
+					type="boolean"
+					id="visible"
+					isDisabled={mutation.isLoading}
+					value={properties.visible}
+					onChange={(newValue: any) => {
+						handleUpdate({
+							visible: newValue,
+						});
+					}}
+				/>
+				<Popover placement="bottom-end">
+					<PopoverTrigger>
+						<Box
+							as="button"
+							border="0"
+							cursor="pointer"
+							p="1"
+							borderRadius="sm"
+							_hover={{ bg: 'gray.100' }}
+						>
+							<MoreVertical size="14" />
 						</Box>
-					</Stack>
-				</Stack>
-			</AccordionButton>
-			<AccordionPanel borderTopWidth="1px">
-				<Stack py="2" px="8">
-					{nonBooleanProperties.map((property: any) => (
-						<FormControl key={property.name}>
-							<FormLabel>{property.name}</FormLabel>
-							<InputRenderer {...property} value={properties[property.name]} />
-						</FormControl>
-					))}
-
-					<SimpleGrid columns={2} spacing={2}>
-						{booleanProperties.map((property: any) => (
-							<FormControl key={property.name}>
-								<FormLabel>{property.name}</FormLabel>
-								<InputRenderer {...property} value={properties[property.name]} />
-							</FormControl>
-						))}
-					</SimpleGrid>
-				</Stack>
-			</AccordionPanel>
-		</AccordionItem>
+					</PopoverTrigger>
+					<PopoverContent>
+						<PopoverHeader fontSize="sm" fontWeight="medium">
+							Config for {properties.name}
+						</PopoverHeader>
+						<PopoverBody>
+							<SimpleGrid alignItems="center" gap={2} columns={2}>
+								{allVisibleProperties.map((property: any) => (
+									<Fragment key={property.name}>
+										<FormLabel>{property.name}</FormLabel>
+										{property.type === 'boolean' ? (
+											<InputRenderer
+												{...property}
+												value={properties[property.name]}
+											/>
+										) : (
+											<Text fontSize="sm">
+												{properties[property.name] || '-'}
+											</Text>
+										)}
+									</Fragment>
+								))}
+							</SimpleGrid>
+						</PopoverBody>
+					</PopoverContent>
+				</Popover>
+			</Stack>
+		</SimpleGrid>
 	);
 };
 
@@ -188,7 +198,7 @@ export const ColumnsProperties = () => {
 	}
 
 	return (
-		<Stack h="full" px="3" overflowY="auto">
+		<Stack h="full" overflowY="auto">
 			{type === 'sql' ? (
 				<Button
 					leftIcon={<Zap size="14" />}
@@ -202,24 +212,22 @@ export const ColumnsProperties = () => {
 					Convert to Smart Table
 				</Button>
 			) : null}
-			<Accordion bg="white" borderLeftWidth="1px" borderRightWidth="1px" allowMultiple>
-				<Stack
+			<Stack>
+				<SimpleGrid
+					py="2"
 					fontWeight="medium"
-					color="gray.600"
-					p="2"
-					borderTopWidth="1px"
-					direction="row"
+					fontSize="sm"
+					borderBottomWidth="1px"
+					columns={3}
 				>
-					<Text ml="10">Column</Text>
-					<Stack minW="52" justifyContent="space-around" ml="auto" direction="row">
-						<Text>Editable</Text>
-						<Text>Visible</Text>
-					</Stack>
-				</Stack>
+					<Text>Column</Text>
+					<Text>Editable</Text>
+					<Text>Visible</Text>
+				</SimpleGrid>
 				{values.map((value: any) => (
 					<ColumnProperty key={value.id} {...value} />
 				))}
-			</Accordion>
+			</Stack>
 		</Stack>
 	);
 };

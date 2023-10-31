@@ -28,8 +28,8 @@ export const useGetColumnProperties = (tableId: string, props: any = {}) => {
 	const info = useMemo(() => {
 		return {
 			schema: response?.schema || [],
-			values: response?.values || [],
-			columns: (response?.values || []).reduce(
+			values: response?.columns || [],
+			columns: (response?.columns || []).reduce(
 				(agg: any, col: any) => ({
 					...agg,
 					[col.name]: col.property || {},

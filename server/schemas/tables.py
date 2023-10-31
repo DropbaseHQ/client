@@ -1,10 +1,11 @@
 from datetime import datetime
-from typing import Any, List, Literal, Optional
+from typing import Annotated, Any, List, Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
 
 from server.schemas.pinned_filters import Filter, PinnedFilter, Sort
+from server.schemas.properties import PropertyCategory
 from server.schemas.states import TableDisplayProperty, TableSharedProperty
 
 
@@ -16,8 +17,8 @@ class TablesBaseProperty(BaseModel):
     filters: Optional[List[PinnedFilter]]
 
     # events
-    on_row_change: Optional[str]
-    on_row_selection: Optional[str]
+    on_row_change: Annotated[Optional[str], PropertyCategory.events]
+    on_row_selection: Annotated[Optional[str], PropertyCategory.events]
 
     # other
     appears_after: Optional[str]
