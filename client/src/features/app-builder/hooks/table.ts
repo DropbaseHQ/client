@@ -71,13 +71,11 @@ export const useDataFetchers = (pageId: any) => {
 	};
 };
 
-const createTable = async ({ property, pageId, sourceId }: any) => {
-	const response = await axios.post(`/tables/`, {
-		property,
+const createTable = async ({ name, pageId, property }: any) => {
+	const response = await workerAxios.post(`/workspace_admin/create_table/`, {
+		name,
 		page_id: pageId,
-		source_id: sourceId,
-		type: 'sql',
-		state: {},
+		property,
 	});
 	return response.data;
 };

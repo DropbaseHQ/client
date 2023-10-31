@@ -1,40 +1,38 @@
-from server.schemas.components import (
-    ButtonDefined,
+from server.controllers.state.models import (
+    ButtonContextProperty,
+    ButtonDefinedProperty,
     InputBaseProperties,
-    InputDefined,
+    InputContextProperty,
+    InputDefinedProperty,
     SelectBaseProperties,
-    SelectDefined,
-    TextDefined,
-)
-from server.schemas.states import (
-    ButtonStateProperties,
-    InputStateProperties,
-    SelectStateProperties,
-    TextStateProperties,
+    SelectContextProperty,
+    SelectDefinedProperty,
+    TextContextProperty,
+    TextDefinedProperty,
 )
 
 user_input_components = ["input", "select"]
 state_update_components = ["input", "select", "button"]
 
 component_type_mapper = {
-    "input": InputDefined,
-    "select": SelectDefined,
-    "text": TextDefined,
-    "button": ButtonDefined,
+    "input": InputDefinedProperty,
+    "select": SelectDefinedProperty,
+    "text": TextDefinedProperty,
+    "button": ButtonDefinedProperty,
 }
 state_component_type_mapper = {
-    "input": InputStateProperties,
-    "select": SelectStateProperties,
-    "text": TextStateProperties,
-    "button": ButtonStateProperties,
+    "input": InputContextProperty,
+    "select": SelectContextProperty,
+    "text": TextContextProperty,
+    "button": ButtonContextProperty,
 }
 input_pydantic_dtype_mapper = {"text": "str", "number": "float", "select": "str"}
 
 
 def get_component_pydantic_dtype(component):
-    if type(component) == SelectBaseProperties:
+    if type(component) is SelectBaseProperties:
         return "str"
-    if type(component) == InputBaseProperties:
+    if type(component) is InputBaseProperties:
         if component.type == "number":
             return "float"
         else:

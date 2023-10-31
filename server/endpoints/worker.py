@@ -6,11 +6,12 @@ from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from server import crud
+from server.controllers.app import finalize_app
 from server.controllers.columns import update_table_columns
 from server.controllers.state.state import get_state_context
-from server.controllers.app import finalize_app
 from server.schemas import FinalizeApp
 from server.schemas.files import CreateFiles, UpdateFiles
+from server.schemas.tables import CreateTables
 from server.schemas.worker import SyncColumnsRequest, SyncComponentsRequest
 from server.utils.connect import get_db
 
@@ -26,7 +27,7 @@ def sync_table_columns(request: SyncColumnsRequest, response: Response, db: Sess
         table = crud.tables.get_table_by_app_page_token(
             db, table_name, request.page_name, request.app_name, request.token
         )
-        update_table_columns(db, table, columns)
+        update_table_columns(db, table, columns, request.table_type)
 
     # create new state and context
     State, Context = get_state_context(db, table.page_id)
@@ -63,3 +64,21 @@ def create_file(request: CreateFiles, db: Session = Depends(get_db)):
 @router.put("/file/{file_id}")
 def update_file(file_id: UUID, request: UpdateFiles, db: Session = Depends(get_db)):
     return crud.files.update_by_pk(db, pk=file_id, obj_in=request)
+
+
+@router.post("/table/")
+def create_table(request: CreateTables, response: Response, db: Session = Depends(get_db)):
+    # create table
+    crud.tables.create(db, obj_in=CreateTables(**request.dict()))
+    page = crud.page.get_object_by_id_or_404(db, id=request.page_id)
+    app = crud.app.get_app_by_page_id(db, page_id=request.page_id)
+    db.commit()
+    # get new State and Context
+    State, Context = get_state_context(db, request.page_id)
+    return {
+        "app_name": app.name,
+        "page_name": page.name,
+        "state": State.schema(),
+        "context": Context.schema(),
+        "status": "success",
+    }

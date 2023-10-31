@@ -83,7 +83,7 @@ export const FunctionTerminal = () => {
 	};
 
 	return (
-		<Stack spacing="1">
+		<Stack w="full" overflow="hidden" spacing="1">
 			<Stack bg="white" p="1" spacing="0" alignItems="center" direction="row">
 				<IconButton
 					icon={<Play size="14" />}
@@ -138,7 +138,9 @@ export const FunctionTerminal = () => {
 			) : null}
 
 			{previewData?.columns ? (
-				<ChakraTable {...previewData} maxH="sm" borderRadius="sm" />
+				<Stack maxW="container.lg" borderRightWidth="1px">
+					<ChakraTable {...previewData} maxH="sm" borderRadius="sm" />
+				</Stack>
 			) : null}
 		</Stack>
 	);

@@ -71,9 +71,7 @@ export const useSyncProxyToken = () => {
 
 	useEffect(() => {
 		if (token) {
-			workerAxios.defaults.baseURL = `${
-				import.meta.env.VITE_WORKER_API_ENDPOINT
-			}/${token}/worker`;
+			workerAxios.defaults.headers["dropbase-proxy-token"] = token;
 		}
 	}, [token]);
 

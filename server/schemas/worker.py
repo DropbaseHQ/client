@@ -10,6 +10,7 @@ class SyncColumnsRequest(BaseModel):
     page_name: str
     table_columns: dict
     token: str
+    table_type: str
 
 
 class SyncComponentsRequest(BaseModel):

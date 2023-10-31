@@ -1,21 +1,20 @@
-from enum import Enum
-from typing import Any, Dict, List, Literal, Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel
 
 
 # pg columns
-class PgColumnDisplayProperty(BaseModel):
+class ColumnDisplayProperty(BaseModel):
     message: Optional[str]
     message_type: Optional[str]
 
 
-class PgColumnSharedProperty(BaseModel):
+class ColumnSharedProperty(BaseModel):
     editable: Optional[bool] = False
     visible: Optional[bool] = True
 
 
-class PgColumnContextProperty(PgColumnDisplayProperty, PgColumnSharedProperty):
+class PgColumnContextProperty(ColumnDisplayProperty, ColumnSharedProperty):
     pass
 
 
@@ -83,5 +82,22 @@ class PgColumnBaseProperty(BaseModel):
                 return "str"
 
 
-class PgColumnDefinedProperty(PgColumnBaseProperty, PgColumnSharedProperty):
+class PgColumnDefinedProperty(PgColumnBaseProperty, ColumnSharedProperty):
+    pass
+
+
+class PyColumnContextProperty(ColumnDisplayProperty, ColumnSharedProperty):
+    pass
+
+
+class PyColumnBaseProperty(BaseModel):
+    name: str
+    type: Optional[Literal["str", "int", "float", "bool"]]
+
+    @property
+    def state(self):
+        return self.type
+
+
+class PyColumnDefinedProperty(PyColumnBaseProperty, ColumnSharedProperty):
     pass

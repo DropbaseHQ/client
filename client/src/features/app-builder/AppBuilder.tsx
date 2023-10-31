@@ -1,4 +1,4 @@
-import { Box, Stack } from '@chakra-ui/react';
+import { Box, Stack, StackDivider } from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { PanelHandle } from '@/components/Panel';
@@ -19,8 +19,8 @@ export const AppBuilder = () => {
 		<Stack spacing="0" h="full">
 			<AppNavbar />
 			<Box h="full" overflowY="auto">
-				<PanelGroup autoSaveId="panel" direction="horizontal">
-					<Panel>
+				<Stack spacing="0" divider={<StackDivider />} direction="row" w="full" h="full">
+					<Box flex="1" h="full">
 						<PanelGroup autoSaveId="main-panel" direction="vertical">
 							<Panel defaultSize={45}>
 								<PanelGroup autoSaveId="data-panel" direction="horizontal">
@@ -59,14 +59,12 @@ export const AppBuilder = () => {
 								</PanelGroup>
 							</Panel>
 						</PanelGroup>
-					</Panel>
+					</Box>
 
-					<PanelHandle direction="vertical" />
-
-					<Panel defaultSize={15} maxSize={20}>
+					<Box h="full" w="xs">
 						<PropertyPane />
-					</Panel>
-				</PanelGroup>
+					</Box>
+				</Stack>
 			</Box>
 		</Stack>
 	);

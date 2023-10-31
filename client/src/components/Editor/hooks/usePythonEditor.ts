@@ -38,9 +38,10 @@ const createLanguageClient = (transports: MessageTransports): MonacoLanguageClie
 	});
 };
 
-const createWebSocket = (url: string): WebSocket => {
+const createLSPWebSocket = (url: string, proxyToken: string | null): WebSocket => {
 	const webSocket = new WebSocket(url);
 	webSocket.onopen = () => {
+		webSocket.send(JSON.stringify({"dropbase-proxy-token": proxyToken}));
 		const socket = toSocket(webSocket);
 		const reader = new WebSocketMessageReader(socket);
 		const writer = new WebSocketMessageWriter(socket);
@@ -54,7 +55,7 @@ const createWebSocket = (url: string): WebSocket => {
 	return webSocket;
 };
 
-export const initializeLanguageServices = async (url: string) => {
+export const initializeLanguageServices = async (url: string, proxyToken: string | null) => {
 	await initServices({
 		// Use our own themes
 		enableThemeService: false,
@@ -79,7 +80,7 @@ export const initializeLanguageServices = async (url: string) => {
 	monaco.languages.setLanguageConfiguration(languageId, conf);
 	monaco.languages.setMonarchTokensProvider(languageId, language);
 
-	return createWebSocket(url);
+	return createLSPWebSocket(url, proxyToken);
 };
 
 const createPythonEditor = async (config: { htmlElement: HTMLElement; filepath: string }) => {

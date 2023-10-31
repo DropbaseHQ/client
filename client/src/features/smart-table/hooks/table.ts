@@ -7,13 +7,13 @@ import { useGetPage } from '@/features/page';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
-const fetchTableData = async ({ table, file, appName, pageName, state }: any) => {
+const fetchTableData = async ({ file, appName, pageName, state }: any) => {
 	const response = await workerAxios.post<any>(`/query/`, {
 		app_name: appName,
 		page_name: pageName,
-		state: state.state,
-		table,
 		file,
+		state: state.state,
+		filter_sort: { filters: [], sorts: [] },
 	});
 
 	return response.data;
@@ -56,7 +56,7 @@ export const useTableData = ({
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchTableData({ appName, pageName, state, file, table }),
+		() => fetchTableData({ appName, pageName, state, file }),
 		{
 			enabled: !!(
 				!isLoadingTable &&

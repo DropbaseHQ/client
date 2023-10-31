@@ -1,23 +1,20 @@
 from datetime import datetime
-from typing import Any, List, Literal, Optional
+from typing import Annotated, Any, List, Literal, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
+from server.controllers.state.models import TableDisplayProperty, TableSharedProperty
 from server.schemas.pinned_filters import Filter, PinnedFilter, Sort
-from server.schemas.states import TableDisplayProperty, TableSharedProperty
+from server.schemas.properties import PropertyCategory
 
 
 class TablesBaseProperty(BaseModel):
-    # name: Optional[str]
-    # source: Optional[str]
-    type: Literal["postgres", "sql", "python"] = "python"
-    # code: str = Field(..., description="sql")
     filters: Optional[List[PinnedFilter]]
 
     # events
-    on_row_change: Optional[str]
-    on_row_selection: Optional[str]
+    on_row_change: Annotated[Optional[str], PropertyCategory.events]
+    on_row_selection: Annotated[Optional[str], PropertyCategory.events]
 
     # other
     appears_after: Optional[str]
@@ -35,7 +32,6 @@ class BaseTables(BaseModel):
     name: str
     property: TablesDefinedProperty
     page_id: UUID
-    type: Optional[Literal["postgres", "python"]]
 
     class Config:
         orm_mode = True
@@ -46,7 +42,6 @@ class ReadTables(BaseModel):
     name: str
     property: TablesReadProperty
     page_id: UUID
-    type: Optional[Literal["postgres", "python"]]
     depends_on: Optional[List[str]]
     date: datetime
 
@@ -55,7 +50,6 @@ class CreateTables(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
     page_id: UUID
-    type: Optional[Literal["postgres", "python"]] = "postgres"
     depends_on: Optional[List[str]]
 
 
@@ -63,7 +57,6 @@ class CreateTablesRequest(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
     page_id: UUID
-    type: Optional[Literal["postgres", "python"]] = "postgres"
     state: Optional[dict] = {}
     depends_on: Optional[List[str]]
 
