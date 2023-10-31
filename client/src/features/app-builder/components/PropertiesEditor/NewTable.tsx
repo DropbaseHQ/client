@@ -48,11 +48,11 @@ export const NewTable = (props: any) => {
 	});
 
 	const currentLastTable = tables[tables.length - 1];
-	const onSubmit = ({ name, sourceId }: any) => {
+	const onSubmit = ({ name }: any) => {
 		mutation.mutate({
+			name,
 			pageId,
-			property: { name, code: '', appears_after: currentLastTable?.property?.name },
-			sourceId,
+			property: { appears_after: currentLastTable?.name },
 		});
 	};
 
