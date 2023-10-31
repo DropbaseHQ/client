@@ -152,9 +152,11 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 					<Stack spacing="0" divider={<StackDivider />}>
 						{currentCategories.map((category: any) => (
 							<Stack spacing="3" p="3">
-								<Text fontSize="md" fontWeight="semibold">
-									{category}
-								</Text>
+								{category.toLowerCase() === 'default' ? null : (
+									<Text fontSize="md" fontWeight="semibold">
+										{category}
+									</Text>
+								)}
 								<Stack>
 									{allProperties
 										.filter((property: any) => property.category === category)
