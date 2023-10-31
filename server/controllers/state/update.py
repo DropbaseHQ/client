@@ -12,4 +12,8 @@ def update_state_context_in_worker(State, Context, app_name, page_name, token):
         "state": State.schema(),
         "context": Context.schema(),
     }
-    requests.post(f"{WORKER_API}/{token}/worker/files/generate_schema/", data=json.dumps(payload))
+    requests.post(
+        f"{WORKER_API}/worker/files/generate_schema/",
+        data=json.dumps(payload),
+        headers={"dropbase-proxy-token": token},
+    )
