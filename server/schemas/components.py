@@ -4,14 +4,14 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from server.schemas.properties import PropertyCategory
-from server.schemas.states import (
+from server.controllers.state.models import (
     ButtonSharedProperties,
     ComponentDisplayProperties,
     InputSharedProperties,
     SelectSharedProperties,
     TextSharedProperties,
 )
+from server.schemas.properties import PropertyCategory
 
 
 class InputBaseProperties(BaseModel):

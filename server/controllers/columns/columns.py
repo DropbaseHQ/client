@@ -4,24 +4,18 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server import crud
+from server.controllers.state.models import PgColumnDefinedProperty, PyColumnDefinedProperty
 from server.controllers.state.state import get_state_context
 from server.controllers.state.update import update_state_context_in_worker
 from server.models.columns import Columns
-from server.schemas.columns import (
-    CreateColumns,
-    PgDefinedColumnProperty,
-    PyDefinedColumnProperty,
-    SyncColumns,
-    UpdateColumns,
-    UpdateColumnsRequest,
-)
+from server.schemas.columns import CreateColumns, SyncColumns, UpdateColumns, UpdateColumnsRequest
 from server.schemas.tables import ReadTables
 from server.utils.converter import get_class_properties
 
 column_type_to_schema_mapper = {
-    "sql": PgDefinedColumnProperty,  # noqa TODO: delete, only need one, sql or postgres
-    "postgres": PgDefinedColumnProperty,
-    "python": PyDefinedColumnProperty,
+    "sql": PgColumnDefinedProperty,
+    "python": PyColumnDefinedProperty,
+    "data_fetcher": PyColumnDefinedProperty,
 }
 
 
@@ -42,8 +36,9 @@ def update_column(db: Session, column_id: UUID, request: UpdateColumns):
 
 def get_table_columns_and_props(db: Session, table_id: UUID):
     table = crud.tables.get_object_by_id_or_404(db, id=table_id)
+    file = crud.files.get_file_by_table_id(db, table_id=table.id)
     columns = crud.columns.get_table_columns(db, table_id=table_id)
-    column_class = column_type_to_schema_mapper.get(table.type)
+    column_class = column_type_to_schema_mapper.get(file.type)
     column_props = get_class_properties(column_class)
     return {"schema": column_props, "columns": columns}
 

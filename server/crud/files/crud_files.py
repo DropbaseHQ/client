@@ -40,7 +40,7 @@ class CRUDFiles(CRUDBase[Files, CreateFiles, UpdateFiles]):
             .one()
         ).workspace_id
 
-    def get_file_by_table_id(self, db: Session, table_id: UUID):
+    def get_file_by_table_id(self, db: Session, table_id: UUID) -> Files:
         return (
             db.query(Files)
             .join(Tables, Tables.file_id == Files.id)

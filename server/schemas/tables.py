@@ -4,9 +4,9 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from server.controllers.state.models import TableDisplayProperty, TableSharedProperty
 from server.schemas.pinned_filters import Filter, PinnedFilter, Sort
 from server.schemas.properties import PropertyCategory
-from server.schemas.states import TableDisplayProperty, TableSharedProperty
 
 
 class TablesBaseProperty(BaseModel):

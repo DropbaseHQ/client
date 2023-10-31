@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.columns import column_type_to_schema_mapper
+from server.controllers.state.models import TableContextProperty, WidgetContextProperty
 from server.controllers.tables.helper import get_row_schema
 from server.controllers.widget.helpers import get_user_input
-from server.schemas.states import TableStateProperty, WidgetStateProperty
 from server.utils.components import state_component_type_mapper, state_update_components
 from server.utils.converter import get_class_dict
 
@@ -18,7 +18,7 @@ def get_page_schema(db: Session, page_id: UUID):
     table_schema, user_input = {}, {}
 
     for table in tables:
-        table_state_props = get_class_dict(TableStateProperty)
+        table_state_props = get_class_dict(TableContextProperty)
         state["tables"][table.name] = table_state_props
         # get columns
         columns = crud.columns.get_table_columns(db, table.id)
@@ -38,7 +38,7 @@ def get_page_schema(db: Session, page_id: UUID):
         components = []
         # get components for widget
         components = crud.components.get_widget_component(db, widget.id)
-        widget_props = get_class_dict(WidgetStateProperty)
+        widget_props = get_class_dict(WidgetContextProperty)
         state["widget"][widget.name] = widget_props
         state["widget"][widget.name]["components"] = {}
         for component in components:
