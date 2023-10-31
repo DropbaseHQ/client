@@ -46,6 +46,7 @@ def get_table_columns_and_props(db: Session, table_id: UUID):
 def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
 
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
+    file = crud.files.get_file_by_table_id(db, table_id=table.id)
     page = crud.page.get_table_page(db, table.id)
     db_columns = crud.columns.get_table_columns(db, table_id=request.table_id)
 
@@ -69,7 +70,7 @@ def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
         crud.columns.remove(db, id=col.id)
 
     # add columns
-    column_class = column_type_to_schema_mapper.get(table.type)
+    column_class = column_type_to_schema_mapper.get(file.type)
     for column in cols_to_add:
         create_column_record_from_name(db, column, table.id, column_class)
 
@@ -103,7 +104,7 @@ def update_table_columns(db: Session, table: ReadTables, columns: List[str], tab
         crud.columns.remove(db, id=col.id)
 
     # add columns
-    column_class = column_type_to_schema_mapper.get(table.type)
+    column_class = column_type_to_schema_mapper.get(table_type)
     for column in cols_to_add:
         create_column_record_from_name(db, column, table.id, column_class, table_type)
 

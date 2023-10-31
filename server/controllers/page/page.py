@@ -18,6 +18,7 @@ def get_page_schema(db: Session, page_id: UUID):
     table_schema, user_input = {}, {}
 
     for table in tables:
+        file = crud.files.get_file_by_table_id(db, table_id=table.id)
         table_state_props = get_class_dict(TableContextProperty)
         state["tables"][table.name] = table_state_props
         # get columns
@@ -28,7 +29,7 @@ def get_page_schema(db: Session, page_id: UUID):
         table_schema[table.name] = row_schema
         state["tables"][table.name]["columns"] = {}
         for col in columns:
-            column_class = column_type_to_schema_mapper.get(table.type)
+            column_class = column_type_to_schema_mapper.get(file.type)
             col_state = column_class(**col.property)
             state["tables"][table.name]["columns"][col.property["name"]] = col_state.dict()
 
