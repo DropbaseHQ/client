@@ -13,7 +13,7 @@ const fetchTableData = async ({ file, appName, pageName, state }: any) => {
 		page_name: pageName,
 		file,
 		state: state.state,
-		filter_sort: {"filters": [], "sorts": []}
+		filter_sort: { filters: [], sorts: [] },
 	});
 
 	return response.data;
