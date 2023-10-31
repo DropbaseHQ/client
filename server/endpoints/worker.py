@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers.columns import update_table_columns
 from server.controllers.state.state import get_state_context
-from server.schemas import UpdateApp
+from server.controllers.app import finalize_app
+from server.schemas import FinalizeApp
 from server.schemas.files import CreateFiles, UpdateFiles
 from server.schemas.worker import SyncColumnsRequest, SyncComponentsRequest
 from server.utils.connect import get_db
@@ -50,8 +51,8 @@ def get_app(app_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.put("/app/{app_id}")
-def update_app(app_id: UUID, request: UpdateApp, db: Session = Depends(get_db)):
-    return crud.app.update_by_pk(db=db, pk=app_id, obj_in={"is_draft": request.is_draft})
+def update_app(app_id: UUID, request: FinalizeApp, db: Session = Depends(get_db)):
+    return finalize_app(db, app_id, request)
 
 
 @router.post("/file/")
