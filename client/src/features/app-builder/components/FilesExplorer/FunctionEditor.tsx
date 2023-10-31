@@ -3,12 +3,12 @@ import { Box, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 
+import { useParams } from 'react-router-dom';
 import { usePythonEditor } from '@/components/Editor';
 import { useFile, usePageFiles } from '@/features/app-builder/hooks';
 import { pageAtom, useGetPage } from '@/features/page';
 import { DeleteFunction } from './DeleteFunction';
 import { FunctionTerminal } from './FunctionTerminal';
-import { useParams } from 'react-router-dom';
 
 const PythonEditorLSP = ({ code: defaultCode, filePath }: any) => {
 	const [code, setCode] = useState(defaultCode);
@@ -59,7 +59,7 @@ export const FunctionEditor = ({ id }: any) => {
 	}
 
 	return (
-		<Stack p="3" spacing="2">
+		<Stack p="3" w="full" overflow="hidden" spacing="2">
 			<PythonEditorLSP code={code} filePath={filePath} key={id} />
 
 			<DeleteFunction
@@ -68,6 +68,7 @@ export const FunctionEditor = ({ id }: any) => {
 				functionId={id}
 				functionName={functionName}
 			/>
+
 			<FunctionTerminal />
 		</Stack>
 	);
