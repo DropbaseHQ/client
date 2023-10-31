@@ -151,18 +151,11 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 					</Stack>
 					<Stack spacing="0" divider={<StackDivider />}>
 						{currentCategories.map((category: any) => (
-							<Stack spacing="0">
-								<Text
-									fontSize="sm"
-									fontWeight="semibold"
-									px="3"
-									py="2"
-									bg="gray.50"
-									borderBottomWidth="1px"
-								>
+							<Stack spacing="3" p="3">
+								<Text fontSize="md" fontWeight="semibold">
 									{category}
 								</Text>
-								<Stack p="3">
+								<Stack>
 									{allProperties
 										.filter((property: any) => property.category === category)
 										.map((property: any) => {
