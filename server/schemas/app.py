@@ -34,4 +34,3 @@ class Function(BaseModel):
 class FinalizeApp(BaseModel):
     name: Optional[str]
     is_draft: Optional[bool]
-    functions: list[Function]

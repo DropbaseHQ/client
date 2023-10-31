@@ -12,10 +12,35 @@ export const useCreateApp = (mutationConfig?: any) => {
 	});
 };
 
+type AppTemplate = {
+	page: {
+		name: string;
+		id: string;
+	};
+	table: {
+		name: string;
+		property: {
+			name: string;
+			type: string;
+			code: string;
+		};
+		type: string;
+		page: string;
+		page_id: string;
+	};
+	files: {
+		name: string;
+		page: string;
+		source: string;
+		type: string;
+		code: string;
+	}[];
+};
+
 type createDraftAppResponse = {
 	app_id: string;
-	page_id: string;
 	message: string;
+	app_template: AppTemplate;
 };
 
 const createDraftApp = async ({ name, workspaceId }: { name: string; workspaceId: any }) => {
@@ -32,29 +57,36 @@ export const useCreateDraftApp = (mutationConfig?: any) => {
 	});
 };
 
-const createWorkerApp = async ({ appId }: { appId: string }) => {
-	const response = await workerAxios.post('/workspace_admin/create_app', { app_id: appId });
+const createWorkerApp = async ({
+	appId,
+	appTemplate,
+}: {
+	appId: string;
+	appTemplate: AppTemplate;
+}) => {
+	const response = await workerAxios.post('/workspace_admin/create_app', {
+		app_id: appId,
+		app_template: appTemplate,
+	});
 	return response.data;
 };
 
 export const useCreateAppFlow = (mutationConfig?: any) => {
 	const useCreateDraftAppMutation = useCreateDraftApp();
 	const useCreateWorkerAppMutation = useMutation(createWorkerApp, { ...(mutationConfig || {}) });
-	let defaultPageId;
 	const handleCreateApp = async ({ name, workspaceId }: { name: string; workspaceId: any }) => {
 		const response = await useCreateDraftAppMutation.mutateAsync({ name, workspaceId });
 		if (!response?.app_id) return null;
-		defaultPageId = response.page_id;
 
 		const { data: workerData } = await useCreateWorkerAppMutation.mutateAsync({
 			appId: response.app_id,
+			appTemplate: response.app_template,
 		});
 
 		return workerData;
 	};
 	return {
 		handleCreateApp,
-		defaultPageId,
 		isLoading: useCreateDraftAppMutation.isLoading || useCreateWorkerAppMutation.isLoading,
 	};
 };
