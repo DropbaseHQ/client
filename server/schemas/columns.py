@@ -123,5 +123,6 @@ class UpdateColumnsRequest(BaseModel):
 
 
 class SyncColumns(BaseModel):
+    type: str
     table_id: UUID
     columns: List[str]

@@ -85,7 +85,7 @@ def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
     return table
 
 
-def update_table_columns(db: Session, table: ReadTables, columns: List[str]):
+def update_table_columns(db: Session, table: ReadTables, columns: List[str], table_type):
 
     cols_to_add, cols_to_delete = [], []
     db_columns = crud.columns.get_table_columns(db, table_id=table.id)
@@ -110,24 +110,26 @@ def update_table_columns(db: Session, table: ReadTables, columns: List[str]):
     # add columns
     column_class = column_type_to_schema_mapper.get(table.type)
     for column in cols_to_add:
-        create_column_record_from_name(db, column, table.id, column_class)
+        create_column_record_from_name(db, column, table.id, column_class, table_type)
 
     db.commit()
 
 
-def create_column_record_from_name(db: Session, col_name: str, table_id: UUID, column_class) -> Columns:
+def create_column_record_from_name(
+    db: Session, col_name: str, table_id: UUID, column_class, table_type
+) -> Columns:
     column_obj = CreateColumns(
         name=col_name,
         property=column_class(name=col_name),
         table_id=table_id,
-        type="postgres",
+        type="postgres" if table_type == "sql" else "python",
     )
     return crud.columns.create(db, obj_in=column_obj)
 
 
 def sync_columns(db: Session, request: SyncColumns):
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
-    update_table_columns(db, table, request.columns)
+    update_table_columns(db, table, request.columns, request.type)
 
     # create new state and context
     State, Context = get_state_context(db, table.page_id)

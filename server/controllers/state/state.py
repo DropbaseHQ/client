@@ -61,7 +61,7 @@ def get_state_context_for_client(db: Session, page_id: UUID):
 
     # same logic for tables
     tables = crud.tables.get_page_tables(db, page_id=page.id)
-    columns_mapper = {"postgres": PgColumnContextProperty}
+    columns_mapper = {"postgres": PgColumnContextProperty, "python": PyColumnContextProperty}
     for table in tables:
         table_init = TableContextProperty(**table.property)
         columns = crud.columns.get_table_columns(db, table_id=table.id)
@@ -123,7 +123,7 @@ base_property_mapper = {
         "Tables": {
             "base": TableContextProperty,
             "dir": "columns",
-            "children": {"postgres": PgColumnContextProperty},
+            "children": {"postgres": PgColumnContextProperty, "python": PyColumnContextProperty},
         },
     },
     "defined": {
@@ -140,7 +140,7 @@ base_property_mapper = {
         "Tables": {
             "base": TableDefinedProperty,
             "dir": "columns",
-            "children": {"postgres": PgColumnDefinedProperty},
+            "children": {"postgres": PgColumnDefinedProperty, "python": PyColumnDefinedProperty},
         },
     },
 }
