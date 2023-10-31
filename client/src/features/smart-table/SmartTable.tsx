@@ -201,9 +201,13 @@ export const SmartTable = ({ tableId }: any) => {
 			?.new_value;
 
 		const defaultValue =
-			currentValue === null || currentValue === undefined ? '' : String(currentValue);
+			currentValue === null || currentValue === undefined ? '' : currentValue;
 
-		const cellValue = editedValue === undefined ? defaultValue : editedValue;
+		const unParsedValue = editedValue === undefined ? defaultValue : editedValue;
+		const cellValue =
+			typeof unParsedValue === 'object' && unParsedValue !== null
+				? JSON.stringify(unParsedValue)
+				: String(unParsedValue);
 
 		const canEdit = column?.editable;
 
