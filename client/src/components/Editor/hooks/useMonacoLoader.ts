@@ -5,14 +5,15 @@ import { proxyTokenAtom } from '@/features/settings/atoms';
 
 export const useMonacoLoader = () => {
 	const [isMonacoReady, setReady] = useState(false);
-	const token = useAtomValue(proxyTokenAtom);
+	const proxyToken = useAtomValue(proxyTokenAtom);
 
 	useEffect(() => {
 		(async () => {
 			setReady(false);
 			try {
 				await initializeLanguageServices(
-					`${import.meta.env.VITE_PYTHON_LSP_SERVER}/${token}/lsp`,
+					`${import.meta.env.VITE_PYTHON_LSP_SERVER}/lsp`,
+					proxyToken,
 				);
 			} catch (e) {
 				// TODO: add error handling
@@ -20,7 +21,7 @@ export const useMonacoLoader = () => {
 				setReady(true);
 			}
 		})();
-	}, [token]);
+	}, [proxyToken]);
 
 	return isMonacoReady;
 };
