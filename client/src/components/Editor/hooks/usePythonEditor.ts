@@ -41,9 +41,8 @@ const createLanguageClient = (transports: MessageTransports): MonacoLanguageClie
 const createLSPWebSocket = (url: string, proxyToken: string | null): WebSocket => {
 	const webSocket = new WebSocket(url);
 	webSocket.onopen = () => {
+		webSocket.send(JSON.stringify({"dropbase-proxy-token": proxyToken}));
 		const socket = toSocket(webSocket);
-		socket.send(JSON.stringify({"dropbase-proxy-token": proxyToken}))
-
 		const reader = new WebSocketMessageReader(socket);
 		const writer = new WebSocketMessageWriter(socket);
 		const languageClient = createLanguageClient({
