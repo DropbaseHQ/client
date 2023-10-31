@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Plus, Save, Trash } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
@@ -8,12 +8,12 @@ import {
 	Menu,
 	MenuList,
 	MenuItem,
-	Accordion,
 	Text,
 	Button,
 	ButtonGroup,
 	Box,
 	Skeleton,
+	StackDivider,
 } from '@chakra-ui/react';
 import { useAtomValue, useSetAtom } from 'jotai';
 
@@ -28,22 +28,21 @@ import {
 } from '@/features/app-builder/hooks';
 import { pageAtom } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
-import { ContentLoader, NavLoader } from '@/components/Loader';
+import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
-
-const DISPLAY_COMPONENT_PROPERTIES = ['name', 'type', 'options', 'label', 'text', 'size'];
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 	const { widgetId, pageName, appName } = useAtomValue(pageAtom);
-	const { schema, refetch, values, isLoading } = useGetComponentProperties(widgetId || '');
+	const { schema, refetch, values, isLoading, categories } = useGetComponentProperties(
+		widgetId || '',
+	);
 
 	const { type, property: properties } = values.find((v: any) => v.id === id) || {};
+	const currentCategories = (categories as any)?.[type] || [];
 
 	const { functions } = useAllPageFunctionNames({ pageName, appName });
-
-	const [visibleProperties, setVisibleProperties] = useState<any>(DISPLAY_COMPONENT_PROPERTIES);
 
 	const methods = useForm();
 	const {
@@ -93,21 +92,6 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	};
 
 	const allProperties = schema[type] || [];
-	const displayProperties = allProperties
-		.filter((property: any) => {
-			const propertyValue = properties?.[property.name];
-			return (
-				visibleProperties.includes(property.name) ||
-				(propertyValue !== undefined && propertyValue !== null)
-			);
-		})
-		.sort((a: any, b: any) => a.name.localeCompare(b.name));
-
-	const displayPropertiesNames = displayProperties.map((p: any) => p.name);
-
-	const propertiesToBeAdded = allProperties.filter(
-		(p: any) => !displayPropertiesNames.includes(p.name),
-	);
 
 	if (isLoading) {
 		return (
@@ -165,58 +149,58 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 							/>
 						</ButtonGroup>
 					</Stack>
-					<Stack maxW="md" p="4">
-						{displayProperties.map((property: any) => {
-							if (property.name === 'display_rules' || property.type === 'rules') {
-								return <DisplayRulesEditor id={id} />;
-							}
+					<Stack spacing="0" divider={<StackDivider />}>
+						{currentCategories.map((category: any) => (
+							<Stack spacing="0">
+								<Text
+									fontSize="sm"
+									fontWeight="semibold"
+									px="3"
+									py="2"
+									bg="gray.50"
+									borderBottomWidth="1px"
+								>
+									{category}
+								</Text>
+								<Stack p="3">
+									{allProperties
+										.filter((property: any) => property.category === category)
+										.map((property: any) => {
+											if (
+												property.name === 'display_rules' ||
+												property.type === 'rules'
+											) {
+												return <DisplayRulesEditor id={id} />;
+											}
 
-							const showFunctionList =
-								property.type === 'function' ||
-								property.name === 'on_click' ||
-								property.name === 'on_change';
+											const showFunctionList =
+												property.type === 'function' ||
+												property.name === 'on_click' ||
+												property.name === 'on_change';
 
-							return (
-								<FormInput
-									{...property}
-									id={property.name}
-									type={showFunctionList ? 'select' : property.type}
-									options={(
-										(showFunctionList
-											? functions
-											: property.enum || property.options) || []
-									).map((o: any) => ({
-										name: o,
-										value: o,
-									}))}
-									key={property.name}
-								/>
-							);
-						})}
-
-						<Menu>
-							<MenuButton
-								as={Button}
-								size="sm"
-								variant="ghost"
-								colorScheme="blue"
-								flexShrink="0"
-							>
-								Add property
-							</MenuButton>
-							<MenuList>
-								{propertiesToBeAdded.map((p: any) => (
-									<MenuItem
-										onClick={() => {
-											setVisibleProperties([...visibleProperties, p.name]);
-										}}
-										key={p.name}
-									>
-										{p.name}
-									</MenuItem>
-								))}
-							</MenuList>
-						</Menu>
+											return (
+												<FormInput
+													{...property}
+													id={property.name}
+													type={
+														showFunctionList ? 'select' : property.type
+													}
+													options={(
+														(showFunctionList
+															? functions
+															: property.enum || property.options) ||
+														[]
+													).map((o: any) => ({
+														name: o,
+														value: o,
+													}))}
+													key={property.name}
+												/>
+											);
+										})}
+								</Stack>
+							</Stack>
+						))}
 					</Stack>
 				</FormProvider>
 			</form>
@@ -304,44 +288,5 @@ export const NewComponent = (props: any) => {
 				))}
 			</MenuList>
 		</Menu>
-	);
-};
-
-export const Components = () => {
-	const { widgetId } = useAtomValue(pageAtom);
-	const { isLoading, values } = useGetComponentProperties(widgetId || '');
-
-	return (
-		<Stack maxW="2xl" spacing="0" h="full">
-			<Text
-				flexShrink="0"
-				bg="white"
-				borderWidth="1px"
-				borderBottomWidth="0"
-				px="3"
-				py="2"
-				fontSize="sm"
-				fontWeight="semibold"
-			>
-				Components
-			</Text>
-			<Stack overflowY="auto">
-				<ContentLoader isLoading={isLoading}>
-					<Accordion
-						bg="white"
-						borderLeftWidth="1px"
-						borderRightWidth="1px"
-						allowMultiple
-					>
-						{values.map((value: any) => (
-							<ComponentPropertyEditor key={value.id} {...value} />
-						))}
-					</Accordion>
-				</ContentLoader>
-			</Stack>
-			<Box mt="2">
-				<NewComponent />
-			</Box>
-		</Stack>
 	);
 };

@@ -16,7 +16,7 @@ export const TableBar = () => {
 
 	const tableId = useCurrentTableId();
 
-	const { values, type: tableType } = useGetTable(tableId || '');
+	const { table, type: tableType } = useGetTable(tableId || '');
 
 	const { rows, columns } = useCurrentTableData(tableId);
 
@@ -37,11 +37,10 @@ export const TableBar = () => {
 	});
 
 	const handleCellEdits = () => {
-		if (tableType && values?.source)
+		if (tableType && table?.source)
 			saveEditsMutation.mutate({
 				tableType,
-				source: values?.source,
-				code: values?.code,
+				// FIXME: rewire
 				edits: cellEdits.map((edit: any) => ({
 					row: rows[edit.rowIndex],
 					column_name: edit.column_name,

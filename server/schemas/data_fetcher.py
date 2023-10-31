@@ -5,8 +5,8 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
-class BaseFiles(BaseModel):
-    name: str
+class BaseDataFetcher(BaseModel):
+    file_name: str
     type: str
     source: Optional[str]
     page_id: UUID
@@ -15,21 +15,23 @@ class BaseFiles(BaseModel):
         orm_mode = True
 
 
-class ReadFiles(BaseFiles):
+class ReadDataFetcher(BaseDataFetcher):
     id: UUID
     date: datetime
 
 
-class CreateFiles(BaseFiles):
+class CreateDataFetcher(BaseDataFetcher):
     pass
 
 
-class UpdateFiles(BaseModel):
-    name: str
+class UpdateDataFetcher(BaseDataFetcher):
+    file_name: str
+    type: str
     source: Optional[str]
+    page_id: UUID
 
 
 class RenameFile(BaseModel):
-    old_name: str
-    new_name: str
+    old_file_name: str
+    new_file_name: str
     page_id: UUID

@@ -7,27 +7,13 @@ import { useGetPage } from '@/features/page';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
-const fetchTableData = async ({
-	code,
-	source,
-	type,
-	filters,
-	sorts,
-	appName,
-	pageName,
-	state,
-}: any) => {
+const fetchTableData = async ({ file, appName, pageName, state }: any) => {
 	const response = await workerAxios.post<any>(`/query/`, {
 		app_name: appName,
 		page_name: pageName,
+		file,
 		state: state.state,
-		table: {
-			code,
-			type,
-			source,
-			filters,
-			sorts,
-		},
+		filter_sort: {"filters": [], "sorts": []}
 	});
 
 	return response.data;
@@ -42,8 +28,8 @@ export const useTableData = ({
 	pageName,
 	pageId,
 }: any) => {
-	const { type, values } = useGetTable(tableId || '');
-	const { tables } = useGetPage(pageId);
+	const { type, table, isLoading: isLoadingTable } = useGetTable(tableId || '');
+	const { tables, files, isLoading: isLoadingPage } = useGetPage(pageId);
 
 	const depends = tables.find((t: any) => t.id === tableId)?.depends_on || [];
 
@@ -57,24 +43,26 @@ export const useTableData = ({
 		{},
 	);
 
-	const { code, source } = values || {};
+	const { file_id: fileId } = table || {};
+	const file = files.find((f: any) => f.id === fileId);
 
 	const queryKey = [
 		TABLE_DATA_QUERY_KEY,
-		code,
 		appName,
 		pageName,
 		type,
-		JSON.stringify({ filters, sorts, dependentTableData }),
+		JSON.stringify({ filters, sorts, dependentTableData, file, table }),
 	];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchTableData({ code, source, type, filters, sorts, appName, pageName, state }),
+		() => fetchTableData({ appName, pageName, state, file }),
 		{
 			enabled: !!(
-				code &&
-				type &&
+				!isLoadingTable &&
+				!isLoadingPage &&
+				file &&
+				table &&
 				appName &&
 				pageName &&
 				Object.keys(state?.state?.tables || {}).length > 0
@@ -160,7 +148,7 @@ const syncDropbaseColumns = async ({ appName, pageName, tables, state }: any) =>
 		app_name: appName,
 		page_name: pageName,
 		tables,
-		state
+		state,
 	});
 	return response.data;
 };

@@ -1,6 +1,5 @@
 from uuid import UUID
 
-from fastapi import Response
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
@@ -24,55 +23,9 @@ def get_table_properties():
 
 def get_table(db, table_id: UUID):
     table = crud.tables.get_object_by_id_or_404(db, id=table_id)
+    file = crud.files.get_file_by_table_id(db, table_id=table_id)
     table_props = get_class_properties(TablesBaseProperty)
-    return {
-        "properties": table_props,
-        "values": table.property,
-        "type": table.type,
-    }
-
-
-def create_table(db, request: CreateTablesRequest) -> ReadTables:
-    table = crud.tables.create(db, obj_in=CreateTables(**request.dict()))
-    return table
-
-
-from server.controllers.columns import update_table_columns
-from server.controllers.state.state import get_state_context, get_state_for_client
-from server.controllers.state.update import get_columns_from_worker, update_state_context_in_worker
-
-
-def update_table(
-    db: Session, table_id: UUID, request: UpdateTablesRequest, response: Response
-) -> ReadTables:
-    try:
-        table = crud.tables.update_by_pk(db, pk=table_id, obj_in=request)
-        # get current state
-        state = get_state_for_client(db, table.page_id)
-        # get columns from worker
-        resp = get_columns_from_worker(
-            table.property, state, request.app_name, request.page_name, request.token
-        )
-        print(resp)
-        columns = resp.get("columns")
-        if not columns:
-            return {"message": "no columns returned"}
-        print("here!")
-
-        # update columns in db
-        update_table_columns(db, table, columns)
-
-        # create new state and context
-        State, Context = get_state_context(db, table.page_id)
-        # update state and context in worker
-        update_state_context_in_worker(
-            State, Context, request.app_name, request.page_name, request.token
-        )
-
-        return table
-    except Exception as e:
-        response.status_code = 400
-        return {"error": str(e)}
+    return {"properties": table_props, "table": table, "file": file}
 
 
 def get_table_columns(user_db_engine, table_str):

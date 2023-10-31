@@ -19,11 +19,16 @@ import { useFile, useRunSQLQuery, useSaveSql, useSources } from '@/features/app-
 import { newPageStateAtom, useSyncState } from '@/features/app-state';
 import { logBuilder } from '@/features/app-builder/utils';
 import { ChakraTable } from '@/components/Table';
-import { pageAtom } from '@/features/page';
+import { pageAtom, useGetPage } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
+import { useParams } from 'react-router-dom';
 
 export const SQLEditor = ({ id }: any) => {
-	const sqlName = id.split('/').pop();
+	const { pageId } = useParams();
+	const { files } = useGetPage(pageId);
+
+	const file = files.find((f: any) => f.id === id);
+	const sqlName = file.name;
 	const { pageName, appName } = useAtomValue(pageAtom);
 
 	const [selectedSource, setSource] = useState();
@@ -43,6 +48,12 @@ export const SQLEditor = ({ id }: any) => {
 	const pageState = useAtomValue(newPageStateAtom);
 
 	const syncState = useSyncState();
+
+	useEffect(() => {
+		if (file?.source) {
+			setSource(file.source);
+		}
+	}, [setSource, file]);
 
 	const runMutation = useRunSQLQuery({
 		onSuccess: (data: any) => {
@@ -67,17 +78,21 @@ export const SQLEditor = ({ id }: any) => {
 		runMutation.mutate({
 			pageName,
 			appName,
-			pageState,
+			state: pageState.state,
 			fileName: sqlName,
 			fileContent: code,
+			source: selectedSource,
 		});
 	};
+
 	const handleSave = () => {
 		saveSQLMutation.mutate({
 			pageName,
 			appName,
 			fileName: sqlName,
 			sql: code,
+			source: selectedSource,
+			fileId: id,
 		});
 	};
 

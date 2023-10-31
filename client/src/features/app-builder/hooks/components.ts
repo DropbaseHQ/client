@@ -26,8 +26,21 @@ export const useGetComponentProperties = (widgetId: string) => {
 
 	const info = useMemo(() => {
 		return {
-			schema: response?.schema || [],
+			schema: response?.schema || {},
 			values: response?.values || [],
+			categories: Object.keys(response?.schema || {}).reduce(
+				(agg, type) => ({
+					...agg,
+					[type]: [
+						...new Set(
+							response?.schema?.[type]
+								?.map((property: any) => property?.category)
+								.filter(Boolean) || [],
+						),
+					],
+				}),
+				{},
+			),
 		};
 	}, [response]);
 

@@ -4,16 +4,17 @@ import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 
 import { usePythonEditor } from '@/components/Editor';
-import { useFile } from '@/features/app-builder/hooks';
-import { pageAtom } from '@/features/page';
+import { useFile, usePageFiles } from '@/features/app-builder/hooks';
+import { pageAtom, useGetPage } from '@/features/page';
 import { DeleteFunction } from './DeleteFunction';
 import { FunctionTerminal } from './FunctionTerminal';
+import { useParams } from 'react-router-dom';
 
-const PythonEditorLSP = ({ code: defaultCode, id }: any) => {
+const PythonEditorLSP = ({ code: defaultCode, filePath }: any) => {
 	const [code, setCode] = useState(defaultCode);
 
 	const editorRef = usePythonEditor({
-		filepath: id,
+		filepath: filePath,
 		code,
 		onChange: (newValue) => {
 			setCode(newValue);
@@ -24,8 +25,20 @@ const PythonEditorLSP = ({ code: defaultCode, id }: any) => {
 };
 
 export const FunctionEditor = ({ id }: any) => {
-	const functionName = id.split('/').pop();
 	const { pageName, appName } = useAtomValue(pageAtom);
+
+	const { pageId } = useParams();
+	const { files } = useGetPage(pageId);
+
+	const file = files.find((f: any) => f.id === id);
+	const functionName = file.name;
+
+	const { files: workerFiles, isLoading: isLoadingWorkerFiles } = usePageFiles({
+		pageName: pageName || '',
+		appName: appName || '',
+	});
+
+	const filePath = workerFiles.find((f: any) => f.endsWith(functionName));
 
 	const { isLoading, code } = useFile({
 		pageName,
@@ -33,7 +46,7 @@ export const FunctionEditor = ({ id }: any) => {
 		fileName: functionName,
 	});
 
-	if (isLoading) {
+	if (isLoading || isLoadingWorkerFiles) {
 		return (
 			<Stack p="3" spacing="2">
 				<Skeleton startColor="gray.200" endColor="gray.300" h="32" />
@@ -47,7 +60,7 @@ export const FunctionEditor = ({ id }: any) => {
 
 	return (
 		<Stack p="3" spacing="2">
-			<PythonEditorLSP code={code} id={id} key={id} />
+			<PythonEditorLSP code={code} filePath={filePath} key={id} />
 
 			<DeleteFunction
 				w="fit-content"

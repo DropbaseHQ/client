@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -29,6 +29,11 @@ class SelectBaseProperties(BaseModel):
     rules: Optional[List[Dict]]
     # server calls
     on_change: Optional[str]
+
+    @property
+    def state(self):
+        # TODO: match based on value type
+        return "str"
 
 
 class SelectDefinedProperty(SelectBaseProperties, SelectSharedProperties):

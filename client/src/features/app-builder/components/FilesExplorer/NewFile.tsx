@@ -17,14 +17,19 @@ import { Plus } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 
-import { useCreateFile, usePageFiles } from '@/features/app-builder/hooks';
+import { useCreateFile, usePageFiles, useSources } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
 import { pageAtom } from '@/features/page';
+import { useParams } from 'react-router-dom';
 
 export const NewFile = (props: any) => {
 	const toast = useToast();
 	const methods = useForm();
+
+	const { pageId } = useParams();
+
+	const { sources } = useSources();
 
 	const { pageName, appName } = useAtomValue(pageAtom);
 
@@ -46,11 +51,14 @@ export const NewFile = (props: any) => {
 		},
 	});
 
-	const onSubmit = ({ type, name }: any) => {
+	const onSubmit = ({ type, name, source }: any) => {
 		mutation.mutate({
+			pageId,
 			pageName,
 			appName,
-			fileName: `${name}.${type === 'python' ? 'py' : 'sql'}`,
+			fileName: name,
+			type,
+			source,
 		});
 	};
 
@@ -86,17 +94,31 @@ export const NewFile = (props: any) => {
 									type="select"
 									options={[
 										{
-											name: 'SQL',
+											name: 'SQL (Data Fetcher)',
 											value: 'sql',
 										},
 										{
-											name: 'Python',
+											name: 'Python (Data Fetcher)',
+											value: 'data_fetcher',
+										},
+										{
+											name: 'Python (UI/Generic)',
 											value: 'python',
 										},
 									]}
 									validation={{ required: 'Cannot  be empty' }}
 									name="type"
 									id="type"
+								/>
+
+								<FormInput
+									size="sm"
+									flex="1"
+									maxW="sm"
+									type="select"
+									options={sources.map((s) => ({ name: s, value: s }))}
+									name="source"
+									id="source"
 								/>
 							</PopoverBody>
 							<PopoverFooter

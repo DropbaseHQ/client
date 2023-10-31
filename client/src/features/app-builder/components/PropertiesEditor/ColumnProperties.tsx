@@ -144,7 +144,8 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 export const ColumnsProperties = () => {
 	const toast = useToast();
 	const tableId = useAtomValue(selectedTableIdAtom);
-	const { type } = useGetTable(tableId || '');
+	const { table } = useGetTable(tableId || '');
+	const type = table?.type;
 	const { isLoading, values } = useGetColumnProperties(tableId || '');
 	const state = useAtomValue(newPageStateAtom);
 

@@ -31,9 +31,8 @@ export const useGetTable = (tableId: string, props?: any): any => {
 	const info = useMemo(() => {
 		return {
 			properties: response?.properties || [],
-			values: response?.values || {},
-			sourceId: response?.source_id,
-			type: response?.type,
+			table: response?.table || {},
+			type:  response?.file?.type
 		};
 	}, [response]);
 
@@ -44,31 +43,24 @@ export const useGetTable = (tableId: string, props?: any): any => {
 	};
 };
 
-export const QUERY_NAMES_KEY = 'queryFetcher';
+export const DATA_FETCHER_QUERY_KEY = 'dataFetchers';
 
-const fetchQueryNames = async ({ pageName, appName }: any) => {
-	const response = await workerAxios.get<any>(`/files/table_options/${appName}/${pageName}/`);
+const fetchDataFetchers = async ({ pageId }: any) => {
+	const response = await axios.get<any>(`/files/data_fetchers/${pageId}/`);
 
 	return response.data;
 };
 
-export const useQueryNames = ({ pageName, appName }: any) => {
-	const queryKey = [QUERY_NAMES_KEY, pageName, appName];
+export const useDataFetchers = (pageId: any) => {
+	const queryKey = [DATA_FETCHER_QUERY_KEY, pageId];
 
-	const { data: response, ...rest } = useQuery(
-		queryKey,
-		() => fetchQueryNames({ pageName, appName }),
-		{
-			enabled: Boolean(pageName && appName),
-		},
-	);
+	const { data: response, ...rest } = useQuery(queryKey, () => fetchDataFetchers({ pageId }), {
+		enabled: Boolean(pageId),
+	});
 
 	const info = useMemo(() => {
 		return {
-			queryNames: {
-				sql: response?.sql || [],
-				python: response?.python || [],
-			},
+			fetchers: response || [],
 		};
 	}, [response]);
 
@@ -102,33 +94,28 @@ export const useCreateTable = (props: any = {}) => {
 };
 
 const updateTableProperties = async ({
-	payload,
 	tableId,
-	sourceId,
 	pageId,
 	name,
-	type,
 	appName,
 	pageName,
 	token,
+	fileId,
 }: {
-	payload: any;
 	tableId: string;
-	sourceId: string;
 	pageId: any;
+	fileId: any;
 	name: string;
-	type: any;
 	appName: any;
 	pageName: any;
 	token: any;
 }) => {
 	const response = await axios.put(`/tables/${tableId}`, {
 		name,
-		property: payload,
-		source_id: sourceId,
+		property: {},
 		page_id: pageId,
-		type,
 		app_name: appName,
+		file_id: fileId,
 		page_name: pageName,
 		token,
 	});
@@ -211,13 +198,13 @@ export const useRunTableQuery = (props: any = {}) => {
 	});
 };
 
-const runSQLQuery = async ({ appName, pageName, pageState, source, fileContent }: any) => {
+const runSQLQuery = async ({ appName, pageName, state, source, fileContent }: any) => {
 	const response = await workerAxios.post(`/query/run_sql_string/`, {
 		app_name: appName,
 		page_name: pageName,
-		payload: pageState,
-		file_content: fileContent,
+		state,
 		source,
+		file_content: fileContent,
 	});
 
 	return response.data;
@@ -235,12 +222,14 @@ export const useRunSQLQuery = (props: any = {}) => {
 	});
 };
 
-const saveSql = async ({ pageName, appName, fileName, sql }: any) => {
-	const response = await workerAxios.post(`files/save_sql/`, {
+const saveSql = async ({ pageName, appName, fileName,fileId, sql, source }: any) => {
+	const response = await workerAxios.post(`files/update_file/`, {
 		page_name: pageName,
 		app_name: appName,
-		file_name: fileName,
+		name: fileName,
 		sql,
+		source,
+		file_id: fileId
 	});
 
 	return response.data;

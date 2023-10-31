@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.models import User
+from server.schemas import FinalizeApp
 from server.schemas import CreateApp, ReadApp, ReadPage, CreateApp
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
 
@@ -105,3 +106,49 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
         db.rollback()
         return {"message": "Error creating draft app"}
     return {"message": "Success", "app_id": new_draft_app.id, "page_id": new_draft_page.id}
+
+
+def finalize_app(db: Session, app_id: UUID, request: FinalizeApp):
+    crud.app.get_object_by_id_or_404(db, id=app_id)
+    default_page = crud.page.get_first_app_page(db, app_id)
+    default_table = crud.tables.get_page_tables(db, default_page.id)[0]
+
+    ext_type_mapper = {
+        "py": "data_fetcher",
+        "sql": "sql",
+    }
+
+    try:
+        default_table_file = None
+        for function in request.functions:
+            if "__" in function.name:
+                continue
+            ext = function.name.split(".")[1]
+            new_file = crud.files.create(
+                db=db,
+                obj_in={
+                    "page_id": default_page.id,
+                    "name": function.name,
+                    "source": function.source,
+                    "type": ext_type_mapper[ext],
+                },
+                auto_commit=False,
+            )
+            if ext_type_mapper[ext] == "sql":
+                default_table_file = new_file
+
+        db.flush()
+        if default_table_file:
+            crud.tables.update_by_pk(
+                db=db,
+                pk=default_table.id,
+                obj_in={"file_id": default_table_file.id},
+                auto_commit=False,
+            )
+
+        crud.app.update_by_pk(db=db, pk=app_id, obj_in={"is_draft": request.is_draft}, auto_commit=False)
+        db.commit()
+    except Exception as e:
+        print("Error finalizing app", e)
+        db.rollback()
+        return {"message": "Error finalizing app"}
