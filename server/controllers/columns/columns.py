@@ -1,8 +1,10 @@
+from typing import List
 from uuid import UUID
 
 from sqlalchemy.orm import Session
 
 from server import crud
+from server.controllers.state.state import get_state_context
 from server.controllers.state.update import update_state_context_in_worker
 from server.models.columns import Columns
 from server.schemas.columns import (
@@ -13,6 +15,7 @@ from server.schemas.columns import (
     UpdateColumns,
     UpdateColumnsRequest,
 )
+from server.schemas.tables import ReadTables
 from server.utils.converter import get_class_properties
 
 column_type_to_schema_mapper = {
@@ -40,13 +43,9 @@ def update_column(db: Session, column_id: UUID, request: UpdateColumns):
 def get_table_columns_and_props(db: Session, table_id: UUID):
     table = crud.tables.get_object_by_id_or_404(db, id=table_id)
     columns = crud.columns.get_table_columns(db, table_id=table_id)
-    values = []
-    for column in columns:
-        values.append({"name": column.name, "property": column.property})
-
     column_class = column_type_to_schema_mapper.get(table.type)
     column_props = get_class_properties(column_class)
-    return {"schema": column_props, "values": values}
+    return {"schema": column_props, "columns": columns}
 
 
 def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
@@ -84,11 +83,6 @@ def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
     update_state_context_in_worker(db, page.id, request.app_name, request.page_name, request.token)
 
     return table
-
-
-from typing import List
-
-from server.schemas.tables import ReadTables
 
 
 def update_table_columns(db: Session, table: ReadTables, columns: List[str]):
@@ -129,9 +123,6 @@ def create_column_record_from_name(db: Session, col_name: str, table_id: UUID, c
         type="postgres",
     )
     return crud.columns.create(db, obj_in=column_obj)
-
-
-from server.controllers.state.state import get_state_context
 
 
 def sync_columns(db: Session, request: SyncColumns):

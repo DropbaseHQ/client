@@ -1,5 +1,6 @@
 from pydantic import Field
 
+
 class PropertyCategory:
     default = Field(category="Default")
     events = Field(category="Events")

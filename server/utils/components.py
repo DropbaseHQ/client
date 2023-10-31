@@ -32,9 +32,9 @@ input_pydantic_dtype_mapper = {"text": "str", "number": "float", "select": "str"
 
 
 def get_component_pydantic_dtype(component):
-    if type(component) == SelectBaseProperties:
+    if type(component) is SelectBaseProperties:
         return "str"
-    if type(component) == InputBaseProperties:
+    if type(component) is InputBaseProperties:
         if component.type == "number":
             return "float"
         else:

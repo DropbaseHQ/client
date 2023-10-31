@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, Any, List, Literal, Optional, Union
+from typing import Annotated, Any, List, Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -69,8 +69,12 @@ class ButtonBaseProperties(BaseModel):
     name: Annotated[str, PropertyCategory.default]
     label: Annotated[Optional[str], PropertyCategory.default]
     color: Annotated[
-        Optional[Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]],
-        PropertyCategory.default
+        Optional[
+            Literal[
+                "red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"
+            ]
+        ],
+        PropertyCategory.default,
     ]
 
     # events
@@ -93,7 +97,11 @@ class TextBaseProperties(BaseModel):
     text: Annotated[Optional[str], PropertyCategory.default]
     size: Annotated[Optional[Literal["small", "medium", "large"]], PropertyCategory.default]
     color: Annotated[
-        Optional[Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]],
+        Optional[
+            Literal[
+                "red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"
+            ]
+        ],
         PropertyCategory.default,
     ]
 
@@ -110,7 +118,7 @@ class TextRead(TextBaseProperties, TextSharedProperties):
 
 
 class BaseComponents(BaseModel):
-    property: Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
+    property: dict  # Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
     after: Optional[UUID]
     type: str
@@ -118,7 +126,7 @@ class BaseComponents(BaseModel):
 
 class ReadComponents(BaseModel):
     id: UUID
-    property: Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
+    property: dict  # Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
     after: Optional[UUID]
     type: str
@@ -126,14 +134,14 @@ class ReadComponents(BaseModel):
 
 
 class CreateComponents(BaseModel):
-    property: Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
+    property: dict  # Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
     after: Optional[UUID]
     type: str
 
 
 class UpdateComponents(BaseModel):
-    property: Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
+    property: dict  # Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     type: str
 
 
