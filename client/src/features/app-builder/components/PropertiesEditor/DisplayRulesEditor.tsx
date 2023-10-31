@@ -68,7 +68,7 @@ export const DisplayRulesEditor = ({ id }: any) => {
 					const displayRules = value || [];
 
 					return (
-						<Stack p="3" borderWidth="1px" borderRadius="md" spacing="2.5">
+						<Stack spacing="2.5">
 							{displayRules.map((rule: any, index: any) => {
 								const componentProperty = componentsProperties?.[rule?.name];
 
@@ -93,7 +93,7 @@ export const DisplayRulesEditor = ({ id }: any) => {
 								}
 
 								return (
-									<Stack alignItems="center" key={rule.id} direction="row">
+									<Stack alignItems="end" key={rule.id} direction="row">
 										{index === 0 ? null : (
 											<Box w="8" alignSelf="center">
 												<Badge
@@ -216,8 +216,8 @@ export const DisplayRulesEditor = ({ id }: any) => {
 							<Button
 								size="sm"
 								leftIcon={<Plus size="14" />}
-								variant="ghost"
-								colorScheme="blue"
+								variant="outline"
+								colorScheme="gray"
 								onClick={() => {
 									onChange([
 										...displayRules,
