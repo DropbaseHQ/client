@@ -4,13 +4,8 @@ from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.tables import create_table, get_table, get_table_row, pin_filters, update_table
-from server.schemas.tables import (
-    CreateTablesRequest,
-    PinFilters,
-    TablesReadProperty,
-    UpdateTablesRequest,
-)
+from server.controllers.tables import get_table, get_table_row, pin_filters
+from server.schemas.tables import CreateTables, PinFilters, TablesReadProperty, UpdateTablesRequest
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
@@ -35,15 +30,15 @@ def get_tables(tables_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/", dependencies=[Depends(table_authorizer.use_params(resource_type=RESOURCES.PAGE))])
-def create_tables(request: CreateTablesRequest, db: Session = Depends(get_db)):
-    return create_table(db, request)
+def create_tables(request: CreateTables, db: Session = Depends(get_db)):
+    return crud.tables.create(db, obj_in=CreateTables(**request.dict()))
 
 
-@router.put("/{tables_id}")
+@router.put("/{table_id}")
 def update_tables(
-    tables_id: UUID, request: UpdateTablesRequest, response: Response, db: Session = Depends(get_db)
+    table_id: UUID, request: UpdateTablesRequest, response: Response, db: Session = Depends(get_db)
 ):
-    return update_table(db, tables_id, request, response)
+    return crud.tables.update_by_pk(db, pk=table_id, obj_in=request)
 
 
 @router.delete("/{tables_id}")
