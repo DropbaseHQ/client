@@ -1,4 +1,5 @@
 import { MoreVertical, Zap } from 'react-feather';
+import { Fragment } from 'react';
 import { useAtomValue } from 'jotai';
 import {
 	Stack,
@@ -7,7 +8,6 @@ import {
 	Text,
 	Tooltip,
 	FormLabel,
-	FormControl,
 	Button,
 	Divider,
 	SimpleGrid,
@@ -15,6 +15,7 @@ import {
 	Popover,
 	PopoverContent,
 	PopoverBody,
+	PopoverHeader,
 } from '@chakra-ui/react';
 import { InputRenderer } from '@/components/FormInput';
 import {
@@ -65,9 +66,6 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 	const allVisibleProperties = schema.filter((property: any) =>
 		DISPLAY_COLUMN_PROPERTIES.includes(property.name),
 	);
-
-	const nonBooleanProperties = allVisibleProperties.filter((p: any) => p.type !== 'boolean');
-	const booleanProperties = allVisibleProperties.filter((p: any) => p.type === 'boolean');
 
 	return (
 		<SimpleGrid alignItems="center" gap={3} columns={3}>
@@ -124,30 +122,27 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 						</Box>
 					</PopoverTrigger>
 					<PopoverContent>
+						<PopoverHeader fontSize="sm" fontWeight="medium">
+							Config for {properties.name}
+						</PopoverHeader>
 						<PopoverBody>
-							<Stack>
-								{nonBooleanProperties.map((property: any) => (
-									<FormControl key={property.name}>
+							<SimpleGrid alignItems="center" gap={2} columns={2}>
+								{allVisibleProperties.map((property: any) => (
+									<Fragment key={property.name}>
 										<FormLabel>{property.name}</FormLabel>
-										<InputRenderer
-											{...property}
-											value={properties[property.name]}
-										/>
-									</FormControl>
-								))}
-
-								<SimpleGrid columns={2} spacing={2}>
-									{booleanProperties.map((property: any) => (
-										<FormControl key={property.name}>
-											<FormLabel>{property.name}</FormLabel>
+										{property.type === 'boolean' ? (
 											<InputRenderer
 												{...property}
 												value={properties[property.name]}
 											/>
-										</FormControl>
-									))}
-								</SimpleGrid>
-							</Stack>
+										) : (
+											<Text fontSize="sm">
+												{properties[property.name] || '-'}
+											</Text>
+										)}
+									</Fragment>
+								))}
+							</SimpleGrid>
 						</PopoverBody>
 					</PopoverContent>
 				</Popover>
