@@ -13,16 +13,19 @@ import { InputLoader } from '@/components/Loader';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { DeleteTable } from '@/features/app-builder/components/PropertiesEditor/DeleteTable';
 import { pageAtom } from '@/features/page';
-import { proxyTokenAtom } from '@/features/settings/atoms';
+// import { proxyTokenAtom } from '@/features/settings/atoms';
+import { newPageStateAtom } from '@/features/app-state';
 
 export const TableProperties = () => {
-	const token = useAtomValue(proxyTokenAtom);
+	// const token = useAtomValue(proxyTokenAtom);
 	const tableId = useAtomValue(selectedTableIdAtom);
 	const { pageId } = useParams();
 
 	const { isLoading, table, refetch } = useGetTable(tableId || '');
 
 	const { pageName, appName } = useAtomValue(pageAtom);
+
+	const pageState = useAtomValue(newPageStateAtom);
 
 	const { fetchers } = useDataFetchers(pageId);
 
@@ -57,13 +60,13 @@ export const TableProperties = () => {
 
 	const onSubmit = ({ fileId, ...rest }: any) => {
 		mutation.mutate({
-			tableId: tableId || '',
-			name: rest.name,
-			pageId,
 			appName,
 			pageName,
-			token,
-			fileId,
+			tableName: rest.name,
+			table,
+			file: fetchers.find((f: any) => f.id === fileId),
+			pageId,
+			state: pageState?.state,
 		});
 	};
 
@@ -119,7 +122,7 @@ export const TableProperties = () => {
 								isLoading={mutation.isLoading}
 								type="submit"
 							>
-								Run
+								Update
 							</Button>
 
 							<DeleteTable tableId={tableId} tableName={table?.name} />
