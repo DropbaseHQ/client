@@ -72,6 +72,27 @@ def get_app_pages(db: Session, user: User, app_id: UUID):
     return crud.page.get_app_pages(db, app_id)
 
 
+def get_app_template():
+    return {
+        "page": {"name": "page1"},
+        "table": {
+            "name": "Table 1",
+            "property": {"name": "Table 1", "code": "", "type": "postgres"},
+            "type": "postgres",
+            "page": "page1",
+        },
+        "files": [
+            {
+                "name": "data_fetcher.sql",
+                "page": "page1",
+                "source": "replica",
+                "type": "sql",
+                "code": "SELECT id, name FROM customers",
+            }
+        ],
+    }
+
+
 def create_draft_app(db: Session, request: CreateApp, user: User):
     try:
         if request.workspace_id is None:
@@ -80,72 +101,63 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
         if workspace not in crud.workspace.get_user_workspaces(db, user_id=user.id):
             raise Exception("User does not have access to the workspace")
 
+        default_app_template = get_app_template()
+
+        # Create a draft app
         new_draft_app = crud.app.create(
             db,
             obj_in={"name": request.name, "workspace_id": request.workspace_id, "is_draft": True},
             auto_commit=False,
         )
         db.flush()
+
+        # Create a default page and table
+        default_app_page = default_app_template.get("page")
         new_draft_page = crud.page.create(
-            db, obj_in={"name": "page1", "app_id": new_draft_app.id}, auto_commit=False
+            db,
+            obj_in={"name": default_app_page.get("name"), "app_id": new_draft_app.id},
+            auto_commit=False,
         )
         db.flush()
+        default_app_page["id"] = new_draft_page.id
+
+        default_app_table = default_app_template.get("table")
         crud.tables.create(
             db,
             obj_in={
-                "name": "table1",
+                "name": default_app_table.get("name"),
                 "page_id": new_draft_page.id,
-                "property": {"name": "table1", "code": "", "type": "postgres"},
-                "type": "postgres",
+                "property": default_app_table.get("property"),
             },
             auto_commit=False,
         )
+        default_app_table["page_id"] = new_draft_page.id
+
+        # Create default files
+        default_app_files = default_app_template.get("files")
+        for file in default_app_files:
+            crud.files.create(
+                db,
+                obj_in={
+                    "page_id": new_draft_page.id,
+                    "name": file.get("name"),
+                    "source": file.get("source"),
+                    "type": file.get("type"),
+                },
+                auto_commit=False,
+            )
         db.commit()
     except Exception as e:
         print("Error creating draft app", e)
         db.rollback()
         return {"message": "Error creating draft app"}
-    return {"message": "Success", "app_id": new_draft_app.id, "page_id": new_draft_page.id}
+    return {"message": "Success", "app_id": new_draft_app.id, "app_template": default_app_template}
 
 
 def finalize_app(db: Session, app_id: UUID, request: FinalizeApp):
     crud.app.get_object_by_id_or_404(db, id=app_id)
-    default_page = crud.page.get_first_app_page(db, app_id)
-    default_table = crud.tables.get_page_tables(db, default_page.id)[0]
-
-    ext_type_mapper = {
-        "py": "data_fetcher",
-        "sql": "sql",
-    }
 
     try:
-        default_table_file = None
-        for function in request.functions:
-            if "__" in function.name:
-                continue
-            ext = function.name.split(".")[1]
-            new_file = crud.files.create(
-                db=db,
-                obj_in={
-                    "page_id": default_page.id,
-                    "name": function.name,
-                    "source": function.source,
-                    "type": ext_type_mapper[ext],
-                },
-                auto_commit=False,
-            )
-            if ext_type_mapper[ext] == "sql":
-                default_table_file = new_file
-
-        db.flush()
-        if default_table_file:
-            crud.tables.update_by_pk(
-                db=db,
-                pk=default_table.id,
-                obj_in={"file_id": default_table_file.id},
-                auto_commit=False,
-            )
-
         crud.app.update_by_pk(db=db, pk=app_id, obj_in={"is_draft": request.is_draft}, auto_commit=False)
         db.commit()
     except Exception as e:
