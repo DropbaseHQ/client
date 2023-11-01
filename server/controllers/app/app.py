@@ -76,8 +76,8 @@ def get_app_template():
     return {
         "page": {"name": "page1"},
         "table": {
-            "name": "Table 1",
-            "property": {"name": "Table 1", "code": "", "type": "postgres"},
+            "name": "table1",
+            "property": {"name": "table1", "code": "", "type": "postgres"},
             "type": "postgres",
             "page": "page1",
         },
