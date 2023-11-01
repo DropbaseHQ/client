@@ -111,6 +111,7 @@ const AppComponent = (props: any) => {
 			{component.label ? <FormLabel lineHeight={1}>{component.label}</FormLabel> : null}
 
 			<InputRenderer
+				placeholder={component?.placeholder}
 				value={inputState?.value}
 				name={component.name}
 				type={type === 'select' ? 'select' : component.type}

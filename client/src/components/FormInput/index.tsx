@@ -139,8 +139,8 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				<Button
 					size="sm"
 					leftIcon={<Plus size="14" />}
-					variant="ghost"
-					colorScheme="blue"
+					variant="outline"
+					colorScheme="gray"
 					onClick={() => {
 						onChange([
 							...optionsToRender,
