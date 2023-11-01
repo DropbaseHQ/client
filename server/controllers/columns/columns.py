@@ -36,15 +36,19 @@ def update_column(db: Session, column_id: UUID, request: UpdateColumns):
 
 def get_table_columns_and_props(db: Session, table_id: UUID):
     table = crud.tables.get_object_by_id_or_404(db, id=table_id)
+
     file = crud.files.get_file_by_table_id(db, table_id=table.id)
-    columns = crud.columns.get_table_columns(db, table_id=table_id)
-    column_class = column_type_to_schema_mapper.get(file.type)
-    column_props = get_class_properties(column_class)
+    if file:
+        columns = crud.columns.get_table_columns(db, table_id=table_id)
+        column_class = column_type_to_schema_mapper.get(file.type)
+        column_props = get_class_properties(column_class)
+    else:
+        column_props = []
+        columns = []
     return {"schema": column_props, "columns": columns}
 
 
 def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
-
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
     file = crud.files.get_file_by_table_id(db, table_id=table.id)
     page = crud.page.get_table_page(db, table.id)
@@ -82,7 +86,6 @@ def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
 
 
 def update_table_columns(db: Session, table: ReadTables, columns: List[str], table_type):
-
     cols_to_add, cols_to_delete = [], []
     db_columns = crud.columns.get_table_columns(db, table_id=table.id)
 
