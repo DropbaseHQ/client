@@ -52,6 +52,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 		if (app.id) {
 			deleteMutation.mutate({
 				appId: app.id,
+				appName: app.name,
 			});
 		}
 	};

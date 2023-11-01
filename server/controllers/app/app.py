@@ -172,3 +172,8 @@ def finalize_app(db: Session, app_id: UUID, request: FinalizeApp):
         print("Error finalizing app", e)
         db.rollback()
         return {"message": "Error finalizing app"}
+
+
+def delete_app(db: Session, app_id: UUID):
+    crud.app.remove(db, id=app_id)
+    return {"message": "Success"}
