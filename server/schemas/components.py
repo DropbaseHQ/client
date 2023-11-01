@@ -20,9 +20,6 @@ class InputBaseProperties(BaseModel):
     type: Annotated[Optional[Literal["text", "number", "date"]], PropertyCategory.default] = "text"
     placeholder: Annotated[Optional[str], PropertyCategory.default]
 
-    # events
-    on_change: Annotated[Optional[str], PropertyCategory.events]
-
     # display rules
     display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
 
