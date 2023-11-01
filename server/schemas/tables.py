@@ -68,7 +68,7 @@ class UpdateTablesRequest(BaseModel):
     page_id: str
     property: dict
     # depends_on: Optional[List[str]]
-    table_columns: List[str]
+    table_columns: Optional[List[str]]
 
 
 class UpdateTables(BaseModel):

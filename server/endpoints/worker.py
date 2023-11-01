@@ -91,7 +91,7 @@ def update_table(request: UpdateTablesRequest, response: Response, db: Session =
     table = crud.tables.update_by_pk(db, pk=request.table_id, obj_in=table_updates)
     file = crud.files.get_object_by_id_or_404(db, id=request.file_id)
     # update columns
-    if len(request.table_columns) > 0:
+    if request.table_columns is not None and len(request.table_columns) > 0:
         update_table_columns(db, table, request.table_columns, file.type)
 
     db.commit()
