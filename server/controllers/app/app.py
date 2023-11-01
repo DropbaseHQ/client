@@ -128,7 +128,6 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
                 "name": default_app_table.get("name"),
                 "page_id": new_draft_page.id,
                 "property": default_app_table.get("property"),
-                "type": default_app_table.get("type"),
             },
             auto_commit=False,
         )
