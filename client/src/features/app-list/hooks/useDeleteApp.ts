@@ -1,9 +1,13 @@
 import { useMutation, useQueryClient } from 'react-query';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { APPS_QUERY_KEY } from './useGetWorkspaceApps';
 
-const deleteApp = async ({ appId }: any) => {
-	const response = await axios.delete(`/app/${appId}`);
+const deleteApp = async ({ appId, appName }: any) => {
+	const response = await workerAxios.delete(`/workspace_admin/delete_app/${appId}`, {
+		data: {
+			name: appName,
+		},
+	});
 	return response.data;
 };
 

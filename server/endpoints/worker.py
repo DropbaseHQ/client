@@ -64,6 +64,11 @@ def update_app(app_id: UUID, request: FinalizeApp, db: Session = Depends(get_db)
     return finalize_app(db, app_id, request)
 
 
+@router.delete("/app/{app_id}")
+def delete_app(app_id: UUID, db: Session = Depends(get_db)):
+    return crud.app.remove(db, id=app_id)
+
+
 @router.post("/file/")
 def create_file(request: CreateFiles, db: Session = Depends(get_db)):
     return crud.files.create(db, obj_in=request)
