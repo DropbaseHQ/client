@@ -133,7 +133,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Stack>
 
 			{app?.editable && (
-				<Tooltip label={isPreview ? 'App preview' : 'App Studio'}>
+				<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
 					<Button
 						size="sm"
 						variant="secondary"

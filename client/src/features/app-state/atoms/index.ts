@@ -32,7 +32,7 @@ export const widgetComponentsAtom: any = atom(
 			Object.keys(inputs).forEach((i) => {
 				widgetState = lodashSet(
 					widgetState,
-					`state.${widgetState.selected}.${i}.value`,
+					`state.${widgetState.selected}.components.${i}.value`,
 					inputs[i],
 				);
 				currentInputs = lodashSet(currentInputs, `${widgetState.selected}.${i}`, inputs[i]);
@@ -41,7 +41,6 @@ export const widgetComponentsAtom: any = atom(
 			set(allWidgetsInputAtom, {
 				...JSON.parse(JSON.stringify(currentInputs)),
 			});
-
 			set(allWidgetStateAtom, { ...JSON.parse(JSON.stringify(widgetState)) });
 		}
 	},

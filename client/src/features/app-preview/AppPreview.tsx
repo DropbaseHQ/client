@@ -52,7 +52,7 @@ const AppComponent = (props: any) => {
 	const { widget } = useGetWidgetPreview(widgetId || '');
 
 	const [allWidgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
-	const widgetComponents = allWidgetComponents[widget.name];
+	const widgetComponents = allWidgetComponents[widget.name]?.components || {};
 	const inputState = widgetComponents?.[component.name] || {};
 
 	const allUserInputValues: any = useAtomValue(allWidgetsInputAtom);
