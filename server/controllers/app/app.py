@@ -124,7 +124,7 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
         # Create default files
         default_app_files = default_app_template.get("files")
         default_fetcher = None
-        for file in default_app_files:
+        for index, file in enumerate(default_app_files):
             new_file = crud.files.create(
                 db,
                 obj_in={
@@ -136,7 +136,9 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
                 auto_commit=False,
             )
             if file.get("name") == "data_fetcher.sql":
+                db.flush()
                 default_fetcher = new_file
+            default_app_files[index]["id"] = new_file.id
         db.flush()
 
         # Create a default table

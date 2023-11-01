@@ -25,7 +25,7 @@ class CreateFiles(BaseFiles):
 
 
 class UpdateFiles(BaseModel):
-    name: str
+    name: Optional[str]
     source: Optional[str]
 
 
