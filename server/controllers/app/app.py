@@ -111,7 +111,7 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
         )
         db.flush()
 
-        # Create a default page and table
+        # Create a default page
         default_app_page = default_app_template.get("page")
         new_draft_page = crud.page.create(
             db,
@@ -121,22 +121,11 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
         db.flush()
         default_app_page["id"] = new_draft_page.id
 
-        default_app_table = default_app_template.get("table")
-        crud.tables.create(
-            db,
-            obj_in={
-                "name": default_app_table.get("name"),
-                "page_id": new_draft_page.id,
-                "property": default_app_table.get("property"),
-            },
-            auto_commit=False,
-        )
-        default_app_table["page_id"] = new_draft_page.id
-
         # Create default files
         default_app_files = default_app_template.get("files")
+        default_fetcher = None
         for file in default_app_files:
-            crud.files.create(
+            new_file = crud.files.create(
                 db,
                 obj_in={
                     "page_id": new_draft_page.id,
@@ -146,6 +135,23 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
                 },
                 auto_commit=False,
             )
+            if file.get("name") == "data_fetcher.sql":
+                default_fetcher = new_file
+        db.flush()
+
+        # Create a default table
+        default_app_table = default_app_template.get("table")
+        crud.tables.create(
+            db,
+            obj_in={
+                "name": default_app_table.get("name"),
+                "page_id": new_draft_page.id,
+                "property": default_app_table.get("property"),
+                "file_id": str(default_fetcher.id),
+            },
+            auto_commit=False,
+        )
+        default_app_table["page_id"] = new_draft_page.id
         db.commit()
     except Exception as e:
         print("Error creating draft app", e)
