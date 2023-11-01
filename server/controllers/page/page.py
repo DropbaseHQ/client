@@ -74,8 +74,7 @@ def order_tables(tables):
                 dfs(next_node_appears_after, chain)
 
     name_to_dependency = {
-        item.property.get("name"): {"appears_after": item.property.get("appears_after"), "item": item}
-        for item in tables
+        item.name: {"appears_after": item.property.get("appears_after"), "item": item} for item in tables
     }
     visited = set()
     chains = []
