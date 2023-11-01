@@ -103,3 +103,15 @@ class ConvertToSmart(BaseModel):
 class PinFilters(BaseModel):
     table_id: UUID
     filters: List[PinnedFilter]
+
+
+class ConvertTable(BaseModel):
+    user_sql: str
+    column_names: list
+    gpt_schema: dict
+    db_schema: dict
+
+
+class UpdateSmartTables(BaseModel):
+    smart_columns: list
+    table: dict

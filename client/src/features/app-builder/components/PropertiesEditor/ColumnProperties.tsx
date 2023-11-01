@@ -37,7 +37,7 @@ const DISPLAY_COLUMN_PROPERTIES = [
 	'unique',
 ];
 
-const ColumnProperty = ({ id, property: properties }: any) => {
+const ColumnProperty = ({ id, property: properties, type }: any) => {
 	const toast = useToast();
 	const tableId = useAtomValue(selectedTableIdAtom);
 
@@ -57,7 +57,7 @@ const ColumnProperty = ({ id, property: properties }: any) => {
 		mutation.mutate({
 			columnId: id,
 			payload: { ...properties, ...partialValues },
-			type: 'postgres',
+			type: type,
 		});
 	};
 

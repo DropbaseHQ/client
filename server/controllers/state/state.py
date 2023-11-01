@@ -61,7 +61,12 @@ def get_state_context_for_client(db: Session, page_id: UUID):
 
     # same logic for tables
     tables = crud.tables.get_page_tables(db, page_id=page.id)
-    columns_mapper = {"postgres": PgColumnContextProperty, "python": PyColumnContextProperty}
+    # TODO: just use one, sql or postgres
+    columns_mapper = {
+        "postgres": PgColumnContextProperty,
+        "sql": PgColumnContextProperty,
+        "python": PyColumnContextProperty,
+    }
     for table in tables:
         table_init = TableContextProperty(**table.property)
         columns = crud.columns.get_table_columns(db, table_id=table.id)
