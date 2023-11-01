@@ -6,14 +6,7 @@ from sqlalchemy.sql import text
 from server import crud
 from server.controllers.tables.helper import get_row_schema
 from server.models.tables import Tables
-from server.schemas.tables import (
-    CreateTables,
-    CreateTablesRequest,
-    PinFilters,
-    ReadTables,
-    TablesBaseProperty,
-    UpdateTablesRequest,
-)
+from server.schemas.tables import PinFilters, TablesBaseProperty
 from server.utils.converter import get_class_properties
 
 

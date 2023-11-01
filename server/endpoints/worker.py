@@ -11,7 +11,7 @@ from server.controllers.columns import update_table_columns
 from server.controllers.state.state import get_state_context
 from server.schemas import FinalizeApp
 from server.schemas.files import CreateFiles, UpdateFiles
-from server.schemas.tables import CreateTables
+from server.schemas.tables import CreateTables, UpdateTables, UpdateTablesRequest
 from server.schemas.worker import SyncColumnsRequest, SyncComponentsRequest
 from server.utils.connect import get_db
 
@@ -72,7 +72,32 @@ def create_table(request: CreateTables, response: Response, db: Session = Depend
     crud.tables.create(db, obj_in=CreateTables(**request.dict()))
     page = crud.page.get_object_by_id_or_404(db, id=request.page_id)
     app = crud.app.get_app_by_page_id(db, page_id=request.page_id)
+    # get new State and Context
     db.commit()
+    State, Context = get_state_context(db, request.page_id)
+    return {
+        "app_name": app.name,
+        "page_name": page.name,
+        "state": State.schema(),
+        "context": Context.schema(),
+        "status": "success",
+    }
+
+
+@router.put("/table/")
+def update_table(request: UpdateTablesRequest, response: Response, db: Session = Depends(get_db)):
+    # update table
+    table_updates = UpdateTables(**request.dict())
+    table = crud.tables.update_by_pk(db, pk=request.table_id, obj_in=table_updates)
+    file = crud.files.get_object_by_id_or_404(db, id=request.file_id)
+    # update columns
+    if len(request.table_columns) > 0:
+        update_table_columns(db, table, request.table_columns, file.type)
+
+    db.commit()
+    # get page and app
+    page = crud.page.get_object_by_id_or_404(db, id=request.page_id)
+    app = crud.app.get_app_by_page_id(db, page_id=request.page_id)
     # get new State and Context
     State, Context = get_state_context(db, request.page_id)
     return {

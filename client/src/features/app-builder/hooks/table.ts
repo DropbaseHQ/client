@@ -92,30 +92,23 @@ export const useCreateTable = (props: any = {}) => {
 };
 
 const updateTableProperties = async ({
-	tableId,
-	pageId,
-	name,
 	appName,
 	pageName,
-	token,
-	fileId,
-}: {
-	tableId: string;
-	pageId: any;
-	fileId: any;
-	name: string;
-	appName: any;
-	pageName: any;
-	token: any;
-}) => {
-	const response = await axios.put(`/tables/${tableId}`, {
-		name,
-		property: {},
-		page_id: pageId,
+	tableName,
+	table,
+	file,
+	pageId, 
+	state,
+}: any) => {
+	const response = await workerAxios.post("/workspace_admin/update_table/", {
 		app_name: appName,
-		file_id: fileId,
 		page_name: pageName,
-		token,
+		state,
+		file,
+		table,
+		name: tableName,
+		property: {},
+		page_id: pageId, 
 	});
 
 	return response.data;

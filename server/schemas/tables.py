@@ -61,22 +61,21 @@ class CreateTablesRequest(BaseModel):
     depends_on: Optional[List[str]]
 
 
+class UpdateTablesRequest(BaseModel):
+    name: str
+    table_id: str
+    file_id: str
+    page_id: str
+    property: dict
+    # depends_on: Optional[List[str]]
+    table_columns: List[str]
+
+
 class UpdateTables(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
-    depends_on: Optional[List[str]]
-
-
-class UpdateTablesRequest(BaseModel):
-    name: Optional[str]
-    property: TablesBaseProperty
-    # page_id: UUID
     file_id: UUID
     depends_on: Optional[List[str]]
-    # type: Optional[str]
-    # app_name: str
-    # page_name: str
-    # token: str
 
 
 class QueryTable(BaseModel):
