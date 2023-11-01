@@ -87,7 +87,7 @@ def get_app_template():
                 "page": "page1",
                 "source": "replica",
                 "type": "sql",
-                "code": "SELECT id, name FROM customers",
+                "code": "SELECT id, name FROM customer",
             }
         ],
     }
