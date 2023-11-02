@@ -85,7 +85,7 @@ def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
     return table
 
 
-def update_table_columns(db: Session, table: ReadTables, columns: List[str], table_type):
+def update_table_columns(db: Session, table: ReadTables, columns: List[str], table_type: str):
     cols_to_add, cols_to_delete = [], []
     db_columns = crud.columns.get_table_columns(db, table_id=table.id)
 

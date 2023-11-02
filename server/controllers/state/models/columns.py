@@ -92,11 +92,11 @@ class PyColumnContextProperty(ColumnDisplayProperty, ColumnSharedProperty):
 
 class PyColumnBaseProperty(BaseModel):
     name: str
-    type: Optional[Literal["str", "int", "float", "bool"]]
+    type: Optional[Literal["str", "int", "float", "bool"]] = "str"
 
     @property
     def state(self):
-        return self.type
+        return self.type if self.type else "str"
 
 
 class PyColumnDefinedProperty(PyColumnBaseProperty, ColumnSharedProperty):

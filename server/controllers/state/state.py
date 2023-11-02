@@ -209,7 +209,7 @@ class GenerateReourceClass:
                 # initiate component
                 init_component = component_type(**component["property"])
                 # state is pulled from ComponentDefined class
-                components_props[component["property"]["name"]] = (Optional[init_component.state], None)
+                components_props[component["property"]["name"]] = (Optional[init_component.state], "str")
 
             resource_class_name = resource_name.capitalize() + "State"
             locals()[resource_class_name] = create_model(resource_class_name, **components_props)
