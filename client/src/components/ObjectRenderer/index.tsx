@@ -17,7 +17,7 @@ const ClickableCode = ({ children, ...props }: any) => {
 	);
 };
 
-export const ObjectRenderer = ({ obj, title, path, expandedPaths }: any) => {
+export const ObjectRenderer = ({ obj, title, path, expandedPaths, isArray }: any) => {
 	const toast = useToast();
 
 	const { isOpen, onToggle } = useDisclosure({
@@ -32,6 +32,7 @@ export const ObjectRenderer = ({ obj, title, path, expandedPaths }: any) => {
 						expandedPaths={expandedPaths}
 						path={k}
 						key={k}
+						isArray={Array.isArray(obj)}
 						obj={obj}
 						title={k}
 					/>
@@ -54,7 +55,8 @@ export const ObjectRenderer = ({ obj, title, path, expandedPaths }: any) => {
 					<ClickableCode
 						color="gray.900"
 						as="span"
-						onClick={() => {
+						onClick={(e: any) => {
+							e.stopPropagation();
 							copy(path);
 							toast({
 								status: 'info',
@@ -78,13 +80,17 @@ export const ObjectRenderer = ({ obj, title, path, expandedPaths }: any) => {
 
 					{Object.keys(obj[title]).map((key) => {
 						const value = obj[title][key];
+						const accumulatedPath = isArray
+							? `${path ? `${path}` : ''}[${key}]`
+							: `${path ? `${path}.` : ''}${key}`;
 
 						if (typeof value === 'object' && value !== null) {
 							return (
 								<ObjectRenderer
-									path={`${path ? `${path}.` : ''}${key}`}
+									path={accumulatedPath}
 									key={key}
 									title={key}
+									isArray={Array.isArray(value)}
 									expandedPaths={expandedPaths}
 									obj={obj[title]}
 								/>
@@ -102,7 +108,7 @@ export const ObjectRenderer = ({ obj, title, path, expandedPaths }: any) => {
 							>
 								<ClickableCode
 									onClick={() => {
-										copy(`${path}.${key}`);
+										copy(accumulatedPath);
 										toast({
 											status: 'info',
 											title: 'Path copied',
