@@ -40,13 +40,13 @@ export const FunctionTerminal = () => {
 
 	const runMutation = useRunFunction({
 		onSuccess: (data: any) => {
-			syncState(data);
-			setLog(logBuilder(data));
+			syncState(data?.result);
+			setLog(logBuilder(data?.result));
 
-			if (data?.result?.columns) {
+			if (data?.result?.result?.columns) {
 				setPreviewData({
-					rows: data?.result?.data || [],
-					columns: data?.result?.columns || [],
+					rows: data?.result?.result?.data || [],
+					columns: data?.result?.result?.columns || [],
 				});
 			}
 		},

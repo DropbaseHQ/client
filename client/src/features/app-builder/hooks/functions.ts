@@ -37,7 +37,7 @@ export const useAllPageFunctionNames = ({ appName, pageName }: any) => {
 };
 
 const runPythonFunction = async ({ pageName, appName, code, pageState }: any) => {
-	const response = await workerAxios.post(`query/run_python_string/`, {
+	const response = await workerAxios.post(`run_python/run_python_string/`, {
 		page_name: pageName,
 		app_name: appName,
 		payload: pageState,
