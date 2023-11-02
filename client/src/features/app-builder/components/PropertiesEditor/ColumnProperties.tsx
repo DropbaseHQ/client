@@ -57,7 +57,7 @@ const ColumnProperty = ({ id, property: properties, type }: any) => {
 		mutation.mutate({
 			columnId: id,
 			payload: { ...properties, ...partialValues },
-			type: type,
+			type,
 		});
 	};
 

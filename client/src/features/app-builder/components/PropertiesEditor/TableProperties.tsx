@@ -13,11 +13,9 @@ import { InputLoader } from '@/components/Loader';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { DeleteTable } from '@/features/app-builder/components/PropertiesEditor/DeleteTable';
 import { pageAtom } from '@/features/page';
-// import { proxyTokenAtom } from '@/features/settings/atoms';
 import { newPageStateAtom } from '@/features/app-state';
 
 export const TableProperties = () => {
-	// const token = useAtomValue(proxyTokenAtom);
 	const tableId = useAtomValue(selectedTableIdAtom);
 	const { pageId } = useParams();
 
@@ -46,13 +44,13 @@ export const TableProperties = () => {
 
 	useEffect(() => {
 		reset(
-			{ name: table?.name, fileId: table?.file_id },
+			{ name: table?.name, fileId: table?.file_id || '' },
 			{
 				keepDirty: false,
 				keepDirtyValues: false,
 			},
 		);
-	}, [table, reset]);
+	}, [table, tableId, reset]);
 
 	useEffect(() => {
 		setErrorLog('');
