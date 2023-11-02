@@ -136,10 +136,14 @@ export const SmartTable = ({ tableId }: any) => {
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.3)(theme),
 			  };
 
-	const visibleColumns = header.filter((columnName: any) => columns[columnName]?.visible);
+	const visibleColumns = header.filter(
+		(columnName: any) => !columns?.[columnName] || columns[columnName]?.visible,
+	);
 
 	const gridColumns = visibleColumns.map((columnName: any) => {
-		const column = columns[columnName];
+		const column = columns[columnName] || {
+			name: columnName,
+		};
 
 		// ⚠️ only by passing undefined we can hide column icon
 		let icon = column?.type ? GridColumnIcon.HeaderString : undefined;
@@ -188,12 +192,24 @@ export const SmartTable = ({ tableId }: any) => {
 			};
 		}
 
+		if (!columns[columnName]) {
+			return {
+				...gridColumn,
+				themeOverride: {
+					textDark: transparentize(theme.colors.gray['700'], 0.4)(theme),
+					bgHeader: theme.colors.yellow[100],
+				},
+			};
+		}
+
 		return gridColumn;
 	});
 
 	const getCellContent: any = ([col, row]: any) => {
 		const currentRow = rows[row];
-		const column = columns[visibleColumns[col]];
+		const column = columns[visibleColumns[col]] || {
+			name: visibleColumns[col],
+		};
 
 		const currentValue = currentRow?.[column?.name];
 
@@ -344,7 +360,7 @@ export const SmartTable = ({ tableId }: any) => {
 							{tableName}
 						</Text>
 
-						{tableIsUnsynced ? (
+						{!isLoading && tableIsUnsynced ? (
 							<Tooltip label="Sync columns">
 								<Button
 									colorScheme="yellow"

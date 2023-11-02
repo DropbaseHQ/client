@@ -48,17 +48,18 @@ export const useCurrentTableData = (tableId: any) => {
 
 export const useTableSyncStatus = (tableId: any) => {
 	const { header, columns, isLoading, isRefetching } = useCurrentTableData(tableId);
-	
+
 	const [needsSync, setNeedSync] = useState(false);
 
 	useEffect(() => {
 		if (!isLoading || !isRefetching) {
-			const isSynced = header.every((c: any) => (columns as any)[c]) &&
-			header.length === Object.keys(columns).length; 
+			const isSynced =
+				header.every((c: any) => (columns as any)[c]) &&
+				header.length === Object.keys(columns).length;
 
-			setNeedSync(!isSynced); 
+			setNeedSync(!isSynced);
 		}
-	}, [header, isLoading,isRefetching, columns, tableId]);
+	}, [header, isLoading, isRefetching, columns, tableId]);
 
 	return needsSync;
 };
