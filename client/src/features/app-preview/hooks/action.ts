@@ -7,10 +7,10 @@ const executeAction = async ({ pageName, appName, pageState, functionName }: any
 		page_name: pageName,
 		app_name: appName,
 		function_name: functionName,
-		payload: JSON.stringify(pageState),
+		payload: pageState,
 	});
 
-	return response.data;
+	return response.data?.result;
 };
 
 export const useExecuteAction = (props: any = {}) => {
