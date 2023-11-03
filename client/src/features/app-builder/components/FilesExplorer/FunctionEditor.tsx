@@ -59,7 +59,7 @@ export const FunctionEditor = ({ id }: any) => {
 	}
 
 	return (
-		<Stack p="3" w="full" overflow="hidden" spacing="2">
+		<Stack p="3" w="full" spacing="2">
 			<PythonEditorLSP code={code} filePath={filePath} key={id} />
 
 			<DeleteFunction
