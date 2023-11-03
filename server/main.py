@@ -44,7 +44,7 @@ require_authentication_routes.include_router(endpoints.page_router)
 # require_authentication_routes.include_router(endpoints.widget_router)
 # require_authentication_routes.include_router(endpoints.tables_router)
 require_authentication_routes.include_router(endpoints.columns_router)
-require_authentication_routes.include_router(endpoints.files_router)
+# require_authentication_routes.include_router(endpoints.files_router)
 # require_authentication_routes.include_router(endpoints.components_router)
 
 app.include_router(endpoints.user_router)
@@ -54,6 +54,7 @@ app.include_router(endpoints.worker_router)
 app.include_router(endpoints.widget_router)
 app.include_router(endpoints.components_router)
 app.include_router(endpoints.tables_router)
+app.include_router(endpoints.files_router)
 app.include_router(require_authentication_routes)
 
 

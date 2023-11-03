@@ -10,6 +10,8 @@ import { FilterButton } from './Filters';
 import { SortButton } from './Sorts';
 import { PinnedFilters } from './PinnedFilters';
 import { useGetTable } from '@/features/app-builder/hooks';
+import { useGetPage } from '@/features/page';
+import { useParams } from 'react-router-dom';
 
 export const TableBar = () => {
 	const toast = useToast();
@@ -17,6 +19,10 @@ export const TableBar = () => {
 	const tableId = useCurrentTableId();
 
 	const { table, type: tableType } = useGetTable(tableId || '');
+
+	const { pageId } = useParams();
+	const { files } = useGetPage(pageId);
+	const file = files.find((f: any) => f.id === table?.file_id);
 
 	const { rows, columns } = useCurrentTableData(tableId);
 
@@ -39,8 +45,7 @@ export const TableBar = () => {
 	const handleCellEdits = () => {
 		if (tableType && table?.source)
 			saveEditsMutation.mutate({
-				tableType,
-				// FIXME: rewire
+				file,
 				edits: cellEdits.map((edit: any) => ({
 					row: rows[edit.rowIndex],
 					column_name: edit.column_name,

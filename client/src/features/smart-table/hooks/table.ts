@@ -106,13 +106,9 @@ export const useTableData = ({
 	};
 };
 
-const saveEdits = async ({ tableType, source, edits, code }: any) => {
-	const response = await workerAxios.post(`/query/edit_sql_table/`, {
-		table: {
-			source,
-			type: tableType,
-			code,
-		},
+const saveEdits = async ({ file, edits }: any) => {
+	const response = await workerAxios.post(`/edit_cell/edit_sql_table/`, {
+		file,
 		edits,
 	});
 	return response.data;

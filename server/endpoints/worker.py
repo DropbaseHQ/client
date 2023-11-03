@@ -69,14 +69,14 @@ def delete_app(app_id: UUID, db: Session = Depends(get_db)):
     return crud.app.remove(db, id=app_id)
 
 
-@router.post("/file/")
-def create_file(request: CreateFiles, db: Session = Depends(get_db)):
-    return crud.files.create(db, obj_in=request)
+# @router.post("/file/")
+# def create_file(request: CreateFiles, db: Session = Depends(get_db)):
+#     return crud.files.create(db, obj_in=request)
 
 
-@router.put("/file/{file_id}")
-def update_file(file_id: UUID, request: UpdateFiles, db: Session = Depends(get_db)):
-    return crud.files.update_by_pk(db, pk=file_id, obj_in=request)
+# @router.put("/file/{file_id}")
+# def update_file(file_id: UUID, request: UpdateFiles, db: Session = Depends(get_db)):
+#     return crud.files.update_by_pk(db, pk=file_id, obj_in=request)
 
 
 @router.post("/table/")

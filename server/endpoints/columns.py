@@ -4,14 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.columns import (
-    create_column,
-    get_table_columns_and_props,
-    sync_columns,
-    update_column,
-    update_table_columns_and_props,
-)
-from server.schemas.columns import CreateColumns, SyncColumns, UpdateColumns, UpdateColumnsRequest
+from server.controllers.columns import get_table_columns_and_props
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 
@@ -40,29 +33,29 @@ def get_table_columns(table_id: UUID, db: Session = Depends(get_db)):
     return get_table_columns_and_props(db, table_id=table_id)
 
 
-@router.put(
-    "/table/",
-    dependencies=[Depends(col_authorizer.use_params(resource_type=RESOURCES.TABLE))],
-)
-def update_table_columns(request: UpdateColumnsRequest, db: Session = Depends(get_db)):
-    return update_table_columns_and_props(db, request)
+# @router.put(
+#     "/table/",
+#     dependencies=[Depends(col_authorizer.use_params(resource_type=RESOURCES.TABLE))],
+# )
+# def update_table_columns(request: UpdateColumnsRequest, db: Session = Depends(get_db)):
+#     return update_table_columns_and_props(db, request)
 
 
-@router.post("/")
-def create_columns(request: CreateColumns, db: Session = Depends(get_db)):
-    return create_column(db, request)
+# @router.post("/")
+# def create_columns(request: CreateColumns, db: Session = Depends(get_db)):
+#     return create_column(db, request)
 
 
-@router.put("/{columns_id}")
-def update_columns(columns_id: UUID, request: UpdateColumns, db: Session = Depends(get_db)):
-    return update_column(db, columns_id, request)
+# @router.put("/{columns_id}")
+# def update_columns(columns_id: UUID, request: UpdateColumns, db: Session = Depends(get_db)):
+#     return update_column(db, columns_id, request)
 
 
-@router.delete("/{columns_id}")
-def delete_columns(columns_id: UUID, db: Session = Depends(get_db)):
-    return crud.columns.remove(db, id=columns_id)
+# @router.delete("/{columns_id}")
+# def delete_columns(columns_id: UUID, db: Session = Depends(get_db)):
+#     return crud.columns.remove(db, id=columns_id)
 
 
-@router.post("/sync/")
-def sync_columns_req(request: SyncColumns, db: Session = Depends(get_db)):
-    return sync_columns(db, request)
+# @router.post("/sync/")
+# def sync_columns_req(request: SyncColumns, db: Session = Depends(get_db)):
+#     return sync_columns(db, request)

@@ -5,9 +5,10 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.state.models import PgColumnDefinedProperty, PyColumnDefinedProperty
-from server.controllers.state.update import update_state_context_in_worker
+
+# from server.controllers.state.update import update_state_context_in_worker
 from server.models.columns import Columns
-from server.schemas.columns import CreateColumns, SyncColumns, UpdateColumns, UpdateColumnsRequest
+from server.schemas.columns import CreateColumns, SyncColumns, UpdateColumns
 from server.schemas.tables import ReadTables
 from server.utils.converter import get_class_properties
 from server.utils.state_context import get_state_context_payload
@@ -48,41 +49,41 @@ def get_table_columns_and_props(db: Session, table_id: UUID):
     return {"schema": column_props, "columns": columns}
 
 
-def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
-    table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
-    file = crud.files.get_file_by_table_id(db, table_id=table.id)
-    page = crud.page.get_table_page(db, table.id)
-    db_columns = crud.columns.get_table_columns(db, table_id=request.table_id)
+# def update_table_columns_and_props(db: Session, request: UpdateColumnsRequest):
+#     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
+#     file = crud.files.get_file_by_table_id(db, table_id=table.id)
+#     page = crud.page.get_table_page(db, table.id)
+#     db_columns = crud.columns.get_table_columns(db, table_id=request.table_id)
 
-    cols_to_add, cols_to_delete = [], []
+#     cols_to_add, cols_to_delete = [], []
 
-    if not db_columns:
-        cols_to_add = request.columns
-    else:
-        # check for delta
-        db_cols_names = [col.property["name"] for col in db_columns]
-        for col in db_columns:
-            if col.property["name"] not in request.columns:
-                cols_to_delete.append(col)
+#     if not db_columns:
+#         cols_to_add = request.columns
+#     else:
+#         # check for delta
+#         db_cols_names = [col.property["name"] for col in db_columns]
+#         for col in db_columns:
+#             if col.property["name"] not in request.columns:
+#                 cols_to_delete.append(col)
 
-        for col in request.columns:
-            if col not in db_cols_names:
-                cols_to_add.append(col)
+#         for col in request.columns:
+#             if col not in db_cols_names:
+#                 cols_to_add.append(col)
 
-    # delete columns
-    for col in cols_to_delete:
-        crud.columns.remove(db, id=col.id)
+#     # delete columns
+#     for col in cols_to_delete:
+#         crud.columns.remove(db, id=col.id)
 
-    # add columns
-    column_class = column_type_to_schema_mapper.get(file.type)
-    for column in cols_to_add:
-        create_column_record_from_name(db, column, table.id, column_class)
+#     # add columns
+#     column_class = column_type_to_schema_mapper.get(file.type)
+#     for column in cols_to_add:
+#         create_column_record_from_name(db, column, table.id, column_class)
 
-    db.commit()
+#     db.commit()
 
-    update_state_context_in_worker(db, page.id, request.app_name, request.page_name, request.token)
+#     update_state_context_in_worker(db, page.id, request.app_name, request.page_name, request.token)
 
-    return table
+#     return table
 
 
 def update_table_columns(db: Session, table: ReadTables, columns: List[str], table_type: str):

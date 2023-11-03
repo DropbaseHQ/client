@@ -76,7 +76,7 @@ export const useFile = ({ fileName, appName, pageName }: any) => {
 };
 
 const createFile = async ({ pageName, fileName, appName, pageId, type, source }: any) => {
-	const response = await workerAxios.post(`/files/create/`, {
+	const response = await workerAxios.post(`/files/`, {
 		name: fileName,
 		page_id: pageId,
 		app_name: appName,
