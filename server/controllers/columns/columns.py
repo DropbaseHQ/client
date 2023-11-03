@@ -5,12 +5,12 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.state.models import PgColumnDefinedProperty, PyColumnDefinedProperty
-from server.controllers.state.state import get_state_context
 from server.controllers.state.update import update_state_context_in_worker
 from server.models.columns import Columns
 from server.schemas.columns import CreateColumns, SyncColumns, UpdateColumns, UpdateColumnsRequest
 from server.schemas.tables import ReadTables
 from server.utils.converter import get_class_properties
+from server.utils.state_context import get_state_context_payload
 
 column_type_to_schema_mapper = {
     "sql": PgColumnDefinedProperty,
@@ -129,10 +129,5 @@ def create_column_record_from_name(
 def sync_columns(db: Session, request: SyncColumns):
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
     update_table_columns(db, table, request.columns, request.type)
-
-    # create new state and context
-    State, Context = get_state_context(db, table.page_id)
-    # update state and context in worker
-    update_state_context_in_worker(State, Context)
-
-    return table
+    page = crud.page.get_page_by_widget(db, widget_id=table.widget_id)
+    return get_state_context_payload(db, page.id)

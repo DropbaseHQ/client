@@ -82,7 +82,7 @@ const updateComponentProperties = async ({
 	componentId: string;
 	type: string;
 }) => {
-	const response = await axios.put(`/components/${componentId}`, { property: payload, type });
+	const response = await workerAxios.put(`/components/${componentId}/`, { property: payload, type });
 	return response.data;
 };
 
@@ -101,7 +101,7 @@ export const useUpdateComponentProperties = (props: any = {}) => {
 };
 
 const createComponents = async ({ widgetId, property, type, after }: any) => {
-	const response = await axios.post(`/components/`, {
+	const response = await workerAxios.post(`/components/`, {
 		widget_id: widgetId,
 		property,
 		type,
@@ -125,8 +125,7 @@ export const useCreateComponents = (props: any = {}) => {
 };
 
 const deleteComponent = async ({ componentId }: any) => {
-	const response = await axios.delete(`/components/${componentId}`);
-
+	const response = await workerAxios.delete(`/components/${componentId}`);
 	return response.data;
 };
 

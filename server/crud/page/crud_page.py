@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import App, Page, Tables, Token, Workspace
+from server.models import App, Page, Tables, Token, Widget, Workspace
 from server.schemas.page import CreatePage, UpdatePage
 
 
@@ -41,6 +41,11 @@ class CRUDPage(CRUDBase[Page, CreatePage, UpdatePage]):
             .filter(App.name == app_name)
             .filter(Token.token == token)
             .first()
+        )
+
+    def get_page_by_widget(self, db: Session, widget_id: UUID) -> Page:
+        return (
+            db.query(Page).join(Widget, Page.id == Widget.page_id).filter(Widget.id == widget_id).first()
         )
 
 

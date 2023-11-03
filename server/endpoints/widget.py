@@ -10,14 +10,24 @@ from server.utils.components import order_components
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
 
+# widget_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WIDGET)
 
-widget_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WIDGET)
+# router = APIRouter(
+#     prefix="/widget",
+#     tags=["widget"],
+#     dependencies=[Depends(widget_authorizer)],
+# )
 
-router = APIRouter(
-    prefix="/widget",
-    tags=["widget"],
-    dependencies=[Depends(widget_authorizer)],
-)
+router = APIRouter(prefix="/widget", tags=["widget"])
+
+
+# client facing endpoints
+@router.get("/ui/{widget_id}")
+def get_widget_ui(widget_id: UUID, db: Session = Depends(get_db)):
+    widget = crud.widget.get_object_by_id_or_404(db, id=widget_id)
+    components = crud.components.get_widget_component(db, widget_id=widget_id)
+    ordered_comp = order_components(components)
+    return {"widget": widget, "components": ordered_comp}
 
 
 @router.get("/{widget_id}")
@@ -27,26 +37,26 @@ def get_widget(widget_id: UUID, db: Session = Depends(get_db)):
     return {"schema": widget_props, "values": widget}
 
 
-@router.post("/", dependencies=[Depends(widget_authorizer.use_params(resource_type=RESOURCES.PAGE))])
+# worker facing endpoints
+from server.utils.state_context import get_state_context_payload
+
+
+@router.post("/")
 def create_widget(request: CreateWidget, db: Session = Depends(get_db)):
     request.name = request.property.name
-    return crud.widget.create(db, obj_in=request)
+    widget = crud.widget.create(db, obj_in=request)
+    return get_state_context_payload(db, widget.page_id)
 
 
 @router.put("/{widget_id}")
 def update_widget(widget_id: UUID, request: UpdateWidget, db: Session = Depends(get_db)):
     request.name = request.property.name
-    return crud.widget.update_by_pk(db, pk=widget_id, obj_in=request)
+    widget = crud.widget.update_by_pk(db, pk=widget_id, obj_in=request)
+    return get_state_context_payload(db, widget.page_id)
 
 
 @router.delete("/{widget_id}")
 def delete_widget(widget_id: UUID, db: Session = Depends(get_db)):
-    return crud.widget.remove(db, id=widget_id)
-
-
-@router.get("/ui/{widget_id}")
-def get_widget_ui(widget_id: UUID, db: Session = Depends(get_db)):
-    widget = crud.widget.get_object_by_id_or_404(db, id=widget_id)
-    components = crud.components.get_widget_component(db, widget_id=widget_id)
-    ordered_comp = order_components(components)
-    return {"widget": widget, "components": ordered_comp}
+    page = crud.page.get_page_by_widget(db, widget_id=widget_id)
+    crud.widget.remove(db, id=widget_id)
+    return get_state_context_payload(db, page.id)

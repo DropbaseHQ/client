@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useSetAtom } from 'jotai';
 import { useMemo } from 'react';
 
-import { axios } from '@/lib/axios';
+import { axios, workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { PAGE_DATA_QUERY_KEY, pageAtom } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
@@ -44,7 +44,7 @@ const updateWidgetProperties = async ({
 	payload: any;
 	widgetId: string;
 }) => {
-	const response = await axios.put(`/widget/${widgetId}`, { property: payload });
+	const response = await workerAxios.put(`/widgets/${widgetId}/`, { property: payload });
 	return response.data;
 };
 
@@ -61,7 +61,7 @@ export const useUpdateWidgetProperties = (props: any = {}) => {
 };
 
 const createWidget = async ({ name, pageId }: any) => {
-	const response = await axios.post(`/widget/`, {
+	const response = await workerAxios.post(`/widgets/`, {
 		name,
 		property: {
 			name,

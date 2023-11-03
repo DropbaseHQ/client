@@ -34,7 +34,7 @@ class CRUDTables(CRUDBase[Tables, CreateTables, UpdateTables]):
 
     def get_table_by_app_page_token(
         self, db: Session, table_name: str, page_name: str, app_name: str, token: str
-    ):
+    ) -> Tables:
         return (
             db.query(Tables)
             .join(Page, Page.id == Tables.page_id)

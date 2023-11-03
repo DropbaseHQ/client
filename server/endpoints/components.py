@@ -15,19 +15,21 @@ from server.schemas.components import CreateComponents, ReorderComponents, Updat
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 
+# components_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.COMPONENTS)
 
-components_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.COMPONENTS)
+# router = APIRouter(
+#     prefix="/components",
+#     tags=["components"],
+#     dependencies=[Depends(components_authorizer)],
+# )
 
-router = APIRouter(
-    prefix="/components",
-    tags=["components"],
-    dependencies=[Depends(components_authorizer)],
-)
+router = APIRouter(prefix="/components", tags=["components"])
 
 
+# client endpoints
 @router.get(
     "/widget/{widget_id}",
-    dependencies=[Depends(components_authorizer.use_params(resource_type=RESOURCES.WIDGET))],
+    # dependencies=[Depends(components_authorizer.use_params(resource_type=RESOURCES.WIDGET))],
 )
 def get_widget_components(widget_id: UUID, db: Session = Depends(get_db)):
     return get_widget_components_and_props(db, widget_id=widget_id)
@@ -38,6 +40,12 @@ def get_components(components_id: UUID, db: Session = Depends(get_db)):
     return crud.components.get_object_by_id_or_404(db, id=components_id)
 
 
+@router.post("/reorder")
+def reorder_components(request: ReorderComponents, db: Session = Depends(get_db)):
+    return reorder_component(db, request)
+
+
+# worker endpoint
 @router.post("/")
 def create_components(request: CreateComponents, db: Session = Depends(get_db)):
     return create_component(db, request)
@@ -51,8 +59,3 @@ def update_components(components_id: UUID, request: UpdateComponents, db: Sessio
 @router.delete("/{components_id}")
 def delete_components(components_id: UUID, db: Session = Depends(get_db)):
     return delete_component(db, components_id)
-
-
-@router.post("/reorder")
-def reorder_components(request: ReorderComponents, db: Session = Depends(get_db)):
-    return reorder_component(db, request)
