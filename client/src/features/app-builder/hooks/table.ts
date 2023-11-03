@@ -32,7 +32,7 @@ export const useGetTable = (tableId: string, props?: any): any => {
 		return {
 			properties: response?.properties || [],
 			table: response?.table || {},
-			type:  response?.file?.type
+			type: response?.file?.type,
 		};
 	}, [response]);
 
@@ -98,7 +98,7 @@ const updateTableProperties = async ({
 	tableName,
 	table,
 	file,
-	pageId, 
+	pageId,
 	state,
 }: any) => {
 	const response = await workerAxios.put(`/tables/${tableId}`, {
@@ -109,7 +109,7 @@ const updateTableProperties = async ({
 		state,
 		file,
 		property: {},
-		page_id: pageId, 
+		page_id: pageId,
 	});
 
 	return response.data;
@@ -128,10 +128,13 @@ export const useUpdateTableProperties = (props: any = {}) => {
 	});
 };
 
-const convertToSmartTable = async ({ tableId, state }: any) => {
+const convertToSmartTable = async ({ file, table, state, appName, pageName }: any) => {
 	const response = await workerAxios.post(`/tables/convert`, {
-		table_id: tableId,
+		file,
+		table,
 		state,
+		app_name: appName,
+		page_name: pageName,
 	});
 
 	return response.data;
@@ -214,14 +217,14 @@ export const useRunSQLQuery = (props: any = {}) => {
 	});
 };
 
-const saveSql = async ({ pageName, appName, fileName,fileId, sql, source }: any) => {
+const saveSql = async ({ pageName, appName, fileName, fileId, sql, source }: any) => {
 	const response = await workerAxios.post(`files/update_file/`, {
 		page_name: pageName,
 		app_name: appName,
 		name: fileName,
 		sql,
 		source,
-		file_id: fileId
+		file_id: fileId,
 	});
 
 	return response.data;

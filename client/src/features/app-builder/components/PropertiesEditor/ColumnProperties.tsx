@@ -1,5 +1,6 @@
 import { MoreVertical, Zap } from 'react-feather';
 import { Fragment } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import {
 	Stack,
@@ -27,6 +28,7 @@ import {
 import { useToast } from '@/lib/chakra-ui';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { newPageStateAtom } from '@/features/app-state';
+import { pageAtom, useGetPage } from '@/features/page';
 
 const DISPLAY_COLUMN_PROPERTIES = [
 	'schema_name',
@@ -153,11 +155,21 @@ const ColumnProperty = ({ id, property: properties, type }: any) => {
 
 export const ColumnsProperties = () => {
 	const toast = useToast();
+
+	const { pageId } = useParams();
+
 	const tableId = useAtomValue(selectedTableIdAtom);
+	const pageState = useAtomValue(newPageStateAtom);
+
+	const { appName, pageName } = useAtomValue(pageAtom);
+
+	const { files } = useGetPage(pageId);
+
 	const { table } = useGetTable(tableId || '');
 	const type = table?.type;
+	const file = files.find((f: any) => f.id === table?.file_id);
+
 	const { isLoading, values } = useGetColumnProperties(tableId || '');
-	const state = useAtomValue(newPageStateAtom);
 
 	const convertMutation = useConvertSmartTable({
 		onSuccess: () => {
@@ -169,10 +181,13 @@ export const ColumnsProperties = () => {
 	});
 
 	const handleConvert = () => {
-		if (tableId)
+		if (table && file)
 			convertMutation.mutate({
-				tableId,
-				state: state.state.tables,
+				file,
+				table,
+				state: pageState.state.tables,
+				appName,
+				pageName,
 			});
 	};
 
