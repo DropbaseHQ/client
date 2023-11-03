@@ -25,7 +25,9 @@ export const ChakraTable = ({ columns, rows, ...props }: any) => {
 						<Tr key={JSON.stringify(row)}>
 							{row.map((cell: any) => (
 								<Td key={JSON.stringify({ row, cell })}>
-									{typeof cell === 'object' ? JSON.stringify(cell) : cell}
+									{typeof cell === 'object' || typeof cell === 'boolean'
+										? JSON.stringify(cell)
+										: cell}
 								</Td>
 							))}
 						</Tr>
