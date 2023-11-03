@@ -72,7 +72,7 @@ export const useDataFetchers = (pageId: any) => {
 };
 
 const createTable = async ({ name, pageId, property }: any) => {
-	const response = await workerAxios.post(`/workspace_admin/create_table/`, {
+	const response = await workerAxios.post(`/tables`, {
 		name,
 		page_id: pageId,
 		property,
@@ -92,6 +92,7 @@ export const useCreateTable = (props: any = {}) => {
 };
 
 const updateTableProperties = async ({
+	tableId,
 	appName,
 	pageName,
 	tableName,
@@ -100,13 +101,13 @@ const updateTableProperties = async ({
 	pageId, 
 	state,
 }: any) => {
-	const response = await workerAxios.post("/workspace_admin/update_table/", {
+	const response = await workerAxios.put(`/tables/${tableId}`, {
 		app_name: appName,
 		page_name: pageName,
+		name: tableName,
+		table,
 		state,
 		file,
-		table,
-		name: tableName,
 		property: {},
 		page_id: pageId, 
 	});
@@ -128,7 +129,7 @@ export const useUpdateTableProperties = (props: any = {}) => {
 };
 
 const convertToSmartTable = async ({ tableId, state }: any) => {
-	const response = await axios.post(`/tables/convert`, {
+	const response = await workerAxios.post(`/tables/convert`, {
 		table_id: tableId,
 		state,
 	});

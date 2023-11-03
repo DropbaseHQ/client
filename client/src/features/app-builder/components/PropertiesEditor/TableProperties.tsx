@@ -58,6 +58,7 @@ export const TableProperties = () => {
 
 	const onSubmit = ({ fileId, ...rest }: any) => {
 		mutation.mutate({
+			tableId,
 			appName,
 			pageName,
 			tableName: rest.name,
