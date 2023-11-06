@@ -24,11 +24,11 @@ class SelectBaseProperties(BaseModel):
     label: Optional[str]
     # ui logic
     required: Optional[bool]
-    validation: Optional[str]
+    validation_rules: Optional[List[Dict]]
     # ui options
     default: Optional[Any]
     # ui events
-    rules: Optional[List[Dict]]
+    display_rules: Optional[List[Dict]]
     # server calls
     on_change: Optional[str]
 
