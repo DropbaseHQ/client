@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from server.schemas import FinalizeApp
 from server.utils.connect import get_db
 from server.controllers.app import finalize_app
-from server.utils.state_context import get_state_context_payload
 from uuid import UUID
 
 router = APIRouter(prefix="/app", tags=["app"])

@@ -13,6 +13,8 @@ from server.schemas.tables import (
     UpdateTables,
     UpdateTablesRequest,
 )
+from server.controllers import tables as table_controller
+
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
@@ -50,13 +52,11 @@ def pin_filters_req(request: PinFilters, db: Session = Depends(get_db)):
 
 
 # worker
-from server.utils.state_context import get_state_context_payload
 
 
 @router.post("/")
 def create_tables(request: CreateTables, db: Session = Depends(get_db)):
-    crud.tables.create(db, obj_in=CreateTables(**request.dict()))
-    return get_state_context_payload(db, request.page_id)
+    return table_controller.create_table(db, request)
 
 
 @router.put("/properpy/{table_id}/")
@@ -68,16 +68,7 @@ def update_table_property(table_id: UUID, request: UpdateTablesRequest, db: Sess
 def update_table_columns_req(
     table_id: UUID, request: UpdateTablesRequest, db: Session = Depends(get_db)
 ):
-    table_updates = UpdateTables(**request.dict())
-    table = crud.tables.update_by_pk(db, pk=table_id, obj_in=table_updates)
-    file = crud.files.get_object_by_id_or_404(db, id=request.file_id)
-
-    # update columns
-    if request.table_columns is not None and len(request.table_columns) > 0:
-        update_table_columns(db, table, request.table_columns, file.type)
-    db.commit()
-
-    return get_state_context_payload(db, request.page_id)
+    return table_controller.update_table_columns_req(db, table_id, request)
 
 
 @router.delete("/{tables_id}")

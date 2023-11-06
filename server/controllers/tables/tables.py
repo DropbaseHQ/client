@@ -8,6 +8,13 @@ from server.controllers.tables.helper import get_row_schema
 from server.models.tables import Tables
 from server.schemas.tables import PinFilters, TablesBaseProperty
 from server.utils.converter import get_class_properties
+from server.controllers.columns import update_table_columns
+from server.schemas.tables import (
+    CreateTables,
+    UpdateTables,
+    UpdateTablesRequest,
+)
+from server.utils.state_context import get_state_context_payload
 
 
 def get_table_properties():
@@ -42,3 +49,35 @@ def pin_filters(db: Session, request: PinFilters):
     db.commit()
     db.refresh(table)
     return table
+
+
+def create_table(db: Session, request: CreateTables):
+    crud.tables.create(db, obj_in=CreateTables(**request.dict()))
+    db.commit()
+    return get_state_context_payload(db, request.page_id)
+
+
+def update_table(db: Session, request: UpdateTablesRequest):
+    # update table
+    table_updates = UpdateTables(**request.dict())
+    table = crud.tables.update_by_pk(db, pk=request.table_id, obj_in=table_updates)
+    file = crud.files.get_object_by_id_or_404(db, id=request.file_id)
+    # update columns
+    if request.table_columns is not None and len(request.table_columns) > 0:
+        update_table_columns(db, table, request.table_columns, file.type)
+
+    db.commit()
+    return get_state_context_payload(db, request.page_id)
+
+
+def update_table_columns_req(db: Session, table_id: UUID, request: UpdateTablesRequest):
+    table_updates = UpdateTables(**request.dict())
+    table = crud.tables.update_by_pk(db, pk=table_id, obj_in=table_updates)
+    file = crud.files.get_object_by_id_or_404(db, id=request.file_id)
+
+    # update columns
+    if request.table_columns is not None and len(request.table_columns) > 0:
+        update_table_columns(db, table, request.table_columns, file.type)
+    db.commit()
+
+    return get_state_context_payload(db, request.page_id)
