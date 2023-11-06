@@ -1,6 +1,5 @@
 import {
 	Button,
-	ButtonGroup,
 	Code,
 	FormControl,
 	FormLabel,
@@ -13,6 +12,7 @@ import {
 import { Play, X, Save } from 'react-feather';
 import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { MonacoEditor } from '@/components/Editor';
 import { useFile, useRunSQLQuery, useSaveSql, useSources } from '@/features/app-builder/hooks';
@@ -21,7 +21,7 @@ import { logBuilder } from '@/features/app-builder/utils';
 import { ChakraTable } from '@/components/Table';
 import { pageAtom, useGetPage } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
-import { useParams } from 'react-router-dom';
+import { DeleteFile } from '@/features/app-builder/components/FilesExplorer/DeleteFile';
 
 export const SQLEditor = ({ id }: any) => {
 	const { pageId } = useParams();
@@ -134,17 +134,24 @@ export const SQLEditor = ({ id }: any) => {
 					}}
 				/>
 			</FormControl>
-			<MonacoEditor value={code} onChange={setCode} language="sql" />
-			<ButtonGroup variant="outline" size="sm" isAttached>
-				<Button
-					w="fit-content"
+			<Stack bg="white" p="1" spacing="0" alignItems="center" direction="row">
+				<IconButton
+					icon={<Play size="14" />}
+					variant="outline"
+					size="xs"
+					colorScheme="gray"
+					aria-label="Run code"
+					borderRadius="full"
 					isLoading={runMutation.isLoading}
 					onClick={handleRun}
 					isDisabled={!selectedSource}
-					leftIcon={<Play size="14" />}
-				>
-					Run Query
-				</Button>
+					flexShrink="0"
+				/>
+
+				<MonacoEditor value={code} onChange={setCode} language="sql" />
+			</Stack>
+
+			<Stack direction="row" alignItems="center" justifyContent="space-between">
 				<Button
 					w="fit-content"
 					isLoading={saveSQLMutation.isLoading}
@@ -153,7 +160,9 @@ export const SQLEditor = ({ id }: any) => {
 				>
 					Save SQL
 				</Button>
-			</ButtonGroup>
+
+				<DeleteFile w="fit-content" id={id} name={sqlName} />
+			</Stack>
 
 			{log ? (
 				<Stack bg="white" p="2" h="full" borderRadius="sm">
