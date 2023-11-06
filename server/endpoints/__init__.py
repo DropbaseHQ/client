@@ -12,6 +12,8 @@ from .tables import router as tables_router
 from .token import router as token_router
 from .user import router as user_router
 from .widget import router as widget_router
-from .worker import router as worker_router
+
+# from .worker import router as worker_router
 from .workspace import router as workspace_router
-from .worker import router as worker_router
+
+# from .worker import router as worker_router
