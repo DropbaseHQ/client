@@ -11,12 +11,12 @@ class InputBaseProperties(BaseModel):
     label: Optional[str]
     # ui logic
     required: Optional[bool]
-    validation: Optional[str]
+    validation_rules: Optional[List[Dict]]
     # ui options
     default: Optional[Any]
     placeholder: Optional[str]
     # ui events
-    rules: Optional[List[Dict]]
+    display_rules: Optional[List[Dict]]
 
     @property
     def state(self):
