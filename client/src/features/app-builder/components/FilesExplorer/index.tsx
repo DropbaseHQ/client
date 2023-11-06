@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { Box, Button, ButtonGroup, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { Code, Table } from 'react-feather';
+import { useParams } from 'react-router-dom';
+
 import { useMonacoLoader } from '@/components/Editor';
 
 import { developerTabAtom } from '@/features/app-builder/atoms';
@@ -10,7 +12,7 @@ import { NewFile } from './NewFile';
 import { FunctionEditor } from './FunctionEditor';
 import { SQLEditor } from './SQLEditor';
 import { useGetPage } from '@/features/page';
-import { useParams } from 'react-router-dom';
+import { EditFile } from '@/features/app-builder/components/FilesExplorer/EditFile';
 
 const componentsMap: any = {
 	function: FunctionEditor,
@@ -80,7 +82,10 @@ export const FilesExplorer = () => {
 								leftIcon={isSQLFile ? <Table size="14" /> : <Code size="14" />}
 								key={f.id}
 							>
-								{f.name}
+								<Stack alignItems="center" direction="row">
+									<Box>{f.name}</Box>
+									{f.id === devTab.id ? <EditFile file={f} /> : null}
+								</Stack>
 							</Button>
 						);
 					})}
