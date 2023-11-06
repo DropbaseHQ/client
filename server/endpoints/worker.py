@@ -10,7 +10,6 @@ from server.controllers.app import finalize_app
 from server.controllers.columns import update_table_columns
 from server.controllers.tables.convert import call_gpt, fill_smart_cols_data
 from server.schemas import FinalizeApp
-from server.schemas.files import CreateFiles, UpdateFiles
 from server.schemas.tables import (
     ConvertTable,
     CreateTables,
@@ -19,7 +18,6 @@ from server.schemas.tables import (
     UpdateTables,
     UpdateTablesRequest,
 )
-from server.schemas.widget import CreateWidget
 from server.schemas.worker import SyncColumnsRequest, SyncComponentsRequest
 from server.utils.connect import get_db
 from server.utils.state_context import get_state_context_payload
