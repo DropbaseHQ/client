@@ -99,3 +99,43 @@ export const useCreateFile = (props: any = {}) => {
 		},
 	});
 };
+
+const deleteFile = async ({ pageName, fileId, fileName, appName }: any) => {
+	const response = await workerAxios.delete(`/files/${fileId}/`, {
+		data: {
+			app_name: appName,
+			page_name: pageName,
+			file_name: fileName,
+		},
+	});
+	return response.data;
+};
+
+export const useDeleteFile = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(deleteFile, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
+		},
+	});
+};
+
+const updateFile = async ({ pageName, fileId, fileName, appName }: any) => {
+	const response = await workerAxios.put(`/files/${fileId}/`, {
+		app_name: appName,
+		page_name: pageName,
+		file_name: fileName,
+	});
+	return response.data;
+};
+
+export const useUpdateFile = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(updateFile, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
+		},
+	});
+};

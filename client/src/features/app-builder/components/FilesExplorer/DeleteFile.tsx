@@ -13,15 +13,18 @@ import {
 	useDisclosure,
 } from '@chakra-ui/react';
 
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 
 import { Trash } from 'react-feather';
-// import { useToast } from '@/lib/chakra-ui';
-// import { useDeleteFunction } from '@/features/new-app-builder/hooks';
-import { developerTabAtom } from '@/features/app-builder/atoms';
 
-export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
-	// const toast = useToast();
+import { useToast } from '@/lib/chakra-ui';
+import { developerTabAtom } from '@/features/app-builder/atoms';
+import { useDeleteFile } from '@/features/app-builder/hooks';
+import { pageAtom } from '@/features/page';
+
+export const DeleteFile = ({ name, id, ...props }: any) => {
+	const toast = useToast();
+	const { appName, pageName } = useAtomValue(pageAtom);
 
 	const setDevTab = useSetAtom(developerTabAtom);
 
@@ -34,21 +37,24 @@ export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
 		},
 	});
 
-	// const mutation = useDeleteFunction({
-	// 	onSuccess: () => {
-	// 		onClose();
-	// 		toast({
-	// 			status: 'success',
-	// 			title: 'Function Deleted',
-	// 		});
-	// 	},
-	// });
+	const mutation = useDeleteFile({
+		onSuccess: () => {
+			onClose();
+			toast({
+				status: 'success',
+				title: 'File Deleted',
+			});
+		},
+	});
 
 	const onSubmit = (e: any) => {
 		e?.preventDefault();
-		// mutation.mutate({
-		// 	functionId,
-		// });
+		mutation.mutate({
+			pageName,
+			appName,
+			fileName: name,
+			fileId: id,
+		});
 	};
 
 	return (
@@ -58,7 +64,7 @@ export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
 					aria-label="Delete function"
 					leftIcon={<Trash size="14" />}
 					onClick={onToggle}
-					// isLoading={mutation.isLoading}
+					isLoading={mutation.isLoading}
 					colorScheme="red"
 					size="sm"
 					variant="outline"
@@ -76,9 +82,7 @@ export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
 					<PopoverArrow />
 					<PopoverCloseButton />
 					<form onSubmit={onSubmit}>
-						<PopoverBody>
-							Are you sure you want to delete {functionName} function?
-						</PopoverBody>
+						<PopoverBody>Are you sure you want to delete {name}?</PopoverBody>
 						<PopoverFooter
 							border="0"
 							display="flex"
@@ -92,7 +96,7 @@ export const DeleteFunction = ({ functionId, functionName, ...props }: any) => {
 								<Button
 									colorScheme="red"
 									type="submit"
-									// isLoading={mutation.isLoading}
+									isLoading={mutation.isLoading}
 								>
 									Delete
 								</Button>

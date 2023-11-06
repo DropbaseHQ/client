@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom';
 import { usePythonEditor } from '@/components/Editor';
 import { useFile, usePageFiles } from '@/features/app-builder/hooks';
 import { pageAtom, useGetPage } from '@/features/page';
-import { DeleteFunction } from './DeleteFunction';
+import { DeleteFile } from './DeleteFile';
 import { FunctionTerminal } from './FunctionTerminal';
 
 const PythonEditorLSP = ({ code: defaultCode, filePath }: any) => {
@@ -62,12 +62,7 @@ export const FunctionEditor = ({ id }: any) => {
 		<Stack p="3" w="full" spacing="2">
 			<PythonEditorLSP code={code} filePath={filePath} key={id} />
 
-			<DeleteFunction
-				w="fit-content"
-				variant="outline"
-				functionId={id}
-				functionName={functionName}
-			/>
+			<DeleteFile w="fit-content" id={id} name={functionName} />
 
 			<FunctionTerminal />
 		</Stack>
