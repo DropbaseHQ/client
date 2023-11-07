@@ -1,16 +1,22 @@
-from fastapi import APIRouter, Depends
-from server import crud
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
+
+from server import crud
 from server.schemas.files import CreateFiles, UpdateFiles
 from server.utils.connect import get_db
-from uuid import UUID
 
 router = APIRouter(prefix="/files", tags=["files"])
 
 
 @router.post("/")
-def create_file(request: CreateFiles, db: Session = Depends(get_db)):
-    return crud.files.create(db, obj_in=request)
+def create_file(request: CreateFiles, response: Response, db: Session = Depends(get_db)):
+    try:
+        return crud.files.create(db, obj_in=request)
+    except Exception as e:
+        response.status_code = 400
+        return {"message": str(e)}
 
 
 @router.put("/{file_id}")
