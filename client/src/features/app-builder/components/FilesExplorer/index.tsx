@@ -26,7 +26,6 @@ export const FilesExplorer = () => {
 	const isReady = useMonacoLoader();
 
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
-
 	useEffect(() => {
 		return () => {
 			setDevTab({
@@ -70,7 +69,7 @@ export const FilesExplorer = () => {
 			>
 				<ButtonGroup isAttached size="sm">
 					{(files || []).map((f: any) => {
-						const isSQLFile = f.type === '.sql';
+						const isSQLFile = f.type === 'sql';
 						return (
 							<Button
 								variant={f.id === devTab.id ? 'solid' : 'outline'}
