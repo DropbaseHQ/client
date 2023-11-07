@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from server.schemas.widget import CreateWidget, UpdateWidget
 from server.utils.state_context import get_state_context_payload
 from server import crud
+from uuid import UUID
 
 
 def create_widget(db: Session, request: CreateWidget):
@@ -10,9 +11,9 @@ def create_widget(db: Session, request: CreateWidget):
     return get_state_context_payload(db, widget.page_id)
 
 
-def update_widget(db: Session, request: UpdateWidget):
+def update_widget(db: Session, widget_id: UUID, request: UpdateWidget):
     request.name = request.property.name
-    widget = crud.widget.update_by_pk(db, pk=request.id, obj_in=request)
+    widget = crud.widget.update_by_pk(db, pk=widget_id, obj_in=request)
     return get_state_context_payload(db, widget.page_id)
 
 

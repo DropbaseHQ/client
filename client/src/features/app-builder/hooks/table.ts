@@ -101,7 +101,7 @@ const updateTableProperties = async ({
 	pageId,
 	state,
 }: any) => {
-	const response = await workerAxios.put(`/tables/${tableId}`, {
+	const response = await workerAxios.put(`/tables/${tableId}/`, {
 		app_name: appName,
 		page_name: pageName,
 		name: tableName,
