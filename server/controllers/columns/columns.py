@@ -5,8 +5,6 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.state.models import PgColumnDefinedProperty, PyColumnDefinedProperty
-
-# from server.controllers.state.update import update_state_context_in_worker
 from server.models.columns import Columns
 from server.schemas.columns import CreateColumns, SyncColumns, UpdateColumns
 from server.schemas.tables import ReadTables
