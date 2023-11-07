@@ -10,7 +10,7 @@ import { pageAtom, useGetPage } from '@/features/page';
 import { DeleteFile } from './DeleteFile';
 import { FunctionTerminal } from './FunctionTerminal';
 
-const PythonEditorLSP = ({ code: defaultCode, filePath }: any) => {
+const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode }: any) => {
 	const [code, setCode] = useState(defaultCode);
 
 	const editorRef = usePythonEditor({
@@ -18,6 +18,7 @@ const PythonEditorLSP = ({ code: defaultCode, filePath }: any) => {
 		code,
 		onChange: (newValue) => {
 			setCode(newValue);
+			updateCode(newValue);
 		},
 	});
 
@@ -46,6 +47,8 @@ export const FunctionEditor = ({ id }: any) => {
 		fileName: functionName,
 	});
 
+	const [updatedCode, setCode] = useState(code || '');
+
 	if (isLoading || isLoadingWorkerFiles) {
 		return (
 			<Stack p="3" spacing="2">
@@ -60,11 +63,11 @@ export const FunctionEditor = ({ id }: any) => {
 
 	return (
 		<Stack p="3" w="full" spacing="2">
-			<PythonEditorLSP code={code} filePath={filePath} key={id} />
+			<PythonEditorLSP code={code} updateCode={setCode} filePath={filePath} key={id} />
 
 			<DeleteFile w="fit-content" id={id} name={functionName} />
 
-			<FunctionTerminal />
+			<FunctionTerminal code={updatedCode} />
 		</Stack>
 	);
 };

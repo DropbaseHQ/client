@@ -39,7 +39,12 @@ export const findFunctionDeclarations = (code: string) => {
 			call: `${match.name}(${match.params.split(',').map((param: any) => {
 				const paramName = `${param.split(':')[0].trim()}`;
 
-				if (paramName === 'user_input' || paramName === 'state' || paramName === 'tables') {
+				if (
+					paramName === 'user_input' ||
+					paramName === 'state' ||
+					paramName === 'context' ||
+					paramName === 'tables'
+				) {
 					return paramName;
 				}
 
@@ -69,10 +74,10 @@ export const generateFunctionCallSuggestions = (
 
 		return {
 			suggestions: functions.map((f) => ({
-				label: `${f}`,
+				label: `${f.name}`,
 				kind: monacoLib.languages.CompletionItemKind.Function,
-				documentation: `Function call for ${f}`,
-				insertText: `${f}`,
+				documentation: `Function call for ${f.name}`,
+				insertText: `${f.call}`,
 				range,
 			})),
 		};

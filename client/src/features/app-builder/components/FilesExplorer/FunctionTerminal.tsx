@@ -7,18 +7,19 @@ import { useMonaco } from '@monaco-editor/react';
 import { useEffect, useState } from 'react';
 
 import { MonacoEditor } from '@/components/Editor';
-import { useAllPageFunctionNames, useRunFunction } from '@/features/app-builder/hooks';
+import { useRunFunction } from '@/features/app-builder/hooks';
 import { newPageStateAtom, useSyncState } from '@/features/app-state';
 import {
 	MODEL_PATH,
 	MODEL_SCHEME,
+	findFunctionDeclarations,
 	generateFunctionCallSuggestions,
 	logBuilder,
 } from '@/features/app-builder/utils';
 import { pageAtom } from '@/features/page';
 import { ChakraTable } from '@/components/Table';
 
-export const FunctionTerminal = () => {
+export const FunctionTerminal = ({ code }: any) => {
 	const { appName, pageName } = useAtomValue(pageAtom);
 
 	const monaco = useMonaco();
@@ -26,8 +27,6 @@ export const FunctionTerminal = () => {
 	const [testCode, setTestCode] = useState('');
 	const [log, setLog] = useState<any>(null);
 	const [previewData, setPreviewData] = useState<any>(null);
-
-	const { functions } = useAllPageFunctionNames({ appName, pageName });
 
 	const pageState = useAtomValue(newPageStateAtom);
 
@@ -66,12 +65,16 @@ export const FunctionTerminal = () => {
 				model: monacoLib.editor.ITextModel,
 				position: monacoLib.Position,
 			) => {
-				return generateFunctionCallSuggestions(model, position, functions);
+				return generateFunctionCallSuggestions(
+					model,
+					position,
+					findFunctionDeclarations(code),
+				);
 			},
 		});
 
 		return dispose;
-	}, [monaco, functions]);
+	}, [monaco, code]);
 
 	const handleRun = () => {
 		runMutation.mutate({
