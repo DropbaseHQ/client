@@ -117,6 +117,7 @@ export const useDeleteFile = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
+			queryClient.refetchQueries(PAGE_DATA_QUERY_KEY);
 		},
 	});
 };
@@ -137,6 +138,7 @@ export const useUpdateFile = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
+			queryClient.refetchQueries(PAGE_DATA_QUERY_KEY);
 		},
 	});
 };
