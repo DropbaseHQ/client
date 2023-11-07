@@ -10,7 +10,7 @@ const executeAction = async ({ pageName, appName, pageState, functionName }: any
 		payload: pageState,
 	});
 
-	return response.data?.result;
+	return response.data;
 };
 
 export const useExecuteAction = (props: any = {}) => {

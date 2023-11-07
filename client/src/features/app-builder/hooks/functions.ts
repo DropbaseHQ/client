@@ -24,7 +24,7 @@ export const useAllPageFunctionNames = ({ pageId }: any) => {
 
 	const info = useMemo(() => {
 		return {
-			functions: response?.files || [],
+			functions: response?.data.map((o: any) => o.name) || [],
 		};
 	}, [response]);
 

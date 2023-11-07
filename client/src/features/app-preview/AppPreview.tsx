@@ -68,6 +68,8 @@ const AppComponent = (props: any) => {
 
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
+			console.log('data');
+			console.log(data);
 			syncState(data);
 		},
 	});

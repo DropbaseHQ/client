@@ -77,7 +77,7 @@ export const NewFile = (props: any) => {
 			<Portal>
 				<PopoverContent>
 					<PopoverHeader pt={4} fontWeight="bold" border="0">
-						Create a new file
+						Create a new function
 					</PopoverHeader>
 					<PopoverArrow />
 					<PopoverCloseButton />

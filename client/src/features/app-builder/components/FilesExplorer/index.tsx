@@ -66,10 +66,11 @@ export const FilesExplorer = () => {
 				h="55px"
 				alignItems="center"
 				direction="row"
+				overflow="auto"
 			>
 				<ButtonGroup isAttached size="sm">
 					{(files || []).map((f: any) => {
-						const isSQLFile = f.name.endsWith('.sql');
+						const isSQLFile = f.type === '.sql';
 						return (
 							<Button
 								variant={f.id === devTab.id ? 'solid' : 'outline'}
@@ -83,7 +84,7 @@ export const FilesExplorer = () => {
 								key={f.id}
 							>
 								<Stack alignItems="center" direction="row">
-									<Box>{f.name}</Box>
+									<Box>{`${f.name}${f.type === 'sql' ? '.sql' : '.py'}`}</Box>
 									{f.id === devTab.id ? <EditFile file={f} /> : null}
 								</Stack>
 							</Button>

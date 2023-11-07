@@ -39,11 +39,10 @@ export const FunctionEditor = ({ id }: any) => {
 	});
 
 	const filePath = workerFiles.find((f: any) => f.endsWith(functionName));
-
 	const { isLoading, code } = useFile({
 		pageName,
 		appName,
-		fileName: functionName,
+		fileName: `${functionName}${file?.type === 'sql' ? '.sql' : '.py'}`,
 	});
 
 	if (isLoading || isLoadingWorkerFiles) {
