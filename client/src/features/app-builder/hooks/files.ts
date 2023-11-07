@@ -121,11 +121,12 @@ export const useDeleteFile = (props: any = {}) => {
 	});
 };
 
-const updateFile = async ({ pageName, fileId, fileName, appName }: any) => {
+const updateFile = async ({ pageName, fileId, fileName, appName, newFileName = null }: any) => {
 	const response = await workerAxios.put(`/files/${fileId}/`, {
 		app_name: appName,
 		page_name: pageName,
-		file_name: fileName,
+		name: fileName,
+		new_name: newFileName,
 	});
 	return response.data;
 };
