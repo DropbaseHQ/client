@@ -2,6 +2,7 @@ import { IconButton, Stack, Tooltip } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
 
 import { Save } from 'react-feather';
+import { useParams } from 'react-router-dom';
 import { useCurrentTableData, useCurrentTableId, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { cellEditsAtom } from '@/features/smart-table/atoms';
@@ -11,7 +12,6 @@ import { SortButton } from './Sorts';
 import { PinnedFilters } from './PinnedFilters';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
-import { useParams } from 'react-router-dom';
 
 export const TableBar = () => {
 	const toast = useToast();

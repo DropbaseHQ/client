@@ -39,10 +39,13 @@ import { getPGColumnBaseType } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 import { pageAtom, useGetPage } from '../page';
+import { appModeAtom } from '@/features/app/atoms';
 
 export const SmartTable = ({ tableId }: any) => {
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
+
+	const { isPreview } = useAtomValue(appModeAtom);
 
 	const [selection, setSelection] = useState({
 		rows: CompactSelection.empty(),
@@ -360,7 +363,7 @@ export const SmartTable = ({ tableId }: any) => {
 							{tableName}
 						</Text>
 
-						{!isLoading && tableIsUnsynced ? (
+						{!isLoading && !isPreview && tableIsUnsynced ? (
 							<Tooltip label="Sync columns">
 								<Button
 									colorScheme="yellow"
