@@ -83,7 +83,7 @@ def get_app_template():
         },
         "files": [
             {
-                "name": "data_fetcher.sql",
+                "name": "data_fetcher",
                 "page": "page1",
                 "source": "replica",
                 "type": "sql",
@@ -149,7 +149,7 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
                 "name": default_app_table.get("name"),
                 "page_id": new_draft_page.id,
                 "property": default_app_table.get("property"),
-                "file_id": str(default_fetcher.id),
+                # "file_id": str(default_fetcher.id),
             },
             auto_commit=False,
         )
