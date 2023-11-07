@@ -12,14 +12,14 @@ router = APIRouter(prefix="/widget", tags=["widget"])
 
 @router.post("/")
 def create_widget(request: CreateWidget, db: Session = Depends(get_db)):
-    widget_controller.create_widget(db, request)
+    return widget_controller.create_widget(db, request)
 
 
 @router.put("/{widget_id}")
 def update_widget(widget_id: UUID, request: UpdateWidget, db: Session = Depends(get_db)):
-    widget_controller.update_widget(db, widget_id, request)
+    return widget_controller.update_widget(db, widget_id, request)
 
 
 @router.delete("/{widget_id}")
 def delete_widget(widget_id: UUID, db: Session = Depends(get_db)):
-    widget_controller.delete_widget(db, widget_id)
+    return widget_controller.delete_widget(db, widget_id)
