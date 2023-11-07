@@ -52,7 +52,7 @@ export const useInitPage = () => {
 	}, [pageId]);
 
 	useEffect(() => {
-		if (!context.widgetId && !isLoading && !ref.current) {
+		if ((!context.widgetId || !ref.current) && !isLoading) {
 			setPageContext({
 				widgetId: widget?.id || null,
 				pageName,

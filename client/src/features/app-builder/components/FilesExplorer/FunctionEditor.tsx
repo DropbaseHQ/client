@@ -32,18 +32,18 @@ export const FunctionEditor = ({ id }: any) => {
 	const { files } = useGetPage(pageId);
 
 	const file = files.find((f: any) => f.id === id);
-	const functionName = file.name;
+	const fileName = `${file.name}${file.type === 'sql' ? '.sql' : '.py'}`;
 
 	const { files: workerFiles, isLoading: isLoadingWorkerFiles } = usePageFiles({
 		pageName: pageName || '',
 		appName: appName || '',
 	});
 
-	const filePath = workerFiles.find((f: any) => f.endsWith(functionName));
+	const filePath = workerFiles.find((f: any) => f.endsWith(fileName));
 	const { isLoading, code } = useFile({
 		pageName,
 		appName,
-		fileName: `${functionName}${file?.type === 'sql' ? '.sql' : '.py'}`,
+		fileName,
 	});
 
 	const [updatedCode, setCode] = useState(code || '');
@@ -64,7 +64,7 @@ export const FunctionEditor = ({ id }: any) => {
 		<Stack p="3" w="full" spacing="2">
 			<PythonEditorLSP code={code} updateCode={setCode} filePath={filePath} key={id} />
 
-			<DeleteFile w="fit-content" id={id} name={functionName} />
+			<DeleteFile w="fit-content" id={id} name={fileName} />
 
 			<FunctionTerminal file={file} code={updatedCode} />
 		</Stack>

@@ -89,7 +89,7 @@ export const useCreateWidget = (props: any = {}) => {
 
 			toast({
 				status: 'success',
-				title: 'App created',
+				title: 'Widget created',
 			});
 		},
 		onSettled: () => {
