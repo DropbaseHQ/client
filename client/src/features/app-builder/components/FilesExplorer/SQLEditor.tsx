@@ -33,10 +33,11 @@ export const SQLEditor = ({ id }: any) => {
 
 	const [selectedSource, setSource] = useState();
 
+	const fullFileName = `${sqlName}.${file?.type}`;
 	const { isLoading, code: defaultCode } = useFile({
 		pageName,
 		appName,
-		fileName: sqlName,
+		fileName: fullFileName,
 	});
 
 	const [code, setCode] = useState('');
