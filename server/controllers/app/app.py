@@ -4,8 +4,7 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.models import User
-from server.schemas import FinalizeApp
-from server.schemas import CreateApp, ReadApp, ReadPage, CreateApp
+from server.schemas import CreateApp, FinalizeApp, ReadApp, ReadPage
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
 
 
@@ -81,15 +80,6 @@ def get_app_template():
             "type": "postgres",
             "page": "page1",
         },
-        "files": [
-            {
-                "name": "data_fetcher.sql",
-                "page": "page1",
-                "source": "replica",
-                "type": "sql",
-                "code": "SELECT id, name FROM customer",
-            }
-        ],
     }
 
 
@@ -121,26 +111,6 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
         db.flush()
         default_app_page["id"] = new_draft_page.id
 
-        # Create default files
-        default_app_files = default_app_template.get("files")
-        default_fetcher = None
-        for index, file in enumerate(default_app_files):
-            new_file = crud.files.create(
-                db,
-                obj_in={
-                    "page_id": new_draft_page.id,
-                    "name": file.get("name"),
-                    "source": file.get("source"),
-                    "type": file.get("type"),
-                },
-                auto_commit=False,
-            )
-            if file.get("name") == "data_fetcher.sql":
-                db.flush()
-                default_fetcher = new_file
-            default_app_files[index]["id"] = new_file.id
-        db.flush()
-
         # Create a default table
         default_app_table = default_app_template.get("table")
         crud.tables.create(
@@ -149,7 +119,6 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
                 "name": default_app_table.get("name"),
                 "page_id": new_draft_page.id,
                 "property": default_app_table.get("property"),
-                "file_id": str(default_fetcher.id),
             },
             auto_commit=False,
         )

@@ -31,7 +31,9 @@ class TablesReadProperty(TablesBaseProperty, TableSharedProperty, TableDisplayPr
 class BaseTables(BaseModel):
     name: str
     property: TablesDefinedProperty
+    file_id: Optional[UUID]
     page_id: UUID
+    depends_on: Optional[List[str]]
 
     class Config:
         orm_mode = True
@@ -41,6 +43,7 @@ class ReadTables(BaseModel):
     id: UUID
     name: str
     property: TablesReadProperty
+    file_id: Optional[UUID]
     page_id: UUID
     depends_on: Optional[List[str]]
     date: datetime
@@ -50,6 +53,7 @@ class CreateTables(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
     page_id: UUID
+    file_id: Optional[UUID]
     depends_on: Optional[List[str]]
 
 
