@@ -16,6 +16,7 @@ import {
 	Portal,
 	useDisclosure,
 } from '@chakra-ui/react';
+import { useParams } from 'react-router-dom';
 
 import { useAtomValue } from 'jotai';
 
@@ -24,14 +25,17 @@ import { useEffect, useState } from 'react';
 
 import { useToast } from '@/lib/chakra-ui';
 import { useUpdateFile } from '@/features/app-builder/hooks';
+import { useGetPage } from '@/features/page';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 
 export const EditFile = ({ file }: any) => {
 	const toast = useToast();
 	const { appName, pageName } = useAtomValue(pageAtom);
+	const { pageId } = useParams();
 
 	const { isOpen, onToggle, onClose } = useDisclosure({});
+	const { files } = useGetPage(pageId);
 
 	const [fileName, setFileName] = useState('');
 
@@ -47,10 +51,12 @@ export const EditFile = ({ file }: any) => {
 
 	const onSubmit = (e: any) => {
 		e?.preventDefault();
+		const oldFileName = files.find((f: any) => f.id === file.id)?.name;
 		mutation.mutate({
 			pageName,
 			appName,
-			fileName,
+			fileName: oldFileName,
+			newFileName: fileName,
 			fileId: file.id,
 		});
 	};
