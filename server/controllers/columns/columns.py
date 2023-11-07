@@ -15,6 +15,7 @@ column_type_to_schema_mapper = {
     "sql": PgColumnDefinedProperty,
     "python": PyColumnDefinedProperty,
     "data_fetcher": PyColumnDefinedProperty,
+    "postgres": PgColumnDefinedProperty,
 }
 
 
