@@ -23,7 +23,7 @@ export const logBuilder = (data: any) => {
 		if (outputPreview) {
 			outputPreview += '\n';
 		}
-		outputPreview += JSON.stringify(data.result);
+		outputPreview += data.result;
 	}
 
 	return outputPreview;

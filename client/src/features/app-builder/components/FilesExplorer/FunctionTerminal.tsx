@@ -82,7 +82,7 @@ export const FunctionTerminal = ({ code, file }: any) => {
 			appName,
 			pageState,
 			code: testCode,
-			file: file.file,
+			file,
 		});
 	};
 
@@ -127,14 +127,11 @@ export const FunctionTerminal = ({ code, file }: any) => {
 							<Text fontSize="sm" letterSpacing="wide" fontWeight="medium">
 								Output
 							</Text>
-							<Code
-								w="full"
-								color="gray.500"
-								backgroundColor="inherit"
-								height={`${(log?.split('\n').length || 1) * 24}px`}
-							>
-								<pre>{log}</pre>
-							</Code>
+							<MonacoEditor
+								value={log}
+								language="shell"
+								options={{ lineNumbers: 'off' }}
+							/>
 						</Stack>
 					</Stack>
 				</Stack>
