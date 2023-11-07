@@ -31,6 +31,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
+import { useParams } from 'react-router-dom';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
@@ -42,7 +43,9 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const { type, property: properties } = values.find((v: any) => v.id === id) || {};
 	const currentCategories = (categories as any)?.[type] || [];
 
-	const { functions } = useAllPageFunctionNames({ pageName, appName });
+	const { pageId } = useParams();
+
+	const { functions } = useAllPageFunctionNames({ pageId });
 
 	const methods = useForm();
 	const {

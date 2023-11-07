@@ -25,6 +25,11 @@ def get_page_data_fetchers(page_id: UUID, db: Session = Depends(get_db)):
     return crud.files.get_page_data_fetchers(db, page_id=page_id)
 
 
+@router.get("/ui_functions/{page_id}/")
+def get_page_ui_functions(page_id: UUID, db: Session = Depends(get_db)):
+    return crud.files.get_page_ui_functions(db, page_id=page_id)
+
+
 # worker
 @router.post("/")
 def create_file(request: CreateFiles, db: Session = Depends(get_db)):

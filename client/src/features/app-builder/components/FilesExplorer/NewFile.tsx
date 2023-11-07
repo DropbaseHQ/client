@@ -102,7 +102,11 @@ export const NewFile = (props: any) => {
 											value: 'data_fetcher',
 										},
 										{
-											name: 'Python (UI/Generic)',
+											name: 'Python (UI)',
+											value: 'ui',
+										},
+										{
+											name: 'Python (Generic)',
 											value: 'python',
 										},
 									]}

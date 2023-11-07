@@ -17,8 +17,9 @@ import {
 } from '@/features/app-builder/utils';
 import { pageAtom } from '@/features/page';
 import { ChakraTable } from '@/components/Table';
+import { useParams } from 'react-router-dom';
 
-export const FunctionTerminal = () => {
+export const FunctionTerminal = (file: any) => {
 	const { appName, pageName } = useAtomValue(pageAtom);
 
 	const monaco = useMonaco();
@@ -27,7 +28,9 @@ export const FunctionTerminal = () => {
 	const [log, setLog] = useState<any>(null);
 	const [previewData, setPreviewData] = useState<any>(null);
 
-	const { functions } = useAllPageFunctionNames({ appName, pageName });
+	const { pageId } = useParams();
+
+	const { functions } = useAllPageFunctionNames({ pageId });
 
 	const pageState = useAtomValue(newPageStateAtom);
 
@@ -79,6 +82,7 @@ export const FunctionTerminal = () => {
 			appName,
 			pageState,
 			code: testCode,
+			file: file.file,
 		});
 	};
 

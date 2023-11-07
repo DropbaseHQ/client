@@ -22,6 +22,15 @@ class CRUDFiles(CRUDBase[Files, CreateFiles, UpdateFiles]):
             .all()
         )
 
+    def get_page_ui_functions(self, db: Session, page_id: UUID) -> List[Files]:
+        return (
+            db.query(Files)
+            .filter(Files.page_id == str(page_id))
+            .filter(or_(Files.type == "ui"))
+            .order_by(Files.date)
+            .all()
+        )
+
     def get_page_file_by_name(self, db: Session, page_id: UUID, file_name: str) -> Files:
         return (
             db.query(Files)

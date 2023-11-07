@@ -1,25 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
 
-import { workerAxios } from '@/lib/axios';
+import { axios, workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 
 export const ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY = 'functionNames';
 
-const fetchAllPageFunctionNames = async ({ appName, pageName }: any) => {
-	const response = await workerAxios.get<any>(`files/functions/${appName}/${pageName}/context/`);
+const fetchAllPageFunctionNames = async ({ pageId }: any) => {
+	const response = await axios.get<any>(`/files/ui_functions/${pageId}/`);
+	return response;
+}
 
-	return response.data;
-};
-
-export const useAllPageFunctionNames = ({ appName, pageName }: any) => {
-	const queryKey = [ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY, appName, pageName];
+export const useAllPageFunctionNames = ({ pageId }: any) => {
+	const queryKey = [ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY, pageId];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchAllPageFunctionNames({ appName, pageName }),
+		() => fetchAllPageFunctionNames({ pageId }),
 		{
-			enabled: Boolean(pageName && appName),
+			enabled: Boolean(pageId),
 		},
 	);
 
@@ -36,12 +35,13 @@ export const useAllPageFunctionNames = ({ appName, pageName }: any) => {
 	};
 };
 
-const runPythonFunction = async ({ pageName, appName, code, pageState }: any) => {
+const runPythonFunction = async ({ pageName, appName, code, pageState, file }: any) => {
 	const response = await workerAxios.post(`run_python/run_python_string/`, {
 		page_name: pageName,
 		app_name: appName,
 		payload: pageState,
 		python_string: code,
+		file
 	});
 
 	return response.data;

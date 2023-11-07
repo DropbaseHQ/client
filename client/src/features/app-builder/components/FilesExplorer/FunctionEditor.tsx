@@ -64,7 +64,7 @@ export const FunctionEditor = ({ id }: any) => {
 
 			<DeleteFile w="fit-content" id={id} name={functionName} />
 
-			<FunctionTerminal />
+			<FunctionTerminal file={file} />
 		</Stack>
 	);
 };
