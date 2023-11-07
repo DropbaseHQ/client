@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Column, ForeignKey, String
+from sqlalchemy import TIMESTAMP, Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.sql import func, text
 
@@ -13,5 +13,7 @@ class Widget(Base):
     page_id = Column(UUID(as_uuid=True), ForeignKey("page.id", ondelete="CASCADE"))
 
     date = Column(TIMESTAMP, server_default=func.now())
+
+    __table_args__ = (UniqueConstraint("name", "page_id", name="unique_widget_name_per_page"),)
 
     __tablename__ = "widget"

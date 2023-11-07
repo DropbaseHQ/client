@@ -15,6 +15,6 @@ class Files(Base):
 
     date = Column(TIMESTAMP, server_default=func.now())
 
-    UniqueConstraint("name", "page_id", name="unique_name_per_page")
+    __table_args__ = (UniqueConstraint("name", "page_id", name="unique_file_name_per_page"),)
 
     __tablename__ = "files"

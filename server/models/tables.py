@@ -1,4 +1,4 @@
-from sqlalchemy import ARRAY, TIMESTAMP, Column, ForeignKey, String
+from sqlalchemy import ARRAY, TIMESTAMP, Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.sql import func, text
 
@@ -15,5 +15,7 @@ class Tables(Base):
     depends_on = Column(ARRAY(String))
 
     date = Column(TIMESTAMP, server_default=func.now())
+
+    __table_args__ = (UniqueConstraint("name", "page_id", name="unique_table_name_per_page"),)
 
     __tablename__ = "tables"
