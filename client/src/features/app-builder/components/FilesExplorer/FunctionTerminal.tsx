@@ -1,4 +1,4 @@
-import { Code, IconButton, Stack, Text } from '@chakra-ui/react';
+import { IconButton, Stack, Text } from '@chakra-ui/react';
 import { Play, X } from 'react-feather';
 import * as monacoLib from 'monaco-editor';
 import { useAtomValue } from 'jotai';
@@ -29,7 +29,6 @@ export const FunctionTerminal = ({ code, file }: any) => {
 	const [previewData, setPreviewData] = useState<any>(null);
 
 	const pageState = useAtomValue(newPageStateAtom);
-
 	const syncState = useSyncState();
 
 	const resetRunData = () => {
