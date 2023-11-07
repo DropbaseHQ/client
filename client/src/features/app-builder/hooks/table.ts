@@ -218,7 +218,7 @@ export const useRunSQLQuery = (props: any = {}) => {
 };
 
 const saveSql = async ({ pageName, appName, fileName, fileId, sql, source }: any) => {
-	const response = await workerAxios.post(`files/update_file/`, {
+	const response = await workerAxios.put(`files/${fileId}/`, {
 		page_name: pageName,
 		app_name: appName,
 		name: fileName,

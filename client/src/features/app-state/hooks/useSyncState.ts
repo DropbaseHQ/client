@@ -8,7 +8,7 @@ export const useSyncState = () => {
 
 	const handleSyncState = useCallback(
 		(data: any) => {
-			if (data?.context) {
+			if (data?.context && data?.success) {
 				const { widgets, ...other } = data.context;
 
 				setWidgetState((s) => ({ ...s, state: widgets || {} }));

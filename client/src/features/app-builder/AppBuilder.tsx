@@ -18,9 +18,9 @@ export const AppBuilder = () => {
 	return (
 		<Stack spacing="0" h="full">
 			<AppNavbar />
-			<Box h="full" overflowY="auto">
+			<Box h="full" w="full" overflowY="auto">
 				<Stack spacing="0" divider={<StackDivider />} direction="row" w="full" h="full">
-					<Box flex="1" h="full">
+					<Box flex="3" h="full">
 						<PanelGroup autoSaveId="main-panel" direction="vertical">
 							<Panel defaultSize={45}>
 								<PanelGroup autoSaveId="data-panel" direction="horizontal">

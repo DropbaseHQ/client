@@ -111,7 +111,7 @@ export const FunctionTerminal = (file: any) => {
 			</Stack>
 
 			{log ? (
-				<Stack bg="white" p="2" h="full" borderRadius="sm">
+				<Stack bg="white" p="2" maxW="container.xl" w="full" h="full" borderRadius="sm">
 					<Stack direction="row" alignItems="start">
 						<IconButton
 							aria-label="Close output"
@@ -123,7 +123,7 @@ export const FunctionTerminal = (file: any) => {
 							onClick={() => setLog(null)}
 						/>
 
-						<Stack>
+						<Stack w="full" overflow="auto">
 							<Text fontSize="sm" letterSpacing="wide" fontWeight="medium">
 								Output
 							</Text>
@@ -131,7 +131,6 @@ export const FunctionTerminal = (file: any) => {
 								w="full"
 								color="gray.500"
 								backgroundColor="inherit"
-								overflow="auto"
 								height={`${(log?.split('\n').length || 1) * 24}px`}
 							>
 								<pre>{log}</pre>
