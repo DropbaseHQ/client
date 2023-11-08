@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List, Dict
 
 from pydantic import BaseModel
 
@@ -22,6 +22,7 @@ class ButtonBaseProperties(BaseModel):
     # server call
     on_click: Optional[str]
     # = Field(..., description="function", Optional=True)
+    display_rules: Optional[List[Dict]]
 
 
 class ButtonDefinedProperty(ButtonBaseProperties, ButtonSharedProperties):
