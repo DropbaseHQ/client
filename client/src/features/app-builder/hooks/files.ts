@@ -4,6 +4,7 @@ import { workerAxios } from '@/lib/axios';
 
 import { PAGE_DATA_QUERY_KEY } from '@/features/page';
 import { ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY } from './functions';
+import { useToast } from '@/lib/chakra-ui';
 
 export const ALL_PAGE_FILES_QUERY_KEY = 'allFiles';
 
@@ -134,9 +135,17 @@ const updateFile = async ({ pageName, fileId, fileName, appName, newFileName = n
 };
 
 export const useUpdateFile = (props: any = {}) => {
+	const toast = useToast();
 	const queryClient = useQueryClient();
 	return useMutation(updateFile, {
 		...props,
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to create function',
+				description: error?.response?.message || error?.message,
+			});
+		},
 		onSettled: () => {
 			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
 			queryClient.refetchQueries(PAGE_DATA_QUERY_KEY);

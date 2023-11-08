@@ -16,12 +16,12 @@ import {
 import { Plus } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
+import { useParams } from 'react-router-dom';
 
 import { useCreateFile, usePageFiles, useSources } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
 import { pageAtom } from '@/features/page';
-import { useParams } from 'react-router-dom';
 
 export const NewFile = (props: any) => {
 	const toast = useToast();
@@ -38,7 +38,11 @@ export const NewFile = (props: any) => {
 		appName: appName || '',
 	});
 
-	const { isOpen, onToggle, onClose } = useDisclosure();
+	const { isOpen, onToggle, onClose } = useDisclosure({
+		onClose: () => {
+			methods.reset();
+		},
+	});
 
 	const mutation = useCreateFile({
 		onSuccess: () => {
@@ -46,10 +50,11 @@ export const NewFile = (props: any) => {
 				title: 'File created successfully',
 			});
 			refetch();
-			methods.reset();
 			onClose();
 		},
 	});
+
+	const currentType = methods.watch('type');
 
 	const onSubmit = ({ type, name, source }: any) => {
 		mutation.mutate({
@@ -115,15 +120,17 @@ export const NewFile = (props: any) => {
 									id="type"
 								/>
 
-								<FormInput
-									size="sm"
-									flex="1"
-									maxW="sm"
-									type="select"
-									options={sources.map((s) => ({ name: s, value: s }))}
-									name="source"
-									id="source"
-								/>
+								{currentType === 'sql' ? (
+									<FormInput
+										size="sm"
+										flex="1"
+										maxW="sm"
+										type="select"
+										options={sources.map((s) => ({ name: s, value: s }))}
+										name="source"
+										id="source"
+									/>
+								) : null}
 							</PopoverBody>
 							<PopoverFooter
 								border="0"
