@@ -64,7 +64,7 @@ export const FunctionEditor = ({ id }: any) => {
 		<Stack p="3" w="full" spacing="2">
 			<PythonEditorLSP code={code} updateCode={setCode} filePath={filePath} key={id} />
 
-			<DeleteFile w="fit-content" id={id} name={fileName} />
+			<DeleteFile w="fit-content" id={id} name={fileName} type={'py'} />
 
 			<FunctionTerminal file={file} code={updatedCode} />
 		</Stack>

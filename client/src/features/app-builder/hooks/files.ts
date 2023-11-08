@@ -100,12 +100,13 @@ export const useCreateFile = (props: any = {}) => {
 	});
 };
 
-const deleteFile = async ({ pageName, fileId, fileName, appName }: any) => {
+const deleteFile = async ({ pageName, fileId, fileType, fileName, appName }: any) => {
 	const response = await workerAxios.delete(`/files/${fileId}/`, {
 		data: {
 			app_name: appName,
 			page_name: pageName,
 			file_name: fileName,
+			type: fileType,
 		},
 	});
 	return response.data;

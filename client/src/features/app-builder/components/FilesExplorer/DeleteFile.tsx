@@ -22,7 +22,7 @@ import { developerTabAtom } from '@/features/app-builder/atoms';
 import { useDeleteFile } from '@/features/app-builder/hooks';
 import { pageAtom } from '@/features/page';
 
-export const DeleteFile = ({ name, id, ...props }: any) => {
+export const DeleteFile = ({ name, id, type, ...props }: any) => {
 	const toast = useToast();
 	const { appName, pageName } = useAtomValue(pageAtom);
 
@@ -54,6 +54,7 @@ export const DeleteFile = ({ name, id, ...props }: any) => {
 			appName,
 			fileName: name,
 			fileId: id,
+			fileType: type,
 		});
 	};
 

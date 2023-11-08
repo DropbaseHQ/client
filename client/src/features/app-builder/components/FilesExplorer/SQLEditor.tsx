@@ -94,6 +94,7 @@ export const SQLEditor = ({ id }: any) => {
 			sql: code,
 			source: selectedSource,
 			fileId: id,
+			fileType: file.type,
 		});
 	};
 
@@ -162,7 +163,7 @@ export const SQLEditor = ({ id }: any) => {
 					Save SQL
 				</Button>
 
-				<DeleteFile w="fit-content" id={id} name={sqlName} />
+				<DeleteFile w="fit-content" id={id} name={sqlName} type="sql" />
 			</Stack>
 
 			{log ? (
