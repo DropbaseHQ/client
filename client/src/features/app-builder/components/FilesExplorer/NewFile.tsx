@@ -74,7 +74,7 @@ export const NewFile = (props: any) => {
 		methods.setValue(
 			'name',
 			generateSequentialName({
-				currentNames: files.map((f) => f.name),
+				currentNames: files.map((f: any) => f.name),
 				prefix: 'function',
 			}),
 		);
