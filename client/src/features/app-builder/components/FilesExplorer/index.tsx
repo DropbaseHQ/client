@@ -1,7 +1,17 @@
 import { useEffect } from 'react';
 import { useAtom } from 'jotai';
-import { Box, Button, ButtonGroup, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
-import { Code, Table } from 'react-feather';
+import {
+	Box,
+	Button,
+	ButtonGroup,
+	Center,
+	Icon,
+	Skeleton,
+	Stack,
+	Text,
+	useDisclosure,
+} from '@chakra-ui/react';
+import { Code, Table, Box as BoxIcon } from 'react-feather';
 import { useParams } from 'react-router-dom';
 
 import { useMonacoLoader } from '@/components/Editor';
@@ -12,11 +22,69 @@ import { NewFile } from './NewFile';
 import { FunctionEditor } from './FunctionEditor';
 import { SQLEditor } from './SQLEditor';
 import { useGetPage } from '@/features/page';
-import { EditFile } from '@/features/app-builder/components/FilesExplorer/EditFile';
+import { DeleteFile } from './DeleteFile';
 
 const componentsMap: any = {
 	function: FunctionEditor,
 	sql: SQLEditor,
+};
+
+const FileButton = ({ file }: any) => {
+	const [devTab, setDevTab] = useAtom(developerTabAtom);
+	const { isOpen: mouseOver, onClose, onOpen } = useDisclosure();
+
+	const isSQLFile = file.type === 'sql';
+	const fileName = `${file.name}${isSQLFile ? '.sql' : '.py'}`;
+	const isActive = file.id === devTab.id;
+
+	const colorScheme = isSQLFile ? 'teal' : 'purple';
+
+	let icon = Code;
+
+	switch (file.type) {
+		case 'data_fetcher':
+		case 'sql':
+			icon = Table;
+			break;
+		case 'ui':
+			icon = BoxIcon;
+			break;
+		default:
+	}
+
+	return (
+		<Button
+			onMouseEnter={onOpen}
+			onMouseLeave={onClose}
+			onMouseOver={onOpen}
+			color=""
+			variant={isActive ? 'solid' : 'outline'}
+			onClick={() => {
+				setDevTab({
+					type: isSQLFile ? 'sql' : 'function',
+					id: file.id,
+				});
+			}}
+			key={file.id}
+		>
+			<Stack alignItems="center" direction="row">
+				{mouseOver ? (
+					<DeleteFile
+						w="fit-content"
+						id={file.id}
+						name={fileName}
+						type={isSQLFile ? 'sql' : 'py'}
+					/>
+				) : (
+					<Icon color={isActive ? `${colorScheme}.500` : ''} as={icon} boxSize={4} />
+				)}
+				<Box>{file.name}</Box>
+				<Box fontSize="2xs" px="1" borderRadius="sm" bg={`${colorScheme}.200`}>
+					{isSQLFile ? '.sql' : '.py'}
+				</Box>
+			</Stack>
+		</Button>
+	);
 };
 
 export const FilesExplorer = () => {
@@ -26,6 +94,7 @@ export const FilesExplorer = () => {
 	const isReady = useMonacoLoader();
 
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
+
 	useEffect(() => {
 		return () => {
 			setDevTab({
@@ -67,27 +136,9 @@ export const FilesExplorer = () => {
 				direction="row"
 				overflow="auto"
 			>
-				<ButtonGroup isAttached size="sm">
+				<ButtonGroup colorScheme="gray" isAttached size="sm">
 					{(files || []).map((f: any) => {
-						const isSQLFile = f.type === 'sql';
-						return (
-							<Button
-								variant={f.id === devTab.id ? 'solid' : 'outline'}
-								onClick={() => {
-									setDevTab({
-										type: isSQLFile ? 'sql' : 'function',
-										id: f.id,
-									});
-								}}
-								leftIcon={isSQLFile ? <Table size="14" /> : <Code size="14" />}
-								key={f.id}
-							>
-								<Stack alignItems="center" direction="row">
-									<Box>{`${f.name}${f.type === 'sql' ? '.sql' : '.py'}`}</Box>
-									{f.id === devTab.id ? <EditFile file={f} /> : null}
-								</Stack>
-							</Button>
-						);
+						return <FileButton file={f} key={f.id} />;
 					})}
 					<NewFile variant="outline" />
 				</ButtonGroup>

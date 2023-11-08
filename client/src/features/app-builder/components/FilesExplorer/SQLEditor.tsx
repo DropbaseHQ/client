@@ -21,7 +21,6 @@ import { logBuilder } from '@/features/app-builder/utils';
 import { ChakraTable } from '@/components/Table';
 import { pageAtom, useGetPage } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
-import { DeleteFile } from '@/features/app-builder/components/FilesExplorer/DeleteFile';
 
 export const SQLEditor = ({ id }: any) => {
 	const { pageId } = useParams();
@@ -121,22 +120,34 @@ export const SQLEditor = ({ id }: any) => {
 
 	return (
 		<Stack p="3" spacing="3">
-			<FormControl>
-				<FormLabel>Source</FormLabel>
-				<InputRenderer
+			<Stack alignItems="start" direction="row">
+				<FormControl>
+					<FormLabel>Source</FormLabel>
+					<InputRenderer
+						size="sm"
+						flex="1"
+						maxW="sm"
+						type="select"
+						placeholder="Sources"
+						value={selectedSource}
+						options={sources.map((s) => ({ name: s, value: s }))}
+						onChange={(newSelectedSource: any) => {
+							setSource(newSelectedSource);
+						}}
+					/>
+				</FormControl>
+				<Button
+					w="fit-content"
+					isLoading={saveSQLMutation.isLoading}
+					onClick={handleSave}
+					variant="outline"
 					size="sm"
-					flex="1"
-					maxW="sm"
-					type="select"
-					placeholder="Sources"
-					value={selectedSource}
-					options={sources.map((s) => ({ name: s, value: s }))}
-					onChange={(newSelectedSource: any) => {
-						setSource(newSelectedSource);
-					}}
-				/>
-			</FormControl>
-			<Stack bg="white" p="1" spacing="0" alignItems="center" direction="row">
+					leftIcon={<Save size="14" />}
+				>
+					Update
+				</Button>
+			</Stack>
+			<Stack bg="white" p="1" spacing="0" alignItems="start" direction="row">
 				<IconButton
 					icon={<Play size="14" />}
 					variant="outline"
@@ -151,19 +162,6 @@ export const SQLEditor = ({ id }: any) => {
 				/>
 
 				<MonacoEditor value={code} onChange={setCode} language="sql" />
-			</Stack>
-
-			<Stack direction="row" alignItems="center" justifyContent="space-between">
-				<Button
-					w="fit-content"
-					isLoading={saveSQLMutation.isLoading}
-					onClick={handleSave}
-					leftIcon={<Save size="14" />}
-				>
-					Save SQL
-				</Button>
-
-				<DeleteFile w="fit-content" id={id} name={sqlName} type="sql" />
 			</Stack>
 
 			{log ? (

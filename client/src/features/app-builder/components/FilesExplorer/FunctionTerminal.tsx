@@ -87,7 +87,7 @@ export const FunctionTerminal = ({ code, file }: any) => {
 
 	return (
 		<Stack w="full" spacing="1">
-			<Stack bg="white" p="1" spacing="0" alignItems="center" direction="row">
+			<Stack bg="white" p="1" spacing="0" alignItems="start" direction="row">
 				<IconButton
 					icon={<Play size="14" />}
 					variant="outline"

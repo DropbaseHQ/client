@@ -1,6 +1,7 @@
 import {
 	Button,
 	ButtonGroup,
+	Icon,
 	Popover,
 	PopoverArrow,
 	PopoverBody,
@@ -15,7 +16,7 @@ import {
 
 import { useAtomValue, useSetAtom } from 'jotai';
 
-import { Trash } from 'react-feather';
+import { X } from 'react-feather';
 
 import { useToast } from '@/lib/chakra-ui';
 import { developerTabAtom } from '@/features/app-builder/atoms';
@@ -61,18 +62,25 @@ export const DeleteFile = ({ name, id, type, ...props }: any) => {
 	return (
 		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur={false}>
 			<PopoverTrigger>
-				<Button
+				<Icon
 					aria-label="Delete function"
-					leftIcon={<Trash size="14" />}
-					onClick={onToggle}
+					as={X}
+					onClick={(e) => {
+						e.stopPropagation();
+						onToggle();
+					}}
 					isLoading={mutation.isLoading}
-					colorScheme="red"
-					size="sm"
+					boxSize={4}
+					p={0.5}
+					borderRadius="full"
+					borderWidth="1px"
+					borderColor="gray.500"
 					variant="outline"
+					_hover={{
+						bg: 'gray.100',
+					}}
 					{...props}
-				>
-					Delete
-				</Button>
+				/>
 			</PopoverTrigger>
 
 			<Portal>
