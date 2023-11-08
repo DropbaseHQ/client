@@ -17,11 +17,13 @@ import { Plus } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
+import { useEffect } from 'react';
 
 import { useCreateFile, usePageFiles, useSources } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
-import { pageAtom } from '@/features/page';
+import { pageAtom, useGetPage } from '@/features/page';
+import { generateSequentialName } from '@/utils';
 
 export const NewFile = (props: any) => {
 	const toast = useToast();
@@ -30,6 +32,7 @@ export const NewFile = (props: any) => {
 	const { pageId } = useParams();
 
 	const { sources } = useSources();
+	const { files } = useGetPage(pageId);
 
 	const { pageName, appName } = useAtomValue(pageAtom);
 
@@ -66,6 +69,16 @@ export const NewFile = (props: any) => {
 			source,
 		});
 	};
+
+	useEffect(() => {
+		methods.setValue(
+			'name',
+			generateSequentialName({
+				currentNames: files.map((f) => f.name),
+				prefix: 'function',
+			}),
+		);
+	}, [methods, isOpen, files]);
 
 	return (
 		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur={false}>
