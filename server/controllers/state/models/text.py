@@ -17,8 +17,20 @@ class TextBaseProperties(BaseModel):
     text: Optional[str]
     size: Optional[Literal["small", "medium", "large"]]
     color: Optional[
-        Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]
+        Literal[
+            "red",
+            "blue",
+            "green",
+            "yellow",
+            "black",
+            "white",
+            "grey",
+            "orange",
+            "purple",
+            "pink",
+        ]
     ]
+    display_rules: Optional[List[Dict]]
 
 
 class TextDefinedProperty(TextBaseProperties, TextSharedProperties):
