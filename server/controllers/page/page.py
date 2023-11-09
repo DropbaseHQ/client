@@ -31,7 +31,9 @@ def get_page_schema(db: Session, page_id: UUID):
         for col in columns:
             column_class = column_type_to_schema_mapper.get(file.type)
             col_state = column_class(**col.property)
-            state["tables"][table.name]["columns"][col.property["name"]] = col_state.dict()
+            state["tables"][table.name]["columns"][
+                col.property["name"]
+            ] = col_state.dict()
 
     # get user input schema
     widget = crud.widget.get_page_widget(db, page_id=page_id)
@@ -55,45 +57,46 @@ def get_page_schema(db: Session, page_id: UUID):
     return {"tables": table_schema, "user_input": user_input, "state": state}
 
 
-def order_tables(tables):
-    """
-    Tables are sorted using their property.appears_after field.
-    We use a DFS to find chains of tables that depend on each other first.
-    Then we reverse the order of objects within each chain.
-    We then flatten the list of chains to get the final order.
-    """
+# def order_tables(tables):
+#     """
+#     Tables are sorted using their property.appears_after field.
+#     We use a DFS to find chains of tables that depend on each other first.
+#     Then we reverse the order of objects within each chain.
+#     We then flatten the list of chains to get the final order.
+#     """
 
-    def dfs(node, chain):
-        if node not in visited:
-            visited.add(node)
-            chain.append(node)
+#     def dfs(node, chain):
+#         if node not in visited:
+#             visited.add(node)
+#             chain.append(node)
 
-            next_node_data = name_to_dependency.get(node)
-            next_node_appears_after = next_node_data.get("appears_after")
-            if next_node_appears_after:
-                dfs(next_node_appears_after, chain)
+#             next_node_data = name_to_dependency.get(node)
+#             next_node_appears_after = next_node_data.get("appears_after")
+#             if next_node_appears_after:
+#                 dfs(next_node_appears_after, chain)
 
-    name_to_dependency = {
-        item.name: {"appears_after": item.property.get("appears_after"), "item": item} for item in tables
-    }
-    visited = set()
-    chains = []
+#     name_to_dependency = {
+#         item.name: {"appears_after": item.property.get("appears_after"), "item": item}
+#         for item in tables
+#     }
+#     visited = set()
+#     chains = []
 
-    for node in name_to_dependency.keys():
-        if node not in visited:
-            chain = []
-            dfs(node, chain)
-            chains.append(chain)
+#     for node in name_to_dependency.keys():
+#         if node not in visited:
+#             chain = []
+#             dfs(node, chain)
+#             chains.append(chain)
 
-    for i in range(len(chains)):
-        chains[i] = chains[i][::-1]
+#     for i in range(len(chains)):
+#         chains[i] = chains[i][::-1]
 
-    final_tables = []
-    for chain in chains:
-        for table_name in chain:
-            final_tables.append(name_to_dependency.get(table_name).get("item"))
+#     final_tables = []
+#     for chain in chains:
+#         for table_name in chain:
+#             final_tables.append(name_to_dependency.get(table_name).get("item"))
 
-    return final_tables
+#     return final_tables
 
 
 def get_page_details(db: Session, page_id: str):
@@ -102,4 +105,10 @@ def get_page_details(db: Session, page_id: str):
     tables = crud.tables.get_page_tables(db, page_id=page_id)
     widget = crud.widget.get_page_widget(db, page_id=page_id)
     files = crud.files.get_page_files(db, page_id=page.id)
-    return {"page": page, "app": app, "widget": widget, "tables": order_tables(tables), "files": files}
+    return {
+        "page": page,
+        "app": app,
+        "widget": widget,
+        "tables": tables,
+        "files": files,
+    }
