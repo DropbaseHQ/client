@@ -23,7 +23,6 @@ import { FunctionEditor } from './FunctionEditor';
 import { SQLEditor } from './SQLEditor';
 import { useGetPage } from '@/features/page';
 import { DeleteFile } from './DeleteFile';
-import { EditFile } from './EditFile';
 
 const componentsMap: any = {
 	function: FunctionEditor,
@@ -83,7 +82,6 @@ const FileButton = ({ file }: any) => {
 				<Box fontSize="2xs" px="1" borderRadius="sm" bg={`${colorScheme}.200`}>
 					{isSQLFile ? '.sql' : '.py'}
 				</Box>
-				<EditFile file={file} />
 			</Stack>
 		</Button>
 	);
