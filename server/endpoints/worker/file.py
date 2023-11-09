@@ -31,6 +31,16 @@ def update_name(request: RenameFile, db: Session = Depends(get_db)):
     return file
 
 
+@router.put("/source")
+def update_source(request: CreateFiles, db: Session = Depends(get_db)):
+    file = crud.files.get_page_file_by_name(
+        db, page_id=request.page_id, file_name=request.name
+    )
+    file.source = request.source
+    db.commit()
+    return file
+
+
 @router.put("/{file_id}")
 def update_file_request(
     file_id: UUID, request: UpdateFiles, db: Session = Depends(get_db)

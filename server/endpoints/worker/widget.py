@@ -3,7 +3,6 @@ from server import crud
 from sqlalchemy.orm import Session
 from server.schemas.widget import CreateWidget, UpdateWidget, WidgetBaseProperty
 from server.controllers import widget as widget_controller
-from server.utils.state_context import get_state_context_payload
 from server.utils.connect import get_db
 from uuid import UUID
 
@@ -16,7 +15,9 @@ def create_widget(request: CreateWidget, db: Session = Depends(get_db)):
 
 
 @router.put("/{widget_id}")
-def update_widget(widget_id: UUID, request: UpdateWidget, db: Session = Depends(get_db)):
+def update_widget(
+    widget_id: UUID, request: UpdateWidget, db: Session = Depends(get_db)
+):
     return widget_controller.update_widget(db, widget_id, request)
 
 

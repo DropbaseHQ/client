@@ -35,22 +35,3 @@ def get_widget(widget_id: UUID, db: Session = Depends(get_db)):
     widget = crud.widget.get_object_by_id_or_404(db, id=widget_id)
     widget_props = get_class_properties(WidgetBaseProperty)
     return {"schema": widget_props, "values": widget}
-
-
-# worker facing endpoints
-from server.utils.state_context import get_state_context_payload
-
-
-@router.post("/")
-def create_widget(request: CreateWidget, db: Session = Depends(get_db)):
-    widget_controller.create_widget(db, request)
-
-
-@router.put("/{widget_id}")
-def update_widget(widget_id: UUID, request: UpdateWidget, db: Session = Depends(get_db)):
-    widget_controller.update_widget(db, widget_id, request)
-
-
-@router.delete("/{widget_id}")
-def delete_widget(widget_id: UUID, db: Session = Depends(get_db)):
-    widget_controller.delete_widget(db, widget_id)

@@ -11,7 +11,11 @@ from server.controllers.components import (
     reorder_component,
     update_component,
 )
-from server.schemas.components import CreateComponents, ReorderComponents, UpdateComponents
+from server.schemas.components import (
+    CreateComponents,
+    ReorderComponents,
+    UpdateComponents,
+)
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 
@@ -43,19 +47,3 @@ def get_components(components_id: UUID, db: Session = Depends(get_db)):
 @router.post("/reorder")
 def reorder_components(request: ReorderComponents, db: Session = Depends(get_db)):
     return reorder_component(db, request)
-
-
-# worker endpoint
-@router.post("/")
-def create_components(request: CreateComponents, db: Session = Depends(get_db)):
-    return create_component(db, request)
-
-
-@router.put("/{components_id}")
-def update_components(components_id: UUID, request: UpdateComponents, db: Session = Depends(get_db)):
-    return update_component(db, components_id, request)
-
-
-@router.delete("/{components_id}")
-def delete_components(components_id: UUID, db: Session = Depends(get_db)):
-    return delete_component(db, components_id)

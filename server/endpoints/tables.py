@@ -51,26 +51,6 @@ def pin_filters_req(request: PinFilters, db: Session = Depends(get_db)):
     return pin_filters(db, request)
 
 
-# worker
-
-
-@router.post("/")
-def create_tables(request: CreateTables, db: Session = Depends(get_db)):
-    return table_controller.create_table(db, request)
-
-
-@router.put("/properpy/{table_id}/")
-def update_table_property(table_id: UUID, request: UpdateTablesRequest, db: Session = Depends(get_db)):
-    return crud.tables.update_by_pk(db, pk=table_id, obj_in=request)
-
-
-@router.put("/columns/{table_id}/")
-def update_table_columns_req(
-    table_id: UUID, request: UpdateTablesRequest, db: Session = Depends(get_db)
-):
-    return table_controller.update_table_columns_req(db, table_id, request)
-
-
 @router.delete("/{tables_id}")
 def delete_tables(tables_id: UUID, db: Session = Depends(get_db)):
     return crud.tables.remove(db, id=tables_id)

@@ -28,35 +28,3 @@ def get_page_data_fetchers(page_id: UUID, db: Session = Depends(get_db)):
 @router.get("/ui_functions/{page_id}/")
 def get_page_ui_functions(page_id: UUID, db: Session = Depends(get_db)):
     return crud.files.get_page_ui_functions(db, page_id=page_id)
-
-
-# worker
-@router.post("/")
-def create_file(request: CreateFiles, db: Session = Depends(get_db)):
-    return crud.files.create(db, obj_in=request)
-
-
-@router.put("/{file_id}")
-def update_file__request(file_id: UUID, request: UpdateFiles, db: Session = Depends(get_db)):
-    return crud.files.update_by_pk(db, pk=file_id, obj_in=request)
-
-
-@router.put("/source")
-def update_source(request: CreateFiles, db: Session = Depends(get_db)):
-    file = crud.files.get_page_file_by_name(db, page_id=request.page_id, file_name=request.name)
-    file.source = request.source
-    db.commit()
-    return file
-
-
-@router.put("/rename")
-def update_name(request: RenameFile, db: Session = Depends(get_db)):
-    file = crud.files.get_page_file_by_name(db, page_id=request.page_id, file_name=request.old_name)
-    file.name = request.new_name
-    db.commit()
-    return file
-
-
-@router.delete("/{file_id}")
-def delete_components(file_id: UUID, db: Session = Depends(get_db)):
-    return crud.files.remove(db, id=file_id)
