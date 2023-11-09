@@ -34,7 +34,7 @@ export const useTableData = ({
 	const depends = tables.find((t: any) => t.id === tableId)?.depends_on || [];
 
 	const tablesState = state?.state?.tables;
-
+	const tablesContext = state?.context?.tables;
 	const dependentTableData = depends.reduce(
 		(agg: any, tableName: any) => ({
 			...agg,
@@ -50,7 +50,7 @@ export const useTableData = ({
 		TABLE_DATA_QUERY_KEY,
 		appName,
 		pageName,
-		state?.state?.tables,
+		tablesContext,
 		type,
 		JSON.stringify({ filters, sorts, dependentTableData, file, table }),
 	];
