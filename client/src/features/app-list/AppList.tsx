@@ -166,7 +166,7 @@ export const AppList = () => {
 
 	const { handleCreateApp: handleCreateAppFlow, isLoading: createAppIsLoading } =
 		useCreateAppFlow({
-			onSuccess: (_: any) => {
+			onSuccess: () => {
 				// navigate(`/apps/${data?.app_id}/${defaultPage}/editor`);
 				refetch();
 				// setAppName('');
@@ -199,7 +199,9 @@ export const AppList = () => {
 						<Skeleton w="full" h={24} />
 					</>
 				) : (
-					apps.map((app) => <AppCard key={app.id} app={app} />)
+					apps
+						.sort((a, b) => a.name.localeCompare(b.name))
+						.map((app) => <AppCard key={app.id} app={app} />)
 				)}
 			</SimpleGrid>
 			<Modal isOpen={isOpen} onClose={onClose}>
