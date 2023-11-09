@@ -32,7 +32,9 @@ def get_table_columns(user_db_engine, table_str):
     user_query_cleaned = table_str.strip("\n ;")
 
     with user_db_engine.connect().execution_options(autocommit=True) as conn:
-        res = conn.execute(text(f"SELECT * FROM ({user_query_cleaned}) AS q LIMIT 1")).all()
+        res = conn.execute(
+            text(f"SELECT * FROM ({user_query_cleaned}) AS q LIMIT 1")
+        ).all()
     return list(res[0].keys())
 
 
@@ -45,7 +47,9 @@ def pin_filters(db: Session, request: PinFilters):
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
     table_props = table.property
     table_props["filters"] = [filter.dict() for filter in request.filters]
-    db.query(Tables).filter(Tables.id == request.table_id).update({"property": table_props})
+    db.query(Tables).filter(Tables.id == request.table_id).update(
+        {"property": table_props}
+    )
     db.commit()
     db.refresh(table)
     return table
@@ -81,3 +85,11 @@ def update_table_columns_req(db: Session, table_id: UUID, request: UpdateTablesR
     db.commit()
 
     return get_state_context_payload(db, request.page_id)
+
+
+def delete_table(db: Session, table_id: UUID):
+    table = crud.tables.get_object_by_id_or_404(db, id=table_id)
+    page_id = table.page_id
+    crud.tables.remove(db, id=table_id)
+    db.commit()
+    return get_state_context_payload(db, page_id)

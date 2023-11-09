@@ -49,8 +49,3 @@ def get_table_schema(tables_id: UUID, db: Session = Depends(get_db)):
 @router.post("/pin_filters")
 def pin_filters_req(request: PinFilters, db: Session = Depends(get_db)):
     return pin_filters(db, request)
-
-
-@router.delete("/{tables_id}")
-def delete_tables(tables_id: UUID, db: Session = Depends(get_db)):
-    return crud.tables.remove(db, id=tables_id)

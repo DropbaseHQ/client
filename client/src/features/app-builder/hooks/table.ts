@@ -154,7 +154,7 @@ export const useConvertSmartTable = (props: any = {}) => {
 };
 
 const deleteTable = async ({ tableId }: any) => {
-	const response = await axios.delete(`/tables/${tableId}`);
+	const response = await workerAxios.delete(`/tables/${tableId}`);
 	return response.data;
 };
 
