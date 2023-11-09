@@ -9,7 +9,7 @@ export const ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY = 'functionNames';
 const fetchAllPageFunctionNames = async ({ pageId }: any) => {
 	const response = await axios.get<any>(`/files/ui_functions/${pageId}/`);
 	return response;
-}
+};
 
 export const useAllPageFunctionNames = ({ pageId }: any) => {
 	const queryKey = [ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY, pageId];
@@ -19,6 +19,9 @@ export const useAllPageFunctionNames = ({ pageId }: any) => {
 		() => fetchAllPageFunctionNames({ pageId }),
 		{
 			enabled: Boolean(pageId),
+			cacheTime: 0,
+			staleTime: 9,
+			refetchInterval: 30 * 1000,
 		},
 	);
 
@@ -41,7 +44,7 @@ const runPythonFunction = async ({ pageName, appName, code, pageState, file }: a
 		app_name: appName,
 		payload: pageState,
 		python_string: code,
-		file
+		file,
 	});
 
 	return response.data;

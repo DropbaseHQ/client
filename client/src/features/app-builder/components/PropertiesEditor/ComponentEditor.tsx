@@ -15,6 +15,7 @@ import {
 	Skeleton,
 	StackDivider,
 } from '@chakra-ui/react';
+import { useParams } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
 
 import { FormInput } from '@/components/FormInput';
@@ -31,7 +32,6 @@ import { useToast } from '@/lib/chakra-ui';
 import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
-import { useParams } from 'react-router-dom';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
