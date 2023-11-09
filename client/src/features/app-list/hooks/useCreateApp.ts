@@ -64,7 +64,7 @@ const createWorkerApp = async ({
 	appId: string;
 	appTemplate: AppTemplate;
 }) => {
-	const response = await workerAxios.post('/workspace_admin/create_app', {
+	const response = await workerAxios.post('/app/', {
 		app_id: appId,
 		app_template: appTemplate,
 	});
