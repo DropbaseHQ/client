@@ -1,6 +1,7 @@
 import {
 	Button,
 	ButtonGroup,
+	IconButton,
 	Popover,
 	PopoverArrow,
 	PopoverBody,
@@ -44,11 +45,12 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 				title: 'Table Deleted',
 			});
 		},
-		onError: (response: any) => {
+		onError: (error: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to delete table',
-				description: response?.error?.message || response?.message,
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
 			});
 		},
 	});
@@ -62,18 +64,16 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 	return (
 		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur={false}>
 			<PopoverTrigger>
-				<Button
+				<IconButton
+					variant="ghost"
+					colorScheme="red"
 					aria-label="Delete table"
-					leftIcon={<Trash size="14" />}
 					onClick={onToggle}
 					isLoading={mutation.isLoading}
-					colorScheme="red"
 					size="sm"
-					variant="outline"
 					{...props}
-				>
-					Delete
-				</Button>
+					icon={<Trash size="14" />}
+				/>
 			</PopoverTrigger>
 
 			<Portal>

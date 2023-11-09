@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
-import { Stack, Box, Button } from '@chakra-ui/react';
+import { Save } from 'react-feather';
+import { Stack, Box, Text, IconButton, ButtonGroup } from '@chakra-ui/react';
 import {
 	useDataFetchers,
 	useGetTable,
@@ -42,7 +43,9 @@ export const TableProperties = () => {
 			});
 		},
 		onError: (error: any) => {
-			setErrorLog(error?.response?.data?.error || '');
+			setErrorLog(
+				error?.response?.data?.error || error?.response?.data || error?.message || '',
+			);
 		},
 	});
 
@@ -87,55 +90,63 @@ export const TableProperties = () => {
 	}
 
 	return (
-		<Stack px="3" h="full" overflowY="auto" bg="white">
-			<form onSubmit={methods.handleSubmit(onSubmit)}>
-				<FormProvider {...methods}>
-					<Stack spacing="4">
-						<FormInput id="name" name="Table Name" type="text" />
-
-						<FormInput
-							type="select"
-							id="fileId"
-							name="Fetcher"
-							placeholder="Select data fetcher"
-							validation={{ required: 'option is required' }}
-							options={(fetchers as any).map((file: any) => ({
-								name: file.name,
-								value: file.id,
-							}))}
-						/>
-
-						{errorLog ? (
-							<Box
-								fontSize="xs"
-								color="red.500"
-								bg="white"
-								p="2"
-								borderRadius="sm"
-								as="pre"
-								fontFamily="mono"
-							>
-								{errorLog}
-							</Box>
-						) : null}
-
-						<Stack direction="row" justifyContent="space-between">
-							<Button
-								size="sm"
-								w="max-content"
-								variant="outline"
-								flexGrow="0"
+		<form onSubmit={methods.handleSubmit(onSubmit)}>
+			<FormProvider {...methods}>
+				<Stack>
+					<Stack
+						py="2"
+						px="4"
+						borderBottomWidth="1px"
+						flex="1"
+						alignItems="center"
+						direction="row"
+					>
+						<Text fontWeight="semibold" size="sm">
+							Table Properties
+						</Text>
+						<ButtonGroup ml="auto" size="xs">
+							<IconButton
+								aria-label="Update component"
 								isLoading={mutation.isLoading}
 								type="submit"
-							>
-								Update
-							</Button>
+								icon={<Save size="14" />}
+							/>
 
 							<DeleteTable tableId={tableId} tableName={table?.name} />
+						</ButtonGroup>
+					</Stack>
+					<Stack px="4" py="2" h="full" overflowY="auto">
+						<Stack spacing="4">
+							<FormInput id="name" name="Table Name" type="text" />
+
+							<FormInput
+								type="select"
+								id="fileId"
+								name="Fetcher"
+								placeholder="Select data fetcher"
+								validation={{ required: 'option is required' }}
+								options={(fetchers as any).map((file: any) => ({
+									name: file.name,
+									value: file.id,
+								}))}
+							/>
+
+							{errorLog ? (
+								<Box
+									fontSize="xs"
+									color="red.500"
+									bg="white"
+									borderRadius="sm"
+									as="pre"
+									fontFamily="mono"
+								>
+									{errorLog}
+								</Box>
+							) : null}
 						</Stack>
 					</Stack>
-				</FormProvider>
-			</form>
-		</Stack>
+				</Stack>
+			</FormProvider>
+		</form>
 	);
 };

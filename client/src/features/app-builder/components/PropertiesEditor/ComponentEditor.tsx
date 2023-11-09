@@ -69,11 +69,12 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 			refetch();
 		},
-		onError: (response: any) => {
+		onError: (error: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to update component properties',
-				description: response?.error?.message || response?.message,
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
 			});
 		},
 	});

@@ -81,11 +81,12 @@ export const SQLEditor = ({ id }: any) => {
 				title: 'Updated SQL',
 			});
 		},
-		onError: (response: any) => {
+		onError: (error: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to update SQL',
-				description: response?.error?.message || response?.message,
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
 			});
 		},
 	});

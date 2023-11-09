@@ -145,7 +145,8 @@ export const useUpdateFile = (props: any = {}) => {
 			toast({
 				status: 'error',
 				title: 'Failed to create function',
-				description: error?.response?.message || error?.message,
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
 			});
 		},
 		onSettled: () => {

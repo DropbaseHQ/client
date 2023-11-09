@@ -20,11 +20,12 @@ export const NewTable = (props: any) => {
 				title: 'Table created',
 			});
 		},
-		onError: (e: any) => {
+		onError: (error: any) => {
 			toast({
 				status: 'error',
 				title: 'Create table failed',
-				description: e?.response?.message || e?.message,
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
 			});
 		},
 	});
