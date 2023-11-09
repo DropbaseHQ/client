@@ -50,6 +50,7 @@ export const useTableData = ({
 		TABLE_DATA_QUERY_KEY,
 		appName,
 		pageName,
+		state?.state?.tables,
 		type,
 		JSON.stringify({ filters, sorts, dependentTableData, file, table }),
 	];
