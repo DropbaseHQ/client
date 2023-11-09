@@ -43,7 +43,14 @@ export const DeleteFile = ({ name, id, type, ...props }: any) => {
 			onClose();
 			toast({
 				status: 'success',
-				title: 'File Deleted',
+				title: 'Function Deleted',
+			});
+		},
+		onError: (response: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to delete function',
+				description: response?.error?.message || response?.message,
 			});
 		},
 	});

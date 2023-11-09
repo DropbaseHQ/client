@@ -34,6 +34,7 @@ import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
+	const toast = useToast();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 	const { widgetId, pageName, appName } = useAtomValue(pageAtom);
 	const { schema, refetch, values, isLoading, categories } = useGetComponentProperties(
@@ -57,11 +58,23 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 	const updateMutation = useUpdateComponentProperties({
 		onSuccess: (_: any, variables: any) => {
+			toast({
+				status: 'success',
+				title: 'Updated component properties',
+			});
+
 			if (variables.payload?.name !== properties?.name) {
 				syncToWorker.mutate({ appName, pageName });
 			}
 
 			refetch();
+		},
+		onError: (response: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to update component properties',
+				description: response?.error?.message || response?.message,
+			});
 		},
 	});
 

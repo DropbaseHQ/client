@@ -14,10 +14,12 @@ import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { DeleteTable } from '@/features/app-builder/components/PropertiesEditor/DeleteTable';
 import { pageAtom } from '@/features/page';
 import { newPageStateAtom } from '@/features/app-state';
+import { useToast } from '@/lib/chakra-ui';
 
 export const TableProperties = () => {
 	const tableId = useAtomValue(selectedTableIdAtom);
 	const { pageId } = useParams();
+	const toast = useToast();
 
 	const { isLoading, table, refetch } = useGetTable(tableId || '');
 
@@ -33,6 +35,11 @@ export const TableProperties = () => {
 		onSuccess: () => {
 			refetch();
 			setErrorLog('');
+
+			toast({
+				title: 'Updated table properties',
+				status: 'success',
+			});
 		},
 		onError: (error: any) => {
 			setErrorLog(error?.response?.data?.error || '');

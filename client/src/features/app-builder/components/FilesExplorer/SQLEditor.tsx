@@ -21,8 +21,10 @@ import { logBuilder } from '@/features/app-builder/utils';
 import { ChakraTable } from '@/components/Table';
 import { pageAtom, useGetPage } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
+import { useToast } from '@/lib/chakra-ui';
 
 export const SQLEditor = ({ id }: any) => {
+	const toast = useToast();
 	const { pageId } = useParams();
 	const { files } = useGetPage(pageId);
 
@@ -72,7 +74,21 @@ export const SQLEditor = ({ id }: any) => {
 			setPreviewData(null);
 		},
 	});
-	const saveSQLMutation = useSaveSql();
+	const saveSQLMutation = useSaveSql({
+		onSuccess: () => {
+			toast({
+				status: 'success',
+				title: 'Updated SQL',
+			});
+		},
+		onError: (response: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to update SQL',
+				description: response?.error?.message || response?.message,
+			});
+		},
+	});
 
 	const handleRun = () => {
 		runMutation.mutate({

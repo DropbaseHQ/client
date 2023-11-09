@@ -44,6 +44,13 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 				title: 'Table Deleted',
 			});
 		},
+		onError: (response: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to delete table',
+				description: response?.error?.message || response?.message,
+			});
+		},
 	});
 
 	const onSubmit = () => {
