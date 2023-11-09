@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from server import crud
 from sqlalchemy.orm import Session
-from server.schemas import FinalizeApp
+from server.schemas import FinalizeApp, RenameApp
 from server.utils.connect import get_db
 from server.controllers.app import finalize_app
 from uuid import UUID
@@ -12,6 +12,13 @@ router = APIRouter(prefix="/app", tags=["app"])
 @router.get("/{app_id}")
 def get_app(app_id: UUID, db: Session = Depends(get_db)):
     return crud.app.get_object_by_id_or_404(db, id=app_id)
+
+
+@router.put("/rename")
+def rename_app(request: RenameApp, db: Session = Depends(get_db)):
+    return crud.app.update_by_pk(
+        db, pk=request.app_id, obj_in={"name": request.new_name}
+    )
 
 
 @router.put("/{app_id}")

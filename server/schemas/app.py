@@ -34,3 +34,9 @@ class Function(BaseModel):
 class FinalizeApp(BaseModel):
     name: Optional[str]
     is_draft: Optional[bool]
+
+
+class RenameApp(BaseModel):
+    app_id: str
+    old_name: str
+    new_name: str

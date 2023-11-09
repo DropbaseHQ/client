@@ -51,7 +51,8 @@ export const AppNavbar = ({ isPreview }: any) => {
 		if (app) {
 			updateMutation.mutate({
 				appId,
-				name,
+				oldName: app.name,
+				newName: name,
 			});
 		}
 	};

@@ -1,9 +1,12 @@
 import { useMutation, useQueryClient } from 'react-query';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { APPS_QUERY_KEY } from './useGetWorkspaceApps';
 
-const updateApp = async ({ appId, name }: any) => {
-	const response = await axios.put(`/app/${appId}`, { name });
+const updateApp = async ({ appId, oldName, newName }: any) => {
+	const response = await workerAxios.put(`/app/${appId}`, {
+		old_name: oldName,
+		new_name: newName,
+	});
 	return response.data;
 };
 
