@@ -3,7 +3,7 @@ import { workerAxios } from '@/lib/axios';
 import { APPS_QUERY_KEY } from './useGetWorkspaceApps';
 
 const deleteApp = async ({ appId, appName }: any) => {
-	const response = await workerAxios.delete(`/workspace_admin/delete_app/${appId}`, {
+	const response = await workerAxios.delete(`/app/${appId}`, {
 		data: {
 			app_name: appName,
 		},
