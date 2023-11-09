@@ -57,7 +57,8 @@ export const EditFile = ({ file }: any) => {
 			appName,
 			fileName: oldFileName,
 			newFileName: fileName,
-			fileId: file.id,
+			fileType: file.type,
+			pageId,
 		});
 	};
 
