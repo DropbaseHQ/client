@@ -31,6 +31,10 @@ app.mount("/worker", worker_app)
 # origins = ["https://dropbase.io"]
 origins = ["https://www.app.dropbase.io", "https://app.dropbase.io"]
 
+# # for local tests
+# origins.append("http://localhost:3000")
+# origins.append("http://www.localhost:3000")
+
 
 ### ROUTES ###
 
