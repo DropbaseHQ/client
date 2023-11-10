@@ -41,6 +41,8 @@ export const MonacoEditor = (props: any) => {
 				fontFamily: 'Fira Code',
 				fontSize: 14,
 				glyphMargin: false,
+				overviewRulerBorder: false,
+				overviewRulerLanes: 0,
 				folding: false,
 				lineNumbersMinChars: 3,
 				...(options || {}),
