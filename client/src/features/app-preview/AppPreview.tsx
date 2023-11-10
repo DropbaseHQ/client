@@ -68,8 +68,6 @@ const AppComponent = (props: any) => {
 
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
-			console.log('data');
-			console.log(data);
 			syncState(data);
 		},
 	});
@@ -93,6 +91,7 @@ const AppComponent = (props: any) => {
 				my="1.5"
 				size="sm"
 				isLoading={actionMutation.isLoading}
+				colorScheme={component.color || 'blue'}
 				onClick={() => {
 					if (component.on_click) {
 						handleAction(component.on_click);
@@ -105,7 +104,14 @@ const AppComponent = (props: any) => {
 	}
 
 	if (type === 'text') {
-		return <Text fontSize={sizeMap[component.size]}>{component.text}</Text>;
+		return (
+			<Text
+				fontSize={sizeMap[component.size]}
+				color={component.color || `${component.color}.500`}
+			>
+				{component.text}
+			</Text>
+		);
 	}
 
 	return (
