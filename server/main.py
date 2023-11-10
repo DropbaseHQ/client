@@ -29,13 +29,7 @@ app.mount("/worker", worker_app)
 # app.middleware("http")(catch_exceptions_middleware)
 
 # origins = ["https://dropbase.io"]
-origins = [
-    "http://127.0.0.1:3000",
-    "https://dev.dropbase.io",
-    "https://www.dev.dropbase.io",
-    "http://localhost:3000",
-    "http://www.localhost:3000",
-]
+origins = ["https://www.app.dropbase.io", "https://app.dropbase.io"]
 
 
 ### ROUTES ###
