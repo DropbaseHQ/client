@@ -121,7 +121,27 @@ export const TableProperties = () => {
 					</Stack>
 					<Stack px="4" py="2" h="full" overflowY="auto">
 						<Stack spacing="4">
-							<FormInput id="name" name="Table Name" type="text" />
+							<FormInput
+								id="name"
+								name="Table Name"
+								type="text"
+								validation={{
+									validate: {
+										noUpperCase: (value: any) => {
+											if (value && value !== value.toLowerCase()) {
+												return 'Must be lowercase';
+											}
+											return true;
+										},
+										noSpecialChars: (value: any) => {
+											if (value && /[^a-z0-9]/.test(value)) {
+												return 'Must not contain special characters';
+											}
+											return true;
+										},
+									},
+								}}
+							/>
 
 							<FormInput
 								type="select"
