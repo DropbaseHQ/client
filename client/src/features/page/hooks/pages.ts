@@ -43,16 +43,16 @@ export const useInitPage = () => {
 
 	const ref = useRef(false);
 
-	const { widget, isLoading, app, page, ...rest } = useGetPage(pageId || '');
+	const { widget, isLoading, isRefetching, app, page, ...rest } = useGetPage(pageId || '');
 	const pageName = page?.name;
 	const appName = app?.name;
 
 	useEffect(() => {
 		ref.current = false;
-	}, [pageId]);
+	}, [pageId, isRefetching]);
 
 	useEffect(() => {
-		if ((!context.widgetId || !ref.current) && !isLoading) {
+		if (!ref.current && !isLoading && !isRefetching) {
 			setPageContext({
 				widgetId: widget?.id || null,
 				pageName,
@@ -60,7 +60,7 @@ export const useInitPage = () => {
 			});
 			ref.current = true;
 		}
-	}, [widget, isLoading, appName, pageName, context, setPageContext]);
+	}, [widget, isLoading, isRefetching, appName, pageName, context, setPageContext]);
 
 	useEffect(() => {
 		return () => {
