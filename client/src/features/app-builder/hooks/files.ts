@@ -5,6 +5,7 @@ import { workerAxios } from '@/lib/axios';
 import { PAGE_DATA_QUERY_KEY } from '@/features/page';
 import { ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY } from './functions';
 import { useToast } from '@/lib/chakra-ui';
+import { DATA_FETCHER_QUERY_KEY } from '@/features/app-builder/hooks';
 
 export const ALL_PAGE_FILES_QUERY_KEY = 'allFiles';
 
@@ -96,6 +97,7 @@ export const useCreateFile = (props: any = {}) => {
 		onSettled: () => {
 			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(DATA_FETCHER_QUERY_KEY);
 			queryClient.invalidateQueries(ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY);
 		},
 	});
@@ -120,6 +122,7 @@ export const useDeleteFile = (props: any = {}) => {
 		onSettled: () => {
 			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
 			queryClient.refetchQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(DATA_FETCHER_QUERY_KEY);
 		},
 	});
 };
@@ -152,6 +155,7 @@ export const useUpdateFile = (props: any = {}) => {
 		onSettled: () => {
 			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
 			queryClient.refetchQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(DATA_FETCHER_QUERY_KEY);
 			queryClient.invalidateQueries(ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY);
 		},
 	});

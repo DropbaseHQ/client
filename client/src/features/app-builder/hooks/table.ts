@@ -56,6 +56,9 @@ export const useDataFetchers = (pageId: any) => {
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchDataFetchers({ pageId }), {
 		enabled: Boolean(pageId),
+		cacheTime: 0,
+		staleTime: 0,
+		refetchInterval: 30 * 1000,
 	});
 
 	const info = useMemo(() => {
