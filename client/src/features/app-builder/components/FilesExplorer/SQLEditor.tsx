@@ -136,8 +136,8 @@ export const SQLEditor = ({ id }: any) => {
 	}
 
 	return (
-		<Stack p="3" spacing="3">
-			<Stack alignItems="start" direction="row">
+		<Stack bg="white" h="full" spacing="3">
+			<Stack p="3" borderBottomWidth="1px" alignItems="start" direction="row">
 				<FormControl>
 					<FormLabel>Source</FormLabel>
 					<InputRenderer
@@ -164,7 +164,15 @@ export const SQLEditor = ({ id }: any) => {
 					Update
 				</Button>
 			</Stack>
-			<Stack bg="white" p="1" spacing="0" alignItems="start" direction="row">
+			<Stack
+				px="2"
+				pb="2"
+				pt=".5"
+				borderBottomWidth="1px"
+				spacing="0"
+				alignItems="start"
+				direction="row"
+			>
 				<IconButton
 					icon={<Play size="14" />}
 					variant="outline"

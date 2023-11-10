@@ -1,4 +1,4 @@
-import { Box, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react';
+import { Box, Divider, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react';
 
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
@@ -61,7 +61,7 @@ export const FunctionEditor = ({ id }: any) => {
 	}
 
 	return (
-		<Stack p="3" w="full" spacing="2">
+		<Stack h="full" bg="white" spacing="0" divider={<Divider />} w="full">
 			<PythonEditorLSP code={code} updateCode={setCode} filePath={filePath} key={id} />
 			<FunctionTerminal file={file} code={updatedCode} />
 		</Stack>
