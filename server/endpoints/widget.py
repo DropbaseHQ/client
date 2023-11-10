@@ -4,19 +4,19 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.widget import CreateWidget, UpdateWidget, WidgetBaseProperty
-from server.controllers import widget as widget_controller
+from server.schemas.widget import WidgetBaseProperty
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.components import order_components
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
 
-# widget_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WIDGET)
+widget_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WIDGET)
 
-# router = APIRouter(
-#     prefix="/widget",
-#     tags=["widget"],
-#     dependencies=[Depends(widget_authorizer)],
-# )
+router = APIRouter(
+    prefix="/widget",
+    tags=["widget"],
+    dependencies=[Depends(widget_authorizer)],
+)
 
 router = APIRouter(prefix="/widget", tags=["widget"])
 

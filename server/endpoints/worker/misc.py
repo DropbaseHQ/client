@@ -1,45 +1,12 @@
-from fastapi import APIRouter, Depends, Response
-from server import crud
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from server.utils.connect import get_db
-from server.controllers.columns import update_table_columns
+
+from server import crud
 from server.controllers.tables.convert import call_gpt, fill_smart_cols_data
-from server.schemas.worker import SyncColumnsRequest, SyncComponentsRequest
-from server.schemas.tables import (
-    ConvertTable,
-    ReadTables,
-    UpdateSmartTables,
-)
-from server.utils.state_context import get_state_context_payload
+from server.schemas.tables import ConvertTable, ReadTables, UpdateSmartTables
+from server.utils.connect import get_db
 
 router = APIRouter()
-
-
-@router.post("/sync/columns/")
-def sync_table_columns(request: SyncColumnsRequest, response: Response, db: Session = Depends(get_db)):
-    # TODO: maybe user worksapce id instead of token later, once proxy is added
-    # for each table, update columns
-    widget_id = None
-    for table_name, columns in request.table_columns.items():
-        # find table by app name, page name and column
-        table = crud.tables.get_table_by_app_page_token(
-            db, table_name, request.page_name, request.app_name, request.token
-        )
-        update_table_columns(db, table, columns, request.table_type)
-        widget_id = table.widget_id
-
-    page = crud.page.get_page_by_widget(db, widget_id=widget_id)
-    # create new state and context
-    return get_state_context_payload(db, page.id)
-
-
-@router.post("/sync/components/")
-def sync_components(request: SyncComponentsRequest, response: Response, db: Session = Depends(get_db)):
-    # create new state and context
-    page = crud.page.get_page_by_app_page_token(
-        db, page_name=request.page_name, app_name=request.app_name, token=request.token
-    )
-    return get_state_context_payload(db, page.id)
 
 
 @router.post("/get_smart_cols/")
