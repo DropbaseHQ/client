@@ -1,4 +1,4 @@
-import { IconButton, Stack, Text } from '@chakra-ui/react';
+import { Box, IconButton, Stack, Text } from '@chakra-ui/react';
 import { Play, X } from 'react-feather';
 import * as monacoLib from 'monaco-editor';
 import { useAtomValue } from 'jotai';
@@ -117,7 +117,7 @@ export const FunctionTerminal = ({ code, file }: any) => {
 			</Stack>
 
 			{log ? (
-				<Stack bg="white" p="2" maxW="container.xl" w="full" h="full" borderRadius="sm">
+				<Stack borderBottomWidth="1px" bg="white" p="2" w="full" h="full" borderRadius="sm">
 					<Stack direction="row" alignItems="start">
 						<IconButton
 							aria-label="Close output"
@@ -133,11 +133,13 @@ export const FunctionTerminal = ({ code, file }: any) => {
 							<Text fontSize="sm" letterSpacing="wide" fontWeight="medium">
 								Output
 							</Text>
-							<MonacoEditor
-								value={log}
-								language="shell"
-								options={{ lineNumbers: 'off' }}
-							/>
+							<Box borderWidth="1px" borderColor="blackAlpha.100" borderRadius="sm">
+								<MonacoEditor
+									value={log}
+									language="shell"
+									options={{ lineNumbers: 'off', readOnly: true }}
+								/>
+							</Box>
 						</Stack>
 					</Stack>
 				</Stack>
