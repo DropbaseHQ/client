@@ -1,31 +1,24 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-
-from server import crud
-from server.controllers.columns import update_table_columns
 from server.controllers.tables import get_table, get_table_row, pin_filters
 from server.schemas.tables import (
-    CreateTables,
     PinFilters,
     TablesReadProperty,
-    UpdateTables,
-    UpdateTablesRequest,
 )
-from server.controllers import tables as table_controller
 
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 from server.utils.converter import get_class_properties
 
-# table_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.TABLES)
+table_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.TABLES)
 
-# router = APIRouter(
-#     prefix="/tables",
-#     tags=["tables"],
-#     dependencies=[Depends(table_authorizer)],
-# )
+router = APIRouter(
+    prefix="/tables",
+    tags=["tables"],
+    dependencies=[Depends(table_authorizer)],
+)
 
 router = APIRouter(prefix="/tables", tags=["tables"])
 
