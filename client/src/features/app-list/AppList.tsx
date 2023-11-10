@@ -18,6 +18,7 @@ import {
 	Box,
 	MenuItem,
 	IconButton,
+	useToast,
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +33,7 @@ import { useDeleteApp } from '@/features/app-list/hooks/useDeleteApp';
 import { workspaceAtom } from '@/features/workspaces';
 
 const AppCard = ({ app }: { app: AppType }) => {
+	const toast = useToast();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const methods = useForm();
 	const navigate = useNavigate();
@@ -39,6 +41,18 @@ const AppCard = ({ app }: { app: AppType }) => {
 	const deleteMutation = useDeleteApp({
 		onSuccess: () => {
 			onClose();
+			toast({
+				status: 'success',
+				title: 'App created',
+			});
+		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to delete app',
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
+			});
 		},
 	});
 

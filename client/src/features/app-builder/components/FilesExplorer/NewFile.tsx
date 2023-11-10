@@ -59,6 +59,14 @@ export const NewFile = (props: any) => {
 			refetch();
 			onClose();
 		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to create file',
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
+			});
+		},
 	});
 
 	const currentType = methods.watch('type');

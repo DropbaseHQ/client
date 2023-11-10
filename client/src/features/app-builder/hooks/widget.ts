@@ -92,6 +92,14 @@ export const useCreateWidget = (props: any = {}) => {
 				title: 'Widget created',
 			});
 		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to create widget',
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
+			});
+		},
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);

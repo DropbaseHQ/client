@@ -35,6 +35,7 @@ import { checkAllRulesPass } from '@/features/app-preview/utils';
 import { InspectorContainer } from '@/features/app-builder';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
 import { appModeAtom } from '@/features/app/atoms';
+import { useToast } from '@/lib/chakra-ui';
 
 const sizeMap: any = {
 	small: 'sm',
@@ -43,6 +44,7 @@ const sizeMap: any = {
 };
 
 const AppComponent = (props: any) => {
+	const toast = useToast();
 	const { pageName, appName } = useAtomValue(pageAtom);
 	const { type, property: component } = props;
 
@@ -69,6 +71,14 @@ const AppComponent = (props: any) => {
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
 			syncState(data);
+		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to execute action',
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
+			});
 		},
 	});
 

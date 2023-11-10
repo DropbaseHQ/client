@@ -91,6 +91,14 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 				type: null,
 			});
 		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to delete component',
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
+			});
+		},
 	});
 
 	useEffect(() => {
@@ -236,6 +244,14 @@ export const NewComponent = (props: any) => {
 			toast({
 				status: 'success',
 				title: 'Component added',
+			});
+		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to create component',
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
 			});
 		},
 	});

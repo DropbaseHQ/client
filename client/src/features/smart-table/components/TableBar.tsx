@@ -40,6 +40,14 @@ export const TableBar = () => {
 				[tableId]: [],
 			}));
 		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to save edits',
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
+			});
+		},
 	});
 
 	const handleCellEdits = () => {

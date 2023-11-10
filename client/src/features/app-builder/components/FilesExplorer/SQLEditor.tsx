@@ -69,11 +69,20 @@ export const SQLEditor = ({ id }: any) => {
 				});
 			}
 		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to run query',
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
+			});
+		},
 		onMutate: () => {
 			setLog(null);
 			setPreviewData(null);
 		},
 	});
+
 	const saveSQLMutation = useSaveSql({
 		onSuccess: () => {
 			toast({

@@ -53,6 +53,14 @@ const ColumnProperty = ({ id, property: properties, type }: any) => {
 				title: 'Updated column properties',
 			});
 		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to update properties',
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
+			});
+		},
 	});
 
 	const handleUpdate = (partialValues: any) => {
@@ -176,6 +184,14 @@ export const ColumnsProperties = () => {
 			toast({
 				status: 'success',
 				title: 'SmartTable converted',
+			});
+		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to convert table',
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
 			});
 		},
 	});
