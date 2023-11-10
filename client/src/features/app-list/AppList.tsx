@@ -2,7 +2,6 @@ import {
 	Stack,
 	Text,
 	Button,
-	Input,
 	Modal,
 	ModalOverlay,
 	ModalContent,
@@ -18,13 +17,12 @@ import {
 	MenuList,
 	Box,
 	MenuItem,
+	IconButton,
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Layout, MoreVertical, Trash } from 'react-feather';
 import { useAtomValue } from 'jotai';
-
-import { useState } from 'react';
 
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
 import { useCreateAppFlow } from './hooks/useCreateApp';
@@ -83,13 +81,20 @@ const AppCard = ({ app }: { app: AppType }) => {
 			</Stack>
 			<Menu>
 				<MenuButton
+					flexShrink="0"
+					as={IconButton}
+					minW="none"
+					p="1"
+					h={8}
+					variant="ghost"
+					colorScheme="gray"
+					minH="none"
+					icon={<MoreVertical size="14" />}
 					ml="auto"
 					onClick={(e) => {
 						e.stopPropagation();
 					}}
-				>
-					<MoreVertical size="16" />
-				</MenuButton>
+				/>
 
 				<MenuList>
 					<MenuItem
@@ -160,9 +165,14 @@ export const AppList = () => {
 	// const navigate = useNavigate();
 	const workspaceId = useAtomValue(workspaceAtom);
 
+	const methods = useForm();
+
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
-	const [appName, setAppName] = useState('');
-	const { isOpen, onOpen, onClose } = useDisclosure();
+	const { isOpen, onOpen, onClose } = useDisclosure({
+		onClose: () => {
+			methods.reset();
+		},
+	});
 
 	const { handleCreateApp: handleCreateAppFlow, isLoading: createAppIsLoading } =
 		useCreateAppFlow({
@@ -174,7 +184,7 @@ export const AppList = () => {
 			},
 		});
 
-	const handleCreateApp = async () => {
+	const onSubmit = async ({ name: appName }: any) => {
 		await handleCreateAppFlow({
 			name: appName,
 			workspaceId: workspaceId || '',
@@ -207,31 +217,54 @@ export const AppList = () => {
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent>
-					<ModalHeader>Create a new app</ModalHeader>
-					<ModalCloseButton />
-					<ModalBody>
-						<Input
-							placeholder="App name"
-							value={appName}
-							onChange={(e) => {
-								setAppName(e.target.value);
-							}}
-						/>
-					</ModalBody>
+					<FormProvider {...methods}>
+						<form onSubmit={methods.handleSubmit(onSubmit)}>
+							<ModalHeader fontSize="md" borderBottomWidth="1px">
+								Create a new app
+							</ModalHeader>
+							<ModalCloseButton />
+							<ModalBody py="6">
+								<FormInput
+									name="App name"
+									id="name"
+									placeholder="Enter app name"
+									validation={{
+										validate: (value: any) => {
+											if (value.includes(' ')) {
+												return 'Name cannot have spaces';
+											}
 
-					<ModalFooter>
-						<Button
-							colorScheme="blue"
-							mr={3}
-							isLoading={createAppIsLoading}
-							onClick={handleCreateApp}
-						>
-							Create
-						</Button>
-						<Button variant="ghost" onClick={onClose}>
-							Cancel
-						</Button>
-					</ModalFooter>
+											if (!value) {
+												return 'Name required';
+											}
+
+											return true;
+										},
+									}}
+								/>
+							</ModalBody>
+							<ModalFooter borderTopWidth="1px">
+								<Button
+									size="sm"
+									colorScheme="gray"
+									mr={3}
+									variant="ghost"
+									disabled={createAppIsLoading}
+									onClick={onClose}
+								>
+									Cancel
+								</Button>
+								<Button
+									colorScheme="blue"
+									isLoading={createAppIsLoading}
+									type="submit"
+									size="sm"
+								>
+									Create
+								</Button>
+							</ModalFooter>
+						</form>
+					</FormProvider>
 				</ModalContent>
 			</Modal>
 		</PageLayout>
