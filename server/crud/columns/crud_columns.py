@@ -31,5 +31,9 @@ class CRUDColumns(CRUDBase[Columns, CreateColumns, UpdateColumns]):
             .one()
         ).app_id
 
+    def delete_table_columns(self, db: Session, table_id: UUID):
+        db.query(Columns).filter(Columns.table_id == table_id).delete()
+        db.commit()
+
 
 columns = CRUDColumns(Columns)
