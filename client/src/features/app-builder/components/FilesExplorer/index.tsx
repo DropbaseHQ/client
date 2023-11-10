@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import {
 	Box,
 	Button,
 	ButtonGroup,
 	Center,
 	Icon,
+	Input,
+	Progress,
 	Skeleton,
 	Stack,
 	Text,
@@ -21,8 +23,10 @@ import { developerTabAtom } from '@/features/app-builder/atoms';
 import { NewFile } from './NewFile';
 import { FunctionEditor } from './FunctionEditor';
 import { SQLEditor } from './SQLEditor';
-import { useGetPage } from '@/features/page';
+import { pageAtom, useGetPage } from '@/features/page';
 import { DeleteFile } from './DeleteFile';
+import { useUpdateFile } from '@/features/app-builder/hooks';
+import { useToast } from '@/lib/chakra-ui';
 
 const componentsMap: any = {
 	function: FunctionEditor,
@@ -30,8 +34,19 @@ const componentsMap: any = {
 };
 
 const FileButton = ({ file }: any) => {
+	const toast = useToast();
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
-	const { isOpen: mouseOver, onClose, onOpen } = useDisclosure();
+
+	const { appName, pageName } = useAtomValue(pageAtom);
+	const { pageId } = useParams();
+
+	const {
+		isOpen: mouseOver,
+		onClose: triggerMouseLeave,
+		onOpen: triggerMouseHover,
+	} = useDisclosure();
+
+	const { isOpen: isEdit, onClose: onEditClose, onOpen: onEditOpen } = useDisclosure();
 
 	const isSQLFile = file.type === 'sql';
 	const fileName = `${file.name}${isSQLFile ? '.sql' : '.py'}`;
@@ -52,12 +67,56 @@ const FileButton = ({ file }: any) => {
 		default:
 	}
 
+	const mutation = useUpdateFile({
+		onSuccess: () => {
+			onEditClose();
+			toast({
+				status: 'success',
+				title: 'File Updated',
+			});
+		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to delete table',
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
+			});
+		},
+	});
+
+	const onSubmit = (newFileName: any) => {
+		if (newFileName.trim()) {
+			mutation.mutate({
+				pageName,
+				appName,
+				fileName: file.name,
+				newFileName,
+				fileType: file.type,
+				pageId,
+			});
+		} else {
+			toast({
+				status: 'error',
+				title: 'File name is required',
+			});
+		}
+	};
+
+	const onKeyDown = (e: any) => {
+		if (e.key === 'Enter') {
+			e?.preventDefault();
+			onSubmit(e.target.value);
+		}
+	};
+
 	return (
 		<Button
-			onMouseEnter={onOpen}
-			onMouseLeave={onClose}
-			onMouseOver={onOpen}
-			color=""
+			onMouseEnter={triggerMouseHover}
+			onMouseLeave={triggerMouseLeave}
+			onMouseOver={triggerMouseHover}
+			onDoubleClick={onEditOpen}
+			colorScheme="gray"
 			variant={isActive ? 'solid' : 'outline'}
 			onClick={() => {
 				setDevTab({
@@ -67,22 +126,39 @@ const FileButton = ({ file }: any) => {
 			}}
 			key={file.id}
 		>
-			<Stack alignItems="center" direction="row">
-				{mouseOver ? (
-					<DeleteFile
-						w="fit-content"
-						id={file.id}
-						name={fileName}
-						type={isSQLFile ? 'sql' : 'py'}
+			{isEdit ? (
+				<Stack spacing="0">
+					<Input
+						variant="outline"
+						autoFocus
+						placeholder="Enter new name"
+						_focus={{
+							bg: 'white',
+						}}
+						defaultValue={file.name}
+						onKeyDown={onKeyDown}
+						size="xs"
 					/>
-				) : (
-					<Icon color={isActive ? `${colorScheme}.500` : ''} as={icon} boxSize={4} />
-				)}
-				<Box>{file.name}</Box>
-				<Box fontSize="2xs" px="1" borderRadius="sm" bg={`${colorScheme}.200`}>
-					{isSQLFile ? '.sql' : '.py'}
-				</Box>
-			</Stack>
+					{mutation.isLoading ? <Progress isIndeterminate size="xs" /> : null}
+				</Stack>
+			) : (
+				<Stack alignItems="center" direction="row">
+					{mouseOver ? (
+						<DeleteFile
+							w="fit-content"
+							id={file.id}
+							name={fileName}
+							type={isSQLFile ? 'sql' : 'py'}
+						/>
+					) : (
+						<Icon color={isActive ? `${colorScheme}.500` : ''} as={icon} boxSize={4} />
+					)}
+					<Box>{file.name}</Box>
+					<Box fontSize="2xs" px="1" borderRadius="sm" bg={`${colorScheme}.200`}>
+						{isSQLFile ? '.sql' : '.py'}
+					</Box>
+				</Stack>
+			)}
 		</Button>
 	);
 };
