@@ -1,12 +1,14 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { App } from './App';
+import { AppRoutes } from './AppRoutes';
 import { AppList } from '@/features/app-list';
+import { useSyncProxyToken } from '@/features/settings/hooks/token';
 
-export const AppRoutes = () => {
+export const App = () => {
+	useSyncProxyToken();
 	return (
 		<Routes>
 			<Route index element={<AppList />} />
-			<Route path=":appId/:pageId/*" element={<App />} />
+			<Route path=":appId/:pageId/*" element={<AppRoutes />} />
 			<Route path="*" element={<Navigate to="." />} />
 		</Routes>
 	);

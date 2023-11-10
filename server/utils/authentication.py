@@ -1,5 +1,6 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 from fastapi_jwt_auth import AuthJWT
+from fastapi_jwt_auth.exceptions import JWTDecodeError
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -16,6 +17,7 @@ class Settings(BaseModel):
     authjwt_cookie_csrf_protect: bool = False
     authjwt_cookie_secure: bool = True
     authjwt_cookie_samesite: str = "none"
+    authjwt_cookie_max_age: int = 60 * 60 * 24 * 7  # 7 days
 
 
 @AuthJWT.load_config
@@ -24,9 +26,17 @@ def get_config():
 
 
 def get_current_user(db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
-    Authorize.jwt_required()
-    current_user_id = Authorize.get_jwt_subject()
-    return crud.user.get_user_by_email(db, email=current_user_id)
+    try:
+        Authorize.jwt_required()
+        current_user_id = Authorize.get_jwt_subject()
+        return crud.user.get_user_by_email(db, email=current_user_id)
+    except JWTDecodeError as e:
+        if e.message == "Signature has expired":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Signature has expired",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
 
 # to get a string like this run:

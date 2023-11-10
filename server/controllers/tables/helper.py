@@ -1,8 +1,12 @@
+from uuid import UUID
+
+from sqlalchemy.orm import Session
+
 from server import crud
-from server.schemas.columns import PgReadColumnProperty, PythonColumn
+from server.controllers.state.models import PgColumnBaseProperty, PyColumnBaseProperty
 from server.utils.helper import clean_name_for_class
 
-column_type_to_schema_mapper = {"postgres": PgReadColumnProperty, "python": PythonColumn}
+column_type_to_schema_mapper = {"postgres": PgColumnBaseProperty, "python": PyColumnBaseProperty}
 
 
 def get_row_schema(columns):
@@ -15,7 +19,7 @@ def get_row_schema(columns):
     return row_input
 
 
-columns_type_mapper = {"postgres": PgReadColumnProperty}
+columns_type_mapper = {"postgres": PgColumnBaseProperty}
 pg_pydantic_dtype_mapper = {
     "TEXT": "str",
     "VARCHAR": "str",
@@ -62,6 +66,8 @@ def get_table_pydantic_model(db, table_id):
         column = ColumnModel(**col.property)
         type = pg_pydantic_dtype_mapper.get(column.type)
         model_str += f"    {column.name}: Optional[{type if type else 'Any'}]\n"
+    if len(columns) == 0:
+        model_str += "    pass\n"
     return model_str, model_name
 
 
@@ -114,13 +120,13 @@ def get_db_schema(user_db_engine) -> (FullDBSchema, GPTSchema):
             primary_keys = inspector.get_pk_constraint(table_name, schema=schema)["constrained_columns"]
 
             # get foreign keys
-            fk_constraints = inspector.get_foreign_keys("customer", schema="public")
+            fk_constraints = inspector.get_foreign_keys(table_name, schema=schema)
             foreign_keys = []
             for fk_constraint in fk_constraints:
                 foreign_keys.extend(fk_constraint["constrained_columns"])
 
             # get unique columns
-            unique_constraints = inspector.get_unique_constraints("customer", schema="public")
+            unique_constraints = inspector.get_unique_constraints(table_name, schema=schema)
             unique_columns = []
             for unique_constraint in unique_constraints:
                 unique_columns.extend(unique_constraint["column_names"])
@@ -154,3 +160,18 @@ def get_column_names(user_db_engine, user_sql: str) -> list[str]:
     with user_db_engine.connect().execution_options(autocommit=True) as conn:
         col_names = list(conn.execute(text(user_sql)).keys())
     return col_names
+
+
+from jinja2 import Environment, meta
+
+
+def get_sql_variables(user_sql: str):
+    env = Environment()
+    parsed_content = env.parse(user_sql)
+    return list(meta.find_undeclared_variables(parsed_content))
+
+
+def render_sql(user_sql: str, state):
+    env = Environment()
+    template = env.from_string(user_sql)
+    return template.render(state)

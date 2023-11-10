@@ -1,25 +1,27 @@
-import { initializeLanguageServices } from '@/components/Editor';
-import { MonacoLanguageClient } from 'monaco-languageclient';
 import { useEffect, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { initializeLanguageServices } from '@/components/Editor';
+import { proxyTokenAtom } from '@/features/settings/atoms';
 
-export const useMonacoLoader = (): [
-	boolean,
-	WebSocket | undefined,
-	MonacoLanguageClient | undefined,
-] => {
+export const useMonacoLoader = () => {
 	const [isMonacoReady, setReady] = useState(false);
-	const [languageClient, setLanguageClient] = useState<MonacoLanguageClient | undefined>();
+	const proxyToken = useAtomValue(proxyTokenAtom);
 
-	let websocket: WebSocket | undefined;
 	useEffect(() => {
 		(async () => {
 			setReady(false);
-			let [ws, lc] = await initializeLanguageServices();
-			websocket = ws;
-			setLanguageClient(lc);
-			setReady(true);
+			try {
+				await initializeLanguageServices(
+					`${import.meta.env.VITE_PYTHON_LSP_SERVER}/lsp`,
+					proxyToken,
+				);
+			} catch (e) {
+				// TODO: add error handling
+			} finally {
+				setReady(true);
+			}
 		})();
-	}, []);
+	}, [proxyToken]);
 
-	return [isMonacoReady, websocket, languageClient];
+	return isMonacoReady;
 };

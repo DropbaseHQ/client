@@ -38,25 +38,24 @@ const createLanguageClient = (transports: MessageTransports): MonacoLanguageClie
 	});
 };
 
-const createWebSocket = async (url: string): Promise<[WebSocket, MonacoLanguageClient]> => {
+const createLSPWebSocket = (url: string, proxyToken: string | null): WebSocket => {
 	const webSocket = new WebSocket(url);
-	return new Promise((resolve) => {
-		webSocket.onopen = () => {
-			const socket = toSocket(webSocket);
-			const reader = new WebSocketMessageReader(socket);
-			const writer = new WebSocketMessageWriter(socket);
-			const languageClient = createLanguageClient({
-				reader,
-				writer,
-			});
-			languageClient.start();
-			reader.onClose(() => languageClient.stop());
-			resolve([webSocket, languageClient]);
-		};
-	});
+	webSocket.onopen = () => {
+		webSocket.send(JSON.stringify({"dropbase-proxy-token": proxyToken}));
+		const socket = toSocket(webSocket);
+		const reader = new WebSocketMessageReader(socket);
+		const writer = new WebSocketMessageWriter(socket);
+		const languageClient = createLanguageClient({
+			reader,
+			writer,
+		});
+		languageClient.start();
+		reader.onClose(() => languageClient.stop());
+	};
+	return webSocket;
 };
 
-export const initializeLanguageServices = async () => {
+export const initializeLanguageServices = async (url: string, proxyToken: string | null) => {
 	await initServices({
 		// Use our own themes
 		enableThemeService: false,
@@ -81,9 +80,7 @@ export const initializeLanguageServices = async () => {
 	monaco.languages.setLanguageConfiguration(languageId, conf);
 	monaco.languages.setMonarchTokensProvider(languageId, language);
 
-	const socketInstance = await createWebSocket(import.meta.env.VITE_PYTHON_LSP_SERVER);
-
-	return socketInstance;
+	return createLSPWebSocket(url, proxyToken);
 };
 
 const createPythonEditor = async (config: { htmlElement: HTMLElement; filepath: string }) => {
@@ -107,6 +104,8 @@ const createPythonEditor = async (config: { htmlElement: HTMLElement; filepath: 
 		minimap: {
 			enabled: false,
 		},
+		fontFamily: 'Fira Code',
+		fontSize: 14,
 		scrollbar: {
 			verticalHasArrows: true,
 			alwaysConsumeMouseWheel: false,
@@ -208,7 +207,7 @@ export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
 
 			updateHeight();
 		}
-	});
+	}, [editorInstanceRef, isEditorReady, updateHeight]);
 
 	return ref;
 };

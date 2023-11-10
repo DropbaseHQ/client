@@ -5,6 +5,10 @@ export const axios = Axios.create({
 	withCredentials: true,
 });
 
+export const workerAxios = Axios.create({
+	baseURL: `${import.meta.env.VITE_WORKER_API_ENDPOINT}/worker`,
+});
+
 axios.interceptors.response.use(
 	(res) => {
 		return res;

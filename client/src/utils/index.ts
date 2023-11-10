@@ -32,3 +32,23 @@ export const PG_COLUMN_BASE_TYPE: any = {
 	OBJECT: 'text',
 	ARRAY: 'text',
 };
+
+export const getPGColumnBaseType = (type: any) => {
+	if (!type || type?.includes('VARCHAR')) {
+		return 'text';
+	}
+
+	return PG_COLUMN_BASE_TYPE[type];
+};
+
+export const generateSequentialName = ({ currentNames, prefix }: any) => {
+	let nameIndex = 1;
+
+	while (currentNames.includes(`${prefix}${nameIndex}`)) {
+		nameIndex += 1;
+	}
+
+	const newName = `${prefix}${nameIndex}`;
+
+	return newName;
+};

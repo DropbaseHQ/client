@@ -1,30 +1,34 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Annotated, Any, List, Literal, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-from server.schemas.states import (
+from server.controllers.state.models import (
     ButtonSharedProperties,
     ComponentDisplayProperties,
     InputSharedProperties,
     SelectSharedProperties,
     TextSharedProperties,
 )
+from server.schemas.properties import PropertyCategory
 
 
 class InputBaseProperties(BaseModel):
-    name: str
-    type: Optional[Literal["text", "number", "date"]] = "text"
-    label: Optional[str]
-    # ui logic
-    required: Optional[bool]
-    validation: Optional[str]
-    # ui options
-    default: Optional[Any]
-    placeholder: Optional[str]
-    # ui events
-    rules: Optional[List[Dict]]
+    name: Annotated[str, PropertyCategory.default]
+    label: Annotated[Optional[str], PropertyCategory.default]
+    type: Annotated[Optional[Literal["text", "number", "date"]], PropertyCategory.default] = "text"
+    placeholder: Annotated[Optional[str], PropertyCategory.default]
+
+    # display rules
+    display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
+
+    # validation
+    validation_rules: Annotated[Optional[List[str]], PropertyCategory.validation]
+
+    # other
+    required: Annotated[Optional[bool], PropertyCategory.other]
+    default: Annotated[Optional[Any], PropertyCategory.other]
 
 
 class InputDefined(InputBaseProperties, InputSharedProperties):
@@ -36,18 +40,18 @@ class InputRead(InputBaseProperties, ComponentDisplayProperties, InputSharedProp
 
 
 class SelectBaseProperties(BaseModel):
-    name: str
-    # multi: bool
-    label: Optional[str]
-    # ui logic
-    required: Optional[bool]
-    validation: Optional[str]
-    # ui options
-    default: Optional[Any]
-    # ui events
-    rules: Optional[List[Dict]]
-    # server calls
-    on_change: Optional[str]
+    name: Annotated[str, PropertyCategory.default]
+    label: Annotated[Optional[str], PropertyCategory.default]
+
+    # events
+    on_change: Annotated[Optional[str], PropertyCategory.events]
+
+    # display_rules
+    display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
+
+    # other
+    required: Annotated[Optional[bool], PropertyCategory.other]
+    default: Annotated[Optional[Any], PropertyCategory.other]
 
 
 class SelectDefined(SelectBaseProperties, SelectSharedProperties):
@@ -59,13 +63,22 @@ class SelectRead(SelectBaseProperties, ComponentDisplayProperties, SelectSharedP
 
 
 class ButtonBaseProperties(BaseModel):
-    name: str
-    label: Optional[str]
-    # editable
-    visible: Optional[bool]
-    # server call
-    on_click: Optional[str]
-    # = Field(..., description="function", Optional=True)
+    name: Annotated[str, PropertyCategory.default]
+    label: Annotated[Optional[str], PropertyCategory.default]
+    color: Annotated[
+        Optional[
+            Literal[
+                "red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"
+            ]
+        ],
+        PropertyCategory.default,
+    ]
+
+    # events
+    on_click: Annotated[Optional[str], PropertyCategory.events]
+
+    # display rules
+    display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
 
 
 class ButtonDefined(ButtonBaseProperties, ButtonSharedProperties):
@@ -77,12 +90,20 @@ class ButtonRead(ButtonBaseProperties, ComponentDisplayProperties, ButtonSharedP
 
 
 class TextBaseProperties(BaseModel):
-    name: str
-    text: Optional[str]
-    size: Optional[Literal["small", "medium", "large"]]
-    color: Optional[
-        Literal["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"]
+    name: Annotated[str, PropertyCategory.default]
+    text: Annotated[Optional[str], PropertyCategory.default]
+    size: Annotated[Optional[Literal["small", "medium", "large"]], PropertyCategory.default]
+    color: Annotated[
+        Optional[
+            Literal[
+                "red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"
+            ]
+        ],
+        PropertyCategory.default,
     ]
+
+    # display_rules
+    display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
 
 
 class TextDefined(TextBaseProperties, TextSharedProperties):
@@ -94,7 +115,7 @@ class TextRead(TextBaseProperties, TextSharedProperties):
 
 
 class BaseComponents(BaseModel):
-    property: Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
+    property: dict  # Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
     after: Optional[UUID]
     type: str
@@ -102,7 +123,7 @@ class BaseComponents(BaseModel):
 
 class ReadComponents(BaseModel):
     id: UUID
-    property: Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
+    property: dict  # Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     widget_id: UUID
     after: Optional[UUID]
     type: str
@@ -117,7 +138,7 @@ class CreateComponents(BaseModel):
 
 
 class UpdateComponents(BaseModel):
-    property: dict
+    property: dict  # Union[InputDefined, SelectDefined, ButtonDefined, TextDefined]
     type: str
 
 

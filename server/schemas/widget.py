@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from server.schemas.states import WidgetDisplayProperty, WidgetSharedProperty
+from server.controllers.state.models import WidgetContextProperty, WidgetDisplayProperty
 
 
 class WidgetBaseProperty(BaseModel):
@@ -12,11 +12,11 @@ class WidgetBaseProperty(BaseModel):
     description: Optional[str]
 
 
-class WidgetDefinedProperty(WidgetBaseProperty, WidgetSharedProperty):
+class WidgetDefinedProperty(WidgetBaseProperty, WidgetContextProperty):
     pass
 
 
-class WidgetReadProperty(WidgetBaseProperty, WidgetSharedProperty, WidgetDisplayProperty):
+class WidgetReadProperty(WidgetBaseProperty, WidgetContextProperty, WidgetDisplayProperty):
     pass
 
 

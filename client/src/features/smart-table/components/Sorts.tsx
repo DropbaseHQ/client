@@ -20,30 +20,41 @@ import {
 import { ChevronsUp as SortIcon, Plus, Trash } from 'react-feather';
 import { useAtom } from 'jotai';
 import { sortsAtom } from '@/features/smart-table/atoms';
+import { useCurrentTableData, useCurrentTableId } from '@/features/smart-table/hooks';
 
-export const SortButton = ({ columns }: { columns: any }) => {
+export const SortButton = () => {
 	const { isOpen, onToggle, onClose } = useDisclosure();
+	const tableId = useCurrentTableId();
+	const { columns } = useCurrentTableData(tableId);
 
-	const [sorts, setSorts] = useAtom(sortsAtom);
+	const [allSorts, setSorts] = useAtom(sortsAtom);
+	const sorts: any = allSorts[tableId] || [];
 
-	const haveSortsApplied = sorts.length > 0 && sorts.every((f) => f.column);
+	const haveSortsApplied = sorts.length > 0 && sorts.every((f: any) => f.column_name);
+
+	const saveSorts = (newSorts: any) => {
+		setSorts((old: any) => ({
+			...old,
+			[tableId]: newSorts,
+		}));
+	};
 
 	const handleAddSort = () => {
-		setSorts([
+		saveSorts([
 			...sorts,
 			{
 				column_name: '',
-				sort: 'asc',
+				value: 'asc',
 			},
 		]);
 	};
 
 	const handleReset = () => {
-		setSorts([]);
+		saveSorts([]);
 	};
 
 	const handleRemoveSort = (index: number) => {
-		setSorts(sorts.filter((_, i) => i !== index));
+		saveSorts(sorts.filter((_: any, i: any) => i !== index));
 	};
 
 	return (
@@ -53,6 +64,7 @@ export const SortButton = ({ columns }: { columns: any }) => {
 					leftIcon={<SortIcon size={14} />}
 					size="sm"
 					onClick={onToggle}
+					variant="ghost"
 					colorScheme={haveSortsApplied ? 'blue' : 'gray'}
 				>
 					Sorts
@@ -69,24 +81,19 @@ export const SortButton = ({ columns }: { columns: any }) => {
 						<Text color="gray">No sorts applied</Text>
 					) : (
 						<VStack alignItems="start" w="full">
-							{sorts.map((sort, index) => {
+							{sorts.map((sort: any, index: any) => {
 								return (
 									<HStack w="full" key={`sort-${index}`}>
 										<FormControl flexGrow="1">
 											<Select
-												value={`${sort.schema_name}.${sort.table_name}.${sort.column_name}`}
+												value={sort.column_name}
 												onChange={(e) => {
-													setSorts(
-														sorts.map((f, i) => {
-															const [folder, table, col] =
-																e.target.value.split('.');
-
+													saveSorts(
+														sorts.map((f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
-																	column_name: col,
-																	table_name: table,
-																	schema_name: folder,
+																	column_name: e.target.value,
 																};
 															}
 
@@ -98,12 +105,9 @@ export const SortButton = ({ columns }: { columns: any }) => {
 												bg="bg-canvas"
 												placeholder="Select column"
 											>
-												{columns.map((column: any) => (
-													<option
-														value={`${column.folder}.${column.table}.${column.name}`}
-														key={column.name}
-													>
-														{column.name}
+												{Object.keys(columns).map((column: any) => (
+													<option value={column} key={column}>
+														{column}
 													</option>
 												))}
 											</Select>
@@ -111,14 +115,14 @@ export const SortButton = ({ columns }: { columns: any }) => {
 										<FormControl flexGrow="1">
 											<Select
 												colorScheme="blue"
-												value={sort.sort}
+												value={sort.value}
 												onChange={(e) => {
-													setSorts(
-														sorts.map((f, i) => {
+													saveSorts(
+														sorts.map((f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
-																	sort: e.target.value,
+																	value: e.target.value,
 																};
 															}
 
@@ -128,7 +132,7 @@ export const SortButton = ({ columns }: { columns: any }) => {
 												}}
 												bg="bg-canvas"
 												size="sm"
-												placeholder="Select operator"
+												placeholder="Select Sort"
 											>
 												<option value="asc">Ascending</option>
 												<option value="desc">Descending</option>
@@ -150,13 +154,7 @@ export const SortButton = ({ columns }: { columns: any }) => {
 						</VStack>
 					)}
 				</PopoverBody>
-				<PopoverFooter
-					border="0"
-					display="flex"
-					alignItems="center"
-					justifyContent="right"
-					pb={4}
-				>
+				<PopoverFooter border="0" display="flex" alignItems="center" pb={4}>
 					<ButtonGroup size="sm">
 						<Button colorScheme="gray" onClick={handleReset}>
 							Reset all

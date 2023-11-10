@@ -36,11 +36,12 @@ export const ResetPassword = () => {
 	const toast = useToast();
 
 	const { mutate, isLoading } = useResetPassword({
-		onError: (error) => {
+		onError: (error: any) => {
 			toast({
 				title: 'Cannot reset password',
 				status: 'error',
-				description: error.message,
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
 			});
 		},
 		onSuccess: () => {

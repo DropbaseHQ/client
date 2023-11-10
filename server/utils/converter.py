@@ -1,5 +1,4 @@
 def get_class_properties(pydantic_model):
-    # ordered_keys = [key for key in pydantic_model.__annotations__]
     model_props = pydantic_model.schema()["properties"]
     obj_props = []
     for key in model_props.keys():

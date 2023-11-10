@@ -45,7 +45,7 @@ export const Login = () => {
 			toast({
 				title: 'Login Failed',
 				status: 'error',
-				description: error.response?.data?.detail || error.message,
+				description: error.response?.data?.detail.message || error.message,
 			});
 			if (error.response?.status === 403) {
 				setDisplayEmailConfirmation(true);

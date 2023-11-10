@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Column, ForeignKey, String
+from sqlalchemy import ARRAY, TIMESTAMP, Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.sql import func, text
 
@@ -10,10 +10,12 @@ class Tables(Base):
 
     name = Column(String, nullable=False)
     property = Column(JSONB)
+    file_id = Column(UUID(as_uuid=True), ForeignKey("files.id", ondelete="SET NULL"))
     page_id = Column(UUID(as_uuid=True), ForeignKey("page.id", ondelete="CASCADE"))
-    source_id = Column(UUID(as_uuid=True), ForeignKey("source.id", ondelete="CASCADE"))
-    type = Column(String)
+    depends_on = Column(ARRAY(String))
 
     date = Column(TIMESTAMP, server_default=func.now())
+
+    __table_args__ = (UniqueConstraint("name", "page_id", name="unique_table_name_per_page"),)
 
     __tablename__ = "tables"
