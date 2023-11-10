@@ -56,3 +56,23 @@ class ResetPasswordRequest(BaseModel):
     email: str
     new_password: str
     # reset_token: str
+
+
+class AddPolicy(BaseModel):
+    resource: str
+    action: str
+
+
+class AddPolicyRequest(BaseModel):
+    workspace_id: str
+    policies: list[AddPolicy]
+
+
+class GetUserDetails(BaseModel):
+    workspace_id: str
+
+
+class UpdateUserPolicyRequest(BaseModel):
+    resource: str
+    action: str
+    workspace_id: str

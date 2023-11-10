@@ -19,8 +19,24 @@ class ReadApp(BaseApp):
 
 
 class CreateApp(BaseApp):
-    pass
+    workspace_id: UUID
 
 
 class UpdateApp(BaseModel):
     name: Optional[str]
+
+
+class Function(BaseModel):
+    name: str
+    source: str
+
+
+class FinalizeApp(BaseModel):
+    name: Optional[str]
+    is_draft: Optional[bool]
+
+
+class RenameApp(BaseModel):
+    app_id: str
+    old_name: str
+    new_name: str

@@ -19,8 +19,17 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 import { Filter as FilterIcon, Plus, Star, Trash } from 'react-feather';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { filtersAtom } from '@/features/smart-table/atoms';
+import {
+	useCurrentTableData,
+	useCurrentTableId,
+	usePinFilters,
+} from '@/features/smart-table/hooks';
+import { useGetTable } from '@/features/app-builder/hooks';
+import { useToast } from '@/lib/chakra-ui';
+import { getPGColumnBaseType } from '@/utils';
+import { appModeAtom } from '@/features/app/atoms';
 
 const COMMON_OPERATORS = [
 	{
@@ -62,54 +71,122 @@ const COMPARISON_OPERATORS = [
 	},
 ];
 
-const getOperatorsByType = (type?: string) => {
-	switch (type?.toLowerCase()) {
-		case 'integer': {
-			return [...COMMON_OPERATORS, ...COMPARISON_OPERATORS];
+const TEXT_OPERATORS = [
+	{
+		name: 'Contains',
+		value: 'like',
+	},
+];
+
+const getConditionsByType = (type?: string) => {
+	if (type) {
+		switch (getPGColumnBaseType(type)) {
+			case 'float':
+			case 'integer': {
+				return [...COMMON_OPERATORS, ...COMPARISON_OPERATORS];
+			}
+
+			case 'datetime':
+			case 'time':
+			case 'date': {
+				return [
+					...COMMON_OPERATORS,
+					{
+						name: 'After',
+						value: '>',
+					},
+					{
+						name: 'Before',
+						value: '<',
+					},
+				];
+			}
+			case 'text': {
+				return [...TEXT_OPERATORS, ...COMMON_OPERATORS];
+			}
+			default:
+				return COMMON_OPERATORS;
 		}
-		case 'date': {
-			return [
-				...COMMON_OPERATORS,
-				{
-					name: 'After',
-					value: '>',
-				},
-				{
-					name: 'Before',
-					value: '<',
-				},
-			];
-		}
-		default:
-			return COMMON_OPERATORS;
 	}
+
+	return COMMON_OPERATORS;
 };
 
-export const FilterButton = ({ columns }: { columns: any }) => {
+export const FilterButton = () => {
+	const toast = useToast();
+	const tableId = useCurrentTableId();
 	const { isOpen, onToggle, onClose } = useDisclosure();
 
-	const [filters, setFilters] = useAtom(filtersAtom);
+	const { isPreview } = useAtomValue(appModeAtom);
 
-	const haveFiltersApplied = filters.length > 0 && filters.every((f) => f.column_name && f.value);
+	const { columns } = useCurrentTableData(tableId);
+
+	const [allFilters, setFilters] = useAtom(filtersAtom);
+	const filters = allFilters[tableId] || [];
+
+	const pinFilterMutation = usePinFilters({
+		onSuccess: () => {
+			toast({
+				status: 'success',
+				title: 'Pinned filters updated',
+			});
+		},
+	});
+
+	useGetTable(tableId || '', {
+		onSuccess: (data: any) => {
+			setFilters((old: any) => ({
+				...old,
+				[tableId]: (data?.values?.filters || []).map((f: any) => ({
+					...f,
+					pinned: true,
+					id: crypto.randomUUID(),
+				})),
+			}));
+		},
+	});
+
+	const haveFiltersApplied =
+		filters.length > 0 && filters.every((f: any) => f.column_name && f.value);
 
 	const handleAddFilter = () => {
-		setFilters([
-			...filters,
-			{
-				column_name: '',
-				value: null,
-				operator: '=',
-				id: crypto.randomUUID(),
-			},
-		]);
+		setFilters((old: any) => ({
+			...old,
+			[tableId]: [
+				...filters,
+				{
+					column_name: '',
+					value: null,
+					condition: '=',
+					id: crypto.randomUUID(),
+				},
+			],
+		}));
 	};
 
 	const handleReset = () => {
-		setFilters([]);
+		setFilters((old: any) => ({
+			...old,
+			[tableId]: [],
+		}));
 	};
 
-	const handleRemoveFilter = (index: number) => {
-		setFilters(filters.filter((_, i) => i !== index));
+	const handlePinnedFilters = (updatedFilters: any) => {
+		setFilters((old: any) => ({
+			...old,
+			[tableId]: updatedFilters,
+		}));
+
+		if (!isPreview) {
+			pinFilterMutation.mutate({
+				tableId,
+				filters: updatedFilters.filter((f: any) => f.pinned),
+			});
+		}
+	};
+
+	const handleRemoveFilter = (removedId: any) => {
+		handlePinnedFilters(filters.filter((f: any) => f.id !== removedId));
 	};
 
 	return (
@@ -118,6 +195,7 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 				<Button
 					leftIcon={<FilterIcon size={14} />}
 					size="sm"
+					variant="ghost"
 					onClick={onToggle}
 					colorScheme={haveFiltersApplied ? 'blue' : 'gray'}
 				>
@@ -135,13 +213,8 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 						<Text color="gray">No filters applied</Text>
 					) : (
 						<VStack alignItems="start" w="full">
-							{filters.map((filter, index) => {
-								const colType = columns.find(
-									(c: any) =>
-										c.name === filter.column_name &&
-										c.folder === filter.schema_name &&
-										c.table === filter.table_name,
-								)?.type;
+							{filters.map((filter: any, index: any) => {
+								const colType = columns[filter?.column_name]?.type;
 								let inputType = 'text';
 
 								if (colType === 'integer') {
@@ -150,61 +223,58 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 
 								return (
 									<HStack w="full" key={`filter-${index}`}>
-										<IconButton
-											aria-label="Pin filter"
-											icon={<Star size="14" />}
-											size="sm"
-											colorScheme="yellow"
-											isDisabled={!filter.column_name}
-											variant={filter.pinned ? 'solid' : 'outline'}
-											onClick={() => {
-												setFilters(
-													filters.map((f, i) => {
-														if (i === index) {
-															return {
-																...f,
-																pinned: !f.pinned,
-															};
-														}
-
-														return f;
-													}),
-												);
-											}}
-										/>
-
-										<FormControl flexGrow="1">
-											<Select
-												value={`${filter.schema_name}.${filter.table_name}.${filter.column_name}`}
-												onChange={(e) => {
-													setFilters(
-														filters.map((f, i) => {
-															const [folder, table, col] =
-																e.target.value.split('.');
-
+										{isPreview ? null : (
+											<IconButton
+												aria-label="Pin filter"
+												icon={<Star size="14" />}
+												size="sm"
+												colorScheme="yellow"
+												isDisabled={!filter.column_name}
+												variant={filter.pinned ? 'solid' : 'outline'}
+												onClick={() => {
+													const newFilters = filters.map(
+														(f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
-																	column_name: col,
-																	table_name: table,
-																	schema_name: folder,
+																	pinned: !f.pinned,
+																};
+															}
+
+															return f;
+														},
+													);
+
+													handlePinnedFilters(newFilters);
+												}}
+											/>
+										)}
+
+										<FormControl flexGrow="1">
+											<Select
+												value={filter.column_name}
+												onChange={(e) => {
+													setFilters((old: any) => ({
+														...old,
+														[tableId]: filters.map((f: any, i: any) => {
+															if (i === index) {
+																return {
+																	...f,
+																	column_name: e.target.value,
 																};
 															}
 
 															return f;
 														}),
-													);
+													}));
 												}}
 												size="sm"
 												bg="bg-canvas"
 												placeholder="Select column"
 											>
-												{columns.map((column: any) => (
-													<option
-														value={`${column.folder}.${column.table}.${column.name}`}
-														key={column.name}
-													>
-														{column.name}
+												{Object.keys(columns).map((column: any) => (
+													<option value={column} key={column}>
+														{column}
 													</option>
 												))}
 											</Select>
@@ -212,31 +282,32 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 										<FormControl flexGrow="1">
 											<Select
 												colorScheme="blue"
-												value={filter.operator}
+												value={filter.condition}
 												onChange={(e) => {
-													setFilters(
-														filters.map((f, i) => {
+													setFilters((old: any) => ({
+														...old,
+														[tableId]: filters.map((f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
-																	operator: e.target.value,
+																	condition: e.target.value,
 																};
 															}
 
 															return f;
 														}),
-													);
+													}));
 												}}
 												bg="bg-canvas"
 												size="sm"
-												placeholder="Select operator"
+												placeholder="Select condition"
 											>
-												{getOperatorsByType(colType).map((operator) => (
+												{getConditionsByType(colType).map((condition) => (
 													<option
-														value={operator.value}
-														key={operator.value}
+														value={condition.value}
+														key={condition.value}
 													>
-														{operator.name}
+														{condition.name}
 													</option>
 												))}
 											</Select>
@@ -247,8 +318,9 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 												colorScheme="blue"
 												value={filter.value}
 												onChange={(e) => {
-													setFilters(
-														filters.map((f, i) => {
+													setFilters((old: any) => ({
+														...old,
+														[tableId]: filters.map((f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
@@ -261,7 +333,7 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 
 															return f;
 														}),
-													);
+													}));
 												}}
 												borderRadius="sm"
 												bg="bg-canvas"
@@ -276,7 +348,7 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 											colorScheme="red"
 											variant="outline"
 											onClick={() => {
-												handleRemoveFilter(index);
+												handleRemoveFilter(filter.id);
 											}}
 										/>
 									</HStack>
@@ -285,13 +357,7 @@ export const FilterButton = ({ columns }: { columns: any }) => {
 						</VStack>
 					)}
 				</PopoverBody>
-				<PopoverFooter
-					border="0"
-					display="flex"
-					alignItems="center"
-					justifyContent="right"
-					pb={4}
-				>
+				<PopoverFooter border="0" display="flex" alignItems="center" pb={4}>
 					<ButtonGroup size="sm">
 						<Button colorScheme="gray" onClick={handleReset}>
 							Reset all

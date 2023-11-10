@@ -2,7 +2,6 @@ import {
 	Stack,
 	Text,
 	Button,
-	Input,
 	Modal,
 	ModalOverlay,
 	ModalContent,
@@ -13,21 +12,63 @@ import {
 	useDisclosure,
 	Skeleton,
 	SimpleGrid,
+	Menu,
+	MenuButton,
+	MenuList,
+	Box,
+	MenuItem,
+	IconButton,
+	useToast,
 } from '@chakra-ui/react';
+import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Layout } from 'react-feather';
-
-import { useState } from 'react';
+import { Layout, MoreVertical, Trash } from 'react-feather';
+import { useAtomValue } from 'jotai';
 
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
-import { useCreateApp } from './hooks/useCreateApp';
+import { useCreateAppFlow } from './hooks/useCreateApp';
 import { PageLayout } from '@/layout';
+import { FormInput } from '@/components/FormInput';
+import { useDeleteApp } from '@/features/app-list/hooks/useDeleteApp';
+import { workspaceAtom } from '@/features/workspaces';
 
 const AppCard = ({ app }: { app: AppType }) => {
+	const toast = useToast();
+	const { isOpen, onOpen, onClose } = useDisclosure();
+	const methods = useForm();
 	const navigate = useNavigate();
+
+	const deleteMutation = useDeleteApp({
+		onSuccess: () => {
+			onClose();
+			toast({
+				status: 'success',
+				title: 'App created',
+			});
+		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to delete app',
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
+			});
+		},
+	});
+
 	const handleClick = () => {
-		navigate(`/apps/${app.id}/${app?.pages?.[0]?.id}/new-editor`);
+		navigate(`/apps/${app.id}/${app?.pages?.[0]?.id}/preview`);
 	};
+
+	const onSubmit = () => {
+		if (app.id) {
+			deleteMutation.mutate({
+				appId: app.id,
+				appName: app.name,
+			});
+		}
+	};
+
 	return (
 		<Stack
 			borderWidth="1px"
@@ -52,28 +93,115 @@ const AppCard = ({ app }: { app: AppType }) => {
 					{app?.name}
 				</Text>
 			</Stack>
+			<Menu>
+				<MenuButton
+					flexShrink="0"
+					as={IconButton}
+					minW="none"
+					p="1"
+					h={8}
+					variant="ghost"
+					colorScheme="gray"
+					minH="none"
+					icon={<MoreVertical size="14" />}
+					ml="auto"
+					onClick={(e) => {
+						e.stopPropagation();
+					}}
+				/>
+
+				<MenuList>
+					<MenuItem
+						color="red"
+						onClick={(e) => {
+							e.stopPropagation();
+							onOpen();
+						}}
+					>
+						<Stack alignItems="center" direction="row">
+							<Trash size="14" />
+							<Box>Delete App</Box>
+						</Stack>
+					</MenuItem>
+				</MenuList>
+			</Menu>
+
+			<Modal isOpen={isOpen} onClose={onClose}>
+				<ModalOverlay />
+				<ModalContent>
+					<FormProvider {...methods}>
+						<form onSubmit={methods.handleSubmit(onSubmit)}>
+							<ModalHeader fontSize="md" borderBottomWidth="1px">
+								Confirm App deletion
+							</ModalHeader>
+							<ModalCloseButton />
+							<ModalBody py="6">
+								<FormInput
+									name="App name"
+									id="name"
+									placeholder={`Write ${app.name} to delete`}
+									validation={{
+										validate: (value: any) =>
+											value === app.name || 'App name didnt match',
+									}}
+								/>
+							</ModalBody>
+							<ModalFooter borderTopWidth="1px">
+								<Button
+									size="sm"
+									colorScheme="gray"
+									mr={3}
+									variant="ghost"
+									disabled={deleteMutation.isLoading}
+									onClick={onClose}
+								>
+									Close
+								</Button>
+								<Button
+									isLoading={deleteMutation.isLoading}
+									type="submit"
+									size="sm"
+									colorScheme="red"
+								>
+									Delete
+								</Button>
+							</ModalFooter>
+						</form>
+					</FormProvider>
+				</ModalContent>
+			</Modal>
 		</Stack>
 	);
 };
 
 export const AppList = () => {
 	// Will need to pass workspace in here but for now we only have one workspace (backend spits out the first workspace)
-	const navigate = useNavigate();
+	// const navigate = useNavigate();
+	const workspaceId = useAtomValue(workspaceAtom);
+
+	const methods = useForm();
+
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
-	const [appName, setAppName] = useState('');
-	const { isOpen, onOpen, onClose } = useDisclosure();
-	const createAppMutation = useCreateApp({
-		onSuccess: (data: any) => {
-			navigate(`/apps/${data.app?.id}/${data?.page?.id}/new-editor`);
-			refetch();
-			setAppName('');
-			onClose();
+	const { isOpen, onOpen, onClose } = useDisclosure({
+		onClose: () => {
+			methods.reset();
 		},
 	});
 
-	const handleCreateApp = async () => {
-		await createAppMutation.mutateAsync({
+	const { handleCreateApp: handleCreateAppFlow, isLoading: createAppIsLoading } =
+		useCreateAppFlow({
+			onSuccess: () => {
+				// navigate(`/apps/${data?.app_id}/${defaultPage}/editor`);
+				refetch();
+				// setAppName('');
+				onClose();
+			},
+		});
+
+	const onSubmit = async ({ name: appName }: any) => {
+		await handleCreateAppFlow({
 			name: appName,
+			workspaceId: workspaceId || '',
 		});
 	};
 
@@ -86,7 +214,7 @@ export const AppList = () => {
 				</Button>
 			}
 		>
-			<SimpleGrid spacing={6} columns={4}>
+			<SimpleGrid spacing={6} pb="4" columns={4}>
 				{isLoading ? (
 					<>
 						<Skeleton w="full" h={24} />
@@ -95,37 +223,62 @@ export const AppList = () => {
 						<Skeleton w="full" h={24} />
 					</>
 				) : (
-					apps.map((app) => <AppCard key={app.id} app={app} />)
+					apps
+						.sort((a, b) => a.name.localeCompare(b.name))
+						.map((app) => <AppCard key={app.id} app={app} />)
 				)}
 			</SimpleGrid>
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent>
-					<ModalHeader>Create a new app</ModalHeader>
-					<ModalCloseButton />
-					<ModalBody>
-						<Input
-							placeholder="App name"
-							value={appName}
-							onChange={(e) => {
-								setAppName(e.target.value);
-							}}
-						/>
-					</ModalBody>
+					<FormProvider {...methods}>
+						<form onSubmit={methods.handleSubmit(onSubmit)}>
+							<ModalHeader fontSize="md" borderBottomWidth="1px">
+								Create a new app
+							</ModalHeader>
+							<ModalCloseButton />
+							<ModalBody py="6">
+								<FormInput
+									name="App name"
+									id="name"
+									placeholder="Enter app name"
+									validation={{
+										validate: (value: any) => {
+											if (value.includes(' ')) {
+												return 'Name cannot have spaces';
+											}
 
-					<ModalFooter>
-						<Button
-							colorScheme="blue"
-							mr={3}
-							isLoading={createAppMutation.isLoading}
-							onClick={handleCreateApp}
-						>
-							Create
-						</Button>
-						<Button variant="ghost" onClick={onClose}>
-							Cancel
-						</Button>
-					</ModalFooter>
+											if (!value) {
+												return 'Name required';
+											}
+
+											return true;
+										},
+									}}
+								/>
+							</ModalBody>
+							<ModalFooter borderTopWidth="1px">
+								<Button
+									size="sm"
+									colorScheme="gray"
+									mr={3}
+									variant="ghost"
+									disabled={createAppIsLoading}
+									onClick={onClose}
+								>
+									Cancel
+								</Button>
+								<Button
+									colorScheme="blue"
+									isLoading={createAppIsLoading}
+									type="submit"
+									size="sm"
+								>
+									Create
+								</Button>
+							</ModalFooter>
+						</form>
+					</FormProvider>
 				</ModalContent>
 			</Modal>
 		</PageLayout>

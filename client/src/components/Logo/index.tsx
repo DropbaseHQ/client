@@ -1,4 +1,4 @@
-import { Center, Image, useDisclosure } from '@chakra-ui/react';
+import { Center, IconButton, Image, useDisclosure } from '@chakra-ui/react';
 
 export const DropbaseLogo = ({ children, ...props }: any) => {
 	const { isOpen, onClose, onOpen } = useDisclosure();
@@ -23,4 +23,23 @@ export const DropbaseLogo = ({ children, ...props }: any) => {
 	}
 
 	return logo;
+};
+
+export const DropbaseIcon = ({ children, icon, ...props }: any) => {
+	const { isOpen, onClose, onOpen } = useDisclosure();
+
+	const logo = <Image maxH="full" src="/logo.svg" alt="" />;
+
+	return (
+		<IconButton
+			aria-label=""
+			{...props}
+			icon={isOpen ? icon : logo}
+			onMouseEnter={onOpen}
+			onFocus={onOpen}
+			onMouseOver={onOpen}
+			onMouseLeave={onClose}
+			onBlur={onClose}
+		/>
+	);
 };

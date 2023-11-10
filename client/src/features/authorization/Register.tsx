@@ -34,11 +34,12 @@ export const Register = () => {
 	const toast = useToast();
 
 	const { mutate, isLoading } = useRegister({
-		onError: (error) => {
+		onError: (error: any) => {
 			toast({
 				title: 'Register Failed',
 				status: 'error',
-				description: error.message,
+				description:
+					error?.response?.data?.error || error?.response?.data || error?.message || '',
 			});
 		},
 		onSuccess: () => {

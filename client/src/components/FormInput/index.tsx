@@ -71,7 +71,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		const optionsToRender = value || [];
 
 		return (
-			<Stack p="3" borderWidth="1px" borderRadius="md" spacing="2">
+			<Stack spacing="2">
 				<Stack fontSize="xs" fontWeight="medium" letterSpacing="wide" direction="row">
 					<Box flex="1">Name</Box>
 					<Box flex="1">Value</Box>
@@ -139,8 +139,8 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				<Button
 					size="sm"
 					leftIcon={<Plus size="14" />}
-					variant="ghost"
-					colorScheme="blue"
+					variant="outline"
+					colorScheme="gray"
 					onClick={() => {
 						onChange([
 							...optionsToRender,

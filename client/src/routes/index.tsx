@@ -3,9 +3,9 @@ import { Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { Login, Register, ResetPassword } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
-import { AppRoutes } from '@/features/app';
-import { SourceRoutes } from '@/features/sources';
-import { useWorkspaces } from '@/features/workspaces';
+import { App } from '@/features/app';
+import { Users, Permissions, DeveloperSettings } from '@/features/settings';
+import { Workspaces, useWorkspaces } from '@/features/workspaces';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
@@ -18,7 +18,6 @@ export const DashboardRoutes = () => {
 						<Text color="heading" fontSize="lg" fontWeight="medium">
 							Checking user...
 						</Text>
-						<Text color="gray.700">Please wait while we fetch your details</Text>
 					</Stack>
 					<Progress minW="sm" size="xs" isIndeterminate />
 				</Center>
@@ -49,11 +48,15 @@ export const DashboardRoutes = () => {
 						</DashboardLayout>
 					}
 				>
+					<Route index element={<Navigate to="/apps" />} />
 					<Route path="login" element={<Login />} />
 					<Route path="register" element={<Register />} />
 					<Route path="reset" element={<ResetPassword />} />
-					<Route path="apps/*" element={<AppRoutes />} />
-					<Route path="source/*" element={<SourceRoutes />} />
+					<Route path="workspaces" element={<Workspaces />} />
+					<Route path="apps/*" element={<App />} />
+					<Route path="settings/members" element={<Users />} />
+					<Route path="settings/permissions" element={<Permissions />} />
+					<Route path="settings/developer" element={<DeveloperSettings />} />
 					<Route path="*" element={<Navigate to="/apps" />} />
 				</Route>
 			</Routes>

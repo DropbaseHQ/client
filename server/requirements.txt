@@ -14,3 +14,5 @@ dacite==1.8.1
 fastapi-jwt-auth==0.5.0
 passlib==1.7.4
 openai==0.28.0
+casbin==1.31.0
+sendgrid==6.10.0

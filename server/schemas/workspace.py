@@ -25,3 +25,17 @@ class CreateWorkspace(BaseWorkspace):
 class UpdateWorkspace(BaseModel):
     name: Optional[str]
     active: Optional[bool]
+
+
+class AddUserRequest(BaseModel):
+    user_email: str
+    role_id: UUID
+
+
+class RemoveUserRequest(BaseModel):
+    user_id: UUID
+
+
+class UpdateUserRoleRequest(BaseModel):
+    user_id: UUID
+    role_id: UUID

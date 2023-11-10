@@ -1,76 +1,70 @@
-import { Box, Stack } from '@chakra-ui/react';
-import { useParams } from 'react-router-dom';
+import { Box, Stack, StackDivider } from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { PanelHandle } from '@/components/Panel';
 
-import { useMonacoLoader } from '@/components/Editor';
-import { Table } from '@/features/smart-table/components/Table';
-import { useTableData } from '../smart-table/hooks/useTableData';
-import { AppBuilderNavbar } from './components/BuilderNavbar';
-import { Fetchers } from './components/Fetchers';
-import { StudioAutoSaver } from './components/StudioAutoSaver';
-import { UIPanel, UIPreview } from './components/UIPreview';
-import { UIState } from './components/UIState';
+import { AppPreview } from '@/features/app-preview';
+import { StackedTables } from '@/features/smart-table';
+import { AppState } from '@/features/app-state';
+import { useInitPage } from '@/features/page';
+import { Loader } from '@/components/Loader';
+import { AppNavbar } from '@/features/app/components/AppNavbar';
+import { PropertyPane } from '@/features/app-builder';
+import { FilesExplorer } from './components/FilesExplorer';
 
 export const AppBuilder = () => {
-	const { pageId } = useParams();
-	const [isEditorReady, , languageClient] = useMonacoLoader();
-
-	const { isLoading, dataclass } = useTableData({
-		pageId,
-		filters: [],
-		sorts: [],
-	});
-
-	if (!isLoading && languageClient) {
-		languageClient.sendNotification('workspace/setTableSchema', { dataclass });
-	}
+	const { isLoading } = useInitPage();
 
 	return (
 		<Stack spacing="0" h="full">
-			<AppBuilderNavbar />
-			<StudioAutoSaver />
-			<Box h="full" overflowY="auto">
-				<PanelGroup direction="horizontal">
-					<Panel defaultSize={80}>
-						<PanelGroup direction="vertical">
-							<Panel defaultSize={80}>
-								<PanelGroup direction="horizontal">
-									<Panel defaultSize={22.5}>
-										<UIState />
+			<AppNavbar />
+			<Box h="full" w="full" overflowY="auto">
+				<Stack spacing="0" divider={<StackDivider />} direction="row" w="full" h="full">
+					<Box flex="3" h="full">
+						<PanelGroup autoSaveId="main-panel" direction="vertical">
+							<Panel defaultSize={45}>
+								<PanelGroup autoSaveId="data-panel" direction="horizontal">
+									<Panel defaultSize={80}>
+										<Loader isLoading={isLoading}>
+											<StackedTables />
+										</Loader>
 									</Panel>
-
 									<PanelHandle direction="vertical" />
-
-									<Panel>{isEditorReady ? <Fetchers /> : null}</Panel>
+									<Panel>
+										<Loader isLoading={isLoading}>
+											<AppPreview />
+										</Loader>
+									</Panel>
 								</PanelGroup>
 							</Panel>
 
-							<PanelHandle direction="horizontal" />
-
-							<Panel maxSize={80}>
-								<Table />
-							</Panel>
-						</PanelGroup>
-					</Panel>
-
-					<PanelHandle direction="vertical" />
-
-					<Panel>
-						<PanelGroup direction="vertical">
-							<Panel>{isEditorReady ? <UIPanel /> : null}</Panel>
-
-							<PanelHandle direction="horizontal" />
+							<PanelHandle
+								boxShadow="0 -2px 4px rgba(0,0,0,0.2)"
+								direction="horizontal"
+							/>
 
 							<Panel>
-								<Box p="4" h="full" bg="white">
-									<UIPreview />
-								</Box>
+								<PanelGroup autoSaveId="dev-panel" direction="horizontal">
+									<Panel defaultSize={20}>
+										<Loader isLoading={isLoading}>
+											<AppState />
+										</Loader>
+									</Panel>
+									<PanelHandle direction="vertical" />
+									<Panel>
+										<Loader isLoading={isLoading}>
+											<FilesExplorer />
+										</Loader>
+									</Panel>
+								</PanelGroup>
 							</Panel>
 						</PanelGroup>
-					</Panel>
-				</PanelGroup>
+					</Box>
+
+					<Box h="full" w="xs">
+						<PropertyPane />
+					</Box>
+				</Stack>
 			</Box>
 		</Stack>
 	);

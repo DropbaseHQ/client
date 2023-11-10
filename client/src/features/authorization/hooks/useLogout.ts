@@ -1,7 +1,8 @@
-import { axios } from '@/lib/axios';
-import { useToast } from '@/lib/chakra-ui';
 import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
+import { axios } from '@/lib/axios';
+import { useToast } from '@/lib/chakra-ui';
+
 const logoutUser = async () => {
 	const response = await axios.delete<any>(`/user/logout`);
 

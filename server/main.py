@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from fastapi_jwt_auth.exceptions import AuthJWTException
 
 from server import endpoints
+from server.endpoints import worker as worker_routers
 from server.utils.authentication import get_current_user
 from server.utils.exception_handlers import catch_exceptions_middleware
 
@@ -12,6 +13,18 @@ load_dotenv()
 
 
 app = FastAPI()
+worker_app = FastAPI()
+worker_app.include_router(worker_routers.app_router)
+worker_app.include_router(worker_routers.table_router)
+worker_app.include_router(worker_routers.misc_router)
+worker_app.include_router(worker_routers.file_router)
+worker_app.include_router(worker_routers.widget_router)
+worker_app.include_router(worker_routers.components_router)
+worker_app.include_router(worker_routers.sync_router)
+
+
+app.mount("/worker", worker_app)
+
 
 # app.middleware("http")(catch_exceptions_middleware)
 
@@ -29,19 +42,19 @@ app.add_middleware(
 )
 
 require_authentication_routes = APIRouter(dependencies=[Depends(get_current_user)])
-require_authentication_routes.include_router(endpoints.source_router)
 require_authentication_routes.include_router(endpoints.role_router)
 require_authentication_routes.include_router(endpoints.workspace_router)
 require_authentication_routes.include_router(endpoints.app_router)
 require_authentication_routes.include_router(endpoints.page_router)
-require_authentication_routes.include_router(endpoints.widget_router)
-require_authentication_routes.include_router(endpoints.tables_router)
 require_authentication_routes.include_router(endpoints.columns_router)
-require_authentication_routes.include_router(endpoints.functions_router)
-require_authentication_routes.include_router(endpoints.components_router)
-require_authentication_routes.include_router(endpoints.task_router)
 
 app.include_router(endpoints.user_router)
+app.include_router(endpoints.group_router)
+app.include_router(endpoints.token_router)
+app.include_router(endpoints.widget_router)
+app.include_router(endpoints.components_router)
+app.include_router(endpoints.tables_router)
+app.include_router(endpoints.files_router)
 app.include_router(require_authentication_routes)
 
 

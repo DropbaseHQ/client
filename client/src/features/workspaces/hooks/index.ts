@@ -27,10 +27,9 @@ export const useWorkspaces = () => {
 	const data: any = useMemo(() => {
 		return response || [];
 	}, [response]);
-
 	return {
 		...rest,
 		queryKey,
-		...data,
+		workspaces: data,
 	};
 };

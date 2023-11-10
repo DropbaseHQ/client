@@ -4,7 +4,9 @@ from uuid import UUID
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session
+from sqlalchemy import or_
+from sqlalchemy.orm import Session, Query
+from server.models import Policy
 
 ModelType = TypeVar("ModelType", bound=declarative_base())
 
@@ -90,6 +92,18 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def remove(self, db: Session, *, id: UUID, auto_commit: bool = True) -> ModelType:
         obj = db.query(self.model).get(id)
         db.delete(obj)
+        db.query(Policy).filter(
+            or_(Policy.v0 == str(id), Policy.v1 == str(id), Policy.v2 == str(id))
+        ).delete()
         if auto_commit:
             db.commit()
         return obj
+
+    def remove_multiple(self, db: Session, query: Query, auto_commit: bool = True) -> ModelType:
+        object_ids = [obj.id for obj in query.all()]
+        query.delete()
+        db.query(Policy).filter(
+            or_(Policy.v0.in_(object_ids), Policy.v1.in_(object_ids), Policy.v2.in_(object_ids))
+        ).delete(synchronize_session=False)
+        if auto_commit:
+            db.commit()
