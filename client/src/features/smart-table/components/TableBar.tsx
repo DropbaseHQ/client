@@ -56,38 +56,42 @@ export const TableBar = () => {
 			});
 	};
 
-	return (
-		<Stack
-			bg="white"
-			borderWidth="1px"
-			borderRadius="sm"
-			direction="row"
-			p="1.5"
-			justifyContent="space-between"
-		>
-			{tableType === 'sql' ? (
-				<Stack spacing="0" alignItems="center" direction="row">
-					<FilterButton />
-					<SortButton />
-					<PinnedFilters />
-				</Stack>
-			) : null}
-
-			<Stack direction="row">
-				{cellEdits.length > 0 ? (
-					<Tooltip label="Update">
-						<IconButton
-							aria-label="Save Cell edits"
-							icon={<Save size="14" />}
-							variant="outline"
-							colorScheme="blue"
-							size="sm"
-							onClick={handleCellEdits}
-							isLoading={saveEditsMutation.isLoading}
-						/>
-					</Tooltip>
+	if (tableType === 'sql') {
+		return (
+			<Stack
+				bg="white"
+				borderWidth="1px"
+				borderRadius="sm"
+				direction="row"
+				p="1.5"
+				justifyContent="space-between"
+			>
+				{tableType === 'sql' ? (
+					<Stack spacing="0" alignItems="center" direction="row">
+						<FilterButton />
+						<SortButton />
+						<PinnedFilters />
+					</Stack>
 				) : null}
+
+				<Stack direction="row">
+					{cellEdits.length > 0 ? (
+						<Tooltip label="Update">
+							<IconButton
+								aria-label="Save Cell edits"
+								icon={<Save size="14" />}
+								variant="outline"
+								colorScheme="blue"
+								size="sm"
+								onClick={handleCellEdits}
+								isLoading={saveEditsMutation.isLoading}
+							/>
+						</Tooltip>
+					) : null}
+				</Stack>
 			</Stack>
-		</Stack>
-	);
+		);
+	}
+
+	return null;
 };

@@ -61,5 +61,5 @@ export const useTableSyncStatus = (tableId: any) => {
 		}
 	}, [header, isLoading, isRefetching, columns, tableId]);
 
-	return needsSync;
+	return header.length > 0 ? needsSync : false;
 };

@@ -50,7 +50,10 @@ export const TableProperties = () => {
 	});
 
 	const methods = useForm();
-	const { reset } = methods;
+	const {
+		reset,
+		formState: { isDirty },
+	} = methods;
 
 	useEffect(() => {
 		reset(
@@ -105,13 +108,14 @@ export const TableProperties = () => {
 							Table Properties
 						</Text>
 						<ButtonGroup ml="auto" size="xs">
-							<IconButton
-								aria-label="Update component"
-								isLoading={mutation.isLoading}
-								type="submit"
-								icon={<Save size="14" />}
-							/>
-
+							{isDirty ? (
+								<IconButton
+									aria-label="Update component"
+									isLoading={mutation.isLoading}
+									type="submit"
+									icon={<Save size="14" />}
+								/>
+							) : null}
 							<DeleteTable tableId={tableId} tableName={table?.name} />
 						</ButtonGroup>
 					</Stack>
