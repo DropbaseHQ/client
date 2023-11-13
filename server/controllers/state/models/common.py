@@ -6,5 +6,6 @@ from pydantic import BaseModel
 ## components
 # input
 class ComponentDisplayProperties(BaseModel):
-    message: Optional[str]
-    message_type: Optional[str]
+    # message: Optional[str]
+    # message_type: Optional[str]
+    pass
