@@ -14,10 +14,10 @@ import {
 	Button,
 	FormControl,
 	FormLabel,
+	FormErrorMessage,
 } from '@chakra-ui/react';
 import { ArrowLeft, Edit, Eye } from 'react-feather';
 import { useEffect, useState } from 'react';
-
 import { Link, useParams } from 'react-router-dom';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
@@ -28,8 +28,8 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { apps } = useGetWorkspaceApps();
 
 	const [name, setAppName] = useState('');
-
-	const updateMutation = useUpdateApp();
+	const [isValid, setIsValid] = useState(true);
+	const updateMutation = useUpdateApp({});
 
 	const app = apps.find((a) => a.id === appId);
 
@@ -39,10 +39,20 @@ export const AppNavbar = ({ isPreview }: any) => {
 		}
 	}, [app]);
 
-	const handleChange = (e: any) => {
-		setAppName(e.target.value);
+	const nameNotUnique = (newName: any) => {
+		return apps.find((a) => {
+			return a.name === newName && a.id !== appId;
+		});
 	};
 
+	const handleChange = (e: any) => {
+		setAppName(e.target.value);
+		if (nameNotUnique(e.target.value)) {
+			setIsValid(false);
+		} else {
+			setIsValid(true);
+		}
+	};
 	const handleReset = () => {
 		if (app) setAppName(app?.name);
 	};
@@ -98,7 +108,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 								<PopoverContent>
 									<PopoverArrow />
 									<PopoverBody>
-										<FormControl>
+										<FormControl isInvalid={!isValid}>
 											<FormLabel>Edit App name</FormLabel>
 											<Input
 												size="sm"
@@ -106,6 +116,10 @@ export const AppNavbar = ({ isPreview }: any) => {
 												value={name}
 												onChange={handleChange}
 											/>
+
+											<FormErrorMessage>
+												An app with this name already exists.
+											</FormErrorMessage>
 										</FormControl>
 									</PopoverBody>
 									<PopoverFooter display="flex" alignItems="end">
@@ -118,7 +132,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 												Cancel
 											</Button>
 											<Button
-												isDisabled={app?.name === name || !name}
+												isDisabled={app?.name === name || !name || !isValid}
 												colorScheme="blue"
 												onClick={handleUpdate}
 											>
