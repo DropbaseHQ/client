@@ -39,6 +39,7 @@ const FileButton = ({ file }: any) => {
 
 	const { appName, pageName } = useAtomValue(pageAtom);
 	const { pageId } = useParams();
+	const { files } = useGetPage(pageId);
 
 	const {
 		isOpen: mouseOver,
@@ -102,9 +103,21 @@ const FileButton = ({ file }: any) => {
 			});
 		}
 	};
+	const nameNotUnique = (newFileName: any) => {
+		return files.find((f: any) => {
+			return f.name === newFileName && f.id !== file.id;
+		});
+	};
 
 	const onKeyDown = (e: any) => {
 		if (e.key === 'Enter') {
+			if (nameNotUnique(e.target.value)) {
+				toast({
+					status: 'error',
+					title: 'File name must be unique',
+				});
+				return;
+			}
 			e?.preventDefault();
 			onSubmit(e.target.value);
 		}
