@@ -132,6 +132,7 @@ const FileButton = ({ file }: any) => {
 						variant="outline"
 						autoFocus
 						placeholder="Enter new name"
+						onBlur={onEditClose}
 						_focus={{
 							bg: 'white',
 						}}
