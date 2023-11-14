@@ -5,7 +5,8 @@ from pydantic import BaseModel
 
 # text
 class TextSharedProperties(BaseModel):
-    visible: Optional[bool]
+    # visible: Optional[bool]
+    pass
 
 
 class TextContextProperty(TextSharedProperties):

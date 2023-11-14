@@ -9,7 +9,7 @@ from .common import ComponentDisplayProperties
 
 # select
 class SelectSharedProperties(BaseModel):
-    visible: Optional[bool]
+    # visible: Optional[bool]
     value: Optional[str]
     options: Annotated[Optional[List[Dict]], PropertyCategory.default]
 
