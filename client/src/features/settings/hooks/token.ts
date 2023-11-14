@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useEffect, useMemo } from 'react';
 
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useAtom } from 'jotai';
 import { axios, workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
@@ -68,11 +68,18 @@ export const useSyncProxyToken = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const { user, isLoading: isLoadingUser } = useGetCurrentUser();
 
-	const token = useAtomValue(proxyTokenAtom);
+	const [token, setToken] = useAtom(proxyTokenAtom);
 
 	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
 
-	const isValid = token && tokens.find((t: any) => t === token);
+	const isValid = token && tokens.find((t) => t.token === token);
+
+	useEffect(() => {
+		const selectedToken = tokens.find((t) => t.is_selected);
+		if (selectedToken) {
+			setToken(selectedToken.token);
+		}
+	}, [tokens]);
 
 	useEffect(() => {
 		if (token) {
