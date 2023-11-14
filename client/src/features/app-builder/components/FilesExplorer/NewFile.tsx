@@ -118,7 +118,16 @@ export const NewFile = (props: any) => {
 								<Stack spacing="2">
 									<FormInput
 										type="text"
-										validation={{ required: 'Cannot  be empty' }}
+										validation={{
+											required: 'Cannot  be empty',
+											validate: {
+												unique: (value: any) => {
+													if (files.find((f: any) => f.name === value)) {
+														return 'Name must be unique';
+													}
+												},
+											},
+										}}
 										name="name"
 										id="name"
 									/>

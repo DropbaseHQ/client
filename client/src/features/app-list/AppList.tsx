@@ -198,6 +198,12 @@ export const AppList = () => {
 			},
 		});
 
+	const nameNotUnique = (newName: any) => {
+		return apps.find((a) => {
+			return a.name === newName;
+		});
+	};
+
 	const onSubmit = async ({ name: appName }: any) => {
 		await handleCreateAppFlow({
 			name: appName,
@@ -250,6 +256,9 @@ export const AppList = () => {
 
 											if (!value) {
 												return 'Name required';
+											}
+											if (nameNotUnique(value)) {
+												return 'Name already exists';
 											}
 
 											return true;
