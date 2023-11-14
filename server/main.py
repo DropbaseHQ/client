@@ -7,7 +7,8 @@ from fastapi_jwt_auth.exceptions import AuthJWTException
 from server import endpoints
 from server.endpoints import worker as worker_routers
 from server.utils.authentication import get_current_user
-from server.utils.exception_handlers import catch_exceptions_middleware
+
+# from server.utils.exception_handlers import catch_exceptions_middleware
 
 load_dotenv()
 
