@@ -39,3 +39,8 @@ class RemoveUserRequest(BaseModel):
 class UpdateUserRoleRequest(BaseModel):
     user_id: UUID
     role_id: UUID
+
+
+class UpdateWorkspaceToken(BaseModel):
+    token: Optional[str]
+    token_id: Optional[UUID]
