@@ -3,10 +3,15 @@ from server import crud
 from sqlalchemy.orm import Session
 from server.utils.connect import get_db
 from server.controllers import tables as table_controller
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.schemas.tables import CreateTables, UpdateTablesRequest
 from uuid import UUID
 
-router = APIRouter(prefix="/table", tags=["table"])
+table_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.TABLES)
+
+router = APIRouter(
+    prefix="/table", tags=["table"], dependencies=[Depends(table_authorizer)]
+)
 
 
 @router.post("/")
