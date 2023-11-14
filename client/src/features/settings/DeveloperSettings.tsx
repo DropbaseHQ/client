@@ -17,7 +17,12 @@ import copy from 'copy-to-clipboard';
 import { PageLayout } from '@/layout';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
-import { useCreateProxyToken, useProxyTokens } from '@/features/settings/hooks/token';
+import {
+	useCreateProxyToken,
+	useProxyTokens,
+	ProxyToken,
+	useUpdateWorkspaceProxyToken,
+} from '@/features/settings/hooks/token';
 import { proxyTokenAtom } from '@/features/settings/atoms';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -31,12 +36,30 @@ export const DeveloperSettings = () => {
 	const toast = useToast();
 
 	const createMutation = useCreateProxyToken();
+	const updateTokenMutation = useUpdateWorkspaceProxyToken({
+		onSuccess: () => {
+			toast({
+				title: 'Token updated',
+				status: 'info',
+			});
+		},
+	});
 
 	const handleButtonClick = async () => {
 		createMutation.mutate({
 			workspaceId,
 			userId: user.id,
 		});
+	};
+	const maskedString = (token_str: string) =>
+		'*'.repeat(token_str.length - 4) + token_str.slice(-4);
+
+	const handleChooseToken = (token: ProxyToken) => {
+		updateTokenMutation.mutate({
+			workspaceId,
+			tokenId: token.token_id,
+		});
+		setToken(token.token);
 	};
 
 	if (isLoading) {
@@ -62,12 +85,12 @@ export const DeveloperSettings = () => {
 					Generate Proxy Token
 				</Button>
 				<SimpleGrid columns={3} spacing={4}>
-					{tokens.map((token: any) => {
-						const isSelected = selectedToken === token;
+					{tokens.map((token: ProxyToken) => {
+						const isSelected = selectedToken === token.token;
 						return (
 							<Stack
 								direction="row"
-								key={token}
+								key={token.token_id}
 								cursor="pointer"
 								overflow="hidden"
 								borderWidth="1px"
@@ -78,11 +101,7 @@ export const DeveloperSettings = () => {
 								p="4"
 								as="button"
 								onClick={() => {
-									setToken(token);
-									toast({
-										title: 'Token updated',
-										status: 'info',
-									});
+									handleChooseToken(token);
 								}}
 								_hover={{
 									shadow: 'sm',
@@ -100,9 +119,9 @@ export const DeveloperSettings = () => {
 									overflow="hidden"
 									flex="1"
 									textOverflow="ellipsis"
-									fontSize="lg"
+									fontSize="sm"
 								>
-									{token}
+									{maskedString(token.token)}
 								</Text>
 								<IconButton
 									flexShrink="0"
@@ -113,7 +132,7 @@ export const DeveloperSettings = () => {
 									size="sm"
 									onClick={() => {
 										onCopy();
-										copy(token);
+										copy(token.token);
 										toast({
 											title: 'Token copied',
 											status: 'success',
