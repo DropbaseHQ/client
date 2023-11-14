@@ -17,7 +17,6 @@ import {
 	ModalCloseButton,
 	Input,
 	useDisclosure,
-	Select,
 	VStack,
 	Text,
 	Flex,
@@ -30,44 +29,43 @@ import {
 	PopoverArrow,
 	PopoverCloseButton,
 	ButtonGroup,
-	Tag,
 	IconButton,
 	HStack,
 } from '@chakra-ui/react';
-import { UserMinus, Edit } from 'react-feather';
+import { UserMinus } from 'react-feather';
 import { useGetWorkspaceUsers, GET_WORKSPACE_USERS_QUERY_KEY } from './hooks/workspace';
 import { workspaceAtom } from '@/features/workspaces';
 import { useAtomValue } from 'jotai';
 import { useInviteMember } from './hooks/workspace';
 import { useQueryClient } from 'react-query';
-import { useUpdateUserRole, useRemoveMember } from './hooks/workspace';
+import { useRemoveMember } from './hooks/workspace';
 
 // Will get this from the server later
 const ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
-const DEV_UUID = '00000000-0000-0000-0000-000000000002';
-const USER_UUID = '00000000-0000-0000-0000-000000000003';
-const MEMBER_UUID = '00000000-0000-0000-0000-000000000004';
+// const DEV_UUID = '00000000-0000-0000-0000-000000000002';
+// const USER_UUID = '00000000-0000-0000-0000-000000000003';
+// const MEMBER_UUID = '00000000-0000-0000-0000-000000000004';
 
 const UserRow = (item: any) => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
 
-	const [newRole, setNewRole] = useState(item.user.role_id);
+	// const [newRole] = useState(item.user.role_id);
 
 	const { isOpen: isOpenRemove, onOpen: onOpenRemove, onClose: onCloseRemove } = useDisclosure();
-	const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
+	// const { onClose: onCloseEdit } = useDisclosure();
 	const removeMemberMutation = useRemoveMember({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
 			onCloseRemove();
 		},
 	});
-	const changeUserRoleMutation = useUpdateUserRole({
-		onSuccess: () => {
-			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
-			onCloseEdit();
-		},
-	});
+	// const changeUserRoleMutation = useUpdateUserRole({
+	// 	onSuccess: () => {
+	// 		queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
+	// 		onCloseEdit();
+	// 	},
+	// });
 
 	const handleRemoveMember = () => {
 		removeMemberMutation.mutate({
@@ -75,13 +73,13 @@ const UserRow = (item: any) => {
 			workspaceId,
 		});
 	};
-	const handleChangeRole = () => {
-		changeUserRoleMutation.mutate({
-			userId: item.user.id,
-			workspaceId,
-			roleId: newRole,
-		});
-	};
+	// const handleChangeRole = () => {
+	// 	changeUserRoleMutation.mutate({
+	// 		userId: item.user.id,
+	// 		workspaceId,
+	// 		roleId: newRole,
+	// 	});
+	// };
 
 	return (
 		<Tr key={item.user.id}>
@@ -89,7 +87,7 @@ const UserRow = (item: any) => {
 			<Td>
 				<HStack spacing="6">
 					<Text>{item.user.role_name}</Text>
-					<Popover
+					{/* <Popover
 						isOpen={isOpenEdit}
 						onClose={onCloseEdit}
 						onOpen={onOpenEdit}
@@ -135,18 +133,18 @@ const UserRow = (item: any) => {
 								</ButtonGroup>
 							</PopoverFooter>
 						</PopoverContent>
-					</Popover>
+					</Popover> */}
 				</HStack>
 			</Td>
 			<Td>
 				<Flex justifyContent="space-between">
-					<Flex>
+					{/* <Flex>
 						{item.user?.groups?.map((obj: any) => (
 							<Tag size="sm" key={obj?.id}>
 								{obj.name}
 							</Tag>
 						))}
-					</Flex>
+					</Flex> */}
 					<Popover
 						isOpen={isOpenRemove}
 						onClose={onCloseRemove}
@@ -193,7 +191,7 @@ export const Users = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
 
 	const [newMemberEmail, setNewMemberEmail] = useState('');
-	const [newMemberRole, setNewMemberRole] = useState(MEMBER_UUID);
+	const [newMemberRole] = useState(ADMIN_UUID);
 
 	const queryClient = useQueryClient();
 	const { users } = useGetWorkspaceUsers();
@@ -230,7 +228,8 @@ export const Users = () => {
 					<Tr>
 						<Th>Email</Th>
 						<Th>Role</Th>
-						<Th>Groups</Th>
+						{/* <Th>Groups</Th> */}
+						<Th>Actions</Th>
 					</Tr>
 				</Thead>
 				<Tbody>
@@ -253,7 +252,7 @@ export const Users = () => {
 									setNewMemberEmail(e.target.value);
 								}}
 							/>
-							<Select
+							{/* <Select
 								placeholder="Select role"
 								value={newMemberRole}
 								onChange={(e) => {
@@ -264,7 +263,7 @@ export const Users = () => {
 								<option value={DEV_UUID}>Dev</option>
 								<option value={USER_UUID}>User</option>
 								<option value={MEMBER_UUID}>Member</option>
-							</Select>
+							</Select> */}
 						</VStack>
 					</ModalBody>
 

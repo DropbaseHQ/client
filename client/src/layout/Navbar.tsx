@@ -9,7 +9,7 @@ import {
 	Box,
 } from '@chakra-ui/react';
 
-import { Settings, LogOut, Grid, Repeat, Users, Lock, Key } from 'react-feather';
+import { Settings, LogOut, Grid, Repeat, Users, Key } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
@@ -77,7 +77,7 @@ export const Navbar = () => {
 					</Tooltip>
 				)}
 
-				{userHasRole(['admin']) && (
+				{/* {userHasRole(['admin']) && (
 					<Tooltip label="Permissions" placement="right">
 						<IconButton
 							variant="ghost"
@@ -89,7 +89,7 @@ export const Navbar = () => {
 							icon={<Lock size="22" />}
 						/>
 					</Tooltip>
-				)}
+				)} */}
 
 				<Stack mt="auto" alignItems="center">
 					<Menu>
