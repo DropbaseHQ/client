@@ -2,6 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 from server.crud.base import CRUDBase
 from server.models import Token
@@ -16,7 +17,7 @@ class CRUDToken(CRUDBase[Token, CreateToken, UpdateToken]):
             (
                 db.query(Token)
                 .filter(Token.workspace_id == workspace_id)
-                .filter(Token.user_id == user_id)
+                .filter(or_(Token.user_id == user_id, Token.is_selected == True))
             )
             .order_by(Token.date)
             .all()
