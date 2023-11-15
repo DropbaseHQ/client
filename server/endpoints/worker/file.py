@@ -10,7 +10,9 @@ from server.utils.authorization import RESOURCES, AuthZDepFactory
 
 files_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.FILES)
 router = APIRouter(
-    prefix="/files", tags=["files"], dependencies=[Depends(files_authorizer)]
+    prefix="/files",
+    tags=["files"],
+    # dependencies=[Depends(files_authorizer)],
 )
 
 

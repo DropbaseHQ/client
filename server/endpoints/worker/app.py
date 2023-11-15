@@ -12,7 +12,11 @@ from server.utils.authorization import (
 from uuid import UUID
 
 app_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.APP)
-router = APIRouter(prefix="/app", tags=["app"], dependencies=[Depends(app_authorizer)])
+router = APIRouter(
+    prefix="/app",
+    tags=["app"],
+    # dependencies=[Depends(app_authorizer)],
+)
 
 
 @router.get("/{app_id}")

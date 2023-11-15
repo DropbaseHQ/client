@@ -16,7 +16,7 @@ components_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.COMPONEN
 router = APIRouter(
     prefix="/components",
     tags=["components"],
-    dependencies=[Depends(components_authorizer)],
+    # dependencies=[Depends(components_authorizer)],
 )
 
 
