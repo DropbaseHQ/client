@@ -1,117 +1,11 @@
+from typing import Optional
 from uuid import UUID
 
-from pydantic import create_model
+from pydantic import BaseModel, create_model
 from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.state.models import *
-
-
-def get_component_props(db: Session, page_id: UUID):
-    page = crud.page.get_object_by_id_or_404(db, id=page_id)
-    page_widgets = {"widgets": {}, "tables": {}}
-    widgets = crud.widget.get_page_widgets(db, page_id=page.id)
-    for widget in widgets:
-        components = crud.components.get_widget_component(db, widget_id=widget.id)
-        components = [comp.__dict__ for comp in components]
-        page_widgets["widgets"][widget.name] = {"property": widget.property, "components": components}
-
-    tables = crud.tables.get_page_tables(db, page_id=page.id)
-    for table in tables:
-        columns = crud.columns.get_table_columns(db, table_id=table.id)
-        columns = [col.__dict__ for col in columns]
-        page_widgets["tables"][table.name] = {"property": table.property, "columns": columns}
-
-    return page_widgets
-
-
-def get_state_context_for_client(db: Session, page_id: UUID):
-    # TODO: refactor this
-    page = crud.page.get_object_by_id_or_404(db, id=page_id)
-    state = {"widgets": {}, "tables": {}}
-    context = {"widgets": {}, "tables": {}}
-    # page_widgets = {"widgets": {}, "tables": {}}
-    widgets = crud.widget.get_page_widgets(db, page_id=page.id)
-    components_mapper = {
-        "input": InputContextProperty,
-        "button": ButtonContextProperty,
-        "text": TextContextProperty,
-        "select": SelectContextProperty,
-    }
-    for widget in widgets:
-        widget_init = WidgetContextProperty(**widget.property)
-        components = crud.components.get_widget_component(db, widget_id=widget.id)
-        components_contexts = {}
-        components_state = {}
-        for comp in components:
-            comp_name = comp.property.get("name")
-            # for state, we just need to return an empty value
-            components_state[comp_name] = None
-            # for context, we first need to find a class (XxxContextProperty)
-            component_class = components_mapper.get(comp.type)
-            # then initiate it with component properties
-            component_def = component_class(**comp.property)
-            # then get dict values from that initiated class
-            components_contexts[comp_name] = component_def.dict()
-
-        state["widgets"][widget.name] = components_state
-        widget_context = widget_init.dict()
-        widget_context["components"] = components_contexts
-        context["widgets"][widget.name] = widget_context
-
-    # same logic for tables
-    tables = crud.tables.get_page_tables(db, page_id=page.id)
-    # TODO: just use one, sql or postgres
-    columns_mapper = {
-        "postgres": PgColumnContextProperty,
-        "sql": PgColumnContextProperty,
-        "python": PyColumnContextProperty,
-    }
-    for table in tables:
-        table_init = TableContextProperty(**table.property)
-        columns = crud.columns.get_table_columns(db, table_id=table.id)
-        columns_contexts = {}
-        columns_state = {}
-        for comp in columns:
-            comp_name = comp.property.get("name")
-            columns_state[comp_name] = None
-            column_class = columns_mapper.get(comp.type)
-            column_def = column_class(**comp.property)
-            columns_contexts[comp_name] = column_def.dict()
-        state["tables"][table.name] = columns_state
-        table_context = table_init.dict()
-        table_context["columns"] = columns_contexts
-        context["tables"][table.name] = table_context
-    return state, context
-
-
-def get_state_for_client(db: Session, page_id: UUID):
-    # TODO: refactor this
-    page = crud.page.get_object_by_id_or_404(db, id=page_id)
-
-    state = {"widgets": {}, "tables": {}}
-    widgets = crud.widget.get_page_widgets(db, page_id=page.id)
-    for widget in widgets:
-        components = crud.components.get_widget_component(db, widget_id=widget.id)
-        components_state = {}
-        for comp in components:
-            comp_name = comp.property.get("name")
-            # for state, we just need to return an empty value
-            components_state[comp_name] = None
-        state["widgets"][widget.name] = components_state
-
-    # same logic for tables
-    tables = crud.tables.get_page_tables(db, page_id=page.id)
-    for table in tables:
-        columns = crud.columns.get_table_columns(db, table_id=table.id)
-        columns_state = {}
-        for comp in columns:
-            comp_name = comp.property.get("name")
-            columns_state[comp_name] = None
-        state["tables"][table.name] = columns_state
-
-    return state
-
 
 base_property_mapper = {
     "context": {
@@ -128,7 +22,11 @@ base_property_mapper = {
         "Tables": {
             "base": TableContextProperty,
             "dir": "columns",
-            "children": {"postgres": PgColumnContextProperty, "python": PyColumnContextProperty},
+            "children": {
+                "postgres": PgColumnContextProperty,
+                "python": PyColumnContextProperty,
+                "sql": PgColumnContextProperty,
+            },
         },
     },
     "defined": {
@@ -244,16 +142,83 @@ def get_state_context(db: Session, page_id: UUID):
     return State, Context
 
 
-def get_page_state(db: Session, page_id: UUID):
+def get_component_props(db: Session, page_id: UUID):
+    page = crud.page.get_object_by_id_or_404(db, id=page_id)
+    page_widgets = {"widgets": {}, "tables": {}}
+    widgets = crud.widget.get_page_widgets(db, page_id=page.id)
 
-    page_table_widgets = get_component_props(db, page_id)
-    class_generator = GenerateReourceClass(resource_type="defined", resource="Widgets")
-    WidgetState = class_generator.get_state_class(page_table_widgets.get("widgets"))
-    class_generator = GenerateReourceClass(resource_type="defined", resource="Tables")
-    TableState = class_generator.get_state_class(page_table_widgets.get("tables"))
+    for widget in widgets:
+        components = crud.components.get_widget_component(db, widget_id=widget.id)
+        components = [comp.__dict__ for comp in components]
+        page_widgets["widgets"][widget.name] = {"property": widget.property, "components": components}
 
-    class State(BaseModel):
-        widgets: WidgetState
-        tables: TableState
+    tables = crud.tables.get_page_tables(db, page_id=page.id)
+    for table in tables:
+        columns = crud.columns.get_table_columns(db, table_id=table.id)
+        columns = [col.__dict__ for col in columns]
+        page_widgets["tables"][table.name] = {"property": table.property, "columns": columns}
 
-    return State
+    return page_widgets
+
+
+class ComponentHandler:
+    def __init__(self, component_type, component_class_mapper):
+        self.component_type = component_type
+        self.component_class_mapper = component_class_mapper
+
+    def handle(self, db, parent_id):
+        components = getattr(crud, self.component_type).get_resources(db, parent_id)
+        state, context = {}, {}
+        for component in components:
+            component_name = component.property.get("name")
+            state[component_name] = None
+            context[component_name] = self.to_context_prop(component)
+        return state, context
+
+    def to_context_prop(self, comp_prop):
+        comp_class = self.component_class_mapper.get(comp_prop.type)
+        return comp_class(**comp_prop.property).dict()
+
+
+class ResourceHandler:
+    def __init__(self, resource_name, resource_class, comp_handler, parent_class):
+        self.resource_name = resource_name
+        self.resource_class = resource_class
+        self.comp_handler = comp_handler
+        self.parent_class = parent_class
+
+    def handle(self, db, page_id):
+        resources = getattr(crud, self.resource_name).get_page_resources(db, page_id)
+        state, context = {}, {}
+        for resource in resources:
+            resource_init = self.parent_class(**resource.property)
+            context[resource.name] = resource_init.dict()
+
+            resource_state, resource_contexts = self.comp_handler.handle(db, getattr(resource, "id"))
+            state[resource.name] = resource_state
+            context[resource.name]["components"] = resource_contexts
+        return state, context
+
+
+def get_state_context_for_client(db: Session, page_id: UUID):
+    page = crud.page.get_object_by_id_or_404(db, id=page_id)
+
+    widget_mapper = {
+        "input": InputContextProperty,
+        "button": ButtonContextProperty,
+        "text": TextContextProperty,
+        "select": SelectContextProperty,
+    }
+    widget_handler = ComponentHandler("components", widget_mapper)
+    widget_res_handler = ResourceHandler("widget", widget_mapper, widget_handler, WidgetContextProperty)
+
+    table_mapper = {"postgres": PgColumnContextProperty, "python": PyColumnContextProperty}
+    table_handler = ComponentHandler("columns", table_mapper)
+    table_res_handler = ResourceHandler("tables", table_mapper, table_handler, TableContextProperty)
+
+    widget_state, widget_context = widget_res_handler.handle(db, page.id)
+    table_state, table_context = table_res_handler.handle(db, page.id)
+    state = {"widgets": widget_state, "tables": table_state}
+    context = {"widgets": widget_context, "tables": table_context}
+
+    return state, context

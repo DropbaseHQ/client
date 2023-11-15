@@ -30,3 +30,11 @@ def sync_components(request: SyncComponentsRequest, response: Response, db: Sess
         db, page_name=request.page_name, app_name=request.app_name, token=request.token
     )
     return get_state_context_payload(db, page.id)
+
+
+from uuid import UUID
+
+
+@router.post("/page/{page_id}")
+def get_page_state_context(page_id: UUID, db: Session = Depends(get_db)):
+    return get_state_context_payload(db, page_id)

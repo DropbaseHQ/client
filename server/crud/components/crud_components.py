@@ -12,6 +12,9 @@ class CRUDComponents(CRUDBase[Components, CreateComponents, UpdateComponents]):
     def get_widget_component(self, db: Session, widget_id: UUID) -> List[Components]:
         return db.query(Components).filter(Components.widget_id == widget_id).all()
 
+    def get_resources(self, db: Session, widget_id: UUID) -> List[Components]:
+        return db.query(Components).filter(Components.widget_id == widget_id).all()
+
     def get_workspace_id(self, db: Session, components_id: UUID) -> str:
         return (
             db.query(App.workspace_id)
