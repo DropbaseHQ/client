@@ -53,8 +53,12 @@ export const DeveloperSettings = () => {
 			userId: user.id,
 		});
 	};
-	// const maskedString = (token_str: string) =>
-	// 	'*'.repeat(token_str.length - 4) + token_str.slice(-4);
+	const maskedString = (token_str: string) => {
+		if (token_str.length < 8) {
+			return token_str;
+		}
+		return '*'.repeat(token_str.length - 4) + token_str.slice(-4);
+	};
 
 	const handleChooseToken = (token: ProxyToken) => {
 		updateTokenMutation.mutate({
@@ -131,7 +135,7 @@ export const DeveloperSettings = () => {
 										textOverflow="ellipsis"
 										fontSize="sm"
 									>
-										{token.token}
+										{maskedString(token.token)}
 									</Text>
 									<IconButton
 										flexShrink="0"
