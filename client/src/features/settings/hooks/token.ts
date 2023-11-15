@@ -13,6 +13,7 @@ export type ProxyToken = {
 	token: string;
 	token_id: string;
 	is_selected: boolean;
+	owner_selected: boolean;
 };
 const fetchProxyTokens = async ({ workspaceId, userId }: any) => {
 	const response = await axios.get<ProxyToken[]>(`/token/${workspaceId}/${userId}`);

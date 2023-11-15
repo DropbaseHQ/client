@@ -9,6 +9,8 @@ import {
 	AlertIcon,
 	AlertTitle,
 	IconButton,
+	Flex,
+	Badge,
 	useClipboard,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -88,17 +90,18 @@ export const DeveloperSettings = () => {
 					{tokens.map((token: ProxyToken) => {
 						const isSelected = selectedToken === token.token;
 						return (
-							<Stack
-								direction="row"
+							<Flex
+								direction="column"
 								key={token.token_id}
 								cursor="pointer"
 								overflow="hidden"
 								borderWidth="1px"
 								borderColor={isSelected ? 'blue.500' : 'gray.200'}
 								borderRadius="sm"
+								justifyContent="center"
 								bg="white"
-								alignItems="center"
-								p="4"
+								p="2"
+								width="full"
 								as="button"
 								onClick={() => {
 									handleChooseToken(token);
@@ -107,40 +110,52 @@ export const DeveloperSettings = () => {
 									shadow: 'sm',
 								}}
 							>
-								<Icon
-									flexShrink="0"
-									color={isSelected ? 'blue.500' : 'gray.500'}
-									as={isSelected ? CheckCircle : Circle}
-									boxSize={5}
-								/>
-								<Text
-									w="full"
-									whiteSpace="nowrap"
-									overflow="hidden"
-									flex="1"
-									textOverflow="ellipsis"
-									fontSize="sm"
-								>
-									{token.token}
-								</Text>
-								<IconButton
-									flexShrink="0"
-									variant="ghost"
-									icon={
-										hasCopied ? <CheckCircle size="14" /> : <Copy size="14" />
-									}
-									size="sm"
-									onClick={() => {
-										onCopy();
-										copy(token.token);
-										toast({
-											title: 'Token copied',
-											status: 'success',
-										});
-									}}
-									aria-label="Copy token"
-								/>
-							</Stack>
+								<Flex mr="auto">
+									{token.owner_selected && (
+										<Badge size="xs">Owner Selected</Badge>
+									)}
+								</Flex>
+								<Stack direction="row" alignItems="center" width="full" spacing="0">
+									<Icon
+										flexShrink="0"
+										color={isSelected ? 'blue.500' : 'gray.500'}
+										as={isSelected ? CheckCircle : Circle}
+										boxSize={5}
+										mr="2"
+									/>
+									<Text
+										w="full"
+										whiteSpace="nowrap"
+										overflow="hidden"
+										flex="1"
+										textOverflow="ellipsis"
+										fontSize="sm"
+									>
+										{token.token}
+									</Text>
+									<IconButton
+										flexShrink="0"
+										variant="ghost"
+										icon={
+											hasCopied ? (
+												<CheckCircle size="14" />
+											) : (
+												<Copy size="14" />
+											)
+										}
+										size="sm"
+										onClick={() => {
+											onCopy();
+											copy(token.token);
+											toast({
+												title: 'Token copied',
+												status: 'success',
+											});
+										}}
+										aria-label="Copy token"
+									/>
+								</Stack>
+							</Flex>
 						);
 					})}
 				</SimpleGrid>
