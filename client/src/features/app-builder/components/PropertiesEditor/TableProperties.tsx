@@ -139,6 +139,20 @@ export const TableProperties = () => {
 											}
 											return true;
 										},
+										isUnique: (value: any) => {
+											if (value && table?.name !== value) {
+												const isUnique = Object.keys(
+													pageState?.state?.tables,
+												).find(
+													(t: any) =>
+														t === value && value !== table?.name,
+												);
+												if (isUnique) {
+													return 'Table name must be unique';
+												}
+											}
+											return true;
+										},
 									},
 								}}
 							/>

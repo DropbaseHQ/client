@@ -20,10 +20,19 @@ def create_token(request: CreateToken, db: Session = Depends(get_db)):
 
 
 @router.get("/{workspace_id}/{user_id}")
-def get_user_tokens_in_workspace(workspace_id: UUID, user_id: UUID, db: Session = Depends(get_db)):
+def get_user_tokens_in_workspace(
+    workspace_id: UUID, user_id: UUID, db: Session = Depends(get_db)
+):
+    workspace_owner = crud.user_role.get_workspace_owner(db, workspace_id)
+    owner_id = workspace_owner.user_id
     return [
-        token.token for token in 
-        crud.token.get_user_tokens_in_workspace(db, workspace_id, user_id)
+        {
+            "token": token.token,
+            "token_id": token.id,
+            "is_selected": token.is_selected,
+            "owner_selected": token.is_selected and token.user_id == owner_id,
+        }
+        for token in crud.token.get_user_tokens_in_workspace(db, workspace_id, user_id)
     ]
 
 

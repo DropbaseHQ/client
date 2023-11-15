@@ -10,6 +10,7 @@ from server.schemas.workspace import (
     AddUserRequest,
     RemoveUserRequest,
     UpdateUserRoleRequest,
+    UpdateWorkspaceToken,
 )
 from server.utils.connect import get_db
 from server.controllers import workspace as workspace_controller
@@ -41,7 +42,9 @@ def get_workspace_groups(workspace_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/{workspace_id}/add_user")
-def add_user_to_workspace(workspace_id: UUID, request: AddUserRequest, db: Session = Depends(get_db)):
+def add_user_to_workspace(
+    workspace_id: UUID, request: AddUserRequest, db: Session = Depends(get_db)
+):
     return workspace_controller.add_user_to_workspace(
         db, workspace_id, request.user_email, request.role_id
     )
@@ -51,7 +54,9 @@ def add_user_to_workspace(workspace_id: UUID, request: AddUserRequest, db: Sessi
 def remove_user_from_workspace(
     workspace_id: UUID, request: RemoveUserRequest, db: Session = Depends(get_db)
 ):
-    return workspace_controller.remove_user_from_workspace(db, workspace_id, request.user_id)
+    return workspace_controller.remove_user_from_workspace(
+        db, workspace_id, request.user_id
+    )
 
 
 @router.put("/{workspace_id}/user_role")
@@ -61,14 +66,25 @@ def update_user_role_in_workspace(
     return workspace_controller.update_user_role_in_workspace(db, workspace_id, request)
 
 
+@router.put("/{workspace_id}/token")
+def update_workspace_token(
+    workspace_id: UUID, request: UpdateWorkspaceToken, db: Session = Depends(get_db)
+):
+    return workspace_controller.update_workspace_token(db, workspace_id, request)
+
+
 @router.post("/")
 def create_workspace(request: CreateWorkspace, db: Session = Depends(get_db)):
-    raise HTTPException(status_code=501, detail="Endpoint POST /workspace is not implemented")
+    raise HTTPException(
+        status_code=501, detail="Endpoint POST /workspace is not implemented"
+    )
     return crud.workspace.create(db, obj_in=request)
 
 
 @router.put("/{workspace_id}")
-def update_workspace(workspace_id: UUID, request: UpdateWorkspace, db: Session = Depends(get_db)):
+def update_workspace(
+    workspace_id: UUID, request: UpdateWorkspace, db: Session = Depends(get_db)
+):
     return crud.workspace.update_by_pk(db, pk=workspace_id, obj_in=request)
 
 

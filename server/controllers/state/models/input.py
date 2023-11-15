@@ -32,7 +32,7 @@ class InputBaseProperties(BaseModel):
 
 
 class InputSharedProperties(BaseModel):
-    visible: Optional[bool]
+    # visible: Optional[bool]
     value: Optional[str]
 
 

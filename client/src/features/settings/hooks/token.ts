@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useEffect, useMemo } from 'react';
 
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useAtom } from 'jotai';
 import { axios, workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
@@ -9,8 +9,14 @@ import { proxyTokenAtom } from '@/features/settings/atoms';
 
 export const PROXY_TOKENS_QUERY_KEY = 'proxyTokens';
 
+export type ProxyToken = {
+	token: string;
+	token_id: string;
+	is_selected: boolean;
+	owner_selected: boolean;
+};
 const fetchProxyTokens = async ({ workspaceId, userId }: any) => {
-	const response = await axios.get<any>(`/token/${workspaceId}/${userId}`);
+	const response = await axios.get<ProxyToken[]>(`/token/${workspaceId}/${userId}`);
 
 	return response.data;
 };
@@ -63,17 +69,42 @@ export const useSyncProxyToken = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const { user, isLoading: isLoadingUser } = useGetCurrentUser();
 
-	const token = useAtomValue(proxyTokenAtom);
+	const [token, setToken] = useAtom(proxyTokenAtom);
 
 	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
 
-	const isValid = token && tokens.find((t: any) => t === token);
+	const isValid = token && tokens.find((t) => t.token === token);
+
+	useEffect(() => {
+		const selectedToken = tokens.find((t) => t.is_selected);
+		if (selectedToken) {
+			setToken(selectedToken.token);
+		}
+	}, [tokens]);
 
 	useEffect(() => {
 		if (token) {
-			workerAxios.defaults.headers["dropbase-proxy-token"] = token;
+			workerAxios.defaults.headers['dropbase-proxy-token'] = token;
 		}
 	}, [token]);
 
 	return { token, isLoading: isLoadingUser || isLoading, isValid };
+};
+
+const updateWorkspaceProxyToken = async ({ workspaceId, tokenId }: any) => {
+	const response = await axios.put(`/workspace/${workspaceId}/token`, {
+		token_id: tokenId,
+	});
+	return response.data;
+};
+
+export const useUpdateWorkspaceProxyToken = (props: any = {}) => {
+	const queryClient = useQueryClient();
+
+	return useMutation(updateWorkspaceProxyToken, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(PROXY_TOKENS_QUERY_KEY);
+		},
+	});
 };
