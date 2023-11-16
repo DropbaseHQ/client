@@ -93,7 +93,7 @@ const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
 			overflow="hidden"
 			borderWidth="1px"
 			borderColor={isSelected ? 'blue.500' : 'gray.200'}
-			borderRadius="sm"
+			borderRadius="md"
 			justifyContent="center"
 			bg="white"
 			p="2"
@@ -162,39 +162,35 @@ const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
 					</PopoverContent>
 				</Popover>
 			</Flex>
-			<Stack direction="row" alignItems="center" width="full" spacing="0">
-				<Icon
-					flexShrink="0"
-					color={isSelected ? 'blue.500' : 'gray.500'}
-					as={isSelected ? CheckCircle : Circle}
-					boxSize={5}
-					mr="2"
-				/>
-				<Text
-					w="full"
-					whiteSpace="nowrap"
-					overflow="hidden"
-					flex="1"
-					textOverflow="ellipsis"
-					fontSize="sm"
-				>
-					{maskedString(token.token)}
-				</Text>
-				<IconButton
-					flexShrink="0"
-					variant="ghost"
-					icon={hasCopied ? <CheckCircle size="14" /> : <Copy size="14" />}
-					size="sm"
-					onClick={() => {
-						onCopy();
-						copy(token.token);
-						toast({
-							title: 'Token copied',
-							status: 'success',
-						});
-					}}
-					aria-label="Copy token"
-				/>
+			<Stack direction="column" width="full" spacing="0">
+				<Flex>
+					<Text as="b">Name:</Text>
+					<Text ml="1">{token.name}</Text>
+				</Flex>
+				<Flex>
+					<Text as="b">Region:</Text>
+					<Text ml="1">{token.region}</Text>
+				</Flex>
+				<Flex alignItems="center">
+					<Text as="b">Token:</Text>
+					<Text ml="1">{maskedString(token.token)}</Text>
+					<IconButton
+						flexShrink="0"
+						variant="ghost"
+						icon={hasCopied ? <CheckCircle size="14" /> : <Copy size="14" />}
+						size="xs"
+						height="24px"
+						onClick={() => {
+							onCopy();
+							copy(token.token);
+							toast({
+								title: 'Token copied',
+								status: 'success',
+							});
+						}}
+						aria-label="Copy token"
+					/>
+				</Flex>
 			</Stack>
 		</Flex>
 	);
