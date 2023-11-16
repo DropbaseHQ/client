@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY, useGetTable } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
+import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
@@ -158,5 +159,8 @@ export const useSyncDropbaseColumns = (props: any = {}) => {
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 		},
+		onSuccess: () => {
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+		}
 	});
 };
