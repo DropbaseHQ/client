@@ -52,10 +52,10 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				onChange={(e) => {
 					onChange?.(e.target.value);
 				}}
-				value={value}
 				ref={ref}
 				size="sm"
 				{...inputProps}
+				value={value}
 				placeholder="Select option"
 			>
 				{(selectOptions || []).map((option: any) => (

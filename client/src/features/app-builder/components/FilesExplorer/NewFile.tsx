@@ -31,7 +31,9 @@ import { generateSequentialName } from '@/utils';
 
 export const NewFile = (props: any) => {
 	const toast = useToast();
-	const methods = useForm();
+	const methods = useForm({
+		shouldUnregister: true,
+	});
 
 	const { pageId } = useParams();
 
@@ -48,6 +50,7 @@ export const NewFile = (props: any) => {
 	const { isOpen, onToggle, onClose } = useDisclosure({
 		onClose: () => {
 			methods.reset();
+			methods.setValue('type', 'sql');
 		},
 	});
 
@@ -125,6 +128,8 @@ export const NewFile = (props: any) => {
 													if (files.find((f: any) => f.name === value)) {
 														return 'Name must be unique';
 													}
+
+													return true;
 												},
 											},
 										}}
@@ -162,7 +167,10 @@ export const NewFile = (props: any) => {
 											flex="1"
 											maxW="sm"
 											type="select"
-											options={sources.map((s) => ({ name: s, value: s }))}
+											options={sources.map((s) => ({
+												name: s,
+												value: s,
+											}))}
 											name="source"
 											id="source"
 										/>
