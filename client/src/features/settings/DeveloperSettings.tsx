@@ -5,7 +5,6 @@ import {
 	Skeleton,
 	Text,
 	SimpleGrid,
-	Icon,
 	Input,
 	Alert,
 	AlertIcon,
