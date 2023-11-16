@@ -108,3 +108,19 @@ export const useUpdateWorkspaceProxyToken = (props: any = {}) => {
 		},
 	});
 };
+
+const deleteProxyToken = async ({ tokenId }: any) => {
+	const response = await axios.delete(`/token/${tokenId}`);
+	return response.data;
+};
+
+export const useDeleteProxyToken = (props: any = {}) => {
+	const queryClient = useQueryClient();
+
+	return useMutation(deleteProxyToken, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(PROXY_TOKENS_QUERY_KEY);
+		},
+	});
+};

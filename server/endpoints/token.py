@@ -43,3 +43,8 @@ def verify_token(token: str, response: Response, db: Session = Depends(get_db)):
         response.status_code = 404
         return {"message": "Invalid token"}
     return {"message": "Token is valid"}
+
+
+@router.delete("/{token_id}")
+def delete_token(token_id: UUID, db: Session = Depends(get_db)):
+    return crud.token.remove(db, id=token_id)
