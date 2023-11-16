@@ -16,6 +16,8 @@ class Token(Base):
     )
     user_id = Column(UUID(as_uuid=True), ForeignKey("user.id", ondelete="CASCADE"))
     comment = Column(String)
+    name = Column(String)
+    region = Column(String)
     is_selected = Column(Boolean, default=False)
     date = Column(TIMESTAMP, server_default=func.now())
 

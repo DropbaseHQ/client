@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.token import CreateToken
+from server.schemas.token import CreateToken, UpdateTokenInfo
 from server.utils.connect import get_db
 
 router = APIRouter(prefix="/token", tags=["token"])
@@ -31,6 +31,8 @@ def get_user_tokens_in_workspace(
             "token_id": token.id,
             "is_selected": token.is_selected,
             "owner_selected": token.is_selected and token.user_id == owner_id,
+            "name": token.name,
+            "region": token.region,
         }
         for token in crud.token.get_user_tokens_in_workspace(db, workspace_id, user_id)
     ]
@@ -43,6 +45,15 @@ def verify_token(token: str, response: Response, db: Session = Depends(get_db)):
         response.status_code = 404
         return {"message": "Invalid token"}
     return {"message": "Token is valid"}
+
+
+@router.put("/{token_id}")
+def update_token(
+    token_id: UUID, request: UpdateTokenInfo, db: Session = Depends(get_db)
+):
+    return crud.token.update_by_pk(
+        db, pk=token_id, obj_in=request.dict(exclude_unset=True)
+    )
 
 
 @router.delete("/{token_id}")
