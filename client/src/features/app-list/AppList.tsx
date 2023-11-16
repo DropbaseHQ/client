@@ -43,7 +43,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 			onClose();
 			toast({
 				status: 'success',
-				title: 'App created',
+				title: 'App deleted',
 			});
 		},
 		onError: (error: any) => {
