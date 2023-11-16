@@ -31,6 +31,8 @@ def get_user_tokens_in_workspace(
             "token_id": token.id,
             "is_selected": token.is_selected,
             "owner_selected": token.is_selected and token.user_id == owner_id,
+            "name": token.name,
+            "region": token.region,
         }
         for token in crud.token.get_user_tokens_in_workspace(db, workspace_id, user_id)
     ]
@@ -49,7 +51,9 @@ def verify_token(token: str, response: Response, db: Session = Depends(get_db)):
 def update_token(
     token_id: UUID, request: UpdateTokenInfo, db: Session = Depends(get_db)
 ):
-    return crud.token.update(db, id=token_id, obj_in=request.dict())
+    return crud.token.update_by_pk(
+        db, pk=token_id, obj_in=request.dict(exclude_unset=True)
+    )
 
 
 @router.delete("/{token_id}")

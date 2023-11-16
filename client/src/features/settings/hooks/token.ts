@@ -47,11 +47,13 @@ export const useProxyTokens = ({ workspaceId, userId }: any) => {
 	};
 };
 
-const createProxyToken = async ({ userId, workspaceId }: any) => {
+const createProxyToken = async ({ userId, workspaceId, name, region }: any) => {
 	const response = await axios.post(`/token/`, {
 		token: '',
 		user_id: userId,
 		workspace_id: workspaceId,
+		name,
+		region,
 	});
 	return response.data;
 };

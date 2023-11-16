@@ -18,7 +18,9 @@ class ReadToken(BaseToken):
 
 
 class CreateToken(BaseToken):
-    pass
+    name: Optional[str]
+    region: Optional[str]
+    comment: Optional[str]
 
 
 class UpdateTokenInfo(BaseModel):
