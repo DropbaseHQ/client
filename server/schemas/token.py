@@ -21,6 +21,12 @@ class CreateToken(BaseToken):
     pass
 
 
+class UpdateTokenInfo(BaseModel):
+    name: Optional[str]
+    region: Optional[str]
+    comment: Optional[str]
+
+
 class UpdateToken(BaseModel):
     # NOTE: this should not be used. you can only create and delete tokens
     token: str

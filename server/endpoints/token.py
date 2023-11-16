@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.token import CreateToken
+from server.schemas.token import CreateToken, UpdateTokenInfo
 from server.utils.connect import get_db
 
 router = APIRouter(prefix="/token", tags=["token"])
@@ -43,6 +43,13 @@ def verify_token(token: str, response: Response, db: Session = Depends(get_db)):
         response.status_code = 404
         return {"message": "Invalid token"}
     return {"message": "Token is valid"}
+
+
+@router.put("/{token_id}")
+def update_token(
+    token_id: UUID, request: UpdateTokenInfo, db: Session = Depends(get_db)
+):
+    return crud.token.update(db, id=token_id, obj_in=request.dict())
 
 
 @router.delete("/{token_id}")
