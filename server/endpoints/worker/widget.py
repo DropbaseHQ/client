@@ -10,7 +10,9 @@ from uuid import UUID
 widget_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WIDGET)
 
 router = APIRouter(
-    prefix="/widget", tags=["widget"], dependencies=[Depends(widget_authorizer)]
+    prefix="/widget",
+    tags=["widget"],
+    # dependencies=[Depends(widget_authorizer)],
 )
 
 

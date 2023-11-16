@@ -9,9 +9,7 @@ from uuid import UUID
 
 table_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.TABLES)
 
-router = APIRouter(
-    prefix="/table", tags=["table"], dependencies=[Depends(table_authorizer)]
-)
+router = APIRouter(prefix="/table", tags=["table"])
 
 
 @router.post("/")
