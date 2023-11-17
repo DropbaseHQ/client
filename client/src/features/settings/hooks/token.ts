@@ -14,6 +14,8 @@ export type ProxyToken = {
 	token_id: string;
 	is_selected: boolean;
 	owner_selected: boolean;
+	name?: string;
+	region?: string;
 };
 const fetchProxyTokens = async ({ workspaceId, userId }: any) => {
 	const response = await axios.get<ProxyToken[]>(`/token/${workspaceId}/${userId}`);
@@ -45,11 +47,13 @@ export const useProxyTokens = ({ workspaceId, userId }: any) => {
 	};
 };
 
-const createProxyToken = async ({ userId, workspaceId }: any) => {
+const createProxyToken = async ({ userId, workspaceId, name, region }: any) => {
 	const response = await axios.post(`/token/`, {
 		token: '',
 		user_id: userId,
 		workspace_id: workspaceId,
+		name,
+		region,
 	});
 	return response.data;
 };
@@ -102,6 +106,25 @@ export const useUpdateWorkspaceProxyToken = (props: any = {}) => {
 	const queryClient = useQueryClient();
 
 	return useMutation(updateWorkspaceProxyToken, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(PROXY_TOKENS_QUERY_KEY);
+		},
+	});
+};
+
+const updateTokenInfo = async ({ tokenId, name, region }: any) => {
+	const response = await axios.put(`/token/${tokenId}`, {
+		name,
+		region,
+	});
+	return response.data;
+};
+
+export const useUpdateTokenInfo = (props: any = {}) => {
+	const queryClient = useQueryClient();
+
+	return useMutation(updateTokenInfo, {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(PROXY_TOKENS_QUERY_KEY);

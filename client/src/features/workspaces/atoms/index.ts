@@ -1,3 +1,3 @@
-import { atom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 
-export const workspaceAtom: any = atom(null);
+export const workspaceAtom: any = atomWithStorage('workspaceId', null);
