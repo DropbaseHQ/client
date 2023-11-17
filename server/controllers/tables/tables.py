@@ -18,10 +18,6 @@ from server.utils.converter import get_class_properties
 from server.utils.state_context import get_state_context_payload
 
 
-def get_table_properties():
-    return get_class_properties(TablesBaseProperty)
-
-
 def get_table(db, table_id: UUID):
     table = crud.tables.get_object_by_id_or_404(db, id=table_id)
     file = crud.files.get_file_by_table_id(db, table_id=table_id)
@@ -68,19 +64,6 @@ def update_table(db: Session, request: UpdateTablesRequest):
         update_table_columns(db, table.id, request.table_columns, file.type)
 
     db.commit()
-    return get_state_context_payload(db, request.page_id)
-
-
-def update_table_columns_req(db: Session, table_id: UUID, request: UpdateTablesRequest):
-    table_updates = UpdateTables(**request.dict())
-    table = crud.tables.update_by_pk(db, pk=table_id, obj_in=table_updates)
-    file = crud.files.get_object_by_id_or_404(db, id=request.file_id)
-
-    # update columns
-    if request.table_columns is not None and len(request.table_columns) > 0:
-        update_table_columns(db, table.id, request.table_columns, file.type)
-    db.commit()
-
     return get_state_context_payload(db, request.page_id)
 
 

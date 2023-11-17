@@ -7,7 +7,6 @@ class SyncColumnsRequest(BaseModel):
     table_id: str
     columns: List[str]
     type: str
-    token: str
 
 
 class SyncComponentsRequest(BaseModel):
