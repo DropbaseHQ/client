@@ -73,7 +73,7 @@ export const SmartTable = ({ tableId }: any) => {
 	const { pageName, appName } = useAtomValue(pageAtom);
 
 	const { pageId } = useParams();
-	const { tables, files } = useGetPage(pageId);
+	const { files } = useGetPage(pageId);
 
 	const pageState = useAtomValue(newPageStateAtom);
 
