@@ -83,13 +83,13 @@ export const useSyncProxyToken = () => {
 		const selectedToken = tokens.find((t) => t.is_selected);
 		if (selectedToken) {
 			setToken(selectedToken.token);
+		} else {
+			setToken(null);
 		}
-	}, [tokens]);
+	}, [tokens, workspaceId]);
 
 	useEffect(() => {
-		if (token) {
-			workerAxios.defaults.headers['dropbase-proxy-token'] = token;
-		}
+		workerAxios.defaults.headers['dropbase-proxy-token'] = token;
 	}, [token]);
 
 	return { token, isLoading: isLoadingUser || isLoading, isValid };
