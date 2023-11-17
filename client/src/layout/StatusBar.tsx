@@ -24,7 +24,7 @@ export const useStatus = () => {
 };
 
 export const StatusBar = () => {
-	// const { isLoading } = useStatus();
+	const { status } = useStatus();
 
 	return (
 		<Stack
@@ -37,8 +37,8 @@ export const StatusBar = () => {
 			bg="white"
 			borderTopWidth="1px"
 		>
-			<Circle size="2" bg="green" />
-			<Text fontSize="xs">Connected</Text>
+			<Circle size="2" bg={status === 'success' ? 'green' : 'red'} />
+			<Text fontSize="xs">{status === 'success' ? 'Connected' : 'Not connected'}</Text>
 		</Stack>
 	);
 };

@@ -37,6 +37,8 @@ def sync_components(request: SyncComponentsRequest, response: Response, db: Sess
     return get_state_context_payload(db, page.id)
 
 
-@router.post("/page/{page_id}")
+@router.put("/page/{page_id}")
 def get_page_state_context(page_id: UUID, db: Session = Depends(get_db)):
-    return get_state_context_payload(db, page_id)
+    resp = get_state_context_payload(db, page_id)
+    print(resp)
+    return resp
