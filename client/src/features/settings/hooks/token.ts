@@ -75,7 +75,7 @@ export const useSyncProxyToken = () => {
 
 	const [token, setToken] = useAtom(proxyTokenAtom);
 
-	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
+	const { isLoading, isFetched, tokens } = useProxyTokens({ userId: user.id, workspaceId });
 
 	const isValid = token && tokens.find((t) => t.token === token);
 
@@ -83,7 +83,7 @@ export const useSyncProxyToken = () => {
 		const selectedToken = tokens.find((t) => t.is_selected);
 		if (selectedToken) {
 			setToken(selectedToken.token);
-		} else {
+		} else if (isFetched && tokens.length <= 0) {
 			setToken(null);
 		}
 	}, [tokens, workspaceId]);
