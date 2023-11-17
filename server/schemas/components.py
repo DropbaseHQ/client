@@ -31,7 +31,7 @@ class InputBaseProperties(BaseModel):
     default: Annotated[Optional[Any], PropertyCategory.other]
 
 
-class InputDefined(InputBaseProperties, InputSharedProperties):
+class InputDefined(InputSharedProperties, InputBaseProperties):
     pass
 
 
