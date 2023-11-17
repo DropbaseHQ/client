@@ -31,7 +31,7 @@ class InputBaseProperties(BaseModel):
     default: Annotated[Optional[Any], PropertyCategory.other]
 
 
-class InputDefined(InputBaseProperties, InputSharedProperties):
+class InputDefined(InputSharedProperties, InputBaseProperties):
     pass
 
 
@@ -54,7 +54,7 @@ class SelectBaseProperties(BaseModel):
     default: Annotated[Optional[Any], PropertyCategory.other]
 
 
-class SelectDefined(SelectBaseProperties, SelectSharedProperties):
+class SelectDefined(SelectSharedProperties, SelectBaseProperties):
     pass
 
 
@@ -81,7 +81,7 @@ class ButtonBaseProperties(BaseModel):
     display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
 
 
-class ButtonDefined(ButtonBaseProperties, ButtonSharedProperties):
+class ButtonDefined(ButtonSharedProperties, ButtonBaseProperties):
     pass
 
 
@@ -106,7 +106,7 @@ class TextBaseProperties(BaseModel):
     display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
 
 
-class TextDefined(TextBaseProperties, TextSharedProperties):
+class TextDefined(TextSharedProperties, TextBaseProperties):
     pass
 
 
