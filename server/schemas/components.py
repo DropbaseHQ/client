@@ -81,7 +81,7 @@ class ButtonBaseProperties(BaseModel):
     display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
 
 
-class ButtonDefined(ButtonBaseProperties, ButtonSharedProperties):
+class ButtonDefined(ButtonSharedProperties, ButtonBaseProperties):
     pass
 
 
@@ -106,7 +106,7 @@ class TextBaseProperties(BaseModel):
     display_rules: Annotated[Optional[List[str]], PropertyCategory.display_rules]
 
 
-class TextDefined(TextBaseProperties, TextSharedProperties):
+class TextDefined(TextSharedProperties, TextBaseProperties):
     pass
 
 
