@@ -54,7 +54,7 @@ class SelectBaseProperties(BaseModel):
     default: Annotated[Optional[Any], PropertyCategory.other]
 
 
-class SelectDefined(SelectBaseProperties, SelectSharedProperties):
+class SelectDefined(SelectSharedProperties, SelectBaseProperties):
     pass
 
 
