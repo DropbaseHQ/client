@@ -22,13 +22,13 @@ class InputBaseProperties(BaseModel):
     def state(self):
         match self.type:
             case "text":
-                return "str"
+                return str
             case "number":
-                return "float"
+                return float
             case "date":
-                return "str"
+                return str
             case _:
-                return "Any"
+                return Any
 
 
 class InputSharedProperties(BaseModel):

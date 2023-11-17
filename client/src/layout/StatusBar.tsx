@@ -13,7 +13,7 @@ const useStatus = () => {
 	const queryKey = [STATUS_QUERY_KEY];
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchStatus(), {
-		refetchInterval: 1 * 1000,
+		refetchInterval: 10 * 1000,
 		refetchIntervalInBackground: true,
 	});
 
