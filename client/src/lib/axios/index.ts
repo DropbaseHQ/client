@@ -7,6 +7,7 @@ export const axios = Axios.create({
 
 export const workerAxios = Axios.create({
 	baseURL: `${import.meta.env.VITE_WORKER_API_ENDPOINT}/worker`,
+	withCredentials: true,
 });
 
 axios.interceptors.response.use(
