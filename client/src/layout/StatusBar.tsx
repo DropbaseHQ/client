@@ -5,8 +5,7 @@ import { workerAxios } from '../lib/axios';
 export const STATUS_QUERY_KEY = 'allFiles';
 
 const fetchStatus: any = async () => {
-	const response = await workerAxios.get<any>(`/docs/`);
-
+	const response = await workerAxios.get<any>(`/sources/`);
 	return response.data;
 };
 
@@ -14,7 +13,7 @@ export const useStatus = () => {
 	const queryKey = [STATUS_QUERY_KEY];
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchStatus(), {
-		refetchInterval: 1 * 1000,
+		refetchInterval: 10 * 1000,
 		refetchIntervalInBackground: true,
 	});
 
@@ -25,7 +24,7 @@ export const useStatus = () => {
 };
 
 export const StatusBar = () => {
-	// const { isLoading } = useStatus();
+	const { status } = useStatus();
 
 	return (
 		<Stack
@@ -38,8 +37,8 @@ export const StatusBar = () => {
 			bg="white"
 			borderTopWidth="1px"
 		>
-			<Circle size="2" bg="green" />
-			<Text fontSize="xs">Connected</Text>
+			<Circle size="2" bg={status === 'success' ? 'green' : 'red'} />
+			<Text fontSize="xs">{status === 'success' ? 'Connected' : 'Not connected'}</Text>
 		</Stack>
 	);
 };

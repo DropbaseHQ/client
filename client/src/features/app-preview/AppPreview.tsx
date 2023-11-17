@@ -162,7 +162,9 @@ export const AppPreview = () => {
 		widgetId || '',
 	);
 
-	useInitializeWidgetState({ widgetId: widget?.name, pageId });
+	const { appName, pageName } = useAtomValue(pageAtom);
+
+	useInitializeWidgetState({ widgetId: widget?.name, appName, pageName });
 
 	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
 	const allWidgetState = widgetData.state;

@@ -4,6 +4,7 @@ import {
 	Button,
 	Center,
 	Flex,
+	IconButton,
 	Spinner,
 	Stack,
 	Text,
@@ -53,7 +54,8 @@ export const SmartTable = ({ tableId }: any) => {
 		current: undefined,
 	});
 
-	const { isLoading, rows, columns, header } = useCurrentTableData(tableId);
+	const { isLoading, rows, columns, header, refetch, isRefetching } =
+		useCurrentTableData(tableId);
 	const { table, isLoading: isLoadingTable } = useGetTable(tableId || '');
 	const tableIsUnsynced = useTableSyncStatus(tableId);
 	const syncMutation = useSyncDropbaseColumns();
@@ -363,19 +365,30 @@ export const SmartTable = ({ tableId }: any) => {
 							{tableName}
 						</Text>
 
-						{!isLoading && !isPreview && tableIsUnsynced ? (
-							<Tooltip label="Sync columns">
-								<Button
-									colorScheme="yellow"
-									size="sm"
-									leftIcon={<RefreshCw size="14" />}
-									onClick={handleSyncColumns}
-									isLoading={syncMutation.isLoading}
-								>
-									Resync
-								</Button>
-							</Tooltip>
-						) : null}
+						<Stack direction="row" spacing="2">
+							<IconButton
+								aria-label="Refresh Data"
+								size="xs"
+								icon={<RefreshCw size="14" />}
+								variant="outline"
+								isLoading={isRefetching}
+								onClick={() => refetch()}
+							/>
+
+							{!isLoading && !isPreview && tableIsUnsynced ? (
+								<Tooltip label="Sync columns">
+									<Button
+										colorScheme="yellow"
+										size="sm"
+										leftIcon={<RefreshCw size="14" />}
+										onClick={handleSyncColumns}
+										isLoading={syncMutation.isLoading}
+									>
+										Resync
+									</Button>
+								</Tooltip>
+							) : null}
+						</Stack>
 					</Flex>
 				</NavLoader>
 				<Stack spacing="2">

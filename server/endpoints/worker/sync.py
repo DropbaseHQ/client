@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
@@ -12,15 +14,18 @@ router = APIRouter(prefix="/sync", tags=["sync"])
 
 @router.post("/columns/")
 def sync_table_columns(request: SyncColumnsRequest, response: Response, db: Session = Depends(get_db)):
-    widget_id = None
+    page_id = None
     for table_id, columns in request.table_columns.items():
         # find table by app name, page name and column
         table = crud.tables.get_object_by_id_or_404(db, id=table_id)
+        if not page_id:
+            page = crud.page.get_object_by_id_or_404(db, id=table.page_id)
+            page_id = page.id
+
         update_table_columns(db, table, columns, request.table_type)
 
-    page = crud.page.get_page_by_widget(db, widget_id=widget_id)
     # create new state and context
-    return get_state_context_payload(db, page.id)
+    return get_state_context_payload(db, page_id)
 
 
 @router.post("/components/")
@@ -32,9 +37,8 @@ def sync_components(request: SyncComponentsRequest, response: Response, db: Sess
     return get_state_context_payload(db, page.id)
 
 
-from uuid import UUID
-
-
-@router.post("/page/{page_id}")
+@router.put("/page/{page_id}")
 def get_page_state_context(page_id: UUID, db: Session = Depends(get_db)):
-    return get_state_context_payload(db, page_id)
+    resp = get_state_context_payload(db, page_id)
+    print(resp)
+    return resp
