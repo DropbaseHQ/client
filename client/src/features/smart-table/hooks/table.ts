@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY, useGetTable } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
+import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
@@ -140,11 +141,12 @@ export const usePinFilters = (props: any = {}) => {
 	});
 };
 
-const syncDropbaseColumns = async ({ appName, pageName, tables, state }: any) => {
+const syncDropbaseColumns = async ({ appName, pageName, table, file, state }: any) => {
 	const response = await workerAxios.post(`/sync/columns/`, {
 		app_name: appName,
 		page_name: pageName,
-		tables,
+		table,
+		file,
 		state,
 	});
 	return response.data;
@@ -158,5 +160,8 @@ export const useSyncDropbaseColumns = (props: any = {}) => {
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 		},
+		onSuccess: () => {
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+		}
 	});
 };

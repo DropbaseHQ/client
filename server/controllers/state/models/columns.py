@@ -73,13 +73,13 @@ class PgColumnBaseProperty(BaseModel):
     def state(self):
         match self.type:
             case "INTEGER" | "INT" | "BIGINT" | "SMALLINT" | "TINYINT" | "BYTEINT":
-                return "int"
+                return int
             case "REAL" | "FLOAT" | "FLOAT4" | "FLOAT8" | "DOUBLE" | "DOUBLE PRECISION" | "DECIMAL" | "NUMERIC":
-                return "float"
+                return float
             case "BOOLEAN":
-                return "bool"
+                return bool
             case _:
-                return "str"
+                return str
 
 
 class PgColumnDefinedProperty(PgColumnBaseProperty, ColumnSharedProperty):
@@ -96,7 +96,15 @@ class PyColumnBaseProperty(BaseModel):
 
     @property
     def state(self):
-        return self.type if self.type else "str"
+        match self.type:
+            case "int":
+                return int
+            case "float":
+                return float
+            case "bool":
+                return bool
+            case _:
+                return str
 
 
 class PyColumnDefinedProperty(PyColumnBaseProperty, ColumnSharedProperty):

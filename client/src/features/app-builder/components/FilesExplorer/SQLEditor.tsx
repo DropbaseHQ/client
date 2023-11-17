@@ -57,6 +57,11 @@ export const SQLEditor = ({ id }: any) => {
 		}
 	}, [setSource, file]);
 
+	useEffect(() => {
+		setLog(null);
+		setPreviewData(null);
+	}, [id]);
+
 	const runMutation = useRunSQLQuery({
 		onSuccess: (data: any) => {
 			syncState(data);

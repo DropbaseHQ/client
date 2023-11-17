@@ -4,9 +4,19 @@ from sqlalchemy.orm import Session
 from server.schemas import FinalizeApp, RenameApp
 from server.utils.connect import get_db
 from server.controllers.app import finalize_app
+from server.utils.authorization import (
+    RESOURCES,
+    get_current_user,
+    AuthZDepFactory,
+)
 from uuid import UUID
 
-router = APIRouter(prefix="/app", tags=["app"])
+app_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.APP)
+router = APIRouter(
+    prefix="/app",
+    tags=["app"],
+    # dependencies=[Depends(app_authorizer)],
+)
 
 
 @router.get("/{app_id}")

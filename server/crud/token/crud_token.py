@@ -14,11 +14,7 @@ class CRUDToken(CRUDBase[Token, CreateToken, UpdateToken]):
         self, db: Session, workspace_id: UUID, user_id: UUID
     ):
         return (
-            (
-                db.query(Token)
-                .filter(Token.workspace_id == workspace_id)
-                .filter(or_(Token.user_id == user_id, Token.is_selected == True))
-            )
+            (db.query(Token).filter(Token.workspace_id == workspace_id))
             .order_by(Token.date)
             .all()
         )

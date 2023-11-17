@@ -1,12 +1,12 @@
+from typing import List
+
 from pydantic import BaseModel
 
 
 class SyncColumnsRequest(BaseModel):
-    app_name: str
-    page_name: str
-    table_columns: dict
-    token: str
-    table_type: str
+    table_id: str
+    columns: List[str]
+    type: str
 
 
 class SyncComponentsRequest(BaseModel):

@@ -22,6 +22,7 @@ import { Link, useParams } from 'react-router-dom';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
+// import { useForceSyncState } from '@/features/app-state';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const { appId } = useParams();
@@ -30,6 +31,8 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const [name, setAppName] = useState('');
 	const [isValid, setIsValid] = useState(true);
 	const updateMutation = useUpdateApp({});
+
+	// const forceSyncMutation = useForceSyncState();
 
 	const app = apps.find((a) => a.id === appId);
 
@@ -66,6 +69,12 @@ export const AppNavbar = ({ isPreview }: any) => {
 			});
 		}
 	};
+
+	// const forceSync = () => {
+	// 	forceSyncMutation.mutate({
+	// 		pageId,
+	// 	});
+	// };
 
 	return (
 		<Stack
@@ -147,23 +156,30 @@ export const AppNavbar = ({ isPreview }: any) => {
 				)}
 			</Stack>
 
-			{app?.editable && (
-				<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
-					<Button
-						size="sm"
-						variant="secondary"
-						colorScheme="blue"
-						leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
-						aria-label="Preview"
-						ml="auto"
-						mr="4"
-						as={Link}
-						to={isPreview ? '../editor' : '../preview'}
-					>
-						{isPreview ? 'Edit' : 'Preview'}
-					</Button>
-				</Tooltip>
-			)}
+			<Stack direction="row" spacing="2" ml="auto">
+				{/* TODO: sync conditionally based on out of sync page */}
+				{/* <Button variant="outline" colorScheme="red" onClick={forceSync} size="sm">
+					Sync state
+				</Button> */}
+
+				{app?.editable && (
+					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
+						<Button
+							size="sm"
+							variant="secondary"
+							colorScheme="blue"
+							leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
+							aria-label="Preview"
+							ml="auto"
+							mr="4"
+							as={Link}
+							to={isPreview ? '../editor' : '../preview'}
+						>
+							{isPreview ? 'Edit' : 'Preview'}
+						</Button>
+					</Tooltip>
+				)}
+			</Stack>
 		</Stack>
 	);
 };
