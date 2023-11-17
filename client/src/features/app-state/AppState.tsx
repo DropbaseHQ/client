@@ -1,17 +1,19 @@
-import { useParams } from 'react-router-dom';
+// import { useParams } from 'react-router-dom';
 import { Box, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 
 import { useInitializePageState } from './hooks';
 import { ObjectRenderer } from '@/components/ObjectRenderer';
 import { newPageStateAtom } from '@/features/app-state';
+import { pageAtom } from '../page';
 
 const DEFAULT_OPEN_PATH = ['user_input', 'state', 'tables'];
 
 export const AppState = () => {
-	const { pageId } = useParams();
+	// const { pageId } = useParams();
 
-	const { isLoading } = useInitializePageState(pageId);
+	const { pageName, appName } = useAtomValue(pageAtom);
+	const { isLoading } = useInitializePageState(appName || '', pageName || '');
 
 	const pageState = useAtomValue(newPageStateAtom);
 

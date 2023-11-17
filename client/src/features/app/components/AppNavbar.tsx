@@ -22,17 +22,17 @@ import { Link, useParams } from 'react-router-dom';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
-import { useForceSyncState } from '@/features/app-state';
+// import { useForceSyncState } from '@/features/app-state';
 
 export const AppNavbar = ({ isPreview }: any) => {
-	const { appId, pageId } = useParams();
+	const { appId } = useParams();
 	const { apps } = useGetWorkspaceApps();
 
 	const [name, setAppName] = useState('');
 	const [isValid, setIsValid] = useState(true);
 	const updateMutation = useUpdateApp({});
 
-	const forceSyncMutation = useForceSyncState();
+	// const forceSyncMutation = useForceSyncState();
 
 	const app = apps.find((a) => a.id === appId);
 
@@ -70,11 +70,11 @@ export const AppNavbar = ({ isPreview }: any) => {
 		}
 	};
 
-	const forceSync = () => {
-		forceSyncMutation.mutate({
-			pageId,
-		});
-	};
+	// const forceSync = () => {
+	// 	forceSyncMutation.mutate({
+	// 		pageId,
+	// 	});
+	// };
 
 	return (
 		<Stack
