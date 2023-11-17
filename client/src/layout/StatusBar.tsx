@@ -9,7 +9,7 @@ const fetchStatus: any = async () => {
 	return response.data;
 };
 
-const useStatus = () => {
+export const useStatus = () => {
 	const queryKey = [STATUS_QUERY_KEY];
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchStatus(), {
@@ -24,7 +24,7 @@ const useStatus = () => {
 };
 
 export const StatusBar = () => {
-	const { isLoading } = useStatus();
+	// const { isLoading } = useStatus();
 
 	return (
 		<Stack
