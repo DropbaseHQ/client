@@ -58,17 +58,13 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
         Authorize.set_refresh_cookies(refresh_token)
 
         workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
-        if ENVIRONMENT == "local":
-            return {
-                "user": ReadUser.from_orm(user),
-                "workspace": ReadWorkspace.from_orm(workspaces[0]),
-                "access_token": access_token,
-                "refresh_token": refresh_token,
-            }
         return {
             "user": ReadUser.from_orm(user),
             "workspace": ReadWorkspace.from_orm(workspaces[0]),
+            "access_token": access_token,
+            "refresh_token": refresh_token,
         }
+
     except HTTPException as e:
         raise_http_exception(status_code=e.status_code, message=e.detail)
     except Exception as e:
@@ -94,7 +90,7 @@ def refresh_token(Authorize: AuthJWT):
         current_user = Authorize.get_jwt_subject()
         new_access_token = Authorize.create_access_token(subject=current_user)
         Authorize.set_access_cookies(new_access_token)
-        return {"msg": "Successfully refresh token"}
+        return {"msg": "Successfully refresh token", "access_token": new_access_token}
     except Exception as e:
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")
