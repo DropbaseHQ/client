@@ -8,13 +8,13 @@ import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
-const fetchTableData = async ({ file, appName, pageName, state }: any) => {
+const fetchTableData = async ({ file, appName, pageName, state, filters, sorts }: any) => {
 	const response = await workerAxios.post<any>(`/query/`, {
 		app_name: appName,
 		page_name: pageName,
 		file,
 		state: state.state,
-		filter_sort: { filters: [], sorts: [] },
+		filter_sort: { filters, sorts },
 	});
 
 	return response.data;
