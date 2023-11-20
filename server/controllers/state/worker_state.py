@@ -1,7 +1,7 @@
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel, create_model, Field
 from sqlalchemy.orm import Session
 
 from server import crud
@@ -9,20 +9,27 @@ from server.controllers.state.models import *
 
 
 def get_state_context(db: Session, page_id: UUID):
-
     widgets = get_resource_data(db, page_id, crud.widget, crud.components, "components")
     tables = get_resource_data(db, page_id, crud.tables, crud.columns, "columns")
 
     # compose defined context and state
-    WidgetState = get_state_class(resource_type="defined", resource="Widgets", resources=widgets)
-    TableState = get_state_class(resource_type="defined", resource="Tables", resources=tables)
+    WidgetState = get_state_class(
+        resource_type="defined", resource="Widgets", resources=widgets
+    )
+    TableState = get_state_class(
+        resource_type="defined", resource="Tables", resources=tables
+    )
 
     class State(BaseModel):
         widgets: WidgetState
         tables: TableState
 
-    WidgetContext = get_context_class(resource_type="context", resource="Widgets", resources=widgets)
-    TablesContext = get_context_class(resource_type="context", resource="Tables", resources=tables)
+    WidgetContext = get_context_class(
+        resource_type="context", resource="Widgets", resources=widgets
+    )
+    TablesContext = get_context_class(
+        resource_type="context", resource="Tables", resources=tables
+    )
 
     class Context(BaseModel):
         widgets: WidgetContext
@@ -39,7 +46,10 @@ def get_resource_data(db: Session, page_id: UUID, parent_crud, child_crud, child
     for resource in resources:
         children = child_crud.get_resources(db, resource.id)
         children = [comp.__dict__ for comp in children]
-        page_resources[resource.name] = {"property": resource.property, child_name: children}
+        page_resources[resource.name] = {
+            "property": resource.property,
+            child_name: children,
+        }
     return page_resources
 
 
@@ -79,7 +89,10 @@ base_property_mapper = {
         "Tables": {
             "base": TableDefinedProperty,
             "dir": "columns",
-            "children": {"postgres": PgColumnDefinedProperty, "python": PyColumnDefinedProperty},
+            "children": {
+                "postgres": PgColumnDefinedProperty,
+                "python": PyColumnDefinedProperty,
+            },
         },
     },
 }
@@ -94,7 +107,6 @@ def get_context_class(resource_type, resource, resources):
     resources_props = {}
 
     for resource_name, resource_data in resources.items():
-
         components_props = {}
         for component in resource_data[children_dir]:
             components_props[component["property"]["name"]] = (
@@ -103,9 +115,13 @@ def get_context_class(resource_type, resource, resources):
             )
 
         components_class_name = (
-            resource_name.capitalize() + children_dir.capitalize() + resource_type.capitalize()
+            resource_name.capitalize()
+            + children_dir.capitalize()
+            + resource_type.capitalize()
         )
-        locals()[components_class_name] = create_model(components_class_name, **components_props)
+        locals()[components_class_name] = create_model(
+            components_class_name, **components_props
+        )
 
         resource_class_name = resource_name.capitalize() + resource_type.capitalize()
         locals()[resource_class_name] = create_model(
@@ -121,7 +137,6 @@ def get_context_class(resource_type, resource, resources):
 
 
 def get_state_class(resource_type, resource, resources):
-
     non_editable = non_editable_components.get(resource)
     resource_mapper = base_property_mapper.get(resource_type).get(resource)
     children_dir = resource_mapper.get("dir")
@@ -138,10 +153,15 @@ def get_state_class(resource_type, resource, resources):
             # initiate component
             init_component = component_type(**component["property"])
             # state is pulled from ComponentDefined class
-            components_props[component["property"]["name"]] = (init_component.state, Field(default=None))
+            components_props[component["property"]["name"]] = (
+                init_component.state,
+                Field(default=None),
+            )
 
         resource_class_name = resource_name.capitalize() + "State"
-        locals()[resource_class_name] = create_model(resource_class_name, **components_props)
+        locals()[resource_class_name] = create_model(
+            resource_class_name, **components_props
+        )
 
         resources_props[resource_name] = (locals()[resource_class_name], ...)
 
