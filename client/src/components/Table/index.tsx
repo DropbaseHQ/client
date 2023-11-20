@@ -2,7 +2,7 @@ import { Table, TableContainer, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/reac
 
 export const ChakraTable = ({ columns, rows, ...props }: any) => {
 	return (
-		<TableContainer overflow="auto">
+		<TableContainer overflow="auto" overflowY="auto">
 			<Table
 				borderLeftWidth="1px"
 				borderRightWidth="1px"
