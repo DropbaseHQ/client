@@ -27,7 +27,6 @@ from server.controllers.policy import (
     format_permissions_for_highest_action,
 )
 from server.utils.helper import raise_http_exception
-from server.credentials import ENVIRONMENT
 
 
 def get_user(db: Session, user_email: str):
