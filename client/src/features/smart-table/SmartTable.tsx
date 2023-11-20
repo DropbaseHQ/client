@@ -333,7 +333,7 @@ export const SmartTable = ({ tableId }: any) => {
 		syncMutation.mutate({
 			pageName,
 			appName,
-			table: table,
+			table,
 			file: files.find((f: any) => f.id === table?.file_id),
 			state: pageState.state,
 		});

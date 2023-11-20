@@ -58,7 +58,7 @@ export const useTableData = ({
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchTableData({ appName, pageName, state, file }),
+		() => fetchTableData({ appName, pageName, state, file, filters, sorts }),
 		{
 			enabled: !!(
 				!isLoadingTable &&
@@ -162,6 +162,6 @@ export const useSyncDropbaseColumns = (props: any = {}) => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
-		}
+		},
 	});
 };
