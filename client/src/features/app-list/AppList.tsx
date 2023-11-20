@@ -175,8 +175,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 };
 
 export const AppList = () => {
-	// Will need to pass workspace in here but for now we only have one workspace (backend spits out the first workspace)
-	// const navigate = useNavigate();
+	const navigate = useNavigate();
 	const workspaceId = useAtomValue(workspaceAtom);
 
 	const methods = useForm();
@@ -190,10 +189,13 @@ export const AppList = () => {
 
 	const { handleCreateApp: handleCreateAppFlow, isLoading: createAppIsLoading } =
 		useCreateAppFlow({
-			onSuccess: () => {
-				// navigate(`/apps/${data?.app_id}/${defaultPage}/editor`);
+			onSuccess: (_: any, variables: any) => {
+				if (variables?.appTemplate?.page?.id) {
+					navigate(
+						`/apps/${variables?.appId}/${variables?.appTemplate?.page?.id}/editor`,
+					);
+				}
 				refetch();
-				// setAppName('');
 				onClose();
 			},
 		});

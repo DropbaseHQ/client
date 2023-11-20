@@ -81,10 +81,6 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 	const deleteMutation = useDeleteComponent({
 		onSuccess: () => {
-			setInspectedResource({
-				id: null,
-				type: null,
-			});
 			refetch();
 			setInspectedResource({
 				id: null,
