@@ -1,15 +1,25 @@
-from typing import Any, Callable, Dict, List, Literal, Optional, Union
+from typing import Any, List, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
+
+class Filter(BaseModel):
+    column_name: str
+    # operator: Literal["and", "or", ""]
+    condition: Literal["=", ">", "<", ">=", "<=", "like", "in"]
+    value: Any
+
+
+class Sort(BaseModel):
+    column_name: str
+    value: Literal["asc", "desc"]
 
 
 class PinnedFilter(BaseModel):
     column_name: str
-    # operator: Literal["and", "or", ""]
     condition: Literal["=", ">", "<", ">=", "<=", "like", "in"]
 
 
-### table
 class TableDisplayProperty(BaseModel):
     message: Optional[str]
     message_type: Optional[str]

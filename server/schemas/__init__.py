@@ -2,9 +2,9 @@ from .app import *
 from .columns import *
 from .components import *
 from .page import *
-from .pinned_filters import *
 from .policy import *
 from .role import *
+from .tables import *
 from .token import *
 from .user import *
 from .user_role import *
