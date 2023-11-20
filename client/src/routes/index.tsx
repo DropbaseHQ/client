@@ -1,26 +1,16 @@
 import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
-import { Suspense, useEffect } from 'react';
+import { Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { Login, Register, ResetPassword } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
 import { App } from '@/features/app';
-import { useNavigate } from 'react-router-dom';
 import { Users, DeveloperSettings } from '@/features/settings';
 import { Workspaces, useWorkspaces } from '@/features/workspaces';
-import { setWorkerAxiosToken } from '@/lib/axios';
+import { useSetWorkerAxiosToken } from '@/features/authorization/hooks/useLogin';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
-	const navigate = useNavigate();
-	// Used for local development
-	useEffect(() => {
-		if (import.meta.env.VITE_ENVIRONMENT !== 'local') return;
-		if (localStorage.getItem('worker_access_token')) {
-			setWorkerAxiosToken(localStorage.getItem('worker_access_token'));
-		} else {
-			navigate('/login');
-		}
-	}, []);
+	useSetWorkerAxiosToken();
 
 	if (isLoading) {
 		return (
