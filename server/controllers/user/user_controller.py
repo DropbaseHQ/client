@@ -22,9 +22,12 @@ from server.schemas.user import (
 )
 from server.schemas.workspace import CreateWorkspace, ReadWorkspace
 from server.utils.authentication import authenticate_user, get_password_hash
-from server.controllers.policy import PolicyUpdater, format_permissions_for_highest_action
+from server.controllers.policy import (
+    PolicyUpdater,
+    format_permissions_for_highest_action,
+)
 from server.utils.helper import raise_http_exception
-from server.constants import ALLOWED_ACTIONS
+from server.credentials import ENVIRONMENT
 
 
 def get_user(db: Session, user_email: str):
@@ -55,8 +58,17 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
         Authorize.set_refresh_cookies(refresh_token)
 
         workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
-
-        return {"user": ReadUser.from_orm(user), "workspace": ReadWorkspace.from_orm(workspaces[0])}
+        if ENVIRONMENT == "local":
+            return {
+                "user": ReadUser.from_orm(user),
+                "workspace": ReadWorkspace.from_orm(workspaces[0]),
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+            }
+        return {
+            "user": ReadUser.from_orm(user),
+            "workspace": ReadWorkspace.from_orm(workspaces[0]),
+        }
     except HTTPException as e:
         raise_http_exception(status_code=e.status_code, message=e.detail)
     except Exception as e:
@@ -192,7 +204,9 @@ def remove_policy(db: Session, user_id: UUID, request: AddPolicyRequest):
 
 def get_user_permissions(db: Session, user_id: UUID, workspace_id: UUID):
     user = crud.user.get_object_by_id_or_404(db, id=user_id)
-    user_role = crud.user_role.get_user_role(db, user_id=user_id, workspace_id=workspace_id)
+    user_role = crud.user_role.get_user_role(
+        db, user_id=user_id, workspace_id=workspace_id
+    )
     enforcer = get_contexted_enforcer(db, workspace_id)
     permissions = enforcer.get_filtered_policy(1, str(user.id))
 
@@ -203,7 +217,11 @@ def get_user_permissions(db: Session, user_id: UUID, workspace_id: UUID):
     formatted_user.pop("active")
     formatted_user.pop("date")
 
-    return {"user": formatted_user, "workspace_role": user_role, "permissions": formatted_permissions}
+    return {
+        "user": formatted_user,
+        "workspace_role": user_role,
+        "permissions": formatted_permissions,
+    }
 
 
 def update_policy(db: Session, user_id: UUID, request: UpdateUserPolicyRequest):
@@ -220,7 +238,9 @@ def get_user_workspaces(db: Session, user_id: UUID):
     workspaces = crud.workspace.get_user_workspaces(db, user_id=user_id)
     formatted_workspaces = []
     for workspace in workspaces:
-        workspace_oldest_user = crud.workspace.get_oldest_user(db, workspace_id=workspace.id)
+        workspace_oldest_user = crud.workspace.get_oldest_user(
+            db, workspace_id=workspace.id
+        )
         formatted_workspaces.append(
             {
                 "id": workspace.id,
