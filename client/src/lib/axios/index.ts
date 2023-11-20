@@ -10,6 +10,10 @@ export const workerAxios = Axios.create({
 	withCredentials: true,
 });
 
+export const setWorkerAxiosToken = (token: string | null) => {
+	workerAxios.defaults.headers['access-token'] = token;
+};
+
 axios.interceptors.response.use(
 	(res) => {
 		return res;

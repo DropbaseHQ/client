@@ -18,6 +18,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useLogin } from './hooks/useLogin';
 import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
+import { workerAxios } from '@/lib/axios';
 
 type FormValues = {
 	email: string;
@@ -52,6 +53,10 @@ export const Login = () => {
 			}
 		},
 		onSuccess: (data: any) => {
+			localStorage.setItem('worker_access_token', data?.access_token);
+			localStorage.setItem('worker_refresh_token', data?.refresh_token);
+			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
+
 			updateWorkspace(data?.workspace?.id);
 			setDisplayEmailConfirmation(false);
 			navigate('/apps');
