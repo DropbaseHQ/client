@@ -31,13 +31,13 @@ export const FunctionEditor = ({ id }: any) => {
 	const { pageId } = useParams();
 	const { files } = useGetPage(pageId);
 
-	const file = files.find((f: any) => f.id === id);
-	const fileName = `${file.name}${file.type === 'sql' ? '.sql' : '.py'}`;
-
 	const { files: workerFiles, isLoading: isLoadingWorkerFiles } = usePageFiles({
 		pageName: pageName || '',
 		appName: appName || '',
 	});
+
+	const file = files.find((f: any) => f.id === id);
+	const fileName = file ? `${file?.name}${file?.type === 'sql' ? '.sql' : '.py'}` : null;
 
 	const filePath = workerFiles.find((f: any) => f.endsWith(fileName));
 	const { isLoading, code } = useFile({

@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { Plus } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 
@@ -28,6 +28,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
 import { pageAtom, useGetPage } from '@/features/page';
 import { generateSequentialName } from '@/utils';
+import { developerTabAtom } from '../../atoms';
 
 export const NewFile = (props: any) => {
 	const toast = useToast();
@@ -42,6 +43,8 @@ export const NewFile = (props: any) => {
 
 	const { pageName, appName } = useAtomValue(pageAtom);
 
+	const setDevTab = useSetAtom(developerTabAtom);
+
 	const { refetch } = usePageFiles({
 		pageName: pageName || '',
 		appName: appName || '',
@@ -55,7 +58,12 @@ export const NewFile = (props: any) => {
 	});
 
 	const mutation = useCreateFile({
-		onSuccess: () => {
+		onSuccess: (data: any) => {
+			setDevTab({
+				type: data.type === 'sql' ? 'sql' : 'function',
+				id: data.id,
+			});
+
 			toast({
 				title: 'File created successfully',
 			});

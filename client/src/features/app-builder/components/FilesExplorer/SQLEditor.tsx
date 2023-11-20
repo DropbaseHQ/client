@@ -29,12 +29,12 @@ export const SQLEditor = ({ id }: any) => {
 	const { files } = useGetPage(pageId);
 
 	const file = files.find((f: any) => f.id === id);
-	const sqlName = file.name;
+	const sqlName = file?.name;
 	const { pageName, appName } = useAtomValue(pageAtom);
 
 	const [selectedSource, setSource] = useState();
 
-	const fullFileName = `${sqlName}.${file?.type}`;
+	const fullFileName = file ? `${sqlName}.${file?.type}` : null;
 	const { isLoading, code: defaultCode } = useFile({
 		pageName,
 		appName,
