@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, List, Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, create_model
@@ -16,10 +16,12 @@ def get_state_context(db: Session, page_id: UUID):
     # compose defined context and state
     WidgetState = get_state_class(resource_type="defined", resource="Widgets", resources=widgets)
     TableState = get_state_class(resource_type="defined", resource="Tables", resources=tables)
+    TableFilters = get_filters_state_class(tables)
 
     class State(BaseModel):
         widgets: WidgetState
         tables: TableState
+        filters: TableFilters
 
     WidgetContext = get_context_class(resource_type="context", resource="Widgets", resources=widgets)
     TablesContext = get_context_class(resource_type="context", resource="Tables", resources=tables)
@@ -118,6 +120,37 @@ def get_context_class(resource_type, resource, resources):
 
     # compose Widgets
     return create_model(resource + resource_type.capitalize(), **resources_props)
+
+
+def get_filters_state_class(tables):
+    filters = {}
+    for table_name in tables.keys():
+        filter_sort_model = create_filters_class(table_name)
+        filters[table_name] = (filter_sort_model, Field(default=None))
+
+    FiltersSortsModel = create_model("FilterSorts", **filters)
+    return FiltersSortsModel
+
+
+def create_filters_class(table_name):
+    TableFilterDict = {
+        "column_name": (str, ...),
+        "condition": (Literal["=", ">", "<", ">=", "<=", "like", "in"], ...),
+        "value": (Any, ...),
+    }
+
+    TableSortDict = {"column_name": (str, ...), "value": (Literal["asc", "desc"], ...)}
+
+    Filters = create_model(table_name.capitalize() + "Filters", **TableFilterDict)
+    Sorts = create_model(table_name.capitalize() + "Sorts", **TableSortDict)
+
+    FiltersSortsDict = {
+        "filters": (List[Optional[Filters]], []),
+        "sorts": (List[Optional[Sorts]], []),
+    }
+
+    FiltersSorts = create_model(table_name.capitalize() + "FiltersSorts", **FiltersSortsDict)
+    return FiltersSorts
 
 
 def get_state_class(resource_type, resource, resources):
