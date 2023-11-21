@@ -172,6 +172,7 @@ export const SQLEditor = ({ id }: any) => {
 					isLoading={saveSQLMutation.isLoading}
 					onClick={handleSave}
 					variant="outline"
+					colorScheme="gray"
 					size="sm"
 					leftIcon={<Save size="14" />}
 				>
