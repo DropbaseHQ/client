@@ -122,5 +122,5 @@ class ConvertTable(BaseModel):
 
 
 class UpdateSmartTables(BaseModel):
-    smart_columns: list
+    smart_columns: dict
     table: dict
