@@ -8,13 +8,13 @@ import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
-const fetchTableData = async ({ file, appName, pageName, state, filters, sorts }: any) => {
+const fetchTableData = async ({ file, appName, pageName, state, filters, sorts, pagination }: any) => {
 	const response = await workerAxios.post<any>(`/query/`, {
 		app_name: appName,
 		page_name: pageName,
 		file,
 		state: state.state,
-		filter_sort: { filters, sorts },
+		filter_sort: { filters, sorts, pagination},
 	});
 
 	return response.data;
@@ -56,9 +56,13 @@ export const useTableData = ({
 		JSON.stringify({ filters, sorts, dependentTableData, file, table }),
 	];
 
+	// TODO: @Yash, add pagination here
+	// sample payload:  pagination = { page: 0, page_size: 50 }}
+	const pagination = null; //{ page: 1, page_size: 2 }}
+
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchTableData({ appName, pageName, state, file, filters, sorts }),
+		() => fetchTableData({ appName, pageName, state, file, filters, sorts, pagination }),
 		{
 			enabled: !!(
 				!isLoadingTable &&
