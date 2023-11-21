@@ -1,6 +1,6 @@
 import {
+	Box,
 	Button,
-	Code,
 	FormControl,
 	FormLabel,
 	IconButton,
@@ -205,7 +205,16 @@ export const SQLEditor = ({ id }: any) => {
 			</Stack>
 
 			{log ? (
-				<Stack bg="white" p="2" h="full" borderRadius="sm">
+				<Stack
+					borderBottomWidth="1px"
+					bg="white"
+					p="2"
+					w="full"
+					flex="1"
+					h="full"
+					overflow="auto"
+					borderRadius="sm"
+				>
 					<Stack direction="row" alignItems="start">
 						<IconButton
 							aria-label="Close output"
@@ -217,26 +226,26 @@ export const SQLEditor = ({ id }: any) => {
 							onClick={resetRunData}
 						/>
 
-						<Stack>
+						<Stack w="full" overflow="auto">
 							<Text fontSize="sm" letterSpacing="wide" fontWeight="medium">
 								Output
 							</Text>
-							<Code
-								w="full"
-								color="gray.500"
-								backgroundColor="inherit"
-								overflow="auto"
-								height={`${(log?.split('\n').length || 1) * 24}px`}
-							>
-								<pre>{log}</pre>
-							</Code>
+							<Box borderWidth="1px" borderColor="blackAlpha.100" borderRadius="sm">
+								<MonacoEditor
+									value={log}
+									language="shell"
+									options={{ lineNumbers: 'off', readOnly: true }}
+								/>
+							</Box>
 						</Stack>
 					</Stack>
 				</Stack>
 			) : null}
 
 			{previewData?.columns ? (
-				<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
+				<Box px="3" w="full" pb="3" borderBottomWidth="1px">
+					<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
+				</Box>
 			) : null}
 		</Stack>
 	);
