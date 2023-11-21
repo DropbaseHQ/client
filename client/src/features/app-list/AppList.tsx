@@ -24,7 +24,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Layout, MoreVertical, Trash } from 'react-feather';
 import { useAtomValue } from 'jotai';
-
+import { useStatus } from '@/layout/StatusBar';
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
 import { useCreateAppFlow } from './hooks/useCreateApp';
 import { PageLayout } from '@/layout';
@@ -177,7 +177,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 export const AppList = () => {
 	const navigate = useNavigate();
 	const workspaceId = useAtomValue(workspaceAtom);
-
+	const { status } = useStatus();
 	const methods = useForm();
 
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
@@ -217,7 +217,7 @@ export const AppList = () => {
 		<PageLayout
 			title="Your apps"
 			action={
-				<Button size="sm" ml="auto" onClick={onOpen}>
+				<Button size="sm" ml="auto" onClick={onOpen} isDisabled={status !== 'success'}>
 					Create app
 				</Button>
 			}
