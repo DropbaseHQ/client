@@ -202,7 +202,8 @@ export const SmartTable = ({ tableId }: any) => {
 				...gridColumn,
 				themeOverride: {
 					textDark: transparentize(theme.colors.gray['700'], 0.4)(theme),
-					bgHeader: theme.colors.yellow[100],
+					bgHeader: theme.colors.gray[50],
+					textHeader: theme.colors.gray[400],
 				},
 			};
 		}
