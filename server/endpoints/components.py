@@ -4,10 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.components import (
-    get_widget_components_and_props,
-    reorder_component,
-)
+from server.controllers.components import get_widget_components_and_props, reorder_component
 from server.schemas.components import ReorderComponents
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
@@ -23,12 +20,9 @@ router = APIRouter(
 router = APIRouter(prefix="/components", tags=["components"])
 
 
-# client endpoints
 @router.get(
     "/widget/{widget_id}",
-    dependencies=[
-        Depends(components_authorizer.use_params(resource_type=RESOURCES.WIDGET))
-    ],
+    dependencies=[Depends(components_authorizer.use_params(resource_type=RESOURCES.WIDGET))],
 )
 def get_widget_components(widget_id: UUID, db: Session = Depends(get_db)):
     return get_widget_components_and_props(db, widget_id=widget_id)

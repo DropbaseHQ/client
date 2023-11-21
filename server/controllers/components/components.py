@@ -26,7 +26,7 @@ def create_component(db: Session, request: CreateComponents):
     request.property = comp_property
     component = crud.components.create(db, obj_in=request)
     page = crud.page.get_page_by_widget(db, widget_id=component.widget_id)
-    return get_state_context_payload(db, page.id)
+    return {"state_context": get_state_context_payload(db, page.id), "component": component}
 
 
 def update_component(db: Session, components_id: UUID, request: UpdateComponents):
