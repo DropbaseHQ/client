@@ -72,7 +72,9 @@ export const FunctionTerminal = ({ code, file }: any) => {
 			},
 		});
 
-		return dispose;
+		return () => {
+			dispose();
+		};
 	}, [monaco, code]);
 
 	const handleRun = () => {

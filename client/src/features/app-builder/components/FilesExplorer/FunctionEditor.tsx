@@ -1,7 +1,7 @@
 import { Box, Divider, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react';
 
 import { useAtomValue } from 'jotai';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useParams } from 'react-router-dom';
 import { usePythonEditor } from '@/components/Editor';
@@ -47,6 +47,10 @@ export const FunctionEditor = ({ id }: any) => {
 	});
 
 	const [updatedCode, setCode] = useState(code || '');
+
+	useEffect(() => {
+		setCode(code);
+	}, [id, code]);
 
 	if (isLoading || isLoadingWorkerFiles) {
 		return (

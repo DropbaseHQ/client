@@ -62,6 +62,10 @@ export const SQLEditor = ({ id }: any) => {
 		setPreviewData(null);
 	}, [id]);
 
+	useEffect(() => {
+		setCode(defaultCode);
+	}, [defaultCode, id]);
+
 	const runMutation = useRunSQLQuery({
 		onSuccess: (data: any) => {
 			syncState(data);
@@ -132,10 +136,6 @@ export const SQLEditor = ({ id }: any) => {
 		setLog(null);
 		setPreviewData(null);
 	};
-
-	useEffect(() => {
-		setCode(defaultCode);
-	}, [defaultCode]);
 
 	if (isLoading || isLoadingSources) {
 		return (
