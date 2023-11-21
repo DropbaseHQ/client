@@ -30,6 +30,7 @@ import { useGetTable } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { getPGColumnBaseType } from '@/utils';
 import { appModeAtom } from '@/features/app/atoms';
+import { useEffect } from 'react';
 
 const COMMON_OPERATORS = [
 	{
@@ -133,18 +134,13 @@ export const FilterButton = () => {
 		},
 	});
 
-	useGetTable(tableId || '', {
-		onSuccess: (data: any) => {
-			setFilters((old: any) => ({
-				...old,
-				[tableId]: (data?.values?.filters || []).map((f: any) => ({
-					...f,
-					pinned: true,
-					id: crypto.randomUUID(),
-				})),
-			}));
-		},
-	});
+	const { filters: pinnedFilters } = useGetTable(tableId || '');
+	useEffect(() => {
+		setFilters((old: any) => ({
+			...old,
+			[tableId]: pinnedFilters,
+		}));
+	}, [tableId, pinnedFilters, setFilters]);
 
 	const haveFiltersApplied =
 		filters.length > 0 && filters.every((f: any) => f.column_name && f.value);

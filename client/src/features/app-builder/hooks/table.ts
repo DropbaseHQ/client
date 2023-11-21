@@ -33,6 +33,11 @@ export const useGetTable = (tableId: string, props?: any): any => {
 			properties: response?.properties || [],
 			table: response?.table || {},
 			type: response?.file?.type,
+			filters: (response?.table?.property?.filters || []).map((f: any) => ({
+					...f,
+					pinned: true,
+					id: crypto.randomUUID(),
+				}))
 		};
 	}, [response]);
 
