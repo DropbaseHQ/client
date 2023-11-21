@@ -13,7 +13,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { ChevronDown, X } from 'react-feather';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
 
 import lodashSet from 'lodash/set';
@@ -63,10 +63,15 @@ const AppComponent = (props: any) => {
 
 	const syncState = useSyncState();
 
+	const location = useLocation();
+	const currentUrl = location.pathname;
+	const isEditorMode = currentUrl.includes('editor');
+
 	const shouldDisplay = checkAllRulesPass({
 		values: widgetInputs,
 		rules: component.display_rules,
 	});
+	const hideEditorComponent = !shouldDisplay && isEditorMode;
 
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
@@ -91,7 +96,7 @@ const AppComponent = (props: any) => {
 		});
 	};
 
-	if (!shouldDisplay) {
+	if (!shouldDisplay && !isEditorMode) {
 		return null;
 	}
 
@@ -101,6 +106,7 @@ const AppComponent = (props: any) => {
 				my="1.5"
 				size="sm"
 				isLoading={actionMutation.isLoading}
+				bgColor={hideEditorComponent ? 'gray.100' : ''}
 				colorScheme={component.color || 'blue'}
 				onClick={() => {
 					if (component.on_click) {
@@ -118,6 +124,7 @@ const AppComponent = (props: any) => {
 			<Text
 				fontSize={sizeMap[component.size]}
 				color={component.color || `${component.color}.500`}
+				bgColor={hideEditorComponent ? 'gray.100' : ''}
 			>
 				{component.text}
 			</Text>
@@ -125,9 +132,8 @@ const AppComponent = (props: any) => {
 	}
 
 	return (
-		<FormControl key={component.name}>
+		<FormControl key={component.name} bgColor={hideEditorComponent ? 'gray.100' : ''}>
 			{component.label ? <FormLabel lineHeight={1}>{component.label}</FormLabel> : null}
-
 			<InputRenderer
 				placeholder={component?.placeholder}
 				value={inputState?.value}
