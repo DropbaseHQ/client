@@ -174,8 +174,8 @@ export const ColumnsProperties = () => {
 	const { files } = useGetPage(pageId);
 
 	const { table } = useGetTable(tableId || '');
-	const type = table?.type;
 	const file = files.find((f: any) => f.id === table?.file_id);
+	const type = file?.type;
 
 	const { isLoading, values } = useGetColumnProperties(tableId || '');
 
@@ -201,7 +201,7 @@ export const ColumnsProperties = () => {
 			convertMutation.mutate({
 				file,
 				table,
-				state: pageState.state.tables,
+				state: pageState.state,
 				appName,
 				pageName,
 			});
