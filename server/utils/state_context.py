@@ -16,5 +16,4 @@ def get_state_context_payload(db: Session, page_id: UUID):
         "page_name": page.name,
         "state": State.schema(),
         "context": Context.schema(),
-        "status": "success",
     }
