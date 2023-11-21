@@ -12,7 +12,7 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { ChevronDown, RefreshCw, X } from 'react-feather';
+import { ChevronDown, X } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
 
@@ -158,9 +158,7 @@ export const AppPreview = () => {
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isDevMode = !isPreview;
 
-	const { isLoading, refetch, components, widget, isRefetching } = useGetWidgetPreview(
-		widgetId || '',
-	);
+	const { isLoading, components, widget } = useGetWidgetPreview(widgetId || '');
 
 	const { appName, pageName } = useAtomValue(pageAtom);
 
@@ -259,17 +257,6 @@ export const AppPreview = () => {
 							) : null}
 						</Stack>
 					</InspectorContainer>
-
-					{isDevMode ? (
-						<IconButton
-							aria-label="Refresh UI"
-							size="xs"
-							icon={<RefreshCw size="14" />}
-							variant="outline"
-							isLoading={isRefetching}
-							onClick={() => refetch()}
-						/>
-					) : null}
 				</Stack>
 
 				<Stack p="4" h="full" overflow="auto" spacing="3">
