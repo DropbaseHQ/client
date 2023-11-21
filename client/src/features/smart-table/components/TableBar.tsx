@@ -51,7 +51,7 @@ export const TableBar = () => {
 	});
 
 	const handleCellEdits = () => {
-		if (tableType && table?.source)
+		if (tableType === 'sql') {
 			saveEditsMutation.mutate({
 				file,
 				edits: cellEdits.map((edit: any) => ({
@@ -62,6 +62,7 @@ export const TableBar = () => {
 					new_value: edit.new_value,
 				})),
 			});
+		}
 	};
 
 	if (tableType === 'sql') {
