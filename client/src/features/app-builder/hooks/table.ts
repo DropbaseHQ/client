@@ -132,7 +132,7 @@ export const useUpdateTableProperties = (props: any = {}) => {
 };
 
 const convertToSmartTable = async ({ file, table, state, appName, pageName }: any) => {
-	const response = await workerAxios.post(`/tables/convert`, {
+	const response = await workerAxios.post(`/tables/convert/`, {
 		file,
 		table,
 		state,
