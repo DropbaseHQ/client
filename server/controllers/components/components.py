@@ -13,7 +13,11 @@ from server.schemas.components import (
     TextDefined,
     UpdateComponents,
 )
-from server.utils.components import component_type_mapper, order_components
+from server.utils.components import (
+    component_type_mapper,
+    order_components,
+    process_after_property,
+)
 from server.utils.converter import get_class_properties
 from server.utils.state_context import get_state_context_payload
 
@@ -24,9 +28,13 @@ def create_component(db: Session, request: CreateComponents):
     ComponentClass = component_type_mapper[request.type]
     comp_property = ComponentClass(**request.property)
     request.property = comp_property
+    request = process_after_property(db=db, component=request)
     component = crud.components.create(db, obj_in=request)
     page = crud.page.get_page_by_widget(db, widget_id=component.widget_id)
-    return {"state_context": get_state_context_payload(db, page.id), "component": component}
+    return {
+        "state_context": get_state_context_payload(db, page.id),
+        "component": component,
+    }
 
 
 def update_component(db: Session, components_id: UUID, request: UpdateComponents):
