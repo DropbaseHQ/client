@@ -34,13 +34,14 @@ import {
 	// useTableSyncStatus,
 } from './hooks';
 
-import { cellEditsAtom } from './atoms';
+import { cellEditsAtom, tablePageInfoAtom } from './atoms';
 import { TableBar } from './components';
 import { getPGColumnBaseType } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 import { pageAtom, useGetPage } from '../page';
 import { appModeAtom } from '@/features/app/atoms';
+import { Pagination } from './components/Pagination';
 
 export const SmartTable = ({ tableId }: any) => {
 	const theme = useTheme();
@@ -67,6 +68,9 @@ export const SmartTable = ({ tableId }: any) => {
 
 	const [selectedData, selectRow] = useAtom(selectedRowAtom);
 	const selectedRow = (selectedData as any)?.[tableName];
+
+	const [allTablePageInfo, setPageInfo] = useAtom(tablePageInfoAtom);
+	const pageInfo = allTablePageInfo[tableId] || {};
 
 	const [columnWidth, setColumnWidth] = useState<any>({});
 
@@ -103,6 +107,16 @@ export const SmartTable = ({ tableId }: any) => {
 			[tableId]: [],
 		}));
 	}, [tableId, setCellEdits]);
+
+	useEffect(() => {
+		setPageInfo((old: any) => ({
+			...old,
+			[tableId]: {
+				currentPage: 0,
+				pageSize: 10,
+			},
+		}));
+	}, [tableId, setPageInfo]);
 
 	const gridTheme =
 		colorMode === 'dark'
@@ -401,7 +415,7 @@ export const SmartTable = ({ tableId }: any) => {
 						) : (
 							<DataEditor
 								columns={gridColumns}
-								rows={rows.length}
+								rows={pageInfo.pageSize || 10}
 								width="100%"
 								height="100%"
 								getCellContent={getCellContent}
@@ -418,6 +432,7 @@ export const SmartTable = ({ tableId }: any) => {
 							/>
 						)}
 					</Box>
+					<Pagination />
 				</Stack>
 			</Stack>
 		</CurrentTableContext.Provider>
