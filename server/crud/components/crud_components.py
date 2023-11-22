@@ -25,7 +25,9 @@ class CRUDComponents(CRUDBase[Components, CreateComponents, UpdateComponents]):
             .one()
         ).workspace_id
 
-    def get_component_by_after(self, db: Session, widget_id: UUID, after: UUID) -> Components:
+    def get_component_by_after(
+        self, db: Session, widget_id: UUID, after: UUID
+    ) -> Components:
         return (
             db.query(Components)
             .filter(Components.after == after)
@@ -41,6 +43,14 @@ class CRUDComponents(CRUDBase[Components, CreateComponents, UpdateComponents]):
             .filter(Components.id == components_id)
             .one()
         ).app_id
+
+    def get_last_component(self, db: Session, widget_id: UUID) -> Components:
+        return (
+            db.query(Components)
+            .filter(Components.widget_id == widget_id)
+            .order_by(Components.after.desc())
+            .first()
+        )
 
 
 components = CRUDComponents(Components)

@@ -10,6 +10,9 @@ from server.controllers.state.models import (
     TextContextProperty,
     TextDefinedProperty,
 )
+from server.schemas.components import CreateComponents
+from server import crud
+from sqlalchemy.orm import Session
 
 user_input_components = ["input", "select"]
 state_update_components = ["input", "select", "button"]
@@ -41,6 +44,14 @@ def get_component_pydantic_dtype(component):
         return "Any"
 
 
+def process_after_property(db: Session, component: CreateComponents):
+    if not component.after:
+        last_component = crud.components.get_last_component(db, component.widget_id)
+        if last_component:
+            component.after = last_component.id
+    return component
+
+
 def order_components(components):
     if len(components) == 0:
         return []
@@ -54,7 +65,6 @@ def order_components(components):
 
     comp_dict = {component.id: component for component in components}
     result = [comp_dict[first]]
-
     for _ in range(len(comp_dict.keys()) - 1):
         last_component = result[-1]
         next_comp_id = after_dict[last_component.id]
