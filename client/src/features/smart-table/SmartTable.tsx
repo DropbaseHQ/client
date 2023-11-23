@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
-import { RefreshCw } from 'react-feather';
+import { RefreshCw, RotateCw } from 'react-feather';
 
 import DataEditor, {
 	CompactSelection,
@@ -412,21 +412,25 @@ export const SmartTable = ({ tableId }: any) => {
 						</Text>
 
 						<Stack direction="row" spacing="2">
-							<IconButton
-								aria-label="Refresh Data"
-								size="xs"
-								icon={<RefreshCw size="14" />}
-								variant="outline"
-								isLoading={isRefetching}
-								onClick={() => refetch()}
-							/>
+							<Tooltip label="Refresh data">
+								<IconButton
+									aria-label="Refresh Data"
+									size="sm"
+									colorScheme="gray"
+									icon={<RotateCw size="14" />}
+									variant="outline"
+									isLoading={isRefetching}
+									onClick={() => refetch()}
+								/>
+							</Tooltip>
 
 							{!isLoading && !isPreview && tableIsUnsynced ? (
 								<Tooltip label="Sync columns">
 									<Button
-										colorScheme="yellow"
-										size="sm"
+										variant="outline"
+										colorScheme="gray"
 										leftIcon={<RefreshCw size="14" />}
+										size="sm"
 										onClick={handleSyncColumns}
 										isLoading={syncMutation.isLoading}
 									>
