@@ -1,3 +1,13 @@
+# Deploy on Docker
+
+```
+cd client
+docker build -t dropbase/client .
+# test it's running
+docker run -p 3000:80 dropbase/client
+docker push dropbase/client
+```
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
