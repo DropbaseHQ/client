@@ -350,7 +350,7 @@ export const DeveloperSettings = () => {
 					isLoading={createMutation.isLoading}
 					onClick={handleButtonClick}
 				>
-					Generate Proxy Token
+					Generate Token
 				</Button>
 				<SimpleGrid columns={3} spacing={4}>
 					{tokens.map((token: ProxyToken) => {
