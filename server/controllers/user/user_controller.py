@@ -241,6 +241,7 @@ def get_user_workspaces(db: Session, user_id: UUID):
                 "id": workspace.id,
                 "name": workspace.name,
                 "oldest_user": workspace_oldest_user,
+                "worker_url": workspace.worker_url,
             }
         )
 
