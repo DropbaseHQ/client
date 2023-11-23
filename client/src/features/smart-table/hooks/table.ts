@@ -28,7 +28,7 @@ const fetchTableData = async ({
 			sorts,
 			pagination: {
 				page: currentPage || 0,
-				page_size: (pageSize || 0) + 1,
+				page_size: (pageSize || 0),
 			},
 		},
 	});
