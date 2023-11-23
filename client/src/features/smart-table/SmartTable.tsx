@@ -240,20 +240,16 @@ export const SmartTable = ({ tableId }: any) => {
 			currentValue === null || currentValue === undefined ? '' : currentValue;
 
 		const unParsedValue = editedValue === undefined ? defaultValue : editedValue;
-		const cellValue =
+		const stringifiedValue =
 			typeof unParsedValue === 'object' && unParsedValue !== null
 				? JSON.stringify(unParsedValue)
 				: String(unParsedValue);
-
+		const cellValue = stringifiedValue;
 		const canEdit = column?.editable;
 
-		let kind = GridCellKind.Text;
-
-		let cellContent = {};
-
 		if (column?.primary_key) {
-			cellContent = {
-				kind,
+			return {
+				kind: GridCellKind.Text,
 				data: String(cellValue),
 				displayData: String(cellValue),
 				allowOverlay: false,
@@ -261,39 +257,53 @@ export const SmartTable = ({ tableId }: any) => {
 			};
 		}
 
+		const themeOverride = canEdit
+			? {}
+			: {
+					themeOverride: {
+						bgCell: theme.colors.gray['50'],
+					},
+			  };
+
 		switch (getPGColumnBaseType(column?.type)) {
 			case 'float':
 			case 'integer': {
-				kind = GridCellKind.Number;
-				break;
+				return {
+					kind: GridCellKind.Number,
+					data: +cellValue,
+					allowOverlay: canEdit,
+					displayData: unParsedValue === null ? '' : cellValue,
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'boolean': {
+				const validType =
+					typeof currentValue === 'boolean' ||
+					currentValue === null ||
+					currentValue === undefined;
+
+				return {
+					kind: GridCellKind.Boolean,
+					data: validType ? cellValue : null,
+					allowOverlay: false,
+					readonly: !canEdit,
+					...themeOverride,
+				};
 			}
 
 			default: {
-				break;
+				return {
+					kind: GridCellKind.Text,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData: String(cellValue),
+					readonly: !canEdit,
+					...themeOverride,
+				};
 			}
 		}
-
-		cellContent = {
-			kind,
-			data: currentValue,
-			allowOverlay: canEdit,
-			displayData: String(cellValue),
-			readonly: !canEdit,
-		};
-
-		if (canEdit) {
-			return {
-				...cellContent,
-			};
-		}
-
-		return {
-			...cellContent,
-
-			themeOverride: {
-				bgCell: theme.colors.gray['50'],
-			},
-		};
 	};
 
 	const onCellEdited = (cell: any, newValue: any) => {
@@ -303,21 +313,44 @@ export const SmartTable = ({ tableId }: any) => {
 		const column = columns[visibleColumns[col]];
 
 		if (column?.edit_keys?.length > 0) {
-			setCellEdits((old: any) => ({
-				...old,
-				[tableId]: [
-					...(old?.[tableId] || []),
-					{
-						new_value: newValue.data,
-						value: currentRow[column.name],
-						column_name: column.name,
+			setCellEdits((old: any) => {
+				const hasCellEdit = (old?.[tableId] || []).find(
+					(cellEdit: any) =>
+						cellEdit.rowIndex === row && column.name === cellEdit.column_name,
+				);
 
-						old_value: currentRow[column.name],
-						rowIndex: row,
-						columnIndex: col,
-					},
-				],
-			}));
+				if (hasCellEdit) {
+					return {
+						...old,
+						[tableId]: (old?.[tableId] || []).map((cellEdit: any) => {
+							if (cellEdit.rowIndex === row && column.name === cellEdit.column_name) {
+								return {
+									...cellEdit,
+									new_value: newValue.data === undefined ? null : newValue.data,
+								};
+							}
+
+							return cellEdit;
+						}),
+					};
+				}
+
+				return {
+					...old,
+					[tableId]: [
+						...(old?.[tableId] || []),
+						{
+							new_value: newValue.data === undefined ? null : newValue.data,
+							value: currentRow[column.name],
+							column_name: column.name,
+
+							old_value: currentRow[column.name],
+							rowIndex: row,
+							columnIndex: col,
+						},
+					],
+				};
+			});
 		}
 	};
 
