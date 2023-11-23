@@ -56,7 +56,7 @@ const updateWorkspaceWorkerURL = async ({ workspaceId, workerURL }: any) => {
 export const useUpdateWorkspaceWorkerURL = () => {
 	const queryClient = useQueryClient();
 	return useMutation(updateWorkspaceWorkerURL, {
-		onSuccess: (data: any) => {
+		onSuccess: (_: any) => {
 			queryClient.refetchQueries(WORKSPACE_QUERY);
 		},
 	});
