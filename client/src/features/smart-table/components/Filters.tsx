@@ -18,6 +18,7 @@ import {
 	useDisclosure,
 	VStack,
 } from '@chakra-ui/react';
+import { useEffect } from 'react';
 import { Filter as FilterIcon, Plus, Star, Trash } from 'react-feather';
 import { useAtom, useAtomValue } from 'jotai';
 import { filtersAtom } from '@/features/smart-table/atoms';
@@ -30,7 +31,6 @@ import { useGetTable } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { getPGColumnBaseType } from '@/utils';
 import { appModeAtom } from '@/features/app/atoms';
-import { useEffect } from 'react';
 
 const COMMON_OPERATORS = [
 	{

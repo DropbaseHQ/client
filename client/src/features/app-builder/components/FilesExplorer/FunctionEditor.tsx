@@ -75,18 +75,20 @@ export const FunctionEditor = ({ id }: any) => {
 
 	return (
 		<Stack h="full" bg="white" spacing="0" divider={<Divider />} w="full">
-			<Stack p="2" direction="row" alignItems="center" justifyContent="end">
-				<Button
-					w="fit-content"
-					onClick={refetchColumns}
-					variant="outline"
-					colorScheme="gray"
-					size="sm"
-					leftIcon={<Save size="14" />}
-				>
-					Update
-				</Button>
-			</Stack>
+			{file?.type === 'data_fetcher' ? (
+				<Stack p="2" direction="row" alignItems="center" justifyContent="end">
+					<Button
+						w="fit-content"
+						onClick={refetchColumns}
+						variant="outline"
+						colorScheme="gray"
+						size="sm"
+						leftIcon={<Save size="14" />}
+					>
+						Update
+					</Button>
+				</Stack>
+			) : null}
 			<PythonEditorLSP code={code} updateCode={setCode} filePath={filePath} key={id} />
 			<FunctionTerminal file={file} code={updatedCode} />
 		</Stack>

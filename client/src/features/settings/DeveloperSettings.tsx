@@ -367,7 +367,7 @@ export const DeveloperSettings = () => {
 						isLoading={createMutation.isLoading}
 						onClick={handleButtonClick}
 					>
-						Generate Proxy Token
+						Generate Token
 					</Button>
 				</Flex>
 
@@ -377,7 +377,6 @@ export const DeveloperSettings = () => {
 						<AlertTitle>Please select a token to continue!</AlertTitle>
 					</Alert>
 				)}
-
 				<SimpleGrid columns={3} spacing={4}>
 					{tokens.map((token: ProxyToken) => {
 						return <ProxyTokenCard token={token} />;
