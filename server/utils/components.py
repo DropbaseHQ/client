@@ -45,10 +45,9 @@ def get_component_pydantic_dtype(component):
 
 
 def process_after_property(db: Session, component: CreateComponents):
-    if not component.after:
-        last_component = crud.components.get_last_component(db, component.widget_id)
-        if last_component:
-            component.after = last_component.id
+    last_component = crud.components.get_last_component(db, component.widget_id)
+    if last_component:
+        component.after = last_component.id
     return component
 
 

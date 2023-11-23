@@ -48,7 +48,7 @@ class CRUDComponents(CRUDBase[Components, CreateComponents, UpdateComponents]):
         return (
             db.query(Components)
             .filter(Components.widget_id == widget_id)
-            .order_by(Components.after.desc())
+            .order_by(Components.date.desc())
             .first()
         )
 
