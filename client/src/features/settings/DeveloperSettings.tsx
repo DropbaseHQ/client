@@ -23,12 +23,17 @@ import {
 	PopoverCloseButton,
 	useDisclosure,
 	useClipboard,
+	FormControl,
+	FormLabel,
+	InputGroup,
+	InputRightElement,
+	InputLeftAddon,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import { CheckCircle, Copy, X, Edit } from 'react-feather';
 import copy from 'copy-to-clipboard';
 import { PageLayout } from '@/layout';
-import { workspaceAtom } from '@/features/workspaces';
+import { useUpdateWorkspaceWorkerURL, useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import {
 	useCreateProxyToken,
@@ -318,17 +323,32 @@ const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
 export const DeveloperSettings = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const { user } = useGetCurrentUser();
+	const [workerUrl, setWorkerUrl] = useState('');
 	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
 	const [selectedToken] = useAtom(proxyTokenAtom);
-
+	const { workspaces } = useWorkspaces();
 	const createMutation = useCreateProxyToken();
-
+	const updateWorkspaceMutation = useUpdateWorkspaceWorkerURL();
+	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
 	const handleButtonClick = async () => {
 		createMutation.mutate({
 			workspaceId,
 			userId: user.id,
 		});
 	};
+	const workerURLHasChanged = currentWorkspace?.worker_url !== workerUrl;
+	const handleSaveWorkerUrl = () => {
+		updateWorkspaceMutation.mutate({
+			workspaceId,
+			workerURL: workerUrl,
+		});
+	};
+
+	useEffect(() => {
+		if (currentWorkspace) {
+			setWorkerUrl(currentWorkspace?.worker_url);
+		}
+	}, [currentWorkspace]);
 
 	if (isLoading) {
 		return <Skeleton />;
@@ -337,26 +357,61 @@ export const DeveloperSettings = () => {
 	return (
 		<PageLayout title="Developer Settings">
 			<Stack>
+				<Flex direction="row" justifyContent="space-between" alignItems="center" mb="4">
+					<Text fontSize="lg" fontWeight="bold">
+						Proxy Tokens
+					</Text>
+					<Button
+						size="sm"
+						w="fit-content"
+						isLoading={createMutation.isLoading}
+						onClick={handleButtonClick}
+					>
+						Generate Token
+					</Button>
+				</Flex>
+
 				{selectedToken ? null : (
 					<Alert status="error">
 						<AlertIcon />
 						<AlertTitle>Please select a token to continue!</AlertTitle>
 					</Alert>
 				)}
-				<Button
-					size="sm"
-					alignSelf="end"
-					w="fit-content"
-					isLoading={createMutation.isLoading}
-					onClick={handleButtonClick}
-				>
-					Generate Token
-				</Button>
 				<SimpleGrid columns={3} spacing={4}>
 					{tokens.map((token: ProxyToken) => {
 						return <ProxyTokenCard token={token} />;
 					})}
 				</SimpleGrid>
+				<Text fontSize="lg" fontWeight="bold" mb="4">
+					Worker Settings
+				</Text>
+				<Flex>
+					<FormControl>
+						<FormLabel>Worker URL</FormLabel>
+						<InputGroup size="md">
+							<InputLeftAddon children="http://" />
+							<Input
+								placeholder="localhost:9000"
+								value={workerUrl}
+								onChange={(e) => {
+									setWorkerUrl(e.target.value);
+								}}
+							/>
+							{workerURLHasChanged && (
+								<InputRightElement>
+									<Button
+										size="xs"
+										mr="4"
+										onClick={handleSaveWorkerUrl}
+										isLoading={updateWorkspaceMutation.isLoading}
+									>
+										Save
+									</Button>
+								</InputRightElement>
+							)}
+						</InputGroup>
+					</FormControl>
+				</Flex>
 			</Stack>
 		</PageLayout>
 	);

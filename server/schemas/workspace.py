@@ -25,6 +25,7 @@ class CreateWorkspace(BaseWorkspace):
 class UpdateWorkspace(BaseModel):
     name: Optional[str]
     active: Optional[bool]
+    worker_url: Optional[str]
 
 
 class AddUserRequest(BaseModel):

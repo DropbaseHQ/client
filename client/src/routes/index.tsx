@@ -6,11 +6,15 @@ import { DashboardLayout } from '@/layout';
 import { App } from '@/features/app';
 import { Users, DeveloperSettings } from '@/features/settings';
 import { Workspaces, useWorkspaces } from '@/features/workspaces';
-import { useSetWorkerAxiosToken } from '@/features/authorization/hooks/useLogin';
+import {
+	useSetWorkerAxiosToken,
+	useSetWorkerAxiosBaseURL,
+} from '@/features/authorization/hooks/useLogin';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
 	useSetWorkerAxiosToken();
+	useSetWorkerAxiosBaseURL();
 
 	if (isLoading) {
 		return (
