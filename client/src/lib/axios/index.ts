@@ -13,6 +13,9 @@ export const workerAxios = Axios.create({
 export const setWorkerAxiosToken = (token: string | null) => {
 	workerAxios.defaults.headers['access-token'] = token;
 };
+export const setWorkerAxiosBaseURL = (url: string) => {
+	workerAxios.defaults.baseURL = url;
+};
 
 axios.interceptors.response.use(
 	(res) => {

@@ -23,11 +23,11 @@ import {
 	PopoverCloseButton,
 	useDisclosure,
 	useClipboard,
-	Heading,
 	FormControl,
 	FormLabel,
 	InputGroup,
 	InputRightElement,
+	InputLeftAddon,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import { CheckCircle, Copy, X, Edit } from 'react-feather';
@@ -390,6 +390,7 @@ export const DeveloperSettings = () => {
 					<FormControl>
 						<FormLabel>Worker URL</FormLabel>
 						<InputGroup size="md">
+							<InputLeftAddon children="http://" />
 							<Input
 								placeholder="localhost:9000"
 								value={workerUrl}

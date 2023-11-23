@@ -57,7 +57,7 @@ export const useUpdateWorkspaceWorkerURL = () => {
 	const queryClient = useQueryClient();
 	return useMutation(updateWorkspaceWorkerURL, {
 		onSuccess: (data: any) => {
-			queryClient.invalidateQueries([WORKSPACE_QUERY]);
+			queryClient.refetchQueries(WORKSPACE_QUERY);
 		},
 	});
 };

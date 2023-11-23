@@ -3,7 +3,10 @@ import { MutationConfig } from '@/lib/react-query';
 import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { setWorkerAxiosToken } from '@/lib/axios';
+import { useWorkspaces } from '@/features/workspaces';
+import { useAtom } from 'jotai';
+import { workspaceAtom } from '@/features/workspaces';
+import { setWorkerAxiosToken, setWorkerAxiosBaseURL } from '@/lib/axios';
 
 export type LoginResponse = {
 	user: any;
@@ -47,4 +50,16 @@ export const useSetWorkerAxiosToken = () => {
 
 		fetchData();
 	}, []);
+};
+export const useSetWorkerAxiosBaseURL = () => {
+	const [workspaceId] = useAtom(workspaceAtom);
+	const { workspaces } = useWorkspaces();
+	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
+	useEffect(() => {
+		if (currentWorkspace?.worker_url) {
+			setWorkerAxiosBaseURL(`http://${currentWorkspace.worker_url}`);
+		} else {
+			setWorkerAxiosBaseURL(import.meta.env.VITE_WORKER_API_ENDPOINT);
+		}
+	}, [workspaces, workspaceId]);
 };
