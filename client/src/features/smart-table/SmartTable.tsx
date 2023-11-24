@@ -279,14 +279,11 @@ export const SmartTable = ({ tableId }: any) => {
 			}
 
 			case 'boolean': {
-				const validType =
-					typeof currentValue === 'boolean' ||
-					currentValue === null ||
-					currentValue === undefined;
+				const validType = typeof currentValue === 'boolean';
 
 				return {
 					kind: GridCellKind.Boolean,
-					data: validType ? cellValue : null,
+					data: validType ? unParsedValue : null,
 					allowOverlay: false,
 					readonly: !canEdit,
 					...themeOverride,
