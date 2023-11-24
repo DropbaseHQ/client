@@ -31,6 +31,7 @@ import { PageLayout } from '@/layout';
 import { FormInput } from '@/components/FormInput';
 import { useDeleteApp } from '@/features/app-list/hooks/useDeleteApp';
 import { workspaceAtom } from '@/features/workspaces';
+import { SalesModal } from './AppSalesModal';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
@@ -213,29 +214,39 @@ export const AppList = () => {
 		});
 	};
 
+	const workerIsConnected = status === 'success';
+
 	return (
 		<PageLayout
 			title="Your apps"
 			action={
-				<Button size="sm" ml="auto" onClick={onOpen} isDisabled={status !== 'success'}>
+				<Button size="sm" ml="auto" onClick={onOpen} isDisabled={!workerIsConnected}>
 					Create app
 				</Button>
 			}
 		>
-			<SimpleGrid spacing={6} pb="4" columns={4}>
-				{isLoading ? (
-					<>
-						<Skeleton w="full" h={24} />
-						<Skeleton w="full" h={24} />
-						<Skeleton w="full" h={24} />
-						<Skeleton w="full" h={24} />
-					</>
-				) : (
-					apps
-						.sort((a, b) => a.name.localeCompare(b.name))
-						.map((app) => <AppCard key={app.id} app={app} />)
-				)}
-			</SimpleGrid>
+			{workerIsConnected ? (
+				<SimpleGrid spacing={6} pb="4" columns={4}>
+					{isLoading ? (
+						<>
+							<Skeleton w="full" h={24} />
+							<Skeleton w="full" h={24} />
+							<Skeleton w="full" h={24} />
+							<Skeleton w="full" h={24} />
+						</>
+					) : (
+						apps
+							.sort((a, b) => a.name.localeCompare(b.name))
+							.map((app) => <AppCard key={app.id} app={app} />)
+					)}
+				</SimpleGrid>
+			) : (
+				<Text fontSize="lg" fontWeight="bold">
+					Please connect to a worker to view and create apps.
+				</Text>
+			)}
+			{!workerIsConnected && <SalesModal />}
+
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent>
