@@ -45,3 +45,8 @@ class UpdateUserRoleRequest(BaseModel):
 class UpdateWorkspaceToken(BaseModel):
     token: Optional[str]
     token_id: Optional[UUID]
+
+
+class RequestCloud(BaseModel):
+    user_number: int
+    worker_url: str

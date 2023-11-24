@@ -1,8 +1,10 @@
 from server import crud
-from server.models import Policy, UserGroup, Group
-from server.schemas import UpdateUserRoleRequest, UpdateWorkspaceToken
+from server.models import Policy, User
+from server.schemas import UpdateUserRoleRequest, UpdateWorkspaceToken, RequestCloud
 from sqlalchemy.orm import Session
 from uuid import UUID
+import boto3
+from botocore.exceptions import ClientError
 
 
 def get_workspace_users(db, workspace_id):
@@ -148,3 +150,33 @@ def delete_workspace(db: Session, workspace_id: UUID):
     except Exception as e:
         db.rollback()
         raise e
+
+
+def request_cloud(db: Session, user: User, workspace_id: UUID, request: RequestCloud):
+    client = boto3.client("ses", region_name="us-east-1")
+    dropbase_support = "jon@dropbase.io"
+
+    try:
+        response = client.send_email(
+            Destination={
+                "ToAddresses": [user.email],
+            },
+            Message={
+                "Body": {
+                    "Text": {
+                        "Charset": "UTF-8",
+                        "Data": f"""Request from user: {user.email} \nUser number: {request.user_number}\nWorker URL: {request.worker_url}""",
+                    }
+                },
+                "Subject": {
+                    "Charset": "UTF-8",
+                    "Data": f"New Cloud Request from {user.email}",
+                },
+            },
+            Source=dropbase_support,
+        )
+    except ClientError as e:
+        print(e.response["Error"]["Message"])
+    else:
+        print("Email sent! Message ID:"),
+        print(response["MessageId"])
