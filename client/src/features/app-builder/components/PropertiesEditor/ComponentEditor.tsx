@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
-
+import { useStatus } from '@/layout/StatusBar';
 import { FormInput } from '@/components/FormInput';
 import {
 	useAllPageFunctionNames,
@@ -226,6 +226,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 export const NewComponent = (props: any) => {
 	const toast = useToast();
+	const { isConnected } = useStatus();
 	const { widgetId, appName, pageName } = useAtomValue(pageAtom);
 	const { values } = useGetComponentProperties(widgetId || '');
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
@@ -296,6 +297,7 @@ export const NewComponent = (props: any) => {
 				size="sm"
 				flexShrink="0"
 				mr="auto"
+				isDisabled={!isConnected}
 				isLoading={mutation.isLoading}
 				{...props}
 			>
