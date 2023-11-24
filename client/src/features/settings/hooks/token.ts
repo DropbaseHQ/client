@@ -78,6 +78,7 @@ export const useSyncProxyToken = () => {
 	const { isLoading, isFetched, tokens } = useProxyTokens({ userId: user.id, workspaceId });
 
 	const isValid = token && tokens.find((t) => t.token === token);
+	const hasTokens = tokens.length > 0;
 
 	useEffect(() => {
 		const selectedToken = tokens.find((t) => t.is_selected);
@@ -92,7 +93,7 @@ export const useSyncProxyToken = () => {
 		workerAxios.defaults.headers['dropbase-proxy-token'] = token;
 	}, [token]);
 
-	return { token, isLoading: isLoadingUser || isLoading, isValid };
+	return { token, isLoading: isLoadingUser || isLoading, isValid, hasTokens };
 };
 
 const updateWorkspaceProxyToken = async ({ workspaceId, tokenId }: any) => {
