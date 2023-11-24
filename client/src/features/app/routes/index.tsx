@@ -4,9 +4,9 @@ import { AppList } from '@/features/app-list';
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
 
 export const App = () => {
-	const { hasTokens } = useSyncProxyToken();
+	const { hasTokens, isLoading } = useSyncProxyToken();
 
-	if (!hasTokens) {
+	if (!hasTokens && !isLoading) {
 		return <Navigate to="/settings/developer" />;
 	}
 	return (

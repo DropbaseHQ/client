@@ -30,7 +30,7 @@ import { useCreateAppFlow } from './hooks/useCreateApp';
 import { PageLayout } from '@/layout';
 import { FormInput } from '@/components/FormInput';
 import { useDeleteApp } from '@/features/app-list/hooks/useDeleteApp';
-import { workspaceAtom } from '@/features/workspaces';
+import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { SalesModal } from './AppSalesModal';
 
 const AppCard = ({ app }: { app: AppType }) => {
@@ -178,8 +178,10 @@ const AppCard = ({ app }: { app: AppType }) => {
 export const AppList = () => {
 	const navigate = useNavigate();
 	const workspaceId = useAtomValue(workspaceAtom);
+	const { workspaces } = useWorkspaces();
 	const { status } = useStatus();
 	const methods = useForm();
+	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
 
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
 	const { isOpen, onOpen, onClose } = useDisclosure({
@@ -215,7 +217,15 @@ export const AppList = () => {
 	};
 
 	const workerIsConnected = status === 'success';
+	const workspaceHasWorkspaceURL = !!currentWorkspace?.workspaceUrl;
+	const environment = import.meta.env.VITE_ENVIRONMENT;
 
+	const shouldDisplaySalesModal = () => {
+		if (environment === 'production') {
+			return !workspaceHasWorkspaceURL && !workerIsConnected;
+		}
+		return !workerIsConnected;
+	};
 	return (
 		<PageLayout
 			title="Your apps"
@@ -245,7 +255,7 @@ export const AppList = () => {
 					Please connect to a worker to view and create apps.
 				</Text>
 			)}
-			{!workerIsConnected && <SalesModal />}
+			{shouldDisplaySalesModal() && <SalesModal />}
 
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
