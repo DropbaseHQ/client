@@ -34,10 +34,10 @@ export const useGetTable = (tableId: string, props?: any): any => {
 			table: response?.table || {},
 			type: response?.file?.type,
 			filters: (response?.table?.property?.filters || []).map((f: any) => ({
-					...f,
-					pinned: true,
-					id: crypto.randomUUID(),
-				}))
+				...f,
+				pinned: true,
+				id: crypto.randomUUID(),
+			})),
 		};
 	}, [response]);
 
@@ -108,6 +108,7 @@ const updateTableProperties = async ({
 	file,
 	pageId,
 	state,
+	property,
 }: any) => {
 	const response = await workerAxios.put(`/tables/${tableId}/`, {
 		app_name: appName,
@@ -116,7 +117,7 @@ const updateTableProperties = async ({
 		table,
 		state,
 		file,
-		property: {},
+		property: property || {},
 		page_id: pageId,
 	});
 
