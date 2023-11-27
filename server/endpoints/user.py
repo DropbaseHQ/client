@@ -16,6 +16,7 @@ from server.schemas.user import (
     ResetPasswordRequest,
     UpdateUser,
     UpdateUserPolicyRequest,
+    ResendConfirmationEmailRequest,
 )
 from server.utils.authorization import (
     get_current_user,
@@ -41,6 +42,13 @@ def register_user(request: CreateUserRequest, db: Session = Depends(get_db)):
 @router.post("/verify")
 def verify_user(token: str, user_id: UUID, db: Session = Depends(get_db)):
     return user_controller.verify_user(db, token, user_id)
+
+
+@router.post("/resend_confirmation_email")
+def resend_confirmation_email(
+    request: ResendConfirmationEmailRequest, db: Session = Depends(get_db)
+):
+    return user_controller.resend_confirmation_email(db, request.email)
 
 
 @router.post("/login")

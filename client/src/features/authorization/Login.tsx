@@ -1,5 +1,6 @@
 import {
 	Box,
+	Flex,
 	Button,
 	Container,
 	FormControl,
@@ -15,6 +16,7 @@ import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { useResendConfirmEmail } from './hooks/useResendConfirmationEmail';
 import { useLogin } from './hooks/useLogin';
 import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
@@ -31,15 +33,15 @@ export const Login = () => {
 
 	const updateWorkspace = useSetAtom(workspaceAtom);
 
-	const [, setDisplayEmailConfirmation] = useState(false);
-
+	const [displayEmailConfirmation, setDisplayEmailConfirmation] = useState(false);
 	const {
 		register,
 		formState: { errors },
 		handleSubmit,
+		watch,
 	} = useForm<FormValues>();
 
-	// const email = watch('email');
+	const email = watch('email');
 
 	const { mutate, isLoading } = useLogin({
 		onError: (error: any) => {
@@ -62,10 +64,19 @@ export const Login = () => {
 			navigate('/apps');
 		},
 	});
+	const {
+		mutate: resendConfirmEmail,
+		isLoading: resendIsLoading,
+		isSuccess: resendIsSuccess,
+	} = useResendConfirmEmail();
 
 	const onSubmit = handleSubmit((data) => {
 		mutate(data);
 	});
+
+	const onResendConfirmEmail = () => {
+		resendConfirmEmail({ email });
+	};
 
 	return (
 		<Container display="flex" alignItems="center" h="100vh" maxW="lg">
@@ -123,6 +134,21 @@ export const Login = () => {
 							</Stack>
 						</Stack>
 					</form>
+					{displayEmailConfirmation && (
+						<Flex mt="6" direction="column">
+							<Text color="orange" fontSize="sm">
+								You must first confirm your email before logging in.
+							</Text>
+							<Button
+								marginTop="4"
+								onClick={onResendConfirmEmail}
+								isLoading={resendIsLoading}
+								isDisabled={resendIsSuccess}
+							>
+								{resendIsSuccess ? 'Email sent' : 'Resend Confirmation Email'}
+							</Button>
+						</Flex>
+					)}
 				</Box>
 			</Stack>
 		</Container>

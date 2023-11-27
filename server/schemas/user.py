@@ -77,3 +77,7 @@ class UpdateUserPolicyRequest(BaseModel):
     resource: str
     action: str
     workspace_id: str
+
+
+class ResendConfirmationEmailRequest(BaseModel):
+    email: str

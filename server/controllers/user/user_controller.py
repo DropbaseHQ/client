@@ -51,6 +51,11 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
                 detail="Incorrect username or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+        if not user.active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Email needs to be verified.",
+            )
         access_token = Authorize.create_access_token(
             subject=user.email, expires_time=ACCESS_TOKEN_EXPIRE_SECONDS
         )
@@ -279,3 +284,15 @@ def get_user_workspaces(db: Session, user_id: UUID):
         )
 
     return formatted_workspaces
+
+
+def resend_confirmation_email(db: Session, user_email: str):
+    user = crud.user.get_user_by_email(db, email=user_email)
+    confirmation_link = (
+        f"{CLIENT_URL}/email-confirmation/{user.confirmation_token}/{user.id}"
+    )
+
+    send_email(
+        email_name="verifyEmail",
+        email_params={"email": user.email, "confirmation_link": confirmation_link},
+    )
