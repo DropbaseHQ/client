@@ -11,6 +11,7 @@ import { Loader } from '@/components/Loader';
 import { AppNavbar } from '@/features/app/components/AppNavbar';
 import { PropertyPane } from '@/features/app-builder';
 import { FilesExplorer } from './components/FilesExplorer';
+import { WorkerDisconnected } from './components/WorkerDisconnected';
 
 export const AppBuilder = () => {
 	const { isLoading } = useInitPage();
@@ -66,6 +67,7 @@ export const AppBuilder = () => {
 					</Panel>
 				</PanelGroup>
 			</Box>
+			<WorkerDisconnected />
 		</Stack>
 	);
 };

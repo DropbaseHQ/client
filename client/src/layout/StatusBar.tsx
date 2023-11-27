@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query';
-import { Circle, Stack, Text } from '@chakra-ui/react';
+import { Circle, Link, Stack, Text } from '@chakra-ui/react';
 import { workerAxios } from '../lib/axios';
 
 export const STATUS_QUERY_KEY = 'allFiles';
@@ -39,7 +39,21 @@ export const StatusBar = () => {
 			borderTopWidth="1px"
 		>
 			<Circle size="2" bg={status === 'success' ? 'green' : 'red'} />
-			<Text fontSize="xs">{status === 'success' ? 'Connected' : 'Not connected'}</Text>
+			<Text fontSize="xs">{status === 'success' ? 'Connected' : 'Not connected.'}</Text>
+
+			{status === 'error' ? (
+				<Link
+					display="inline"
+					fontSize="xs"
+					href="https://docs.dropbase.io/how-to-guides/troubleshoot-worker"
+					target="_blank"
+					rel="noreferrer noopener"
+					isExternal
+					mx="1"
+				>
+					Troubleshoot Worker Connection
+				</Link>
+			) : null}
 		</Stack>
 	);
 };
