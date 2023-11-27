@@ -12,7 +12,10 @@ from server.schemas.group import (
 )
 
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
-from server.controllers.policy import PolicyUpdater, format_permissions_for_highest_action
+from server.controllers.policy import (
+    PolicyUpdater,
+    format_permissions_for_highest_action,
+)
 from server import crud
 
 
@@ -40,7 +43,11 @@ class GroupController:
             # Are there any existing user_group policies for this user in this workspace IN the policy table?
             existing_group_policy = (
                 db.query(Policy)
-                .filter(Policy.ptype == "g", Policy.v0 == str(user_id), Policy.v1 == str(group.id))
+                .filter(
+                    Policy.ptype == "g",
+                    Policy.v0 == str(user_id),
+                    Policy.v1 == str(group.id),
+                )
                 .filter(Policy.workspace_id == str(group.workspace_id))
                 .one_or_none()
             )
@@ -58,7 +65,10 @@ class GroupController:
                 )
             existing_user_group = (
                 db.query(UserGroup)
-                .filter(UserGroup.user_id == str(user_id), UserGroup.group_id == str(group.id))
+                .filter(
+                    UserGroup.user_id == str(user_id),
+                    UserGroup.group_id == str(group.id),
+                )
                 .one_or_none()
             )
             if not existing_user_group:
@@ -73,7 +83,6 @@ class GroupController:
 
         except Exception as e:
             db.rollback()
-            print("error", e)
             raise e
 
     @staticmethod
@@ -84,7 +93,9 @@ class GroupController:
         try:
             # Remove the user from the group in policy table
             db.query(Policy).filter(
-                Policy.ptype == "g", Policy.v0 == str(user_id), Policy.v1 == str(group.id)
+                Policy.ptype == "g",
+                Policy.v0 == str(user_id),
+                Policy.v1 == str(group.id),
             ).filter(Policy.workspace_id == str(group.workspace_id)).delete()
 
             # Remove the user from the group in user_group table
@@ -180,7 +191,9 @@ class GroupController:
             db.query(UserGroup).filter(UserGroup.group_id == str(group_id)).delete()
 
             # Delete group policies
-            db.query(Policy).filter(or_(Policy.v0 == str(group_id), Policy.v1 == str(group_id))).delete()
+            db.query(Policy).filter(
+                or_(Policy.v0 == str(group_id), Policy.v1 == str(group_id))
+            ).delete()
 
             # Delete group
             crud.group.remove(db, id=str(group_id), auto_commit=False)
