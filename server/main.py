@@ -37,8 +37,6 @@ origins = [
     "http://www.localhost:3000",
 ]
 
-
-### ROUTES ###
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

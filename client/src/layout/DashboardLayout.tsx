@@ -16,8 +16,8 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const shouldNotDisplayNavbar = pathname.startsWith('/apps/') || loginRoutes;
 
 	return (
-		<Stack spacing="0" height="100vh" overflow="hidden" position="relative">
-			<Flex flex="1">
+		<Stack spacing="0" w="100vw" height="100vh" overflow="hidden" position="relative">
+			<Flex maxH="calc(100vh - 20px)" flex="1">
 				{shouldNotDisplayNavbar ? null : <Navbar />}
 				<Box overflowY="auto" flex="1" p="0">
 					{children}

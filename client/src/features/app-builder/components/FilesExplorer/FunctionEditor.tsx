@@ -89,7 +89,9 @@ export const FunctionEditor = ({ id }: any) => {
 					</Button>
 				</Stack>
 			) : null}
-			<PythonEditorLSP code={code} updateCode={setCode} filePath={filePath} key={id} />
+			<Box pt="2">
+				<PythonEditorLSP code={code} updateCode={setCode} filePath={filePath} key={id} />
+			</Box>
 			<FunctionTerminal file={file} code={updatedCode} />
 		</Stack>
 	);

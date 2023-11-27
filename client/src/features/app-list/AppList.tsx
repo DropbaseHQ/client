@@ -18,7 +18,6 @@ import {
 	Box,
 	MenuItem,
 	IconButton,
-	useToast,
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +31,7 @@ import { FormInput } from '@/components/FormInput';
 import { useDeleteApp } from '@/features/app-list/hooks/useDeleteApp';
 import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { SalesModal } from './AppSalesModal';
+import { useToast } from '@/lib/chakra-ui';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
@@ -139,6 +139,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 							<ModalBody py="6">
 								<FormInput
 									name="App name"
+									autoFocus
 									id="name"
 									placeholder={`Write ${app.name} to delete`}
 									validation={{

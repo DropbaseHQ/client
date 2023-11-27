@@ -204,49 +204,55 @@ export const SQLEditor = ({ id }: any) => {
 				<MonacoEditor value={code} onChange={setCode} language="sql" />
 			</Stack>
 
-			{log ? (
-				<Stack
-					borderBottomWidth="1px"
-					bg="white"
-					p="2"
-					w="full"
-					flex="1"
-					h="full"
-					overflow="auto"
-					borderRadius="sm"
-				>
-					<Stack direction="row" alignItems="start">
-						<IconButton
-							aria-label="Close output"
-							size="xs"
-							colorScheme="gray"
-							variant="outline"
-							borderRadius="full"
-							icon={<X size={14} />}
-							onClick={resetRunData}
-						/>
+			<Stack h="full" overflow="auto">
+				{log ? (
+					<Stack
+						borderBottomWidth="1px"
+						bg="white"
+						p="2"
+						w="full"
+						flex="1"
+						h="full"
+						overflow="auto"
+						borderRadius="sm"
+					>
+						<Stack direction="row" alignItems="start">
+							<IconButton
+								aria-label="Close output"
+								size="xs"
+								colorScheme="gray"
+								variant="outline"
+								borderRadius="full"
+								icon={<X size={14} />}
+								onClick={resetRunData}
+							/>
 
-						<Stack w="full" overflow="auto">
-							<Text fontSize="sm" letterSpacing="wide" fontWeight="medium">
-								Output
-							</Text>
-							<Box borderWidth="1px" borderColor="blackAlpha.100" borderRadius="sm">
-								<MonacoEditor
-									value={log}
-									language="shell"
-									options={{ lineNumbers: 'off', readOnly: true }}
-								/>
-							</Box>
+							<Stack w="full" overflow="auto">
+								<Text fontSize="sm" letterSpacing="wide" fontWeight="medium">
+									Output
+								</Text>
+								<Box
+									borderWidth="1px"
+									borderColor="blackAlpha.100"
+									borderRadius="sm"
+								>
+									<MonacoEditor
+										value={log}
+										language="shell"
+										options={{ lineNumbers: 'off', readOnly: true }}
+									/>
+								</Box>
+							</Stack>
 						</Stack>
 					</Stack>
-				</Stack>
-			) : null}
+				) : null}
 
-			{previewData?.columns ? (
-				<Box px="3" w="full" pb="3" borderBottomWidth="1px">
-					<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
-				</Box>
-			) : null}
+				{previewData?.columns ? (
+					<Box px="3" w="full" pb="3" borderBottomWidth="1px">
+						<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
+					</Box>
+				) : null}
+			</Stack>
 		</Stack>
 	);
 };
