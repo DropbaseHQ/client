@@ -1,22 +1,19 @@
 from uuid import UUID
+
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from server.models import Policy, UserGroup, User
-from server.schemas import PolicyTemplate
+from sqlalchemy.orm import Session
+
+from server import crud
+from server.controllers.policy import PolicyUpdater, format_permissions_for_highest_action
+from server.models import Policy, User, UserGroup
 from server.schemas.group import (
     AddGroupPolicyRequest,
+    CreateGroup,
     RemoveGroupPolicyRequest,
     UpdateGroupPolicyRequest,
-    CreateGroup,
 )
-
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
-from server.controllers.policy import (
-    PolicyUpdater,
-    format_permissions_for_highest_action,
-)
-from server import crud
 
 
 class GroupController:
@@ -191,9 +188,7 @@ class GroupController:
             db.query(UserGroup).filter(UserGroup.group_id == str(group_id)).delete()
 
             # Delete group policies
-            db.query(Policy).filter(
-                or_(Policy.v0 == str(group_id), Policy.v1 == str(group_id))
-            ).delete()
+            db.query(Policy).filter(or_(Policy.v0 == str(group_id), Policy.v1 == str(group_id))).delete()
 
             # Delete group
             crud.group.remove(db, id=str(group_id), auto_commit=False)
