@@ -52,9 +52,9 @@ const data = [
 ];
 
 export const WorkerDisconnected = () => {
-	const { isConnected } = useStatus();
+	const { isConnected, isLoading } = useStatus();
 
-	if (isConnected) {
+	if (isConnected || isLoading) {
 		return null;
 	}
 

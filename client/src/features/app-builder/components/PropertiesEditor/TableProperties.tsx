@@ -83,7 +83,7 @@ export const TableProperties = () => {
 			file: fetchers.find((f: any) => f.id === fileId),
 			pageId,
 			state: pageState?.state,
-			property: { height },
+			property: { ...(table?.property || {}), height },
 		});
 	};
 
