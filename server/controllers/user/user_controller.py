@@ -158,7 +158,7 @@ def register_user(db: Session, request: CreateUserRequest):
                 "email": user.email,
                 "url": confirmation_link,
             },
-            sender_email="sales@dropbase.io",
+            # sender_email="sales@dropbase.io",
         )
         db.commit()
         return {"message": "User successfully registered"}
