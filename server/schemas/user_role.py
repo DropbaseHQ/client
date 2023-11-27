@@ -9,7 +9,6 @@ class BaseUserRole(BaseModel):
     user_id: UUID
     workspace_id: UUID
     role_id: str
-    active: Optional[bool] = False
 
 
 class ReadUserRole(BaseUserRole):

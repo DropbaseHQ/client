@@ -112,7 +112,7 @@ def register_user(db: Session, request: CreateUserRequest):
             email=request.email,
             hashed_password=hashed_password,
             trial_eligible=True,
-            active=True,
+            active=False,
             confirmation_token=confirmation_token,
         )
         user = crud.user.create(db, obj_in=user_obj)
@@ -129,7 +129,6 @@ def register_user(db: Session, request: CreateUserRequest):
             user_id=user.id,
             workspace_id=workspace.id,
             role_id=admin_role_id,
-            active=False,
         )
         crud.user_role.create(db, obj_in=role_obj, auto_commit=False)
         db.flush()
@@ -144,7 +143,9 @@ def register_user(db: Session, request: CreateUserRequest):
             ),
             auto_commit=False,
         )
-        confirmation_link = f"{CLIENT_URL}/user/verify/{confirmation_token}/{user.id}"
+        confirmation_link = (
+            f"{CLIENT_URL}/email-confirmation/{confirmation_token}/{user.id}"
+        )
 
         send_email(
             email_name="verifyEmail",
@@ -152,6 +153,7 @@ def register_user(db: Session, request: CreateUserRequest):
                 "email": user.email,
                 "url": confirmation_link,
             },
+            sender_email="sales@dropbase.io",
         )
         db.commit()
         return {"message": "User successfully registered"}
@@ -163,6 +165,7 @@ def register_user(db: Session, request: CreateUserRequest):
 
 def verify_user(db: Session, token: str, user_id: UUID):
     user = crud.user.get_object_by_id_or_404(db, id=user_id)
+    print("over here")
     if user.confirmation_token == token:
         user.confirmation_token = None
         user.active = True
