@@ -2,7 +2,7 @@ from server import crud
 from server.models import Policy, User
 from server.schemas import UpdateUserRoleRequest, UpdateWorkspaceToken, RequestCloud
 from server.credentials import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
-from server.utils.emails import send_email
+from server.emails.emailer import send_email
 from sqlalchemy.orm import Session
 from uuid import UUID
 import boto3
