@@ -38,6 +38,7 @@ export const useGetTable = (tableId: string, props?: any): any => {
 				pinned: true,
 				id: crypto.randomUUID(),
 			})),
+			height: response?.table?.property?.height,
 		};
 	}, [response]);
 

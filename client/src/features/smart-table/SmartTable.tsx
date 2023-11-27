@@ -43,6 +43,12 @@ import { pageAtom, useGetPage } from '../page';
 import { appModeAtom } from '@/features/app/atoms';
 import { Pagination } from './components/Pagination';
 
+const heightMap: any = {
+	'1/3': '3xs',
+	'1/2': 'xs',
+	full: '2xl',
+};
+
 export const SmartTable = ({ tableId }: any) => {
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
@@ -57,7 +63,7 @@ export const SmartTable = ({ tableId }: any) => {
 
 	const { isLoading, rows, columns, header, refetch, isRefetching } =
 		useCurrentTableData(tableId);
-	const { table, isLoading: isLoadingTable } = useGetTable(tableId || '');
+	const { table, isLoading: isLoadingTable, height } = useGetTable(tableId || '');
 	const tableIsUnsynced = useTableSyncStatus(tableId);
 	const syncMutation = useSyncDropbaseColumns();
 
@@ -440,7 +446,7 @@ export const SmartTable = ({ tableId }: any) => {
 				</NavLoader>
 				<Stack spacing="2">
 					<TableBar />
-					<Box minH="72" borderWidth="1px" borderRadius="sm">
+					<Box minH={heightMap[height] || '3xs'} borderWidth="1px" borderRadius="sm">
 						{isLoading ? (
 							<Center h="full" as={Stack}>
 								<Spinner size="md" />
