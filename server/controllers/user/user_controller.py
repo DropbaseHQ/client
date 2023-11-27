@@ -300,5 +300,5 @@ def resend_confirmation_email(db: Session, user_email: str):
 
     send_email(
         email_name="verifyEmail",
-        email_params={"email": user.email, "confirmation_link": confirmation_link},
+        email_params={"email": user.email, "url": confirmation_link},
     )
