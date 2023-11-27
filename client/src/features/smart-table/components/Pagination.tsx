@@ -54,7 +54,14 @@ export const Pagination = () => {
 			{!isLoading && tablePageInfo.currentPage > 0 && rows.length === 0 ? (
 				<Stack direction="row" ml="auto">
 					<Tooltip label="Seems like the page doesnt have any data. Try changing pages or click to go to first page">
-						<Button size="xs" variant="outline" colorScheme="gray">
+						<Button
+							onClick={() => {
+								handlePage(0);
+							}}
+							size="xs"
+							variant="outline"
+							colorScheme="gray"
+						>
 							Go to first page
 						</Button>
 					</Tooltip>

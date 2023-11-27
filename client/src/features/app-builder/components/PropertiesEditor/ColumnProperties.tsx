@@ -80,16 +80,18 @@ const ColumnProperty = ({ id, property: properties, type }: any) => {
 	return (
 		<SimpleGrid alignItems="center" gap={3} columns={3}>
 			<Box overflow="hidden">
-				<Text
-					fontSize="sm"
-					whiteSpace="nowrap"
-					w="full"
-					overflow="hidden"
-					textOverflow="ellipsis"
-					size="sm"
-				>
-					{properties.name}
-				</Text>
+				<Tooltip placement="left-end" label={properties.name}>
+					<Text
+						fontSize="sm"
+						whiteSpace="nowrap"
+						w="full"
+						overflow="hidden"
+						textOverflow="ellipsis"
+						size="sm"
+					>
+						{properties.name}
+					</Text>
+				</Tooltip>
 			</Box>
 			<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
 				<Box>
@@ -255,9 +257,11 @@ export const ColumnsProperties = () => {
 					<Text>Editable</Text>
 					<Text>Visible</Text>
 				</SimpleGrid>
-				{values.map((value: any) => (
-					<ColumnProperty key={value.id} {...value} />
-				))}
+				{values
+					.sort((a: any, b: any) => a?.property?.name.localeCompare(b?.property?.name))
+					.map((value: any) => (
+						<ColumnProperty key={value.id} {...value} />
+					))}
 			</Stack>
 		</Stack>
 	);
