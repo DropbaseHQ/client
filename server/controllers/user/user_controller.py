@@ -7,10 +7,15 @@ from uuid import UUID
 from server import crud
 from server.models import Policy
 from server.schemas import PolicyTemplate
-from server.constants import ACCESS_TOKEN_EXPIRE_SECONDS, REFRESH_TOKEN_EXPIRE_SECONDS
+from server.constants import (
+    ACCESS_TOKEN_EXPIRE_SECONDS,
+    REFRESH_TOKEN_EXPIRE_SECONDS,
+    CLIENT_URL,
+)
 from server.schemas.user_role import CreateUserRole
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
-
+from server.utils.emails import send_email
+from server.utils.hash import get_confirmation_token_hash
 from server.schemas.user import (
     CreateUser,
     CreateUserRequest,
@@ -98,12 +103,17 @@ def refresh_token(Authorize: AuthJWT):
 def register_user(db: Session, request: CreateUserRequest):
     try:
         hashed_password = get_password_hash(request.password)
+        confirmation_token = get_confirmation_token_hash(
+            request.email + hashed_password + request.name
+        )
+
         user_obj = CreateUser(
             name=request.name,
             email=request.email,
             hashed_password=hashed_password,
             trial_eligible=True,
             active=True,
+            confirmation_token=confirmation_token,
         )
         user = crud.user.create(db, obj_in=user_obj)
 
@@ -119,6 +129,7 @@ def register_user(db: Session, request: CreateUserRequest):
             user_id=user.id,
             workspace_id=workspace.id,
             role_id=admin_role_id,
+            active=False,
         )
         crud.user_role.create(db, obj_in=role_obj, auto_commit=False)
         db.flush()
@@ -133,12 +144,31 @@ def register_user(db: Session, request: CreateUserRequest):
             ),
             auto_commit=False,
         )
+        confirmation_link = f"{CLIENT_URL}/user/verify/{confirmation_token}/{user.id}"
+
+        send_email(
+            email_name="verifyEmail",
+            email_params={
+                "email": user.email,
+                "url": confirmation_link,
+            },
+        )
         db.commit()
         return {"message": "User successfully registered"}
     except Exception as e:
         db.rollback()
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")
+
+
+def verify_user(db: Session, token: str, user_id: UUID):
+    user = crud.user.get_object_by_id_or_404(db, id=user_id)
+    if user.confirmation_token == token:
+        user.confirmation_token = None
+        user.active = True
+        db.commit()
+        return {"message": "User successfully confirmed"}
+    raise_http_exception(status_code=404, message="User not found")
 
 
 # TODO: VERIFY RESET TOKEN
