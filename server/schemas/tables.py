@@ -15,6 +15,7 @@ from server.schemas.properties import PropertyCategory
 
 
 class TablesBaseProperty(BaseModel):
+    height: Optional[str]
     filters: Optional[List[PinnedFilter]]
 
     # events
