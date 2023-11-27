@@ -44,7 +44,11 @@ export const TableProperties = () => {
 		},
 		onError: (error: any) => {
 			setErrorLog(
-				error?.response?.data?.error || error?.response?.data || error?.message || '',
+				error?.response?.data?.message ||
+					error?.response?.data?.error ||
+					error?.response?.data ||
+					error?.message ||
+					'',
 			);
 		},
 	});
