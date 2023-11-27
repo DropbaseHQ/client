@@ -4,7 +4,6 @@ import { useLocation } from 'react-router-dom';
 
 import { Navbar } from './Navbar';
 import { StatusBar } from './StatusBar';
-import path from 'path';
 
 export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const { pathname } = useLocation();
