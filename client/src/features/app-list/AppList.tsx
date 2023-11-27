@@ -218,14 +218,11 @@ export const AppList = () => {
 
 	const workerIsConnected = status === 'success';
 	const workspaceHasWorkspaceURL = !!currentWorkspace?.workspaceUrl;
-	const environment = import.meta.env.VITE_ENVIRONMENT;
+	const isDeployed = window.location.hostname.endsWith('dropbase.io');
 
-	const shouldDisplaySalesModal = () => {
-		if (environment === 'production') {
-			return !workspaceHasWorkspaceURL && !workerIsConnected;
-		}
-		return !workerIsConnected;
-	};
+	const shouldDisplaySalesModal = isDeployed
+		? !workspaceHasWorkspaceURL && !workerIsConnected
+		: false;
 	return (
 		<PageLayout
 			title="Your apps"
@@ -255,7 +252,7 @@ export const AppList = () => {
 					Please connect to a worker to view and create apps.
 				</Text>
 			)}
-			{shouldDisplaySalesModal() && <SalesModal />}
+			{shouldDisplaySalesModal && <SalesModal />}
 
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />

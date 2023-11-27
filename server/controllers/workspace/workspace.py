@@ -1,6 +1,7 @@
 from server import crud
 from server.models import Policy, User
 from server.schemas import UpdateUserRoleRequest, UpdateWorkspaceToken, RequestCloud
+from server.credentials import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from sqlalchemy.orm import Session
 from uuid import UUID
 import boto3
@@ -153,13 +154,18 @@ def delete_workspace(db: Session, workspace_id: UUID):
 
 
 def request_cloud(db: Session, user: User, workspace_id: UUID, request: RequestCloud):
-    client = boto3.client("ses", region_name="us-east-1")
-    dropbase_support = "jon@dropbase.io"
+    client = boto3.client(
+        "ses",
+        region_name="us-east-1",
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    )
+    dropbase_support = "sales@dropbase.io"
 
     try:
         response = client.send_email(
             Destination={
-                "ToAddresses": [user.email],
+                "ToAddresses": [dropbase_support],
             },
             Message={
                 "Body": {
