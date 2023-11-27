@@ -80,7 +80,7 @@ export const useDataFetchers = (pageId: any) => {
 };
 
 const createTable = async ({ name, pageId, property }: any) => {
-	const response = await workerAxios.post(`/tables`, {
+	const response = await workerAxios.post(`/tables/`, {
 		name,
 		page_id: pageId,
 		property,
