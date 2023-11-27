@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ENCRYPT_SECRET = os.environ.get("ENCRYPT_SECRET")
+CLIENT_URL = os.environ.get("CLIENT_URL")
 
 GPT_MODEL = "gpt-3.5-turbo"
 GPT_TEMPERATURE = 0.0

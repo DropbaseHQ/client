@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 
 import { Navbar } from './Navbar';
 import { StatusBar } from './StatusBar';
+import path from 'path';
 
 export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const { pathname } = useLocation();
@@ -11,7 +12,8 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const loginRoutes =
 		pathname.startsWith('/login') ||
 		pathname.startsWith('/register') ||
-		pathname.startsWith('/reset');
+		pathname.startsWith('/reset') ||
+		pathname.startsWith('/email-confirmation');
 
 	const shouldNotDisplayNavbar = pathname.startsWith('/apps/') || loginRoutes;
 
