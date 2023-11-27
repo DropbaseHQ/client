@@ -2,6 +2,7 @@ from server import crud
 from server.models import Policy, User
 from server.schemas import UpdateUserRoleRequest, UpdateWorkspaceToken, RequestCloud
 from server.credentials import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+from server.utils.emails import send_email
 from sqlalchemy.orm import Session
 from uuid import UUID
 import boto3
@@ -154,32 +155,16 @@ def delete_workspace(db: Session, workspace_id: UUID):
 
 
 def request_cloud(db: Session, user: User, workspace_id: UUID, request: RequestCloud):
-    client = boto3.client(
-        "ses",
-        region_name="us-east-1",
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-    )
-    dropbase_support = "sales@dropbase.io"
-
     try:
-        response = client.send_email(
-            Destination={
-                "ToAddresses": [dropbase_support],
+        response = send_email(
+            email_name="requestCloudClient",
+            email_params={
+                "email": "sales@dropbase.io",
+                "user_email": user.email,
+                "user_number": request.user_number,
+                "worker_url": request.worker_url,
             },
-            Message={
-                "Body": {
-                    "Text": {
-                        "Charset": "UTF-8",
-                        "Data": f"""Request from user: {user.email} \nUser number: {request.user_number}\nWorker URL: {request.worker_url}""",
-                    }
-                },
-                "Subject": {
-                    "Charset": "UTF-8",
-                    "Data": f"New Cloud Request from {user.email}",
-                },
-            },
-            Source=dropbase_support,
+            sender_email="sales@dropbase.io",
         )
     except ClientError as e:
         print(e.response["Error"]["Message"])

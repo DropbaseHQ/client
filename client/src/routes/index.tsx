@@ -5,6 +5,7 @@ import { Login, Register, ResetPassword } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
 import { App } from '@/features/app';
 import { Users, DeveloperSettings } from '@/features/settings';
+import { EmailConfirmation } from '@/features/authorization';
 import { Workspaces, useWorkspaces } from '@/features/workspaces';
 import {
 	useSetWorkerAxiosToken,
@@ -57,8 +58,13 @@ export const DashboardRoutes = () => {
 					<Route index element={<Navigate to="/apps" />} />
 					<Route path="login" element={<Login />} />
 					<Route path="register" element={<Register />} />
+					<Route
+						path="email-confirmation/:token/:userId"
+						element={<EmailConfirmation />}
+					/>
 					<Route path="reset" element={<ResetPassword />} />
 					<Route path="workspaces" element={<Workspaces />} />
+
 					<Route path="apps/*" element={<App />} />
 					<Route path="settings/members" element={<Users />} />
 					{/* <Route path="settings/permissions" element={<Permissions />} /> */}
