@@ -10,7 +10,6 @@ import {
 	useSetWorkerAxiosToken,
 	useSetWorkerAxiosBaseURL,
 } from '@/features/authorization/hooks/useLogin';
-import { useSyncProxyToken } from '@/features/settings/hooks/token';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
