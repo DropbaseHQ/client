@@ -15,9 +15,7 @@ ses_client = boto3.client(
 )
 
 current_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print("current_directory: ", current_directory)
 template_directory = os.path.join(current_directory, "../", "emails", "emailTemplates")
-print("template_directory: ", template_directory)
 env = Environment(loader=FileSystemLoader(template_directory))
 
 
