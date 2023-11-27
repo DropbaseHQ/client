@@ -1,12 +1,10 @@
 from fastapi import HTTPException, Response, status
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
-from typing import List
 from uuid import UUID
 
 from server import crud
 from server.models import Policy
-from server.schemas import PolicyTemplate
 from server.constants import (
     ACCESS_TOKEN_EXPIRE_SECONDS,
     REFRESH_TOKEN_EXPIRE_SECONDS,
@@ -14,7 +12,7 @@ from server.constants import (
 )
 from server.schemas.user_role import CreateUserRole
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
-from server.utils.emails import send_email
+from server.emails.emailer import send_email
 from server.utils.hash import get_confirmation_token_hash
 from server.schemas.user import (
     CreateUser,
@@ -170,7 +168,6 @@ def register_user(db: Session, request: CreateUserRequest):
 
 def verify_user(db: Session, token: str, user_id: UUID):
     user = crud.user.get_object_by_id_or_404(db, id=user_id)
-    print("over here")
     if user.confirmation_token == token:
         user.confirmation_token = None
         user.active = True
