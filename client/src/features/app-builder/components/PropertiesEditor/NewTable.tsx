@@ -6,10 +6,11 @@ import { useToast } from '@/lib/chakra-ui';
 import { useCreateTable } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
 import { generateSequentialName } from '@/utils';
+import { useStatus } from '@/layout/StatusBar';
 
 export const NewTable = (props: any) => {
 	const { pageId } = useParams();
-
+	const { isConnected } = useStatus();
 	const { tables } = useGetPage(pageId);
 	const toast = useToast();
 
@@ -51,6 +52,7 @@ export const NewTable = (props: any) => {
 			leftIcon={<Plus size="14" />}
 			onClick={onSubmit}
 			isLoading={mutation.isLoading}
+			isDisabled={!isConnected}
 			{...props}
 		>
 			New Table

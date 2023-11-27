@@ -11,11 +11,12 @@ from server.schemas.workspace import (
     RemoveUserRequest,
     UpdateUserRoleRequest,
     UpdateWorkspaceToken,
+    RequestCloud,
 )
 from server.utils.connect import get_db
 from server.controllers import workspace as workspace_controller
 from server.utils.authorization import RESOURCES, AuthZDepFactory
-
+from server.utils.authorization import get_current_user
 
 workspace_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WORKSPACE)
 
@@ -91,3 +92,13 @@ def update_workspace(
 @router.delete("/{workspace_id}")
 def delete_workspace(workspace_id: UUID, db: Session = Depends(get_db)):
     return workspace_controller.delete_workspace(db, workspace_id)
+
+
+@router.post("/{workspace_id}/request_cloud")
+def request_cloud(
+    workspace_id: UUID,
+    request: RequestCloud,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    return workspace_controller.request_cloud(db, user, workspace_id, request)
