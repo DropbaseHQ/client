@@ -49,9 +49,13 @@ def pin_filters(db: Session, request: PinFilters):
 
 
 def create_table(db: Session, request: CreateTables):
-    crud.tables.create(db, obj_in=CreateTables(**request.dict()))
+    table = crud.tables.create(db, obj_in=CreateTables(**request.dict()))
     db.commit()
-    return get_state_context_payload(db, request.page_id)
+    state_context = get_state_context_payload(db, request.page_id)
+    return {
+        "state_context": state_context,
+        "table": table,
+    }
 
 
 def update_table(db: Session, request: UpdateTablesRequest):
