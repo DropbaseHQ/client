@@ -6,7 +6,7 @@ export const STATUS_QUERY_KEY = 'allFiles';
 
 const fetchStatus: any = async () => {
 	const response = await workerAxios.get<any>(`/sources/`);
-	return response.data;
+	return response;
 };
 
 export const useStatus = () => {
@@ -19,6 +19,7 @@ export const useStatus = () => {
 
 	return {
 		...rest,
+		isConnected: response?.status === 200,
 		queryKey,
 	};
 };

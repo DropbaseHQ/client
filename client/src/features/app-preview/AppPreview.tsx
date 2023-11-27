@@ -15,7 +15,7 @@ import {
 import { ChevronDown, X } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
-
+import { useStatus } from '@/layout/StatusBar';
 import lodashSet from 'lodash/set';
 
 import { useExecuteAction, useGetWidgetPreview } from '@/features/app-preview/hooks';
@@ -157,7 +157,7 @@ const AppComponent = (props: any) => {
 
 export const AppPreview = () => {
 	const { pageId } = useParams();
-
+	const { isConnected } = useStatus();
 	const { widgetId } = useAtomValue(pageAtom);
 
 	const { isPreview } = useAtomValue(appModeAtom);
@@ -225,6 +225,7 @@ export const AppPreview = () => {
 						colorScheme="blue"
 						size="sm"
 						isLoading={mutation.isLoading}
+						isDisabled={!isConnected}
 						onClick={() => {
 							mutation.mutate({
 								pageId,
