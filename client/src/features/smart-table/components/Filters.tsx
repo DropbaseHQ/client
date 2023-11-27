@@ -211,9 +211,10 @@ export const FilterButton = () => {
 						<VStack alignItems="start" w="full">
 							{filters.map((filter: any, index: any) => {
 								const colType = columns[filter?.column_name]?.type;
+
 								let inputType = 'text';
 
-								if (colType === 'integer') {
+								if (getPGColumnBaseType(colType) === 'integer') {
 									inputType = 'number';
 								}
 
