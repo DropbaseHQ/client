@@ -61,7 +61,7 @@ export const SmartTable = ({ tableId }: any) => {
 		current: undefined,
 	});
 
-	const { isLoading, rows, columns, header, refetch, isRefetching } =
+	const { isLoading, rows, columns, header, refetch, isRefetching, tableError } =
 		useCurrentTableData(tableId);
 	const { table, isLoading: isLoadingTable, height } = useGetTable(tableId || '');
 	const tableIsUnsynced = useTableSyncStatus(tableId);
@@ -444,6 +444,7 @@ export const SmartTable = ({ tableId }: any) => {
 						</Stack>
 					</Flex>
 				</NavLoader>
+
 				<Stack spacing="2">
 					<TableBar />
 					<Box minH={heightMap[height] || '3xs'} borderWidth="1px" borderRadius="sm">
@@ -453,23 +454,38 @@ export const SmartTable = ({ tableId }: any) => {
 								<Text>Loading data...</Text>
 							</Center>
 						) : (
-							<DataEditor
-								columns={gridColumns}
-								rows={pageInfo.pageSize || 10}
-								width="100%"
-								height="100%"
-								getCellContent={getCellContent}
-								rowMarkers="both"
-								smoothScrollX
-								smoothScrollY
-								theme={gridTheme}
-								onGridSelectionChange={handleSetSelection}
-								gridSelection={selection}
-								highlightRegions={highlights}
-								onCellEdited={onCellEdited}
-								keybindings={{ search: true }}
-								onColumnResize={onColumnResize}
-							/>
+							<>
+								{tableError ? (
+									<Center as={Stack} spacing="0" p="6" h="full">
+										<Text color="red.500" fontWeight="medium" fontSize="lg">
+											Failed to load data
+										</Text>
+										<Text fontSize="md">
+											{typeof tableError === 'object'
+												? JSON.stringify(tableError)
+												: tableError}
+										</Text>
+									</Center>
+								) : (
+									<DataEditor
+										columns={gridColumns}
+										rows={pageInfo.pageSize || 10}
+										width="100%"
+										height="100%"
+										getCellContent={getCellContent}
+										rowMarkers="both"
+										smoothScrollX
+										smoothScrollY
+										theme={gridTheme}
+										onGridSelectionChange={handleSetSelection}
+										gridSelection={selection}
+										highlightRegions={highlights}
+										onCellEdited={onCellEdited}
+										keybindings={{ search: true }}
+										onColumnResize={onColumnResize}
+									/>
+								)}{' '}
+							</>
 						)}
 					</Box>
 					<Pagination />
