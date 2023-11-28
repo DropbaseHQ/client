@@ -29,6 +29,7 @@ app.mount("/worker", worker_app)
 # app.middleware("http")(catch_exceptions_middleware)
 
 # origins = ["https://dropbase.io"]
+
 origins = [
     "https://www.app.dropbase.io",
     "https://app.dropbase.io",
