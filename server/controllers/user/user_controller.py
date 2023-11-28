@@ -174,7 +174,7 @@ def verify_user(db: Session, token: str, user_id: UUID):
             user.confirmation_token = None
             user.active = True
             loops_controller.add_user(
-                user_email=user.email, name=user.name, user_id=user.id
+                user_email=user.email, name=user.name, user_id=str(user.id)
             )
             db.commit()
             return {"message": "User successfully confirmed"}
