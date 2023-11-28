@@ -96,6 +96,7 @@ export const FunctionTerminal = ({ code, file }: any) => {
 				spacing="0"
 				alignItems="start"
 				direction="row"
+				mb={log || previewData?.columns ? 0 : 4}
 			>
 				<IconButton
 					icon={<Play size="14" />}
