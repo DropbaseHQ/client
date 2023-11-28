@@ -20,42 +20,7 @@ class PgColumnContextProperty(ColumnDisplayProperty, ColumnSharedProperty):
 
 class PgColumnBaseProperty(BaseModel):
     name: str
-    type: Optional[
-        Literal[
-            "TEXT",
-            "VARCHAR",
-            "CHAR",
-            "CHARACTER",
-            "STRING",
-            "BINARY",
-            "VARBINARY",
-            "INTEGER",
-            "INT",
-            "BIGINT",
-            "SMALLINT",
-            "TINYINT",
-            "BYTEINT",
-            "REAL",
-            "FLOAT",
-            "FLOAT4",
-            "FLOAT8",
-            "DOUBLE",
-            "DOUBLE PRECISION",
-            "DECIMAL",
-            "NUMERIC",
-            "BOOLEAN",
-            "DATE",
-            "TIME",
-            "DATETIME",
-            "TIMESTAMP",
-            "TIMESTAMP_LTZ",
-            "TIMESTAMP_NTZ",
-            "TIMESTAMP_TZ",
-            "VARIANT",
-            "OBJECT",
-            "ARRAY",
-        ]
-    ]
+    type: Optional[str]
 
     schema_name: str = None
     table_name: str = None

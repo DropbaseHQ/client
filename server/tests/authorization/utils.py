@@ -54,7 +54,10 @@ class HomeTestClient:
         return response
 
     def edit_widget(self, widget_id):
-        data = {"name": "test widget edit", "property": {"name": "test widget property edit"}}
+        data = {
+            "name": "test widget edit",
+            "property": {"name": "test widget property edit"},
+        }
         response = self.client.put(f"/widget/{widget_id}", json=data)
         return response
 
@@ -73,7 +76,6 @@ class HomeTestClient:
             "type": "postgres",
         }
         response = self.client.post("/tables/", json=data)
-        print("responsex", response.content)
         return response
 
     def edit_table(self, table_id):
@@ -160,11 +162,15 @@ class HomeTestClient:
         return response
 
     def add_user_to_group(self, group_id, user_id):
-        response = self.client.post(f"/group/add_user/{group_id}", json={"user_id": user_id})
+        response = self.client.post(
+            f"/group/add_user/{group_id}", json={"user_id": user_id}
+        )
         return response
 
     def remove_user_from_group(self, group_id, user_id):
-        response = self.client.post(f"/group/remove_user/{group_id}", json={"user_id": user_id})
+        response = self.client.post(
+            f"/group/remove_user/{group_id}", json={"user_id": user_id}
+        )
         return response
 
     # Users

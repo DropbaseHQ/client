@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
-
+import { useStatus } from '@/layout/StatusBar';
 import { FormInput } from '@/components/FormInput';
 import {
 	useAllPageFunctionNames,
@@ -81,10 +81,6 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 	const deleteMutation = useDeleteComponent({
 		onSuccess: () => {
-			setInspectedResource({
-				id: null,
-				type: null,
-			});
 			refetch();
 			setInspectedResource({
 				id: null,
@@ -144,7 +140,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 						direction="row"
 					>
 						<Text fontWeight="semibold" size="sm">
-							{properties.name} Properties
+							{properties?.name} Properties
 						</Text>
 
 						<ButtonGroup ml="auto" size="xs">
@@ -230,13 +226,19 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 export const NewComponent = (props: any) => {
 	const toast = useToast();
+	const { isConnected } = useStatus();
 	const { widgetId, appName, pageName } = useAtomValue(pageAtom);
 	const { values } = useGetComponentProperties(widgetId || '');
+	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 
 	const syncComponents = useSyncComponents();
 
 	const mutation = useCreateComponents({
-		onSuccess: () => {
+		onSuccess: (data: any) => {
+			setInspectedResource({
+				id: data.id,
+				type: 'component',
+			});
 			syncComponents.mutate({
 				appName,
 				pageName,
@@ -295,6 +297,7 @@ export const NewComponent = (props: any) => {
 				size="sm"
 				flexShrink="0"
 				mr="auto"
+				isDisabled={!isConnected}
 				isLoading={mutation.isLoading}
 				{...props}
 			>

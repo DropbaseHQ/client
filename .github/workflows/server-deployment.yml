@@ -16,6 +16,8 @@ env:
   PROD_AWS_REGION: us-east-1
   PROD_ECR_REPO: 442766812249.dkr.ecr.us-east-1.amazonaws.com
   DEPLOY_USER: dropbase
+  CLIENT_URL: https://dev.dropbase.io
+  LOOPS_API_KEY: "771ca36f885accd66ab864342acabf6b"
 
 jobs:
   build-api-dev:

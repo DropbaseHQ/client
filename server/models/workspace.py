@@ -6,11 +6,14 @@ from .base import Base
 
 
 class Workspace(Base):
-    id = Column(UUID(as_uuid=True), server_default=text("uuid_generate_v4()"), primary_key=True)
+    id = Column(
+        UUID(as_uuid=True), server_default=text("uuid_generate_v4()"), primary_key=True
+    )
 
     name = Column(String, nullable=False)
     active = Column(Boolean, default=True)
 
     date = Column(TIMESTAMP, server_default=func.now())
+    worker_url = Column(String)
 
     __tablename__ = "workspace"

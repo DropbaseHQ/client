@@ -29,14 +29,16 @@ app.mount("/worker", worker_app)
 # app.middleware("http")(catch_exceptions_middleware)
 
 # origins = ["https://dropbase.io"]
-origins = ["https://www.app.dropbase.io", "https://app.dropbase.io"]
+origins = [
+    "https://www.app.dropbase.io",
+    "https://app.dropbase.io",
+    "http://localhost:3030",
+    "http://www.localhost:3030",
+]
 
 # # for local tests
 # origins.append("http://localhost:3000")
 # origins.append("http://www.localhost:3000")
-
-
-### ROUTES ###
 
 app.add_middleware(
     CORSMiddleware,

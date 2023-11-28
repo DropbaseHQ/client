@@ -1,16 +1,19 @@
 from fastapi import HTTPException, Response, status
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
-from typing import List
 from uuid import UUID
 
 from server import crud
 from server.models import Policy
-from server.schemas import PolicyTemplate
-from server.constants import ACCESS_TOKEN_EXPIRE_SECONDS, REFRESH_TOKEN_EXPIRE_SECONDS
+from server.constants import (
+    ACCESS_TOKEN_EXPIRE_SECONDS,
+    REFRESH_TOKEN_EXPIRE_SECONDS,
+    CLIENT_URL,
+)
 from server.schemas.user_role import CreateUserRole
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
-
+from server.emails.emailer import send_email
+from server.utils.hash import get_confirmation_token_hash
 from server.schemas.user import (
     CreateUser,
     CreateUserRequest,
@@ -22,9 +25,12 @@ from server.schemas.user import (
 )
 from server.schemas.workspace import CreateWorkspace, ReadWorkspace
 from server.utils.authentication import authenticate_user, get_password_hash
-from server.controllers.policy import PolicyUpdater, format_permissions_for_highest_action
+from server.controllers.policy import (
+    PolicyUpdater,
+    format_permissions_for_highest_action,
+)
 from server.utils.helper import raise_http_exception
-from server.constants import ALLOWED_ACTIONS
+from server.utils.loops_integration import loops_controller
 
 
 def get_user(db: Session, user_email: str):
@@ -44,6 +50,11 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
                 detail="Incorrect username or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+        if not user.active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Email needs to be verified.",
+            )
         access_token = Authorize.create_access_token(
             subject=user.email, expires_time=ACCESS_TOKEN_EXPIRE_SECONDS
         )
@@ -55,8 +66,13 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
         Authorize.set_refresh_cookies(refresh_token)
 
         workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
+        return {
+            "user": ReadUser.from_orm(user),
+            "workspace": ReadWorkspace.from_orm(workspaces[0]),
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
 
-        return {"user": ReadUser.from_orm(user), "workspace": ReadWorkspace.from_orm(workspaces[0])}
     except HTTPException as e:
         raise_http_exception(status_code=e.status_code, message=e.detail)
     except Exception as e:
@@ -82,7 +98,7 @@ def refresh_token(Authorize: AuthJWT):
         current_user = Authorize.get_jwt_subject()
         new_access_token = Authorize.create_access_token(subject=current_user)
         Authorize.set_access_cookies(new_access_token)
-        return {"msg": "Successfully refresh token"}
+        return {"msg": "Successfully refresh token", "access_token": new_access_token}
     except Exception as e:
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")
@@ -91,12 +107,17 @@ def refresh_token(Authorize: AuthJWT):
 def register_user(db: Session, request: CreateUserRequest):
     try:
         hashed_password = get_password_hash(request.password)
+        confirmation_token = get_confirmation_token_hash(
+            request.email + hashed_password + request.name
+        )
+
         user_obj = CreateUser(
             name=request.name,
             email=request.email,
             hashed_password=hashed_password,
             trial_eligible=True,
-            active=True,
+            active=False,
+            confirmation_token=confirmation_token,
         )
         user = crud.user.create(db, obj_in=user_obj)
 
@@ -126,12 +147,42 @@ def register_user(db: Session, request: CreateUserRequest):
             ),
             auto_commit=False,
         )
+        confirmation_link = (
+            f"{CLIENT_URL}/email-confirmation/{confirmation_token}/{user.id}"
+        )
+
+        send_email(
+            email_name="verifyEmail",
+            email_params={
+                "email": user.email,
+                "url": confirmation_link,
+            },
+            # sender_email="sales@dropbase.io",
+        )
         db.commit()
         return {"message": "User successfully registered"}
     except Exception as e:
         db.rollback()
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")
+
+
+def verify_user(db: Session, token: str, user_id: UUID):
+    user = crud.user.get_object_by_id_or_404(db, id=user_id)
+    if user.confirmation_token == token:
+        try:
+            user.confirmation_token = None
+            user.active = True
+            loops_controller.add_user(
+                user_email=user.email, name=user.name, user_id=str(user.id)
+            )
+            db.commit()
+            return {"message": "User successfully confirmed"}
+        except Exception as e:
+            db.rollback()
+            print("error", e)
+            raise_http_exception(status_code=500, message="Internal server error")
+    raise_http_exception(status_code=404, message="User not found")
 
 
 # TODO: VERIFY RESET TOKEN
@@ -192,7 +243,9 @@ def remove_policy(db: Session, user_id: UUID, request: AddPolicyRequest):
 
 def get_user_permissions(db: Session, user_id: UUID, workspace_id: UUID):
     user = crud.user.get_object_by_id_or_404(db, id=user_id)
-    user_role = crud.user_role.get_user_role(db, user_id=user_id, workspace_id=workspace_id)
+    user_role = crud.user_role.get_user_role(
+        db, user_id=user_id, workspace_id=workspace_id
+    )
     enforcer = get_contexted_enforcer(db, workspace_id)
     permissions = enforcer.get_filtered_policy(1, str(user.id))
 
@@ -203,7 +256,11 @@ def get_user_permissions(db: Session, user_id: UUID, workspace_id: UUID):
     formatted_user.pop("active")
     formatted_user.pop("date")
 
-    return {"user": formatted_user, "workspace_role": user_role, "permissions": formatted_permissions}
+    return {
+        "user": formatted_user,
+        "workspace_role": user_role,
+        "permissions": formatted_permissions,
+    }
 
 
 def update_policy(db: Session, user_id: UUID, request: UpdateUserPolicyRequest):
@@ -220,13 +277,28 @@ def get_user_workspaces(db: Session, user_id: UUID):
     workspaces = crud.workspace.get_user_workspaces(db, user_id=user_id)
     formatted_workspaces = []
     for workspace in workspaces:
-        workspace_oldest_user = crud.workspace.get_oldest_user(db, workspace_id=workspace.id)
+        workspace_oldest_user = crud.workspace.get_oldest_user(
+            db, workspace_id=workspace.id
+        )
         formatted_workspaces.append(
             {
                 "id": workspace.id,
                 "name": workspace.name,
                 "oldest_user": workspace_oldest_user,
+                "worker_url": workspace.worker_url,
             }
         )
 
     return formatted_workspaces
+
+
+def resend_confirmation_email(db: Session, user_email: str):
+    user = crud.user.get_user_by_email(db, email=user_email)
+    confirmation_link = (
+        f"{CLIENT_URL}/email-confirmation/{user.confirmation_token}/{user.id}"
+    )
+
+    send_email(
+        email_name="verifyEmail",
+        email_params={"email": user.email, "url": confirmation_link},
+    )

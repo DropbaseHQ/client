@@ -12,10 +12,10 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { ChevronDown, RefreshCw, X } from 'react-feather';
+import { ChevronDown, X } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
-
+import { useStatus } from '@/layout/StatusBar';
 import lodashSet from 'lodash/set';
 
 import { useExecuteAction, useGetWidgetPreview } from '@/features/app-preview/hooks';
@@ -63,10 +63,14 @@ const AppComponent = (props: any) => {
 
 	const syncState = useSyncState();
 
+	const { isPreview } = useAtomValue(appModeAtom);
+	const isEditorMode = !isPreview;
+
 	const shouldDisplay = checkAllRulesPass({
 		values: widgetInputs,
 		rules: component.display_rules,
 	});
+	const grayOutComponent = !shouldDisplay && isEditorMode;
 
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
@@ -91,7 +95,7 @@ const AppComponent = (props: any) => {
 		});
 	};
 
-	if (!shouldDisplay) {
+	if (!shouldDisplay && !isEditorMode) {
 		return null;
 	}
 
@@ -101,6 +105,7 @@ const AppComponent = (props: any) => {
 				my="1.5"
 				size="sm"
 				isLoading={actionMutation.isLoading}
+				bgColor={grayOutComponent ? 'gray.100' : ''}
 				colorScheme={component.color || 'blue'}
 				onClick={() => {
 					if (component.on_click) {
@@ -118,6 +123,7 @@ const AppComponent = (props: any) => {
 			<Text
 				fontSize={sizeMap[component.size]}
 				color={component.color || `${component.color}.500`}
+				bgColor={grayOutComponent ? 'gray.100' : ''}
 			>
 				{component.text}
 			</Text>
@@ -125,9 +131,8 @@ const AppComponent = (props: any) => {
 	}
 
 	return (
-		<FormControl key={component.name}>
+		<FormControl key={component.name} bgColor={grayOutComponent ? 'gray.100' : ''}>
 			{component.label ? <FormLabel lineHeight={1}>{component.label}</FormLabel> : null}
-
 			<InputRenderer
 				placeholder={component?.placeholder}
 				value={inputState?.value}
@@ -152,15 +157,13 @@ const AppComponent = (props: any) => {
 
 export const AppPreview = () => {
 	const { pageId } = useParams();
-
+	const { isConnected } = useStatus();
 	const { widgetId } = useAtomValue(pageAtom);
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isDevMode = !isPreview;
 
-	const { isLoading, refetch, components, widget, isRefetching } = useGetWidgetPreview(
-		widgetId || '',
-	);
+	const { isLoading, components, widget } = useGetWidgetPreview(widgetId || '');
 
 	const { appName, pageName } = useAtomValue(pageAtom);
 
@@ -222,6 +225,7 @@ export const AppPreview = () => {
 						colorScheme="blue"
 						size="sm"
 						isLoading={mutation.isLoading}
+						isDisabled={!isConnected}
 						onClick={() => {
 							mutation.mutate({
 								pageId,
@@ -259,17 +263,6 @@ export const AppPreview = () => {
 							) : null}
 						</Stack>
 					</InspectorContainer>
-
-					{isDevMode ? (
-						<IconButton
-							aria-label="Refresh UI"
-							size="xs"
-							icon={<RefreshCw size="14" />}
-							variant="outline"
-							isLoading={isRefetching}
-							onClick={() => refetch()}
-						/>
-					) : null}
 				</Stack>
 
 				<Stack p="4" h="full" overflow="auto" spacing="3">

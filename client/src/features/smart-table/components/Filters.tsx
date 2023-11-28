@@ -18,6 +18,7 @@ import {
 	useDisclosure,
 	VStack,
 } from '@chakra-ui/react';
+import { useEffect } from 'react';
 import { Filter as FilterIcon, Plus, Star, Trash } from 'react-feather';
 import { useAtom, useAtomValue } from 'jotai';
 import { filtersAtom } from '@/features/smart-table/atoms';
@@ -133,18 +134,13 @@ export const FilterButton = () => {
 		},
 	});
 
-	useGetTable(tableId || '', {
-		onSuccess: (data: any) => {
-			setFilters((old: any) => ({
-				...old,
-				[tableId]: (data?.values?.filters || []).map((f: any) => ({
-					...f,
-					pinned: true,
-					id: crypto.randomUUID(),
-				})),
-			}));
-		},
-	});
+	const { filters: pinnedFilters } = useGetTable(tableId || '');
+	useEffect(() => {
+		setFilters((old: any) => ({
+			...old,
+			[tableId]: pinnedFilters,
+		}));
+	}, [tableId, pinnedFilters, setFilters]);
 
 	const haveFiltersApplied =
 		filters.length > 0 && filters.every((f: any) => f.column_name && f.value);
@@ -215,9 +211,10 @@ export const FilterButton = () => {
 						<VStack alignItems="start" w="full">
 							{filters.map((filter: any, index: any) => {
 								const colType = columns[filter?.column_name]?.type;
+
 								let inputType = 'text';
 
-								if (colType === 'integer') {
+								if (getPGColumnBaseType(colType) === 'integer') {
 									inputType = 'number';
 								}
 

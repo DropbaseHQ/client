@@ -1,10 +1,12 @@
 import os
+import re
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
 ENCRYPT_SECRET = os.environ.get("ENCRYPT_SECRET")
+CLIENT_URL = os.environ.get("CLIENT_URL")
 
 GPT_MODEL = "gpt-3.5-turbo"
 GPT_TEMPERATURE = 0.0
@@ -15,3 +17,5 @@ REFRESH_TOKEN_EXPIRE_SECONDS = 60 * 60 * 24 * 7  # 7 days
 
 # Ordered from most to least privileged
 ALLOWED_ACTIONS = ["own", "edit", "use"]
+
+FILE_NAME_REGEX = re.compile(r"^[A-Za-z0-9_]+$")

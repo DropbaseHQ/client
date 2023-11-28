@@ -6,9 +6,16 @@ export const axios = Axios.create({
 });
 
 export const workerAxios = Axios.create({
-	baseURL: `${import.meta.env.VITE_WORKER_API_ENDPOINT}/worker`,
+	baseURL: `${import.meta.env.VITE_WORKER_API_ENDPOINT}`,
 	withCredentials: true,
 });
+
+export const setWorkerAxiosToken = (token: string | null) => {
+	workerAxios.defaults.headers['access-token'] = token;
+};
+export const setWorkerAxiosBaseURL = (url: string) => {
+	workerAxios.defaults.baseURL = url;
+};
 
 axios.interceptors.response.use(
 	(res) => {
@@ -35,7 +42,8 @@ axios.interceptors.response.use(
 					if (
 						!(
 							window.location.pathname.includes('/login') ||
-							window.location.pathname.includes('/register')
+							window.location.pathname.includes('/register') ||
+							window.location.pathname.includes('/email-confirmation')
 						)
 					) {
 						window.location.href = '/login';

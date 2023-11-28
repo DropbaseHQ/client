@@ -1,9 +1,10 @@
-from sqlalchemy.orm import Session
 from typing import Protocol
-from server.utils.authorization import resource_query_mapper
-from server.models import Policy, UserGroup, User
-from server.constants import ALLOWED_ACTIONS
+
+from sqlalchemy.orm import Session
+
 from server import crud
+from server.constants import ALLOWED_ACTIONS
+from server.models import Policy
 
 
 class UpdatePolicyRequest(Protocol):

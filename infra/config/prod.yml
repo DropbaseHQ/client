@@ -9,6 +9,8 @@ environment_variables:
   OPENAI_ORG_ID: org-1OgmJLbPOnqo0ek9HpUMA8cN
   OPENAI_API_KEY: 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
   ENCRYPT_SECRET: dropbase
+  CLIENT_URL: https://app.dropbase.io
+  LOOPS_API_KEY: 771ca36f885accd66ab864342acabf6b
 
 # environment variables with values from AWS Secret Manager that will be
 # fetched and deployed by the CI/CD automatically

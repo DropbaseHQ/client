@@ -44,6 +44,10 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 				status: 'success',
 				title: 'Table Deleted',
 			});
+			setDevTab({
+				type: null,
+				id: null,
+			});
 		},
 		onError: (error: any) => {
 			toast({

@@ -5,6 +5,7 @@ from server import crud
 from server.controllers.tables.convert import call_gpt, fill_smart_cols_data
 from server.schemas.tables import ConvertTable, ReadTables, UpdateSmartTables
 from server.utils.connect import get_db
+from server.utils.state_context import get_state_context_payload
 
 router = APIRouter()
 
@@ -24,12 +25,9 @@ def get_smart_cols(req: ConvertTable, db: Session = Depends(get_db)):
 def update_smart_columns(req: UpdateSmartTables, db: Session = Depends(get_db)):
     table = ReadTables(**req.table)
     columns = crud.columns.get_table_columns(db, table_id=table.id)
-    col_status = {}
     for col in columns:
         if col.name in req.smart_columns:
-            col.property = req.smart_columns[col.name].dict()
-            col_status[col.name] = "updated"
-        else:
-            col_status[col.name] = "skipped"
+            col.property = req.smart_columns[col.name]
     db.commit()
-    return col_status
+    page = crud.page.get_table_page(db, table_id=table.id)
+    return get_state_context_payload(db, page.id)
