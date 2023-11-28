@@ -37,6 +37,7 @@ export const useWorkspaces = () => {
 	const data: any = useMemo(() => {
 		return response || [];
 	}, [response]);
+
 	return {
 		...rest,
 		queryKey,
@@ -45,7 +46,6 @@ export const useWorkspaces = () => {
 };
 
 const updateWorkspaceWorkerURL = async ({ workspaceId, workerURL }: any) => {
-	console.log('workerURL', workerURL);
 	const response = await axios.put<Workspace>(`/workspace/${workspaceId}`, {
 		worker_url: workerURL,
 	});
