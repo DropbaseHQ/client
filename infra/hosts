@@ -1,11 +1,5 @@
 [dev]
-api.dev.dropbase.io
-
-[dev-lsp]
-lsp.dev.dropbase.io
+3.221.39.122
 
 [prod]
-api.dropbase.io
-
-[prod-lsp]
-lsp.dropbase.io
+34.197.109.154
