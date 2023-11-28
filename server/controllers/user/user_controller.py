@@ -31,6 +31,7 @@ from server.controllers.policy import (
 )
 from server.utils.helper import raise_http_exception
 from server.utils.loops_integration import loops_controller
+from server.utils.slack import slack_sign_up
 
 
 def get_user(db: Session, user_email: str):
@@ -157,8 +158,8 @@ def register_user(db: Session, request: CreateUserRequest):
                 "email": user.email,
                 "url": confirmation_link,
             },
-            # sender_email="sales@dropbase.io",
         )
+        slack_sign_up(name=user.name, email=user.email)
         db.commit()
         return {"message": "User successfully registered"}
     except Exception as e:
