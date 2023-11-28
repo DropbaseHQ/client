@@ -1,5 +1,4 @@
 import { Box, useDisclosure } from '@chakra-ui/react';
-import { useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
@@ -20,21 +19,6 @@ export const InspectorContainer = ({ children, noPadding, id, type, ...props }: 
 			type,
 		});
 	};
-
-	useEffect(() => {
-		return () => {
-			setActiveInspect((current: any) => {
-				if (id && type && current.id === id && current.type === type) {
-					return {
-						id: null,
-						type: null,
-					};
-				}
-
-				return current;
-			});
-		};
-	}, [setActiveInspect, id, type]);
 
 	if (!id || !type || isPreview) {
 		return children;

@@ -74,6 +74,7 @@ const createWorkerApp = async ({
 export const useCreateAppFlow = (mutationConfig?: any) => {
 	const useCreateDraftAppMutation = useCreateDraftApp();
 	const useCreateWorkerAppMutation = useMutation(createWorkerApp, { ...(mutationConfig || {}) });
+
 	const handleCreateApp = async ({ name, workspaceId }: { name: string; workspaceId: any }) => {
 		const response = await useCreateDraftAppMutation.mutateAsync({ name, workspaceId });
 		if (!response?.app_id) return null;
@@ -85,6 +86,7 @@ export const useCreateAppFlow = (mutationConfig?: any) => {
 
 		return workerData;
 	};
+
 	return {
 		handleCreateApp,
 		isLoading: useCreateDraftAppMutation.isLoading || useCreateWorkerAppMutation.isLoading,

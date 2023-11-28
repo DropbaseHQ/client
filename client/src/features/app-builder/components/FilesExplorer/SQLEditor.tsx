@@ -1,6 +1,6 @@
 import {
+	Box,
 	Button,
-	Code,
 	FormControl,
 	FormLabel,
 	IconButton,
@@ -29,12 +29,12 @@ export const SQLEditor = ({ id }: any) => {
 	const { files } = useGetPage(pageId);
 
 	const file = files.find((f: any) => f.id === id);
-	const sqlName = file.name;
+	const sqlName = file?.name;
 	const { pageName, appName } = useAtomValue(pageAtom);
 
 	const [selectedSource, setSource] = useState();
 
-	const fullFileName = `${sqlName}.${file?.type}`;
+	const fullFileName = file ? `${sqlName}.${file?.type}` : null;
 	const { isLoading, code: defaultCode } = useFile({
 		pageName,
 		appName,
@@ -61,6 +61,10 @@ export const SQLEditor = ({ id }: any) => {
 		setLog(null);
 		setPreviewData(null);
 	}, [id]);
+
+	useEffect(() => {
+		setCode(defaultCode);
+	}, [defaultCode, id]);
 
 	const runMutation = useRunSQLQuery({
 		onSuccess: (data: any) => {
@@ -133,10 +137,6 @@ export const SQLEditor = ({ id }: any) => {
 		setPreviewData(null);
 	};
 
-	useEffect(() => {
-		setCode(defaultCode);
-	}, [defaultCode]);
-
 	if (isLoading || isLoadingSources) {
 		return (
 			<Stack p="3" spacing="2">
@@ -172,6 +172,7 @@ export const SQLEditor = ({ id }: any) => {
 					isLoading={saveSQLMutation.isLoading}
 					onClick={handleSave}
 					variant="outline"
+					colorScheme="gray"
 					size="sm"
 					leftIcon={<Save size="14" />}
 				>
@@ -203,40 +204,55 @@ export const SQLEditor = ({ id }: any) => {
 				<MonacoEditor value={code} onChange={setCode} language="sql" />
 			</Stack>
 
-			{log ? (
-				<Stack bg="white" p="2" h="full" borderRadius="sm">
-					<Stack direction="row" alignItems="start">
-						<IconButton
-							aria-label="Close output"
-							size="xs"
-							colorScheme="gray"
-							variant="outline"
-							borderRadius="full"
-							icon={<X size={14} />}
-							onClick={resetRunData}
-						/>
+			<Stack h="full" overflow="auto">
+				{log ? (
+					<Stack
+						borderBottomWidth="1px"
+						bg="white"
+						p="2"
+						w="full"
+						flex="1"
+						h="full"
+						overflow="auto"
+						borderRadius="sm"
+					>
+						<Stack direction="row" alignItems="start">
+							<IconButton
+								aria-label="Close output"
+								size="xs"
+								colorScheme="gray"
+								variant="outline"
+								borderRadius="full"
+								icon={<X size={14} />}
+								onClick={resetRunData}
+							/>
 
-						<Stack>
-							<Text fontSize="sm" letterSpacing="wide" fontWeight="medium">
-								Output
-							</Text>
-							<Code
-								w="full"
-								color="gray.500"
-								backgroundColor="inherit"
-								overflow="auto"
-								height={`${(log?.split('\n').length || 1) * 24}px`}
-							>
-								<pre>{log}</pre>
-							</Code>
+							<Stack w="full" overflow="auto">
+								<Text fontSize="sm" letterSpacing="wide" fontWeight="medium">
+									Output
+								</Text>
+								<Box
+									borderWidth="1px"
+									borderColor="blackAlpha.100"
+									borderRadius="sm"
+								>
+									<MonacoEditor
+										value={log}
+										language="shell"
+										options={{ lineNumbers: 'off', readOnly: true }}
+									/>
+								</Box>
+							</Stack>
 						</Stack>
 					</Stack>
-				</Stack>
-			) : null}
+				) : null}
 
-			{previewData?.columns ? (
-				<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
-			) : null}
+				{previewData?.columns ? (
+					<Box px="3" w="full" pb="3" borderBottomWidth="1px">
+						<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
+					</Box>
+				) : null}
+			</Stack>
 		</Stack>
 	);
 };

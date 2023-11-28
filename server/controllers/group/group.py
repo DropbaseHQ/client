@@ -1,19 +1,19 @@
 from uuid import UUID
+
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from server.models import Policy, UserGroup, User
-from server.schemas import PolicyTemplate
+from sqlalchemy.orm import Session
+
+from server import crud
+from server.controllers.policy import PolicyUpdater, format_permissions_for_highest_action
+from server.models import Policy, User, UserGroup
 from server.schemas.group import (
     AddGroupPolicyRequest,
+    CreateGroup,
     RemoveGroupPolicyRequest,
     UpdateGroupPolicyRequest,
-    CreateGroup,
 )
-
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
-from server.controllers.policy import PolicyUpdater, format_permissions_for_highest_action
-from server import crud
 
 
 class GroupController:
@@ -40,7 +40,11 @@ class GroupController:
             # Are there any existing user_group policies for this user in this workspace IN the policy table?
             existing_group_policy = (
                 db.query(Policy)
-                .filter(Policy.ptype == "g", Policy.v0 == str(user_id), Policy.v1 == str(group.id))
+                .filter(
+                    Policy.ptype == "g",
+                    Policy.v0 == str(user_id),
+                    Policy.v1 == str(group.id),
+                )
                 .filter(Policy.workspace_id == str(group.workspace_id))
                 .one_or_none()
             )
@@ -58,7 +62,10 @@ class GroupController:
                 )
             existing_user_group = (
                 db.query(UserGroup)
-                .filter(UserGroup.user_id == str(user_id), UserGroup.group_id == str(group.id))
+                .filter(
+                    UserGroup.user_id == str(user_id),
+                    UserGroup.group_id == str(group.id),
+                )
                 .one_or_none()
             )
             if not existing_user_group:
@@ -73,7 +80,6 @@ class GroupController:
 
         except Exception as e:
             db.rollback()
-            print("error", e)
             raise e
 
     @staticmethod
@@ -84,7 +90,9 @@ class GroupController:
         try:
             # Remove the user from the group in policy table
             db.query(Policy).filter(
-                Policy.ptype == "g", Policy.v0 == str(user_id), Policy.v1 == str(group.id)
+                Policy.ptype == "g",
+                Policy.v0 == str(user_id),
+                Policy.v1 == str(group.id),
             ).filter(Policy.workspace_id == str(group.workspace_id)).delete()
 
             # Remove the user from the group in user_group table

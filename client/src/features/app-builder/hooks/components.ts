@@ -82,7 +82,10 @@ const updateComponentProperties = async ({
 	componentId: string;
 	type: string;
 }) => {
-	const response = await workerAxios.put(`/components/${componentId}/`, { property: payload, type });
+	const response = await workerAxios.put(`/components/${componentId}/`, {
+		property: payload,
+		type,
+	});
 	return response.data;
 };
 

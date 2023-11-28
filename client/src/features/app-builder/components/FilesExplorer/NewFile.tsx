@@ -19,15 +19,17 @@ import {
 } from '@chakra-ui/react';
 import { Plus } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 
+import { useStatus } from '@/layout/StatusBar';
 import { useCreateFile, usePageFiles, useSources } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
 import { pageAtom, useGetPage } from '@/features/page';
 import { generateSequentialName } from '@/utils';
+import { developerTabAtom } from '../../atoms';
 
 export const NewFile = (props: any) => {
 	const toast = useToast();
@@ -36,11 +38,13 @@ export const NewFile = (props: any) => {
 	});
 
 	const { pageId } = useParams();
-
+	const { isConnected } = useStatus();
 	const { sources } = useSources();
 	const { files } = useGetPage(pageId);
 
 	const { pageName, appName } = useAtomValue(pageAtom);
+
+	const setDevTab = useSetAtom(developerTabAtom);
 
 	const { refetch } = usePageFiles({
 		pageName: pageName || '',
@@ -55,7 +59,12 @@ export const NewFile = (props: any) => {
 	});
 
 	const mutation = useCreateFile({
-		onSuccess: () => {
+		onSuccess: (data: any) => {
+			setDevTab({
+				type: data.type === 'sql' ? 'sql' : 'function',
+				id: data.id,
+			});
+
 			toast({
 				title: 'File created successfully',
 			});
@@ -103,6 +112,7 @@ export const NewFile = (props: any) => {
 					aria-label="Add function"
 					icon={<Plus size="14" />}
 					onClick={onToggle}
+					isDisabled={!isConnected}
 					isLoading={mutation.isLoading}
 					{...props}
 				/>

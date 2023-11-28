@@ -1,15 +1,21 @@
 from datetime import datetime
-from typing import Annotated, Any, List, Literal, Optional
+from typing import Annotated, Any, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
 
-from server.controllers.state.models import TableDisplayProperty, TableSharedProperty
-from server.schemas.pinned_filters import Filter, PinnedFilter, Sort
+from server.controllers.state.models import (
+    Filter,
+    PinnedFilter,
+    Sort,
+    TableDisplayProperty,
+    TableSharedProperty,
+)
 from server.schemas.properties import PropertyCategory
 
 
 class TablesBaseProperty(BaseModel):
+    height: Optional[str]
     filters: Optional[List[PinnedFilter]]
 
     # events
@@ -117,5 +123,5 @@ class ConvertTable(BaseModel):
 
 
 class UpdateSmartTables(BaseModel):
-    smart_columns: list
+    smart_columns: dict
     table: dict

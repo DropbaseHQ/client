@@ -14,9 +14,3 @@ def raise_http_exception(status_code: int, message: str, error=None):
 
 def raise_language_exception(data: LanguageErrorResponse):
     raise HTTPException(status_code=400, detail=data.dict())
-
-
-def clean_name_for_class(name: str) -> str:
-    name = name.title()
-    name = name.replace(" ", "")
-    return name

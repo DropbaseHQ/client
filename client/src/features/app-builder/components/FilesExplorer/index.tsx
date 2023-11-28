@@ -131,12 +131,14 @@ const FileButton = ({ file }: any) => {
 			onDoubleClick={onEditOpen}
 			colorScheme="gray"
 			variant={isActive ? 'solid' : 'outline'}
-			bg={isActive ? 'white' : 'gray.100'}
+			bg={isActive ? 'white' : 'gray.50'}
 			borderRight="0"
 			borderWidth="1px"
 			_hover={{
-				bg: 'gray.50',
+				bg: 'white',
+				color: 'gray.800',
 			}}
+			color={isActive ? 'gray.900' : 'gray.700'}
 			onClick={() => {
 				setDevTab({
 					type: isSQLFile ? 'sql' : 'function',

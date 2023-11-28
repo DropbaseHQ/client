@@ -44,7 +44,11 @@ export const TableProperties = () => {
 		},
 		onError: (error: any) => {
 			setErrorLog(
-				error?.response?.data?.error || error?.response?.data || error?.message || '',
+				error?.response?.data?.message ||
+					error?.response?.data?.error ||
+					error?.response?.data ||
+					error?.message ||
+					'',
 			);
 		},
 	});
@@ -69,7 +73,7 @@ export const TableProperties = () => {
 		setErrorLog('');
 	}, [tableId]);
 
-	const onSubmit = ({ fileId, ...rest }: any) => {
+	const onSubmit = ({ fileId, height, ...rest }: any) => {
 		mutation.mutate({
 			tableId,
 			appName,
@@ -79,6 +83,7 @@ export const TableProperties = () => {
 			file: fetchers.find((f: any) => f.id === fileId),
 			pageId,
 			state: pageState?.state,
+			property: { ...(table?.property || {}), height },
 		});
 	};
 
@@ -166,6 +171,17 @@ export const TableProperties = () => {
 								options={(fetchers as any).map((file: any) => ({
 									name: file.name,
 									value: file.id,
+								}))}
+							/>
+
+							<FormInput
+								type="select"
+								id="height"
+								name="Table height"
+								placeholder="Select table height"
+								options={['1/3', '1/2', 'full'].map((size: any) => ({
+									name: size,
+									value: size,
 								}))}
 							/>
 

@@ -6,14 +6,13 @@ from pydantic import BaseModel
 
 from server.constants import GPT_MODEL, GPT_TEMPERATURE
 from server.controllers.state.models import PgColumnDefinedProperty
+from server.controllers.tables.helper import FullDBSchema
 from server.credentials import OPENAI_API_KEY, OPENAI_ORG_ID
 
 from .gpt_template import get_gpt_input
 
 openai.organization = OPENAI_ORG_ID
 openai.api_key = OPENAI_API_KEY
-
-from server.controllers.tables.helper import FullDBSchema
 
 
 class ColumnInfo(BaseModel):
@@ -39,6 +38,7 @@ def fill_smart_cols_data(
         except KeyError:
             # Skip ChatGPT "hallucinated" columns
             continue
+        print(col_schema_data)
         smart_cols_data[name] = PgColumnDefinedProperty(name=name, **col_schema_data)
     return smart_cols_data
 

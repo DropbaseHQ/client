@@ -24,9 +24,9 @@ export const AppState = () => {
 	return (
 		<Stack spacing="0" bg="white" h="full">
 			<Text flexShrink="0" fontSize="sm" p="2" borderBottomWidth="1px" fontWeight="semibold">
-				State Manager
+				State & Context
 			</Text>
-			<Box p="2" flex="1" h="full" overflowY="auto">
+			<Box p="2" flex="1" h="full" overflowX="hidden" overflowY="auto">
 				<ObjectRenderer obj={pageState} expandedPaths={DEFAULT_OPEN_PATH} />
 			</Box>
 		</Stack>

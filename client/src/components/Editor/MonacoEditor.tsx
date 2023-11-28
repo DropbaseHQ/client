@@ -13,7 +13,7 @@ export const MonacoEditor = (props: any) => {
 		(editor: any, ...rest: any) => {
 			editor.onDidContentSizeChange(() => {
 				try {
-					setHeight(Math.min(1000, editor.getContentHeight()));
+					setHeight(Math.min(3000, editor.getContentHeight()));
 					editor.layout();
 				} finally {
 					//
