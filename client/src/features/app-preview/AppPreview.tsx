@@ -14,9 +14,9 @@ import {
 } from '@chakra-ui/react';
 import { ChevronDown, X } from 'react-feather';
 import { useParams } from 'react-router-dom';
+import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue } from 'jotai';
 import { useStatus } from '@/layout/StatusBar';
-import lodashSet from 'lodash/set';
 
 import { useExecuteAction, useGetWidgetPreview } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';

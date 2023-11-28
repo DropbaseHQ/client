@@ -148,9 +148,9 @@ export const FunctionTerminal = ({ code, file }: any) => {
 			) : null}
 
 			{previewData?.columns ? (
-				<Stack maxW="container.lg" overflowX="auto" borderRightWidth="1px">
-					<ChakraTable {...previewData} maxH="sm" borderRadius="sm" />
-				</Stack>
+				<Box px="3" w="full" mt="3" pb="3" borderBottomWidth="1px">
+					<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
+				</Box>
 			) : null}
 		</Stack>
 	);
