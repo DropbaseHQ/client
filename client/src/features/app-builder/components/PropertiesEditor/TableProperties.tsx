@@ -13,7 +13,7 @@ import { FormInput } from '@/components/FormInput';
 import { InputLoader } from '@/components/Loader';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { DeleteTable } from '@/features/app-builder/components/PropertiesEditor/DeleteTable';
-import { pageAtom } from '@/features/page';
+import { pageAtom, useGetPage } from '@/features/page';
 import { newPageStateAtom } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -25,6 +25,8 @@ export const TableProperties = () => {
 	const { isLoading, table, refetch, height: defaultTableHeight } = useGetTable(tableId || '');
 
 	const { pageName, appName } = useAtomValue(pageAtom);
+
+	const { tables } = useGetPage(pageId);
 
 	const pageState = useAtomValue(newPageStateAtom);
 
@@ -42,12 +44,13 @@ export const TableProperties = () => {
 		onError: (error: any) => {
 			toast({
 				title: 'Failed to update properties',
-				description:
+				description: JSON.stringify(
 					error?.response?.data?.message ||
-					error?.response?.data?.error ||
-					error?.response?.data ||
-					error?.message ||
-					'',
+						error?.response?.data?.error ||
+						error?.response?.data ||
+						error?.message ||
+						'',
+				),
 				status: 'error',
 			});
 		},
@@ -61,7 +64,12 @@ export const TableProperties = () => {
 
 	useEffect(() => {
 		reset(
-			{ name: table?.name, fileId: table?.file_id || '', height: defaultTableHeight },
+			{
+				name: table?.name,
+				fileId: table?.file_id || '',
+				height: defaultTableHeight,
+				depends: table?.depends_on || null,
+			},
 			{
 				keepDirty: false,
 				keepDirtyValues: false,
@@ -69,7 +77,7 @@ export const TableProperties = () => {
 		);
 	}, [table, tableId, defaultTableHeight, reset]);
 
-	const onSubmit = ({ fileId, height, ...rest }: any) => {
+	const onSubmit = ({ fileId, height, depends, ...rest }: any) => {
 		mutation.mutate({
 			tableId,
 			appName,
@@ -80,6 +88,7 @@ export const TableProperties = () => {
 			pageId,
 			state: pageState?.state,
 			property: { ...(table?.property || {}), height },
+			depends,
 		});
 	};
 
@@ -179,6 +188,19 @@ export const TableProperties = () => {
 									name: size,
 									value: size,
 								}))}
+							/>
+
+							<FormInput
+								type="multiselect"
+								id="depends"
+								name="Depends on"
+								placeholder="Select the table which it depends on"
+								options={tables
+									.filter((t: any) => t.id !== tableId)
+									.map((t: any) => ({
+										name: t.name,
+										value: t.name,
+									}))}
 							/>
 						</Stack>
 					</Stack>
