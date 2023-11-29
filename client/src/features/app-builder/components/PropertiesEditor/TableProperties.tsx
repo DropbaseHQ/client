@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { Save } from 'react-feather';
-import { Stack, Box, Text, IconButton, ButtonGroup } from '@chakra-ui/react';
+import { Stack, Text, IconButton, ButtonGroup } from '@chakra-ui/react';
 import {
 	useDataFetchers,
 	useGetTable,
@@ -30,12 +30,9 @@ export const TableProperties = () => {
 
 	const { fetchers } = useDataFetchers(pageId);
 
-	const [errorLog, setErrorLog] = useState('');
-
 	const mutation = useUpdateTableProperties({
 		onSuccess: () => {
 			refetch();
-			setErrorLog('');
 
 			toast({
 				title: 'Updated table properties',
@@ -43,13 +40,16 @@ export const TableProperties = () => {
 			});
 		},
 		onError: (error: any) => {
-			setErrorLog(
-				error?.response?.data?.message ||
+			toast({
+				title: 'Failed to update properties',
+				description:
+					error?.response?.data?.message ||
 					error?.response?.data?.error ||
 					error?.response?.data ||
 					error?.message ||
 					'',
-			);
+				status: 'error',
+			});
 		},
 	});
 
@@ -68,10 +68,6 @@ export const TableProperties = () => {
 			},
 		);
 	}, [table, tableId, defaultTableHeight, reset]);
-
-	useEffect(() => {
-		setErrorLog('');
-	}, [tableId]);
 
 	const onSubmit = ({ fileId, height, ...rest }: any) => {
 		mutation.mutate({
@@ -184,19 +180,6 @@ export const TableProperties = () => {
 									value: size,
 								}))}
 							/>
-
-							{errorLog ? (
-								<Box
-									fontSize="xs"
-									color="red.500"
-									bg="white"
-									borderRadius="sm"
-									as="pre"
-									fontFamily="mono"
-								>
-									{errorLog}
-								</Box>
-							) : null}
 						</Stack>
 					</Stack>
 				</Stack>
