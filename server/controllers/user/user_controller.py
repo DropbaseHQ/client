@@ -27,7 +27,11 @@ from server.schemas.user import (
     UpdateUserPolicyRequest,
 )
 from server.schemas.workspace import CreateWorkspace, ReadWorkspace
-from server.utils.authentication import authenticate_user, get_password_hash
+from server.utils.authentication import (
+    authenticate_user,
+    get_password_hash,
+    verify_password,
+)
 from server.controllers.policy import (
     PolicyUpdater,
     format_permissions_for_highest_action,
@@ -349,3 +353,41 @@ def request_reset_password(db: Session, request: ResetPasswordRequest):
         )
         return {"message": "Successfully sent password reset email."}
     raise_http_exception(400, message="No user associated with this email.")
+
+
+def reset_password(db: Session, request: ResetPasswordRequest):
+    user = crud.user.get_user_by_email(db, email=request.email)
+    if not user:
+        raise_http_exception(400, "No user associated with this email.")
+
+    user_reset_token = crud.reset_token.get_latest_user_refresh_token(db, user.id)
+    if not verify_password(request.reset_token, user_reset_token.hashed_token):
+        raise_http_exception(403, "Incorrect reset token.")
+
+    if user_reset_token.status != "valid":
+        raise_http_exception(400, "Token is no longer valid.")
+
+    if datetime.now() > user_reset_token.expiration_time:
+        crud.reset_token.update_by_pk(
+            db, pk=user_reset_token.id, obj_in={"status": "expired"}
+        )
+        raise_http_exception(400, "Token is expired.")
+
+    try:
+        new_hashed_password = get_password_hash(request.new_password)
+        crud.user.update_by_pk(
+            db,
+            pk=user.id,
+            obj_in={"hashed_password": new_hashed_password},
+            auto_commit=False,
+        )
+        crud.reset_token.update_by_pk(
+            db, pk=user_reset_token.id, obj_in={"status": "used"}, auto_commit=False
+        )
+        db.commit()
+        return {"message": "Successfully reset password."}
+
+    except Exception as e:
+        print(e)
+        db.rollback()
+        raise_http_exception(500, message="Failed to reset password.")

@@ -81,6 +81,11 @@ def request_reset_password(
     return user_controller.request_reset_password(db, request)
 
 
+@router.post("/reset_password")
+def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    return user_controller.reset_password(db, request)
+
+
 @router.get("/{user_id}/details/{workspace_id}")
 def get_user_details(user_id: UUID, workspace_id: UUID, db: Session = Depends(get_db)):
     # verify_user_id_belongs_to_current_user(user_id)
