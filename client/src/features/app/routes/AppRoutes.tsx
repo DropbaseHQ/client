@@ -19,9 +19,9 @@ export const AppRoutes = () => {
 		);
 	}
 
-	if (!isValidToken) {
-		return <Navigate to="/settings/developer" />;
-	}
+	// if (!isValidToken) {
+	// 	return <Navigate to="/settings/developer" />;
+	// }
 
 	return (
 		<Routes>
