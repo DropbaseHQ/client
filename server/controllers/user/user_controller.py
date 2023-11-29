@@ -348,7 +348,7 @@ def request_reset_password(db: Session, request: ResetPasswordRequest):
                 "email": user.email,
                 "reset_link": link_with_q_params,
                 "expiration_time": f"in {expiry_hours} hours",
-                "support_email": "support@dropbase.com",
+                "support_email": "support@dropbase.io",
             },
         )
         return {"message": "Successfully sent password reset email."}

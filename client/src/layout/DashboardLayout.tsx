@@ -12,7 +12,8 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 		pathname.startsWith('/login') ||
 		pathname.startsWith('/register') ||
 		pathname.startsWith('/reset') ||
-		pathname.startsWith('/email-confirmation');
+		pathname.startsWith('/email-confirmation') ||
+		pathname.startsWith('/forgot');
 
 	const shouldNotDisplayNavbar = pathname.startsWith('/apps/') || loginRoutes;
 

@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/layout';
 import { App } from '@/features/app';
 import { Users, DeveloperSettings } from '@/features/settings';
 import { Workspaces, useWorkspaces } from '@/features/workspaces';
+import { RequestResetLink } from '@/features/authorization/RequestResetLink';
 import {
 	useSetWorkerAxiosToken,
 	useSetWorkerAxiosBaseURL,
@@ -59,6 +60,7 @@ export const DashboardRoutes = () => {
 					<Route index element={<Navigate to="/apps" />} />
 					<Route path="login" element={<Login />} />
 					<Route path="register" element={<Register />} />
+					<Route path="forgot" element={<RequestResetLink />} />
 					<Route
 						path="email-confirmation/:token/:userId"
 						element={<EmailConfirmation />}
