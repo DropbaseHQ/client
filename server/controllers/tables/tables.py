@@ -68,7 +68,11 @@ def update_table(db: Session, request: UpdateTablesRequest):
         update_table_columns(db, table.id, request.table_columns, file.type)
 
     db.commit()
-    return get_state_context_payload(db, request.page_id)
+    state_context = get_state_context_payload(db, request.page_id)
+    return {
+        "state_context": state_context,
+        "table": table,
+    }
 
 
 def delete_table(db: Session, table_id: UUID):
