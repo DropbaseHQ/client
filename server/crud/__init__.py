@@ -13,3 +13,4 @@ from .user_group.crud_user_group import user_group
 from .user_role.crud_user_role import user_role
 from .widget.crud_widget import widget
 from .workspace.crud_workspace import workspace
+from .reset_token.crud_reset_token import reset_token

@@ -17,6 +17,7 @@ from server.schemas.user import (
     UpdateUser,
     UpdateUserPolicyRequest,
     ResendConfirmationEmailRequest,
+    RequestResetPassword,
 )
 from server.utils.authorization import (
     get_current_user,
@@ -66,6 +67,18 @@ def logout_user(response: Response, Authorize: AuthJWT = Depends()):
 @router.post("/refresh")
 def refresh_token(Authorize: AuthJWT = Depends()):
     return user_controller.refresh_token(Authorize)
+
+
+@router.post("/reset_password")
+def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    return user_controller.reset_password(db, request)
+
+
+@router.post("/request_reset_password")
+def request_reset_password(
+    request: RequestResetPassword, db: Session = Depends(get_db)
+):
+    return user_controller.request_reset_password(db, request)
 
 
 @router.post("/reset_password")

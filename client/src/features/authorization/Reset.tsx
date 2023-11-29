@@ -12,9 +12,10 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-
+import { DropbaseLogo } from '@/components/Logo';
 import { useResetPassword } from './hooks/useResetPassword';
 import { useToast } from '@/lib/chakra-ui';
+import { useSearchParams } from 'react-router-dom';
 
 type FormValues = {
 	email: string;
@@ -30,9 +31,9 @@ export const ResetPassword = () => {
 	} = useForm<FormValues>();
 	const navigate = useNavigate();
 
-	// const [searchParams] = useSearchParams();
-	// const email = searchParams.get('email') || '';
-	// const token = searchParams.get('token') || '';
+	const [searchParams] = useSearchParams();
+	const email = searchParams.get('email') || '';
+	const token = searchParams.get('token') || '';
 	const toast = useToast();
 
 	const { mutate, isLoading } = useResetPassword({
@@ -57,8 +58,8 @@ export const ResetPassword = () => {
 	const onSubmit = handleSubmit((data) => {
 		mutate({
 			...data,
-			// email,
-			// resetToken: token
+			email,
+			resetToken: token,
 		});
 	});
 
@@ -67,7 +68,9 @@ export const ResetPassword = () => {
 			<Stack spacing="8">
 				<Stack spacing="6">
 					<Stack spacing={{ base: '2', md: '3' }} textAlign="center">
-						{/* <Logo height={65} /> */}
+						<Box mx="auto" w="24">
+							<DropbaseLogo />
+						</Box>
 						<Heading size="sm">Reset password</Heading>
 					</Stack>
 				</Stack>

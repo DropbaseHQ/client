@@ -14,3 +14,4 @@ from .user_group import UserGroup
 from .user_role import UserRole
 from .widget import Widget
 from .workspace import Workspace
+from .reset_token import ResetToken
