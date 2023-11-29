@@ -56,7 +56,7 @@ class CreateUserRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     email: str
     new_password: str
-    # reset_token: str
+    reset_token: str
 
 
 class AddPolicy(BaseModel):
@@ -80,4 +80,8 @@ class UpdateUserPolicyRequest(BaseModel):
 
 
 class ResendConfirmationEmailRequest(BaseModel):
+    email: str
+
+
+class RequestResetPassword(BaseModel):
     email: str
