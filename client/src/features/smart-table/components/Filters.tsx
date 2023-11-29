@@ -319,11 +319,15 @@ export const FilterButton = () => {
 														...old,
 														[tableId]: filters.map((f: any, i: any) => {
 															if (i === index) {
+																const numberInput =
+																	e.target.value === ''
+																		? null
+																		: +e.target.value;
 																return {
 																	...f,
 																	value:
 																		inputType === 'number'
-																			? +e.target.value
+																			? numberInput
 																			: e.target.value,
 																};
 															}

@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.controllers import tables as table_controller
 from server.schemas.tables import CreateTables, UpdateTablesRequest
-from server.schemas.worker import SyncColumnsRequest
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 

@@ -126,7 +126,7 @@ export const Login = () => {
 								<Button isLoading={isLoading} type="submit" colorScheme="blue">
 									Sign in
 								</Button>
-								<Link to="/reset">
+								<Link to="/forgot">
 									<Text color="fg.muted" fontSize="sm" textDecoration="underline">
 										Forgot Password?
 									</Text>

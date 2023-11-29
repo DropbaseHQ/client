@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { Save } from 'react-feather';
-import { Stack, Box, Text, IconButton, ButtonGroup } from '@chakra-ui/react';
+import { Stack, Text, IconButton, ButtonGroup } from '@chakra-ui/react';
 import {
 	useDataFetchers,
 	useGetTable,
@@ -13,7 +13,7 @@ import { FormInput } from '@/components/FormInput';
 import { InputLoader } from '@/components/Loader';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { DeleteTable } from '@/features/app-builder/components/PropertiesEditor/DeleteTable';
-import { pageAtom } from '@/features/page';
+import { pageAtom, useGetPage } from '@/features/page';
 import { newPageStateAtom } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -26,16 +26,15 @@ export const TableProperties = () => {
 
 	const { pageName, appName } = useAtomValue(pageAtom);
 
+	const { tables } = useGetPage(pageId);
+
 	const pageState = useAtomValue(newPageStateAtom);
 
 	const { fetchers } = useDataFetchers(pageId);
 
-	const [errorLog, setErrorLog] = useState('');
-
 	const mutation = useUpdateTableProperties({
 		onSuccess: () => {
 			refetch();
-			setErrorLog('');
 
 			toast({
 				title: 'Updated table properties',
@@ -43,13 +42,17 @@ export const TableProperties = () => {
 			});
 		},
 		onError: (error: any) => {
-			setErrorLog(
-				error?.response?.data?.message ||
-					error?.response?.data?.error ||
-					error?.response?.data ||
-					error?.message ||
-					'',
-			);
+			toast({
+				title: 'Failed to update properties',
+				description: JSON.stringify(
+					error?.response?.data?.message ||
+						error?.response?.data?.error ||
+						error?.response?.data ||
+						error?.message ||
+						'',
+				),
+				status: 'error',
+			});
 		},
 	});
 
@@ -61,7 +64,12 @@ export const TableProperties = () => {
 
 	useEffect(() => {
 		reset(
-			{ name: table?.name, fileId: table?.file_id || '', height: defaultTableHeight },
+			{
+				name: table?.name,
+				fileId: table?.file_id || '',
+				height: defaultTableHeight,
+				depends: table?.depends_on || null,
+			},
 			{
 				keepDirty: false,
 				keepDirtyValues: false,
@@ -69,11 +77,7 @@ export const TableProperties = () => {
 		);
 	}, [table, tableId, defaultTableHeight, reset]);
 
-	useEffect(() => {
-		setErrorLog('');
-	}, [tableId]);
-
-	const onSubmit = ({ fileId, height, ...rest }: any) => {
+	const onSubmit = ({ fileId, height, depends, ...rest }: any) => {
 		mutation.mutate({
 			tableId,
 			appName,
@@ -84,6 +88,7 @@ export const TableProperties = () => {
 			pageId,
 			state: pageState?.state,
 			property: { ...(table?.property || {}), height },
+			depends,
 		});
 	};
 
@@ -185,18 +190,18 @@ export const TableProperties = () => {
 								}))}
 							/>
 
-							{errorLog ? (
-								<Box
-									fontSize="xs"
-									color="red.500"
-									bg="white"
-									borderRadius="sm"
-									as="pre"
-									fontFamily="mono"
-								>
-									{errorLog}
-								</Box>
-							) : null}
+							<FormInput
+								type="multiselect"
+								id="depends"
+								name="Depends on"
+								placeholder="Select the table which it depends on"
+								options={tables
+									.filter((t: any) => t.id !== tableId)
+									.map((t: any) => ({
+										name: t.name,
+										value: t.name,
+									}))}
+							/>
 						</Stack>
 					</Stack>
 				</Stack>
