@@ -47,8 +47,8 @@ export const useTableData = ({
 	currentPage,
 	pageSize,
 }: any) => {
-	const { type, table, isLoading: isLoadingTable } = useGetTable(tableId || '');
-	const { tables, files, isLoading: isLoadingPage } = useGetPage(pageId);
+	const { type, table, isFetching: isLoadingTable } = useGetTable(tableId || '');
+	const { tables, files, isFetching: isLoadingPage } = useGetPage(pageId);
 
 	const depends = tables.find((t: any) => t.id === tableId)?.depends_on || [];
 

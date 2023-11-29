@@ -130,10 +130,10 @@ export const useUpdateTableProperties = (props: any = {}) => {
 	return useMutation(updateTableProperties, {
 		...props,
 		onSettled: () => {
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 		},
 	});
 };
