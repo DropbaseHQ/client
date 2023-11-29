@@ -61,11 +61,11 @@ export const DashboardRoutes = () => {
 					<Route path="login" element={<Login />} />
 					<Route path="register" element={<Register />} />
 					<Route path="forgot" element={<RequestResetLink />} />
+					<Route path="reset" element={<ResetPassword />} />
 					<Route
 						path="email-confirmation/:token/:userId"
 						element={<EmailConfirmation />}
 					/>
-					<Route path="reset" element={<ResetPassword />} />
 					<Route path="workspaces" element={<Workspaces />} />
 
 					<Route path="apps/*" element={<App />} />

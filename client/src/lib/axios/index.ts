@@ -43,7 +43,9 @@ axios.interceptors.response.use(
 						!(
 							window.location.pathname.includes('/login') ||
 							window.location.pathname.includes('/register') ||
-							window.location.pathname.includes('/email-confirmation')
+							window.location.pathname.includes('/email-confirmation') ||
+							window.location.pathname.includes('/forgot') ||
+							window.location.pathname.includes('/reset')
 						)
 					) {
 						window.location.href = '/login';
