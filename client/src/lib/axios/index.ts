@@ -52,6 +52,9 @@ axios.interceptors.response.use(
 					}
 				}
 			}
+			// if (err.response.status === 500) {
+			// 	window.location.href = '/login';
+			// }
 		}
 
 		return Promise.reject(err);

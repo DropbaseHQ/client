@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useAtom } from 'jotai';
 import { axios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
+import { useLocation } from 'react-router-dom';
 
 export const WORKSPACE_QUERY = 'workspaces';
 
@@ -23,10 +24,20 @@ const fetchWorkspaces = async () => {
 };
 
 export const useWorkspaces = () => {
+	const { pathname } = useLocation();
+
 	const [currentWorkspace, updateWorkspace] = useAtom(workspaceAtom);
+
 	const queryKey = [WORKSPACE_QUERY];
+	const loginRoutes =
+		pathname.startsWith('/login') ||
+		pathname.startsWith('/register') ||
+		pathname.startsWith('/reset') ||
+		pathname.startsWith('/email-confirmation') ||
+		pathname.startsWith('/forgot');
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchWorkspaces(), {
+		enabled: !loginRoutes,
 		onSuccess: (data: any) => {
 			if (!currentWorkspace) {
 				updateWorkspace(data?.[0]?.id);
