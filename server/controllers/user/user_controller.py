@@ -1,3 +1,6 @@
+import secrets
+from datetime import datetime, timedelta
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 from fastapi import HTTPException, Response, status
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
@@ -303,3 +306,46 @@ def resend_confirmation_email(db: Session, user_email: str):
         email_name="verifyEmail",
         email_params={"email": user.email, "url": confirmation_link},
     )
+
+
+def _add_query_params(url, params):
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    query_params.update(params)
+    encoded_params = urlencode(query_params, doseq=True)
+    updated_url = urlunparse(parsed_url._replace(query=encoded_params))
+    return updated_url
+
+
+def request_reset_password(db: Session, request: ResetPasswordRequest):
+    user = crud.user.get_user_by_email(db, email=request.email)
+    if user:
+        # Generate reset-token
+        reset_token = secrets.token_urlsafe(16)
+        hashed_token = get_password_hash(reset_token)
+        expiry_hours = 2
+        expiration_time = datetime.now() + timedelta(hours=expiry_hours)
+        reset_link = f"{CLIENT_URL}/reset"
+        link_with_q_params = _add_query_params(
+            reset_link, {"email": user.email, "token": reset_token}
+        )
+        crud.reset_token.create(
+            db,
+            obj_in={
+                "hashed_token": hashed_token,
+                "user_id": user.id,
+                "expiration_time": expiration_time,
+                "status": "valid",
+            },
+        )
+        send_email(
+            "resetPassword",
+            {
+                "email": user.email,
+                "reset_link": link_with_q_params,
+                "expiration_time": f"in {expiry_hours} hours",
+                "support_email": "support@dropbase.com",
+            },
+        )
+        return {"message": "Successfully sent password reset email."}
+    raise_http_exception(400, message="No user associated with this email.")

@@ -81,3 +81,7 @@ class UpdateUserPolicyRequest(BaseModel):
 
 class ResendConfirmationEmailRequest(BaseModel):
     email: str
+
+
+class RequestResetPassword(BaseModel):
+    email: str
