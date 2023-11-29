@@ -42,6 +42,7 @@ import { NavLoader } from '@/components/Loader';
 import { pageAtom, useGetPage } from '../page';
 import { appModeAtom } from '@/features/app/atoms';
 import { Pagination } from './components/Pagination';
+import { DEFAULT_PAGE_SIZE } from './constants';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -119,7 +120,7 @@ export const SmartTable = ({ tableId }: any) => {
 			...old,
 			[tableId]: {
 				currentPage: 0,
-				pageSize: 10,
+				pageSize: DEFAULT_PAGE_SIZE,
 			},
 		}));
 	}, [tableId, setPageInfo]);
@@ -474,7 +475,7 @@ export const SmartTable = ({ tableId }: any) => {
 								) : (
 									<DataEditor
 										columns={gridColumns}
-										rows={pageInfo.pageSize || 10}
+										rows={pageInfo.pageSize || DEFAULT_PAGE_SIZE}
 										width="100%"
 										height="100%"
 										getCellContent={getCellContent}
