@@ -29,7 +29,7 @@ export const App = () => {
 	}, [updateMode]);
 
 	return (
-		<Stack spacing="0" h="100vh">
+		<Stack spacing="0" h="full">
 			<AppNavbar isPreview />
 			<PanelGroup direction="horizontal">
 				<Panel defaultSize={80}>

@@ -13,15 +13,15 @@ import {
 	IconButton,
 	useDisclosure,
 	useClipboard,
-	useToast,
 } from '@chakra-ui/react';
+import { useEffect } from 'react';
 import { CheckCircle, Copy } from 'react-feather';
 import copy from 'copy-to-clipboard';
 import { useAtomValue } from 'jotai';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { useCreateProxyToken, useProxyTokens } from '@/features/settings/hooks/token';
 import { workspaceAtom } from '@/features/workspaces';
-import { useEffect } from 'react';
+import { useToast } from '@/lib/chakra-ui';
 
 export const TokenModal = () => {
 	const workspaceId = useAtomValue(workspaceAtom);

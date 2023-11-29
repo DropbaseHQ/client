@@ -22,7 +22,7 @@ export const TableProperties = () => {
 	const { pageId } = useParams();
 	const toast = useToast();
 
-	const { isLoading, table, refetch } = useGetTable(tableId || '');
+	const { isLoading, table, refetch, height: defaultTableHeight } = useGetTable(tableId || '');
 
 	const { pageName, appName } = useAtomValue(pageAtom);
 
@@ -61,13 +61,13 @@ export const TableProperties = () => {
 
 	useEffect(() => {
 		reset(
-			{ name: table?.name, fileId: table?.file_id || '' },
+			{ name: table?.name, fileId: table?.file_id || '', height: defaultTableHeight },
 			{
 				keepDirty: false,
 				keepDirtyValues: false,
 			},
 		);
-	}, [table, tableId, reset]);
+	}, [table, tableId, defaultTableHeight, reset]);
 
 	useEffect(() => {
 		setErrorLog('');

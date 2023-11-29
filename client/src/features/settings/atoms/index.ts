@@ -1,3 +1,3 @@
-import { atomWithStorage } from 'jotai/utils';
+import { atom } from 'jotai';
 
-export const proxyTokenAtom = atomWithStorage<string | null>('proxyToken', null);
+export const proxyTokenAtom = atom<string | null>(null);

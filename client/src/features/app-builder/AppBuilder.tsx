@@ -1,5 +1,7 @@
 import { Box, Stack } from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
+import { useEffect } from 'react';
+import { useSetAtom } from 'jotai';
 
 import { PanelHandle } from '@/components/Panel';
 
@@ -12,9 +14,20 @@ import { AppNavbar } from '@/features/app/components/AppNavbar';
 import { PropertyPane } from '@/features/app-builder';
 import { FilesExplorer } from './components/FilesExplorer';
 import { WorkerDisconnected } from './components/WorkerDisconnected';
+import { inspectedResourceAtom } from './atoms';
 
 export const AppBuilder = () => {
 	const { isLoading } = useInitPage();
+	const setInspectedItem = useSetAtom(inspectedResourceAtom);
+
+	useEffect(() => {
+		return () => {
+			setInspectedItem({
+				id: null,
+				type: null,
+			});
+		};
+	}, [setInspectedItem]);
 
 	return (
 		<Stack spacing="0" h="full">

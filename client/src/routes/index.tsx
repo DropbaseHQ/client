@@ -1,19 +1,20 @@
 import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
-import { Login, Register, ResetPassword } from '@/features/authorization';
+import { Login, Register, ResetPassword, EmailConfirmation } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
 import { App } from '@/features/app';
 import { Users, DeveloperSettings } from '@/features/settings';
-import { EmailConfirmation } from '@/features/authorization';
 import { Workspaces, useWorkspaces } from '@/features/workspaces';
 import {
 	useSetWorkerAxiosToken,
 	useSetWorkerAxiosBaseURL,
 } from '@/features/authorization/hooks/useLogin';
+import { useSyncProxyToken } from '@/features/settings/hooks/token';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
+	useSyncProxyToken();
 	useSetWorkerAxiosToken();
 	useSetWorkerAxiosBaseURL();
 

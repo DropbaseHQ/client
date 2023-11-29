@@ -22,8 +22,12 @@ export const APPS_QUERY_KEY = 'workspaceApps';
 export const useGetWorkspaceApps = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const queryKey = [APPS_QUERY_KEY, workspaceId];
-	const { data: response, ...rest } = useQuery(queryKey, () =>
-		fetchWorkspaceApps({ workspaceId }),
+	const { data: response, ...rest } = useQuery(
+		queryKey,
+		() => fetchWorkspaceApps({ workspaceId }),
+		{
+			enabled: !!workspaceId,
+		},
 	);
 	return {
 		apps: response || [],

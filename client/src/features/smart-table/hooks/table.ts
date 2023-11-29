@@ -121,12 +121,14 @@ export const useTableData = ({
 				header,
 				tableName: response.table_name,
 				tableId: response.table_id,
+				tableError: response?.result?.error,
 			};
 		}
 
 		return {
 			rows: [],
 			header: [],
+			tableError: null,
 		};
 	}, [response]);
 

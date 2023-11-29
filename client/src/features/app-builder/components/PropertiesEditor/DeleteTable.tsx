@@ -73,6 +73,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 					colorScheme="red"
 					aria-label="Delete table"
 					onClick={onToggle}
+					type="button"
 					isLoading={mutation.isLoading}
 					size="sm"
 					{...props}
