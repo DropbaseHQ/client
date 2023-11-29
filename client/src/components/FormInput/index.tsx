@@ -1,4 +1,5 @@
 import {
+	Badge,
 	Box,
 	Button,
 	FormControl,
@@ -6,6 +7,11 @@ import {
 	FormLabel,
 	IconButton,
 	Input,
+	Menu,
+	MenuButton,
+	MenuItemOption,
+	MenuList,
+	MenuOptionGroup,
 	NumberDecrementStepper,
 	NumberIncrementStepper,
 	NumberInput,
@@ -13,10 +19,11 @@ import {
 	NumberInputStepper,
 	Select,
 	Stack,
+	Text,
 	Switch,
 } from '@chakra-ui/react';
 import { forwardRef } from 'react';
-import { Plus, Trash } from 'react-feather';
+import { ChevronDown, Plus, Trash } from 'react-feather';
 import { ErrorMessage } from '@hookform/error-message';
 import { Controller, useFormContext } from 'react-hook-form';
 
@@ -155,6 +162,56 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					Add option
 				</Button>
 			</Stack>
+		);
+	}
+
+	if (type === 'multiselect') {
+		let children = <Text fontSize="sm">{inputProps?.placeholder || 'Select option'}</Text>;
+
+		if (Array.isArray(value) && value.length > 0) {
+			children = (
+				<Stack spacing="1" flexWrap="wrap" direction="row">
+					{value.map((v: any) => (
+						<Badge
+							colorScheme="gray"
+							textTransform="none"
+							display="inline-block"
+							key={v}
+							size="sm"
+						>
+							{v}
+						</Badge>
+					))}
+				</Stack>
+			);
+		}
+
+		return (
+			<Menu>
+				<MenuButton
+					as={Stack}
+					direction="row"
+					alignItems="center"
+					borderWidth="1px"
+					p="1.5"
+				>
+					<Stack w="full" spacing="0" alignItems="center" direction="row">
+						<Box>{children}</Box>
+						<Box ml="auto">
+							<ChevronDown size="14" />
+						</Box>
+					</Stack>
+				</MenuButton>
+				<MenuList maxH="lg" overflowY="auto" minWidth="240px">
+					<MenuOptionGroup value={value || []} onChange={onChange} type="checkbox">
+						{(selectOptions || []).map((option: any) => (
+							<MenuItemOption fontSize="md" key={option.name} value={option.value}>
+								{option.name}
+							</MenuItemOption>
+						))}
+					</MenuOptionGroup>
+				</MenuList>
+			</Menu>
 		);
 	}
 

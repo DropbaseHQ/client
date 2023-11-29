@@ -174,6 +174,7 @@ export const SQLEditor = ({ id }: any) => {
 					variant="outline"
 					colorScheme="gray"
 					size="sm"
+					isDisabled={code === defaultCode}
 					leftIcon={<Save size="14" />}
 				>
 					Update

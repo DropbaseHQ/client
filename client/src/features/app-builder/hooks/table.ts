@@ -110,16 +110,21 @@ const updateTableProperties = async ({
 	pageId,
 	state,
 	property,
+	depends,
 }: any) => {
 	const response = await workerAxios.put(`/tables/${tableId}/`, {
 		app_name: appName,
 		page_name: pageName,
-		name: tableName,
 		table,
 		state,
 		file,
-		property: property || {},
 		page_id: pageId,
+		table_updates: {
+			name: tableName,
+			property: property || {},
+			file_id: file.id,
+			depends_on: depends,
+		},
 	});
 
 	return response.data;

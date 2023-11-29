@@ -101,6 +101,7 @@ export const FunctionEditor = ({ id }: any) => {
 						variant="outline"
 						colorScheme="gray"
 						size="sm"
+						isDisabled={code === updatedCode}
 						leftIcon={<Save size="14" />}
 					>
 						Update
@@ -108,7 +109,7 @@ export const FunctionEditor = ({ id }: any) => {
 				</Stack>
 			) : null}
 
-			{isNotSameFunctionName ? (
+			{!isLoadingWorkerFiles && updatedCode && isNotSameFunctionName ? (
 				<Alert flexShrink="0" status="error">
 					<AlertIcon />
 
