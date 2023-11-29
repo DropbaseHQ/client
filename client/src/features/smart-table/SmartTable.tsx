@@ -260,6 +260,9 @@ export const SmartTable = ({ tableId }: any) => {
 				displayData: String(cellValue),
 				allowOverlay: false,
 				readonly: true,
+				themeOverride: {
+					bgCell: theme.colors.gray['50'],
+				},
 			};
 		}
 

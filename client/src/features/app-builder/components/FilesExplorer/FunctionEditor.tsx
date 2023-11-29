@@ -109,7 +109,7 @@ export const FunctionEditor = ({ id }: any) => {
 			) : null}
 
 			{isNotSameFunctionName ? (
-				<Alert status="error">
+				<Alert flexShrink="0" status="error">
 					<AlertIcon />
 
 					<AlertDescription>
