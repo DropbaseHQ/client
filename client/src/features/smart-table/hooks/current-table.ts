@@ -6,6 +6,7 @@ import { filtersAtom, sortsAtom, tablePageInfoAtom } from '@/features/smart-tabl
 import { newPageStateAtom } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { useGetColumnProperties } from '@/features/app-builder/hooks';
+import { DEFAULT_PAGE_SIZE } from '../constants';
 
 export const CurrentTableContext: any = createContext({ tableId: null });
 
@@ -26,7 +27,7 @@ export const useCurrentTableData = (tableId: any) => {
 
 	const pageInfo = useAtomValue(tablePageInfoAtom)?.[tableId] || {
 		currentPage: 0,
-		pageSize: 10,
+		pageSize: DEFAULT_PAGE_SIZE,
 	};
 
 	const state = useAtomValue(newPageStateAtom);

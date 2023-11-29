@@ -1,4 +1,14 @@
-import { Box, Button, Divider, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react';
+import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	Box,
+	Button,
+	Divider,
+	Skeleton,
+	SkeletonCircle,
+	Stack,
+} from '@chakra-ui/react';
 
 import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
@@ -12,6 +22,7 @@ import { pageAtom, useGetPage } from '@/features/page';
 
 import { FunctionTerminal } from './FunctionTerminal';
 import { TABLE_DATA_QUERY_KEY } from '../../../smart-table/hooks';
+import { findFunctionDeclarations } from '../../utils';
 
 const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode }: any) => {
 	const [code, setCode] = useState(defaultCode);
@@ -73,6 +84,13 @@ export const FunctionEditor = ({ id }: any) => {
 		);
 	}
 
+	const functionDeclarations = findFunctionDeclarations(updatedCode);
+
+	const isNotSameFunctionName =
+		file?.type === 'data_fetcher' || file?.type === 'ui'
+			? !functionDeclarations.find((f) => f.name === file.name)
+			: false;
+
 	return (
 		<Stack h="full" bg="white" spacing="0" divider={<Divider />} w="full">
 			{file?.type === 'data_fetcher' ? (
@@ -88,6 +106,16 @@ export const FunctionEditor = ({ id }: any) => {
 						Update
 					</Button>
 				</Stack>
+			) : null}
+
+			{isNotSameFunctionName ? (
+				<Alert flexShrink="0" status="error">
+					<AlertIcon />
+
+					<AlertDescription>
+						Please make sure function name matches with the file name
+					</AlertDescription>
+				</Alert>
 			) : null}
 			<Box pt="2">
 				<PythonEditorLSP code={code} updateCode={setCode} filePath={filePath} key={id} />

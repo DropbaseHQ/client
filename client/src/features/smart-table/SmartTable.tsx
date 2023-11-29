@@ -42,6 +42,7 @@ import { NavLoader } from '@/components/Loader';
 import { pageAtom, useGetPage } from '../page';
 import { appModeAtom } from '@/features/app/atoms';
 import { Pagination } from './components/Pagination';
+import { DEFAULT_PAGE_SIZE } from './constants';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -61,7 +62,7 @@ export const SmartTable = ({ tableId }: any) => {
 		current: undefined,
 	});
 
-	const { isLoading, rows, columns, header, refetch, isRefetching, tableError } =
+	const { isLoading, rows, columns, header, refetch, isRefetching, tableError, error } =
 		useCurrentTableData(tableId);
 	const { table, isLoading: isLoadingTable, height } = useGetTable(tableId || '');
 	const tableIsUnsynced = useTableSyncStatus(tableId);
@@ -119,7 +120,7 @@ export const SmartTable = ({ tableId }: any) => {
 			...old,
 			[tableId]: {
 				currentPage: 0,
-				pageSize: 10,
+				pageSize: DEFAULT_PAGE_SIZE,
 			},
 		}));
 	}, [tableId, setPageInfo]);
@@ -260,6 +261,9 @@ export const SmartTable = ({ tableId }: any) => {
 				displayData: String(cellValue),
 				allowOverlay: false,
 				readonly: true,
+				themeOverride: {
+					bgCell: theme.colors.gray['50'],
+				},
 			};
 		}
 
@@ -405,6 +409,8 @@ export const SmartTable = ({ tableId }: any) => {
 
 	const memoizedContext = useMemo(() => ({ tableId }), [tableId]);
 
+	const errorMessage = tableError || error?.response?.data?.result?.error || error?.message;
+
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="1">
@@ -455,21 +461,21 @@ export const SmartTable = ({ tableId }: any) => {
 							</Center>
 						) : (
 							<>
-								{tableError ? (
+								{errorMessage ? (
 									<Center as={Stack} spacing="0" p="6" h="full">
 										<Text color="red.500" fontWeight="medium" fontSize="lg">
 											Failed to load data
 										</Text>
 										<Text fontSize="md">
-											{typeof tableError === 'object'
-												? JSON.stringify(tableError)
-												: tableError}
+											{typeof errorMessage === 'object'
+												? JSON.stringify(errorMessage)
+												: errorMessage}
 										</Text>
 									</Center>
 								) : (
 									<DataEditor
 										columns={gridColumns}
-										rows={pageInfo.pageSize || 10}
+										rows={pageInfo.pageSize || DEFAULT_PAGE_SIZE}
 										width="100%"
 										height="100%"
 										getCellContent={getCellContent}
