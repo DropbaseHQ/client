@@ -28,7 +28,7 @@ import { useCreateFile, usePageFiles, useSources } from '@/features/app-builder/
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
 import { pageAtom, useGetPage } from '@/features/page';
-import { generateSequentialName } from '@/utils';
+import { generateSequentialName, getErrorMessage } from '@/utils';
 import { developerTabAtom } from '../../atoms';
 
 export const NewFile = (props: any) => {
@@ -75,8 +75,7 @@ export const NewFile = (props: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to create file',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});

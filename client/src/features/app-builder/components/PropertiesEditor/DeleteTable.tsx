@@ -21,6 +21,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useToast } from '@/lib/chakra-ui';
 import { useDeleteTable } from '@/features/app-builder/hooks';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
+import { getErrorMessage } from '@/utils';
 
 export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 	const toast = useToast();
@@ -53,8 +54,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to delete table',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});

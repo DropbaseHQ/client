@@ -32,6 +32,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
+import { getErrorMessage } from '@/utils';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -73,8 +74,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to update component properties',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});
@@ -91,8 +91,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to delete component',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});
@@ -252,8 +251,7 @@ export const NewComponent = (props: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to create component',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});

@@ -7,6 +7,7 @@ import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { PAGE_DATA_QUERY_KEY, pageAtom } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { APP_STATE_QUERY_KEY } from '@/features/app-state';
+import { getErrorMessage } from '@/utils';
 
 export const WIDGET_QUERY_KEY = 'widget';
 
@@ -96,8 +97,7 @@ export const useCreateWidget = (props: any = {}) => {
 			toast({
 				status: 'error',
 				title: 'Failed to create widget',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 		onSettled: () => {

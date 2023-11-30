@@ -21,6 +21,7 @@ import { useLogin } from './hooks/useLogin';
 import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
 import { workerAxios } from '@/lib/axios';
+import { getErrorMessage } from '../../utils';
 
 type FormValues = {
 	email: string;
@@ -48,7 +49,7 @@ export const Login = () => {
 			toast({
 				title: 'Login Failed',
 				status: 'error',
-				description: error.response?.data?.detail.message || error.message,
+				description: getErrorMessage(error),
 			});
 			if (error.response?.status === 403) {
 				setDisplayEmailConfirmation(true);

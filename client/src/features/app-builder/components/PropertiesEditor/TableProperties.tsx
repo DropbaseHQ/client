@@ -16,6 +16,7 @@ import { DeleteTable } from '@/features/app-builder/components/PropertiesEditor/
 import { pageAtom, useGetPage } from '@/features/page';
 import { newPageStateAtom } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 export const TableProperties = () => {
 	const tableId = useAtomValue(selectedTableIdAtom);
@@ -44,13 +45,7 @@ export const TableProperties = () => {
 		onError: (error: any) => {
 			toast({
 				title: 'Failed to update properties',
-				description: JSON.stringify(
-					error?.response?.data?.message ||
-						error?.response?.data?.error ||
-						error?.response?.data ||
-						error?.message ||
-						'',
-				),
+				description: getErrorMessage(error),
 				status: 'error',
 			});
 		},
@@ -172,7 +167,6 @@ export const TableProperties = () => {
 								id="fileId"
 								name="Fetcher"
 								placeholder="Select data fetcher"
-								validation={{ required: 'option is required' }}
 								options={(fetchers as any).map((file: any) => ({
 									name: file.name,
 									value: file.id,

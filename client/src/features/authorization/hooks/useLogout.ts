@@ -2,6 +2,7 @@ import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { axios } from '@/lib/axios';
 import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 const logoutUser = async () => {
 	const response = await axios.delete<any>(`/user/logout`);
@@ -20,7 +21,7 @@ export const useLogout = () => {
 			toast({
 				status: 'error',
 				title: 'Failed to logout',
-				description: err.message,
+				description: getErrorMessage(err),
 			});
 		},
 	});
