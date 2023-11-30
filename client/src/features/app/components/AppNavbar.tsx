@@ -22,15 +22,26 @@ import { Link, useParams } from 'react-router-dom';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
+import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 // import { useForceSyncState } from '@/features/app-state';
 
 export const AppNavbar = ({ isPreview }: any) => {
+	const toast = useToast();
 	const { appId } = useParams();
 	const { apps } = useGetWorkspaceApps();
 
 	const [name, setAppName] = useState('');
 	const [isValid, setIsValid] = useState(true);
-	const updateMutation = useUpdateApp({});
+	const updateMutation = useUpdateApp({
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to update app',
+				description: getErrorMessage(error),
+			});
+		}
+	});
 
 	// const forceSyncMutation = useForceSyncState();
 
