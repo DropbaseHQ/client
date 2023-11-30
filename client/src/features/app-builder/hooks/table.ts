@@ -117,12 +117,12 @@ const updateTableProperties = async ({
 		page_name: pageName,
 		table,
 		state,
-		file,
+		file: file || null,
 		page_id: pageId,
 		table_updates: {
 			name: tableName,
 			property: property || {},
-			file_id: file.id,
+			file_id: file?.id || null,
 			depends_on: depends,
 		},
 	});
