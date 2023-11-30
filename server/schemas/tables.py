@@ -74,7 +74,7 @@ class CreateTablesRequest(BaseModel):
 class UpdateTables(BaseModel):
     name: Optional[str]
     property: TablesBaseProperty
-    file_id: UUID
+    file_id: Optional[UUID]
     depends_on: Optional[List[str]]
 
 

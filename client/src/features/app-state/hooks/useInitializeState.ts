@@ -39,7 +39,7 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 
 					return {
 						...agg,
-						[tableName]: tables[tableName],
+						[tableName]: tables[tableName] || {},
 					};
 				}, {});
 			}
