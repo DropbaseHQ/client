@@ -135,6 +135,7 @@ export const FilterButton = () => {
 	});
 
 	const { filters: pinnedFilters } = useGetTable(tableId || '');
+
 	useEffect(() => {
 		setFilters((old: any) => ({
 			...old,
@@ -251,9 +252,8 @@ export const FilterButton = () => {
 											<Select
 												value={filter.column_name}
 												onChange={(e) => {
-													setFilters((old: any) => ({
-														...old,
-														[tableId]: filters.map((f: any, i: any) => {
+													const newFilters = filters.map(
+														(f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
@@ -262,8 +262,17 @@ export const FilterButton = () => {
 															}
 
 															return f;
-														}),
+														},
+													);
+
+													setFilters((old: any) => ({
+														...old,
+														[tableId]: newFilters,
 													}));
+
+													if (filter?.pinned) {
+														handlePinnedFilters(newFilters);
+													}
 												}}
 												size="sm"
 												bg="bg-canvas"
@@ -281,9 +290,8 @@ export const FilterButton = () => {
 												colorScheme="blue"
 												value={filter.condition}
 												onChange={(e) => {
-													setFilters((old: any) => ({
-														...old,
-														[tableId]: filters.map((f: any, i: any) => {
+													const newFilters = filters.map(
+														(f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
@@ -292,8 +300,17 @@ export const FilterButton = () => {
 															}
 
 															return f;
-														}),
+														},
+													);
+
+													setFilters((old: any) => ({
+														...old,
+														[tableId]: newFilters,
 													}));
+
+													if (filter?.pinned) {
+														handlePinnedFilters(newFilters);
+													}
 												}}
 												bg="bg-canvas"
 												size="sm"
