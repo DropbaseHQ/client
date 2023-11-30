@@ -461,7 +461,7 @@ export const SmartTable = ({ tableId }: any) => {
 							</Center>
 						) : (
 							<>
-								{errorMessage ? (
+								{!isPreview && errorMessage ? (
 									<Center as={Stack} spacing="0" p="6" h="full">
 										<Text color="red.500" fontWeight="medium" fontSize="lg">
 											Failed to load data

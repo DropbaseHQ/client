@@ -5,6 +5,8 @@ import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY, useGetTable } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
 import { APP_STATE_QUERY_KEY } from '@/features/app-state';
+import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
@@ -185,6 +187,7 @@ const syncDropbaseColumns = async ({ appName, pageName, table, file, state }: an
 };
 
 export const useSyncDropbaseColumns = (props: any = {}) => {
+	const toast = useToast();
 	const queryClient = useQueryClient();
 	return useMutation(syncDropbaseColumns, {
 		...props,
@@ -194,6 +197,13 @@ export const useSyncDropbaseColumns = (props: any = {}) => {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+		},
+		onError: (error: any) => {
+			toast({
+				title: 'Failed to sync',
+				status: 'error',
+				description: getErrorMessage(error),
+			});
 		},
 	});
 };
