@@ -52,3 +52,20 @@ export const generateSequentialName = ({ currentNames, prefix }: any) => {
 
 	return newName;
 };
+
+export const getErrorMessage = (error: any) => {
+	if (error?.response?.data?.detail) {
+		if (Array.isArray(error?.response?.data?.detail)) {
+			return error?.response?.data?.detail.map((e: any) => e.msg).join(', ');
+		}
+	}
+
+	const errorMessage =
+		error?.response?.data?.error || error?.response?.data || error?.message || '';
+
+	if (typeof errorMessage !== 'string') {
+		return JSON.stringify(errorMessage);
+	}
+
+	return errorMessage;
+};

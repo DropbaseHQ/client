@@ -22,6 +22,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { developerTabAtom } from '@/features/app-builder/atoms';
 import { useDeleteFile } from '@/features/app-builder/hooks';
 import { pageAtom } from '@/features/page';
+import { getErrorMessage } from '@/utils';
 
 export const DeleteFile = ({ name, id, type, ...props }: any) => {
 	const toast = useToast();
@@ -50,8 +51,7 @@ export const DeleteFile = ({ name, id, type, ...props }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to delete function',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});

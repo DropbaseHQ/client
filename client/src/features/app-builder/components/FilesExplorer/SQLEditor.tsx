@@ -22,6 +22,7 @@ import { ChakraTable } from '@/components/Table';
 import { pageAtom, useGetPage } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 export const SQLEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -82,8 +83,7 @@ export const SQLEditor = ({ id }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to run query',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 		onMutate: () => {
@@ -103,8 +103,7 @@ export const SQLEditor = ({ id }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to update SQL',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});

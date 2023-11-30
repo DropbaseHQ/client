@@ -17,6 +17,7 @@ import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue } from 'jotai';
 import { useStatus } from '@/layout/StatusBar';
+import { getErrorMessage } from '@/utils';
 
 import { useExecuteAction, useGetWidgetPreview } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
@@ -80,8 +81,7 @@ const AppComponent = (props: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to execute action',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});

@@ -11,11 +11,11 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { DropbaseLogo } from '@/components/Logo';
 import { useResetPassword } from './hooks/useResetPassword';
 import { useToast } from '@/lib/chakra-ui';
-import { useSearchParams } from 'react-router-dom';
+import { getErrorMessage } from '@/utils';
 
 type FormValues = {
 	email: string;
@@ -41,8 +41,7 @@ export const ResetPassword = () => {
 			toast({
 				title: 'Cannot reset password',
 				status: 'error',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 		onSuccess: () => {

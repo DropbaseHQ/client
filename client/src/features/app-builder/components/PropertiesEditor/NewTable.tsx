@@ -6,7 +6,7 @@ import { Plus } from 'react-feather';
 import { useToast } from '@/lib/chakra-ui';
 import { useCreateTable } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
-import { generateSequentialName } from '@/utils';
+import { generateSequentialName, getErrorMessage } from '@/utils';
 import { useStatus } from '@/layout/StatusBar';
 import { inspectedResourceAtom } from '../../atoms';
 
@@ -33,8 +33,7 @@ export const NewTable = (props: any) => {
 			toast({
 				status: 'error',
 				title: 'Create table failed',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});

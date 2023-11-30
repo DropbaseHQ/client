@@ -1,5 +1,3 @@
-import { useRequestResetPasswordMail } from './hooks/useResetPassword';
-import { useToast } from '@/lib/chakra-ui';
 import {
 	Box,
 	Button,
@@ -12,10 +10,15 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import { DropbaseLogo } from '@/components/Logo';
 
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
+
+import { DropbaseLogo } from '@/components/Logo';
+import { useRequestResetPasswordMail } from './hooks/useResetPassword';
+import { useToast } from '@/lib/chakra-ui';
+
+import { getErrorMessage } from '../../utils';
 
 type FormValues = {
 	email: string;
@@ -36,7 +39,7 @@ export const RequestResetLink = () => {
 			toast({
 				title: 'Failed to send reset link',
 				status: 'error',
-				description: error.message,
+				description: getErrorMessage(error),
 			});
 		},
 		onSuccess: () => {

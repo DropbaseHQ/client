@@ -27,6 +27,7 @@ import { pageAtom, useGetPage } from '@/features/page';
 import { DeleteFile } from './DeleteFile';
 import { useUpdateFile } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 const componentsMap: any = {
 	function: FunctionEditor,
@@ -80,8 +81,7 @@ const FileButton = ({ file }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to delete table',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});
