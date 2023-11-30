@@ -148,7 +148,7 @@ export const useUpdateFile = (props: any = {}) => {
 		onError: (error: any) => {
 			toast({
 				status: 'error',
-				title: 'Failed to create function',
+				title: 'Failed to update function',
 				description: getErrorMessage(error),
 			});
 		},

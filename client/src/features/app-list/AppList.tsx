@@ -178,6 +178,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 
 export const AppList = () => {
 	const navigate = useNavigate();
+	const toast = useToast();
 	const workspaceId = useAtomValue(workspaceAtom);
 	const { workspaces } = useWorkspaces();
 	const { status } = useStatus();
@@ -202,6 +203,13 @@ export const AppList = () => {
 				refetch();
 				onClose();
 			},
+			onError: (error: any) => {
+				toast({
+					status: 'error',
+					title: 'Failed to create app',
+					description: getErrorMessage(error),
+				});
+			}
 		});
 
 	const nameNotUnique = (newName: any) => {

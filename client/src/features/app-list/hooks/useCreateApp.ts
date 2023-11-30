@@ -72,7 +72,7 @@ const createWorkerApp = async ({
 };
 
 export const useCreateAppFlow = (mutationConfig?: any) => {
-	const useCreateDraftAppMutation = useCreateDraftApp();
+	const useCreateDraftAppMutation = useCreateDraftApp(mutationConfig?.onError ? {onError: mutationConfig.onError} : null);
 	const useCreateWorkerAppMutation = useMutation(createWorkerApp, { ...(mutationConfig || {}) });
 
 	const handleCreateApp = async ({ name, workspaceId }: { name: string; workspaceId: any }) => {
