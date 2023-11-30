@@ -57,9 +57,7 @@ export const SQLEditor = ({ id }: any) => {
 	const syncState = useSyncState();
 
 	useEffect(() => {
-		if (file?.source) {
-			setSource(file.source);
-		}
+		setSource(file.source);
 	}, [setSource, file]);
 
 	useEffect(() => {
@@ -178,7 +176,7 @@ export const SQLEditor = ({ id }: any) => {
 					variant="outline"
 					colorScheme="gray"
 					size="sm"
-					isDisabled={code === defaultCode}
+					isDisabled={code === defaultCode && file.source === selectedSource}
 					leftIcon={<Save size="14" />}
 				>
 					Update
