@@ -36,7 +36,11 @@ export const SQLEditor = ({ id }: any) => {
 	const [selectedSource, setSource] = useState();
 
 	const fullFileName = file ? `${sqlName}.${file?.type}` : null;
-	const { isLoading, code: defaultCode } = useFile({
+	const {
+		isLoading,
+		code: defaultCode,
+		refetch,
+	} = useFile({
 		pageName,
 		appName,
 		fileName: fullFileName,
@@ -98,6 +102,7 @@ export const SQLEditor = ({ id }: any) => {
 				status: 'success',
 				title: 'Updated SQL',
 			});
+			refetch();
 		},
 		onError: (error: any) => {
 			toast({
