@@ -73,7 +73,7 @@ class WorkspaceCreator:
             auto_commit=False,
         )
         self.db.flush()
-        demo_file = crud.files.create(
+        crud.files.create(
             self.db,
             obj_in={
                 "name": "data",
@@ -88,7 +88,6 @@ class WorkspaceCreator:
             self.db,
             obj_in={
                 "name": "table1",
-                "file_id": demo_file.id,
                 "page_id": demo_page.id,
                 "property": table_property,
             },
