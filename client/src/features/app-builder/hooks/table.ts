@@ -138,7 +138,6 @@ export const useUpdateTableProperties = (props: any = {}) => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 		},
 	});
 };
