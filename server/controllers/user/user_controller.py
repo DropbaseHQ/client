@@ -72,11 +72,13 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
 
         Authorize.set_access_cookies(access_token)
         Authorize.set_refresh_cookies(refresh_token)
-
         workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
+        workspace = (
+            ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
+        )
         return {
             "user": ReadUser.from_orm(user),
-            "workspace": ReadWorkspace.from_orm(workspaces[0]),
+            "workspace": workspace,
             "access_token": access_token,
             "refresh_token": refresh_token,
         }
