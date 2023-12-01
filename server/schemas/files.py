@@ -30,8 +30,8 @@ class UpdateFiles(BaseModel):
 
 
 class UpdateFilesRequest(UpdateFiles):
-    file_id: UUID
-    depends_on: List
+    file_id: Optional[UUID]
+    depends_on: Optional[List]
 
 
 class RenameFile(BaseModel):
