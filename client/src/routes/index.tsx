@@ -12,6 +12,7 @@ import {
 	useSetWorkerAxiosBaseURL,
 } from '@/features/authorization/hooks/useLogin';
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
+import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
@@ -66,12 +67,15 @@ export const DashboardRoutes = () => {
 						path="email-confirmation/:token/:userId"
 						element={<EmailConfirmation />}
 					/>
-					<Route path="workspaces" element={<Workspaces />} />
+					<Route element={<ProtectedRoutes />}>
+						<Route path="workspaces" element={<Workspaces />} />
 
-					<Route path="apps/*" element={<App />} />
-					<Route path="settings/members" element={<Users />} />
-					{/* <Route path="settings/permissions" element={<Permissions />} /> */}
-					<Route path="settings/developer" element={<DeveloperSettings />} />
+						<Route path="apps/*" element={<App />} />
+						<Route path="settings/members" element={<Users />} />
+						{/* <Route path="settings/permissions" element={<Permissions />} /> */}
+						<Route path="settings/developer" element={<DeveloperSettings />} />
+					</Route>
+
 					<Route path="*" element={<Navigate to="/apps" />} />
 				</Route>
 			</Routes>

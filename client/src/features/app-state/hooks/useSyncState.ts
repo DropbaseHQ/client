@@ -1,9 +1,10 @@
 import { useSetAtom } from 'jotai';
 import { useCallback } from 'react';
+import { useMutation, useQueryClient } from 'react-query';
 import { APP_STATE_QUERY_KEY, allWidgetStateAtom, nonWidgetStateAtom } from '@/features/app-state';
 import { workerAxios } from '@/lib/axios';
-import { useMutation, useQueryClient } from 'react-query';
 import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 export const useSyncState = () => {
 	const setWidgetState = useSetAtom(allWidgetStateAtom);
@@ -24,10 +25,9 @@ export const useSyncState = () => {
 	return handleSyncState;
 };
 
-
-const forceSyncState = async ({  pageId,   }: any) => {
+const forceSyncState = async ({ pageId }: any) => {
 	const response = await workerAxios.put(`/sync/page/${pageId}`, {
-		page_id: pageId, 
+		page_id: pageId,
 	});
 
 	return response.data;
@@ -35,23 +35,23 @@ const forceSyncState = async ({  pageId,   }: any) => {
 
 export const useForceSyncState = (props: any = {}) => {
 	const queryClient = useQueryClient();
-	const toast = useToast()
-	
+	const toast = useToast();
+
 	return useMutation(forceSyncState, {
 		...props,
 		onSuccess: () => {
 			toast({
-				status: "success",
-				title: "Successfully synced state"
-			})
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY); 
+				status: 'success',
+				title: 'Successfully synced state',
+			});
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 		},
-		onError: (error:any) => {
+		onError: (error: any) => {
 			toast({
-				status: "error",
-				title: "Failed to sync state",
-				description:  error?.response?.data?.error || error?.response?.data || error?.message || '',
-			})
+				status: 'error',
+				title: 'Failed to sync state',
+				description: getErrorMessage(error),
+			});
 		},
 	});
 };

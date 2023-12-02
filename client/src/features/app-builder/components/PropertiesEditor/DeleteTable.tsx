@@ -17,15 +17,13 @@ import {
 import { useSetAtom } from 'jotai';
 
 import { Trash } from 'react-feather';
-import { FormProvider, useForm } from 'react-hook-form';
 import { useToast } from '@/lib/chakra-ui';
 import { useDeleteTable } from '@/features/app-builder/hooks';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
+import { getErrorMessage } from '@/utils';
 
 export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 	const toast = useToast();
-	const methods = useForm();
-
 	const setDevTab = useSetAtom(inspectedResourceAtom);
 
 	const { isOpen, onToggle, onClose } = useDisclosure({
@@ -53,8 +51,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to delete table',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});
@@ -88,32 +85,22 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 					</PopoverHeader>
 					<PopoverArrow />
 					<PopoverCloseButton />
-					<FormProvider {...methods}>
-						<form onSubmit={methods.handleSubmit(onSubmit)}>
-							<PopoverBody>
-								Are you sure you want to delete {tableName} table?
-							</PopoverBody>
-							<PopoverFooter
-								border="0"
-								display="flex"
-								justifyContent="space-between"
-								pb={4}
+					<PopoverBody>Are you sure you want to delete {tableName} table?</PopoverBody>
+					<PopoverFooter border="0" display="flex" justifyContent="space-between" pb={4}>
+						<ButtonGroup ml="auto" size="sm">
+							<Button onClick={onClose} colorScheme="gray" variant="ghost">
+								Cancel
+							</Button>
+							<Button
+								colorScheme="red"
+								type="button"
+								onClick={onSubmit}
+								isLoading={mutation.isLoading}
 							>
-								<ButtonGroup ml="auto" size="sm">
-									<Button onClick={onClose} colorScheme="gray" variant="ghost">
-										Cancel
-									</Button>
-									<Button
-										colorScheme="red"
-										type="submit"
-										isLoading={mutation.isLoading}
-									>
-										Delete
-									</Button>
-								</ButtonGroup>
-							</PopoverFooter>
-						</form>
-					</FormProvider>
+								Delete
+							</Button>
+						</ButtonGroup>
+					</PopoverFooter>
 				</PopoverContent>
 			</Portal>
 		</Popover>

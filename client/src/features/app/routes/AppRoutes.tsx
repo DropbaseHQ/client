@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { Center, Progress, Stack, Text } from '@chakra-ui/react';
 
 import { AppBuilder } from '@/features/app-builder';
@@ -6,7 +6,7 @@ import { App } from '../components';
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
 
 export const AppRoutes = () => {
-	const { isLoading: isLoadingTokens, isValid: isValidToken } = useSyncProxyToken();
+	const { isLoading: isLoadingTokens } = useSyncProxyToken();
 
 	if (isLoadingTokens) {
 		return (
@@ -17,10 +17,6 @@ export const AppRoutes = () => {
 				<Progress minW="sm" size="xs" isIndeterminate />
 			</Center>
 		);
-	}
-
-	if (!isValidToken) {
-		return <Navigate to="/settings/developer" />;
 	}
 
 	return (

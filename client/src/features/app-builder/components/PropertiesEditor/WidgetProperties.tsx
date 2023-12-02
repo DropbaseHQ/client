@@ -5,6 +5,7 @@ import { Stack, Skeleton, Button, Text } from '@chakra-ui/react';
 import { useGetWidget, useUpdateWidgetProperties } from '@/features/app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 export const WidgetProperties = ({ widgetId }: any) => {
 	const toast = useToast();
@@ -23,8 +24,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to update properties',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});

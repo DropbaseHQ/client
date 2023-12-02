@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 import { useCurrentTableData, useCurrentTableId, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { cellEditsAtom } from '@/features/smart-table/atoms';
+import { getErrorMessage } from '@/utils';
 
 import { FilterButton } from './Filters';
 import { SortButton } from './Sorts';
@@ -44,8 +45,7 @@ export const TableBar = () => {
 			toast({
 				status: 'error',
 				title: 'Failed to save edits',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});

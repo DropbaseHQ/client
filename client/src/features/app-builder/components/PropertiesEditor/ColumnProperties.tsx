@@ -29,6 +29,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { newPageStateAtom } from '@/features/app-state';
 import { pageAtom, useGetPage } from '@/features/page';
+import { getErrorMessage } from '@/utils';
 
 const DISPLAY_COLUMN_PROPERTIES = [
 	'schema_name',
@@ -57,8 +58,7 @@ const ColumnProperty = ({ id, property: properties, type }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to update properties',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});
@@ -192,8 +192,7 @@ export const ColumnsProperties = () => {
 			toast({
 				status: 'error',
 				title: 'Failed to convert table',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});

@@ -5,6 +5,7 @@ import { workerAxios } from '@/lib/axios';
 import { PAGE_DATA_QUERY_KEY } from '@/features/page';
 import { ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY } from './functions';
 import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 import { DATA_FETCHER_QUERY_KEY } from '@/features/app-builder/hooks';
 
 export const ALL_PAGE_FILES_QUERY_KEY = 'allFiles';
@@ -77,14 +78,14 @@ export const useFile = ({ fileName, appName, pageName }: any) => {
 	};
 };
 
-const createFile = async ({ pageName, fileName, appName, pageId, type, source }: any) => {
+const createFile = async ({ pageName, fileName, appName, pageId, type }: any) => {
 	const response = await workerAxios.post(`/files/`, {
 		name: fileName,
 		page_id: pageId,
 		app_name: appName,
 		page_name: pageName,
 		type,
-		source,
+		source: null,
 	});
 
 	return response.data;
@@ -147,9 +148,8 @@ export const useUpdateFile = (props: any = {}) => {
 		onError: (error: any) => {
 			toast({
 				status: 'error',
-				title: 'Failed to create function',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				title: 'Failed to update function',
+				description: getErrorMessage(error),
 			});
 		},
 		onSettled: () => {

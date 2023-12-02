@@ -15,6 +15,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { useRegister } from './hooks/useRegister';
 import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 type FormValues = {
 	email: string;
@@ -38,8 +39,7 @@ export const Register = () => {
 			toast({
 				title: 'Register Failed',
 				status: 'error',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 		onSuccess: () => {

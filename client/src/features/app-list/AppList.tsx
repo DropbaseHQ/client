@@ -32,6 +32,7 @@ import { useDeleteApp } from '@/features/app-list/hooks/useDeleteApp';
 import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { SalesModal } from './AppSalesModal';
 import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
@@ -51,8 +52,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 			toast({
 				status: 'error',
 				title: 'Failed to delete app',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});
@@ -178,6 +178,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 
 export const AppList = () => {
 	const navigate = useNavigate();
+	const toast = useToast();
 	const workspaceId = useAtomValue(workspaceAtom);
 	const { workspaces } = useWorkspaces();
 	const { status } = useStatus();
@@ -202,6 +203,13 @@ export const AppList = () => {
 				refetch();
 				onClose();
 			},
+			onError: (error: any) => {
+				toast({
+					status: 'error',
+					title: 'Failed to create app',
+					description: getErrorMessage(error),
+				});
+			}
 		});
 
 	const nameNotUnique = (newName: any) => {

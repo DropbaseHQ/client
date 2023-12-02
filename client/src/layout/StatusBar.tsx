@@ -5,7 +5,7 @@ import { workerAxios } from '../lib/axios';
 export const STATUS_QUERY_KEY = 'allFiles';
 
 const fetchStatus: any = async () => {
-	const response = await workerAxios.get<any>(`/sources/`);
+	const response = await workerAxios.get<any>(`/health/`);
 	return response;
 };
 

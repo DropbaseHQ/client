@@ -22,6 +22,7 @@ import { ChakraTable } from '@/components/Table';
 import { pageAtom, useGetPage } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 export const SQLEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -35,7 +36,11 @@ export const SQLEditor = ({ id }: any) => {
 	const [selectedSource, setSource] = useState();
 
 	const fullFileName = file ? `${sqlName}.${file?.type}` : null;
-	const { isLoading, code: defaultCode } = useFile({
+	const {
+		isLoading,
+		code: defaultCode,
+		refetch,
+	} = useFile({
 		pageName,
 		appName,
 		fileName: fullFileName,
@@ -52,9 +57,7 @@ export const SQLEditor = ({ id }: any) => {
 	const syncState = useSyncState();
 
 	useEffect(() => {
-		if (file?.source) {
-			setSource(file.source);
-		}
+		setSource(file?.source);
 	}, [setSource, file]);
 
 	useEffect(() => {
@@ -82,8 +85,7 @@ export const SQLEditor = ({ id }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to run query',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 		onMutate: () => {
@@ -98,13 +100,13 @@ export const SQLEditor = ({ id }: any) => {
 				status: 'success',
 				title: 'Updated SQL',
 			});
+			refetch();
 		},
 		onError: (error: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to update SQL',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});
@@ -128,7 +130,7 @@ export const SQLEditor = ({ id }: any) => {
 			sql: code,
 			source: selectedSource,
 			fileId: id,
-			fileType: file.type,
+			fileType: file?.type,
 		});
 	};
 
@@ -174,7 +176,7 @@ export const SQLEditor = ({ id }: any) => {
 					variant="outline"
 					colorScheme="gray"
 					size="sm"
-					isDisabled={code === defaultCode}
+					isDisabled={code === defaultCode && file?.source === selectedSource}
 					leftIcon={<Save size="14" />}
 				>
 					Update
