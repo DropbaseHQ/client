@@ -1,13 +1,13 @@
-import { Outlet } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { useWorkspaces } from '@/features/workspaces';
 import { Center, Progress, Stack, Text } from '@chakra-ui/react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { useWorkspaces } from '@/features/workspaces';
 
 export const ProtectedRoutes = () => {
 	const navigate = useNavigate();
 	const { isLoading, isSuccess } = useWorkspaces();
 
 	const isAuthenticated = isSuccess;
+
 	if (isLoading)
 		return (
 			<Center as={Stack} spacing="6" w="full" h="full">
