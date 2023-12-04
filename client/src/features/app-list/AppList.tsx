@@ -209,7 +209,7 @@ export const AppList = () => {
 					title: 'Failed to create app',
 					description: getErrorMessage(error),
 				});
-			}
+			},
 		});
 
 	const nameNotUnique = (newName: any) => {

@@ -13,6 +13,8 @@ import {
 } from '@/features/authorization/hooks/useLogin';
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
+import { Welcome } from '../features/welcome';
+import { isProductionApp } from '../utils';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
@@ -34,6 +36,8 @@ export const DashboardRoutes = () => {
 			</DashboardLayout>
 		);
 	}
+
+	const isProductionURL = isProductionApp();
 
 	return (
 		<Suspense
@@ -58,25 +62,35 @@ export const DashboardRoutes = () => {
 						</DashboardLayout>
 					}
 				>
-					<Route index element={<Navigate to="/apps" />} />
+					<Route
+						index
+						element={<Navigate to={isProductionURL ? '/welcome' : '/apps'} />}
+					/>
 					<Route path="login" element={<Login />} />
 					<Route path="register" element={<Register />} />
 					<Route path="forgot" element={<RequestResetLink />} />
 					<Route path="reset" element={<ResetPassword />} />
+					<Route path="welcome" element={<Welcome />} />
 					<Route
 						path="email-confirmation/:token/:userId"
 						element={<EmailConfirmation />}
 					/>
 					<Route element={<ProtectedRoutes />}>
-						<Route path="workspaces" element={<Workspaces />} />
-
-						<Route path="apps/*" element={<App />} />
-						<Route path="settings/members" element={<Users />} />
+						{isProductionURL ? null : (
+							<>
+								<Route path="workspaces" element={<Workspaces />} />
+								<Route path="apps/*" element={<App />} />
+								<Route path="settings/members" element={<Users />} />
+							</>
+						)}
 						{/* <Route path="settings/permissions" element={<Permissions />} /> */}
 						<Route path="settings/developer" element={<DeveloperSettings />} />
 					</Route>
 
-					<Route path="*" element={<Navigate to="/apps" />} />
+					<Route
+						path="*"
+						element={<Navigate to={isProductionURL ? '/welcome' : '/apps'} />}
+					/>
 				</Route>
 			</Routes>
 		</Suspense>

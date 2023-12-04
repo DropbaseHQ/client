@@ -69,3 +69,7 @@ export const getErrorMessage = (error: any) => {
 
 	return errorMessage;
 };
+
+export const isProductionApp = () => {
+	return window.location.href.includes('app.dropbase.io');
+};

@@ -1,9 +1,11 @@
 import {
+	Badge,
 	Box,
 	Button,
 	ButtonGroup,
 	FormControl,
 	FormLabel,
+	Icon,
 	IconButton,
 	Popover,
 	PopoverArrow,
@@ -15,9 +17,10 @@ import {
 	PopoverTrigger,
 	Portal,
 	Stack,
+	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { Plus } from 'react-feather';
+import { Plus, Table, Box as BoxIcon, Code } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useParams } from 'react-router-dom';
@@ -30,6 +33,37 @@ import { FormInput } from '@/components/FormInput';
 import { pageAtom, useGetPage } from '@/features/page';
 import { generateSequentialName, getErrorMessage } from '@/utils';
 import { developerTabAtom } from '../../atoms';
+
+const fileOptions = [
+	{
+		name: 'SQL Data Fetcher',
+		value: 'sql',
+		icon: Table,
+		description: 'Fetch data to tables via SQL',
+		extension: 'sql',
+	},
+	{
+		name: 'Python (Data Fetcher)',
+		value: 'data_fetcher',
+		description: 'Fetch data to tables via Python',
+		icon: Table,
+		extension: 'py',
+	},
+	{
+		name: 'Python (UI)',
+		value: 'ui',
+		icon: BoxIcon,
+		description: 'Modify UI via Python',
+		extension: 'py',
+	},
+	{
+		name: 'Python (Generic)',
+		value: 'python',
+		icon: Code,
+		description: 'Generic Python scripts',
+		extension: 'py',
+	},
+];
 
 export const NewFile = (props: any) => {
 	const toast = useToast();
@@ -147,25 +181,44 @@ export const NewFile = (props: any) => {
 											id="name"
 										/>
 										<FormInput
-											type="select"
-											options={[
-												{
-													name: 'SQL (Data Fetcher)',
-													value: 'sql',
+											type="custom-select"
+											options={fileOptions.map((option: any) => ({
+												...option,
+												icon: null,
+												render: (isSelected: boolean) => {
+													return (
+														<Stack alignItems="center" direction="row">
+															<Icon
+																boxSize="6"
+																as={option.icon}
+																flexShrink="0"
+																color={isSelected ? 'blue.500' : ''}
+															/>
+															<Stack spacing="0">
+																<Text fontWeight="medium">
+																	{option.name}
+																</Text>
+																<Text
+																	color="gray.600"
+																	fontSize="xs"
+																>
+																	{option.description}
+																</Text>
+															</Stack>
+															<Badge
+																textTransform="lowercase"
+																size="xs"
+																ml="auto"
+																colorScheme={
+																	isSelected ? 'blue' : 'gray'
+																}
+															>
+																.{option.extension}
+															</Badge>
+														</Stack>
+													);
 												},
-												{
-													name: 'Python (Data Fetcher)',
-													value: 'data_fetcher',
-												},
-												{
-													name: 'Python (UI)',
-													value: 'ui',
-												},
-												{
-													name: 'Python (Generic)',
-													value: 'python',
-												},
-											]}
+											}))}
 											validation={{ required: 'Cannot  be empty' }}
 											name="type"
 											id="type"
