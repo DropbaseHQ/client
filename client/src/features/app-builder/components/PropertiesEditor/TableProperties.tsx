@@ -95,7 +95,7 @@ export const TableProperties = () => {
 	const resetDependsOn = (newFileId: any) => {
 		const newFile = fetchers.find((f: any) => f.id === newFileId);
 
-		if (newFile?.type === 'sql') {
+		if (newFile?.type === 'data_fetcher') {
 			setValue('depends', null);
 		}
 	};
