@@ -73,7 +73,7 @@ export const Setup = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const { user } = useGetCurrentUser();
 
-	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
+	const { tokens } = useProxyTokens({ userId: user.id, workspaceId });
 	const selectedToken = tokens?.find((t: any) => t.is_selected);
 	return (
 		<OrderedList spacing={6}>
