@@ -1,7 +1,8 @@
 import { Book } from 'react-feather';
-import { Button } from '@chakra-ui/react';
+import { Box, Button, Stack, Text } from '@chakra-ui/react';
 import { VideoList } from './components/VideoList';
 import { PageLayout } from '@/layout';
+import { Setup } from './components/Setup';
 
 export const Welcome = () => {
 	return (
@@ -19,7 +20,21 @@ export const Welcome = () => {
 				</Button>
 			}
 		>
-			<VideoList />
+			<Stack spacing="4">
+				<VideoList />
+				<Stack p="4" spacing="4" direction="row">
+					<Stack>
+						<Text fontWeight="semibold" fontSize="lg">
+							Setup Instructions:
+						</Text>
+						<Box p="2">
+							<Setup />
+						</Box>
+					</Stack>
+
+					<Box>add other info</Box>
+				</Stack>
+			</Stack>
 		</PageLayout>
 	);
 };
