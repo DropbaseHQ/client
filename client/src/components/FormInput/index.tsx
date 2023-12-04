@@ -22,6 +22,7 @@ import {
 	Text,
 	Switch,
 	Center,
+	Portal,
 } from '@chakra-ui/react';
 import { forwardRef } from 'react';
 import { ChevronDown, Plus, Trash } from 'react-feather';
@@ -78,7 +79,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	if (type === 'custom-select') {
 		const selectedValue = selectOptions.find((option: any) => option.value === value);
 
-		const valueRenderer = selectedValue?.render ? selectedValue?.render() : selectedValue?.name;
+		const valueRenderer = selectedValue?.name;
 
 		const children = (
 			<Text fontSize="sm">{valueRenderer || inputProps?.placeholder || 'Select option'}</Text>
@@ -103,26 +104,37 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 						</Box>
 					</Stack>
 				</MenuButton>
-				<MenuList borderRadius="sm" shadow="sm" p="0" maxH="lg" overflowY="auto">
-					{allOptions.length === 0 ? (
-						<Center>
-							<Text>No options present</Text>
-						</Center>
-					) : (
-						<MenuOptionGroup defaultValue={value} onChange={onChange} type="radio">
-							{allOptions.map((option: any) => (
-								<MenuItemOption
-									icon={option?.icon}
-									fontSize="sm"
-									key={option.name}
-									value={option.value}
-								>
-									{option.name}
-								</MenuItemOption>
-							))}
-						</MenuOptionGroup>
-					)}
-				</MenuList>
+				<Portal>
+					<MenuList
+						zIndex="popover"
+						borderRadius="sm"
+						shadow="sm"
+						p="0"
+						maxH="lg"
+						overflowY="auto"
+					>
+						{allOptions.length === 0 ? (
+							<Center>
+								<Text>No options present</Text>
+							</Center>
+						) : (
+							<MenuOptionGroup defaultValue={value} onChange={onChange} type="radio">
+								{allOptions.map((option: any) => (
+									<MenuItemOption
+										icon={option?.icon}
+										fontSize="sm"
+										key={option.name}
+										value={option.value}
+									>
+										{option?.render
+											? option?.render(option?.value === value)
+											: option.name}
+									</MenuItemOption>
+								))}
+							</MenuOptionGroup>
+						)}
+					</MenuList>
+				</Portal>
 			</Menu>
 		);
 	}

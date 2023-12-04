@@ -232,7 +232,8 @@ export const FilesExplorer = () => {
 				h="55px"
 				alignItems="center"
 				direction="row"
-				overflow="auto"
+				overflowX="auto"
+				overflowY="hidden"
 			>
 				<ButtonGroup colorScheme="gray" isAttached size="sm">
 					{(files || []).map((f: any) => {
