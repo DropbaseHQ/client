@@ -11,6 +11,10 @@ import {
 } from '@chakra-ui/react';
 import { CheckCircle, Copy, Download, ExternalLink } from 'react-feather';
 import { useToast } from '@/lib/chakra-ui';
+import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
+import { useProxyTokens } from '@/features/settings/hooks/token';
+import { useAtomValue } from 'jotai';
+import { workspaceAtom } from '@/features/workspaces';
 
 const CodeSnippet = ({ code, file }: any) => {
 	const toast = useToast();
@@ -66,6 +70,11 @@ const CodeSnippet = ({ code, file }: any) => {
 };
 
 export const Setup = () => {
+	const workspaceId = useAtomValue(workspaceAtom);
+	const { user } = useGetCurrentUser();
+
+	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
+	const selectedToken = tokens?.find((t: any) => t.is_selected);
 	return (
 		<OrderedList spacing={6}>
 			<ListItem>
@@ -98,7 +107,7 @@ export const Setup = () => {
 					</Text>
 					<CodeSnippet
 						file=".env"
-						code={`DROPBASE_TOKEN='YOUR_WORKSPACE_TOKEN'
+						code={`DROPBASE_TOKEN='${selectedToken?.token}'
 DROPBASE_API_URL="https://api.dropbase.io`}
 					/>
 				</Stack>
