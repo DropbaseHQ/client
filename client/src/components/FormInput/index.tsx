@@ -21,6 +21,7 @@ import {
 	Stack,
 	Text,
 	Switch,
+	Center,
 } from '@chakra-ui/react';
 import { forwardRef } from 'react';
 import { ChevronDown, Plus, Trash } from 'react-feather';
@@ -71,6 +72,58 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					</option>
 				))}
 			</Select>
+		);
+	}
+
+	if (type === 'custom-select') {
+		const selectedValue = selectOptions.find((option: any) => option.value === value);
+
+		const valueRenderer = selectedValue?.render ? selectedValue?.render() : selectedValue?.name;
+
+		const children = (
+			<Text fontSize="sm">{valueRenderer || inputProps?.placeholder || 'Select option'}</Text>
+		);
+
+		const allOptions = selectOptions || [];
+
+		return (
+			<Menu>
+				<MenuButton
+					as={Stack}
+					direction="row"
+					alignItems="center"
+					borderWidth="1px"
+					p="1.5"
+					borderRadius="sm"
+				>
+					<Stack w="full" spacing="0" alignItems="center" direction="row">
+						<Box>{children}</Box>
+						<Box ml="auto">
+							<ChevronDown size="14" />
+						</Box>
+					</Stack>
+				</MenuButton>
+				<MenuList borderRadius="sm" shadow="sm" p="0" maxH="lg" overflowY="auto">
+					{allOptions.length === 0 ? (
+						<Center>
+							<Text>No options present</Text>
+						</Center>
+					) : (
+						<MenuOptionGroup defaultValue={value} onChange={onChange} type="radio">
+							{allOptions.map((option: any) => (
+								<MenuItemOption
+									icon={option?.icon}
+									fontSize="sm"
+									key={option.name}
+									value={option.value}
+								>
+									{option.name}
+								</MenuItemOption>
+							))}
+						</MenuOptionGroup>
+					)}
+				</MenuList>
+			</Menu>
 		);
 	}
 
@@ -166,6 +219,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	}
 
 	if (type === 'multiselect') {
+		const allOptions = selectOptions || [];
 		let children = <Text fontSize="sm">{inputProps?.placeholder || 'Select option'}</Text>;
 
 		if (Array.isArray(value) && value.length > 0) {
@@ -193,6 +247,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					direction="row"
 					alignItems="center"
 					borderWidth="1px"
+					borderRadius="sm"
 					p="1.5"
 				>
 					<Stack w="full" spacing="0" alignItems="center" direction="row">
@@ -203,13 +258,25 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					</Stack>
 				</MenuButton>
 				<MenuList maxH="lg" overflowY="auto" minWidth="240px">
-					<MenuOptionGroup value={value || []} onChange={onChange} type="checkbox">
-						{(selectOptions || []).map((option: any) => (
-							<MenuItemOption fontSize="md" key={option.name} value={option.value}>
-								{option.name}
-							</MenuItemOption>
-						))}
-					</MenuOptionGroup>
+					{allOptions.length === 0 ? (
+						<Center p="2">
+							<Text fontSize="sm" color="gray.700">
+								No options present
+							</Text>
+						</Center>
+					) : (
+						<MenuOptionGroup value={value || []} onChange={onChange} type="checkbox">
+							{allOptions.map((option: any) => (
+								<MenuItemOption
+									fontSize="sm"
+									key={option.name}
+									value={option.value}
+								>
+									{option.name}
+								</MenuItemOption>
+							))}
+						</MenuOptionGroup>
+					)}
 				</MenuList>
 			</Menu>
 		);

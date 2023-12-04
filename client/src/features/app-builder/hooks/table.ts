@@ -3,7 +3,10 @@ import { useMemo } from 'react';
 
 import { axios, workerAxios } from '@/lib/axios';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
-import { ALL_PAGE_FILES_QUERY_KEY, COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
+import {
+	ALL_PAGE_FILES_QUERY_KEY,
+	COLUMN_PROPERTIES_QUERY_KEY,
+} from '@/features/app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY } from '@/features/page';
 import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
@@ -252,6 +255,8 @@ export const useSaveSql = (props: any = {}) => {
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
+			queryClient.invalidateQueries(DATA_FETCHER_QUERY_KEY);
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 		...props,
 	});
