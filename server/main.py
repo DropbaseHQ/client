@@ -21,6 +21,7 @@ worker_app.include_router(worker_routers.file_router)
 worker_app.include_router(worker_routers.widget_router)
 worker_app.include_router(worker_routers.components_router)
 worker_app.include_router(worker_routers.sync_router)
+worker_app.include_router(worker_routers.worker_status_router)
 
 
 app.mount("/worker", worker_app)

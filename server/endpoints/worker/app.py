@@ -1,15 +1,13 @@
-from fastapi import APIRouter, Depends
-from server import crud
-from sqlalchemy.orm import Session
-from server.schemas import FinalizeApp, RenameApp
-from server.utils.connect import get_db
-from server.controllers.app import finalize_app
-from server.utils.authorization import (
-    RESOURCES,
-    get_current_user,
-    AuthZDepFactory,
-)
 from uuid import UUID
+
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from server import crud
+from server.controllers.app import finalize_app
+from server.schemas import FinalizeApp, RenameApp
+from server.utils.authorization import RESOURCES, AuthZDepFactory
+from server.utils.connect import get_db
 
 app_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.APP)
 router = APIRouter(
@@ -26,9 +24,7 @@ def get_app(app_id: UUID, db: Session = Depends(get_db)):
 
 @router.put("/rename")
 def rename_app(request: RenameApp, db: Session = Depends(get_db)):
-    return crud.app.update_by_pk(
-        db, pk=request.app_id, obj_in={"name": request.new_name}
-    )
+    return crud.app.update_by_pk(db, pk=request.app_id, obj_in={"name": request.new_name})
 
 
 @router.put("/{app_id}")
