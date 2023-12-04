@@ -5,9 +5,9 @@ import { Play } from 'react-feather';
 
 const list = [
 	{
-		name: 'Build an approval app',
+		name: 'Exploring the Dropbase demo app',
 		thumbnail: '/thumbnail/approval.png',
-		link: 'https://www.youtube.com/embed/A1MIIRNkv3Q?si=tM9yavSbr2FQEXTA',
+		link: 'https://www.youtube.com/embed/-MzYtgZLK2Y?si=dPm9PqTlonfmvoty',
 	},
 	{
 		name: 'Build a data editor',
@@ -46,6 +46,7 @@ export const VideoList = () => {
 					<Stack
 						as={Link}
 						href={video.link}
+						target="_blank"
 						isExternal
 						cursor="pointer"
 						maxW="md"
