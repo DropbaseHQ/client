@@ -10,6 +10,11 @@ const list = [
 		link: 'https://www.youtube.com/embed/-MzYtgZLK2Y?si=dPm9PqTlonfmvoty',
 	},
 	{
+		name: 'Build an approval app',
+		thumbnail: '/thumbnail/approval.png',
+		link: 'https://www.youtube.com/embed/A1MIIRNkv3Q?si=tM9yavSbr2FQEXTA',
+	},
+	{
 		name: 'Build a data editor',
 		thumbnail: '/thumbnail/editor.png',
 		link: 'https://www.youtube.com/embed/R1cHO9lMRXo?si=6tCOHm-CRNI1nF63',
@@ -40,7 +45,7 @@ const VideoContainer = styled(Stack)`
 
 export const VideoList = () => {
 	return (
-		<SimpleGrid spacing={6} columns={4}>
+		<SimpleGrid spacing={6} columns={5}>
 			{list.map((video) => (
 				<VideoContainer p="2" textAlign="center">
 					<Stack
