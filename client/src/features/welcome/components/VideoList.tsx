@@ -7,22 +7,22 @@ const list = [
 	{
 		name: 'Build an approval app',
 		thumbnail: '/thumbnail/approval.png',
-		link: 'https://youtube.com',
+		link: 'https://www.youtube.com/embed/A1MIIRNkv3Q?si=tM9yavSbr2FQEXTA',
 	},
 	{
 		name: 'Build a data editor',
 		thumbnail: '/thumbnail/editor.png',
-		link: 'https://youtube.com',
+		link: 'https://www.youtube.com/embed/R1cHO9lMRXo?si=6tCOHm-CRNI1nF63',
 	},
 	{
 		name: 'Build an Email notifier',
 		thumbnail: '/thumbnail/email.png',
-		link: 'https://youtube.com',
+		link: 'https://www.youtube.com/embed/2uLjazAezrU?si=o0CB8udZ4QxiD2Dc',
 	},
 	{
 		name: 'Build an admin panel',
 		thumbnail: '/thumbnail/admin.png',
-		link: 'https://youtube.com',
+		link: 'https://www.youtube.com/embed/if0E8oC0Qc4?si=uV894x0-k6qRxxMv',
 	},
 ];
 
