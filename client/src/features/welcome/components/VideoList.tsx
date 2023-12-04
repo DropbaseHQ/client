@@ -6,7 +6,7 @@ import { Play } from 'react-feather';
 const list = [
 	{
 		name: 'Exploring the Dropbase demo app',
-		thumbnail: '/thumbnail/approval.png',
+		thumbnail: '/thumbnail/demo.png',
 		link: 'https://www.youtube.com/embed/-MzYtgZLK2Y?si=dPm9PqTlonfmvoty',
 	},
 	{
