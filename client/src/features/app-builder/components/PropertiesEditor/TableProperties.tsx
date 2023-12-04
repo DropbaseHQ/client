@@ -77,17 +77,7 @@ export const TableProperties = () => {
 		);
 	}, [table, tableId, defaultTableHeight, reset]);
 
-	useEffect(() => {
-		if (selectedFile?.type === 'sql') {
-			setValue('depends', null);
-		}
-	}, [selectedFile, setValue]);
-
 	const onSubmit = ({ fileId, height, depends, ...rest }: any) => {
-		// const prevSelectedFile = fetchers.find((f: any) => table?.file_id === f.id);
-		// const isSwitchingToSQLFromPython =
-		// 	prevSelectedFile?.type === 'data_fetcher' && selectedFile?.type === 'sql';
-
 		mutation.mutate({
 			tableId,
 			appName,
@@ -100,6 +90,14 @@ export const TableProperties = () => {
 			property: { ...(table?.property || {}), height },
 			depends,
 		});
+	};
+
+	const resetDependsOn = (newFileId: any) => {
+		const newFile = fetchers.find((f: any) => f.id === newFileId);
+
+		if (newFile?.type === 'sql') {
+			setValue('depends', null);
+		}
 	};
 
 	if (isLoading) {
@@ -182,6 +180,7 @@ export const TableProperties = () => {
 								id="fileId"
 								name="Fetcher"
 								placeholder="Select data fetcher"
+								onSelect={resetDependsOn}
 								options={(fetchers as any).map((file: any) => ({
 									name: file.name,
 									value: file.id,

@@ -32,7 +32,15 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { MonacoEditor } from '@/components/Editor';
 
 export const InputRenderer = forwardRef((props: any, ref: any) => {
-	const { onChange, onBlur, value, type, options: selectOptions, ...inputProps } = props;
+	const {
+		onChange,
+		onBlur,
+		value,
+		type,
+		onSelect,
+		options: selectOptions,
+		...inputProps
+	} = props;
 
 	if (type === 'number') {
 		return (
@@ -97,6 +105,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					p="1.5"
 					borderRadius="sm"
 					type="button"
+					onBlur={onBlur}
 					cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
 					{...inputProps}
 				>
@@ -122,7 +131,14 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 								<Text>No options present</Text>
 							</Center>
 						) : (
-							<MenuOptionGroup defaultValue={value} onChange={onChange} type="radio">
+							<MenuOptionGroup
+								defaultValue={value}
+								onChange={(newValue) => {
+									onChange(newValue);
+									onSelect?.(newValue);
+								}}
+								type="radio"
+							>
 								{allOptions.map((option: any) => (
 									<MenuItemOption
 										icon={option?.icon}
@@ -291,7 +307,12 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					) : (
 						<MenuOptionGroup
 							value={value || []}
-							onChange={inputProps?.isDisabled ? null : onChange}
+							onChange={(newValue) => {
+								if (!inputProps?.isDisabled) {
+									onChange(newValue);
+									onSelect?.(newValue);
+								}
+							}}
 							type="checkbox"
 						>
 							{allOptions.map((option: any) => (
