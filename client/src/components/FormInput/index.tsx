@@ -96,6 +96,9 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					borderWidth="1px"
 					p="1.5"
 					borderRadius="sm"
+					type="button"
+					cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
+					{...inputProps}
 				>
 					<Stack w="full" spacing="0" alignItems="center" direction="row">
 						<Box>{children}</Box>
@@ -107,10 +110,11 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				<Portal>
 					<MenuList
 						zIndex="popover"
+						pointerEvents={inputProps?.isDisabled ? 'none' : 'initial'}
 						borderRadius="sm"
 						shadow="sm"
 						p="0"
-						maxH="lg"
+						maxH="sm"
 						overflowY="auto"
 					>
 						{allOptions.length === 0 ? (
@@ -256,11 +260,14 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 			<Menu>
 				<MenuButton
 					as={Stack}
+					type="button"
 					direction="row"
 					alignItems="center"
 					borderWidth="1px"
 					borderRadius="sm"
 					p="1.5"
+					cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
+					{...inputProps}
 				>
 					<Stack w="full" spacing="0" alignItems="center" direction="row">
 						<Box>{children}</Box>
@@ -269,7 +276,12 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 						</Box>
 					</Stack>
 				</MenuButton>
-				<MenuList maxH="lg" overflowY="auto" minWidth="240px">
+				<MenuList
+					pointerEvents={inputProps?.isDisabled ? 'none' : 'initial'}
+					maxH="sm"
+					overflowY="auto"
+					minWidth="240px"
+				>
 					{allOptions.length === 0 ? (
 						<Center p="2">
 							<Text fontSize="sm" color="gray.700">
@@ -277,7 +289,11 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							</Text>
 						</Center>
 					) : (
-						<MenuOptionGroup value={value || []} onChange={onChange} type="checkbox">
+						<MenuOptionGroup
+							value={value || []}
+							onChange={inputProps?.isDisabled ? null : onChange}
+							type="checkbox"
+						>
 							{allOptions.map((option: any) => (
 								<MenuItemOption
 									fontSize="sm"
