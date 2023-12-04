@@ -9,7 +9,7 @@ import {
 	Box,
 } from '@chakra-ui/react';
 
-import { Settings, LogOut, Grid, Repeat, Users, Key } from 'react-feather';
+import { Settings, LogOut, Grid, Repeat, Key } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
@@ -25,10 +25,10 @@ export const Navbar = () => {
 	const userRole = users?.find((u: any) => u.id === user?.id)?.role_name;
 
 	// const { colorMode, toggleColorMode } = useColorMode();;
-	const userHasRole = (roles: string[]) => {
-		if (!userRole) return false;
-		return roles.includes(userRole);
-	};
+	// const userHasRole = (roles: string[]) => {
+	// 	if (!userRole) return false;
+	// 	return roles.includes(userRole);
+	// };
 
 	const handleLogout = () => {
 		logout();
@@ -40,17 +40,20 @@ export const Navbar = () => {
 				<Box mb="8" w="12" as={Link} to="/apps">
 					<DropbaseLogo />
 				</Box>
-				<Tooltip label="Workspace Switcher" placement="right">
-					<IconButton
-						variant="ghost"
-						as={Link}
-						to="/workspaces"
-						color={pathname === '/workspaces' ? 'blue.500' : 'body'}
-						colorScheme={pathname === '/workspaces' ? 'blue' : 'gray'}
-						aria-label="Apps"
-						icon={<Repeat size="22" />}
-					/>
-				</Tooltip>
+				{user?.email?.endsWith('dropbase.io') && (
+					<Tooltip label="Workspace Switcher" placement="right">
+						<IconButton
+							variant="ghost"
+							as={Link}
+							to="/workspaces"
+							color={pathname === '/workspaces' ? 'blue.500' : 'body'}
+							colorScheme={pathname === '/workspaces' ? 'blue' : 'gray'}
+							aria-label="Apps"
+							icon={<Repeat size="22" />}
+						/>
+					</Tooltip>
+				)}
+
 				<Tooltip label="Apps" placement="right">
 					<IconButton
 						variant="ghost"
@@ -63,7 +66,7 @@ export const Navbar = () => {
 					/>
 				</Tooltip>
 
-				{userHasRole(['admin']) && (
+				{/* {userHasRole(['admin']) && (
 					<Tooltip label="Members" placement="right">
 						<IconButton
 							variant="ghost"
@@ -75,7 +78,7 @@ export const Navbar = () => {
 							icon={<Users size="22" />}
 						/>
 					</Tooltip>
-				)}
+				)} */}
 
 				{/* {userHasRole(['admin']) && (
 					<Tooltip label="Permissions" placement="right">
