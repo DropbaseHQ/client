@@ -163,9 +163,9 @@ export const useConvertSmartTable = (props: any = {}) => {
 	return useMutation(convertToSmartTable, {
 		...props,
 		onSettled: () => {
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 		},
 	});
 };
