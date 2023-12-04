@@ -5,6 +5,11 @@ import { Play } from 'react-feather';
 
 const list = [
 	{
+		name: 'Exploring the Dropbase demo app',
+		thumbnail: '/thumbnail/demo.png',
+		link: 'https://www.youtube.com/embed/-MzYtgZLK2Y?si=dPm9PqTlonfmvoty',
+	},
+	{
 		name: 'Build an approval app',
 		thumbnail: '/thumbnail/approval.png',
 		link: 'https://www.youtube.com/embed/A1MIIRNkv3Q?si=tM9yavSbr2FQEXTA',
@@ -40,12 +45,13 @@ const VideoContainer = styled(Stack)`
 
 export const VideoList = () => {
 	return (
-		<SimpleGrid spacing={6} columns={4}>
+		<SimpleGrid spacing={6} columns={5}>
 			{list.map((video) => (
 				<VideoContainer p="2" textAlign="center">
 					<Stack
 						as={Link}
 						href={video.link}
+						target="_blank"
 						isExternal
 						cursor="pointer"
 						maxW="md"
