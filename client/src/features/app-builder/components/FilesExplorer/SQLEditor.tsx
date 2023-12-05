@@ -15,7 +15,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { MonacoEditor } from '@/components/Editor';
-import { useFile, useRunSQLQuery, useSaveSql, useSources } from '@/features/app-builder/hooks';
+import { useFile, useRunSQLQuery, useSaveCode, useSources } from '@/features/app-builder/hooks';
 import { newPageStateAtom, useSyncState } from '@/features/app-state';
 import { logBuilder } from '@/features/app-builder/utils';
 import { ChakraTable } from '@/components/Table';
@@ -94,7 +94,7 @@ export const SQLEditor = ({ id }: any) => {
 		},
 	});
 
-	const saveSQLMutation = useSaveSql({
+	const saveSQLMutation = useSaveCode({
 		onSuccess: () => {
 			toast({
 				status: 'success',
