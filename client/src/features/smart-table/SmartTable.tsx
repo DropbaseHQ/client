@@ -376,7 +376,7 @@ export const SmartTable = ({ tableId }: any) => {
 				current: newSelection.current,
 			});
 
-			const newSelectedRow = { [tableName]: rows[currentRow] } as any;
+			const newSelectedRow = { [tableName]: rows[currentRow] || {} } as any;
 
 			selectRow((old: any) => ({
 				...old,
