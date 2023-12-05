@@ -82,7 +82,7 @@ def send_email(
                 "Data": subject,
             },
         },
-        Source=sender_email,
+        Source=f"Dropbase Support <{sender_email}>",
         # ReplyToAddresses=[replyTo],
     )
     return response
