@@ -88,7 +88,7 @@ export const Welcome = () => {
 						</UnorderedList>
 						<Stack>
 							<Text fontWeight="semibold" fontSize="lg" mt="4">
-								Want to use Dropbase's Hosted Client?
+								Want to use Dropbase{`'`}s Hosted Client?
 							</Text>
 							<Button
 								onClick={() => {

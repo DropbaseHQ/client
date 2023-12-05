@@ -9,11 +9,11 @@ import {
 	IconButton,
 	Code,
 } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
 import { CheckCircle, Copy, Download, ExternalLink } from 'react-feather';
 import { useToast } from '@/lib/chakra-ui';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { useProxyTokens } from '@/features/settings/hooks/token';
-import { useAtomValue } from 'jotai';
 import { workspaceAtom } from '@/features/workspaces';
 
 const CodeSnippet = ({ code, file }: any) => {
@@ -58,7 +58,7 @@ const CodeSnippet = ({ code, file }: any) => {
 					onClick={() => {
 						onCopy();
 						toast({
-							title: 'Token copied',
+							title: 'Copied to clipboard',
 							status: 'success',
 						});
 					}}
@@ -107,8 +107,7 @@ export const Setup = () => {
 					</Text>
 					<CodeSnippet
 						file=".env"
-						code={`DROPBASE_TOKEN='${selectedToken?.token}'
-DROPBASE_API_URL="https://api.dropbase.io`}
+						code={`DROPBASE_TOKEN='${selectedToken?.token}'\nDROPBASE_API_URL='https://api.dropbase.io'`}
 					/>
 				</Stack>
 			</ListItem>
