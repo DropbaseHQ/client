@@ -248,7 +248,7 @@ const saveSql = async ({ pageName, appName, fileType, fileName, fileId, sql, sou
 	return response.data;
 };
 
-export const useSaveSql = (props: any = {}) => {
+export const useSaveCode = (props: any = {}) => {
 	const queryClient = useQueryClient();
 	return useMutation(saveSql, {
 		onSettled: () => {
