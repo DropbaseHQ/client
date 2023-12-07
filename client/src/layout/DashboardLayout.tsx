@@ -1,12 +1,13 @@
 import { Box, Flex, Stack } from '@chakra-ui/react';
 import { PropsWithChildren } from 'react';
 import { useLocation } from 'react-router-dom';
-
+import { useWorkspaces } from '@/features/workspaces';
 import { Navbar } from './Navbar';
 import { StatusBar } from './StatusBar';
 
 export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const { pathname } = useLocation();
+	const { isSuccess } = useWorkspaces();
 
 	const loginRoutes =
 		pathname.startsWith('/login') ||
@@ -15,7 +16,7 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 		pathname.startsWith('/email-confirmation') ||
 		pathname.startsWith('/forgot');
 
-	const shouldNotDisplayNavbar = pathname.startsWith('/apps/') || loginRoutes;
+	const shouldNotDisplayNavbar = pathname.startsWith('/apps/') || loginRoutes || !isSuccess;
 
 	return (
 		<Stack spacing="0" w="100vw" height="100vh" overflow="hidden" position="relative">
