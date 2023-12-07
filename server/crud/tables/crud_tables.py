@@ -60,5 +60,8 @@ class CRUDTables(CRUDBase[Tables, CreateTables, UpdateTables]):
             .first()
         )
 
+    def get_tables_by_file(self, db: Session, file_id: UUID) -> List[Tables]:
+        return db.query(Tables).filter(Tables.file_id == file_id).all()
+
 
 tables = CRUDTables(Tables)

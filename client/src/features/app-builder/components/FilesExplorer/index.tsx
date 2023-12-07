@@ -110,7 +110,9 @@ const FileButton = ({ file }: any) => {
 	};
 
 	const onKeyDown = (e: any) => {
-		if (e.key === 'Enter') {
+		if (e.key === 'Escape') {
+			onEditClose();
+		} else if (e.key === 'Enter') {
 			if (nameNotUnique(e.target.value)) {
 				toast({
 					status: 'error',
@@ -232,7 +234,8 @@ export const FilesExplorer = () => {
 				h="55px"
 				alignItems="center"
 				direction="row"
-				overflow="auto"
+				overflowX="auto"
+				overflowY="hidden"
 			>
 				<ButtonGroup colorScheme="gray" isAttached size="sm">
 					{(files || []).map((f: any) => {

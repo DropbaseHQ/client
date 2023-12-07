@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
-import { Save } from 'react-feather';
-import { Stack, Text, IconButton, ButtonGroup } from '@chakra-ui/react';
+import { Save, Table } from 'react-feather';
+import { Stack, Text, IconButton, ButtonGroup, Icon, Badge } from '@chakra-ui/react';
 import {
 	useDataFetchers,
 	useGetTable,
@@ -55,14 +55,19 @@ export const TableProperties = () => {
 	const {
 		reset,
 		formState: { isDirty },
+		watch,
+		setValue,
 	} = methods;
+
+	const selectedFileId = watch('fileId');
+	const selectedFile = fetchers.find((f: any) => f.id === selectedFileId);
 
 	useEffect(() => {
 		reset(
 			{
 				name: table?.name,
 				fileId: table?.file_id || '',
-				height: defaultTableHeight,
+				height: defaultTableHeight || '',
 				depends: table?.depends_on || null,
 			},
 			{
@@ -87,6 +92,14 @@ export const TableProperties = () => {
 		});
 	};
 
+	const resetDependsOn = (newFileId: any) => {
+		const newFile = fetchers.find((f: any) => f.id === newFileId);
+
+		if (newFile?.type === 'data_fetcher') {
+			setValue('depends', null);
+		}
+	};
+
 	if (isLoading) {
 		return (
 			<Stack p="6" borderRadius="sm" spacing="3" borderWidth="1px" bg="white">
@@ -100,7 +113,7 @@ export const TableProperties = () => {
 	return (
 		<form onSubmit={methods.handleSubmit(onSubmit)}>
 			<FormProvider {...methods}>
-				<Stack>
+				<Stack key={tableId}>
 					<Stack
 						py="2"
 						px="4"
@@ -163,13 +176,38 @@ export const TableProperties = () => {
 							/>
 
 							<FormInput
-								type="select"
+								type="custom-select"
 								id="fileId"
 								name="Fetcher"
 								placeholder="Select data fetcher"
+								onSelect={resetDependsOn}
 								options={(fetchers as any).map((file: any) => ({
 									name: file.name,
 									value: file.id,
+									icon: null,
+									render: (isSelected: boolean) => {
+										return (
+											<Stack alignItems="center" direction="row">
+												<Icon
+													boxSize="6"
+													as={Table}
+													flexShrink="0"
+													color={isSelected ? 'blue.500' : ''}
+												/>
+												<Stack spacing="0">
+													<Text fontWeight="medium">{file.name}</Text>
+												</Stack>
+												<Badge
+													textTransform="lowercase"
+													size="xs"
+													ml="auto"
+													colorScheme={isSelected ? 'blue' : 'gray'}
+												>
+													.{file.type === 'sql' ? 'sql' : 'py'}
+												</Badge>
+											</Stack>
+										);
+									},
 								}))}
 							/>
 
@@ -187,6 +225,7 @@ export const TableProperties = () => {
 							<FormInput
 								type="multiselect"
 								id="depends"
+								isDisabled={selectedFile?.type === 'sql'}
 								name="Depends on"
 								placeholder="Select the table which it depends on"
 								options={tables

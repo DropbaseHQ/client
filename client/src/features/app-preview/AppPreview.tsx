@@ -205,9 +205,9 @@ export const AppPreview = () => {
 						<ChevronDown size="14" />
 					</Stack>
 
-					<Box h={8} w="fit-content" p="2" bg="blue.500" borderWidth="1px">
+					<Box h={8} maxW="fit-content" p="2" bg="blue.500" borderWidth="1px">
 						<Skeleton
-							w="32"
+							w="24"
 							borderRadius="sm"
 							h="full"
 							startColor="gray.50"

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { workspaceAtom } from '@/features/workspaces';
@@ -26,11 +25,10 @@ interface FormInput {
 	userNum: integer;
 	workerURL: string;
 }
-export const SalesModal = () => {
+export const SalesModal = ({ isOpen, setIsOpen }: any) => {
 	const methods = useForm<FormInput>();
 	const workspace = useAtomValue(workspaceAtom);
 	const upgradeMutation = useSendCloudRequest();
-	const [isOpen, setIsOpen] = useState(true);
 
 	const onSubmit = (data: FormInput) => {
 		upgradeMutation.mutate({

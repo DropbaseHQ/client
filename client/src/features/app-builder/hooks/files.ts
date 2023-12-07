@@ -78,14 +78,14 @@ export const useFile = ({ fileName, appName, pageName }: any) => {
 	};
 };
 
-const createFile = async ({ pageName, fileName, appName, pageId, type, source }: any) => {
+const createFile = async ({ pageName, fileName, appName, pageId, type }: any) => {
 	const response = await workerAxios.post(`/files/`, {
 		name: fileName,
 		page_id: pageId,
 		app_name: appName,
 		page_name: pageName,
 		type,
-		source,
+		source: null,
 	});
 
 	return response.data;
@@ -148,7 +148,7 @@ export const useUpdateFile = (props: any = {}) => {
 		onError: (error: any) => {
 			toast({
 				status: 'error',
-				title: 'Failed to create function',
+				title: 'Failed to update function',
 				description: getErrorMessage(error),
 			});
 		},

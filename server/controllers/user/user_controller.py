@@ -17,6 +17,7 @@ from server.schemas.user_role import CreateUserRole
 from server.utils.permissions.casbin_utils import get_contexted_enforcer
 from server.emails.emailer import send_email
 from server.utils.hash import get_confirmation_token_hash
+from server.controllers.user.workspace_creator import WorkspaceCreator
 from server.schemas.user import (
     CreateUser,
     CreateUserRequest,
@@ -72,11 +73,13 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
 
         Authorize.set_access_cookies(access_token)
         Authorize.set_refresh_cookies(refresh_token)
-
         workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
+        workspace = (
+            ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
+        )
         return {
             "user": ReadUser.from_orm(user),
-            "workspace": ReadWorkspace.from_orm(workspaces[0]),
+            "workspace": workspace,
             "access_token": access_token,
             "refresh_token": refresh_token,
         }
@@ -127,38 +130,14 @@ def register_user(db: Session, request: CreateUserRequest):
             active=False,
             confirmation_token=confirmation_token,
         )
-        user = crud.user.create(db, obj_in=user_obj)
+        user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
+        db.flush()
+        workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
+        workspace_creator.create()
 
-        workspace_obj = CreateWorkspace(
-            name="workspace",
-            active=True,
-        )
-        workspace = crud.workspace.create(db, obj_in=workspace_obj, auto_commit=False)
-        # TODO: get admin role id from db
-        db.flush()
-        admin_role_id = "00000000-0000-0000-0000-000000000001"
-        role_obj = CreateUserRole(
-            user_id=user.id,
-            workspace_id=workspace.id,
-            role_id=admin_role_id,
-        )
-        crud.user_role.create(db, obj_in=role_obj, auto_commit=False)
-        db.flush()
-        admin_role = crud.role.get(db, id=admin_role_id)
-        crud.policy.create(
-            db,
-            obj_in=Policy(
-                ptype="g",
-                v0=str(user.id),
-                v1=admin_role.name,
-                workspace_id=workspace.id,
-            ),
-            auto_commit=False,
-        )
         confirmation_link = (
             f"{CLIENT_URL}/email-confirmation/{confirmation_token}/{user.id}"
         )
-
         send_email(
             email_name="verifyEmail",
             email_params={

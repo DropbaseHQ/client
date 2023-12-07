@@ -30,4 +30,5 @@ def update_smart_columns(req: UpdateSmartTables, db: Session = Depends(get_db)):
             col.property = req.smart_columns[col.name]
     db.commit()
     page = crud.page.get_table_page(db, table_id=table.id)
-    return get_state_context_payload(db, page.id)
+    state_context = get_state_context_payload(db, page.id)
+    return {"state_context": state_context, "table": table}
