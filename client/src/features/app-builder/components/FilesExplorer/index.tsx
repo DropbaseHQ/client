@@ -110,7 +110,9 @@ const FileButton = ({ file }: any) => {
 	};
 
 	const onKeyDown = (e: any) => {
-		if (e.key === 'Enter') {
+		if (e.key === 'Escape') {
+			onEditClose();
+		} else if (e.key === 'Enter') {
 			if (nameNotUnique(e.target.value)) {
 				toast({
 					status: 'error',
