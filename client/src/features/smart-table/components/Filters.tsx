@@ -18,6 +18,7 @@ import {
 	useDisclosure,
 	VStack,
 } from '@chakra-ui/react';
+import { useEffect } from 'react';
 import { Filter as FilterIcon, Plus, Star, Trash } from 'react-feather';
 import { useAtom, useAtomValue } from 'jotai';
 import { filtersAtom } from '@/features/smart-table/atoms';
@@ -133,18 +134,14 @@ export const FilterButton = () => {
 		},
 	});
 
-	useGetTable(tableId || '', {
-		onSuccess: (data: any) => {
-			setFilters((old: any) => ({
-				...old,
-				[tableId]: (data?.values?.filters || []).map((f: any) => ({
-					...f,
-					pinned: true,
-					id: crypto.randomUUID(),
-				})),
-			}));
-		},
-	});
+	const { filters: pinnedFilters } = useGetTable(tableId || '');
+
+	useEffect(() => {
+		setFilters((old: any) => ({
+			...old,
+			[tableId]: pinnedFilters,
+		}));
+	}, [tableId, pinnedFilters, setFilters]);
 
 	const haveFiltersApplied =
 		filters.length > 0 && filters.every((f: any) => f.column_name && f.value);
@@ -215,9 +212,10 @@ export const FilterButton = () => {
 						<VStack alignItems="start" w="full">
 							{filters.map((filter: any, index: any) => {
 								const colType = columns[filter?.column_name]?.type;
+
 								let inputType = 'text';
 
-								if (colType === 'integer') {
+								if (getPGColumnBaseType(colType) === 'integer') {
 									inputType = 'number';
 								}
 
@@ -254,9 +252,8 @@ export const FilterButton = () => {
 											<Select
 												value={filter.column_name}
 												onChange={(e) => {
-													setFilters((old: any) => ({
-														...old,
-														[tableId]: filters.map((f: any, i: any) => {
+													const newFilters = filters.map(
+														(f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
@@ -265,8 +262,17 @@ export const FilterButton = () => {
 															}
 
 															return f;
-														}),
+														},
+													);
+
+													setFilters((old: any) => ({
+														...old,
+														[tableId]: newFilters,
 													}));
+
+													if (filter?.pinned) {
+														handlePinnedFilters(newFilters);
+													}
 												}}
 												size="sm"
 												bg="bg-canvas"
@@ -284,9 +290,8 @@ export const FilterButton = () => {
 												colorScheme="blue"
 												value={filter.condition}
 												onChange={(e) => {
-													setFilters((old: any) => ({
-														...old,
-														[tableId]: filters.map((f: any, i: any) => {
+													const newFilters = filters.map(
+														(f: any, i: any) => {
 															if (i === index) {
 																return {
 																	...f,
@@ -295,8 +300,17 @@ export const FilterButton = () => {
 															}
 
 															return f;
-														}),
+														},
+													);
+
+													setFilters((old: any) => ({
+														...old,
+														[tableId]: newFilters,
 													}));
+
+													if (filter?.pinned) {
+														handlePinnedFilters(newFilters);
+													}
 												}}
 												bg="bg-canvas"
 												size="sm"
@@ -322,11 +336,15 @@ export const FilterButton = () => {
 														...old,
 														[tableId]: filters.map((f: any, i: any) => {
 															if (i === index) {
+																const numberInput =
+																	e.target.value === ''
+																		? null
+																		: +e.target.value;
 																return {
 																	...f,
 																	value:
 																		inputType === 'number'
-																			? +e.target.value
+																			? numberInput
 																			: e.target.value,
 																};
 															}

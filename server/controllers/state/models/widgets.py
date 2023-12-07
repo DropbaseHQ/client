@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel
 
 
-### widget
+# widget
 class WidgetDisplayProperty(BaseModel):
     message: Optional[str]
     message_type: Optional[str]

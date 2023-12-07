@@ -27,6 +27,7 @@ import { pageAtom, useGetPage } from '@/features/page';
 import { DeleteFile } from './DeleteFile';
 import { useUpdateFile } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 const componentsMap: any = {
 	function: FunctionEditor,
@@ -39,6 +40,7 @@ const FileButton = ({ file }: any) => {
 
 	const { appName, pageName } = useAtomValue(pageAtom);
 	const { pageId } = useParams();
+	const { files } = useGetPage(pageId);
 
 	const {
 		isOpen: mouseOver,
@@ -79,8 +81,7 @@ const FileButton = ({ file }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to delete table',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});
@@ -102,9 +103,21 @@ const FileButton = ({ file }: any) => {
 			});
 		}
 	};
+	const nameNotUnique = (newFileName: any) => {
+		return files.find((f: any) => {
+			return f.name === newFileName && f.id !== file.id;
+		});
+	};
 
 	const onKeyDown = (e: any) => {
 		if (e.key === 'Enter') {
+			if (nameNotUnique(e.target.value)) {
+				toast({
+					status: 'error',
+					title: 'File name must be unique',
+				});
+				return;
+			}
 			e?.preventDefault();
 			onSubmit(e.target.value);
 		}
@@ -118,6 +131,14 @@ const FileButton = ({ file }: any) => {
 			onDoubleClick={onEditOpen}
 			colorScheme="gray"
 			variant={isActive ? 'solid' : 'outline'}
+			bg={isActive ? 'white' : 'gray.50'}
+			borderRight="0"
+			borderWidth="1px"
+			_hover={{
+				bg: 'white',
+				color: 'gray.800',
+			}}
+			color={isActive ? 'gray.900' : 'gray.700'}
 			onClick={() => {
 				setDevTab({
 					type: isSQLFile ? 'sql' : 'function',
@@ -211,7 +232,8 @@ export const FilesExplorer = () => {
 				h="55px"
 				alignItems="center"
 				direction="row"
-				overflow="auto"
+				overflowX="auto"
+				overflowY="hidden"
 			>
 				<ButtonGroup colorScheme="gray" isAttached size="sm">
 					{(files || []).map((f: any) => {

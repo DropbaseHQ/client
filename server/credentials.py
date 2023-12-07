@@ -21,3 +21,5 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 WORKER_API = os.getenv("WORKER_API")
 LSP_SERVER = os.getenv("LSP_SERVER")
+
+LOOPS_API_KEY = os.getenv("LOOPS_API_KEY")

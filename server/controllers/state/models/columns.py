@@ -20,42 +20,7 @@ class PgColumnContextProperty(ColumnDisplayProperty, ColumnSharedProperty):
 
 class PgColumnBaseProperty(BaseModel):
     name: str
-    type: Optional[
-        Literal[
-            "TEXT",
-            "VARCHAR",
-            "CHAR",
-            "CHARACTER",
-            "STRING",
-            "BINARY",
-            "VARBINARY",
-            "INTEGER",
-            "INT",
-            "BIGINT",
-            "SMALLINT",
-            "TINYINT",
-            "BYTEINT",
-            "REAL",
-            "FLOAT",
-            "FLOAT4",
-            "FLOAT8",
-            "DOUBLE",
-            "DOUBLE PRECISION",
-            "DECIMAL",
-            "NUMERIC",
-            "BOOLEAN",
-            "DATE",
-            "TIME",
-            "DATETIME",
-            "TIMESTAMP",
-            "TIMESTAMP_LTZ",
-            "TIMESTAMP_NTZ",
-            "TIMESTAMP_TZ",
-            "VARIANT",
-            "OBJECT",
-            "ARRAY",
-        ]
-    ]
+    type: Optional[str]
 
     schema_name: str = None
     table_name: str = None
@@ -73,13 +38,13 @@ class PgColumnBaseProperty(BaseModel):
     def state(self):
         match self.type:
             case "INTEGER" | "INT" | "BIGINT" | "SMALLINT" | "TINYINT" | "BYTEINT":
-                return "int"
+                return int
             case "REAL" | "FLOAT" | "FLOAT4" | "FLOAT8" | "DOUBLE" | "DOUBLE PRECISION" | "DECIMAL" | "NUMERIC":
-                return "float"
+                return float
             case "BOOLEAN":
-                return "bool"
+                return bool
             case _:
-                return "str"
+                return str
 
 
 class PgColumnDefinedProperty(PgColumnBaseProperty, ColumnSharedProperty):
@@ -96,7 +61,15 @@ class PyColumnBaseProperty(BaseModel):
 
     @property
     def state(self):
-        return self.type if self.type else "str"
+        match self.type:
+            case "int":
+                return int
+            case "float":
+                return float
+            case "bool":
+                return bool
+            case _:
+                return str
 
 
 class PyColumnDefinedProperty(PyColumnBaseProperty, ColumnSharedProperty):

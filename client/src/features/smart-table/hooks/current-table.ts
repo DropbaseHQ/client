@@ -2,10 +2,11 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { useTableData } from './table';
-import { filtersAtom, sortsAtom } from '@/features/smart-table/atoms';
+import { filtersAtom, sortsAtom, tablePageInfoAtom } from '@/features/smart-table/atoms';
 import { newPageStateAtom } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { useGetColumnProperties } from '@/features/app-builder/hooks';
+import { DEFAULT_PAGE_SIZE } from '../constants';
 
 export const CurrentTableContext: any = createContext({ tableId: null });
 
@@ -24,6 +25,11 @@ export const useCurrentTableData = (tableId: any) => {
 	const allSorts = useAtomValue(sortsAtom);
 	const sorts = (allSorts[tableId] || []).filter((f: any) => f.column_name);
 
+	const pageInfo = useAtomValue(tablePageInfoAtom)?.[tableId] || {
+		currentPage: 0,
+		pageSize: DEFAULT_PAGE_SIZE,
+	};
+
 	const state = useAtomValue(newPageStateAtom);
 	const { pageId } = useParams();
 
@@ -35,6 +41,7 @@ export const useCurrentTableData = (tableId: any) => {
 		pageId,
 		pageName,
 		appName,
+		...pageInfo,
 	});
 
 	const dropbaseStoredData = useGetColumnProperties(tableId);

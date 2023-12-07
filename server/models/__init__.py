@@ -5,8 +5,8 @@ from .components import Components
 from .files import Files
 from .group import Group
 from .page import Page
-from .pinned_filters import PinnedFilters
 from .policy import Policy
+from .reset_token import ResetToken
 from .role import Role
 from .tables import Tables
 from .token import Token
@@ -14,4 +14,5 @@ from .user import User
 from .user_group import UserGroup
 from .user_role import UserRole
 from .widget import Widget
+from .worker_status import WorkerStatus
 from .workspace import Workspace

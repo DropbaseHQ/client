@@ -21,6 +21,7 @@ worker_app.include_router(worker_routers.file_router)
 worker_app.include_router(worker_routers.widget_router)
 worker_app.include_router(worker_routers.components_router)
 worker_app.include_router(worker_routers.sync_router)
+worker_app.include_router(worker_routers.worker_status_router)
 
 
 app.mount("/worker", worker_app)
@@ -30,15 +31,12 @@ app.mount("/worker", worker_app)
 
 # origins = ["https://dropbase.io"]
 origins = [
-    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3030",
     "https://dev.dropbase.io",
     "https://www.dev.dropbase.io",
-    "http://localhost:3000",
-    "http://www.localhost:3000",
+    "http://localhost:3030",
+    "http://www.localhost:3030",
 ]
-
-
-### ROUTES ###
 
 app.add_middleware(
     CORSMiddleware,

@@ -8,11 +8,11 @@ import {
 } from '@/features/app-state';
 import { useAppState } from '@/features/app-state/hooks';
 
-export const useInitializePageState = (pageId: any) => {
+export const useInitializePageState = (appName: string, pageName: string) => {
 	const {
 		state: { context, state },
 		...rest
-	} = useAppState(pageId || '');
+	} = useAppState(appName, pageName);
 
 	const setRowData = useSetAtom(selectedRowAtom);
 	const setWidgetState = useSetAtom(allWidgetStateAtom);
@@ -39,7 +39,7 @@ export const useInitializePageState = (pageId: any) => {
 
 					return {
 						...agg,
-						[tableName]: tables[tableName],
+						[tableName]: tables[tableName] || {},
 					};
 				}, {});
 			}
@@ -73,8 +73,8 @@ export const useInitializePageState = (pageId: any) => {
 	return rest;
 };
 
-export const useInitializeWidgetState = ({ widgetId, pageId }: any) => {
-	useInitializePageState(pageId);
+export const useInitializeWidgetState = ({ widgetId, appName, pageName }: any) => {
+	useInitializePageState(appName, pageName);
 
 	const setWidgetState = useSetAtom(allWidgetStateAtom);
 

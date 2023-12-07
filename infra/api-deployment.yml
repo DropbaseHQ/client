@@ -5,7 +5,7 @@
   vars:
     ecr_repo: ""
     aws_region: "us-east-1"
-    domain: "{{ ansible_host }}"
+    domain: ""
     app_name: api
     port: 8000
     deploy_user: "{{ ansible_user }}"

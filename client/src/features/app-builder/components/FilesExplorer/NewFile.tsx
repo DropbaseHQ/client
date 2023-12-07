@@ -1,9 +1,11 @@
 import {
+	Badge,
 	Box,
 	Button,
 	ButtonGroup,
 	FormControl,
 	FormLabel,
+	Icon,
 	IconButton,
 	Popover,
 	PopoverArrow,
@@ -15,30 +17,67 @@ import {
 	PopoverTrigger,
 	Portal,
 	Stack,
+	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { Plus } from 'react-feather';
+import { Plus, Table, Box as BoxIcon, Code } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 
-import { useCreateFile, usePageFiles, useSources } from '@/features/app-builder/hooks';
+import { useStatus } from '@/layout/StatusBar';
+import { useCreateFile, usePageFiles } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
 import { pageAtom, useGetPage } from '@/features/page';
-import { generateSequentialName } from '@/utils';
+import { generateSequentialName, getErrorMessage } from '@/utils';
+import { developerTabAtom } from '../../atoms';
+
+const fileOptions = [
+	{
+		name: 'SQL Data Fetcher',
+		value: 'sql',
+		icon: Table,
+		description: 'Fetch data to tables via SQL',
+		extension: 'sql',
+	},
+	{
+		name: 'Python (Data Fetcher)',
+		value: 'data_fetcher',
+		description: 'Fetch data to tables via Python',
+		icon: Table,
+		extension: 'py',
+	},
+	{
+		name: 'Python (UI)',
+		value: 'ui',
+		icon: BoxIcon,
+		description: 'Modify UI via Python',
+		extension: 'py',
+	},
+	{
+		name: 'Python (Generic)',
+		value: 'python',
+		icon: Code,
+		description: 'Generic Python scripts',
+		extension: 'py',
+	},
+];
 
 export const NewFile = (props: any) => {
 	const toast = useToast();
-	const methods = useForm();
+	const methods = useForm({
+		shouldUnregister: true,
+	});
 
 	const { pageId } = useParams();
-
-	const { sources } = useSources();
+	const { isConnected } = useStatus();
 	const { files } = useGetPage(pageId);
 
 	const { pageName, appName } = useAtomValue(pageAtom);
+
+	const setDevTab = useSetAtom(developerTabAtom);
 
 	const { refetch } = usePageFiles({
 		pageName: pageName || '',
@@ -48,11 +87,17 @@ export const NewFile = (props: any) => {
 	const { isOpen, onToggle, onClose } = useDisclosure({
 		onClose: () => {
 			methods.reset();
+			methods.setValue('type', null);
 		},
 	});
 
 	const mutation = useCreateFile({
-		onSuccess: () => {
+		onSuccess: (data: any) => {
+			setDevTab({
+				type: data.type === 'sql' ? 'sql' : 'function',
+				id: data.id,
+			});
+
 			toast({
 				title: 'File created successfully',
 			});
@@ -63,8 +108,7 @@ export const NewFile = (props: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to create file',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});
@@ -72,14 +116,13 @@ export const NewFile = (props: any) => {
 	const currentType = methods.watch('type');
 	const currentName = methods.watch('name');
 
-	const onSubmit = ({ type, name, source }: any) => {
+	const onSubmit = ({ type, name }: any) => {
 		mutation.mutate({
 			pageId,
 			pageName,
 			appName,
 			fileName: name,
 			type,
-			source,
 		});
 	};
 
@@ -100,6 +143,7 @@ export const NewFile = (props: any) => {
 					aria-label="Add function"
 					icon={<Plus size="14" />}
 					onClick={onToggle}
+					isDisabled={!isConnected}
 					isLoading={mutation.isLoading}
 					{...props}
 				/>
@@ -115,66 +159,88 @@ export const NewFile = (props: any) => {
 					<FormProvider {...methods}>
 						<form onSubmit={methods.handleSubmit(onSubmit)}>
 							<PopoverBody>
-								<Stack spacing="2">
-									<FormInput
-										type="text"
-										validation={{ required: 'Cannot  be empty' }}
-										name="name"
-										id="name"
-									/>
-									<FormInput
-										type="select"
-										options={[
-											{
-												name: 'SQL (Data Fetcher)',
-												value: 'sql',
-											},
-											{
-												name: 'Python (Data Fetcher)',
-												value: 'data_fetcher',
-											},
-											{
-												name: 'Python (UI)',
-												value: 'ui',
-											},
-											{
-												name: 'Python (Generic)',
-												value: 'python',
-											},
-										]}
-										validation={{ required: 'Cannot  be empty' }}
-										name="type"
-										id="type"
-									/>
-
-									{currentType === 'sql' ? (
+								{isOpen ? (
+									<Stack spacing="2">
 										<FormInput
-											size="sm"
-											flex="1"
-											maxW="sm"
-											type="select"
-											options={sources.map((s) => ({ name: s, value: s }))}
-											name="source"
-											id="source"
-										/>
-									) : null}
+											type="text"
+											validation={{
+												required: 'Cannot  be empty',
+												validate: {
+													unique: (value: any) => {
+														if (
+															files.find((f: any) => f.name === value)
+														) {
+															return 'Name must be unique';
+														}
 
-									<FormControl>
-										<FormLabel>Autogenerated file</FormLabel>
-										<Box
-											fontFamily="monospace"
-											fontStyle="italic"
-											p="1"
-											w="fit-content"
-											bg="gray.50"
-											fontSize="sm"
-											lineHeight={1}
-										>
-											{currentName}
-											{currentType === 'sql' ? '.sql' : '.py'}
-										</Box>
-									</FormControl>
-								</Stack>
+														return true;
+													},
+												},
+											}}
+											name="name"
+											id="name"
+										/>
+										<FormInput
+											type="custom-select"
+											options={fileOptions.map((option: any) => ({
+												...option,
+												icon: null,
+												render: (isSelected: boolean) => {
+													return (
+														<Stack alignItems="center" direction="row">
+															<Icon
+																boxSize="6"
+																as={option.icon}
+																flexShrink="0"
+																color={isSelected ? 'blue.500' : ''}
+															/>
+															<Stack spacing="0">
+																<Text fontWeight="medium">
+																	{option.name}
+																</Text>
+																<Text
+																	color="gray.600"
+																	fontSize="xs"
+																>
+																	{option.description}
+																</Text>
+															</Stack>
+															<Badge
+																textTransform="lowercase"
+																size="xs"
+																ml="auto"
+																colorScheme={
+																	isSelected ? 'blue' : 'gray'
+																}
+															>
+																.{option.extension}
+															</Badge>
+														</Stack>
+													);
+												},
+											}))}
+											validation={{ required: 'Cannot  be empty' }}
+											name="type"
+											id="type"
+										/>
+
+										<FormControl>
+											<FormLabel>Autogenerated file</FormLabel>
+											<Box
+												fontFamily="monospace"
+												fontStyle="italic"
+												p="1"
+												w="fit-content"
+												bg="gray.50"
+												fontSize="sm"
+												lineHeight={1}
+											>
+												{currentName}
+												{currentType === 'sql' ? '.sql' : '.py'}
+											</Box>
+										</FormControl>
+									</Stack>
+								) : null}
 							</PopoverBody>
 							<PopoverFooter
 								border="0"

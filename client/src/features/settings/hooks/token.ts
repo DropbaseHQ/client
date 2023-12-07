@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useEffect, useMemo } from 'react';
 
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useAtom } from 'jotai';
 import { axios, workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
@@ -9,8 +9,16 @@ import { proxyTokenAtom } from '@/features/settings/atoms';
 
 export const PROXY_TOKENS_QUERY_KEY = 'proxyTokens';
 
+export type ProxyToken = {
+	token: string;
+	token_id: string;
+	is_selected: boolean;
+	owner_selected: boolean;
+	name?: string;
+	region?: string;
+};
 const fetchProxyTokens = async ({ workspaceId, userId }: any) => {
-	const response = await axios.get<any>(`/token/${workspaceId}/${userId}`);
+	const response = await axios.get<ProxyToken[]>(`/token/${workspaceId}/${userId}`);
 
 	return response.data;
 };
@@ -39,11 +47,13 @@ export const useProxyTokens = ({ workspaceId, userId }: any) => {
 	};
 };
 
-const createProxyToken = async ({ userId, workspaceId }: any) => {
+const createProxyToken = async ({ userId, workspaceId, name, region }: any) => {
 	const response = await axios.post(`/token/`, {
 		token: '',
 		user_id: userId,
 		workspace_id: workspaceId,
+		name,
+		region,
 	});
 	return response.data;
 };
@@ -63,17 +73,78 @@ export const useSyncProxyToken = () => {
 	const workspaceId = useAtomValue(workspaceAtom);
 	const { user, isLoading: isLoadingUser } = useGetCurrentUser();
 
-	const token = useAtomValue(proxyTokenAtom);
+	const [token, setToken] = useAtom(proxyTokenAtom);
 
-	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
+	const { isLoading, isFetched, tokens } = useProxyTokens({ userId: user.id, workspaceId });
 
-	const isValid = token && tokens.find((t: any) => t === token);
+	const isValid = token && tokens.find((t) => t.token === token);
+	const hasTokens = tokens.length > 0;
 
 	useEffect(() => {
-		if (token) {
-			workerAxios.defaults.headers["dropbase-proxy-token"] = token;
+		const selectedToken = tokens.find((t) => t.is_selected);
+		if (selectedToken) {
+			setToken(selectedToken.token);
+		} else if (isFetched && tokens.length <= 0) {
+			setToken(null);
 		}
+	}, [tokens, workspaceId]);
+
+	useEffect(() => {
+		workerAxios.defaults.headers['dropbase-proxy-token'] = token;
 	}, [token]);
 
-	return { token, isLoading: isLoadingUser || isLoading, isValid };
+	return { token, isLoading: isLoadingUser || isLoading, isValid, hasTokens };
+};
+
+const updateWorkspaceProxyToken = async ({ workspaceId, tokenId }: any) => {
+	const response = await axios.put(`/workspace/${workspaceId}/token`, {
+		token_id: tokenId,
+	});
+	return response.data;
+};
+
+export const useUpdateWorkspaceProxyToken = (props: any = {}) => {
+	const queryClient = useQueryClient();
+
+	return useMutation(updateWorkspaceProxyToken, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(PROXY_TOKENS_QUERY_KEY);
+		},
+	});
+};
+
+const updateTokenInfo = async ({ tokenId, name, region }: any) => {
+	const response = await axios.put(`/token/${tokenId}`, {
+		name,
+		region,
+	});
+	return response.data;
+};
+
+export const useUpdateTokenInfo = (props: any = {}) => {
+	const queryClient = useQueryClient();
+
+	return useMutation(updateTokenInfo, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(PROXY_TOKENS_QUERY_KEY);
+		},
+	});
+};
+
+const deleteProxyToken = async ({ tokenId }: any) => {
+	const response = await axios.delete(`/token/${tokenId}`);
+	return response.data;
+};
+
+export const useDeleteProxyToken = (props: any = {}) => {
+	const queryClient = useQueryClient();
+
+	return useMutation(deleteProxyToken, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(PROXY_TOKENS_QUERY_KEY);
+		},
+	});
 };

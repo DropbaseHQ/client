@@ -35,7 +35,7 @@ class SelectBaseProperties(BaseModel):
     @property
     def state(self):
         # TODO: match based on value type
-        return "str"
+        return str
 
 
 class SelectDefinedProperty(SelectBaseProperties, SelectSharedProperties):

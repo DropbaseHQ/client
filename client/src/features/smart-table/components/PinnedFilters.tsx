@@ -2,6 +2,7 @@ import { Box, Flex, Input, Stack } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
 import { useCurrentTableData, useCurrentTableId } from '@/features/smart-table/hooks';
 import { filtersAtom } from '@/features/smart-table/atoms';
+import { getPGColumnBaseType } from '../../../utils';
 
 export const PinnedFilters = () => {
 	const [allFilters, setFilters] = useAtom(filtersAtom);
@@ -27,12 +28,13 @@ export const PinnedFilters = () => {
 			w="full"
 		>
 			{pinnedFilters.map((f: any) => {
-				const colType = columns?.[f.column]?.type;
+				const colType = columns?.[f?.column_name]?.type;
 				let inputType = 'text';
 
-				if (colType === 'integer') {
+				if (getPGColumnBaseType(colType) === 'integer') {
 					inputType = 'number';
 				}
+
 				return (
 					<Flex key={f.id} fontSize="sm" borderWidth="1px" borderRadius="sm">
 						<Box h="full" py="1" px="3" borderRightWidth="1px">
@@ -52,11 +54,13 @@ export const PinnedFilters = () => {
 									...old,
 									[tableId]: filters.map((filter: any) => {
 										if (filter.id === f.id) {
+											const numberInput =
+												e.target.value === '' ? null : +e.target.value;
 											return {
 												...f,
 												value:
 													inputType === 'number'
-														? +e.target.value
+														? numberInput
 														: e.target.value,
 											};
 										}

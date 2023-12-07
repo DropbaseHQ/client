@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -27,6 +27,11 @@ class CreateFiles(BaseFiles):
 class UpdateFiles(BaseModel):
     name: Optional[str]
     source: Optional[str]
+
+
+class UpdateFilesRequest(UpdateFiles):
+    file_id: Optional[UUID]
+    depends_on: Optional[List]
 
 
 class RenameFile(BaseModel):

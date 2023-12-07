@@ -1,5 +1,7 @@
-import { Box, Stack, StackDivider } from '@chakra-ui/react';
+import { Box, Stack } from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
+import { useEffect } from 'react';
+import { useSetAtom } from 'jotai';
 
 import { PanelHandle } from '@/components/Panel';
 
@@ -11,16 +13,28 @@ import { Loader } from '@/components/Loader';
 import { AppNavbar } from '@/features/app/components/AppNavbar';
 import { PropertyPane } from '@/features/app-builder';
 import { FilesExplorer } from './components/FilesExplorer';
+import { WorkerDisconnected } from './components/WorkerDisconnected';
+import { inspectedResourceAtom } from './atoms';
 
 export const AppBuilder = () => {
 	const { isLoading } = useInitPage();
+	const setInspectedItem = useSetAtom(inspectedResourceAtom);
+
+	useEffect(() => {
+		return () => {
+			setInspectedItem({
+				id: null,
+				type: null,
+			});
+		};
+	}, [setInspectedItem]);
 
 	return (
 		<Stack spacing="0" h="full">
 			<AppNavbar />
 			<Box h="full" w="full" overflowY="auto">
-				<Stack spacing="0" divider={<StackDivider />} direction="row" w="full" h="full">
-					<Box flex="3" h="full">
+				<PanelGroup direction="horizontal">
+					<Panel>
 						<PanelGroup autoSaveId="main-panel" direction="vertical">
 							<Panel defaultSize={45}>
 								<PanelGroup autoSaveId="data-panel" direction="horizontal">
@@ -59,13 +73,14 @@ export const AppBuilder = () => {
 								</PanelGroup>
 							</Panel>
 						</PanelGroup>
-					</Box>
-
-					<Box h="full" w="xs">
+					</Panel>
+					<PanelHandle direction="vertical" />
+					<Panel defaultSize={20} maxSize={20} minSize={20}>
 						<PropertyPane />
-					</Box>
-				</Stack>
+					</Panel>
+				</PanelGroup>
 			</Box>
+			<WorkerDisconnected />
 		</Stack>
 	);
 };

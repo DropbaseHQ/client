@@ -18,19 +18,21 @@ import {
 	Box,
 	MenuItem,
 	IconButton,
-	useToast,
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Layout, MoreVertical, Trash } from 'react-feather';
 import { useAtomValue } from 'jotai';
-
+import { useStatus } from '@/layout/StatusBar';
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
 import { useCreateAppFlow } from './hooks/useCreateApp';
 import { PageLayout } from '@/layout';
 import { FormInput } from '@/components/FormInput';
 import { useDeleteApp } from '@/features/app-list/hooks/useDeleteApp';
-import { workspaceAtom } from '@/features/workspaces';
+import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
+import { SalesModal } from './AppSalesModal';
+import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
@@ -43,15 +45,14 @@ const AppCard = ({ app }: { app: AppType }) => {
 			onClose();
 			toast({
 				status: 'success',
-				title: 'App created',
+				title: 'App deleted',
 			});
 		},
 		onError: (error: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to delete app',
-				description:
-					error?.response?.data?.error || error?.response?.data || error?.message || '',
+				description: getErrorMessage(error),
 			});
 		},
 	});
@@ -138,6 +139,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 							<ModalBody py="6">
 								<FormInput
 									name="App name"
+									autoFocus
 									id="name"
 									placeholder={`Write ${app.name} to delete`}
 									validation={{
@@ -175,11 +177,13 @@ const AppCard = ({ app }: { app: AppType }) => {
 };
 
 export const AppList = () => {
-	// Will need to pass workspace in here but for now we only have one workspace (backend spits out the first workspace)
-	// const navigate = useNavigate();
+	const navigate = useNavigate();
+	const toast = useToast();
 	const workspaceId = useAtomValue(workspaceAtom);
-
+	const { workspaces } = useWorkspaces();
+	const { status } = useStatus();
 	const methods = useForm();
+	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
 
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
 	const { isOpen, onOpen, onClose } = useDisclosure({
@@ -190,13 +194,29 @@ export const AppList = () => {
 
 	const { handleCreateApp: handleCreateAppFlow, isLoading: createAppIsLoading } =
 		useCreateAppFlow({
-			onSuccess: () => {
-				// navigate(`/apps/${data?.app_id}/${defaultPage}/editor`);
+			onSuccess: (_: any, variables: any) => {
+				if (variables?.appTemplate?.page?.id) {
+					navigate(
+						`/apps/${variables?.appId}/${variables?.appTemplate?.page?.id}/editor`,
+					);
+				}
 				refetch();
-				// setAppName('');
 				onClose();
 			},
+			onError: (error: any) => {
+				toast({
+					status: 'error',
+					title: 'Failed to create app',
+					description: getErrorMessage(error),
+				});
+			},
 		});
+
+	const nameNotUnique = (newName: any) => {
+		return apps.find((a) => {
+			return a.name === newName;
+		});
+	};
 
 	const onSubmit = async ({ name: appName }: any) => {
 		await handleCreateAppFlow({
@@ -205,29 +225,44 @@ export const AppList = () => {
 		});
 	};
 
+	const workerIsConnected = status === 'success';
+	const workspaceHasWorkspaceURL = !!currentWorkspace?.workspaceUrl;
+	const isDeployed = window.location.hostname.endsWith('dropbase.io');
+
+	const shouldDisplaySalesModal = isDeployed
+		? !workspaceHasWorkspaceURL && !workerIsConnected
+		: false;
 	return (
 		<PageLayout
 			title="Your apps"
 			action={
-				<Button size="sm" ml="auto" onClick={onOpen}>
+				<Button size="sm" ml="auto" onClick={onOpen} isDisabled={!workerIsConnected}>
 					Create app
 				</Button>
 			}
 		>
-			<SimpleGrid spacing={6} pb="4" columns={4}>
-				{isLoading ? (
-					<>
-						<Skeleton w="full" h={24} />
-						<Skeleton w="full" h={24} />
-						<Skeleton w="full" h={24} />
-						<Skeleton w="full" h={24} />
-					</>
-				) : (
-					apps
-						.sort((a, b) => a.name.localeCompare(b.name))
-						.map((app) => <AppCard key={app.id} app={app} />)
-				)}
-			</SimpleGrid>
+			{workerIsConnected ? (
+				<SimpleGrid spacing={6} pb="4" columns={4}>
+					{isLoading ? (
+						<>
+							<Skeleton w="full" h={24} />
+							<Skeleton w="full" h={24} />
+							<Skeleton w="full" h={24} />
+							<Skeleton w="full" h={24} />
+						</>
+					) : (
+						apps
+							.sort((a, b) => a.name.localeCompare(b.name))
+							.map((app) => <AppCard key={app.id} app={app} />)
+					)}
+				</SimpleGrid>
+			) : (
+				<Text fontSize="lg" fontWeight="bold">
+					Please connect to a worker to view and create apps.
+				</Text>
+			)}
+			{shouldDisplaySalesModal && <SalesModal />}
+
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent>
@@ -250,6 +285,9 @@ export const AppList = () => {
 
 											if (!value) {
 												return 'Name required';
+											}
+											if (nameNotUnique(value)) {
+												return 'Name already exists';
 											}
 
 											return true;

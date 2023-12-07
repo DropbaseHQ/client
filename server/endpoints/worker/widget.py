@@ -3,10 +3,17 @@ from server import crud
 from sqlalchemy.orm import Session
 from server.schemas.widget import CreateWidget, UpdateWidget, WidgetBaseProperty
 from server.controllers import widget as widget_controller
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 from uuid import UUID
 
-router = APIRouter(prefix="/widget", tags=["widget"])
+widget_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WIDGET)
+
+router = APIRouter(
+    prefix="/widget",
+    tags=["widget"],
+    # dependencies=[Depends(widget_authorizer)],
+)
 
 
 @router.post("/")

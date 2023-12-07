@@ -5,17 +5,17 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.controllers.page import page
-from server.controllers.state import state
+from server.controllers.state import client_state
 from server.schemas.page import CreatePage, UpdatePage
-from server.utils.authorization import ACTIONS, RESOURCES, AuthZDepFactory
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 
-# page_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.PAGE)
+page_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.PAGE)
 
 router = APIRouter(
     prefix="/page",
     tags=["page"],
-    # dependencies=[Depends(page_authorizer)],
+    dependencies=[Depends(page_authorizer)],
 )
 
 
@@ -46,5 +46,5 @@ def get_page_schema(page_id: str, db: Session = Depends(get_db)):
 
 @router.get("/state/{page_id}")
 def get_page_state(page_id: str, db: Session = Depends(get_db)):
-    state_data, context_data = state.get_state_context_for_client(db, page_id)
+    state_data, context_data = client_state.get_state_context_for_client(db, page_id)
     return {"state": state_data, "context": context_data}

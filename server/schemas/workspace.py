@@ -25,6 +25,7 @@ class CreateWorkspace(BaseWorkspace):
 class UpdateWorkspace(BaseModel):
     name: Optional[str]
     active: Optional[bool]
+    worker_url: Optional[str]
 
 
 class AddUserRequest(BaseModel):
@@ -39,3 +40,13 @@ class RemoveUserRequest(BaseModel):
 class UpdateUserRoleRequest(BaseModel):
     user_id: UUID
     role_id: UUID
+
+
+class UpdateWorkspaceToken(BaseModel):
+    token: Optional[str]
+    token_id: Optional[UUID]
+
+
+class RequestCloud(BaseModel):
+    user_number: int
+    worker_url: str

@@ -9,26 +9,28 @@ import {
 	Box,
 } from '@chakra-ui/react';
 
-import { Settings, LogOut, Grid, Repeat, Users, Lock, Key } from 'react-feather';
+import { Settings, LogOut, Grid, Repeat, Key } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
-import { useGetWorkspaceUsers } from '@/features/settings/hooks/workspace';
+// import { useGetWorkspaceUsers } from '@/features/settings/hooks/workspace';
 
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
+import { isProductionApp } from '../utils';
 
 export const Navbar = () => {
 	const { pathname } = useLocation();
 	const { mutate: logout } = useLogout();
 	const { user } = useGetCurrentUser();
-	const { users } = useGetWorkspaceUsers();
-	const userRole = users?.find((u: any) => u.id === user?.id)?.role_name;
+
+	// const { users } = useGetWorkspaceUsers();
+	// const userRole = users?.find((u: any) => u.id === user?.id)?.role_name;
 
 	// const { colorMode, toggleColorMode } = useColorMode();;
-	const userHasRole = (roles: string[]) => {
-		if (!userRole) return false;
-		return roles.includes(userRole);
-	};
+	// const userHasRole = (roles: string[]) => {
+	// 	if (!userRole) return false;
+	// 	return roles.includes(userRole);
+	// };
 
 	const handleLogout = () => {
 		logout();
@@ -40,56 +42,46 @@ export const Navbar = () => {
 				<Box mb="8" w="12" as={Link} to="/apps">
 					<DropbaseLogo />
 				</Box>
-				<Tooltip label="Workspace Switcher" placement="right">
-					<IconButton
-						variant="ghost"
-						as={Link}
-						to="/workspaces"
-						color={pathname === '/workspaces' ? 'blue.500' : 'body'}
-						colorScheme={pathname === '/workspaces' ? 'blue' : 'gray'}
-						aria-label="Apps"
-						icon={<Repeat size="22" />}
-					/>
-				</Tooltip>
-				<Tooltip label="Apps" placement="right">
-					<IconButton
-						variant="ghost"
-						as={Link}
-						to="/apps"
-						color={pathname === '/apps' ? 'blue.500' : 'body'}
-						colorScheme={pathname === '/apps' ? 'blue' : 'gray'}
-						aria-label="Apps"
-						icon={<Grid size="22" />}
-					/>
-				</Tooltip>
-
-				{userHasRole(['admin']) && (
-					<Tooltip label="Members" placement="right">
+				{user?.email?.endsWith('dropbase.io') && (
+					<Tooltip label="Workspace Switcher" placement="right">
 						<IconButton
 							variant="ghost"
 							as={Link}
-							to="/settings/members"
-							color={pathname === '/settings/members' ? 'blue.500' : 'body'}
-							colorScheme={pathname === '/settings/members' ? 'blue' : 'gray'}
-							aria-label="Members"
-							icon={<Users size="22" />}
+							to="/workspaces"
+							color={pathname === '/workspaces' ? 'blue.500' : 'body'}
+							colorScheme={pathname === '/workspaces' ? 'blue' : 'gray'}
+							aria-label="Apps"
+							icon={<Repeat size="22" />}
 						/>
 					</Tooltip>
 				)}
 
-				{userHasRole(['admin']) && (
-					<Tooltip label="Permissions" placement="right">
+				{isProductionApp() ? null : (
+					<Tooltip label="Apps" placement="right">
 						<IconButton
 							variant="ghost"
 							as={Link}
-							to="/settings/permissions"
-							color={pathname === '/settings/permissions' ? 'blue.500' : 'body'}
-							colorScheme={pathname === '/settings/permissions' ? 'blue' : 'gray'}
-							aria-label="Permissions"
-							icon={<Lock size="22" />}
+							to="/apps"
+							color={pathname === '/apps' ? 'blue.500' : 'body'}
+							colorScheme={pathname === '/apps' ? 'blue' : 'gray'}
+							aria-label="Apps"
+							icon={<Grid size="22" />}
 						/>
 					</Tooltip>
 				)}
+
+				{/* <Tooltip label="Members (Coming soon)" placement="right">
+					<IconButton
+						variant="ghost"
+						// as={Link}
+						isDisabled
+						// to="/settings/members"
+						color={pathname === '/settings/members' ? 'blue.500' : 'body'}
+						colorScheme={pathname === '/settings/members' ? 'blue' : 'gray'}
+						aria-label="Members"
+						icon={<Users size="22" />}
+					/>
+				</Tooltip> */}
 
 				<Stack mt="auto" alignItems="center">
 					<Menu>

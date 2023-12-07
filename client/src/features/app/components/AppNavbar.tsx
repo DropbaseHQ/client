@@ -14,22 +14,36 @@ import {
 	Button,
 	FormControl,
 	FormLabel,
+	FormErrorMessage,
 } from '@chakra-ui/react';
 import { ArrowLeft, Edit, Eye } from 'react-feather';
 import { useEffect, useState } from 'react';
-
 import { Link, useParams } from 'react-router-dom';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
+import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
+// import { useForceSyncState } from '@/features/app-state';
 
 export const AppNavbar = ({ isPreview }: any) => {
+	const toast = useToast();
 	const { appId } = useParams();
 	const { apps } = useGetWorkspaceApps();
 
 	const [name, setAppName] = useState('');
+	const [isValid, setIsValid] = useState(true);
+	const updateMutation = useUpdateApp({
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to update app',
+				description: getErrorMessage(error),
+			});
+		}
+	});
 
-	const updateMutation = useUpdateApp();
+	// const forceSyncMutation = useForceSyncState();
 
 	const app = apps.find((a) => a.id === appId);
 
@@ -39,10 +53,20 @@ export const AppNavbar = ({ isPreview }: any) => {
 		}
 	}, [app]);
 
-	const handleChange = (e: any) => {
-		setAppName(e.target.value);
+	const nameNotUnique = (newName: any) => {
+		return apps.find((a) => {
+			return a.name === newName && a.id !== appId;
+		});
 	};
 
+	const handleChange = (e: any) => {
+		setAppName(e.target.value);
+		if (nameNotUnique(e.target.value)) {
+			setIsValid(false);
+		} else {
+			setIsValid(true);
+		}
+	};
 	const handleReset = () => {
 		if (app) setAppName(app?.name);
 	};
@@ -56,6 +80,12 @@ export const AppNavbar = ({ isPreview }: any) => {
 			});
 		}
 	};
+
+	// const forceSync = () => {
+	// 	forceSyncMutation.mutate({
+	// 		pageId,
+	// 	});
+	// };
 
 	return (
 		<Stack
@@ -98,7 +128,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 								<PopoverContent>
 									<PopoverArrow />
 									<PopoverBody>
-										<FormControl>
+										<FormControl isInvalid={!isValid}>
 											<FormLabel>Edit App name</FormLabel>
 											<Input
 												size="sm"
@@ -106,6 +136,10 @@ export const AppNavbar = ({ isPreview }: any) => {
 												value={name}
 												onChange={handleChange}
 											/>
+
+											<FormErrorMessage>
+												An app with this name already exists.
+											</FormErrorMessage>
 										</FormControl>
 									</PopoverBody>
 									<PopoverFooter display="flex" alignItems="end">
@@ -118,7 +152,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 												Cancel
 											</Button>
 											<Button
-												isDisabled={app?.name === name || !name}
+												isDisabled={app?.name === name || !name || !isValid}
 												colorScheme="blue"
 												onClick={handleUpdate}
 											>
@@ -133,23 +167,30 @@ export const AppNavbar = ({ isPreview }: any) => {
 				)}
 			</Stack>
 
-			{app?.editable && (
-				<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
-					<Button
-						size="sm"
-						variant="secondary"
-						colorScheme="blue"
-						leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
-						aria-label="Preview"
-						ml="auto"
-						mr="4"
-						as={Link}
-						to={isPreview ? '../editor' : '../preview'}
-					>
-						{isPreview ? 'Edit' : 'Preview'}
-					</Button>
-				</Tooltip>
-			)}
+			<Stack direction="row" spacing="2" ml="auto">
+				{/* TODO: sync conditionally based on out of sync page */}
+				{/* <Button variant="outline" colorScheme="red" onClick={forceSync} size="sm">
+					Sync state
+				</Button> */}
+
+				{app?.editable && (
+					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
+						<Button
+							size="sm"
+							variant="secondary"
+							colorScheme="blue"
+							leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
+							aria-label="Preview"
+							ml="auto"
+							mr="4"
+							as={Link}
+							to={isPreview ? '../editor' : '../preview'}
+						>
+							{isPreview ? 'Edit' : 'Preview'}
+						</Button>
+					</Tooltip>
+				)}
+			</Stack>
 		</Stack>
 	);
 };

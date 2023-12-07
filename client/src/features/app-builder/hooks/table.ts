@@ -3,7 +3,10 @@ import { useMemo } from 'react';
 
 import { axios, workerAxios } from '@/lib/axios';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
-import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
+import {
+	ALL_PAGE_FILES_QUERY_KEY,
+	COLUMN_PROPERTIES_QUERY_KEY,
+} from '@/features/app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY } from '@/features/page';
 import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
@@ -33,6 +36,12 @@ export const useGetTable = (tableId: string, props?: any): any => {
 			properties: response?.properties || [],
 			table: response?.table || {},
 			type: response?.file?.type,
+			filters: (response?.table?.property?.filters || []).map((f: any) => ({
+				...f,
+				pinned: true,
+				id: crypto.randomUUID(),
+			})),
+			height: response?.table?.property?.height,
 		};
 	}, [response]);
 
@@ -75,7 +84,7 @@ export const useDataFetchers = (pageId: any) => {
 };
 
 const createTable = async ({ name, pageId, property }: any) => {
-	const response = await workerAxios.post(`/tables`, {
+	const response = await workerAxios.post(`/tables/`, {
 		name,
 		page_id: pageId,
 		property,
@@ -103,16 +112,22 @@ const updateTableProperties = async ({
 	file,
 	pageId,
 	state,
+	property,
+	depends,
 }: any) => {
 	const response = await workerAxios.put(`/tables/${tableId}/`, {
 		app_name: appName,
 		page_name: pageName,
-		name: tableName,
 		table,
 		state,
-		file,
-		property: {},
+		file: file || null,
 		page_id: pageId,
+		table_updates: {
+			name: tableName,
+			property: property || {},
+			file_id: file?.id || null,
+			depends_on: depends,
+		},
 	});
 
 	return response.data;
@@ -123,16 +138,15 @@ export const useUpdateTableProperties = (props: any = {}) => {
 	return useMutation(updateTableProperties, {
 		...props,
 		onSettled: () => {
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 		},
 	});
 };
 
 const convertToSmartTable = async ({ file, table, state, appName, pageName }: any) => {
-	const response = await workerAxios.post(`/tables/convert`, {
+	const response = await workerAxios.post(`/tables/convert/`, {
 		file,
 		table,
 		state,
@@ -149,9 +163,9 @@ export const useConvertSmartTable = (props: any = {}) => {
 	return useMutation(convertToSmartTable, {
 		...props,
 		onSettled: () => {
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 		},
 	});
 };
@@ -234,11 +248,16 @@ const saveSql = async ({ pageName, appName, fileType, fileName, fileId, sql, sou
 	return response.data;
 };
 
-export const useSaveSql = (props: any = {}) => {
+export const useSaveCode = (props: any = {}) => {
 	const queryClient = useQueryClient();
 	return useMutation(saveSql, {
 		onSettled: () => {
+			queryClient.invalidateQueries(TABLE_QUERY_KEY);
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
+			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
+			queryClient.invalidateQueries(DATA_FETCHER_QUERY_KEY);
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 		...props,
 	});

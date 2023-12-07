@@ -1,4 +1,5 @@
 import {
+	Badge,
 	Box,
 	Button,
 	FormControl,
@@ -6,6 +7,11 @@ import {
 	FormLabel,
 	IconButton,
 	Input,
+	Menu,
+	MenuButton,
+	MenuItemOption,
+	MenuList,
+	MenuOptionGroup,
 	NumberDecrementStepper,
 	NumberIncrementStepper,
 	NumberInput,
@@ -13,17 +19,28 @@ import {
 	NumberInputStepper,
 	Select,
 	Stack,
+	Text,
 	Switch,
+	Center,
+	Portal,
 } from '@chakra-ui/react';
 import { forwardRef } from 'react';
-import { Plus, Trash } from 'react-feather';
+import { ChevronDown, Plus, Trash } from 'react-feather';
 import { ErrorMessage } from '@hookform/error-message';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { MonacoEditor } from '@/components/Editor';
 
 export const InputRenderer = forwardRef((props: any, ref: any) => {
-	const { onChange, onBlur, value, type, options: selectOptions, ...inputProps } = props;
+	const {
+		onChange,
+		onBlur,
+		value,
+		type,
+		onSelect,
+		options: selectOptions,
+		...inputProps
+	} = props;
 
 	if (type === 'number') {
 		return (
@@ -52,10 +69,10 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				onChange={(e) => {
 					onChange?.(e.target.value);
 				}}
-				value={value}
 				ref={ref}
 				size="sm"
 				{...inputProps}
+				value={value}
 				placeholder="Select option"
 			>
 				{(selectOptions || []).map((option: any) => (
@@ -64,6 +81,81 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					</option>
 				))}
 			</Select>
+		);
+	}
+
+	if (type === 'custom-select') {
+		const selectedValue = selectOptions.find((option: any) => option.value === value);
+
+		const valueRenderer = selectedValue?.name;
+
+		const children = (
+			<Text fontSize="sm">{valueRenderer || inputProps?.placeholder || 'Select option'}</Text>
+		);
+
+		const allOptions = selectOptions || [];
+
+		return (
+			<Menu>
+				<MenuButton
+					as={Stack}
+					direction="row"
+					alignItems="center"
+					borderWidth="1px"
+					p="1.5"
+					borderRadius="sm"
+					type="button"
+					onBlur={onBlur}
+					cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
+					{...inputProps}
+				>
+					<Stack w="full" spacing="0" alignItems="center" direction="row">
+						<Box>{children}</Box>
+						<Box ml="auto">
+							<ChevronDown size="14" />
+						</Box>
+					</Stack>
+				</MenuButton>
+				<Portal>
+					<MenuList
+						zIndex="popover"
+						pointerEvents={inputProps?.isDisabled ? 'none' : 'initial'}
+						borderRadius="sm"
+						shadow="sm"
+						p="0"
+						maxH="sm"
+						overflowY="auto"
+					>
+						{allOptions.length === 0 ? (
+							<Center>
+								<Text>No options present</Text>
+							</Center>
+						) : (
+							<MenuOptionGroup
+								defaultValue={value}
+								onChange={(newValue) => {
+									onChange(newValue);
+									onSelect?.(newValue);
+								}}
+								type="radio"
+							>
+								{allOptions.map((option: any) => (
+									<MenuItemOption
+										icon={option?.icon}
+										fontSize="sm"
+										key={option.name}
+										value={option.value}
+									>
+										{option?.render
+											? option?.render(option?.value === value)
+											: option.name}
+									</MenuItemOption>
+								))}
+							</MenuOptionGroup>
+						)}
+					</MenuList>
+				</Portal>
+			</Menu>
 		);
 	}
 
@@ -155,6 +247,87 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					Add option
 				</Button>
 			</Stack>
+		);
+	}
+
+	if (type === 'multiselect') {
+		const allOptions = selectOptions || [];
+		let children = <Text fontSize="sm">{inputProps?.placeholder || 'Select option'}</Text>;
+
+		if (Array.isArray(value) && value.length > 0) {
+			children = (
+				<Stack spacing="1" flexWrap="wrap" direction="row">
+					{value.map((v: any) => (
+						<Badge
+							colorScheme="gray"
+							textTransform="none"
+							display="inline-block"
+							key={v}
+							size="sm"
+						>
+							{v}
+						</Badge>
+					))}
+				</Stack>
+			);
+		}
+
+		return (
+			<Menu>
+				<MenuButton
+					as={Stack}
+					type="button"
+					direction="row"
+					alignItems="center"
+					borderWidth="1px"
+					borderRadius="sm"
+					p="1.5"
+					cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
+					{...inputProps}
+				>
+					<Stack w="full" spacing="0" alignItems="center" direction="row">
+						<Box>{children}</Box>
+						<Box ml="auto">
+							<ChevronDown size="14" />
+						</Box>
+					</Stack>
+				</MenuButton>
+				<MenuList
+					pointerEvents={inputProps?.isDisabled ? 'none' : 'initial'}
+					maxH="sm"
+					overflowY="auto"
+					minWidth="240px"
+				>
+					{allOptions.length === 0 ? (
+						<Center p="2">
+							<Text fontSize="sm" color="gray.700">
+								No options present
+							</Text>
+						</Center>
+					) : (
+						<MenuOptionGroup
+							value={value || []}
+							onChange={(newValue) => {
+								if (!inputProps?.isDisabled) {
+									onChange(newValue);
+									onSelect?.(newValue);
+								}
+							}}
+							type="checkbox"
+						>
+							{allOptions.map((option: any) => (
+								<MenuItemOption
+									fontSize="sm"
+									key={option.name}
+									value={option.value}
+								>
+									{option.name}
+								</MenuItemOption>
+							))}
+						</MenuOptionGroup>
+					)}
+				</MenuList>
+			</Menu>
 		);
 	}
 

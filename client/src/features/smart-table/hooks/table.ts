@@ -4,16 +4,35 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY, useGetTable } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
+import { APP_STATE_QUERY_KEY, useAppState } from '@/features/app-state';
+import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
-const fetchTableData = async ({ file, appName, pageName, state }: any) => {
+const fetchTableData = async ({
+	file,
+	appName,
+	pageName,
+	state,
+	filters,
+	sorts,
+	currentPage,
+	pageSize,
+}: any) => {
 	const response = await workerAxios.post<any>(`/query/`, {
 		app_name: appName,
 		page_name: pageName,
 		file,
 		state: state.state,
-		filter_sort: { filters: [], sorts: [] },
+		filter_sort: {
+			filters,
+			sorts,
+			pagination: {
+				page: currentPage || 0,
+				page_size: pageSize || 0,
+			},
+		},
 	});
 
 	return response.data;
@@ -27,9 +46,12 @@ export const useTableData = ({
 	appName,
 	pageName,
 	pageId,
+	currentPage,
+	pageSize,
 }: any) => {
-	const { type, table, isLoading: isLoadingTable } = useGetTable(tableId || '');
-	const { tables, files, isLoading: isLoadingPage } = useGetPage(pageId);
+	const { type, table, isFetching: isLoadingTable } = useGetTable(tableId || '');
+	const { tables, files, isFetching: isLoadingPage } = useGetPage(pageId);
+	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
 
 	const depends = tables.find((t: any) => t.id === tableId)?.depends_on || [];
 
@@ -52,16 +74,30 @@ export const useTableData = ({
 		pageName,
 		type,
 		`${Object.keys(state?.state?.tables).length}`,
+		currentPage,
+		pageSize,
 		JSON.stringify({ filters, sorts, dependentTableData, file, table }),
 	];
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchTableData({ appName, pageName, state, file }),
+		() =>
+			fetchTableData({
+				appName,
+				pageName,
+				state,
+				file,
+				filters,
+				sorts,
+				currentPage,
+				pageSize,
+			}),
 		{
 			enabled: !!(
 				!isLoadingTable &&
 				!isLoadingPage &&
+				!isFetchingAppState &&
+				table?.name in tablesState &&
 				file &&
 				table &&
 				appName &&
@@ -90,12 +126,14 @@ export const useTableData = ({
 				header,
 				tableName: response.table_name,
 				tableId: response.table_id,
+				tableError: response?.result?.error,
 			};
 		}
 
 		return {
 			rows: [],
 			header: [],
+			tableError: null,
 		};
 	}, [response]);
 
@@ -140,23 +178,35 @@ export const usePinFilters = (props: any = {}) => {
 	});
 };
 
-const syncDropbaseColumns = async ({ appName, pageName, tables, state }: any) => {
+const syncDropbaseColumns = async ({ appName, pageName, table, file, state }: any) => {
 	const response = await workerAxios.post(`/sync/columns/`, {
 		app_name: appName,
 		page_name: pageName,
-		tables,
+		table,
+		file,
 		state,
 	});
 	return response.data;
 };
 
 export const useSyncDropbaseColumns = (props: any = {}) => {
+	const toast = useToast();
 	const queryClient = useQueryClient();
 	return useMutation(syncDropbaseColumns, {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+		},
+		onError: (error: any) => {
+			toast({
+				title: 'Failed to sync',
+				status: 'error',
+				description: getErrorMessage(error),
+			});
 		},
 	});
 };

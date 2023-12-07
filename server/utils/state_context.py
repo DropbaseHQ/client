@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.controllers.state.state import get_state_context
+from server.controllers.state.worker_state import get_state_context
 
 
 def get_state_context_payload(db: Session, page_id: UUID):
@@ -16,5 +16,4 @@ def get_state_context_payload(db: Session, page_id: UUID):
         "page_name": page.name,
         "state": State.schema(),
         "context": Context.schema(),
-        "status": "success",
     }

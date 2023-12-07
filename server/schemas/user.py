@@ -22,6 +22,7 @@ class CreateUser(BaseUser):
     hashed_password: str
     active: bool = False
     trial_eligible: bool = True
+    confirmation_token: Optional[str]
 
 
 class ReadUser(BaseModel):
@@ -55,7 +56,7 @@ class CreateUserRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     email: str
     new_password: str
-    # reset_token: str
+    reset_token: str
 
 
 class AddPolicy(BaseModel):
@@ -76,3 +77,11 @@ class UpdateUserPolicyRequest(BaseModel):
     resource: str
     action: str
     workspace_id: str
+
+
+class ResendConfirmationEmailRequest(BaseModel):
+    email: str
+
+
+class RequestResetPassword(BaseModel):
+    email: str

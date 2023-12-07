@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.utils.connect import get_db
+from server.credentials import ENVIRONMENT
 
 
 class Settings(BaseModel):
@@ -18,6 +19,7 @@ class Settings(BaseModel):
     authjwt_cookie_secure: bool = True
     authjwt_cookie_samesite: str = "none"
     authjwt_cookie_max_age: int = 60 * 60 * 24 * 7  # 7 days
+    authjwt_cookie_domain: str = None if ENVIRONMENT == "local" else ".dropbase.io"
 
 
 @AuthJWT.load_config

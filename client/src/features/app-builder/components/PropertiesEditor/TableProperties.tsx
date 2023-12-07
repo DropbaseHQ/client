@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
-import { Save } from 'react-feather';
-import { Stack, Box, Text, IconButton, ButtonGroup } from '@chakra-ui/react';
+import { Save, Table } from 'react-feather';
+import { Stack, Text, IconButton, ButtonGroup, Icon, Badge } from '@chakra-ui/react';
 import {
 	useDataFetchers,
 	useGetTable,
@@ -13,29 +13,29 @@ import { FormInput } from '@/components/FormInput';
 import { InputLoader } from '@/components/Loader';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { DeleteTable } from '@/features/app-builder/components/PropertiesEditor/DeleteTable';
-import { pageAtom } from '@/features/page';
+import { pageAtom, useGetPage } from '@/features/page';
 import { newPageStateAtom } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 export const TableProperties = () => {
 	const tableId = useAtomValue(selectedTableIdAtom);
 	const { pageId } = useParams();
 	const toast = useToast();
 
-	const { isLoading, table, refetch } = useGetTable(tableId || '');
+	const { isLoading, table, refetch, height: defaultTableHeight } = useGetTable(tableId || '');
 
 	const { pageName, appName } = useAtomValue(pageAtom);
+
+	const { tables } = useGetPage(pageId);
 
 	const pageState = useAtomValue(newPageStateAtom);
 
 	const { fetchers } = useDataFetchers(pageId);
 
-	const [errorLog, setErrorLog] = useState('');
-
 	const mutation = useUpdateTableProperties({
 		onSuccess: () => {
 			refetch();
-			setErrorLog('');
 
 			toast({
 				title: 'Updated table properties',
@@ -43,9 +43,11 @@ export const TableProperties = () => {
 			});
 		},
 		onError: (error: any) => {
-			setErrorLog(
-				error?.response?.data?.error || error?.response?.data || error?.message || '',
-			);
+			toast({
+				title: 'Failed to update properties',
+				description: getErrorMessage(error),
+				status: 'error',
+			});
 		},
 	});
 
@@ -53,23 +55,29 @@ export const TableProperties = () => {
 	const {
 		reset,
 		formState: { isDirty },
+		watch,
+		setValue,
 	} = methods;
+
+	const selectedFileId = watch('fileId');
+	const selectedFile = fetchers.find((f: any) => f.id === selectedFileId);
 
 	useEffect(() => {
 		reset(
-			{ name: table?.name, fileId: table?.file_id || '' },
+			{
+				name: table?.name,
+				fileId: table?.file_id || '',
+				height: defaultTableHeight || '',
+				depends: table?.depends_on || null,
+			},
 			{
 				keepDirty: false,
 				keepDirtyValues: false,
 			},
 		);
-	}, [table, tableId, reset]);
+	}, [table, tableId, defaultTableHeight, reset]);
 
-	useEffect(() => {
-		setErrorLog('');
-	}, [tableId]);
-
-	const onSubmit = ({ fileId, ...rest }: any) => {
+	const onSubmit = ({ fileId, height, depends, ...rest }: any) => {
 		mutation.mutate({
 			tableId,
 			appName,
@@ -79,7 +87,17 @@ export const TableProperties = () => {
 			file: fetchers.find((f: any) => f.id === fileId),
 			pageId,
 			state: pageState?.state,
+			property: { ...(table?.property || {}), height },
+			depends,
 		});
+	};
+
+	const resetDependsOn = (newFileId: any) => {
+		const newFile = fetchers.find((f: any) => f.id === newFileId);
+
+		if (newFile?.type === 'data_fetcher') {
+			setValue('depends', null);
+		}
 	};
 
 	if (isLoading) {
@@ -95,7 +113,7 @@ export const TableProperties = () => {
 	return (
 		<form onSubmit={methods.handleSubmit(onSubmit)}>
 			<FormProvider {...methods}>
-				<Stack>
+				<Stack key={tableId}>
 					<Stack
 						py="2"
 						px="4"
@@ -139,34 +157,84 @@ export const TableProperties = () => {
 											}
 											return true;
 										},
+										isUnique: (value: any) => {
+											if (value && table?.name !== value) {
+												const isUnique = Object.keys(
+													pageState?.state?.tables,
+												).find(
+													(t: any) =>
+														t === value && value !== table?.name,
+												);
+												if (isUnique) {
+													return 'Table name must be unique';
+												}
+											}
+											return true;
+										},
 									},
 								}}
 							/>
 
 							<FormInput
-								type="select"
+								type="custom-select"
 								id="fileId"
 								name="Fetcher"
 								placeholder="Select data fetcher"
-								validation={{ required: 'option is required' }}
+								onSelect={resetDependsOn}
 								options={(fetchers as any).map((file: any) => ({
 									name: file.name,
 									value: file.id,
+									icon: null,
+									render: (isSelected: boolean) => {
+										return (
+											<Stack alignItems="center" direction="row">
+												<Icon
+													boxSize="6"
+													as={Table}
+													flexShrink="0"
+													color={isSelected ? 'blue.500' : ''}
+												/>
+												<Stack spacing="0">
+													<Text fontWeight="medium">{file.name}</Text>
+												</Stack>
+												<Badge
+													textTransform="lowercase"
+													size="xs"
+													ml="auto"
+													colorScheme={isSelected ? 'blue' : 'gray'}
+												>
+													.{file.type === 'sql' ? 'sql' : 'py'}
+												</Badge>
+											</Stack>
+										);
+									},
 								}))}
 							/>
 
-							{errorLog ? (
-								<Box
-									fontSize="xs"
-									color="red.500"
-									bg="white"
-									borderRadius="sm"
-									as="pre"
-									fontFamily="mono"
-								>
-									{errorLog}
-								</Box>
-							) : null}
+							<FormInput
+								type="select"
+								id="height"
+								name="Table height"
+								placeholder="Select table height"
+								options={['1/3', '1/2', 'full'].map((size: any) => ({
+									name: size,
+									value: size,
+								}))}
+							/>
+
+							<FormInput
+								type="multiselect"
+								id="depends"
+								isDisabled={selectedFile?.type === 'sql'}
+								name="Depends on"
+								placeholder="Select the table which it depends on"
+								options={tables
+									.filter((t: any) => t.id !== tableId)
+									.map((t: any) => ({
+										name: t.name,
+										value: t.name,
+									}))}
+							/>
 						</Stack>
 					</Stack>
 				</Stack>

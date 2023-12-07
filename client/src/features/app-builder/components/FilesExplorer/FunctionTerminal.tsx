@@ -72,7 +72,9 @@ export const FunctionTerminal = ({ code, file }: any) => {
 			},
 		});
 
-		return dispose;
+		return () => {
+			dispose();
+		};
 	}, [monaco, code]);
 
 	const handleRun = () => {
@@ -94,6 +96,7 @@ export const FunctionTerminal = ({ code, file }: any) => {
 				spacing="0"
 				alignItems="start"
 				direction="row"
+				mb={log || previewData?.columns ? 0 : 4}
 			>
 				<IconButton
 					icon={<Play size="14" />}
@@ -146,9 +149,9 @@ export const FunctionTerminal = ({ code, file }: any) => {
 			) : null}
 
 			{previewData?.columns ? (
-				<Stack maxW="container.lg" overflowX="auto" borderRightWidth="1px">
-					<ChakraTable {...previewData} maxH="sm" borderRadius="sm" />
-				</Stack>
+				<Box px="3" w="full" mt="3" pb="3" borderBottomWidth="1px">
+					<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
+				</Box>
 			) : null}
 		</Stack>
 	);

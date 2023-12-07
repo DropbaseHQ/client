@@ -13,9 +13,13 @@ env:
   APP_NAME: api
   DEV_AWS_REGION: us-east-1
   DEV_ECR_REPO: 890697794097.dkr.ecr.us-east-1.amazonaws.com
+  DEV_API_DOMAIN: api.dev.dropbase.io
   PROD_AWS_REGION: us-east-1
   PROD_ECR_REPO: 442766812249.dkr.ecr.us-east-1.amazonaws.com
+  PROD_API_DOMAIN: api.dropbase.io
   DEPLOY_USER: dropbase
+  CLIENT_URL: https://dev.dropbase.io
+  LOOPS_API_KEY: "771ca36f885accd66ab864342acabf6b"
 
 jobs:
   build-api-dev:
@@ -76,7 +80,7 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i infra/hosts -l dev --user ${{ env.DEPLOY_USER }} --extra-vars="env=dev ecr_repo=${{ env.DEV_ECR_REPO }} aws_region=${{ env.DEV_AWS_REGION }}" infra/api-deployment.yml
+          ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i infra/hosts -l dev --user ${{ env.DEPLOY_USER }} --extra-vars="env=dev ecr_repo=${{ env.DEV_ECR_REPO }} aws_region=${{ env.DEV_AWS_REGION }} domain=${{ env.DEV_API_DOMAIN }}" infra/api-deployment.yml
 
   build-api-prod:
     name: Prod - Build and push API docker image
@@ -136,4 +140,4 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-          ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i infra/hosts -l prod --user ${{ env.DEPLOY_USER }} --extra-vars="env=prod ecr_repo=${{ env.PROD_ECR_REPO }} aws_region=${{ env.PROD_AWS_REGION }}" infra/api-deployment.yml
+          ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i infra/hosts -l prod --user ${{ env.DEPLOY_USER }} --extra-vars="env=prod ecr_repo=${{ env.PROD_ECR_REPO }} aws_region=${{ env.PROD_AWS_REGION }} domain=${{ env.PROD_API_DOMAIN }}" infra/api-deployment.yml

@@ -69,4 +69,14 @@ export const theme = extendTheme({
 	config: {
 		initialColorMode: 'light',
 	},
+	styles: {
+		global: {
+			body: {
+				overscrollBehaviorX: 'none',
+			},
+			html: {
+				overscrollBehaviorX: 'none',
+			},
+		},
+	},
 });

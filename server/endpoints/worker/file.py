@@ -1,13 +1,19 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.files import CreateFiles, RenameFile, UpdateFiles
+from server.schemas.files import CreateFiles, RenameFile, UpdateFiles, UpdateFilesRequest
+from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 
-router = APIRouter(prefix="/files", tags=["files"])
+files_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.FILES)
+router = APIRouter(
+    prefix="/files",
+    tags=["files"],
+    # dependencies=[Depends(files_authorizer)],
+)
 
 
 @router.post("/")
@@ -36,8 +42,16 @@ def update_source(request: CreateFiles, db: Session = Depends(get_db)):
 
 
 @router.put("/{file_id}")
-def update_file_request(file_id: UUID, request: UpdateFiles, db: Session = Depends(get_db)):
-    return crud.files.update_by_pk(db, pk=file_id, obj_in=request)
+def update_file_request(file_id: UUID, request: UpdateFilesRequest, db: Session = Depends(get_db)):
+    if request.depends_on and len(request.depends_on) > 0:
+        tables = crud.tables.get_tables_by_file(db, file_id=request.file_id)
+        for table in tables:
+            table.depends_on = request.depends_on
+            db.commit()
+
+    update_obj = UpdateFiles(name=request.name, source=request.source)
+
+    return crud.files.update_by_pk(db, pk=file_id, obj_in=update_obj)
 
 
 @router.delete("/{file_id}")
