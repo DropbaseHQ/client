@@ -11,12 +11,7 @@ from server.schemas.files import CreateFiles, UpdateFiles
 
 class CRUDFiles(CRUDBase[Files, CreateFiles, UpdateFiles]):
     def get_page_files(self, db: Session, page_id: UUID) -> List[Files]:
-        return (
-            db.query(Files)
-            .filter(Files.page_id == str(page_id))
-            .order_by(Files.date)
-            .all()
-        )
+        return db.query(Files).filter(Files.page_id == str(page_id)).order_by(Files.date).all()
 
     def get_page_data_fetchers(self, db: Session, page_id: UUID) -> List[Files]:
         return (
@@ -36,15 +31,13 @@ class CRUDFiles(CRUDBase[Files, CreateFiles, UpdateFiles]):
             .all()
         )
 
-    def get_page_file_by_name(
-        self, db: Session, page_id: UUID, file_name: str
-    ) -> Files:
+    def get_page_file_by_name(self, db: Session, page_id: UUID, file_name: str) -> Files:
         return (
             db.query(Files)
             .join(Page, Files.page_id == Page.id)
             .filter(Files.name == file_name)
             .filter(Page.id == page_id)
-            .first()
+            .one()
         )
 
     def get_workspace_id(self, db: Session, files_id: UUID) -> str:

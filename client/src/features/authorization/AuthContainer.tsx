@@ -7,7 +7,6 @@ export const ProtectedRoutes = () => {
 	const { isLoading, isSuccess } = useWorkspaces();
 
 	const isAuthenticated = isSuccess;
-
 	if (isLoading)
 		return (
 			<Center as={Stack} spacing="6" w="full" h="full">

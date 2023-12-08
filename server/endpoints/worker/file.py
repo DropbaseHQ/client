@@ -26,19 +26,27 @@ def create_file(request: CreateFiles, response: Response, db: Session = Depends(
 
 
 @router.put("/rename")
-def update_name(request: RenameFile, db: Session = Depends(get_db)):
-    file = crud.files.get_page_file_by_name(db, page_id=request.page_id, file_name=request.old_name)
-    file.name = request.new_name
-    db.commit()
-    return file
+def update_name(request: RenameFile, response: Response, db: Session = Depends(get_db)):
+    try:
+        file = crud.files.get_page_file_by_name(db, page_id=request.page_id, file_name=request.old_name)
+        file.name = request.new_name
+        db.commit()
+        return file
+    except Exception as e:
+        response.status_code = 400
+        return {"message": str(e)}
 
 
 @router.put("/source")
-def update_source(request: CreateFiles, db: Session = Depends(get_db)):
-    file = crud.files.get_page_file_by_name(db, page_id=request.page_id, file_name=request.name)
-    file.source = request.source
-    db.commit()
-    return file
+def update_source(request: CreateFiles, response: Response, db: Session = Depends(get_db)):
+    try:
+        file = crud.files.get_page_file_by_name(db, page_id=request.page_id, file_name=request.name)
+        file.source = request.source
+        db.commit()
+        return file
+    except Exception as e:
+        response.status_code = 400
+        return {"message": str(e)}
 
 
 @router.put("/{file_id}")
