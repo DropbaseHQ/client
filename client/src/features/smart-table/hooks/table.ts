@@ -73,7 +73,8 @@ export const useTableData = ({
 		appName,
 		pageName,
 		type,
-		`${Object.keys(state?.state?.tables).length}`,
+		// Prevent table data from being refetched when table is being created or deleted
+		// `${Object.keys(state?.state?.tables).length}`,
 		currentPage,
 		pageSize,
 		JSON.stringify({ filters, sorts, dependentTableData, file, table }),
