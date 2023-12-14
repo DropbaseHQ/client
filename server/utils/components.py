@@ -8,7 +8,7 @@ from server.controllers.state.models import (
     SelectContextProperty,
     SelectDefinedProperty,
     TextContextProperty,
-    TextDefinedProperty,
+    TextDefinedProperty,   
 )
 from server.schemas.components import CreateComponents
 from server import crud
