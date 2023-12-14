@@ -172,7 +172,7 @@ const FileButton = ({ file }: any) => {
 							w="fit-content"
 							id={file.id}
 							name={fileName}
-							type={isSQLFile ? 'sql' : 'py'}
+							type={file.type}
 						/>
 					) : (
 						<Icon color={isActive ? `${colorScheme}.500` : ''} as={icon} boxSize={4} />
