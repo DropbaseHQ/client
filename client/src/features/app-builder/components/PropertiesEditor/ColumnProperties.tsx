@@ -97,7 +97,7 @@ const ColumnProperty = ({ id, property: properties, type }: any) => {
 				<Box>
 					<InputRenderer
 						type="boolean"
-						isDisabled={hasNoEditKeys || mutation.isLoading}
+						isDisabled={type !== 'postgres' || hasNoEditKeys || mutation.isLoading}
 						id="editable"
 						value={properties.editable}
 						onChange={(newValue: any) => {
