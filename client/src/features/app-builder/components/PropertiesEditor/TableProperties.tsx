@@ -152,8 +152,8 @@ export const TableProperties = () => {
 											return true;
 										},
 										noSpecialChars: (value: any) => {
-											if (value && /[^a-z0-9]/.test(value)) {
-												return 'Must not contain special characters';
+											if (value && /[^a-z0-9_]/.test(value)) {
+												return 'Must not contain special characters other than underscores';
 											}
 											return true;
 										},
