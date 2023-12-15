@@ -475,7 +475,10 @@ export const SmartTable = ({ tableId }: any) => {
 								) : (
 									<DataEditor
 										columns={gridColumns}
-										rows={pageInfo.pageSize || DEFAULT_PAGE_SIZE}
+										rows={Math.min(
+											rows.length,
+											pageInfo.pageSize || DEFAULT_PAGE_SIZE,
+										)}
 										width="100%"
 										height="100%"
 										getCellContent={getCellContent}
