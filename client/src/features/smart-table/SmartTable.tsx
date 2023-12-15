@@ -395,7 +395,10 @@ export const SmartTable = ({ tableId }: any) => {
 		});
 
 		const newSelectedRow = {
-			[tableName]: Object.fromEntries(Object.keys(selectedRow).map(col => [col, null]))
+			[tableName]: Object.keys(selectedRow).reduce(
+				(acc: {[col: string]: string | null}, curr: string) => ({...acc, [curr]: null}),
+				{},
+			)
 		}
 
 		selectRow((old: any) => ({
