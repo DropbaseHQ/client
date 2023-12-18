@@ -12,15 +12,20 @@ import {
 
 import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Save } from 'react-feather';
 import { useQueryClient } from 'react-query';
 import { useToast } from '@/lib/chakra-ui';
 
-import { useParams } from 'react-router-dom';
 import { usePythonEditor } from '@/components/Editor';
-import { COLUMN_PROPERTIES_QUERY_KEY, useFile, usePageFiles } from '@/features/app-builder/hooks';
+import {
+	COLUMN_PROPERTIES_QUERY_KEY,
+	useFile,
+	usePageFiles,
+	useSaveCode,
+} from '@/features/app-builder/hooks';
 import { pageAtom, useGetPage } from '@/features/page';
-import { useSaveCode } from '@/features/app-builder/hooks';
+
 import { getErrorMessage } from '@/utils';
 import { FunctionTerminal } from './FunctionTerminal';
 import { TABLE_DATA_QUERY_KEY } from '../../../smart-table/hooks';
@@ -56,7 +61,8 @@ export const FunctionEditor = ({ id }: any) => {
 	const file = files.find((f: any) => f.id === id);
 	const fileName = file ? `${file?.name}${file?.type === 'sql' ? '.sql' : '.py'}` : null;
 
-	const filePath = workerFiles.find((f: any) => f.endsWith(fileName));
+	// ⚠️ check using / else will take files which ends with the same keywords like activate.py & deactivate.py
+	const filePath = workerFiles.find((f: any) => f.endsWith(`/${fileName}`));
 	const { isLoading, code, refetch } = useFile({
 		pageName,
 		appName,

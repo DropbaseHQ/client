@@ -168,12 +168,7 @@ const FileButton = ({ file }: any) => {
 			) : (
 				<Stack alignItems="center" direction="row">
 					{mouseOver ? (
-						<DeleteFile
-							w="fit-content"
-							id={file.id}
-							name={fileName}
-							type={file.type}
-						/>
+						<DeleteFile w="fit-content" id={file.id} name={fileName} type={file.type} />
 					) : (
 						<Icon color={isActive ? `${colorScheme}.500` : ''} as={icon} boxSize={4} />
 					)}
