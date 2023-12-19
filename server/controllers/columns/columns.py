@@ -8,6 +8,7 @@ from server.controllers.state.models import PgColumnDefinedProperty, PyColumnDef
 from server.models.columns import Columns
 from server.schemas.columns import CreateColumns, SyncColumns, UpdateColumns
 from server.schemas.tables import ReadTables
+from server.schemas.worker import SyncColumnsRequest
 from server.utils.converter import get_class_properties
 from server.utils.state_context import get_state_context_payload
 
@@ -48,7 +49,7 @@ def get_table_columns_and_props(db: Session, table_id: UUID):
     return {"schema": column_props, "columns": columns}
 
 
-def update_table_columns(db: Session, table_id: UUID, columns: List[str], table_type: str):
+def update_table_columns(db: Session, table_id: UUID, columns: List[SyncColumnsRequest.Column], table_type: str):
     crud.columns.delete_table_columns(db, table_id=table_id)
     column_class = column_type_to_schema_mapper.get(table_type)
     for column in columns:
@@ -56,11 +57,11 @@ def update_table_columns(db: Session, table_id: UUID, columns: List[str], table_
 
 
 def create_column_record_from_name(
-    db: Session, col_name: str, table_id: UUID, column_class, table_type
+    db: Session, column: SyncColumnsRequest.Column, table_id: UUID, column_class, table_type
 ) -> Columns:
     column_obj = CreateColumns(
-        name=col_name,
-        property=column_class(name=col_name),
+        name=column.name,
+        property=column_class(name=column.name, type=column.type),
         table_id=table_id,
         type="postgres" if table_type == "sql" else "python",
     )
