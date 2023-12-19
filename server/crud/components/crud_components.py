@@ -10,7 +10,12 @@ from server.schemas.components import CreateComponents, UpdateComponents
 
 class CRUDComponents(CRUDBase[Components, CreateComponents, UpdateComponents]):
     def get_widget_component(self, db: Session, widget_id: UUID) -> List[Components]:
-        return db.query(Components).filter(Components.widget_id == widget_id).all()
+        return (
+            db.query(Components)
+            .filter(Components.widget_id == widget_id)
+            .order_by(Components.order)
+            .all()
+        )
 
     def get_resources(self, db: Session, widget_id: UUID) -> List[Components]:
         return db.query(Components).filter(Components.widget_id == widget_id).all()

@@ -8,7 +8,7 @@ from server.schemas.components import (
     ButtonDefined,
     CreateComponents,
     InputDefined,
-    ReorderComponents,
+    ReorderComponentsRequest,
     SelectDefined,
     TextDefined,
     UpdateComponents,
@@ -48,7 +48,10 @@ def update_component(db: Session, components_id: UUID, request: UpdateComponents
 
 def get_widget_components_and_props(db: Session, widget_id: UUID):
     components = crud.components.get_widget_component(db, widget_id=widget_id)
-    ordered_comp = order_components(components)
+    ordered_comp = components
+    first_component = components[0]
+    if first_component.order is None:
+        ordered_comp = order_components(components)
     schema = {
         "input": get_class_properties(InputDefined),
         "select": get_class_properties(SelectDefined),
@@ -73,13 +76,21 @@ def delete_component(db: Session, components_id: UUID):
     return get_state_context_payload(db, page.id)
 
 
-def reorder_component(db: Session, request: ReorderComponents):
-    # if request.after is None:
-    component = crud.components.get_object_by_id_or_404(db, id=request.component_id)
-    current_component = crud.components.get_component_by_after(
-        db, widget_id=request.widget_id, after=request.after
-    )
-    # get component currently at that position
-    component.after = request.after
-    current_component.after = component.id
+def reorder_component(db: Session, request: ReorderComponentsRequest):
+    for comp in request.components:
+        order = comp.get("order") * 100
+        crud.components.update_by_pk(
+            db, pk=comp.get("id"), obj_in={"order": order}, auto_commit=False
+        )
+
     db.commit()
+
+    # # if request.after is None:
+    # component = crud.components.get_object_by_id_or_404(db, id=request.component_id)
+    # current_component = crud.components.get_component_by_after(
+    #     db, widget_id=request.widget_id, after=request.after
+    # )
+    # # get component currently at that position
+    # component.after = request.after
+    # current_component.after = component.id
+    # db.commit()

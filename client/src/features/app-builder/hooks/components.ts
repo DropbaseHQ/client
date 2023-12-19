@@ -143,3 +143,22 @@ export const useDeleteComponent = (props: any = {}) => {
 		},
 	});
 };
+
+const reorderComponents = async ({ widgetId, components }: any) => {
+	const response = await axios.post(`/components/reorder`, {
+		widget_id: widgetId,
+		components,
+	});
+	return response.data;
+};
+
+export const useReorderComponents = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(reorderComponents, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(WIDGET_PROPERTIES_QUERY_KEY);
+			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
+		},
+	});
+};
