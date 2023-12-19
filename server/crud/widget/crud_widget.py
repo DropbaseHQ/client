@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import App, Page, Widget, Workspace
+from server.models import App, Page, Widget, Workspace, Components
 from server.schemas.widget import CreateWidget, UpdateWidget
 
 
@@ -34,6 +34,14 @@ class CRUDWidget(CRUDBase[Widget, CreateWidget, UpdateWidget]):
             .filter(Widget.id == widget_id)
             .one()
         ).app_id
+
+    def get_last_component(self, db: Session, widget_id: UUID) -> Components:
+        return (
+            db.query(Components)
+            .filter(Components.widget_id == widget_id)
+            .order_by(Components.order.desc())
+            .first()
+        )
 
 
 widget = CRUDWidget(Widget)

@@ -161,6 +161,7 @@ class CreateComponents(BaseModel):
     widget_id: UUID
     after: Optional[UUID]
     type: str
+    order: Optional[int]
 
 
 class UpdateComponents(BaseModel):

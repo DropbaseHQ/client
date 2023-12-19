@@ -28,6 +28,12 @@ def create_component(db: Session, request: CreateComponents):
     ComponentClass = component_type_mapper[request.type]
     comp_property = ComponentClass(**request.property)
     request.property = comp_property
+    last_component = crud.widget.get_last_component(db, widget_id=request.widget_id)
+    if last_component:
+        request.order = (last_component.order + 1) * 100
+    else:
+        request.order = 100
+
     request = process_after_property(db=db, component=request)
     component = crud.components.create(db, obj_in=request)
     page = crud.page.get_page_by_widget(db, widget_id=component.widget_id)
@@ -49,8 +55,8 @@ def update_component(db: Session, components_id: UUID, request: UpdateComponents
 def get_widget_components_and_props(db: Session, widget_id: UUID):
     components = crud.components.get_widget_component(db, widget_id=widget_id)
     ordered_comp = components
-    first_component = components[0]
-    if first_component.order is None:
+    first_component = components[0] if len(components) > 0 else None
+    if first_component and first_component.order is None:
         ordered_comp = order_components(components)
     schema = {
         "input": get_class_properties(InputDefined),
