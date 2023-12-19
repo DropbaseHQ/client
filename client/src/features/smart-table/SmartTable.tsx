@@ -34,7 +34,7 @@ import {
 	// useTableSyncStatus,
 } from './hooks';
 
-import { cellEditsAtom, tablePageInfoAtom } from './atoms';
+import { cellEditsAtom, tableColumnWidthAtom, tablePageInfoAtom } from './atoms';
 import { TableBar } from './components';
 import { getPGColumnBaseType } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
@@ -56,11 +56,15 @@ export const SmartTable = ({ tableId }: any) => {
 
 	const { isPreview } = useAtomValue(appModeAtom);
 
+	const [allTableColumnWidth, setTableColumnWidth] = useAtom(tableColumnWidthAtom);
+
 	const [selection, setSelection] = useState({
 		rows: CompactSelection.empty(),
 		columns: CompactSelection.empty(),
 		current: undefined,
 	});
+
+	const tableColumnWidth = allTableColumnWidth?.[tableId];
 
 	const { isLoading, rows, columns, header, refetch, isRefetching, tableError, error } =
 		useCurrentTableData(tableId);
@@ -79,7 +83,7 @@ export const SmartTable = ({ tableId }: any) => {
 	const [allTablePageInfo, setPageInfo] = useAtom(tablePageInfoAtom);
 	const pageInfo = allTablePageInfo[tableId] || {};
 
-	const [columnWidth, setColumnWidth] = useState<any>({});
+	const [columnWidth, setColumnWidth] = useState<any>(tableColumnWidth || {});
 
 	const { pageName, appName } = useAtomValue(pageAtom);
 
@@ -88,12 +92,23 @@ export const SmartTable = ({ tableId }: any) => {
 
 	const pageState = useAtomValue(newPageStateAtom);
 
-	const onColumnResize = useCallback((col: any, newSize: any) => {
-		setColumnWidth((c: any) => ({
-			...c,
-			[col.id]: newSize,
-		}));
-	}, []);
+	const onColumnResize = useCallback(
+		(col: any, newSize: any) => {
+			setColumnWidth((c: any) => ({
+				...c,
+				[col.id]: newSize,
+			}));
+
+			setTableColumnWidth((old: any) => ({
+				...old,
+				[tableId]: {
+					...(old?.[tableId] || {}),
+					[col.id]: newSize,
+				},
+			}));
+		},
+		[setTableColumnWidth, tableId],
+	);
 
 	useEffect(() => {
 		const selectedIndex = rows.findIndex(
@@ -107,6 +122,17 @@ export const SmartTable = ({ tableId }: any) => {
 			}));
 		}
 	}, [selectedRow, rows, selection]);
+
+	// only fill column width if the current state is empty
+	useEffect(() => {
+		setColumnWidth((curr: any) => {
+			if (Object.keys(curr).length === 0 && tableColumnWidth) {
+				return tableColumnWidth;
+			}
+
+			return curr;
+		});
+	}, [tableColumnWidth, setColumnWidth]);
 
 	useEffect(() => {
 		setCellEdits((old: any) => ({
