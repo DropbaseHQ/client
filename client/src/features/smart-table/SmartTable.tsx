@@ -408,8 +408,31 @@ export const SmartTable = ({ tableId }: any) => {
 				...old,
 				...newSelectedRow,
 			}));
+		} else {
+			onSelectionCleared();
 		}
 	};
+
+	const onSelectionCleared = () => {
+		setSelection({
+			rows: CompactSelection.empty(),
+			columns: CompactSelection.empty(),
+			current: undefined,
+		});
+
+		const newSelectedRow = {
+			[tableName]: Object.keys(selectedRow).reduce(
+				(acc: {[col: string]: string | null}, curr: string) => ({...acc, [curr]: null}),
+				{},
+			)
+		}
+
+		selectRow((old: any) => ({
+			...old,
+			...newSelectedRow,
+		}));
+	}
+
 	const handleSyncColumns = () => {
 		syncMutation.mutate({
 			pageName,
@@ -513,6 +536,7 @@ export const SmartTable = ({ tableId }: any) => {
 										smoothScrollY
 										theme={gridTheme}
 										onGridSelectionChange={handleSetSelection}
+										onSelectionCleared={onSelectionCleared}
 										gridSelection={selection}
 										highlightRegions={highlights}
 										onCellEdited={onCellEdited}
