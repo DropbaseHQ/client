@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useAtomValue } from 'jotai';
 
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY, useGetTable } from '@/features/app-builder/hooks';
@@ -7,6 +8,7 @@ import { useGetPage } from '@/features/page';
 import { APP_STATE_QUERY_KEY, useAppState } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
+import { hasSelectedRowAtom } from '../atoms';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
@@ -53,7 +55,10 @@ export const useTableData = ({
 	const { tables, files, isFetching: isLoadingPage } = useGetPage(pageId);
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
 
+	const hasSelectedRows = useAtomValue(hasSelectedRowAtom);
+
 	const depends = tables.find((t: any) => t.id === tableId)?.depends_on || [];
+	const tablesWithNoSelection = depends.filter((name: any) => !hasSelectedRows[name]);
 
 	const tablesState = state?.state?.tables;
 
@@ -103,7 +108,8 @@ export const useTableData = ({
 				table &&
 				appName &&
 				pageName &&
-				Object.keys(state?.state?.tables || {}).length > 0
+				Object.keys(state?.state?.tables || {}).length > 0 &&
+				tablesWithNoSelection.length === 0
 			),
 		},
 	);

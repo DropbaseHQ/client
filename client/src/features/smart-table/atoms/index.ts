@@ -9,3 +9,5 @@ export const sortsAtom = atom<any>({});
 export const tablePageInfoAtom = atom<any>({});
 
 export const tableColumnWidthAtom = atomWithStorage<any>('columnWidth', {});
+
+export const hasSelectedRowAtom = atom<any>({});

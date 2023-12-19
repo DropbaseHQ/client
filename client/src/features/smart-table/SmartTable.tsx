@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
-import { RefreshCw, RotateCw } from 'react-feather';
+import { Info, RefreshCw, RotateCw } from 'react-feather';
 
 import DataEditor, {
 	CompactSelection,
@@ -34,7 +34,12 @@ import {
 	// useTableSyncStatus,
 } from './hooks';
 
-import { cellEditsAtom, tableColumnWidthAtom, tablePageInfoAtom } from './atoms';
+import {
+	cellEditsAtom,
+	hasSelectedRowAtom,
+	tableColumnWidthAtom,
+	tablePageInfoAtom,
+} from './atoms';
 import { TableBar } from './components';
 import { getPGColumnBaseType } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
@@ -57,6 +62,7 @@ export const SmartTable = ({ tableId }: any) => {
 	const { isPreview } = useAtomValue(appModeAtom);
 
 	const [allTableColumnWidth, setTableColumnWidth] = useAtom(tableColumnWidthAtom);
+	const [tablesRowSelected, setTableRowSelection] = useAtom(hasSelectedRowAtom);
 
 	const [selection, setSelection] = useState({
 		rows: CompactSelection.empty(),
@@ -405,6 +411,11 @@ export const SmartTable = ({ tableId }: any) => {
 			...old,
 			...newSelectedRow,
 		}));
+
+		setTableRowSelection((curr: any) => ({
+			...curr,
+			[tableName]: false,
+		}));
 	};
 
 	const handleSetSelection = (newSelection: any) => {
@@ -427,6 +438,11 @@ export const SmartTable = ({ tableId }: any) => {
 			selectRow((old: any) => ({
 				...old,
 				...newSelectedRow,
+			}));
+
+			setTableRowSelection((curr: any) => ({
+				...curr,
+				[tableName]: true,
 			}));
 		} else {
 			onSelectionCleared();
@@ -460,16 +476,37 @@ export const SmartTable = ({ tableId }: any) => {
 
 	const errorMessage = tableError || error?.response?.data?.result?.error || error?.message;
 
+	const dependantTablesWithNoRowSelection = (table?.depends_on || []).filter(
+		(name: any) => !tablesRowSelected[name],
+	);
+
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="1">
 				<NavLoader isLoading={isLoadingTable}>
 					<Flex justifyContent="space-between">
-						<Text flexShrink="0" px="2" fontWeight="semibold">
-							{tableName}
-						</Text>
+						<Stack spacing="0" px="2" flexShrink="0">
+							<Text fontWeight="semibold">{tableName}</Text>
+							{dependantTablesWithNoRowSelection.length > 0 ? (
+								<Stack direction="row" spacing="1" alignItems="center">
+									<Box color="orange.500">
+										<Info size="14" />
+									</Box>
+									<Text fontSize="xs">
+										This table depends on{' '}
+										<Box as="span" px=".5" fontWeight="semibold">
+											{(table?.depends_on || []).join(', ')}
+										</Box>
+										. No row selection found for{' '}
+										<Box as="span" fontWeight="semibold" color="orange.500">
+											{dependantTablesWithNoRowSelection.join(', ')}
+										</Box>
+									</Text>
+								</Stack>
+							) : null}
+						</Stack>
 
-						<Stack direction="row" spacing="2">
+						<Stack alignItems="center" direction="row" spacing="2">
 							<Tooltip label="Refresh data">
 								<IconButton
 									aria-label="Refresh Data"
@@ -543,10 +580,11 @@ export const SmartTable = ({ tableId }: any) => {
 										keybindings={{ search: true }}
 										onColumnResize={onColumnResize}
 									/>
-								)}{' '}
+								)}
 							</>
 						)}
 					</Box>
+
 					<Pagination />
 				</Stack>
 			</Stack>
