@@ -3,7 +3,7 @@ from server import crud
 from sqlalchemy.orm import Session
 from server.schemas.components import (
     CreateComponents,
-    ReorderComponents,
+    ReorderComponentsRequest,
     UpdateComponents,
 )
 from server.utils.connect import get_db

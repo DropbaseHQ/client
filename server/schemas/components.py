@@ -17,7 +17,9 @@ from server.schemas.properties import PropertyCategory
 class InputBaseProperties(BaseModel):
     name: Annotated[str, PropertyCategory.default]
     label: Annotated[Optional[str], PropertyCategory.default]
-    type: Annotated[Optional[Literal["text", "number", "date"]], PropertyCategory.default] = "text"
+    type: Annotated[
+        Optional[Literal["text", "number", "date"]], PropertyCategory.default
+    ] = "text"
     placeholder: Annotated[Optional[str], PropertyCategory.default]
 
     # display rules
@@ -58,7 +60,9 @@ class SelectDefined(SelectSharedProperties, SelectBaseProperties):
     pass
 
 
-class SelectRead(SelectBaseProperties, ComponentDisplayProperties, SelectSharedProperties):
+class SelectRead(
+    SelectBaseProperties, ComponentDisplayProperties, SelectSharedProperties
+):
     pass
 
 
@@ -68,7 +72,16 @@ class ButtonBaseProperties(BaseModel):
     color: Annotated[
         Optional[
             Literal[
-                "red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"
+                "red",
+                "blue",
+                "green",
+                "yellow",
+                "black",
+                "white",
+                "grey",
+                "orange",
+                "purple",
+                "pink",
             ]
         ],
         PropertyCategory.default,
@@ -85,18 +98,31 @@ class ButtonDefined(ButtonSharedProperties, ButtonBaseProperties):
     pass
 
 
-class ButtonRead(ButtonBaseProperties, ComponentDisplayProperties, ButtonSharedProperties):
+class ButtonRead(
+    ButtonBaseProperties, ComponentDisplayProperties, ButtonSharedProperties
+):
     pass
 
 
 class TextBaseProperties(BaseModel):
     name: Annotated[str, PropertyCategory.default]
     text: Annotated[Optional[str], PropertyCategory.default]
-    size: Annotated[Optional[Literal["small", "medium", "large"]], PropertyCategory.default]
+    size: Annotated[
+        Optional[Literal["small", "medium", "large"]], PropertyCategory.default
+    ]
     color: Annotated[
         Optional[
             Literal[
-                "red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink"
+                "red",
+                "blue",
+                "green",
+                "yellow",
+                "black",
+                "white",
+                "grey",
+                "orange",
+                "purple",
+                "pink",
             ]
         ],
         PropertyCategory.default,
@@ -142,7 +168,12 @@ class UpdateComponents(BaseModel):
     type: str
 
 
-class ReorderComponents(BaseModel):
+# class ReorderComponents(BaseModel):
+#     widget_id: UUID
+#     component_id: UUID
+#     after: Optional[UUID]
+
+
+class ReorderComponentsRequest(BaseModel):
     widget_id: UUID
-    component_id: UUID
-    after: Optional[UUID]
+    components: list[dict]

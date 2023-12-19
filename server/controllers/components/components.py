@@ -8,7 +8,7 @@ from server.schemas.components import (
     ButtonDefined,
     CreateComponents,
     InputDefined,
-    ReorderComponents,
+    ReorderComponentsRequest,
     SelectDefined,
     TextDefined,
     UpdateComponents,
@@ -73,13 +73,21 @@ def delete_component(db: Session, components_id: UUID):
     return get_state_context_payload(db, page.id)
 
 
-def reorder_component(db: Session, request: ReorderComponents):
-    # if request.after is None:
-    component = crud.components.get_object_by_id_or_404(db, id=request.component_id)
-    current_component = crud.components.get_component_by_after(
-        db, widget_id=request.widget_id, after=request.after
-    )
-    # get component currently at that position
-    component.after = request.after
-    current_component.after = component.id
+def reorder_component(db: Session, request: ReorderComponentsRequest):
+    for comp in request.components:
+        order = comp.get("order") * 100
+        crud.components.update_by_pk(
+            db, pk=comp.get("id"), obj_in={"order": order}, auto_commit=False
+        )
+
     db.commit()
+
+    # # if request.after is None:
+    # component = crud.components.get_object_by_id_or_404(db, id=request.component_id)
+    # current_component = crud.components.get_component_by_after(
+    #     db, widget_id=request.widget_id, after=request.after
+    # )
+    # # get component currently at that position
+    # component.after = request.after
+    # current_component.after = component.id
+    # db.commit()
