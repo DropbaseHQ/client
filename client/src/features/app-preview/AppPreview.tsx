@@ -4,9 +4,6 @@ import {
 	AlertIcon,
 	Box,
 	Button,
-	FormControl,
-	FormHelperText,
-	FormLabel,
 	IconButton,
 	Progress,
 	Skeleton,
@@ -19,144 +16,17 @@ import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue } from 'jotai';
 import { useStatus } from '@/layout/StatusBar';
-import { getErrorMessage } from '@/utils';
 
-import { useExecuteAction, useGetWidgetPreview } from '@/features/app-preview/hooks';
-import { InputRenderer } from '@/components/FormInput';
-import {
-	widgetComponentsAtom,
-	useInitializeWidgetState,
-	allWidgetStateAtom,
-	useSyncState,
-	newPageStateAtom,
-	allWidgetsInputAtom,
-} from '@/features/app-state';
+import { useGetWidgetPreview } from '@/features/app-preview/hooks';
+import { useInitializeWidgetState, allWidgetStateAtom } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { useCreateWidget, useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
-import { checkAllRulesPass } from '@/features/app-preview/utils';
 import { InspectorContainer } from '@/features/app-builder';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
 import { appModeAtom } from '@/features/app/atoms';
-import { useToast } from '@/lib/chakra-ui';
+import { AppComponent } from './AppComponent';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-
-const sizeMap: any = {
-	small: 'sm',
-	medium: 'md',
-	large: 'lg',
-};
-
-const AppComponent = (props: any) => {
-	const toast = useToast();
-	const { pageName, appName } = useAtomValue(pageAtom);
-	const { type, property: component } = props;
-
-	const pageState = useAtomValue(newPageStateAtom);
-
-	const { widgetId } = useAtomValue(pageAtom);
-	const { widget } = useGetWidgetPreview(widgetId || '');
-
-	const [allWidgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
-	const widgetComponents = allWidgetComponents[widget.name]?.components || {};
-	const inputState = widgetComponents?.[component.name] || {};
-
-	const allUserInputValues: any = useAtomValue(allWidgetsInputAtom);
-
-	const widgetInputs = allUserInputValues?.[widget.name] || {};
-
-	const syncState = useSyncState();
-
-	const { isPreview } = useAtomValue(appModeAtom);
-	const isEditorMode = !isPreview;
-
-	const shouldDisplay = checkAllRulesPass({
-		values: widgetInputs,
-		rules: component.display_rules,
-	});
-	const grayOutComponent = !shouldDisplay && isEditorMode;
-
-	const actionMutation = useExecuteAction({
-		onSuccess: (data: any) => {
-			syncState(data);
-		},
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to execute action',
-				description: getErrorMessage(error),
-			});
-		},
-	});
-
-	const handleAction = (actionName: string) => {
-		actionMutation.mutate({
-			pageName,
-			appName,
-			functionName: actionName,
-			pageState,
-		});
-	};
-
-	if (!shouldDisplay && !isEditorMode) {
-		return null;
-	}
-
-	if (type === 'button') {
-		return (
-			<Button
-				my="1.5"
-				size="sm"
-				isLoading={actionMutation.isLoading}
-				bgColor={grayOutComponent ? 'gray.100' : ''}
-				colorScheme={component.color || 'blue'}
-				onClick={() => {
-					if (component.on_click) {
-						handleAction(component.on_click);
-					}
-				}}
-			>
-				{component.label}
-			</Button>
-		);
-	}
-
-	if (type === 'text') {
-		return (
-			<Text
-				fontSize={sizeMap[component.size]}
-				color={component.color || `${component.color}.500`}
-				bgColor={grayOutComponent ? 'gray.100' : ''}
-			>
-				{component.text}
-			</Text>
-		);
-	}
-
-	return (
-		<FormControl key={component.name} bgColor={grayOutComponent ? 'gray.100' : ''}>
-			{component.label ? <FormLabel lineHeight={1}>{component.label}</FormLabel> : null}
-			<InputRenderer
-				placeholder={component?.placeholder}
-				value={inputState?.value}
-				name={component.name}
-				type={type === 'select' ? 'select' : component.type}
-				onChange={(newValue: any) => {
-					setWidgetComponentValues({
-						[component.name]: newValue,
-					});
-
-					if (component.on_change) {
-						handleAction(component.on_change);
-					}
-				}}
-				options={inputState.options || component.options}
-			/>
-
-			{inputState?.message ? <FormHelperText>{inputState.message}</FormHelperText> : null}
-		</FormControl>
-	);
-};
 
 export const AppPreview = () => {
 	const { pageId } = useParams();
