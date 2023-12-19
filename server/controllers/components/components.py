@@ -48,7 +48,10 @@ def update_component(db: Session, components_id: UUID, request: UpdateComponents
 
 def get_widget_components_and_props(db: Session, widget_id: UUID):
     components = crud.components.get_widget_component(db, widget_id=widget_id)
-    ordered_comp = order_components(components)
+    ordered_comp = components
+    first_component = components[0]
+    if first_component.order is None:
+        ordered_comp = order_components(components)
     schema = {
         "input": get_class_properties(InputDefined),
         "select": get_class_properties(SelectDefined),
