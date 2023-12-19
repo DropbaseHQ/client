@@ -387,6 +387,26 @@ export const SmartTable = ({ tableId }: any) => {
 		}
 	};
 
+	const onSelectionCleared = () => {
+		setSelection({
+			rows: CompactSelection.empty(),
+			columns: CompactSelection.empty(),
+			current: undefined,
+		});
+
+		const newSelectedRow = {
+			[tableName]: Object.keys(selectedRow).reduce(
+				(acc: { [col: string]: string | null }, curr: string) => ({ ...acc, [curr]: null }),
+				{},
+			),
+		};
+
+		selectRow((old: any) => ({
+			...old,
+			...newSelectedRow,
+		}));
+	};
+
 	const handleSetSelection = (newSelection: any) => {
 		const rowSelected = newSelection?.rows?.toArray()?.[0];
 		const cellSelected = newSelection?.current?.cell?.[1];
@@ -412,26 +432,6 @@ export const SmartTable = ({ tableId }: any) => {
 			onSelectionCleared();
 		}
 	};
-
-	const onSelectionCleared = () => {
-		setSelection({
-			rows: CompactSelection.empty(),
-			columns: CompactSelection.empty(),
-			current: undefined,
-		});
-
-		const newSelectedRow = {
-			[tableName]: Object.keys(selectedRow).reduce(
-				(acc: {[col: string]: string | null}, curr: string) => ({...acc, [curr]: null}),
-				{},
-			)
-		}
-
-		selectRow((old: any) => ({
-			...old,
-			...newSelectedRow,
-		}));
-	}
 
 	const handleSyncColumns = () => {
 		syncMutation.mutate({
