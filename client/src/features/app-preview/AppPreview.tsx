@@ -8,10 +8,12 @@ import {
 	FormHelperText,
 	FormLabel,
 	IconButton,
+	Progress,
 	Skeleton,
 	Stack,
 	Text,
 } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 import { ChevronDown, X } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
@@ -30,13 +32,14 @@ import {
 	allWidgetsInputAtom,
 } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
-import { useCreateWidget } from '@/features/app-builder/hooks';
+import { useCreateWidget, useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { checkAllRulesPass } from '@/features/app-preview/utils';
 import { InspectorContainer } from '@/features/app-builder';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const sizeMap: any = {
 	small: 'sm',
@@ -164,13 +167,15 @@ export const AppPreview = () => {
 	const isDevMode = !isPreview;
 
 	const { isLoading, components, widget } = useGetWidgetPreview(widgetId || '');
-
+	const [componentsState, setComponentsState] = useState(components);
 	const { appName, pageName } = useAtomValue(pageAtom);
 
 	useInitializeWidgetState({ widgetId: widget?.name, appName, pageName });
 
 	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
 	const allWidgetState = widgetData.state;
+
+	const reorderMutation = useReorderComponents();
 
 	const widgetState: any = allWidgetState[widget?.name];
 
@@ -179,6 +184,39 @@ export const AppPreview = () => {
 			...lodashSet(oldData, `state.${widget?.name}.message`, null),
 		}));
 	};
+	const handleReorderComponents = (newComponentOrder: { id: string; order: number }[]) => {
+		reorderMutation.mutate({
+			widgetId: widget?.id,
+			components: newComponentOrder,
+		});
+	};
+
+	const handleOnDragEnd = (result: any) => {
+		const { destination, source } = result;
+		if (!destination) {
+			return;
+		}
+
+		if (destination.droppableId === source.droppableId && destination.index === source.index) {
+			return;
+		}
+
+		const newComponentIds = Array.from(componentsState);
+		const movedEl = newComponentIds.splice(source.index, 1);
+		newComponentIds.splice(destination.index, 0, movedEl[0]);
+
+		setComponentsState(newComponentIds);
+		handleReorderComponents(
+			newComponentIds.map((c: any, index: number) => ({
+				id: c.id,
+				order: index,
+			})),
+		);
+	};
+
+	useEffect(() => {
+		setComponentsState(components);
+	}, [components]);
 
 	const mutation = useCreateWidget();
 
@@ -264,29 +302,57 @@ export const AppPreview = () => {
 						</Stack>
 					</InspectorContainer>
 				</Stack>
-
-				<Stack p="4" h="full" overflow="auto" spacing="3">
-					{components.map((c: any) => {
-						return (
-							<InspectorContainer key={c.id} id={c.id} type="component">
-								<AppComponent key={c.id} {...c} />
-							</InspectorContainer>
-						);
-					})}
-					{isDevMode ? (
-						<Box
-							w="full"
-							p="2"
-							bg="white"
-							borderWidth="1px"
-							borderStyle="dashed"
-							borderRadius="md"
-							mt="auto"
-						>
-							<NewComponent w="full" variant="secondary" />
-						</Box>
-					) : null}
-				</Stack>
+				<DragDropContext onDragEnd={handleOnDragEnd}>
+					<Droppable droppableId="droppable-1">
+						{(provided: any, _: any) => (
+							<Stack
+								ref={provided.innerRef}
+								p="4"
+								pt="2"
+								h="full"
+								overflow="auto"
+								spacing="3"
+								{...provided.droppableProps}
+							>
+								{reorderMutation.isLoading && (
+									<Progress size="xs" isIndeterminate />
+								)}
+								{componentsState.map((c: any, index: number) => {
+									return (
+										<Draggable key={c.id} draggableId={c.id} index={index}>
+											{(provided: any, _: any) => (
+												<InspectorContainer
+													ref={provided.innerRef}
+													key={c.id}
+													id={c.id}
+													type="component"
+													{...provided.draggableProps}
+													{...provided.dragHandleProps}
+												>
+													<AppComponent key={c.id} {...c} />
+												</InspectorContainer>
+											)}
+										</Draggable>
+									);
+								})}
+								{provided.placeholder}
+								{isDevMode ? (
+									<Box
+										w="full"
+										p="2"
+										bg="white"
+										borderWidth="1px"
+										borderStyle="dashed"
+										borderRadius="md"
+										mt="auto"
+									>
+										<NewComponent w="full" variant="secondary" />
+									</Box>
+								) : null}
+							</Stack>
+						)}
+					</Droppable>
+				</DragDropContext>
 
 				{widgetState?.message ? (
 					<Stack

@@ -159,7 +159,6 @@ export const useReorderComponents = (props: any = {}) => {
 		onSettled: () => {
 			queryClient.invalidateQueries(WIDGET_PROPERTIES_QUERY_KEY);
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 		},
 	});
 };
