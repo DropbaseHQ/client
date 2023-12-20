@@ -7,14 +7,15 @@ import { PanelHandle } from '@/components/Panel';
 
 import { AppPreview } from '@/features/app-preview';
 import { StackedTables } from '@/features/smart-table';
-import { AppState } from '@/features/app-state';
 import { useInitPage } from '@/features/page';
 import { Loader } from '@/components/Loader';
 import { AppNavbar } from '@/features/app/components/AppNavbar';
 import { PropertyPane } from '@/features/app-builder';
-import { FilesExplorer } from './components/FilesExplorer';
+
 import { WorkerDisconnected } from './components/WorkerDisconnected';
 import { inspectedResourceAtom } from './atoms';
+import { BuilderSidebar } from './components/Sidebar';
+import { FileContent } from './components/FilesExplorer/FileContent';
 
 export const AppBuilder = () => {
 	const { isLoading } = useInitPage();
@@ -61,13 +62,13 @@ export const AppBuilder = () => {
 								<PanelGroup autoSaveId="dev-panel" direction="horizontal">
 									<Panel defaultSize={20}>
 										<Loader isLoading={isLoading}>
-											<AppState />
+											<BuilderSidebar />
 										</Loader>
 									</Panel>
 									<PanelHandle direction="vertical" />
 									<Panel>
 										<Loader isLoading={isLoading}>
-											<FilesExplorer />
+											<FileContent />
 										</Loader>
 									</Panel>
 								</PanelGroup>

@@ -142,7 +142,11 @@ export const NewFile = (props: any) => {
 				<IconButton
 					aria-label="Add function"
 					icon={<Plus size="14" />}
-					onClick={onToggle}
+					onClick={(e) => {
+						e.stopPropagation();
+
+						onToggle();
+					}}
 					isDisabled={!isConnected}
 					isLoading={mutation.isLoading}
 					{...props}
@@ -150,7 +154,11 @@ export const NewFile = (props: any) => {
 			</PopoverTrigger>
 
 			<Portal>
-				<PopoverContent>
+				<PopoverContent
+					onClick={(e) => {
+						e.stopPropagation();
+					}}
+				>
 					<PopoverHeader pt={4} fontWeight="bold" border="0">
 						Create a new function
 					</PopoverHeader>

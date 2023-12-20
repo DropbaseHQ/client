@@ -1,18 +1,5 @@
-import { useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
-import {
-	Box,
-	Button,
-	ButtonGroup,
-	Center,
-	Icon,
-	Input,
-	Progress,
-	Skeleton,
-	Stack,
-	Text,
-	useDisclosure,
-} from '@chakra-ui/react';
+import { Box, Icon, Input, Progress, Skeleton, Stack, useDisclosure } from '@chakra-ui/react';
 import { Code, Table, Box as BoxIcon } from 'react-feather';
 import { useParams } from 'react-router-dom';
 
@@ -20,19 +7,11 @@ import { useMonacoLoader } from '@/components/Editor';
 
 import { developerTabAtom } from '@/features/app-builder/atoms';
 
-import { NewFile } from './NewFile';
-import { FunctionEditor } from './FunctionEditor';
-import { SQLEditor } from './SQLEditor';
 import { pageAtom, useGetPage } from '@/features/page';
 import { DeleteFile } from './DeleteFile';
 import { useUpdateFile } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
-
-const componentsMap: any = {
-	function: FunctionEditor,
-	sql: SQLEditor,
-};
 
 const FileButton = ({ file }: any) => {
 	const toast = useToast();
@@ -126,18 +105,20 @@ const FileButton = ({ file }: any) => {
 	};
 
 	return (
-		<Button
+		<Stack
 			onMouseEnter={triggerMouseHover}
 			onMouseLeave={triggerMouseLeave}
 			onMouseOver={triggerMouseHover}
 			onDoubleClick={onEditOpen}
-			colorScheme="gray"
-			variant={isActive ? 'solid' : 'outline'}
-			bg={isActive ? 'white' : 'gray.50'}
-			borderRight="0"
-			borderWidth="1px"
+			as="button"
+			bg={isActive ? 'gray.50' : 'white'}
+			p="2"
+			fontSize="sm"
+			borderWidth={isActive ? '1px' : '0'}
+			justifyContent="start"
+			borderRadius="sm"
 			_hover={{
-				bg: 'white',
+				bg: 'gray.50',
 				color: 'gray.800',
 			}}
 			color={isActive ? 'gray.900' : 'gray.700'}
@@ -166,19 +147,25 @@ const FileButton = ({ file }: any) => {
 					{mutation.isLoading ? <Progress isIndeterminate size="xs" /> : null}
 				</Stack>
 			) : (
-				<Stack alignItems="center" direction="row">
-					{mouseOver ? (
-						<DeleteFile w="fit-content" id={file.id} name={fileName} type={file.type} />
-					) : (
-						<Icon color={isActive ? `${colorScheme}.500` : ''} as={icon} boxSize={4} />
-					)}
+				<Stack flex="1" w="full" alignItems="center" direction="row">
+					<Icon color={isActive ? `${colorScheme}.500` : ''} as={icon} boxSize={4} />
+
 					<Box>{file.name}</Box>
 					<Box fontSize="2xs" px="1" borderRadius="sm" bg={`${colorScheme}.200`}>
 						{isSQLFile ? '.sql' : '.py'}
 					</Box>
+					{mouseOver || isActive ? (
+						<DeleteFile
+							w="fit-content"
+							ml="auto"
+							id={file.id}
+							name={fileName}
+							type={file.type}
+						/>
+					) : null}
 				</Stack>
 			)}
-		</Button>
+		</Stack>
 	);
 };
 
@@ -188,21 +175,10 @@ export const FilesExplorer = () => {
 
 	const isReady = useMonacoLoader();
 
-	const [devTab, setDevTab] = useAtom(developerTabAtom);
-
-	useEffect(() => {
-		return () => {
-			setDevTab({
-				type: null,
-				id: null,
-			});
-		};
-	}, [setDevTab]);
-
 	if (!isReady || isLoading) {
 		return (
 			<Stack borderBottomWidth="1px" bg="white" p="2">
-				<Stack direction="row">
+				<Stack>
 					<Skeleton h="7" w="32" />
 					<Skeleton h="7" w="32" />
 					<Skeleton h="7" w="32" />
@@ -215,42 +191,11 @@ export const FilesExplorer = () => {
 		return <Box>{JSON.stringify(error)}</Box>;
 	}
 
-	const Component = componentsMap[devTab.type];
-
 	return (
 		<Stack spacing="0" h="full">
-			<Stack
-				p="2"
-				position="sticky"
-				top="0"
-				spacing="4"
-				borderBottomWidth="1px"
-				bg="white"
-				h="55px"
-				alignItems="center"
-				direction="row"
-				overflowX="auto"
-				overflowY="hidden"
-			>
-				<ButtonGroup colorScheme="gray" isAttached size="sm">
-					{(files || []).map((f: any) => {
-						return <FileButton file={f} key={f.id} />;
-					})}
-					<NewFile variant="outline" />
-				</ButtonGroup>
-			</Stack>
-
-			<Box h="calc(100% - 55px)" overflowX="hidden" overflowY="auto">
-				{Component ? (
-					<Component id={devTab.id} />
-				) : (
-					<Center p="4" h="full">
-						<Text size="sm" fontWeight="medium">
-							{files.length > 0 ? 'Select a file' : 'Create a File'}
-						</Text>
-					</Center>
-				)}
-			</Box>
+			{(files || []).map((f: any) => {
+				return <FileButton file={f} key={f.id} />;
+			})}
 		</Stack>
 	);
 };

@@ -16,7 +16,7 @@ import {
 
 import { useAtomValue, useSetAtom } from 'jotai';
 
-import { X } from 'react-feather';
+import { Trash } from 'react-feather';
 
 import { useToast } from '@/lib/chakra-ui';
 import { developerTabAtom } from '@/features/app-builder/atoms';
@@ -72,20 +72,18 @@ export const DeleteFile = ({ name, id, type, ...props }: any) => {
 			<PopoverTrigger>
 				<Icon
 					aria-label="Delete function"
-					as={X}
+					as={Trash}
 					onClick={(e) => {
 						e.stopPropagation();
 						onToggle();
 					}}
 					isLoading={mutation.isLoading}
-					boxSize={4}
-					p={0.5}
-					borderRadius="full"
-					borderWidth="1px"
-					borderColor="gray.500"
-					variant="outline"
+					boxSize={5}
+					p={1}
+					color="red.400"
+					borderRadius="sm"
 					_hover={{
-						bg: 'gray.100',
+						bg: 'red.100',
 					}}
 					{...props}
 				/>
