@@ -151,6 +151,8 @@ export const AppPreview = () => {
 	return (
 		<Loader isLoading={isLoading}>
 			<Stack bg="white" h="full">
+				{reorderMutation.isLoading && <Progress size="xs" isIndeterminate />}
+
 				<Stack
 					px="4"
 					py="2"
@@ -184,9 +186,6 @@ export const AppPreview = () => {
 								spacing="3"
 								{...provided.droppableProps}
 							>
-								{reorderMutation.isLoading && (
-									<Progress size="xs" isIndeterminate />
-								)}
 								{componentsState.map((c: any, index: number) => {
 									return (
 										<Draggable key={c.id} draggableId={c.id} index={index}>

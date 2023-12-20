@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Stack } from '@chakra-ui/react';
+import { Box, Progress, Stack } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { useGetPage } from '@/features/page';
@@ -47,6 +47,8 @@ export const StackedTables = () => {
 
 	return (
 		<DragDropContext onDragEnd={handleDragEnd}>
+			{reorderMutation.isLoading && <Progress size="xs" isIndeterminate />}
+
 			<Droppable droppableId="droppable-2">
 				{(provided: any, _: any) => (
 					<Stack
@@ -59,7 +61,12 @@ export const StackedTables = () => {
 						{...provided.droppableProps}
 					>
 						{tableState.map((table: any, index: number) => (
-							<Draggable key={table.id} draggableId={table.id} index={index}>
+							<Draggable
+								key={table.id}
+								draggableId={table.id}
+								index={index}
+								isDragDisabled={isPreview}
+							>
 								{(provided: any, _: any) => (
 									<Box
 										flexShrink="0"
