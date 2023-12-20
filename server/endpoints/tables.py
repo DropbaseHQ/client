@@ -2,7 +2,12 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from server.controllers.tables import get_table, get_table_row, pin_filters
+from server.controllers.tables import (
+    get_table,
+    get_table_row,
+    pin_filters,
+    reorder_tables as c_reorder_tables,
+)
 from server.schemas.tables import PinFilters, TablesReadProperty, ReorderTablesRequest
 
 from server.utils.authorization import RESOURCES, AuthZDepFactory
@@ -43,4 +48,4 @@ def pin_filters_req(request: PinFilters, db: Session = Depends(get_db)):
 
 @router.post("/reorder")
 def reorder_tables(request: ReorderTablesRequest, db: Session = Depends(get_db)):
-    return table_controller.reorder_tables(db, request)
+    return c_reorder_tables(db, request)

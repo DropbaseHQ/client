@@ -13,7 +13,7 @@ class CRUDTables(CRUDBase[Tables, CreateTables, UpdateTables]):
         return (
             db.query(Tables)
             .filter(Tables.page_id == page_id)
-            .order_by(Tables.date)
+            .order_by(Tables.order)
             .all()
         )
 
