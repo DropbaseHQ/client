@@ -123,3 +123,8 @@ class ConvertTable(BaseModel):
 class UpdateSmartTables(BaseModel):
     smart_columns: dict
     table: dict
+
+
+class ReorderTablesRequest(BaseModel):
+    page_id: UUID
+    tables: List[dict]

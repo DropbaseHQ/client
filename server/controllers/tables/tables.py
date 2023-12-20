@@ -13,6 +13,7 @@ from server.schemas.tables import (
     TablesBaseProperty,
     UpdateTables,
     UpdateTablesRequest,
+    ReorderTablesRequest,
 )
 from server.utils.converter import get_class_properties
 from server.utils.state_context import get_state_context_payload
@@ -90,3 +91,11 @@ def delete_table(db: Session, table_id: UUID):
     crud.tables.remove(db, id=table_id)
     db.commit()
     return get_state_context_payload(db, page_id)
+
+
+def reorder_tables(db: Session, request: ReorderTablesRequest):
+    for table in request.tables:
+        order = table.get("order") * 100
+        crud.tables.update_by_pk(db, pk=table.get("id"), obj_in={"order": order})
+    db.commit()
+    return get_state_context_payload(db, request.page_id)
