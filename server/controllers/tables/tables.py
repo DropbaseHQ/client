@@ -29,7 +29,9 @@ def get_table_columns(user_db_engine, table_str):
     user_query_cleaned = table_str.strip("\n ;")
 
     with user_db_engine.connect().execution_options(autocommit=True) as conn:
-        res = conn.execute(text(f"SELECT * FROM ({user_query_cleaned}) AS q LIMIT 1")).all()
+        res = conn.execute(
+            text(f"SELECT * FROM ({user_query_cleaned}) AS q LIMIT 1")
+        ).all()
     return list(res[0].keys())
 
 
@@ -42,13 +44,20 @@ def pin_filters(db: Session, request: PinFilters):
     table = crud.tables.get_object_by_id_or_404(db, id=request.table_id)
     table_props = table.property
     table_props["filters"] = [filter.dict() for filter in request.filters]
-    db.query(Tables).filter(Tables.id == request.table_id).update({"property": table_props})
+    db.query(Tables).filter(Tables.id == request.table_id).update(
+        {"property": table_props}
+    )
     db.commit()
     db.refresh(table)
     return table
 
 
 def create_table(db: Session, request: CreateTables):
+    last_table = crud.tables.get_last_table(db, page_id=request.page_id)
+    if last_table and last_table.order is not None:
+        request.order = int(last_table.order) + 100
+    else:
+        request.order = 100
     table = crud.tables.create(db, obj_in=CreateTables(**request.dict()))
     db.commit()
     state_context = get_state_context_payload(db, request.page_id)

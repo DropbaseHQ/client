@@ -61,6 +61,7 @@ class CreateTables(BaseModel):
     page_id: UUID
     file_id: Optional[UUID]
     depends_on: Optional[List[str]]
+    order: Optional[int]
 
 
 class CreateTablesRequest(BaseModel):

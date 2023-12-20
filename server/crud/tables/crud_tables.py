@@ -10,10 +10,20 @@ from server.schemas.tables import CreateTables, UpdateTables
 
 class CRUDTables(CRUDBase[Tables, CreateTables, UpdateTables]):
     def get_page_tables(self, db: Session, page_id: UUID) -> List[Tables]:
-        return db.query(Tables).filter(Tables.page_id == page_id).order_by(Tables.date).all()
+        return (
+            db.query(Tables)
+            .filter(Tables.page_id == page_id)
+            .order_by(Tables.date)
+            .all()
+        )
 
     def get_page_resources(self, db: Session, page_id: UUID) -> List[Tables]:
-        return db.query(Tables).filter(Tables.page_id == page_id).order_by(Tables.date).all()
+        return (
+            db.query(Tables)
+            .filter(Tables.page_id == page_id)
+            .order_by(Tables.date)
+            .all()
+        )
 
     def get_page_sql(self, db: Session, page_id: UUID) -> Tables:
         return db.query(Tables).filter(Tables.page_id == str(page_id)).one()
@@ -62,6 +72,14 @@ class CRUDTables(CRUDBase[Tables, CreateTables, UpdateTables]):
 
     def get_tables_by_file(self, db: Session, file_id: UUID) -> List[Tables]:
         return db.query(Tables).filter(Tables.file_id == file_id).all()
+
+    def get_last_table_by_page(self, db: Session, page_id: UUID) -> Tables:
+        return (
+            db.query(Tables)
+            .filter(Tables.page_id == page_id)
+            .order_by(Tables.order.desc())
+            .first()
+        )
 
 
 tables = CRUDTables(Tables)
