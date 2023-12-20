@@ -217,3 +217,21 @@ export const useSyncDropbaseColumns = (props: any = {}) => {
 		},
 	});
 };
+
+const handleReorderTables = async ({ pageId, tables }: any) => {
+	const response = await axios.post(`/tables/reorder`, {
+		page_id: pageId,
+		tables,
+	});
+	return response.data;
+};
+
+export const useReorderTables = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(handleReorderTables, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+		},
+	});
+};
