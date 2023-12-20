@@ -200,7 +200,9 @@ export const SmartTable = ({ tableId }: any) => {
 		// ⚠️ only by passing undefined we can hide column icon
 		let icon = column?.type ? GridColumnIcon.HeaderString : undefined;
 
-		switch (getPGColumnBaseType(column?.type)) {
+		// FIXME split switch cases for sql and python tables
+		switch (getPGColumnBaseType(column?.type) || column?.type) {
+			case 'int':
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -222,6 +224,7 @@ export const SmartTable = ({ tableId }: any) => {
 				break;
 			}
 
+			case 'bool':
 			case 'boolean': {
 				icon = GridColumnIcon.HeaderBoolean;
 				break;
