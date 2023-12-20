@@ -29,7 +29,7 @@ def create_component(db: Session, request: CreateComponents):
     comp_property = ComponentClass(**request.property)
     request.property = comp_property
     last_component = crud.widget.get_last_component(db, widget_id=request.widget_id)
-    if last_component:
+    if last_component and last_component.order is not None:
         request.order = (last_component.order + 1) * 100
     else:
         request.order = 100
