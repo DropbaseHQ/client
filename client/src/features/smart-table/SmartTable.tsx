@@ -55,7 +55,7 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-export const SmartTable = ({ tableId }: any) => {
+export const SmartTable = ({ tableId, provided }: any) => {
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
 
@@ -539,7 +539,12 @@ export const SmartTable = ({ tableId }: any) => {
 
 				<Stack spacing="2">
 					<TableBar />
-					<Box minH={heightMap[height] || '3xs'} borderWidth="1px" borderRadius="sm">
+					<Box
+						minH={heightMap[height] || '3xs'}
+						borderWidth="1px"
+						borderRadius="sm"
+						contentEditable={true}
+					>
 						{isLoading ? (
 							<Center h="full" as={Stack}>
 								<Spinner size="md" />
