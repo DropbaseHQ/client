@@ -54,7 +54,7 @@ def pin_filters(db: Session, request: PinFilters):
 
 
 def create_table(db: Session, request: CreateTables):
-    last_table = crud.tables.get_last_table(db, page_id=request.page_id)
+    last_table = crud.tables.get_last_table_by_page(db, page_id=request.page_id)
     if last_table and last_table.order is not None:
         request.order = int(last_table.order) + 100
     else:
