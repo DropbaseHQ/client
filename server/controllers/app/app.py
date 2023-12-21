@@ -64,7 +64,11 @@ def create_app(db: Session, request: CreateApp, user: User):
             "type": "postgres",
         },
     )
-    return {"app": ReadApp.from_orm(app), "page": ReadPage.from_orm(page), "table": table}
+    return {
+        "app": ReadApp.from_orm(app),
+        "page": ReadPage.from_orm(page),
+        "table": table,
+    }
 
 
 def get_app_pages(db: Session, user: User, app_id: UUID):
@@ -96,7 +100,11 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
         # Create a draft app
         new_draft_app = crud.app.create(
             db,
-            obj_in={"name": request.name, "workspace_id": request.workspace_id, "is_draft": True},
+            obj_in={
+                "name": request.name,
+                "workspace_id": request.workspace_id,
+                "is_draft": True,
+            },
             auto_commit=False,
         )
         db.flush()
@@ -119,6 +127,7 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
                 "name": default_app_table.get("name"),
                 "page_id": new_draft_page.id,
                 "property": default_app_table.get("property"),
+                "order": 100,
             },
             auto_commit=False,
         )
@@ -128,14 +137,20 @@ def create_draft_app(db: Session, request: CreateApp, user: User):
         print("Error creating draft app", e)
         db.rollback()
         return {"message": "Error creating draft app"}
-    return {"message": "Success", "app_id": new_draft_app.id, "app_template": default_app_template}
+    return {
+        "message": "Success",
+        "app_id": new_draft_app.id,
+        "app_template": default_app_template,
+    }
 
 
 def finalize_app(db: Session, app_id: UUID, request: FinalizeApp):
     crud.app.get_object_by_id_or_404(db, id=app_id)
 
     try:
-        crud.app.update_by_pk(db=db, pk=app_id, obj_in={"is_draft": request.is_draft}, auto_commit=False)
+        crud.app.update_by_pk(
+            db=db, pk=app_id, obj_in={"is_draft": request.is_draft}, auto_commit=False
+        )
         db.commit()
     except Exception as e:
         print("Error finalizing app", e)
