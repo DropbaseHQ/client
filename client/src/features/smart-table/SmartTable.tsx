@@ -539,7 +539,12 @@ export const SmartTable = ({ tableId }: any) => {
 
 				<Stack spacing="2">
 					<TableBar />
-					<Box minH={heightMap[height] || '3xs'} borderWidth="1px" borderRadius="sm">
+					<Box
+						minH={heightMap[height] || '3xs'}
+						borderWidth="1px"
+						borderRadius="sm"
+						contentEditable={true}
+					>
 						{isLoading ? (
 							<Center h="full" as={Stack}>
 								<Spinner size="md" />
