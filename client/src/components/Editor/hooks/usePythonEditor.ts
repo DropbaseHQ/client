@@ -40,6 +40,11 @@ const createLanguageClient = (transports: MessageTransports): MonacoLanguageClie
 
 const createLSPWebSocket = (url: string): WebSocket => {
 	let webSocket: WebSocket | null = null;
+	let retryTime = 5000;
+
+	const sleep = (ms: number) => {
+		return new Promise(resolve => setTimeout(resolve, ms));
+	};
 
 	const connectWebSocket = () => {
 		webSocket = new WebSocket(url);
@@ -55,12 +60,16 @@ const createLSPWebSocket = (url: string): WebSocket => {
 			languageClient.start();
 			reader.onClose(() => {
 				languageClient.stop();
-				connectWebSocket();
+				sleep(retryTime).then(() => {
+					connectWebSocket();
+				});
 			});
 		};
 
 		webSocket.onclose = () => {
-			connectWebSocket();
+			sleep(retryTime).then(() => {
+				connectWebSocket();
+			});
 		}
 	};
 
