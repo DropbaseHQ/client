@@ -55,7 +55,7 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-export const SmartTable = ({ tableId, provided }: any) => {
+export const SmartTable = ({ tableId }: any) => {
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
 
