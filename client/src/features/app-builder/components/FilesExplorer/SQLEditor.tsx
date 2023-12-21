@@ -152,7 +152,7 @@ export const SQLEditor = ({ id }: any) => {
 	}
 
 	return (
-		<Stack bg="white" h="full" spacing="3">
+		<Stack bg="white" h="full" overflowY="auto" overflowX="hidden" spacing="3">
 			<Stack p="3" borderBottomWidth="1px" alignItems="start" direction="row">
 				<FormControl>
 					<FormLabel>Source</FormLabel>
@@ -207,7 +207,7 @@ export const SQLEditor = ({ id }: any) => {
 				<MonacoEditor value={code} onChange={setCode} language="sql" />
 			</Stack>
 
-			<Stack h="full" overflow="auto">
+			<Stack h="full">
 				{log ? (
 					<Stack
 						borderBottomWidth="1px"
@@ -216,7 +216,6 @@ export const SQLEditor = ({ id }: any) => {
 						w="full"
 						flex="1"
 						h="full"
-						overflow="auto"
 						borderRadius="sm"
 					>
 						<Stack direction="row" alignItems="start">
@@ -251,7 +250,7 @@ export const SQLEditor = ({ id }: any) => {
 				) : null}
 
 				{previewData?.columns ? (
-					<Box px="3" w="full" pb="3" borderBottomWidth="1px">
+					<Box px="3" w="full" pb="3" h="full" borderBottomWidth="1px">
 						<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
 					</Box>
 				) : null}
