@@ -13,7 +13,12 @@ class CRUDWidget(CRUDBase[Widget, CreateWidget, UpdateWidget]):
         return db.query(Widget).filter(Widget.page_id == str(page_id)).first()
 
     def get_page_widgets(self, db: Session, page_id: UUID) -> List[Widget]:
-        return db.query(Widget).filter(Widget.page_id == str(page_id)).all()
+        return (
+            db.query(Widget)
+            .filter(Widget.page_id == str(page_id))
+            .order_by(Widget.date)
+            .all()
+        )
 
     def get_page_resources(self, db: Session, page_id: UUID) -> List[Widget]:
         return db.query(Widget).filter(Widget.page_id == str(page_id)).all()

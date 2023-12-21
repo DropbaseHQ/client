@@ -9,12 +9,18 @@ import {
 	Skeleton,
 	Stack,
 	Text,
+	Accordion,
+	AccordionItem,
+	AccordionButton,
+	AccordionPanel,
+	AccordionIcon,
+	Icon,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
-import { ChevronDown, X } from 'react-feather';
+import { ChevronDown, X, Tool, Plus } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
@@ -27,24 +33,26 @@ import { NewComponent } from '@/features/app-builder/components/PropertiesEditor
 import { appModeAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { generateSequentialName } from '@/utils';
 
 export const AppPreview = () => {
 	const { pageId } = useParams();
 	const { isConnected } = useStatus();
-	const { widgetId } = useAtomValue(pageAtom);
+	const { widgetId, widgets, appName, pageName } = useAtomValue(pageAtom);
+	const setPageAtom = useSetAtom(pageAtom);
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isDevMode = !isPreview;
 
 	const { isLoading, components, widget } = useGetWidgetPreview(widgetId || '');
 	const [componentsState, setComponentsState] = useState(components);
-	const { appName, pageName } = useAtomValue(pageAtom);
 
 	useInitializeWidgetState({ widgetId: widget?.name, appName, pageName });
 
 	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
 	const allWidgetState = widgetData.state;
 
+	const createWidgetMutation = useCreateWidget();
 	const reorderMutation = useReorderComponents();
 
 	const widgetState: any = allWidgetState[widget?.name];
@@ -60,7 +68,21 @@ export const AppPreview = () => {
 			components: newComponentOrder,
 		});
 	};
-
+	const handleCreateWidget = () => {
+		createWidgetMutation.mutate({
+			pageId,
+			name: generateSequentialName({
+				currentNames: [widget?.name],
+				prefix: 'widget',
+			}),
+		});
+	};
+	const handleChooseWidget = (widgetId: any) => {
+		setPageAtom((oldPageAtom) => ({
+			...oldPageAtom,
+			widgetId,
+		}));
+	};
 	const handleOnDragEnd = (result: any) => {
 		const { destination, source } = result;
 		if (!destination) {
@@ -152,7 +174,52 @@ export const AppPreview = () => {
 		<Loader isLoading={isLoading}>
 			<Stack bg="white" h="full">
 				{reorderMutation.isLoading && <Progress size="xs" isIndeterminate />}
+				<Accordion allowToggle>
+					<AccordionItem>
+						<AccordionButton display="flex" justifyContent="center" h="5">
+							<AccordionIcon />
+						</AccordionButton>
+						<AccordionPanel p={0}>
+							<Stack direction="column" p="1">
+								{widgets?.map((widget: any) => (
+									<Stack
+										as="button"
+										px="2"
+										borderRadius="sm"
+										direction="row"
+										alignItems="center"
+										onClick={() => handleChooseWidget(widget.id)}
+										_hover={{
+											bg: 'gray.50',
+											color: 'gray.800',
+										}}
+									>
+										<Icon as={Tool} mr="2" />
+										<Text>{widget?.name}</Text>
+									</Stack>
+								))}
 
+								{!isPreview && (
+									<Button
+										variant="outline"
+										size="sm"
+										colorScheme="gray"
+										onClick={handleCreateWidget}
+									>
+										<Stack
+											alignItems="center"
+											justifyContent="center"
+											direction="row"
+										>
+											<Icon as={Plus} mr="2" />
+											<Box>Add Widget</Box>
+										</Stack>
+									</Button>
+								)}
+							</Stack>
+						</AccordionPanel>
+					</AccordionItem>
+				</Accordion>
 				<Stack
 					px="4"
 					py="2"

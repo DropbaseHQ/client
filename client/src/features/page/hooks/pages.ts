@@ -23,7 +23,7 @@ export const useGetPage = (pageId: any) => {
 	const data: any = useMemo(() => {
 		return {
 			tables: response?.tables || [],
-			widget: response?.widget || null,
+			widgets: response?.widgets || [],
 			page: response?.page || {},
 			app: response?.app || {},
 			files: response?.files || [],
@@ -43,7 +43,7 @@ export const useInitPage = () => {
 
 	const ref = useRef(false);
 
-	const { widget, isLoading, isRefetching, app, page, ...rest } = useGetPage(pageId || '');
+	const { widgets, isLoading, isRefetching, app, page, ...rest } = useGetPage(pageId || '');
 	const pageName = page?.name;
 	const appName = app?.name;
 
@@ -53,14 +53,16 @@ export const useInitPage = () => {
 
 	useEffect(() => {
 		if (!ref.current && !isLoading && !isRefetching) {
+			const firstWidgetId = widgets?.[0]?.id;
 			setPageContext({
-				widgetId: widget?.id || null,
+				widgetId: firstWidgetId || null,
 				pageName,
 				appName,
+				widgets,
 			});
 			ref.current = true;
 		}
-	}, [widget, isLoading, isRefetching, appName, pageName, context, setPageContext]);
+	}, [isLoading, isRefetching, appName, pageName, context, setPageContext]);
 
 	useEffect(() => {
 		return () => {
@@ -68,9 +70,10 @@ export const useInitPage = () => {
 				widgetId: null,
 				pageName: null,
 				appName: null,
+				widgets: null,
 			});
 		};
 	}, [setPageContext]);
 
-	return { widget, isLoading, ...rest };
+	return { isLoading, ...rest };
 };

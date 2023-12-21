@@ -7,6 +7,10 @@ from uuid import UUID
 
 def create_widget(db: Session, request: CreateWidget):
     request.name = request.property.name
+    request.property = {
+        "name": request.property.name,
+        "description": "",
+    }
     widget = crud.widget.create(db, obj_in=request)
     return get_state_context_payload(db, widget.page_id)
 
