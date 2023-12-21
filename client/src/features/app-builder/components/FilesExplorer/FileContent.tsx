@@ -34,13 +34,28 @@ export const FileContent = () => {
 	}, [setDevTab]);
 
 	if (!isMonacoReady || !isLSPReady || isLoading) {
+		let loadingText = 'Loading...';
+
+		if (!isMonacoReady) {
+			loadingText = 'Initializing code editor...';
+		} else if (!isLSPReady) {
+			loadingText = 'Connecting to language server...'
+		}
+
 		return (
-			<Stack borderBottomWidth="1px" bg="white" p="2">
+			<Stack h="full" borderBottomWidth="1px" bg="white" p="2">
 				<Stack direction="row">
 					<Skeleton h="7" w="32" />
 					<Skeleton h="7" w="32" />
 					<Skeleton h="7" w="32" />
 				</Stack>
+				<Box h="full" overflowX="hidden" overflowY="auto">
+					<Center p="4" h="full">
+						<Text size="sm" fontWeight="medium">
+							{loadingText}
+						</Text>
+					</Center>
+				</Box>
 			</Stack>
 		);
 	}

@@ -19,5 +19,7 @@ export const useMonacoLoader = () => {
 		})();
 	}, []);
 
+	useEffect(() => {}, [isLSPReady]);
+
 	return {isMonacoReady, isLSPReady};
 };

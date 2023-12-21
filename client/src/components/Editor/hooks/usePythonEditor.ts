@@ -48,8 +48,8 @@ export const createLSPWebSocket = (url: string, setLSPReady: (value: boolean) =>
 		};
 
 		const retryConnect = () => {
+			setLSPReady(false);
 			sleep(retryTime).then(() => {
-				setLSPReady(false);
 				connectLSPWebSocket();
 			});
 		}
