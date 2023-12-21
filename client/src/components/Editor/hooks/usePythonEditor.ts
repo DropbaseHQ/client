@@ -38,26 +38,26 @@ const createLanguageClient = (transports: MessageTransports): MonacoLanguageClie
 	});
 };
 
-const createLSPWebSocket = (url: string, setLSPReady: (value: boolean) => void): WebSocket => {
-	let webSocket: WebSocket | null = null;
+export const createLSPWebSocket = (url: string, setLSPReady: (value: boolean) => void) => {
+	let lspWebSocket: WebSocket | null = null;
 	let retryTime = 5000;
 
-	const connectWebSocket = () => {
+	const connectLSPWebSocket = () => {
 		const sleep = (ms: number) => {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		};
 
 		const retryConnect = () => {
-			setLSPReady(false);
 			sleep(retryTime).then(() => {
-				connectWebSocket();
+				setLSPReady(false);
+				connectLSPWebSocket();
 			});
 		}
 
-		webSocket = new WebSocket(url);
+		lspWebSocket = new WebSocket(url);
 
-		webSocket.onopen = () => {
-			const socket = toSocket(webSocket!);
+		lspWebSocket.onopen = () => {
+			const socket = toSocket(lspWebSocket!);
 			const reader = new WebSocketMessageReader(socket);
 			const writer = new WebSocketMessageWriter(socket);
 			const languageClient = createLanguageClient({
@@ -72,17 +72,15 @@ const createLSPWebSocket = (url: string, setLSPReady: (value: boolean) => void):
 			setLSPReady(true);
 		};
 
-		webSocket.onclose = () => {
+		lspWebSocket.onclose = () => {
 			retryConnect();
 		}
 	};
 
-	connectWebSocket();
-
-	return webSocket!;
+	connectLSPWebSocket();
 };
 
-export const initializeLanguageServices = async (url: string, setLSPReady: (value: boolean) => void) => {
+export const initializeLanguageServices = async () => {
 	await initServices({
 		// Use our own themes
 		enableThemeService: false,
@@ -106,8 +104,6 @@ export const initializeLanguageServices = async (url: string, setLSPReady: (valu
 
 	monaco.languages.setLanguageConfiguration(languageId, conf);
 	monaco.languages.setMonarchTokensProvider(languageId, language);
-
-	return createLSPWebSocket(url, setLSPReady);
 };
 
 const createPythonEditor = async (config: { htmlElement: HTMLElement; filepath: string }) => {

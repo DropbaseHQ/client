@@ -1,24 +1,23 @@
 import { useEffect, useState } from 'react';
-import { initializeLanguageServices } from '@/components/Editor';
+import { initializeLanguageServices, createLSPWebSocket } from '@/components/Editor';
 
-export const useMonacoLoader = (setLSPReady: (value: boolean) => void) => {
-	const [isMonacoReady, setReady] = useState(false);
+export const useMonacoLoader = () => {
+	const [isMonacoReady, setMonacoReady] = useState(false);
+	const [isLSPReady, setLSPReady] = useState(false);
 
 	useEffect(() => {
 		(async () => {
-			setReady(false);
+			setMonacoReady(false);
 			try {
-				await initializeLanguageServices(
-					`${import.meta.env.VITE_PYTHON_LSP_SERVER}/lsp`,
-					setLSPReady,
-				);
+				await initializeLanguageServices();
+				createLSPWebSocket(`${import.meta.env.VITE_PYTHON_LSP_SERVER}/lsp`, setLSPReady);
 			} catch (e) {
 				// TODO: add error handling
 			} finally {
-				setReady(true);
+				setMonacoReady(true);
 			}
 		})();
 	}, []);
 
-	return isMonacoReady;
+	return {isMonacoReady, isLSPReady};
 };

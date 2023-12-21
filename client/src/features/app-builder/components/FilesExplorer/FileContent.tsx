@@ -20,8 +20,7 @@ export const FileContent = () => {
 	const { pageId } = useParams();
 	const { files, isLoading, error } = useGetPage(pageId);
 
-	const [ isLSPReady, setLSPReady ] = useState(false);
-	const isReady = useMonacoLoader(setLSPReady);
+	const {isMonacoReady, isLSPReady} = useMonacoLoader();
 
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
 
@@ -34,7 +33,7 @@ export const FileContent = () => {
 		};
 	}, [setDevTab]);
 
-	if (!isReady || !isLSPReady || isLoading) {
+	if (!isMonacoReady || !isLSPReady || isLoading) {
 		return (
 			<Stack borderBottomWidth="1px" bg="white" p="2">
 				<Stack direction="row">
