@@ -39,19 +39,43 @@ const createLanguageClient = (transports: MessageTransports): MonacoLanguageClie
 };
 
 const createLSPWebSocket = (url: string): WebSocket => {
-	const webSocket = new WebSocket(url);
-	webSocket.onopen = () => {
-		const socket = toSocket(webSocket);
-		const reader = new WebSocketMessageReader(socket);
-		const writer = new WebSocketMessageWriter(socket);
-		const languageClient = createLanguageClient({
-			reader,
-			writer,
-		});
-		languageClient.start();
-		reader.onClose(() => languageClient.stop());
+	let webSocket: WebSocket | null = null;
+	let retryTime = 5000;
+
+	const sleep = (ms: number) => {
+		return new Promise(resolve => setTimeout(resolve, ms));
 	};
-	return webSocket;
+
+	const connectWebSocket = () => {
+		webSocket = new WebSocket(url);
+
+		webSocket.onopen = () => {
+			const socket = toSocket(webSocket!);
+			const reader = new WebSocketMessageReader(socket);
+			const writer = new WebSocketMessageWriter(socket);
+			const languageClient = createLanguageClient({
+				reader,
+				writer,
+			});
+			languageClient.start();
+			reader.onClose(() => {
+				languageClient.stop();
+				sleep(retryTime).then(() => {
+					connectWebSocket();
+				});
+			});
+		};
+
+		webSocket.onclose = () => {
+			sleep(retryTime).then(() => {
+				connectWebSocket();
+			});
+		}
+	};
+
+	connectWebSocket();
+
+	return webSocket!;
 };
 
 export const initializeLanguageServices = async (url: string) => {
