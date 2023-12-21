@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { Box, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
@@ -20,7 +20,8 @@ export const FileContent = () => {
 	const { pageId } = useParams();
 	const { files, isLoading, error } = useGetPage(pageId);
 
-	const isReady = useMonacoLoader();
+	const [ isLSPReady, setLSPReady ] = useState(false);
+	const isReady = useMonacoLoader(setLSPReady);
 
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
 
@@ -33,7 +34,7 @@ export const FileContent = () => {
 		};
 	}, [setDevTab]);
 
-	if (!isReady || isLoading) {
+	if (!isReady || !isLSPReady || isLoading) {
 		return (
 			<Stack borderBottomWidth="1px" bg="white" p="2">
 				<Stack direction="row">

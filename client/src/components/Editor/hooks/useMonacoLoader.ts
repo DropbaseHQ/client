@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { initializeLanguageServices } from '@/components/Editor';
 
-export const useMonacoLoader = () => {
+export const useMonacoLoader = (setLSPReady: (value: boolean) => void) => {
 	const [isMonacoReady, setReady] = useState(false);
 
 	useEffect(() => {
@@ -10,6 +10,7 @@ export const useMonacoLoader = () => {
 			try {
 				await initializeLanguageServices(
 					`${import.meta.env.VITE_PYTHON_LSP_SERVER}/lsp`,
+					setLSPReady,
 				);
 			} catch (e) {
 				// TODO: add error handling

@@ -38,15 +38,22 @@ const createLanguageClient = (transports: MessageTransports): MonacoLanguageClie
 	});
 };
 
-const createLSPWebSocket = (url: string): WebSocket => {
+const createLSPWebSocket = (url: string, setLSPReady: (value: boolean) => void): WebSocket => {
 	let webSocket: WebSocket | null = null;
 	let retryTime = 5000;
 
-	const sleep = (ms: number) => {
-		return new Promise(resolve => setTimeout(resolve, ms));
-	};
-
 	const connectWebSocket = () => {
+		const sleep = (ms: number) => {
+			return new Promise(resolve => setTimeout(resolve, ms));
+		};
+
+		const retryConnect = () => {
+			setLSPReady(false);
+			sleep(retryTime).then(() => {
+				connectWebSocket();
+			});
+		}
+
 		webSocket = new WebSocket(url);
 
 		webSocket.onopen = () => {
@@ -60,16 +67,13 @@ const createLSPWebSocket = (url: string): WebSocket => {
 			languageClient.start();
 			reader.onClose(() => {
 				languageClient.stop();
-				sleep(retryTime).then(() => {
-					connectWebSocket();
-				});
+				retryConnect();
 			});
+			setLSPReady(true);
 		};
 
 		webSocket.onclose = () => {
-			sleep(retryTime).then(() => {
-				connectWebSocket();
-			});
+			retryConnect();
 		}
 	};
 
@@ -78,7 +82,7 @@ const createLSPWebSocket = (url: string): WebSocket => {
 	return webSocket!;
 };
 
-export const initializeLanguageServices = async (url: string) => {
+export const initializeLanguageServices = async (url: string, setLSPReady: (value: boolean) => void) => {
 	await initServices({
 		// Use our own themes
 		enableThemeService: false,
@@ -103,7 +107,7 @@ export const initializeLanguageServices = async (url: string) => {
 	monaco.languages.setLanguageConfiguration(languageId, conf);
 	monaco.languages.setMonarchTokensProvider(languageId, language);
 
-	return createLSPWebSocket(url);
+	return createLSPWebSocket(url, setLSPReady);
 };
 
 const createPythonEditor = async (config: { htmlElement: HTMLElement; filepath: string }) => {
