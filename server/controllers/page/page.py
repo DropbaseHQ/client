@@ -62,11 +62,13 @@ def get_page_details(db: Session, page_id: str):
     app = crud.app.get_object_by_id_or_404(db, id=page.app_id)
     tables = crud.tables.get_page_tables(db, page_id=page_id)
     widget = crud.widget.get_page_widget(db, page_id=page_id)
+    widgets = crud.widget.get_page_widgets(db, page_id=page_id)
     files = crud.files.get_page_files(db, page_id=page.id)
     return {
         "page": page,
         "app": app,
         "widget": widget,
+        "widgets": widgets,
         "tables": tables,
         "files": files,
     }

@@ -16,7 +16,9 @@ class WidgetDefinedProperty(WidgetBaseProperty, WidgetContextProperty):
     pass
 
 
-class WidgetReadProperty(WidgetBaseProperty, WidgetContextProperty, WidgetDisplayProperty):
+class WidgetReadProperty(
+    WidgetBaseProperty, WidgetContextProperty, WidgetDisplayProperty
+):
     pass
 
 
@@ -39,7 +41,7 @@ class ReadWidget(BaseModel):
 
 class CreateWidget(BaseModel):
     name: Optional[str]
-    property: WidgetBaseProperty
+    property: Optional[WidgetBaseProperty]
     page_id: UUID
 
 
