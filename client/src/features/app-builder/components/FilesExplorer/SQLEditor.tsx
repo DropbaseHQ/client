@@ -1,28 +1,16 @@
-import {
-	Box,
-	Button,
-	FormControl,
-	FormLabel,
-	IconButton,
-	Skeleton,
-	SkeletonCircle,
-	Stack,
-	Text,
-} from '@chakra-ui/react';
-import { Play, X, Save } from 'react-feather';
-import { useAtomValue } from 'jotai';
+import { Button, FormControl, FormLabel, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react';
+import { Save } from 'react-feather';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { MonacoEditor } from '@/components/Editor';
-import { useFile, useRunSQLQuery, useSaveCode, useSources } from '@/features/app-builder/hooks';
-import { newPageStateAtom, useSyncState } from '@/features/app-state';
-import { logBuilder } from '@/features/app-builder/utils';
-import { ChakraTable } from '@/components/Table';
+import { useFile, useSaveCode, useSources } from '@/features/app-builder/hooks';
 import { pageAtom, useGetPage } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
+import { previewCodeAtom } from '../../atoms';
 
 export const SQLEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -46,53 +34,35 @@ export const SQLEditor = ({ id }: any) => {
 		fileName: fullFileName,
 	});
 
+	const setPreviewFile = useSetAtom(previewCodeAtom);
+
 	const [code, setCode] = useState('');
-	const [log, setLog] = useState<any>(null);
-	const [previewData, setPreviewData] = useState<any>(null);
 
 	const { sources, isLoading: isLoadingSources } = useSources();
-
-	const pageState = useAtomValue(newPageStateAtom);
-
-	const syncState = useSyncState();
 
 	useEffect(() => {
 		setSource(file?.source);
 	}, [setSource, file]);
 
 	useEffect(() => {
-		setLog(null);
-		setPreviewData(null);
-	}, [id]);
-
-	useEffect(() => {
 		setCode(defaultCode);
 	}, [defaultCode, id]);
 
-	const runMutation = useRunSQLQuery({
-		onSuccess: (data: any) => {
-			syncState(data);
-			setLog(logBuilder(data));
+	useEffect(() => {
+		setPreviewFile({
+			id,
+			code,
+			source: selectedSource,
+		});
 
-			if (data?.result?.columns) {
-				setPreviewData({
-					rows: data?.result?.data || [],
-					columns: data?.result?.columns || [],
-				});
-			}
-		},
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to run query',
-				description: getErrorMessage(error),
+		return () => {
+			setPreviewFile({
+				id: null,
+				code: null,
+				source: null,
 			});
-		},
-		onMutate: () => {
-			setLog(null);
-			setPreviewData(null);
-		},
-	});
+		};
+	}, [id, code, selectedSource, setPreviewFile]);
 
 	const saveSQLMutation = useSaveCode({
 		onSuccess: () => {
@@ -111,17 +81,6 @@ export const SQLEditor = ({ id }: any) => {
 		},
 	});
 
-	const handleRun = () => {
-		runMutation.mutate({
-			pageName,
-			appName,
-			state: pageState.state,
-			fileName: sqlName,
-			fileContent: code,
-			source: selectedSource,
-		});
-	};
-
 	const handleSave = () => {
 		saveSQLMutation.mutate({
 			pageName,
@@ -132,11 +91,6 @@ export const SQLEditor = ({ id }: any) => {
 			fileId: id,
 			fileType: file?.type,
 		});
-	};
-
-	const resetRunData = () => {
-		setLog(null);
-		setPreviewData(null);
 	};
 
 	if (isLoading || isLoadingSources) {
@@ -182,79 +136,8 @@ export const SQLEditor = ({ id }: any) => {
 					Update
 				</Button>
 			</Stack>
-			<Stack
-				px="2"
-				pb="2"
-				pt=".5"
-				borderBottomWidth="1px"
-				spacing="0"
-				alignItems="start"
-				direction="row"
-			>
-				<IconButton
-					icon={<Play size="14" />}
-					variant="outline"
-					size="xs"
-					colorScheme="gray"
-					aria-label="Run code"
-					borderRadius="full"
-					isLoading={runMutation.isLoading}
-					onClick={handleRun}
-					isDisabled={!selectedSource}
-					flexShrink="0"
-				/>
 
-				<MonacoEditor value={code} onChange={setCode} language="sql" />
-			</Stack>
-
-			<Stack h="full">
-				{log ? (
-					<Stack
-						borderBottomWidth="1px"
-						bg="white"
-						p="2"
-						w="full"
-						flex="1"
-						h="full"
-						borderRadius="sm"
-					>
-						<Stack direction="row" alignItems="start">
-							<IconButton
-								aria-label="Close output"
-								size="xs"
-								colorScheme="gray"
-								variant="outline"
-								borderRadius="full"
-								icon={<X size={14} />}
-								onClick={resetRunData}
-							/>
-
-							<Stack w="full" overflow="auto">
-								<Text fontSize="sm" letterSpacing="wide" fontWeight="medium">
-									Output
-								</Text>
-								<Box
-									borderWidth="1px"
-									borderColor="blackAlpha.100"
-									borderRadius="sm"
-								>
-									<MonacoEditor
-										value={log}
-										language="shell"
-										options={{ lineNumbers: 'off', readOnly: true }}
-									/>
-								</Box>
-							</Stack>
-						</Stack>
-					</Stack>
-				) : null}
-
-				{previewData?.columns ? (
-					<Box px="3" w="full" pb="3" h="full" borderBottomWidth="1px">
-						<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
-					</Box>
-				) : null}
-			</Stack>
+			<MonacoEditor value={code} onChange={setCode} language="sql" />
 		</Stack>
 	);
 };

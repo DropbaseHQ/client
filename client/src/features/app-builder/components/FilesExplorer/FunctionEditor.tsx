@@ -10,7 +10,7 @@ import {
 	Stack,
 } from '@chakra-ui/react';
 
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Save } from 'react-feather';
@@ -27,9 +27,9 @@ import {
 import { pageAtom, useGetPage } from '@/features/page';
 
 import { getErrorMessage } from '@/utils';
-import { FunctionTerminal } from './FunctionTerminal';
-import { TABLE_DATA_QUERY_KEY } from '../../../smart-table/hooks';
+import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 import { findFunctionDeclarations } from '../../utils';
+import { previewCodeAtom } from '../../atoms';
 
 const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode }: any) => {
 	const [code, setCode] = useState(defaultCode);
@@ -43,7 +43,7 @@ const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode }: any) => {
 		},
 	});
 
-	return <Box ref={editorRef} as="div" w="full" />;
+	return <Box ref={editorRef} h="full" as="div" w="full" />;
 };
 
 export const FunctionEditor = ({ id }: any) => {
@@ -60,6 +60,8 @@ export const FunctionEditor = ({ id }: any) => {
 
 	const file = files.find((f: any) => f.id === id);
 	const fileName = file ? `${file?.name}${file?.type === 'sql' ? '.sql' : '.py'}` : null;
+
+	const setPreviewFile = useSetAtom(previewCodeAtom);
 
 	// ⚠️ check using / else will take files which ends with the same keywords like activate.py & deactivate.py
 	const filePath = workerFiles.find((f: any) => f.endsWith(`/${fileName}`));
@@ -104,6 +106,20 @@ export const FunctionEditor = ({ id }: any) => {
 		setCode(code);
 	}, [id, code]);
 
+	useEffect(() => {
+		setPreviewFile({
+			id,
+			code,
+		});
+
+		return () => {
+			setPreviewFile({
+				id: null,
+				code: null,
+			});
+		};
+	}, [id, code, setPreviewFile]);
+
 	const refetchColumns = () => {
 		handleSave();
 		queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
@@ -131,7 +147,6 @@ export const FunctionEditor = ({ id }: any) => {
 
 	return (
 		<Stack h="full" bg="white" spacing="0" divider={<Divider />} w="full">
-			{/* {file?.type === 'data_fetcher' ? ( */}
 			<Stack p="2" direction="row" alignItems="center" justifyContent="end">
 				<Button
 					w="fit-content"
@@ -145,7 +160,6 @@ export const FunctionEditor = ({ id }: any) => {
 					Update
 				</Button>
 			</Stack>
-			{/* ) : null} */}
 
 			{!isLoadingWorkerFiles && updatedCode && isNotSameFunctionName ? (
 				<Alert flexShrink="0" status="error">
@@ -156,10 +170,9 @@ export const FunctionEditor = ({ id }: any) => {
 					</AlertDescription>
 				</Alert>
 			) : null}
-			<Box pt="2">
+			<Box overflowY="auto" h="full" pt="2">
 				<PythonEditorLSP code={code} updateCode={setCode} filePath={filePath} key={id} />
 			</Box>
-			<FunctionTerminal file={file} code={updatedCode} />
 		</Stack>
 	);
 };

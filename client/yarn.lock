@@ -4160,10 +4160,10 @@ react-remove-scroll@^2.5.5:
     use-callback-ref "^1.3.0"
     use-sidecar "^1.1.2"
 
-react-resizable-panels@^0.0.54:
-  version "0.0.54"
-  resolved "https://registry.npmjs.org/react-resizable-panels/-/react-resizable-panels-0.0.54.tgz"
-  integrity sha512-f8hHdQrqvXoiZGdRNuoOi/C2cdYT2nEpaOb1KIWVWorSTPZmnE+ZQiamGeu+AMx3iZ/tqBtlAkBOpKXzTnDCoA==
+react-resizable-panels@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/react-resizable-panels/-/react-resizable-panels-1.0.4.tgz#9d13c718947df1ffdaef2a92409a047fd2629a03"
+  integrity sha512-NRq2qxPvumZLr33MotBl8nrFx4dm0uxo8sJkztjnfTusJpdVNYnEDG9OMCiDyyL9UmyILyOvLR9vTG3hconWtw==
 
 react-responsive-carousel@^3.2.23:
   version "3.2.23"

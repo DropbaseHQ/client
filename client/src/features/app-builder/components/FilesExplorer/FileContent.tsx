@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAtom } from 'jotai';
 import { Box, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
+import { Panel, PanelGroup } from 'react-resizable-panels';
 
 import { useMonacoLoader } from '@/components/Editor';
 
@@ -10,6 +11,8 @@ import { developerTabAtom } from '@/features/app-builder/atoms';
 import { FunctionEditor } from './FunctionEditor';
 import { SQLEditor } from './SQLEditor';
 import { useGetPage } from '@/features/page';
+import { FunctionTerminal } from './FunctionTerminal';
+import { PanelHandle } from '@/components/Panel';
 
 const componentsMap: any = {
 	function: FunctionEditor,
@@ -19,6 +22,8 @@ const componentsMap: any = {
 export const FileContent = () => {
 	const { pageId } = useParams();
 	const { files, isLoading, error } = useGetPage(pageId);
+
+	const panelRef = useRef<any>(null);
 
 	const isReady = useMonacoLoader();
 
@@ -52,16 +57,24 @@ export const FileContent = () => {
 	const Component = componentsMap[devTab.type];
 
 	return (
-		<Box h="full" overflowX="hidden" overflowY="auto">
-			{Component ? (
-				<Component id={devTab.id} />
-			) : (
-				<Center p="4" h="full">
-					<Text size="sm" fontWeight="medium">
-						{files.length > 0 ? 'Select a file' : 'Create a File'}
-					</Text>
-				</Center>
-			)}
-		</Box>
+		<PanelGroup direction="vertical">
+			<Panel>
+				<Box h="full" overflowX="hidden" overflowY="auto">
+					{Component ? (
+						<Component id={devTab.id} />
+					) : (
+						<Center p="4" h="full">
+							<Text size="sm" fontWeight="medium">
+								{files.length > 0 ? 'Select a file' : 'Create a File'}
+							</Text>
+						</Center>
+					)}
+				</Box>
+			</Panel>
+			<PanelHandle direction="horizontal" />
+			<Panel ref={panelRef} defaultSize={11} maxSize={75} minSize={10}>
+				<FunctionTerminal panelRef={panelRef} />
+			</Panel>
+		</PanelGroup>
 	);
 };

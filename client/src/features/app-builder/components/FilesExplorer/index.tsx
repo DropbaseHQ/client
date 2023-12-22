@@ -150,7 +150,7 @@ const FileButton = ({ file }: any) => {
 				<Stack flex="1" w="full" alignItems="center" direction="row">
 					<Icon color={isActive ? `${colorScheme}.500` : ''} as={icon} boxSize={4} />
 
-					<Box>{file.name}</Box>
+					<Box fontWeight={isActive ? 'medium' : 'normal'}>{file.name}</Box>
 					<Box fontSize="2xs" px="1" borderRadius="sm" bg={`${colorScheme}.200`}>
 						{isSQLFile ? '.sql' : '.py'}
 					</Box>
