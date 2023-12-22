@@ -3,12 +3,14 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
+class ColumnSyncData(BaseModel):
+    name: str
+    type: Optional[str]
+
+
 class SyncColumnsRequest(BaseModel):
-    class Column(BaseModel):
-        name: str
-        type: Optional[str]
     table_id: str
-    columns: List[Column]
+    columns: List[ColumnSyncData]
     type: str
 
 
