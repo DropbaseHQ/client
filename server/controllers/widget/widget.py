@@ -12,7 +12,11 @@ def create_widget(db: Session, request: CreateWidget):
         "description": "",
     }
     widget = crud.widget.create(db, obj_in=request)
-    return get_state_context_payload(db, widget.page_id)
+    state_context = get_state_context_payload(db, widget.page_id)
+    return {
+        "widget": widget,
+        "state_context": state_context,
+    }
 
 
 def update_widget(db: Session, widget_id: UUID, request: UpdateWidget):
