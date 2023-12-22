@@ -188,6 +188,9 @@ export const AppPreview = () => {
 										borderRadius="sm"
 										direction="row"
 										alignItems="center"
+										bg={widget?.id === widgetId ? 'gray.50' : 'white'}
+										borderWidth={widget?.id === widgetId ? '1px' : '0'}
+										color={widget?.id === widgetId ? 'gray.900' : 'gray.700'}
 										onClick={() => handleChooseWidget(widget.id)}
 										_hover={{
 											bg: 'gray.50',
