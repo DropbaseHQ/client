@@ -53,7 +53,8 @@ export const useInitPage = () => {
 
 	useEffect(() => {
 		if (!ref.current && !isLoading && !isRefetching) {
-			const firstWidgetId = context.widgetId || widgets?.[0]?.id;
+			const selectedWidgetIdExists = widgets?.some((w: any) => w.id === context.widgetId);
+			const firstWidgetId = selectedWidgetIdExists ? context?.widgetId : widgets?.[0]?.id;
 			setPageContext({
 				widgetId: firstWidgetId || null,
 				pageName,

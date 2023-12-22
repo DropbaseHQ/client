@@ -1,11 +1,17 @@
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-
-import { Stack, Skeleton, Button, Text } from '@chakra-ui/react';
-import { useGetWidget, useUpdateWidgetProperties } from '@/features/app-builder/hooks';
+import { Trash } from 'react-feather';
+import { Stack, Skeleton, Button, Text, IconButton } from '@chakra-ui/react';
+import {
+	useDeleteWidget,
+	useGetWidget,
+	useUpdateWidgetProperties,
+} from '@/features/app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
+import { inspectedResourceAtom } from '@/features/app-builder/atoms';
+import { useSetAtom } from 'jotai';
 
 export const WidgetProperties = ({ widgetId }: any) => {
 	const toast = useToast();
@@ -15,6 +21,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 		values: { property: properties },
 		refetch,
 	} = useGetWidget(widgetId || '');
+	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 
 	const mutation = useUpdateWidgetProperties({
 		onSuccess: () => {
@@ -24,6 +31,21 @@ export const WidgetProperties = ({ widgetId }: any) => {
 			toast({
 				status: 'error',
 				title: 'Failed to update properties',
+				description: getErrorMessage(error),
+			});
+		},
+	});
+	const deleteMutation = useDeleteWidget({
+		onSuccess: () => {
+			setInspectedResource({
+				id: null,
+				type: null,
+			});
+		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to delete widget',
 				description: getErrorMessage(error),
 			});
 		},
@@ -49,12 +71,30 @@ export const WidgetProperties = ({ widgetId }: any) => {
 				payload: formValues,
 			});
 	};
+	const handleDeleteWidget = () => {
+		if (widgetId)
+			deleteMutation.mutate({
+				widgetId,
+			});
+	};
 
 	return (
 		<Stack spacing="0.5" h="full" bg="white">
-			<Text p="3" borderBottomWidth="1px" fontWeight="semibold" size="sm">
-				{properties?.name} Properties
-			</Text>
+			<Stack py="1" px="3" direction="row" borderBottomWidth="1px" alignItems="center">
+				<Text fontWeight="semibold" size="sm">
+					{properties?.name} Properties
+				</Text>
+				<IconButton
+					ml="auto"
+					aria-label="Delete widget"
+					variant="ghost"
+					colorScheme="red"
+					icon={<Trash size="14" />}
+					onClick={handleDeleteWidget}
+					isLoading={deleteMutation.isLoading}
+				/>
+			</Stack>
+
 			<Skeleton isLoaded={!isLoading}>
 				<form onSubmit={methods.handleSubmit(onSubmit)}>
 					<FormProvider {...methods}>

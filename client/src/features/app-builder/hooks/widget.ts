@@ -106,3 +106,21 @@ export const useCreateWidget = (props: any = {}) => {
 		},
 	});
 };
+
+const deleteWidget = async ({ widgetId }: any) => {
+	const response = await workerAxios.delete(`/widgets/${widgetId}`);
+
+	return response.data;
+};
+
+export const useDeleteWidget = (props: any = {}) => {
+	const queryClient = useQueryClient();
+
+	return useMutation(deleteWidget, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+		},
+	});
+};
