@@ -53,7 +53,7 @@ export const useInitPage = () => {
 
 	useEffect(() => {
 		if (!ref.current && !isLoading && !isRefetching) {
-			const firstWidgetId = widgets?.[0]?.id;
+			const firstWidgetId = context.widgetId || widgets?.[0]?.id;
 			setPageContext({
 				widgetId: firstWidgetId || null,
 				pageName,
