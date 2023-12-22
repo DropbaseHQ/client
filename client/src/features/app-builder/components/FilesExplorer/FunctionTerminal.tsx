@@ -169,12 +169,14 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 					borderRadius="full"
 					isLoading={isLoading}
 					onClick={file?.type === 'sql' ? handleRunSQLQuery : handleRunPythonFunction}
-					isDisabled={!testCode}
+					isDisabled={file?.type === 'sql' ? !(code && source) : !testCode}
 					flexShrink="0"
 				/>
 
 				{file?.type === 'sql' ? (
-					<MonacoEditor value={testCode} onChange={setTestCode} language="sql" />
+					<Text py="1" px="4" color="gray.700" fontSize="sm">
+						Click play to see query results
+					</Text>
 				) : (
 					<MonacoEditor
 						value={testCode}
