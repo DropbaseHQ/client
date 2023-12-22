@@ -29,13 +29,21 @@ export const BuilderSidebar = () => {
 	return (
 		<Accordion h="full" overflowY="auto" allowToggle>
 			<AccordionItem>
-				<AccordionButton px="2" flex="1">
-					<AccordionTitle>Files</AccordionTitle>
-					<NewFile variant="outline" size="2xs" ml="auto" colorScheme="gray" />
-				</AccordionButton>
-				<AccordionPanel px={2} py="0">
-					<FilesExplorer />
-				</AccordionPanel>
+				{({ isExpanded }) => (
+					<>
+						<AccordionButton
+							borderBottomWidth={isExpanded ? '1px' : '0'}
+							px="2"
+							flex="1"
+						>
+							<AccordionTitle>Files</AccordionTitle>
+							<NewFile variant="outline" size="2xs" ml="auto" colorScheme="gray" />
+						</AccordionButton>
+						<AccordionPanel p={2}>
+							<FilesExplorer />
+						</AccordionPanel>
+					</>
+				)}
 			</AccordionItem>
 			<AccordionItem>
 				<AccordionButton px="2" flex="1">
