@@ -72,7 +72,7 @@ export const AppPreview = () => {
 		createWidgetMutation.mutate({
 			pageId,
 			name: generateSequentialName({
-				currentNames: [widget?.name],
+				currentNames: widgets?.map((w: any) => w.name) as string[],
 				prefix: 'widget',
 			}),
 		});
