@@ -370,3 +370,20 @@ def reset_password(db: Session, request: ResetPasswordRequest):
         print(e)
         db.rollback()
         raise_http_exception(500, message="Failed to reset password.")
+
+
+def delete_user(db: Session, user_id: UUID):
+    try:
+        user = crud.user.get_object_by_id_or_404(db, id=user_id)
+        crud.user.remove(db, id=user_id, auto_commit=False)
+        user_owned_workspaces = crud.workspace.get_user_owned_workspaces(
+            db, user_id=user_id
+        )
+        for workspace in user_owned_workspaces:
+            crud.workspace.remove(db, id=workspace.id, auto_commit=False)
+
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise_http_exception(status_code=500, message="Internal server error")
+    return {"message": "User successfully deleted"}

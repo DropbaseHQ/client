@@ -112,8 +112,8 @@ def update_user(user_id: UUID, request: UpdateUser, db: Session = Depends(get_db
 
 @router.delete("/{user_id}")
 def delete_user(user_id: UUID, db: Session = Depends(get_db)):
-    verify_user_id_belongs_to_current_user(user_id)
-    return crud.user.remove(db, id=user_id)
+    # verify_user_id_belongs_to_current_user(user_id)
+    return user_controller.delete_user(db, user_id)
 
 
 @router.post("/add_policies/{user_id}")
