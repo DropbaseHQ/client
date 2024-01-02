@@ -20,7 +20,12 @@ export const useCurrentTableData = (tableId: any) => {
 	const { pageName, appName } = useAtomValue(pageAtom);
 
 	const allFilters = useAtomValue(filtersAtom);
-	const filters = (allFilters[tableId] || []).filter((f: any) => f.column_name && f.value);
+	const filters = (allFilters[tableId] || []).filter((f: any) => {
+		if (f.condition === 'is null' || f.condition === 'is not null') {
+			return f.column_name;
+		}
+		return f.column_name && f.value;
+	});
 
 	const allSorts = useAtomValue(sortsAtom);
 	const sorts = (allSorts[tableId] || []).filter((f: any) => f.column_name);
