@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import Editor, { useMonaco } from '@monaco-editor/react';
 import { useMonacoTheme } from './hooks/useMonacoTheme';
 
@@ -7,19 +7,9 @@ export const MonacoEditor = (props: any) => {
 	useMonacoTheme(monaco);
 
 	const { onMount, height: defaultHeight, options, ...otherProps } = props;
-	const [height, setHeight] = useState(defaultHeight || 16);
 
 	const handleEditorMount = useCallback(
 		(editor: any, ...rest: any) => {
-			editor.onDidContentSizeChange(() => {
-				try {
-					setHeight(Math.min(3000, editor.getContentHeight()));
-					editor.layout();
-				} finally {
-					//
-				}
-			});
-
 			if (onMount) {
 				onMount(editor, ...rest);
 			}
@@ -31,26 +21,31 @@ export const MonacoEditor = (props: any) => {
 		<Editor
 			{...otherProps}
 			options={{
-				minimap: { enabled: false },
+				folding: false,
+				lineNumbersMinChars: 3,
+				...(options || {}),
+
+				glyphMargin: false,
+				lightbulb: {
+					enabled: true,
+				},
+				overviewRulerBorder: false,
+				overviewRulerLanes: 0,
+				automaticLayout: true,
+				scrollBeyondLastLine: false,
+				minimap: {
+					enabled: false,
+				},
+				fontFamily: 'Fira Code',
+				fontSize: 14,
 				scrollbar: {
 					verticalHasArrows: true,
 					alwaysConsumeMouseWheel: false,
 					vertical: 'auto',
 					horizontal: 'auto',
 				},
-				fontFamily: 'Fira Code',
-				fontSize: 14,
-				glyphMargin: false,
-				overviewRulerBorder: false,
-				overviewRulerLanes: 0,
-				folding: false,
-				lineNumbersMinChars: 3,
-				...(options || {}),
-				scrollBeyondLastLine: false,
-				automaticLayout: true,
 			}}
 			onMount={handleEditorMount}
-			height={height}
 		/>
 	);
 };
