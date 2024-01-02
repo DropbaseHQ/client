@@ -353,6 +353,10 @@ export const FilterButton = () => {
 														}),
 													}));
 												}}
+												isDisabled={
+													filter.condition === 'is null' ||
+													filter.condition === 'is not null'
+												}
 												borderRadius="sm"
 												bg="bg-canvas"
 												size="sm"
