@@ -53,6 +53,7 @@ export const SQLEditor = ({ id }: any) => {
 			id,
 			code,
 			source: selectedSource,
+			execute: false,
 		});
 
 		return () => {
@@ -60,6 +61,7 @@ export const SQLEditor = ({ id }: any) => {
 				id: null,
 				code: null,
 				source: null,
+				execute: false,
 			});
 		};
 	}, [id, code, selectedSource, setPreviewFile]);

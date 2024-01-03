@@ -9,9 +9,10 @@ import {
 	SkeletonCircle,
 	Stack,
 } from '@chakra-ui/react';
+import * as monaco from 'monaco-editor';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Save } from 'react-feather';
 import { useQueryClient } from 'react-query';
@@ -31,8 +32,30 @@ import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 import { findFunctionDeclarations } from '../../utils';
 import { previewCodeAtom } from '../../atoms';
 
-const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode }: any) => {
+const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, id }: any) => {
 	const [code, setCode] = useState(defaultCode);
+
+	const setPreviewFile = useSetAtom(previewCodeAtom);
+
+	const executeRunCommand = useCallback(() => {
+		setPreviewFile({
+			id,
+			code: defaultCode,
+			execute: true,
+		});
+	}, [defaultCode, id, setPreviewFile]);
+
+	useEffect(() => {
+		if (monaco) {
+			monaco?.editor.addEditorAction({
+				id: 'run-python-code',
+				label: 'Run Code',
+				contextMenuOrder: 2,
+				contextMenuGroupId: '1_modification',
+				run: executeRunCommand,
+			});
+		}
+	}, [executeRunCommand]);
 
 	const editorRef = usePythonEditor({
 		filepath: filePath,
@@ -110,12 +133,14 @@ export const FunctionEditor = ({ id }: any) => {
 		setPreviewFile({
 			id,
 			code,
+			execute: false,
 		});
 
 		return () => {
 			setPreviewFile({
 				id: null,
 				code: null,
+				execute: false,
 			});
 		};
 	}, [id, code, setPreviewFile]);
@@ -171,7 +196,13 @@ export const FunctionEditor = ({ id }: any) => {
 				</Alert>
 			) : null}
 			<Box overflowY="auto" h="full" pt="2">
-				<PythonEditorLSP code={code} updateCode={setCode} filePath={filePath} key={id} />
+				<PythonEditorLSP
+					code={code}
+					id={id}
+					updateCode={setCode}
+					filePath={filePath}
+					key={id}
+				/>
 			</Box>
 		</Stack>
 	);

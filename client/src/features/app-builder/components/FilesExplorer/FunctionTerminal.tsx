@@ -1,10 +1,10 @@
 import { Box, IconButton, Skeleton, SkeletonCircle, Stack, Text } from '@chakra-ui/react';
 import { Play, X } from 'react-feather';
 import * as monacoLib from 'monaco-editor';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { useMonaco } from '@monaco-editor/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { MonacoEditor } from '@/components/Editor';
@@ -24,7 +24,7 @@ import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 
 export const FunctionTerminal = ({ panelRef }: any) => {
-	const { code, id, source } = useAtomValue(previewCodeAtom);
+	const [{ code, id, source, execute }, setPreviewCode] = useAtom(previewCodeAtom);
 
 	const { appName, pageName } = useAtomValue(pageAtom);
 
@@ -114,17 +114,32 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 		};
 	}, [monaco, file, code]);
 
-	const handleRunPythonFunction = () => {
-		runPythonMutation.mutate({
-			pageName,
-			appName,
-			pageState,
-			code: testCode,
-			file,
-		});
-	};
+	const handleRunPythonFunction = useCallback(() => {
+		if (testCode) {
+			runPythonMutation.mutate({
+				pageName,
+				appName,
+				pageState,
+				code: testCode,
+				file,
+			});
+		} else {
+			const declarations = findFunctionDeclarations(code);
+			const defaultTestCode = declarations.find((d) => d?.name === file?.name)?.call || '';
 
-	const handleRunSQLQuery = () => {
+			setTestCode(defaultTestCode);
+
+			runPythonMutation.mutate({
+				pageName,
+				appName,
+				pageState,
+				code: defaultTestCode,
+				file,
+			});
+		}
+	}, [appName, code, file, pageName, pageState, runPythonMutation, testCode]);
+
+	const handleRunSQLQuery = useCallback(() => {
 		runSQLQueryMutation.mutate({
 			pageName,
 			appName,
@@ -133,7 +148,40 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 			fileContent: code,
 			source,
 		});
-	};
+	}, [pageName, appName, pageState, file, code, source, runSQLQueryMutation]);
+
+	const executeShortcut = useCallback(() => {
+		if (file) {
+			setPreviewCode((old: any) => ({ ...old, execute: false }));
+			if (file?.type === 'sql') {
+				handleRunSQLQuery();
+			} else {
+				handleRunPythonFunction();
+			}
+		}
+	}, [file, setPreviewCode, handleRunPythonFunction, handleRunSQLQuery]);
+
+	const handleKeyDown = useCallback(
+		(e: any) => {
+			if (e.key === 'Shift' && e.metaKey) {
+				executeShortcut();
+			}
+		},
+		[executeShortcut],
+	);
+
+	useEffect(() => {
+		window.addEventListener('keydown', handleKeyDown);
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [handleKeyDown]);
+
+	useEffect(() => {
+		if (file && execute) {
+			executeShortcut();
+		}
+	}, [file, execute, executeShortcut]);
 
 	const isLoading = runPythonMutation.isLoading || runSQLQueryMutation.isLoading;
 
@@ -197,7 +245,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 						h="full"
 						borderRadius="sm"
 					>
-						<Stack direction="row" alignItems="start">
+						<Stack h="full" direction="row" alignItems="start">
 							<IconButton
 								aria-label="Close output"
 								size="xs"
@@ -208,7 +256,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 								onClick={() => setLog(null)}
 							/>
 
-							<Stack w="full" overflow="auto">
+							<Stack w="full" h="full">
 								<Text fontSize="sm" letterSpacing="wide" fontWeight="medium">
 									Output
 								</Text>
@@ -216,6 +264,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 									borderWidth="1px"
 									borderColor="blackAlpha.100"
 									borderRadius="sm"
+									h="full"
 								>
 									<MonacoEditor
 										value={log}

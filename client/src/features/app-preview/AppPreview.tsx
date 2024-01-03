@@ -21,6 +21,7 @@ import { ChevronDown, X, Tool, Plus } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
@@ -32,7 +33,6 @@ import { InspectorContainer } from '@/features/app-builder';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
 import { appModeAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { generateSequentialName } from '@/utils';
 
 export const AppPreview = () => {
