@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { axios, workerAxios } from '@/lib/axios';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
@@ -7,47 +8,33 @@ import {
 	ALL_PAGE_FILES_QUERY_KEY,
 	COLUMN_PROPERTIES_QUERY_KEY,
 } from '@/features/app-builder/hooks';
-import { PAGE_DATA_QUERY_KEY } from '@/features/page';
+import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
 import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 
 export const TABLE_QUERY_KEY = 'table';
 
-const fetchTablePropertiesInfo = async ({ tableId }: { tableId: string }) => {
-	const response = await axios.get<any>(`/tables/${tableId}`);
-
-	return response.data;
-};
-
-export const useGetTable = (tableId: string, props?: any): any => {
-	const queryKey = [TABLE_QUERY_KEY, tableId];
-
-	const { data: response, ...rest } = useQuery(
-		queryKey,
-		() => fetchTablePropertiesInfo({ tableId }),
-		{
-			enabled: Boolean(tableId),
-			...(props || {}),
-		},
-	);
+export const useGetTable = (tableName: string): any => {
+	const { appName, pageName } = useParams();
+	const { tables, ...rest } = useGetPage({ appName, pageName });
+	const table = tables.find((t: any) => t.name === tableName);
 
 	const info = useMemo(() => {
 		return {
-			properties: response?.properties || [],
-			table: response?.table || {},
-			type: response?.file?.type,
-			filters: (response?.table?.property?.filters || []).map((f: any) => ({
+			...(table || {}),
+			type: table?.type,
+			filters: (table?.filters || []).map((f: any) => ({
 				...f,
 				pinned: true,
 				id: crypto.randomUUID(),
 			})),
-			height: response?.table?.property?.height,
+			height: table?.height,
+			name: table?.name,
 		};
-	}, [response]);
+	}, [table]);
 
 	return {
 		...rest,
-		queryKey,
 		...info,
 	};
 };
@@ -81,26 +68,6 @@ export const useDataFetchers = (pageId: any) => {
 		queryKey,
 		...info,
 	};
-};
-
-const createTable = async ({ name, pageId, property }: any) => {
-	const response = await workerAxios.post(`/tables/`, {
-		name,
-		page_id: pageId,
-		property,
-	});
-	return response.data;
-};
-
-export const useCreateTable = (props: any = {}) => {
-	const queryClient = useQueryClient();
-	return useMutation(createTable, {
-		...props,
-		onSettled: () => {
-			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
-		},
-	});
 };
 
 const updateTableProperties = async ({

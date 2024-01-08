@@ -20,8 +20,8 @@ const componentsMap: any = {
 };
 
 export const FileContent = () => {
-	const { pageId } = useParams();
-	const { files, isLoading, error } = useGetPage(pageId);
+	const { appName, pageName } = useParams();
+	const { files, isLoading, error } = useGetPage({ appName, pageName });
 
 	const panelRef = useRef<any>(null);
 

@@ -1,12 +1,12 @@
 import { Button, FormControl, FormLabel, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react';
 import { Save } from 'react-feather';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { MonacoEditor } from '@/components/Editor';
 import { useFile, useSaveCode, useSources } from '@/features/app-builder/hooks';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
@@ -14,12 +14,11 @@ import { previewCodeAtom } from '../../atoms';
 
 export const SQLEditor = ({ id }: any) => {
 	const toast = useToast();
-	const { pageId } = useParams();
-	const { files } = useGetPage(pageId);
+	const { appName, pageName } = useParams();
+	const { files } = useGetPage({ appName, pageName });
 
 	const file = files.find((f: any) => f.id === id);
 	const sqlName = file?.name;
-	const { pageName, appName } = useAtomValue(pageAtom);
 
 	const [selectedSource, setSource] = useState();
 

@@ -13,25 +13,31 @@ import { FormInput } from '@/components/FormInput';
 import { InputLoader } from '@/components/Loader';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { DeleteTable } from '@/features/app-builder/components/PropertiesEditor/DeleteTable';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { newPageStateAtom } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 
 export const TableProperties = () => {
 	const tableId = useAtomValue(selectedTableIdAtom);
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 	const toast = useToast();
 
-	const { isLoading, table, refetch, height: defaultTableHeight } = useGetTable(tableId || '');
+	const {
+		isLoading,
+		depends_on: defaultDependsOn,
+		name: defaultTableName,
+		file_id: defaultFileId,
+		refetch,
+		height: defaultTableHeight,
+	} = useGetTable(tableId || '');
 
-	const { pageName, appName } = useAtomValue(pageAtom);
-
-	const { tables } = useGetPage(pageId);
+	const { tables } = useGetPage({ appName, pageName });
 
 	const pageState = useAtomValue(newPageStateAtom);
 
-	const { fetchers } = useDataFetchers(pageId);
+	// FIXME: fix pageId
+	const { fetchers } = useDataFetchers('');
 
 	const mutation = useUpdateTableProperties({
 		onSuccess: () => {
@@ -65,17 +71,17 @@ export const TableProperties = () => {
 	useEffect(() => {
 		reset(
 			{
-				name: table?.name,
-				fileId: table?.file_id || '',
+				name: defaultTableName,
+				fileId: defaultFileId || '',
 				height: defaultTableHeight || '',
-				depends: table?.depends_on || null,
+				depends: defaultDependsOn || null,
 			},
 			{
 				keepDirty: false,
 				keepDirtyValues: false,
 			},
 		);
-	}, [table, tableId, defaultTableHeight, reset]);
+	}, [defaultDependsOn, defaultFileId, defaultTableName, defaultTableHeight, reset]);
 
 	const onSubmit = ({ fileId, height, depends, ...rest }: any) => {
 		mutation.mutate({
@@ -83,11 +89,14 @@ export const TableProperties = () => {
 			appName,
 			pageName,
 			tableName: rest.name,
-			table,
+			// FIXME: table
+			// table,
 			file: fetchers.find((f: any) => f.id === fileId),
-			pageId,
+			// FIXME: fix pageId
+			// pageId,
 			state: pageState?.state,
-			property: { ...(table?.property || {}), height },
+			// FIXME: table
+			// property: { ...(table?.property || {}), height },
 			depends,
 		});
 	};
@@ -134,7 +143,7 @@ export const TableProperties = () => {
 									icon={<Save size="14" />}
 								/>
 							) : null}
-							<DeleteTable tableId={tableId} tableName={table?.name} />
+							<DeleteTable tableId={tableId} tableName={defaultTableName} />
 						</ButtonGroup>
 					</Stack>
 					<Stack px="4" py="2" h="full" overflowY="auto">
@@ -158,12 +167,12 @@ export const TableProperties = () => {
 											return true;
 										},
 										isUnique: (value: any) => {
-											if (value && table?.name !== value) {
+											if (value && defaultTableName !== value) {
 												const isUnique = Object.keys(
 													pageState?.state?.tables,
 												).find(
 													(t: any) =>
-														t === value && value !== table?.name,
+														t === value && value !== defaultTableName,
 												);
 												if (isUnique) {
 													return 'Table name must be unique';

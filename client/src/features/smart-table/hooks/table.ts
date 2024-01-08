@@ -41,31 +41,30 @@ const fetchTableData = async ({
 };
 
 export const useTableData = ({
-	tableId,
+	tableName,
 	filters = [],
 	sorts = [],
 	state,
 	appName,
 	pageName,
-	pageId,
 	currentPage,
 	pageSize,
 }: any) => {
-	const { type, table, isFetching: isLoadingTable } = useGetTable(tableId || '');
-	const { tables, files, isFetching: isLoadingPage } = useGetPage(pageId);
+	const { type, table, isFetching: isLoadingTable } = useGetTable(tableName || '');
+	const { tables, files, isFetching: isLoadingPage } = useGetPage({ appName, pageName });
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
 
 	const hasSelectedRows = useAtomValue(hasSelectedRowAtom);
 
-	const depends = tables.find((t: any) => t.id === tableId)?.depends_on || [];
+	const depends = tables.find((t: any) => t.name === tableName)?.depends_on || [];
 	const tablesWithNoSelection = depends.filter((name: any) => !hasSelectedRows[name]);
 
 	const tablesState = state?.state?.tables;
 
 	const dependentTableData = depends.reduce(
-		(agg: any, tableName: any) => ({
+		(agg: any, tName: any) => ({
 			...agg,
-			[tableName]: tablesState[tableName],
+			[tableName]: tablesState[tName],
 		}),
 		{},
 	);
@@ -132,7 +131,6 @@ export const useTableData = ({
 				rows,
 				header,
 				tableName: response.table_name,
-				tableId: response.table_id,
 				tableError: response?.result?.error,
 			};
 		}
@@ -170,8 +168,8 @@ export const useSaveEdits = (props: any = {}) => {
 	});
 };
 
-const pinFilters = async ({ filters, tableId }: { filters: any; tableId: any }) => {
-	const response = await axios.post(`/tables/pin_filters`, { table_id: tableId, filters });
+const pinFilters = async ({ filters, tableName }: { filters: any; tableName: any }) => {
+	const response = await axios.post(`/tables/pin_filters`, { table_id: tableName, filters });
 	return response.data;
 };
 

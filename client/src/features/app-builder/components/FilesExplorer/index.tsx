@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { Box, Icon, Input, Progress, Skeleton, Stack, useDisclosure } from '@chakra-ui/react';
 import { Code, Table, Box as BoxIcon } from 'react-feather';
 import { useParams } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { useMonacoLoader } from '@/components/Editor';
 
 import { developerTabAtom } from '@/features/app-builder/atoms';
 
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { DeleteFile } from './DeleteFile';
 import { useUpdateFile } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
@@ -17,9 +17,8 @@ const FileButton = ({ file }: any) => {
 	const toast = useToast();
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
 
-	const { appName, pageName } = useAtomValue(pageAtom);
-	const { pageId } = useParams();
-	const { files } = useGetPage(pageId);
+	const { appName, pageName } = useParams();
+	const { files } = useGetPage({ appName, pageName });
 
 	const {
 		isOpen: mouseOver,
@@ -73,7 +72,8 @@ const FileButton = ({ file }: any) => {
 				fileName: file.name,
 				newFileName,
 				fileType: file.type,
-				pageId,
+				// FIXME: fix pageId
+				// pageId,
 			});
 		} else {
 			toast({
@@ -170,8 +170,8 @@ const FileButton = ({ file }: any) => {
 };
 
 export const FilesExplorer = () => {
-	const { pageId } = useParams();
-	const { files, isLoading, error } = useGetPage(pageId);
+	const { appName, pageName } = useParams();
+	const { files, isLoading, error } = useGetPage({ appName, pageName });
 
 	const isReady = useMonacoLoader();
 

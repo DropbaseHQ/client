@@ -1,21 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Progress, Stack } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useParams } from 'react-router-dom';
 import { useGetPage } from '@/features/page';
 import { SmartTable } from './SmartTable';
 import { InspectorContainer } from '@/features/app-builder';
 import { appModeAtom } from '@/features/app/atoms';
 import { NewTable } from '@/features/app-builder/components/PropertiesEditor/NewTable';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { useEffect } from 'react';
+
 import { useReorderTables } from './hooks';
 
 export const StackedTables = () => {
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 
 	const { isPreview } = useAtomValue(appModeAtom);
-	const { tables } = useGetPage(pageId);
+	const { tables } = useGetPage({ appName, pageName });
 
 	const [tableState, setTableState] = useState(tables);
 
@@ -36,7 +36,8 @@ export const StackedTables = () => {
 
 		setTableState(newTableOrder);
 		reorderMutation.mutate({
-			pageId,
+			// FIXME: pageId
+			// pageId,
 			tables: newTableOrder.map((t: any, index: number) => ({ id: t.id, order: index })),
 		});
 	};
@@ -50,7 +51,7 @@ export const StackedTables = () => {
 			{reorderMutation.isLoading && <Progress size="xs" isIndeterminate />}
 
 			<Droppable droppableId="droppable-2">
-				{(provided: any, _: any) => (
+				{(provided: any) => (
 					<Stack
 						ref={provided.innerRef}
 						bg="white"
@@ -67,21 +68,21 @@ export const StackedTables = () => {
 								index={index}
 								isDragDisabled={isPreview}
 							>
-								{(provided: any, _: any) => (
+								{(p: any) => (
 									<Box
 										flexShrink="0"
 										key={table.id}
-										ref={provided.innerRef}
-										{...provided.draggableProps}
-										{...provided.dragHandleProps}
+										ref={p.innerRef}
+										{...p.draggableProps}
+										{...p.dragHandleProps}
 									>
 										<InspectorContainer
 											h="full"
 											w="full"
 											type="table"
-											id={table.id}
+											id={table.name}
 										>
-											<SmartTable tableId={table.id} />
+											<SmartTable tableName={table.name} />
 										</InspectorContainer>
 									</Box>
 								)}

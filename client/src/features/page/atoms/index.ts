@@ -1,12 +1,12 @@
 import { atom } from 'jotai';
 
 export const pageAtom = atom<{
-	widgetId: string | null;
+	widgetName: string | null;
 	appName: string | null;
 	pageName: string | null;
 	widgets: string[] | null;
 }>({
-	widgetId: null,
+	widgetName: null,
 	appName: null,
 	pageName: null,
 	widgets: [],

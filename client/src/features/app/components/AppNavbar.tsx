@@ -28,7 +28,7 @@ import { getErrorMessage } from '@/utils';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const toast = useToast();
-	const { appId } = useParams();
+	const { appName } = useParams();
 	const { apps } = useGetWorkspaceApps();
 
 	const [name, setAppName] = useState('');
@@ -40,12 +40,12 @@ export const AppNavbar = ({ isPreview }: any) => {
 				title: 'Failed to update app',
 				description: getErrorMessage(error),
 			});
-		}
+		},
 	});
 
 	// const forceSyncMutation = useForceSyncState();
 
-	const app = apps.find((a) => a.id === appId);
+	const app = apps.find((a) => a.name === appName);
 
 	useEffect(() => {
 		if (app) {
@@ -55,7 +55,9 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 	const nameNotUnique = (newName: any) => {
 		return apps.find((a) => {
-			return a.name === newName && a.id !== appId;
+			return true;
+			// FIXME: fix appId
+			// return a.name === newName && a.id !== appId;
 		});
 	};
 
@@ -74,18 +76,13 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const handleUpdate = () => {
 		if (app) {
 			updateMutation.mutate({
-				appId,
+				// FIXME: fix appId
+				// appId,
 				oldName: app.name,
 				newName: name,
 			});
 		}
 	};
-
-	// const forceSync = () => {
-	// 	forceSyncMutation.mutate({
-	// 		pageId,
-	// 	});
-	// };
 
 	return (
 		<Stack
@@ -168,11 +165,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Stack>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				{/* TODO: sync conditionally based on out of sync page */}
-				{/* <Button variant="outline" colorScheme="red" onClick={forceSync} size="sm">
-					Sync state
-				</Button> */}
-
 				{app?.editable && (
 					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
 						<Button

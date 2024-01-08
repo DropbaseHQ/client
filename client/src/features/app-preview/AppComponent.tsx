@@ -2,7 +2,7 @@ import { Button, FormControl, FormHelperText, FormLabel, Text } from '@chakra-ui
 import { useAtom, useAtomValue } from 'jotai';
 import { getErrorMessage } from '@/utils';
 
-import { useExecuteAction, useGetWidgetPreview } from '@/features/app-preview/hooks';
+import { useExecuteAction } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
 import {
 	widgetComponentsAtom,
@@ -23,21 +23,18 @@ const sizeMap: any = {
 
 export const AppComponent = (props: any) => {
 	const toast = useToast();
-	const { pageName, appName } = useAtomValue(pageAtom);
+	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
 	const { type, property: component } = props;
 
 	const pageState = useAtomValue(newPageStateAtom);
 
-	const { widgetId } = useAtomValue(pageAtom);
-	const { widget } = useGetWidgetPreview(widgetId || '');
-
 	const [allWidgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
-	const widgetComponents = allWidgetComponents[widget.name]?.components || {};
+	const widgetComponents = allWidgetComponents[widgetName || '']?.components || {};
 	const inputState = widgetComponents?.[component.name] || {};
 
 	const allUserInputValues: any = useAtomValue(allWidgetsInputAtom);
 
-	const widgetInputs = allUserInputValues?.[widget.name] || {};
+	const widgetInputs = allUserInputValues?.[widgetName || ''] || {};
 
 	const syncState = useSyncState();
 

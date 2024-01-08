@@ -17,7 +17,7 @@ import {
 	generateFunctionCallSuggestions,
 	logBuilder,
 } from '@/features/app-builder/utils';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { ChakraTable } from '@/components/Table';
 import { previewCodeAtom } from '../../atoms';
 import { getErrorMessage } from '@/utils';
@@ -26,13 +26,11 @@ import { useToast } from '@/lib/chakra-ui';
 export const FunctionTerminal = ({ panelRef }: any) => {
 	const [{ code, id, source, execute }, setPreviewCode] = useAtom(previewCodeAtom);
 
-	const { appName, pageName } = useAtomValue(pageAtom);
-
 	const toast = useToast();
 
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 
-	const { files, isLoading: isLoadingFiles } = useGetPage(pageId);
+	const { files, isLoading: isLoadingFiles } = useGetPage({ appName, pageName });
 	const file = files.find((f: any) => f.id === id);
 
 	const monaco = useMonaco();

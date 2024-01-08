@@ -28,7 +28,6 @@ import {
 import { useToast } from '@/lib/chakra-ui';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { newPageStateAtom } from '@/features/app-state';
-import { pageAtom, useGetPage } from '@/features/page';
 import { getErrorMessage } from '@/utils';
 
 const DISPLAY_COLUMN_PROPERTIES = [
@@ -166,18 +165,12 @@ const ColumnProperty = ({ id, property: properties, type }: any) => {
 export const ColumnsProperties = () => {
 	const toast = useToast();
 
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 
 	const tableId = useAtomValue(selectedTableIdAtom);
 	const pageState = useAtomValue(newPageStateAtom);
 
-	const { appName, pageName } = useAtomValue(pageAtom);
-
-	const { files } = useGetPage(pageId);
-
-	const { table } = useGetTable(tableId || '');
-	const file = files.find((f: any) => f.id === table?.file_id);
-	const type = file?.type;
+	const { type, file_id: defaultFileId } = useGetTable(tableId || '');
 
 	const { isLoading, values } = useGetColumnProperties(tableId || '');
 
@@ -198,14 +191,14 @@ export const ColumnsProperties = () => {
 	});
 
 	const handleConvert = () => {
-		if (table && file)
-			convertMutation.mutate({
-				file,
-				table,
-				state: pageState.state,
-				appName,
-				pageName,
-			});
+		convertMutation.mutate({
+			// FIXME: fix file anmd table
+			// file,
+			// table,
+			state: pageState.state,
+			appName,
+			pageName,
+		});
 	};
 
 	if (isLoading) {

@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import * as monaco from 'monaco-editor';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Save } from 'react-feather';
@@ -25,7 +25,7 @@ import {
 	usePageFiles,
 	useSaveCode,
 } from '@/features/app-builder/hooks';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 
 import { getErrorMessage } from '@/utils';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
@@ -71,10 +71,9 @@ const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, id }: any) =
 
 export const FunctionEditor = ({ id }: any) => {
 	const queryClient = useQueryClient();
-	const { pageName, appName } = useAtomValue(pageAtom);
 	const toast = useToast();
-	const { pageId } = useParams();
-	const { files } = useGetPage(pageId);
+	const { appName, pageName } = useParams();
+	const { files } = useGetPage({ appName, pageName });
 
 	const { files: workerFiles, isLoading: isLoadingWorkerFiles } = usePageFiles({
 		pageName: pageName || '',
@@ -119,7 +118,6 @@ export const FunctionEditor = ({ id }: any) => {
 			appName,
 			fileName,
 			sql: updatedCode,
-			// source: selectedSource,
 			fileId: id,
 			fileType: file?.type,
 		});
