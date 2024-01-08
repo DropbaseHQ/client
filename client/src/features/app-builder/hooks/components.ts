@@ -103,30 +103,6 @@ export const useUpdateComponentProperties = (props: any = {}) => {
 	});
 };
 
-const createComponents = async ({ widgetId, property, type, after }: any) => {
-	const response = await workerAxios.post(`/components/`, {
-		widget_id: widgetId,
-		property,
-		type,
-		after,
-	});
-
-	return response.data;
-};
-
-export const useCreateComponents = (props: any = {}) => {
-	const queryClient = useQueryClient();
-
-	return useMutation(createComponents, {
-		...props,
-		onSettled: () => {
-			queryClient.invalidateQueries(WIDGET_PROPERTIES_QUERY_KEY);
-			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
-		},
-	});
-};
-
 const deleteComponent = async ({ componentId }: any) => {
 	const response = await workerAxios.delete(`/components/${componentId}`);
 	return response.data;

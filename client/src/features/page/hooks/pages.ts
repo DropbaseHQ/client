@@ -88,7 +88,7 @@ export const useInitPage = () => {
 	return { isLoading, ...rest };
 };
 
-const updatePage = async (data: any) => {
+const updatePageData = async (data: any) => {
 	const response = await workerAxios.post(`/page`, data);
 	return response.data;
 };
@@ -96,7 +96,7 @@ const updatePage = async (data: any) => {
 export const useUpdatePageData = (props: any = {}) => {
 	const queryClient = useQueryClient();
 
-	return useMutation(updatePage, {
+	return useMutation(updatePageData, {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);

@@ -21,13 +21,12 @@ import { useStatus } from '@/layout/StatusBar';
 import { FormInput } from '@/components/FormInput';
 import {
 	useAllPageFunctionNames,
-	useCreateComponents,
 	useDeleteComponent,
 	useGetComponentProperties,
 	useSyncComponents,
 	useUpdateComponentProperties,
 } from '@/features/app-builder/hooks';
-import { pageAtom } from '@/features/page';
+import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
@@ -37,9 +36,9 @@ import { getErrorMessage } from '@/utils';
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
-	const { widgetId, pageName, appName } = useAtomValue(pageAtom);
+	const { widgetName, pageName, appName } = useAtomValue(pageAtom);
 	const { schema, refetch, values, isLoading, categories } = useGetComponentProperties(
-		widgetId || '',
+		widgetName || '',
 	);
 
 	const { type, property: properties } = values.find((v: any) => v.id === id) || {};
@@ -226,13 +225,14 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 export const NewComponent = (props: any) => {
 	const toast = useToast();
 	const { isConnected } = useStatus();
-	const { widgetId, appName, pageName } = useAtomValue(pageAtom);
-	const { values } = useGetComponentProperties(widgetId || '');
+	const { widgetName, appName, pageName } = useAtomValue(pageAtom);
+	const { properties } = useGetPage({ appName, pageName });
+	const { values } = useGetComponentProperties(widgetName || '');
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 
 	const syncComponents = useSyncComponents();
 
-	const mutation = useCreateComponents({
+	const mutation = useUpdatePageData({
 		onSuccess: (data: any) => {
 			setInspectedResource({
 				id: data.id,
@@ -273,6 +273,10 @@ export const NewComponent = (props: any) => {
 			label: newName,
 		};
 
+		if (type === 'input') {
+			otherProperty = { type: 'text' };
+		}
+
 		if (type === 'text') {
 			otherProperty = {
 				text: newName,
@@ -280,10 +284,30 @@ export const NewComponent = (props: any) => {
 		}
 
 		mutation.mutate({
-			widgetId,
-			property: { name: newName, ...otherProperty },
-			type,
-			after: values?.[values.length - 1]?.id || null,
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				widgets: [
+					...(properties?.widgets || []).map((w: any) => {
+						if (w.name === widgetName) {
+							return {
+								...w,
+								components: [
+									...(w.components || []),
+									{
+										name: newName,
+										component_type: type,
+										...otherProperty,
+									},
+								],
+							};
+						}
+
+						return w;
+					}),
+				],
+			},
 		});
 	};
 

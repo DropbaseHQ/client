@@ -26,7 +26,7 @@ import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import { useInitializeWidgetState, allWidgetStateAtom } from '@/features/app-state';
-import { pageAtom } from '@/features/page';
+import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget, useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
@@ -56,7 +56,9 @@ export const AppPreview = () => {
 	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
 	const allWidgetState = widgetData.state;
 
-	const createWidgetMutation = useCreateWidget();
+	const { properties } = useGetPage({ appName, pageName });
+	const createMutation = useCreateWidget();
+
 	const reorderMutation = useReorderComponents();
 
 	const widgetState: any = allWidgetState[widgetName || ''];
@@ -66,6 +68,7 @@ export const AppPreview = () => {
 			...lodashSet(oldData, `state.${widgetName}.message`, null),
 		}));
 	};
+
 	const handleReorderComponents = (newComponentOrder: { id: string; order: number }[]) => {
 		reorderMutation.mutate({
 			// FIXME: fix widgetId
@@ -73,22 +76,34 @@ export const AppPreview = () => {
 			components: newComponentOrder,
 		});
 	};
+
 	const handleCreateWidget = () => {
-		createWidgetMutation.mutate({
-			// FIXME: fix pageId
-			// pageId,
-			name: generateSequentialName({
-				currentNames: widgets?.map((w: any) => w.name) as string[],
-				prefix: 'widget',
-			}),
+		createMutation.mutate({
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				widgets: [
+					...(properties?.widgets || []),
+					{
+						name: generateSequentialName({
+							currentNames: widgets?.map((w: any) => w.name) as string[],
+							prefix: 'widget',
+						}),
+						components: [],
+					},
+				],
+			},
 		});
 	};
+
 	const handleChooseWidget = (newWidgetId: any) => {
 		setPageAtom((oldPageAtom) => ({
 			...oldPageAtom,
 			widgetId: newWidgetId,
 		}));
 	};
+
 	const handleOnDragEnd = (result: any) => {
 		const { destination, source } = result;
 		if (!destination) {
@@ -115,8 +130,6 @@ export const AppPreview = () => {
 	useEffect(() => {
 		setComponentsState(components);
 	}, [components]);
-
-	const mutation = useCreateWidget();
 
 	if (!widgetName) {
 		if (!isDevMode) {
@@ -160,15 +173,9 @@ export const AppPreview = () => {
 						w="fit-content"
 						colorScheme="blue"
 						size="sm"
-						isLoading={mutation.isLoading}
+						isLoading={createMutation.isLoading}
 						isDisabled={!isConnected}
-						onClick={() => {
-							mutation.mutate({
-								// FIXME: fix pageId
-								// pageId,
-								name: 'widget1',
-							});
-						}}
+						onClick={handleCreateWidget}
 					>
 						Build Widget
 					</Button>
@@ -214,6 +221,7 @@ export const AppPreview = () => {
 										variant="outline"
 										size="sm"
 										colorScheme="gray"
+										isLoading={createMutation.isLoading}
 										onClick={handleCreateWidget}
 									>
 										<Stack
