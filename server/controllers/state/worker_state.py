@@ -1,7 +1,6 @@
-from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, create_model, Field
+from pydantic import BaseModel, Field, create_model
 from sqlalchemy.orm import Session
 
 from server import crud
@@ -13,23 +12,15 @@ def get_state_context(db: Session, page_id: UUID):
     tables = get_resource_data(db, page_id, crud.tables, crud.columns, "columns")
 
     # compose defined context and state
-    WidgetState = get_state_class(
-        resource_type="defined", resource="Widgets", resources=widgets
-    )
-    TableState = get_state_class(
-        resource_type="defined", resource="Tables", resources=tables
-    )
+    WidgetState = get_state_class(resource_type="defined", resource="Widgets", resources=widgets)
+    TableState = get_state_class(resource_type="defined", resource="Tables", resources=tables)
 
     class State(BaseModel):
         widgets: WidgetState
         tables: TableState
 
-    WidgetContext = get_context_class(
-        resource_type="context", resource="Widgets", resources=widgets
-    )
-    TablesContext = get_context_class(
-        resource_type="context", resource="Tables", resources=tables
-    )
+    WidgetContext = get_context_class(resource_type="context", resource="Widgets", resources=widgets)
+    TablesContext = get_context_class(resource_type="context", resource="Tables", resources=tables)
 
     class Context(BaseModel):
         widgets: WidgetContext
@@ -115,13 +106,9 @@ def get_context_class(resource_type, resource, resources):
             )
 
         components_class_name = (
-            resource_name.capitalize()
-            + children_dir.capitalize()
-            + resource_type.capitalize()
+            resource_name.capitalize() + children_dir.capitalize() + resource_type.capitalize()
         )
-        locals()[components_class_name] = create_model(
-            components_class_name, **components_props
-        )
+        locals()[components_class_name] = create_model(components_class_name, **components_props)
 
         resource_class_name = resource_name.capitalize() + resource_type.capitalize()
         locals()[resource_class_name] = create_model(
@@ -159,9 +146,7 @@ def get_state_class(resource_type, resource, resources):
             )
 
         resource_class_name = resource_name.capitalize() + "State"
-        locals()[resource_class_name] = create_model(
-            resource_class_name, **components_props
-        )
+        locals()[resource_class_name] = create_model(resource_class_name, **components_props)
 
         resources_props[resource_name] = (locals()[resource_class_name], ...)
 

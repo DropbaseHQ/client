@@ -196,9 +196,7 @@ export const AppList = () => {
 		useCreateAppFlow({
 			onSuccess: (_: any, variables: any) => {
 				if (variables?.appTemplate?.page?.id) {
-					navigate(
-						`/apps/${variables?.appId}/${variables?.appTemplate?.page?.id}/editor`,
-					);
+					navigate(`/apps/${variables?.app_nema}/page1/editor`);
 				}
 				refetch();
 				onClose();
@@ -221,7 +219,6 @@ export const AppList = () => {
 	const onSubmit = async ({ name: appName }: any) => {
 		await handleCreateAppFlow({
 			name: appName,
-			workspaceId: workspaceId || '',
 		});
 	};
 

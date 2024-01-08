@@ -24,7 +24,6 @@ import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceAp
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
-// import { useForceSyncState } from '@/features/app-state';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const toast = useToast();

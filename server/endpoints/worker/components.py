@@ -1,23 +1,17 @@
-from fastapi import APIRouter, Depends
-from server import crud
-from sqlalchemy.orm import Session
-from server.schemas.components import (
-    CreateComponents,
-    ReorderComponentsRequest,
-    UpdateComponents,
-)
-from server.utils.connect import get_db
-from server.utils.authorization import RESOURCES, AuthZDepFactory
-from server.controllers import components as components_controller
 from uuid import UUID
+
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from server import crud
+from server.controllers import components as components_controller
+from server.schemas.components import CreateComponents, ReorderComponentsRequest, UpdateComponents
+from server.utils.authorization import RESOURCES, AuthZDepFactory
+from server.utils.connect import get_db
 
 components_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.COMPONENTS)
 
-router = APIRouter(
-    prefix="/components",
-    tags=["components"],
-    # dependencies=[Depends(components_authorizer)],
-)
+router = APIRouter(prefix="/components", tags=["components"])
 
 
 @router.post("/")
@@ -26,9 +20,7 @@ def create_component(request: CreateComponents, db: Session = Depends(get_db)):
 
 
 @router.put("/{components_id}")
-def update_components(
-    components_id: UUID, request: UpdateComponents, db: Session = Depends(get_db)
-):
+def update_components(components_id: UUID, request: UpdateComponents, db: Session = Depends(get_db)):
     return components_controller.update_component(db, components_id, request)
 
 
