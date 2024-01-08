@@ -51,7 +51,7 @@ export const AppPreview = () => {
 	} = useGetWidgetPreview(widgetName || '');
 	const [componentsState, setComponentsState] = useState(components);
 
-	useInitializeWidgetState({ widgetId: widgetName, appName, pageName });
+	useInitializeWidgetState({ widgetName, appName, pageName });
 
 	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
 	const allWidgetState = widgetData.state;
