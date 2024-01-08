@@ -24,13 +24,22 @@ const sizeMap: any = {
 export const AppComponent = (props: any) => {
 	const toast = useToast();
 	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
-	const { type, property: component } = props;
+	const {
+		component_type: componentType,
+		type,
+		name,
+		display_rules: displayRules,
+		color,
+		label,
+		on_click: onClick,
+		...component
+	} = props;
 
 	const pageState = useAtomValue(newPageStateAtom);
 
 	const [allWidgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
 	const widgetComponents = allWidgetComponents[widgetName || '']?.components || {};
-	const inputState = widgetComponents?.[component.name] || {};
+	const inputState = widgetComponents?.[name] || {};
 
 	const allUserInputValues: any = useAtomValue(allWidgetsInputAtom);
 
@@ -43,7 +52,7 @@ export const AppComponent = (props: any) => {
 
 	const shouldDisplay = checkAllRulesPass({
 		values: widgetInputs,
-		rules: component.display_rules,
+		rules: displayRules,
 	});
 	const grayOutComponent = !shouldDisplay && isEditorMode;
 
@@ -73,26 +82,26 @@ export const AppComponent = (props: any) => {
 		return null;
 	}
 
-	if (type === 'button') {
+	if (componentType === 'button') {
 		return (
 			<Button
 				my="1.5"
 				size="sm"
 				isLoading={actionMutation.isLoading}
 				bgColor={grayOutComponent ? 'gray.100' : ''}
-				colorScheme={component.color || 'blue'}
+				colorScheme={color || 'blue'}
 				onClick={() => {
-					if (component.on_click) {
-						handleAction(component.on_click);
+					if (onClick) {
+						handleAction(onClick);
 					}
 				}}
 			>
-				{component.label}
+				{label}
 			</Button>
 		);
 	}
 
-	if (type === 'text') {
+	if (componentType === 'text') {
 		return (
 			<Text
 				fontSize={sizeMap[component.size]}
@@ -105,16 +114,16 @@ export const AppComponent = (props: any) => {
 	}
 
 	return (
-		<FormControl key={component.name} bgColor={grayOutComponent ? 'gray.100' : ''}>
-			{component.label ? <FormLabel lineHeight={1}>{component.label}</FormLabel> : null}
+		<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
+			{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
 			<InputRenderer
 				placeholder={component?.placeholder}
 				value={inputState?.value}
-				name={component.name}
-				type={type === 'select' ? 'select' : component.type}
+				name={name}
+				type={componentType === 'select' ? 'select' : type}
 				onChange={(newValue: any) => {
 					setWidgetComponentValues({
-						[component.name]: newValue,
+						[name]: newValue,
 					});
 
 					if (component.on_change) {

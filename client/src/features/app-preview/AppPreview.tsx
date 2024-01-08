@@ -51,7 +51,7 @@ export const AppPreview = () => {
 	} = useGetWidgetPreview(widgetName || '');
 	const [componentsState, setComponentsState] = useState(components);
 
-	useInitializeWidgetState({ widgetId: widgetName, appName, pageName });
+	useInitializeWidgetState({ widgetName, appName, pageName });
 
 	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
 	const allWidgetState = widgetData.state;
@@ -273,17 +273,17 @@ export const AppPreview = () => {
 							>
 								{componentsState.map((c: any, index: number) => {
 									return (
-										<Draggable key={c.id} draggableId={c.id} index={index}>
+										<Draggable key={c.name} draggableId={c.name} index={index}>
 											{(p: any) => (
 												<InspectorContainer
 													ref={p.innerRef}
-													key={c.id}
-													id={c.id}
+													key={c.name}
+													id={c.name}
 													type="component"
 													{...p.draggableProps}
 													{...p.dragHandleProps}
 												>
-													<AppComponent key={c.id} {...c} />
+													<AppComponent key={c.name} {...c} />
 												</InspectorContainer>
 											)}
 										</Draggable>
