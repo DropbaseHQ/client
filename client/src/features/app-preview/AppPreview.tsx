@@ -34,8 +34,19 @@ import { NewComponent } from '@/features/app-builder/components/PropertiesEditor
 import { appModeAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
 import { generateSequentialName } from '@/utils';
+import useWebSocket from 'react-use-websocket';
 
 export const AppPreview = () => {
+	// websocket
+	const socketURL = 'ws://localhost:9090/ws';
+	const { sendJsonMessage } = useWebSocket(socketURL, {
+		onOpen: () => console.log('opened'),
+		onMessage: (e) => {
+			// TODO: update context based on response message
+			console.log('message', e.data);
+		},
+	});
+
 	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
 	const { widgetName, widgets } = useAtomValue(pageAtom);
@@ -283,7 +294,11 @@ export const AppPreview = () => {
 													{...p.draggableProps}
 													{...p.dragHandleProps}
 												>
-													<AppComponent key={c.name} {...c} />
+													<AppComponent
+														key={c.name}
+														sendJsonMessage={sendJsonMessage}
+														{...c}
+													/>
 												</InspectorContainer>
 											)}
 										</Draggable>
