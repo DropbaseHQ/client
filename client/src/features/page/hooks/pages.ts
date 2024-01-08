@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 
 import { workerAxios } from '@/lib/axios';
 import { pageAtom } from '../atoms';
+import { APP_STATE_QUERY_KEY, useSyncState } from '@/features/app-state';
 
 export const PAGE_DATA_QUERY_KEY = 'pageData';
 
@@ -96,10 +97,20 @@ const updatePageData = async (data: any) => {
 export const useUpdatePageData = (props: any = {}) => {
 	const queryClient = useQueryClient();
 
+	const syncState = useSyncState();
+
 	return useMutation(updatePageData, {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+
+			props?.onSettled?.();
+		},
+		onSuccess: (data: any) => {
+			syncState(data);
+
+			props?.onSuccess?.(data);
 		},
 	});
 };

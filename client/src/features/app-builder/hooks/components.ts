@@ -5,6 +5,24 @@ import { axios, workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 
+const fetchComponentFields = async () => {
+	const response = await workerAxios.get<any>(`/components/properties/all`);
+
+	return response.data;
+};
+
+export const useComponentFields = () => {
+	const queryKey = ['component/fields'];
+
+	const { data: response, ...rest } = useQuery(queryKey, () => fetchComponentFields());
+
+	return {
+		...rest,
+		queryKey,
+		fields: response || {},
+	};
+};
+
 export const WIDGET_PROPERTIES_QUERY_KEY = 'widget/properties';
 
 const fetchTableColumnProperties = async ({ widgetId }: { widgetId: string }) => {
