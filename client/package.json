@@ -43,6 +43,7 @@
 		"react-resizable-panels": "^1.0.4",
 		"react-responsive-carousel": "^3.2.23",
 		"react-router-dom": "^6.14.2",
+		"react-use-websocket": "^4.5.0",
 		"vscode-languageclient": "^8.1.0",
 		"vscode-oniguruma": "^1.7.0",
 		"vscode-textmate": "^9.0.0",

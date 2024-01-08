@@ -14,6 +14,7 @@ import { pageAtom } from '@/features/page';
 import { checkAllRulesPass } from '@/features/app-preview/utils';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
+import useWebSocket from 'react-use-websocket';
 
 const sizeMap: any = {
 	small: 'sm',
@@ -22,6 +23,16 @@ const sizeMap: any = {
 };
 
 export const AppComponent = (props: any) => {
+	// websocket
+	const socketURL = 'ws://localhost:9090/ws';
+	const { sendJsonMessage } = useWebSocket(socketURL, {
+		onOpen: () => console.log('opened'),
+		onMessage: (e) => {
+			// TODO: update context based on response message
+			console.log('message', e.data);
+		},
+	});
+
 	const toast = useToast();
 	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
 	const {
@@ -94,6 +105,12 @@ export const AppComponent = (props: any) => {
 					if (onClick) {
 						handleAction(onClick);
 					}
+					sendJsonMessage({
+						type: 'display_rule',
+						state_context: pageState,
+						app_name: appName,
+						page_name: pageName,
+					});
 				}}
 			>
 				{label}
@@ -129,6 +146,12 @@ export const AppComponent = (props: any) => {
 					if (component.on_change) {
 						handleAction(component.on_change);
 					}
+					sendJsonMessage({
+						type: 'display_rule',
+						state_context: pageState,
+						app_name: appName,
+						page_name: pageName,
+					});
 				}}
 				options={inputState.options || component.options}
 			/>
