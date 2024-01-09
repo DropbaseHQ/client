@@ -53,25 +53,29 @@ export const useCurrentTableData = (tableName: any) => {
 		...tableData,
 		isLoading: isLoadingPage || tableData.isLoading,
 		columns: table.columns,
+		columnDict: table?.columns?.reduce((agg: any, c: any) => {
+			return {
+				...agg,
+				[c.name]: c,
+			};
+		}, {}),
 	};
 };
 
 export const useTableSyncStatus = (tableName: any) => {
-	const { header, columns, isLoading, isRefetching } = useCurrentTableData(tableName);
+	const { header, columns, isLoading, isRefetching, columnDict } = useCurrentTableData(tableName);
 
 	const [needsSync, setNeedSync] = useState(false);
-
-	console.log(header, columns);
 
 	useEffect(() => {
 		if (!isLoading || !isRefetching) {
 			const isSynced =
-				header.every((c: any) => (columns as any)[c]) &&
-				header.length === Object.keys(columns).length;
+				header.every((c: any) => (columnDict as any)[c]) &&
+				header.length === columns.length;
 
 			setNeedSync(!isSynced);
 		}
-	}, [header, isLoading, isRefetching, columns, tableName]);
+	}, [header, isLoading, isRefetching, columns, columnDict, tableName]);
 
 	return header.length > 0 ? needsSync : false;
 };

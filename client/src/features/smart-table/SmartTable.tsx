@@ -73,8 +73,18 @@ export const SmartTable = ({ tableName }: any) => {
 
 	const { properties } = useGetPage({ appName, pageName });
 
-	const { isLoading, rows, columns, header, refetch, isRefetching, types, tableError, error } =
-		useCurrentTableData(tableName);
+	const {
+		isLoading,
+		rows,
+		columns,
+		columnDict,
+		header,
+		refetch,
+		isRefetching,
+		types,
+		tableError,
+		error,
+	} = useCurrentTableData(tableName);
 	const {
 		depends_on: dependsOn,
 		isLoading: isLoadingTable,
@@ -217,7 +227,7 @@ export const SmartTable = ({ tableName }: any) => {
 		// ⚠️ only by passing undefined we can hide column icon
 		let icon = column?.type ? GridColumnIcon.HeaderString : undefined;
 
-		switch (getPGColumnBaseType(column?.type)) {
+		switch (types[column?.name]) {
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -261,7 +271,7 @@ export const SmartTable = ({ tableName }: any) => {
 			};
 		}
 
-		if (!columns[columnName]) {
+		if (!columnDict[columnName]) {
 			return {
 				...gridColumn,
 				themeOverride: {
@@ -277,7 +287,7 @@ export const SmartTable = ({ tableName }: any) => {
 
 	const getCellContent: any = ([col, row]: any) => {
 		const currentRow = rows[row];
-		const column = columns[visibleColumns[col]] || {
+		const column = columnDict[visibleColumns[col]] || {
 			name: visibleColumns[col],
 		};
 
@@ -360,7 +370,7 @@ export const SmartTable = ({ tableName }: any) => {
 		const [col, row] = cell;
 		const currentRow = rows[row];
 
-		const column = columns[visibleColumns[col]];
+		const column = columnDict[visibleColumns[col]];
 
 		if (column?.edit_keys?.length > 0) {
 			setCellEdits((old: any) => {
