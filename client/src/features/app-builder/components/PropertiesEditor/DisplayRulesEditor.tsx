@@ -2,7 +2,6 @@ import { Plus, Trash } from 'react-feather';
 import { Badge, Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
-import { useGetComponentProperties } from '@/features/app-builder/hooks';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 
@@ -59,6 +58,10 @@ export const DisplayRulesEditor = ({ name }: any) => {
 		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
 	const componentNames = Object.keys(componentsProperties);
 
+	const compilePathName = (target: string) => {
+		return `widgets.${widgetName}.${target}`;
+	};
+
 	return (
 		<FormControl>
 			<Controller
@@ -114,10 +117,10 @@ export const DisplayRulesEditor = ({ name }: any) => {
 												flex="1"
 												type="select"
 												placeholder="component name"
-												value={rule.name}
+												value={rule.target}
 												options={componentNames.map((c: any) => ({
 													name: c,
-													value: c,
+													value: compilePathName(c),
 												}))}
 												onChange={(newValue: any) => {
 													onChange(
@@ -125,7 +128,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 															if (r.id === rule.id) {
 																return {
 																	...r,
-																	name: newValue,
+																	target: newValue,
 																};
 															}
 
@@ -174,7 +177,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 												<InputRenderer
 													size="sm"
 													flex="1"
-													disabled={!rule.name}
+													disabled={!rule.target}
 													placeholder="select value"
 													{...input}
 													value={rule.value}
@@ -222,7 +225,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 									onChange([
 										...displayRules,
 										{
-											name: null,
+											target: null,
 											value: null,
 											operator: null,
 											id: crypto.randomUUID(),
