@@ -225,7 +225,7 @@ export const SmartTable = ({ tableName }: any) => {
 		};
 
 		// ⚠️ only by passing undefined we can hide column icon
-		let icon = column?.type ? GridColumnIcon.HeaderString : undefined;
+		let icon = types[column?.name] ? GridColumnIcon.HeaderString : undefined;
 
 		switch (types[column?.name]) {
 			case 'integer': {
