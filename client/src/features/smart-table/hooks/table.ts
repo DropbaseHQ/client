@@ -179,6 +179,8 @@ export const usePinFilters = (props: any = {}) => {
 	});
 };
 
+
+// TODO: @yash-dropbase please review, removed from backend
 const syncDropbaseColumns = async ({ appName, pageName, table, file, state }: any) => {
 	const response = await workerAxios.post(`/sync/columns/`, {
 		app_name: appName,
