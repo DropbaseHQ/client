@@ -6,9 +6,8 @@ import { workerAxios } from '@/lib/axios';
 export const APP_STATE_QUERY_KEY = 'appState';
 
 
-// TODO: @yash-dropbase please review, removed from backend
 const fetchAppState = async ({ appName, pageName }: { appName: string; pageName: string }) => {
-	const response = await workerAxios.get<any>(`/sync/${appName}/${pageName}`);
+	const response = await workerAxios.get<any>(`/page/${appName}/${pageName}`);
 	return response.data;
 };
 
