@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
-import { Info, RefreshCw, RotateCw } from 'react-feather';
+import { Info, RotateCw, UploadCloud } from 'react-feather';
 
 import DataEditor, {
 	CompactSelection,
@@ -22,16 +22,11 @@ import DataEditor, {
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
+import { useParams } from 'react-router-dom';
 
 import { selectedRowAtom } from '@/features/app-state';
 
-import {
-	CurrentTableContext,
-	useCurrentTableData,
-	useSyncDropbaseColumns,
-	useTableSyncStatus,
-	// useTableSyncStatus,
-} from './hooks';
+import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
 
 import {
 	cellEditsAtom,
@@ -40,13 +35,15 @@ import {
 	tablePageInfoAtom,
 } from './atoms';
 import { TableBar } from './components';
-import { getPGColumnBaseType } from '@/utils';
+import { getErrorMessage, getPGColumnBaseType } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 
 import { appModeAtom } from '@/features/app/atoms';
 import { Pagination } from './components/Pagination';
 import { DEFAULT_PAGE_SIZE } from './constants';
+import { useGetPage, useUpdatePageData } from '@/features/page';
+import { useToast } from '@/lib/chakra-ui';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -55,8 +52,11 @@ const heightMap: any = {
 };
 
 export const SmartTable = ({ tableName }: any) => {
+	const toast = useToast();
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
+
+	const { appName, pageName } = useParams();
 
 	const { isPreview } = useAtomValue(appModeAtom);
 
@@ -71,7 +71,9 @@ export const SmartTable = ({ tableName }: any) => {
 
 	const tableColumnWidth = allTableColumnWidth?.[tableName];
 
-	const { isLoading, rows, columns, header, refetch, isRefetching, tableError, error } =
+	const { properties } = useGetPage({ appName, pageName });
+
+	const { isLoading, rows, columns, header, refetch, isRefetching, types, tableError, error } =
 		useCurrentTableData(tableName);
 	const {
 		depends_on: dependsOn,
@@ -79,7 +81,22 @@ export const SmartTable = ({ tableName }: any) => {
 		height,
 	} = useGetTable(tableName || '');
 	const tableIsUnsynced = useTableSyncStatus(tableName);
-	const syncMutation = useSyncDropbaseColumns();
+
+	const mutation = useUpdatePageData({
+		onSuccess: () => {
+			toast({
+				title: 'Commited Columns details',
+				status: 'success',
+			});
+		},
+		onError: (err: any) => {
+			toast({
+				title: 'Failed to commit',
+				status: 'error',
+				description: getErrorMessage(err),
+			});
+		},
+	});
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
 	const cellEdits = allCellEdits?.[tableName] || [];
@@ -91,12 +108,6 @@ export const SmartTable = ({ tableName }: any) => {
 	const pageInfo = allTablePageInfo[tableName] || {};
 
 	const [columnWidth, setColumnWidth] = useState<any>(tableColumnWidth || {});
-
-	// const { appName, pageName } = useParams();
-	// FIXME: fix files
-	// const { files } = useGetPage({ appName, pageName });
-
-	// const pageState = useAtomValue(newPageStateAtom);
 
 	const onColumnResize = useCallback(
 		(col: any, newSize: any) => {
@@ -449,15 +460,29 @@ export const SmartTable = ({ tableName }: any) => {
 		}
 	};
 
-	const handleSyncColumns = () => {
-		// FIXME: fix sync columns
-		// syncMutation.mutate({
-		// 	pageName,
-		// 	appName,
-		// 	table,
-		// 	file: files.find((f: any) => f.id === table?.file_id),
-		// 	state: pageState.state,
-		// });
+	const handleCommitColumns = () => {
+		mutation.mutate({
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				tables: [
+					...(properties?.tables || []).map((t: any) => {
+						if (t.name === tableName) {
+							return {
+								...t,
+								columns: header.map((c: any) => ({
+									name: c,
+									type: types?.[c],
+								})),
+							};
+						}
+
+						return t;
+					}),
+				],
+			},
+		});
 	};
 
 	const highlights: any = cellEdits.map((edit: any) => {
@@ -525,12 +550,12 @@ export const SmartTable = ({ tableName }: any) => {
 									<Button
 										variant="outline"
 										colorScheme="gray"
-										leftIcon={<RefreshCw size="14" />}
+										leftIcon={<UploadCloud size="14" />}
 										size="sm"
-										onClick={handleSyncColumns}
-										isLoading={syncMutation.isLoading}
+										onClick={handleCommitColumns}
+										isLoading={mutation.isLoading}
 									>
-										Resync
+										Commit
 									</Button>
 								</Tooltip>
 							) : null}

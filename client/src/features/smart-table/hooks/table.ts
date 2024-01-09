@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue } from 'jotai';
 
 import { axios, workerAxios } from '@/lib/axios';
-import { COLUMN_PROPERTIES_QUERY_KEY, useGetTable } from '@/features/app-builder/hooks';
+import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
 import { APP_STATE_QUERY_KEY, useAppState } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
@@ -13,7 +13,7 @@ import { hasSelectedRowAtom } from '../atoms';
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
 const fetchTableData = async ({
-	file,
+	table,
 	appName,
 	pageName,
 	state,
@@ -25,7 +25,7 @@ const fetchTableData = async ({
 	const response = await workerAxios.post<any>(`/query/`, {
 		app_name: appName,
 		page_name: pageName,
-		file,
+		table,
 		state: state.state,
 		filter_sort: {
 			filters,
@@ -50,9 +50,10 @@ export const useTableData = ({
 	currentPage,
 	pageSize,
 }: any) => {
-	const { type, table, isFetching: isLoadingTable } = useGetTable(tableName || '');
-	const { tables, files, isFetching: isLoadingPage } = useGetPage({ appName, pageName });
+	const { tables, isFetching: isLoadingPage } = useGetPage({ appName, pageName });
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
+
+	const table = tables.find((t: any) => t.name === tableName);
 
 	const hasSelectedRows = useAtomValue(hasSelectedRowAtom);
 
@@ -69,19 +70,14 @@ export const useTableData = ({
 		{},
 	);
 
-	const { file_id: fileId } = table || {};
-	const file = files.find((f: any) => f.id === fileId);
-
 	const queryKey = [
 		TABLE_DATA_QUERY_KEY,
 		appName,
 		pageName,
-		type,
-		// Prevent table data from being refetched when table is being created or deleted
-		// `${Object.keys(state?.state?.tables).length}`,
+		table?.type,
 		currentPage,
 		pageSize,
-		JSON.stringify({ filters, sorts, dependentTableData, file, table }),
+		JSON.stringify({ filters, sorts, dependentTableData, table }),
 	];
 
 	const { data: response, ...rest } = useQuery(
@@ -91,7 +87,7 @@ export const useTableData = ({
 				appName,
 				pageName,
 				state,
-				file,
+				table,
 				filters,
 				sorts,
 				currentPage,
@@ -99,11 +95,9 @@ export const useTableData = ({
 			}),
 		{
 			enabled: !!(
-				!isLoadingTable &&
 				!isLoadingPage &&
 				!isFetchingAppState &&
 				table?.name in tablesState &&
-				file &&
 				table &&
 				appName &&
 				pageName &&
@@ -132,6 +126,7 @@ export const useTableData = ({
 				header,
 				tableName: response.table_name,
 				tableError: response?.result?.error,
+				types: response?.result?.types || {},
 			};
 		}
 
@@ -139,6 +134,7 @@ export const useTableData = ({
 			rows: [],
 			header: [],
 			tableError: null,
+			types: {},
 		};
 	}, [response]);
 
