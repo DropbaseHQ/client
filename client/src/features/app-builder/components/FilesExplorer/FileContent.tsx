@@ -61,7 +61,7 @@ export const FileContent = () => {
 			<Panel>
 				<Box h="full" overflowX="hidden" overflowY="auto">
 					{Component ? (
-						<Component id={devTab.id} />
+						<Component name={devTab.id} />
 					) : (
 						<Center p="4" h="full">
 							<Text size="sm" fontWeight="medium">

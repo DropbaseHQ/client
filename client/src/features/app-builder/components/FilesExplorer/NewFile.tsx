@@ -93,7 +93,7 @@ export const NewFile = (props: any) => {
 		onSuccess: (data: any) => {
 			setDevTab({
 				type: data.type === 'sql' ? 'sql' : 'function',
-				id: data.id,
+				id: data.name,
 			});
 
 			toast({
@@ -116,8 +116,6 @@ export const NewFile = (props: any) => {
 
 	const onSubmit = ({ type, name }: any) => {
 		mutation.mutate({
-			// FIXME: add pageId
-			// pageId,
 			pageName,
 			appName,
 			fileName: name,

@@ -24,14 +24,14 @@ import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 
 export const FunctionTerminal = ({ panelRef }: any) => {
-	const [{ code, id, source, execute }, setPreviewCode] = useAtom(previewCodeAtom);
+	const [{ code, name, source, execute }, setPreviewCode] = useAtom(previewCodeAtom);
 
 	const toast = useToast();
 
 	const { appName, pageName } = useParams();
 
 	const { files, isLoading: isLoadingFiles } = useGetPage({ appName, pageName });
-	const file = files.find((f: any) => f.id === id);
+	const file = files.find((f: any) => f.name === name);
 
 	const monaco = useMonaco();
 
@@ -50,7 +50,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	useEffect(() => {
 		resetRunData();
 		setTestCode('');
-	}, [id]);
+	}, [name]);
 
 	const runHandlers = {
 		onSuccess: (data: any) => {

@@ -30,7 +30,7 @@ const FileButton = ({ file }: any) => {
 
 	const isSQLFile = file.type === 'sql';
 	const fileName = `${file.name}${isSQLFile ? '.sql' : '.py'}`;
-	const isActive = file.id === devTab.id;
+	const isActive = file.name === devTab.id;
 
 	const colorScheme = isSQLFile ? 'teal' : 'purple';
 
@@ -72,8 +72,6 @@ const FileButton = ({ file }: any) => {
 				fileName: file.name,
 				newFileName,
 				fileType: file.type,
-				// FIXME: fix pageId
-				// pageId,
 			});
 		} else {
 			toast({
@@ -84,7 +82,7 @@ const FileButton = ({ file }: any) => {
 	};
 	const nameNotUnique = (newFileName: any) => {
 		return files.find((f: any) => {
-			return f.name === newFileName && f.id !== file.id;
+			return f.name === newFileName && f.name !== file.name;
 		});
 	};
 
@@ -125,10 +123,10 @@ const FileButton = ({ file }: any) => {
 			onClick={() => {
 				setDevTab({
 					type: isSQLFile ? 'sql' : 'function',
-					id: file.id,
+					id: file.name,
 				});
 			}}
-			key={file.id}
+			key={file.name}
 		>
 			{isEdit ? (
 				<Stack spacing="0">
@@ -158,7 +156,7 @@ const FileButton = ({ file }: any) => {
 						<DeleteFile
 							w="fit-content"
 							ml="auto"
-							id={file.id}
+							id={file.name}
 							name={fileName}
 							type={file.type}
 						/>
@@ -194,7 +192,7 @@ export const FilesExplorer = () => {
 	return (
 		<Stack spacing="0" h="full">
 			{(files || []).map((f: any) => {
-				return <FileButton file={f} key={f.id} />;
+				return <FileButton file={f} key={f.name} />;
 			})}
 		</Stack>
 	);

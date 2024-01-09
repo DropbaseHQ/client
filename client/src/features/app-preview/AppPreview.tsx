@@ -22,6 +22,7 @@ import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import useWebSocket from 'react-use-websocket';
 import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
@@ -34,13 +35,12 @@ import { NewComponent } from '@/features/app-builder/components/PropertiesEditor
 import { appModeAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
 import { generateSequentialName } from '@/utils';
-import useWebSocket from 'react-use-websocket';
+
+// websocket
+const SOCKET_URL = 'ws://localhost:9090/ws';
 
 export const AppPreview = () => {
-	// websocket
-	const socketURL = 'ws://localhost:9090/ws';
-	const { sendJsonMessage } = useWebSocket(socketURL, {
-		onOpen: () => console.log('opened'),
+	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
 		onMessage: (e) => {
 			// TODO: update context based on response message
 			console.log('message', e.data);
