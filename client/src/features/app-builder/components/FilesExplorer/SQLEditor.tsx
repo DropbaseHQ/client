@@ -12,12 +12,12 @@ import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { previewCodeAtom } from '../../atoms';
 
-export const SQLEditor = ({ id }: any) => {
+export const SQLEditor = ({ name }: any) => {
 	const toast = useToast();
 	const { appName, pageName } = useParams();
 	const { files } = useGetPage({ appName, pageName });
 
-	const file = files.find((f: any) => f.id === id);
+	const file = files.find((f: any) => f.name === name);
 	const sqlName = file?.name;
 
 	const [selectedSource, setSource] = useState();
@@ -45,11 +45,11 @@ export const SQLEditor = ({ id }: any) => {
 
 	useEffect(() => {
 		setCode(defaultCode);
-	}, [defaultCode, id]);
+	}, [defaultCode, name]);
 
 	useEffect(() => {
 		setPreviewFile({
-			id,
+			name,
 			code,
 			source: selectedSource,
 			execute: false,
@@ -57,13 +57,13 @@ export const SQLEditor = ({ id }: any) => {
 
 		return () => {
 			setPreviewFile({
-				id: null,
+				name: null,
 				code: null,
 				source: null,
 				execute: false,
 			});
 		};
-	}, [id, code, selectedSource, setPreviewFile]);
+	}, [name, code, selectedSource, setPreviewFile]);
 
 	const saveSQLMutation = useSaveCode({
 		onSuccess: () => {
@@ -89,7 +89,7 @@ export const SQLEditor = ({ id }: any) => {
 			fileName: sqlName,
 			sql: code,
 			source: selectedSource,
-			fileId: id,
+			fileId: name,
 			fileType: file?.type,
 		});
 	};

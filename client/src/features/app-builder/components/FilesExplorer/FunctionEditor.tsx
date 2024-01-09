@@ -32,18 +32,18 @@ import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 import { findFunctionDeclarations } from '../../utils';
 import { previewCodeAtom } from '../../atoms';
 
-const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, id }: any) => {
+const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name }: any) => {
 	const [code, setCode] = useState(defaultCode);
 
 	const setPreviewFile = useSetAtom(previewCodeAtom);
 
 	const executeRunCommand = useCallback(() => {
 		setPreviewFile({
-			id,
+			name,
 			code: defaultCode,
 			execute: true,
 		});
-	}, [defaultCode, id, setPreviewFile]);
+	}, [defaultCode, name, setPreviewFile]);
 
 	useEffect(() => {
 		if (monaco) {
@@ -69,7 +69,7 @@ const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, id }: any) =
 	return <Box ref={editorRef} h="full" as="div" w="full" />;
 };
 
-export const FunctionEditor = ({ id }: any) => {
+export const FunctionEditor = ({ name }: any) => {
 	const queryClient = useQueryClient();
 	const toast = useToast();
 	const { appName, pageName } = useParams();
@@ -80,7 +80,7 @@ export const FunctionEditor = ({ id }: any) => {
 		appName: appName || '',
 	});
 
-	const file = files.find((f: any) => f.id === id);
+	const file = files.find((f: any) => f.name === name);
 	const fileName = file ? `${file?.name}${file?.type === 'sql' ? '.sql' : '.py'}` : null;
 
 	const setPreviewFile = useSetAtom(previewCodeAtom);
@@ -118,30 +118,30 @@ export const FunctionEditor = ({ id }: any) => {
 			appName,
 			fileName,
 			sql: updatedCode,
-			fileId: id,
+			fileId: name,
 			fileType: file?.type,
 		});
 	};
 
 	useEffect(() => {
 		setCode(code);
-	}, [id, code]);
+	}, [name, code]);
 
 	useEffect(() => {
 		setPreviewFile({
-			id,
+			name,
 			code,
 			execute: false,
 		});
 
 		return () => {
 			setPreviewFile({
-				id: null,
+				name: null,
 				code: null,
 				execute: false,
 			});
 		};
-	}, [id, code, setPreviewFile]);
+	}, [name, code, setPreviewFile]);
 
 	const refetchColumns = () => {
 		handleSave();
@@ -196,10 +196,10 @@ export const FunctionEditor = ({ id }: any) => {
 			<Box overflowY="auto" h="full" pt="2">
 				<PythonEditorLSP
 					code={code}
-					id={id}
+					name={name}
 					updateCode={setCode}
 					filePath={filePath}
-					key={id}
+					key={name}
 				/>
 			</Box>
 		</Stack>

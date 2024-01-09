@@ -17,6 +17,6 @@ export const selectedTableIdAtom = atom((get) => {
 });
 
 export const previewCodeAtom = atom<any>({
-	id: null,
+	name: null,
 	code: null,
 });

@@ -22,10 +22,15 @@ import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import useWebSocket from 'react-use-websocket';
 import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
-import { useInitializeWidgetState, allWidgetStateAtom } from '@/features/app-state';
+import {
+	useInitializeWidgetState,
+	allWidgetStateAtom,
+	nonWidgetStateAtom,
+} from '@/features/app-state';
 import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget, useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
@@ -34,19 +39,11 @@ import { NewComponent } from '@/features/app-builder/components/PropertiesEditor
 import { appModeAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
 import { generateSequentialName } from '@/utils';
-import useWebSocket from 'react-use-websocket';
+
+// websocket
+const SOCKET_URL = 'ws://localhost:9090/ws';
 
 export const AppPreview = () => {
-	// websocket
-	const socketURL = 'ws://localhost:9090/ws';
-	const { sendJsonMessage } = useWebSocket(socketURL, {
-		onOpen: () => console.log('opened'),
-		onMessage: (e) => {
-			// TODO: update context based on response message
-			console.log('message', e.data);
-		},
-	});
-
 	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
 	const { widgetName, widgets } = useAtomValue(pageAtom);
@@ -64,11 +61,26 @@ export const AppPreview = () => {
 
 	useInitializeWidgetState({ widgetName, appName, pageName });
 
+	const setNonInteractiveState = useSetAtom(nonWidgetStateAtom);
+
 	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
 	const allWidgetState = widgetData.state;
 
 	const { properties } = useGetPage({ appName, pageName });
 	const createMutation = useCreateWidget();
+
+	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
+		onMessage: (message) => {
+			try {
+				const { widgets: newWidgetsData, ...rest } =
+					JSON.parse(message?.data)?.context || {};
+				setWidgetData((s: any) => ({ ...s, state: newWidgetsData || {} }));
+				setNonInteractiveState(rest);
+			} catch (e) {
+				//
+			}
+		},
+	});
 
 	const reorderMutation = useReorderComponents();
 

@@ -4,8 +4,8 @@ import { useAtomValue } from 'jotai';
 import { useTableData } from './table';
 import { filtersAtom, sortsAtom, tablePageInfoAtom } from '@/features/smart-table/atoms';
 import { newPageStateAtom } from '@/features/app-state';
-import { useGetColumnProperties } from '@/features/app-builder/hooks';
 import { DEFAULT_PAGE_SIZE } from '../constants';
+import { useGetPage } from '@/features/page';
 
 export const CurrentTableContext: any = createContext({ tableName: null });
 
@@ -46,29 +46,36 @@ export const useCurrentTableData = (tableName: any) => {
 		...pageInfo,
 	});
 
-	const dropbaseStoredData = useGetColumnProperties(tableName);
+	const { tables, isLoading: isLoadingPage } = useGetPage({ appName, pageName });
+	const table = tables?.find((t: any) => t.name === tableName);
 
 	return {
 		...tableData,
-		isLoading: dropbaseStoredData.isLoading || tableData.isLoading,
-		columns: dropbaseStoredData.columns,
+		isLoading: isLoadingPage || tableData.isLoading,
+		columns: table.columns,
+		columnDict: table?.columns?.reduce((agg: any, c: any) => {
+			return {
+				...agg,
+				[c.name]: c,
+			};
+		}, {}),
 	};
 };
 
 export const useTableSyncStatus = (tableName: any) => {
-	const { header, columns, isLoading, isRefetching } = useCurrentTableData(tableName);
+	const { header, columns, isLoading, isRefetching, columnDict } = useCurrentTableData(tableName);
 
 	const [needsSync, setNeedSync] = useState(false);
 
 	useEffect(() => {
 		if (!isLoading || !isRefetching) {
 			const isSynced =
-				header.every((c: any) => (columns as any)[c]) &&
-				header.length === Object.keys(columns).length;
+				header.every((c: any) => (columnDict as any)[c]) &&
+				header.length === columns.length;
 
 			setNeedSync(!isSynced);
 		}
-	}, [header, isLoading, isRefetching, columns, tableName]);
+	}, [header, isLoading, isRefetching, columns, columnDict, tableName]);
 
 	return header.length > 0 ? needsSync : false;
 };

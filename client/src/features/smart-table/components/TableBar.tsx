@@ -19,11 +19,11 @@ export const TableBar = () => {
 
 	const tableName = useCurrentTableName();
 
-	const { file_id: fileId, type: tableType } = useGetTable(tableName || '');
+	const { fetcher, type: tableType } = useGetTable(tableName || '');
 
 	const { appName, pageName } = useParams();
 	const { files } = useGetPage({ appName, pageName });
-	const file = files.find((f: any) => f.id === fileId);
+	const file = files.find((f: any) => f.name === fetcher);
 
 	const { rows, columns } = useCurrentTableData(tableName);
 
