@@ -47,16 +47,16 @@ const formLabelProps = {
 	mb: '1',
 };
 
-export const DisplayRulesEditor = ({ id }: any) => {
-	const { widgetId } = useAtomValue(pageAtom);
-	const { values: components } = useGetComponentProperties(widgetId || '');
-
+export const DisplayRulesEditor = ({ name }: any) => {
+	const { widgetName, widgets } = useAtomValue(pageAtom);
+	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
 	const { control } = useFormContext();
-
 	const componentsProperties = components
-		.filter((c: any) => c.id !== id && (c.type === 'select' || c.type === 'input'))
-		.reduce((agg: any, c: any) => ({ ...agg, [c?.property?.name]: c }), {});
-
+		.filter(
+			(c: any) =>
+				c.name !== name && (c.component_type === 'select' || c.component_type === 'input'),
+		)
+		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
 	const componentNames = Object.keys(componentsProperties);
 
 	return (

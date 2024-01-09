@@ -203,7 +203,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												property.name === 'display_rules' ||
 												property.type === 'rules'
 											) {
-												return <DisplayRulesEditor id={id} />;
+												return <DisplayRulesEditor name={component.name} />;
 											}
 
 											const showFunctionList =
