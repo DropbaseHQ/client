@@ -2,7 +2,7 @@ import { Plus, Trash } from 'react-feather';
 import { Badge, Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { tableStateAtom } from '@/features/app-state';
@@ -51,15 +51,15 @@ const formLabelProps = {
 const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }: any) => {
 	const { widgets } = useAtomValue(pageAtom);
 	const tableState = useAtomValue(tableStateAtom);
-	const [category, setCategory] = useState<string>('widget');
+	const [category, setCategory] = useState<string>('widgets');
 	const [specificCategory, setSpecificCategory] = useState<string>('');
 
 	const compilePathName = (target: string) => {
-		return `${category}s.${specificCategory}.${target}`;
+		return `${category}.${specificCategory}.${target}`;
 	};
 
 	const getCategoryOptions = () => {
-		if (category === 'table') {
+		if (category === 'tables') {
 			return Object.keys(tableState).map((c: any) => ({
 				name: c,
 				value: c,
@@ -72,7 +72,7 @@ const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }:
 		}));
 	};
 	const getSpecificCategoryOptions = () => {
-		if (category === 'table') {
+		if (category === 'tables') {
 			const table: any = tableState?.[specificCategory as keyof typeof tableState];
 			return Object.keys(table || {}).map((c: any) => ({
 				name: c,
@@ -85,6 +85,14 @@ const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }:
 			value: compilePathName(c),
 		}));
 	};
+
+	useEffect(() => {
+		if (rule.target) {
+			const [initCategory, initSpecificCategory] = rule.target.split('.');
+			setCategory(initCategory);
+			setSpecificCategory(initSpecificCategory);
+		}
+	}, [rule.target]);
 	return (
 		<Stack alignItems="end" key={rule.id} direction="row">
 			<FormControl>
@@ -94,15 +102,15 @@ const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }:
 					flex="1"
 					type="select"
 					placeholder="Category"
-					value={rule.name}
+					value={rule.target.split('.')[0]}
 					options={[
 						{
-							name: 'Tables',
-							value: 'table',
+							name: 'tables',
+							value: 'tables',
 						},
 						{
-							name: 'Widgets',
-							value: 'widget',
+							name: 'widgets',
+							value: 'widgets',
 						},
 					]}
 					onChange={(newValue: any) => {
@@ -117,7 +125,7 @@ const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }:
 					flex="1"
 					type="select"
 					placeholder="Category"
-					value={rule.name}
+					value={rule.target.split('.')[1]}
 					options={getCategoryOptions()}
 					onChange={(newValue: any) => {
 						setSpecificCategory(newValue);
