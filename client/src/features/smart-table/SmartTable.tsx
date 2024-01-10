@@ -358,7 +358,7 @@ export const SmartTable = ({ tableName }: any) => {
 					},
 			  };
 
-		switch (getPGColumnBaseType(column?.type)) {
+		switch (column?.display_type) {
 			case 'float':
 			case 'integer': {
 				return {
@@ -384,7 +384,6 @@ export const SmartTable = ({ tableName }: any) => {
 			}
 
 			case 'datetime': {
-				console.log(column?.type);
 				return {
 					kind: GridCellKind.Text,
 					data: cellValue,
