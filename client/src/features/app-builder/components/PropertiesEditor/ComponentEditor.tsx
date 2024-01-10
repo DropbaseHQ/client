@@ -15,15 +15,10 @@ import {
 	Skeleton,
 	StackDivider,
 } from '@chakra-ui/react';
-import { useParams } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useStatus } from '@/layout/StatusBar';
 import { FormInput } from '@/components/FormInput';
-import {
-	useAllPageFunctionNames,
-	useComponentFields,
-	useDeleteComponent,
-} from '@/features/app-builder/hooks';
+import { useComponentFields, useDeleteComponent } from '@/features/app-builder/hooks';
 import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { NavLoader } from '@/components/Loader';
@@ -36,7 +31,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 	const { widgetName, pageName, appName } = useAtomValue(pageAtom);
 
-	const { widgets, isLoading, properties } = useGetPage({ appName, pageName });
+	const { widgets, isLoading, properties, files } = useGetPage({ appName, pageName });
 	const component = widgets
 		.find((w: any) => w.name === widgetName)
 		?.components?.find((c: any) => c.name === id);
@@ -51,9 +46,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		),
 	];
 
-	const { pageId } = useParams();
-
-	const { functions } = useAllPageFunctionNames({ pageId });
+	const functions = files.filter((f: any) => f.type === 'ui')?.map((f: any) => f?.name);
 
 	const methods = useForm();
 	const {
