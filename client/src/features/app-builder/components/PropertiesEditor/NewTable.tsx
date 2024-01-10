@@ -52,6 +52,7 @@ export const NewTable = (props: any) => {
 					...(properties?.tables || []),
 					{
 						name: nextName,
+						label: nextName.toUpperCase(),
 						type: 'sql',
 						columns: [],
 					},

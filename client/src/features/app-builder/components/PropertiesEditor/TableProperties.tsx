@@ -25,6 +25,7 @@ export const TableProperties = () => {
 		name: defaultTableName,
 		fetcher: defaultFetcher,
 		height: defaultTableHeight,
+		label: defaultTableLabel,
 	} = useGetTable(tableId || '');
 
 	const { tables, files, properties } = useGetPage({ appName, pageName });
@@ -64,6 +65,7 @@ export const TableProperties = () => {
 		reset(
 			{
 				name: defaultTableName,
+				label: defaultTableLabel,
 				fetcher: defaultFetcher || '',
 				height: defaultTableHeight || '',
 				depends: defaultDependsOn || null,
@@ -186,6 +188,8 @@ export const TableProperties = () => {
 									},
 								}}
 							/>
+
+							<FormInput id="label" name="Table Label" type="text" />
 
 							<FormInput
 								type="custom-select"
