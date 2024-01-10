@@ -29,7 +29,7 @@ import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import {
 	useInitializeWidgetState,
 	allWidgetStateAtom,
-	nonWidgetStateAtom,
+	nonWidgetContextAtom,
 } from '@/features/app-state';
 import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget, useReorderComponents } from '@/features/app-builder/hooks';
@@ -41,7 +41,7 @@ import { AppComponent } from './AppComponent';
 import { generateSequentialName } from '@/utils';
 
 // websocket
-const SOCKET_URL = 'ws://localhost:9090/ws';
+export const SOCKET_URL = 'ws://localhost:9090/ws';
 
 export const AppPreview = () => {
 	const { appName, pageName } = useParams();
@@ -61,7 +61,7 @@ export const AppPreview = () => {
 
 	useInitializeWidgetState({ widgetName, appName, pageName });
 
-	const setNonInteractiveState = useSetAtom(nonWidgetStateAtom);
+	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
 
 	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
 	const allWidgetState = widgetData.state;
@@ -80,6 +80,7 @@ export const AppPreview = () => {
 				//
 			}
 		},
+		share: true,
 	});
 
 	const reorderMutation = useReorderComponents();

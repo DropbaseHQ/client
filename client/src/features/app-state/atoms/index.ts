@@ -7,8 +7,10 @@ export const selectedRowAtom: any = atom({});
 // state is divided in two parts - tables & widget
 
 // use to handle tables part of state, and other fields apart from widget in future
-export const nonWidgetStateAtom = atom({});
+// I think this is used for table context
+export const nonWidgetContextAtom = atom({});
 
+export const tableStateAtom = atom({});
 // use to handle widgets part of state
 export const allWidgetStateAtom = atom({
 	selected: null,
@@ -54,6 +56,6 @@ export const newPageStateAtom = atom((get) => {
 			tables: get(selectedRowAtom) || {},
 			widgets: userInputState || {},
 		},
-		context: { ...get(nonWidgetStateAtom), widgets: get(allWidgetStateAtom).state || {} },
+		context: { ...get(nonWidgetContextAtom), widgets: get(allWidgetStateAtom).state || {} },
 	};
 });
