@@ -2,7 +2,6 @@ import { Plus, Trash } from 'react-feather';
 import { Badge, Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
-import { useGetComponentProperties } from '@/features/app-builder/hooks';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 
@@ -47,17 +46,21 @@ const formLabelProps = {
 	mb: '1',
 };
 
-export const DisplayRulesEditor = ({ id }: any) => {
-	const { widgetId } = useAtomValue(pageAtom);
-	const { values: components } = useGetComponentProperties(widgetId || '');
-
+export const DisplayRulesEditor = ({ name }: any) => {
+	const { widgetName, widgets } = useAtomValue(pageAtom);
+	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
 	const { control } = useFormContext();
-
 	const componentsProperties = components
-		.filter((c: any) => c.id !== id && (c.type === 'select' || c.type === 'input'))
-		.reduce((agg: any, c: any) => ({ ...agg, [c?.property?.name]: c }), {});
-
+		.filter(
+			(c: any) =>
+				c.name !== name && (c.component_type === 'select' || c.component_type === 'input'),
+		)
+		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
 	const componentNames = Object.keys(componentsProperties);
+
+	const compilePathName = (target: string) => {
+		return `widgets.${widgetName}.${target}`;
+	};
 
 	return (
 		<FormControl>
@@ -114,10 +117,10 @@ export const DisplayRulesEditor = ({ id }: any) => {
 												flex="1"
 												type="select"
 												placeholder="component name"
-												value={rule.name}
+												value={rule.target}
 												options={componentNames.map((c: any) => ({
 													name: c,
-													value: c,
+													value: compilePathName(c),
 												}))}
 												onChange={(newValue: any) => {
 													onChange(
@@ -125,7 +128,7 @@ export const DisplayRulesEditor = ({ id }: any) => {
 															if (r.id === rule.id) {
 																return {
 																	...r,
-																	name: newValue,
+																	target: newValue,
 																};
 															}
 
@@ -174,7 +177,7 @@ export const DisplayRulesEditor = ({ id }: any) => {
 												<InputRenderer
 													size="sm"
 													flex="1"
-													disabled={!rule.name}
+													disabled={!rule.target}
 													placeholder="select value"
 													{...input}
 													value={rule.value}
@@ -222,7 +225,7 @@ export const DisplayRulesEditor = ({ id }: any) => {
 									onChange([
 										...displayRules,
 										{
-											name: null,
+											target: null,
 											value: null,
 											operator: null,
 											id: crypto.randomUUID(),

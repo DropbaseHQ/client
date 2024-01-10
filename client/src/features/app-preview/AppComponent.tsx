@@ -4,14 +4,8 @@ import { getErrorMessage } from '@/utils';
 
 import { useExecuteAction } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
-import {
-	widgetComponentsAtom,
-	useSyncState,
-	newPageStateAtom,
-	allWidgetsInputAtom,
-} from '@/features/app-state';
+import { widgetComponentsAtom, useSyncState, newPageStateAtom } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
-import { checkAllRulesPass } from '@/features/app-preview/utils';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -38,24 +32,17 @@ export const AppComponent = (props: any) => {
 	} = props;
 
 	const pageState = useAtomValue(newPageStateAtom);
-
 	const [allWidgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
 	const widgetComponents = allWidgetComponents[widgetName || '']?.components || {};
 	const inputState = widgetComponents?.[name] || {};
-
-	const allUserInputValues: any = useAtomValue(allWidgetsInputAtom);
-
-	const widgetInputs = allUserInputValues?.[widgetName || ''] || {};
 
 	const syncState = useSyncState();
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isEditorMode = !isPreview;
 
-	const shouldDisplay = checkAllRulesPass({
-		values: widgetInputs,
-		rules: displayRules,
-	});
+	const shouldDisplay =
+		widgetComponents?.[name]?.visible || widgetComponents?.[name]?.visible === null;
 	const grayOutComponent = !shouldDisplay && isEditorMode;
 
 	const actionMutation = useExecuteAction({
