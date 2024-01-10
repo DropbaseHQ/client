@@ -149,7 +149,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	}, [pageName, appName, pageState, file, code, source, runSQLQueryMutation]);
 
 	const executeShortcut = useCallback(() => {
-		if (file) {
+		if (file && !runPythonMutation.isLoading && !runSQLQueryMutation.isLoading) {
 			setPreviewCode((old: any) => ({ ...old, execute: false }));
 			if (file?.type === 'sql') {
 				handleRunSQLQuery();
@@ -157,7 +157,14 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 				handleRunPythonFunction();
 			}
 		}
-	}, [file, setPreviewCode, handleRunPythonFunction, handleRunSQLQuery]);
+	}, [
+		file,
+		setPreviewCode,
+		runPythonMutation,
+		runSQLQueryMutation,
+		handleRunPythonFunction,
+		handleRunSQLQuery,
+	]);
 
 	const handleKeyDown = useCallback(
 		(e: any) => {
@@ -176,10 +183,10 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	}, [handleKeyDown]);
 
 	useEffect(() => {
-		if (file && execute) {
+		if (execute) {
 			executeShortcut();
 		}
-	}, [file, execute, executeShortcut]);
+	}, [execute, executeShortcut]);
 
 	const isLoading = runPythonMutation.isLoading || runSQLQueryMutation.isLoading;
 

@@ -5,17 +5,17 @@ import {
 	Box,
 	Button,
 	Divider,
+	IconButton,
 	Skeleton,
 	SkeletonCircle,
 	Stack,
 	Text,
 } from '@chakra-ui/react';
-import * as monaco from 'monaco-editor';
 
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Save } from 'react-feather';
+import { Play, Save } from 'react-feather';
 import { useQueryClient } from 'react-query';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -46,18 +46,6 @@ const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name }: any)
 		});
 	}, [defaultCode, name, setPreviewFile]);
 
-	useEffect(() => {
-		if (monaco) {
-			monaco?.editor.addEditorAction({
-				id: 'run-python-code',
-				label: 'Run Code',
-				contextMenuOrder: 2,
-				contextMenuGroupId: '1_modification',
-				run: executeRunCommand,
-			});
-		}
-	}, [executeRunCommand]);
-
 	const editorRef = usePythonEditor({
 		filepath: filePath,
 		code,
@@ -67,7 +55,23 @@ const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name }: any)
 		},
 	});
 
-	return <Box ref={editorRef} h="full" as="div" w="full" />;
+	return (
+		<Stack h="full" spacing="0" direction="row">
+			<IconButton
+				mx="1"
+				aria-label="Run function"
+				size="2xs"
+				mt="2"
+				flexShrink="0"
+				colorScheme="gray"
+				variant="outline"
+				borderRadius="md"
+				icon={<Play size={12} />}
+				onClick={executeRunCommand}
+			/>
+			<Box ref={editorRef} pt="2" borderLeftWidth="1px" flex="1" h="full" as="div" w="full" />
+		</Stack>
+	);
 };
 
 export const FunctionEditor = ({ name }: any) => {
@@ -198,7 +202,7 @@ export const FunctionEditor = ({ name }: any) => {
 					</AlertDescription>
 				</Alert>
 			) : null}
-			<Box overflowY="auto" h="full" pt="2">
+			<Box overflowY="auto" h="full">
 				<PythonEditorLSP
 					code={code}
 					name={name}
