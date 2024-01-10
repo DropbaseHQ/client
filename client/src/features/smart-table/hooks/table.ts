@@ -116,7 +116,7 @@ export const useTableData = ({
 					return r.reduce((agg: any, item: any, index: any) => {
 						return {
 							...agg,
-							[header?.[index]]: item,
+							[header?.[index]?.name]: item,
 						};
 					}, {});
 				}) || [];
