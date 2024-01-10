@@ -120,7 +120,7 @@ export const FilterButton = () => {
 
 	const { isPreview } = useAtomValue(appModeAtom);
 
-	const { columns } = useCurrentTableData(tableId);
+	const { columnDict: columns } = useCurrentTableData(tableId);
 
 	const [allFilters, setFilters] = useAtom(filtersAtom);
 	const filters = allFilters[tableId] || [];

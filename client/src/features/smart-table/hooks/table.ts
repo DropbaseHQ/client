@@ -126,7 +126,6 @@ export const useTableData = ({
 				header,
 				tableName: response.table_name,
 				tableError: response?.result?.error,
-				types: response?.result?.types || {},
 			};
 		}
 
@@ -134,7 +133,6 @@ export const useTableData = ({
 			rows: [],
 			header: [],
 			tableError: null,
-			types: {},
 		};
 	}, [response]);
 
@@ -178,7 +176,6 @@ export const usePinFilters = (props: any = {}) => {
 		},
 	});
 };
-
 
 // TODO: @yash-dropbase please review, removed from backend
 const syncDropbaseColumns = async ({ appName, pageName, table, file, state }: any) => {

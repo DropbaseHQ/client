@@ -81,7 +81,6 @@ export const SmartTable = ({ tableName }: any) => {
 		header,
 		refetch,
 		isRefetching,
-		types,
 		tableError,
 		error,
 	} = useCurrentTableData(tableName);
@@ -225,9 +224,9 @@ export const SmartTable = ({ tableName }: any) => {
 		};
 
 		// ⚠️ only by passing undefined we can hide column icon
-		let icon = types[column?.name] ? GridColumnIcon.HeaderString : undefined;
+		let icon = column?.display_type ? GridColumnIcon.HeaderString : undefined;
 
-		switch (types[column?.name]) {
+		switch (column?.display_type) {
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -482,8 +481,8 @@ export const SmartTable = ({ tableName }: any) => {
 							return {
 								...t,
 								columns: header.map((c: any) => ({
+									...(columnDict?.[c] || {}),
 									name: c,
-									type: types?.[c],
 								})),
 							};
 						}
