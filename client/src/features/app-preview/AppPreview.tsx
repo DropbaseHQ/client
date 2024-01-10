@@ -29,7 +29,7 @@ import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import {
 	useInitializeWidgetState,
 	allWidgetStateAtom,
-	nonWidgetStateAtom,
+	nonWidgetContextAtom,
 } from '@/features/app-state';
 import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget, useReorderComponents } from '@/features/app-builder/hooks';
@@ -61,7 +61,7 @@ export const AppPreview = () => {
 
 	useInitializeWidgetState({ widgetName, appName, pageName });
 
-	const setNonInteractiveState = useSetAtom(nonWidgetStateAtom);
+	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
 
 	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
 	const allWidgetState = widgetData.state;

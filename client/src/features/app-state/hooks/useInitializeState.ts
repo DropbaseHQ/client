@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import {
 	selectedRowAtom,
 	allWidgetStateAtom,
-	nonWidgetStateAtom,
+	nonWidgetContextAtom,
 	allWidgetsInputAtom,
 } from '@/features/app-state';
 import { useAppState } from '@/features/app-state/hooks';
@@ -16,7 +16,7 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 
 	const setRowData = useSetAtom(selectedRowAtom);
 	const setWidgetState = useSetAtom(allWidgetStateAtom);
-	const setNonInteractiveState = useSetAtom(nonWidgetStateAtom);
+	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
 	const setWidgetsInputs = useSetAtom(allWidgetsInputAtom);
 
 	useEffect(() => {
