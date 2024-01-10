@@ -23,8 +23,10 @@ import DataEditor, {
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
 import { useParams } from 'react-router-dom';
+import useWebSocket from 'react-use-websocket';
 
-import { selectedRowAtom } from '@/features/app-state';
+import { newPageStateAtom, selectedRowAtom } from '@/features/app-state';
+import { SOCKET_URL } from '../app-preview';
 
 import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
 
@@ -58,6 +60,9 @@ export const SmartTable = ({ tableName }: any) => {
 
 	const { appName, pageName } = useParams();
 
+	const { sendJsonMessage } = useWebSocket(SOCKET_URL);
+
+	const pageState = useAtomValue(newPageStateAtom);
 	const { isPreview } = useAtomValue(appModeAtom);
 
 	const [allTableColumnWidth, setTableColumnWidth] = useAtom(tableColumnWidthAtom);
@@ -437,6 +442,13 @@ export const SmartTable = ({ tableName }: any) => {
 			...curr,
 			[tableName]: false,
 		}));
+		pageState.state.tables = newSelectedRow;
+		sendJsonMessage({
+			type: 'display_rule',
+			state_context: pageState,
+			app_name: appName,
+			page_name: pageName,
+		});
 	};
 
 	const handleSetSelection = (newSelection: any) => {
@@ -465,6 +477,13 @@ export const SmartTable = ({ tableName }: any) => {
 				...curr,
 				[tableName]: true,
 			}));
+			pageState.state.tables = newSelectedRow;
+			sendJsonMessage({
+				type: 'display_rule',
+				state_context: pageState,
+				app_name: appName,
+				page_name: pageName,
+			});
 		} else {
 			onSelectionCleared();
 		}

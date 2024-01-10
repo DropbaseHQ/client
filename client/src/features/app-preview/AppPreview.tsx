@@ -41,7 +41,7 @@ import { AppComponent } from './AppComponent';
 import { generateSequentialName } from '@/utils';
 
 // websocket
-const SOCKET_URL = 'ws://localhost:9090/ws';
+export const SOCKET_URL = 'ws://localhost:9090/ws';
 
 export const AppPreview = () => {
 	const { appName, pageName } = useParams();
@@ -80,6 +80,7 @@ export const AppPreview = () => {
 				//
 			}
 		},
+		share: true,
 	});
 
 	const reorderMutation = useReorderComponents();
