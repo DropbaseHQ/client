@@ -278,6 +278,27 @@ export const SmartTable = ({ tableName }: any) => {
 		return gridColumn;
 	});
 
+	const formatDate = (date: Date) => {
+		const year = date.getFullYear();
+		const month = date.getMonth() + 1;
+		const day = date.getDate();
+	
+		return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+	}
+
+	const formatTime = (date: Date) => {
+		const hours = date.getHours();
+		const minutes = date.getMinutes();
+		const seconds = date.getSeconds();
+	
+		return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+	}
+
+	const formatDateTime = (date: Date) => {
+		return formatDate(date) + ' ' + formatTime(date);
+	}
+	
+
 	const getCellContent: any = ([col, row]: any) => {
 		const currentRow = rows[row];
 		const column = columnDict[visibleColumns[col]?.name] || visibleColumns[col];
@@ -339,6 +360,30 @@ export const SmartTable = ({ tableName }: any) => {
 					kind: GridCellKind.Boolean,
 					data: validType ? unParsedValue : undefined,
 					allowOverlay: false,
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'datetime': {
+				console.log(column?.type);
+				return {
+					kind: GridCellKind.Text,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData: formatDateTime(new Date(parseInt(cellValue))),
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'date': {
+				console.log(column?.type);
+				return {
+					kind: GridCellKind.Text,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData: formatDate(new Date(parseInt(cellValue))),
 					readonly: !canEdit,
 					...themeOverride,
 				};
