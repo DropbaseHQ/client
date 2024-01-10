@@ -5,16 +5,17 @@ import {
 	Box,
 	Button,
 	Divider,
+	IconButton,
 	Skeleton,
 	SkeletonCircle,
 	Stack,
+	Text,
 } from '@chakra-ui/react';
-import * as monaco from 'monaco-editor';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Save } from 'react-feather';
+import { Play, Save } from 'react-feather';
 import { useQueryClient } from 'react-query';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -25,37 +26,25 @@ import {
 	usePageFiles,
 	useSaveCode,
 } from '@/features/app-builder/hooks';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 
 import { getErrorMessage } from '@/utils';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 import { findFunctionDeclarations } from '../../utils';
 import { previewCodeAtom } from '../../atoms';
 
-const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, id }: any) => {
+const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name }: any) => {
 	const [code, setCode] = useState(defaultCode);
 
 	const setPreviewFile = useSetAtom(previewCodeAtom);
 
 	const executeRunCommand = useCallback(() => {
 		setPreviewFile({
-			id,
+			name,
 			code: defaultCode,
 			execute: true,
 		});
-	}, [defaultCode, id, setPreviewFile]);
-
-	useEffect(() => {
-		if (monaco) {
-			monaco?.editor.addEditorAction({
-				id: 'run-python-code',
-				label: 'Run Code',
-				contextMenuOrder: 2,
-				contextMenuGroupId: '1_modification',
-				run: executeRunCommand,
-			});
-		}
-	}, [executeRunCommand]);
+	}, [defaultCode, name, setPreviewFile]);
 
 	const editorRef = usePythonEditor({
 		filepath: filePath,
@@ -66,22 +55,37 @@ const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, id }: any) =
 		},
 	});
 
-	return <Box ref={editorRef} h="full" as="div" w="full" />;
+	return (
+		<Stack h="full" spacing="0" direction="row">
+			<IconButton
+				mx="1"
+				aria-label="Run function"
+				size="2xs"
+				mt="2"
+				flexShrink="0"
+				colorScheme="gray"
+				variant="outline"
+				borderRadius="md"
+				icon={<Play size={12} />}
+				onClick={executeRunCommand}
+			/>
+			<Box ref={editorRef} pt="2" borderLeftWidth="1px" flex="1" h="full" as="div" w="full" />
+		</Stack>
+	);
 };
 
-export const FunctionEditor = ({ id }: any) => {
+export const FunctionEditor = ({ name }: any) => {
 	const queryClient = useQueryClient();
-	const { pageName, appName } = useAtomValue(pageAtom);
 	const toast = useToast();
-	const { pageId } = useParams();
-	const { files } = useGetPage(pageId);
+	const { appName, pageName } = useParams();
+	const { files } = useGetPage({ appName, pageName });
 
 	const { files: workerFiles, isLoading: isLoadingWorkerFiles } = usePageFiles({
 		pageName: pageName || '',
 		appName: appName || '',
 	});
 
-	const file = files.find((f: any) => f.id === id);
+	const file = files.find((f: any) => f.name === name);
 	const fileName = file ? `${file?.name}${file?.type === 'sql' ? '.sql' : '.py'}` : null;
 
 	const setPreviewFile = useSetAtom(previewCodeAtom);
@@ -119,31 +123,30 @@ export const FunctionEditor = ({ id }: any) => {
 			appName,
 			fileName,
 			sql: updatedCode,
-			// source: selectedSource,
-			fileId: id,
+			fileId: name,
 			fileType: file?.type,
 		});
 	};
 
 	useEffect(() => {
 		setCode(code);
-	}, [id, code]);
+	}, [name, code]);
 
 	useEffect(() => {
 		setPreviewFile({
-			id,
+			name,
 			code,
 			execute: false,
 		});
 
 		return () => {
 			setPreviewFile({
-				id: null,
+				name: null,
 				code: null,
 				execute: false,
 			});
 		};
-	}, [id, code, setPreviewFile]);
+	}, [name, code, setPreviewFile]);
 
 	const refetchColumns = () => {
 		handleSave();
@@ -172,7 +175,11 @@ export const FunctionEditor = ({ id }: any) => {
 
 	return (
 		<Stack h="full" bg="white" spacing="0" divider={<Divider />} w="full">
-			<Stack p="2" direction="row" alignItems="center" justifyContent="end">
+			<Stack p="2" direction="row" alignItems="center" justifyContent="space-between">
+				<Text fontSize="sm" fontWeight="semibold">
+					{fileName}
+				</Text>
+
 				<Button
 					w="fit-content"
 					onClick={refetchColumns}
@@ -195,13 +202,13 @@ export const FunctionEditor = ({ id }: any) => {
 					</AlertDescription>
 				</Alert>
 			) : null}
-			<Box overflowY="auto" h="full" pt="2">
+			<Box overflowY="auto" h="full">
 				<PythonEditorLSP
 					code={code}
-					id={id}
+					name={name}
 					updateCode={setCode}
 					filePath={filePath}
-					key={id}
+					key={name}
 				/>
 			</Box>
 		</Stack>

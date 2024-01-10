@@ -24,7 +24,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { filtersAtom } from '@/features/smart-table/atoms';
 import {
 	useCurrentTableData,
-	useCurrentTableId,
+	useCurrentTableName,
 	usePinFilters,
 } from '@/features/smart-table/hooks';
 import { useGetTable } from '@/features/app-builder/hooks';
@@ -115,12 +115,12 @@ const getConditionsByType = (type?: string) => {
 
 export const FilterButton = () => {
 	const toast = useToast();
-	const tableId = useCurrentTableId();
+	const tableId = useCurrentTableName();
 	const { isOpen, onToggle, onClose } = useDisclosure();
 
 	const { isPreview } = useAtomValue(appModeAtom);
 
-	const { columns } = useCurrentTableData(tableId);
+	const { columnDict: columns } = useCurrentTableData(tableId);
 
 	const [allFilters, setFilters] = useAtom(filtersAtom);
 	const filters = allFilters[tableId] || [];

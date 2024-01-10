@@ -2,22 +2,22 @@ import { useAtom } from 'jotai';
 import { Box, Button, FormControl, IconButton, Stack, Tooltip } from '@chakra-ui/react';
 import { ChevronLeft, ChevronRight } from 'react-feather';
 import { tablePageInfoAtom } from '../atoms';
-import { useCurrentTableData, useCurrentTableId } from '../hooks';
+import { useCurrentTableData, useCurrentTableName } from '../hooks';
 import { InputRenderer } from '@/components/FormInput';
 
 export const Pagination = () => {
 	const [allPageInfo, setPageInfo] = useAtom(tablePageInfoAtom);
 
-	const tableId = useCurrentTableId();
-	const tablePageInfo = allPageInfo[tableId];
+	const tableName = useCurrentTableName();
+	const tablePageInfo = allPageInfo[tableName];
 
-	const { rows, isLoading } = useCurrentTableData(tableId);
+	const { rows, isLoading } = useCurrentTableData(tableName);
 
 	const handlePageSize = (newSize: any) => {
 		setPageInfo((old: any) => ({
 			...old,
-			[tableId]: {
-				...(old[tableId] || {}),
+			[tableName]: {
+				...(old[tableName] || {}),
 				pageSize: +newSize,
 			},
 		}));
@@ -26,8 +26,8 @@ export const Pagination = () => {
 	const handlePage = (newPage: any) => {
 		setPageInfo((old: any) => ({
 			...old,
-			[tableId]: {
-				...(old[tableId] || {}),
+			[tableName]: {
+				...(old[tableName] || {}),
 				currentPage: newPage,
 			},
 		}));

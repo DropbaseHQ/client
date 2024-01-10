@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 
 import { axios, workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
-import { PAGE_DATA_QUERY_KEY, pageAtom } from '@/features/page';
+import { PAGE_DATA_QUERY_KEY, pageAtom, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
@@ -61,26 +61,12 @@ export const useUpdateWidgetProperties = (props: any = {}) => {
 	});
 };
 
-const createWidget = async ({ name, pageId }: any) => {
-	const response = await workerAxios.post(`/widgets/`, {
-		name,
-		property: {
-			name,
-			description: '',
-			error_message: '',
-		},
-		page_id: pageId,
-	});
-
-	return response.data;
-};
-
 export const useCreateWidget = (props: any = {}) => {
 	const queryClient = useQueryClient();
 	const toast = useToast();
 	const updatePageContext = useSetAtom(pageAtom);
 
-	return useMutation(createWidget, {
+	const mutation = useUpdatePageData({
 		...props,
 		onSuccess: (data: any) => {
 			updatePageContext((old) => ({
@@ -105,6 +91,8 @@ export const useCreateWidget = (props: any = {}) => {
 			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 		},
 	});
+
+	return mutation;
 };
 
 const deleteWidget = async ({ widgetId }: any) => {

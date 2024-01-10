@@ -4,23 +4,22 @@ import { useAtomValue } from 'jotai';
 import { useTableData } from './table';
 import { filtersAtom, sortsAtom, tablePageInfoAtom } from '@/features/smart-table/atoms';
 import { newPageStateAtom } from '@/features/app-state';
-import { pageAtom } from '@/features/page';
-import { useGetColumnProperties } from '@/features/app-builder/hooks';
 import { DEFAULT_PAGE_SIZE } from '../constants';
+import { useGetPage } from '@/features/page';
 
-export const CurrentTableContext: any = createContext({ tableId: null });
+export const CurrentTableContext: any = createContext({ tableName: null });
 
-export const useCurrentTableId = () => {
+export const useCurrentTableName = () => {
 	const data: any = useContext(CurrentTableContext);
 
-	return data.tableId;
+	return data.tableName;
 };
 
-export const useCurrentTableData = (tableId: any) => {
-	const { pageName, appName } = useAtomValue(pageAtom);
+export const useCurrentTableData = (tableName: any) => {
+	const { pageName, appName } = useParams();
 
 	const allFilters = useAtomValue(filtersAtom);
-	const filters = (allFilters[tableId] || []).filter((f: any) => {
+	const filters = (allFilters[tableName] || []).filter((f: any) => {
 		if (f.condition === 'is null' || f.condition === 'is not null') {
 			return f.column_name;
 		}
@@ -28,50 +27,55 @@ export const useCurrentTableData = (tableId: any) => {
 	});
 
 	const allSorts = useAtomValue(sortsAtom);
-	const sorts = (allSorts[tableId] || []).filter((f: any) => f.column_name);
+	const sorts = (allSorts[tableName] || []).filter((f: any) => f.column_name);
 
-	const pageInfo = useAtomValue(tablePageInfoAtom)?.[tableId] || {
+	const pageInfo = useAtomValue(tablePageInfoAtom)?.[tableName] || {
 		currentPage: 0,
 		pageSize: DEFAULT_PAGE_SIZE,
 	};
 
 	const state = useAtomValue(newPageStateAtom);
-	const { pageId } = useParams();
 
 	const tableData = useTableData({
-		tableId,
+		tableName,
 		filters,
 		sorts,
 		state,
-		pageId,
 		pageName,
 		appName,
 		...pageInfo,
 	});
 
-	const dropbaseStoredData = useGetColumnProperties(tableId);
+	const { tables, isLoading: isLoadingPage } = useGetPage({ appName, pageName });
+	const table = tables?.find((t: any) => t.name === tableName);
 
 	return {
 		...tableData,
-		isLoading: dropbaseStoredData.isLoading || tableData.isLoading,
-		columns: dropbaseStoredData.columns,
+		isLoading: isLoadingPage || tableData.isLoading,
+		columns: table.columns,
+		columnDict: table?.columns?.reduce((agg: any, c: any) => {
+			return {
+				...agg,
+				[c.name]: c,
+			};
+		}, {}),
 	};
 };
 
-export const useTableSyncStatus = (tableId: any) => {
-	const { header, columns, isLoading, isRefetching } = useCurrentTableData(tableId);
+export const useTableSyncStatus = (tableName: any) => {
+	const { header, columns, isLoading, isRefetching, columnDict } = useCurrentTableData(tableName);
 
 	const [needsSync, setNeedSync] = useState(false);
 
 	useEffect(() => {
 		if (!isLoading || !isRefetching) {
 			const isSynced =
-				header.every((c: any) => (columns as any)[c]) &&
-				header.length === Object.keys(columns).length;
+				header.every((c: any) => (columnDict as any)[c]) &&
+				header.length === columns.length;
 
 			setNeedSync(!isSynced);
 		}
-	}, [header, isLoading, isRefetching, columns, tableId]);
+	}, [header, isLoading, isRefetching, columns, columnDict, tableName]);
 
 	return header.length > 0 ? needsSync : false;
 };

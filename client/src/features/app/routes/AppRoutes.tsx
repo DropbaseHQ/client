@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { Center, Progress, Stack, Text } from '@chakra-ui/react';
 
 import { AppBuilder } from '@/features/app-builder';
@@ -21,9 +21,10 @@ export const AppRoutes = () => {
 
 	return (
 		<Routes>
-			<Route index element={<AppBuilder />} />
-			<Route path="preview" element={<App />} />
-			<Route path="editor" element={<AppBuilder />} />
+			<Route index element={<App />} />
+			<Route path="studio" element={<AppBuilder />} />
+			<Route path="preview" element={<Navigate to=".." />} />
+			<Route path="editor" element={<Navigate to="../studio" />} />
 		</Routes>
 	);
 };

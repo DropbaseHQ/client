@@ -4,39 +4,35 @@ import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { Save, Table } from 'react-feather';
 import { Stack, Text, IconButton, ButtonGroup, Icon, Badge } from '@chakra-ui/react';
-import {
-	useDataFetchers,
-	useGetTable,
-	useUpdateTableProperties,
-} from '@/features/app-builder/hooks';
+import { useGetTable } from '@/features/app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { InputLoader } from '@/components/Loader';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { DeleteTable } from '@/features/app-builder/components/PropertiesEditor/DeleteTable';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 import { newPageStateAtom } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 
 export const TableProperties = () => {
 	const tableId = useAtomValue(selectedTableIdAtom);
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 	const toast = useToast();
 
-	const { isLoading, table, refetch, height: defaultTableHeight } = useGetTable(tableId || '');
+	const {
+		isLoading,
+		depends_on: defaultDependsOn,
+		name: defaultTableName,
+		fetcher: defaultFetcher,
+		height: defaultTableHeight,
+	} = useGetTable(tableId || '');
 
-	const { pageName, appName } = useAtomValue(pageAtom);
-
-	const { tables } = useGetPage(pageId);
+	const { tables, files, properties } = useGetPage({ appName, pageName });
 
 	const pageState = useAtomValue(newPageStateAtom);
 
-	const { fetchers } = useDataFetchers(pageId);
-
-	const mutation = useUpdateTableProperties({
+	const mutation = useUpdatePageData({
 		onSuccess: () => {
-			refetch();
-
 			toast({
 				title: 'Updated table properties',
 				status: 'success',
@@ -59,41 +55,57 @@ export const TableProperties = () => {
 		setValue,
 	} = methods;
 
-	const selectedFileId = watch('fileId');
-	const selectedFile = fetchers.find((f: any) => f.id === selectedFileId);
+	const fetchers = files.filter((f: any) => f.type === 'sql' || f.type === 'data_fetcher');
+
+	const selectedFetcher = watch('fetcher');
+	const selectedFile = files.find((f: any) => f.name === selectedFetcher);
 
 	useEffect(() => {
 		reset(
 			{
-				name: table?.name,
-				fileId: table?.file_id || '',
+				name: defaultTableName,
+				fetcher: defaultFetcher || '',
 				height: defaultTableHeight || '',
-				depends: table?.depends_on || null,
+				depends: defaultDependsOn || null,
 			},
 			{
 				keepDirty: false,
 				keepDirtyValues: false,
 			},
 		);
-	}, [table, tableId, defaultTableHeight, reset]);
+	}, [defaultDependsOn, defaultFetcher, defaultTableName, defaultTableHeight, reset]);
 
-	const onSubmit = ({ fileId, height, depends, ...rest }: any) => {
+	const onSubmit = ({ fetcher, height, depends, ...rest }: any) => {
 		mutation.mutate({
-			tableId,
-			appName,
-			pageName,
-			tableName: rest.name,
-			table,
-			file: fetchers.find((f: any) => f.id === fileId),
-			pageId,
-			state: pageState?.state,
-			property: { ...(table?.property || {}), height },
-			depends,
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				tables: [
+					...(properties?.tables || []).map((t: any) => {
+						if (t.name === tableId) {
+							return {
+								...t,
+								...rest,
+								fetcher,
+								depends_on: depends,
+								height,
+								type:
+									fetchers?.find((f: any) => f.name === fetcher)?.type === 'sql'
+										? 'sql'
+										: 'python',
+							};
+						}
+
+						return t;
+					}),
+				],
+			},
 		});
 	};
 
 	const resetDependsOn = (newFileId: any) => {
-		const newFile = fetchers.find((f: any) => f.id === newFileId);
+		const newFile = files.find((f: any) => f.name === newFileId);
 
 		if (newFile?.type === 'data_fetcher') {
 			setValue('depends', null);
@@ -134,7 +146,7 @@ export const TableProperties = () => {
 									icon={<Save size="14" />}
 								/>
 							) : null}
-							<DeleteTable tableId={tableId} tableName={table?.name} />
+							<DeleteTable tableId={tableId} tableName={defaultTableName} />
 						</ButtonGroup>
 					</Stack>
 					<Stack px="4" py="2" h="full" overflowY="auto">
@@ -158,12 +170,12 @@ export const TableProperties = () => {
 											return true;
 										},
 										isUnique: (value: any) => {
-											if (value && table?.name !== value) {
+											if (value && defaultTableName !== value) {
 												const isUnique = Object.keys(
 													pageState?.state?.tables,
 												).find(
 													(t: any) =>
-														t === value && value !== table?.name,
+														t === value && value !== defaultTableName,
 												);
 												if (isUnique) {
 													return 'Table name must be unique';
@@ -177,13 +189,13 @@ export const TableProperties = () => {
 
 							<FormInput
 								type="custom-select"
-								id="fileId"
+								id="fetcher"
 								name="Fetcher"
 								placeholder="Select data fetcher"
 								onSelect={resetDependsOn}
 								options={(fetchers as any).map((file: any) => ({
 									name: file.name,
-									value: file.id,
+									value: file.name,
 									icon: null,
 									render: (isSelected: boolean) => {
 										return (
@@ -229,7 +241,7 @@ export const TableProperties = () => {
 								name="Depends on"
 								placeholder="Select the table which it depends on"
 								options={tables
-									.filter((t: any) => t.id !== tableId)
+									.filter((t: any) => t.name !== tableId)
 									.map((t: any) => ({
 										name: t.name,
 										value: t.name,

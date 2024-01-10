@@ -17,23 +17,21 @@ import {
 	generateFunctionCallSuggestions,
 	logBuilder,
 } from '@/features/app-builder/utils';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { ChakraTable } from '@/components/Table';
 import { previewCodeAtom } from '../../atoms';
 import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 
 export const FunctionTerminal = ({ panelRef }: any) => {
-	const [{ code, id, source, execute }, setPreviewCode] = useAtom(previewCodeAtom);
-
-	const { appName, pageName } = useAtomValue(pageAtom);
+	const [{ code, name, source, execute }, setPreviewCode] = useAtom(previewCodeAtom);
 
 	const toast = useToast();
 
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 
-	const { files, isLoading: isLoadingFiles } = useGetPage(pageId);
-	const file = files.find((f: any) => f.id === id);
+	const { files, isLoading: isLoadingFiles } = useGetPage({ appName, pageName });
+	const file = files.find((f: any) => f.name === name);
 
 	const monaco = useMonaco();
 
@@ -52,7 +50,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	useEffect(() => {
 		resetRunData();
 		setTestCode('');
-	}, [id]);
+	}, [name]);
 
 	const runHandlers = {
 		onSuccess: (data: any) => {
@@ -151,7 +149,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	}, [pageName, appName, pageState, file, code, source, runSQLQueryMutation]);
 
 	const executeShortcut = useCallback(() => {
-		if (file) {
+		if (file && !runPythonMutation.isLoading && !runSQLQueryMutation.isLoading) {
 			setPreviewCode((old: any) => ({ ...old, execute: false }));
 			if (file?.type === 'sql') {
 				handleRunSQLQuery();
@@ -159,7 +157,14 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 				handleRunPythonFunction();
 			}
 		}
-	}, [file, setPreviewCode, handleRunPythonFunction, handleRunSQLQuery]);
+	}, [
+		file,
+		setPreviewCode,
+		runPythonMutation,
+		runSQLQueryMutation,
+		handleRunPythonFunction,
+		handleRunSQLQuery,
+	]);
 
 	const handleKeyDown = useCallback(
 		(e: any) => {
@@ -178,10 +183,10 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	}, [handleKeyDown]);
 
 	useEffect(() => {
-		if (file && execute) {
+		if (execute) {
 			executeShortcut();
 		}
-	}, [file, execute, executeShortcut]);
+	}, [execute, executeShortcut]);
 
 	const isLoading = runPythonMutation.isLoading || runSQLQueryMutation.isLoading;
 
@@ -279,7 +284,12 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 
 				{previewData?.columns ? (
 					<Box px="3" w="full" mt="3" pb="3" borderBottomWidth="1px">
-						<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
+						<ChakraTable
+							{...previewData}
+							columns={previewData?.columns?.map((c: any) => c.name)}
+							maxH="md"
+							borderRadius="sm"
+						/>
 					</Box>
 				) : null}
 			</Stack>

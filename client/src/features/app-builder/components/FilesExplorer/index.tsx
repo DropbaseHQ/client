@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { Box, Icon, Input, Progress, Skeleton, Stack, useDisclosure } from '@chakra-ui/react';
 import { Code, Table, Box as BoxIcon } from 'react-feather';
 import { useParams } from 'react-router-dom';
@@ -7,7 +7,7 @@ import { useMonacoLoader } from '@/components/Editor';
 
 import { developerTabAtom } from '@/features/app-builder/atoms';
 
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { DeleteFile } from './DeleteFile';
 import { useUpdateFile } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
@@ -17,9 +17,8 @@ const FileButton = ({ file }: any) => {
 	const toast = useToast();
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
 
-	const { appName, pageName } = useAtomValue(pageAtom);
-	const { pageId } = useParams();
-	const { files } = useGetPage(pageId);
+	const { appName, pageName } = useParams();
+	const { files } = useGetPage({ appName, pageName });
 
 	const {
 		isOpen: mouseOver,
@@ -31,7 +30,7 @@ const FileButton = ({ file }: any) => {
 
 	const isSQLFile = file.type === 'sql';
 	const fileName = `${file.name}${isSQLFile ? '.sql' : '.py'}`;
-	const isActive = file.id === devTab.id;
+	const isActive = file.name === devTab.id;
 
 	const colorScheme = isSQLFile ? 'teal' : 'purple';
 
@@ -73,7 +72,6 @@ const FileButton = ({ file }: any) => {
 				fileName: file.name,
 				newFileName,
 				fileType: file.type,
-				pageId,
 			});
 		} else {
 			toast({
@@ -84,7 +82,7 @@ const FileButton = ({ file }: any) => {
 	};
 	const nameNotUnique = (newFileName: any) => {
 		return files.find((f: any) => {
-			return f.name === newFileName && f.id !== file.id;
+			return f.name === newFileName && f.name !== file.name;
 		});
 	};
 
@@ -125,10 +123,10 @@ const FileButton = ({ file }: any) => {
 			onClick={() => {
 				setDevTab({
 					type: isSQLFile ? 'sql' : 'function',
-					id: file.id,
+					id: file.name,
 				});
 			}}
-			key={file.id}
+			key={file.name}
 		>
 			{isEdit ? (
 				<Stack spacing="0">
@@ -158,7 +156,7 @@ const FileButton = ({ file }: any) => {
 						<DeleteFile
 							w="fit-content"
 							ml="auto"
-							id={file.id}
+							id={file.name}
 							name={fileName}
 							type={file.type}
 						/>
@@ -170,8 +168,8 @@ const FileButton = ({ file }: any) => {
 };
 
 export const FilesExplorer = () => {
-	const { pageId } = useParams();
-	const { files, isLoading, error } = useGetPage(pageId);
+	const { appName, pageName } = useParams();
+	const { files, isLoading, error } = useGetPage({ appName, pageName });
 
 	const isReady = useMonacoLoader();
 
@@ -194,7 +192,7 @@ export const FilesExplorer = () => {
 	return (
 		<Stack spacing="0" h="full">
 			{(files || []).map((f: any) => {
-				return <FileButton file={f} key={f.id} />;
+				return <FileButton file={f} key={f.name} />;
 			})}
 		</Stack>
 	);

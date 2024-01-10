@@ -22,11 +22,16 @@ import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import useWebSocket from 'react-use-websocket';
 import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
-import { useInitializeWidgetState, allWidgetStateAtom } from '@/features/app-state';
-import { pageAtom } from '@/features/page';
+import {
+	useInitializeWidgetState,
+	allWidgetStateAtom,
+	nonWidgetContextAtom,
+} from '@/features/app-state';
+import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget, useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
@@ -35,54 +40,94 @@ import { appModeAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
 import { generateSequentialName } from '@/utils';
 
+// websocket
+export const SOCKET_URL = 'ws://localhost:9090/ws';
+
 export const AppPreview = () => {
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
-	const { widgetId, widgets, appName, pageName } = useAtomValue(pageAtom);
+	const { widgetName, widgets } = useAtomValue(pageAtom);
 	const setPageAtom = useSetAtom(pageAtom);
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isDevMode = !isPreview;
 
-	const { isLoading, components, widget } = useGetWidgetPreview(widgetId || '');
+	const {
+		isLoading,
+		components,
+		description: widgetDescription,
+	} = useGetWidgetPreview(widgetName || '');
 	const [componentsState, setComponentsState] = useState(components);
 
-	useInitializeWidgetState({ widgetId: widget?.name, appName, pageName });
+	useInitializeWidgetState({ widgetName, appName, pageName });
+
+	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
 
 	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
 	const allWidgetState = widgetData.state;
 
-	const createWidgetMutation = useCreateWidget();
+	const { properties } = useGetPage({ appName, pageName });
+	const createMutation = useCreateWidget();
+
+	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
+		onMessage: (message) => {
+			try {
+				const { widgets: newWidgetsData, ...rest } =
+					JSON.parse(message?.data)?.context || {};
+				setWidgetData((s: any) => ({ ...s, state: newWidgetsData || {} }));
+				setNonInteractiveState(rest);
+			} catch (e) {
+				//
+			}
+		},
+		share: true,
+	});
+
 	const reorderMutation = useReorderComponents();
 
-	const widgetState: any = allWidgetState[widget?.name];
+	const widgetState: any = allWidgetState[widgetName || ''];
 
 	const handleRemoveAlert = () => {
 		setWidgetData((oldData: any) => ({
-			...lodashSet(oldData, `state.${widget?.name}.message`, null),
+			...lodashSet(oldData, `state.${widgetName}.message`, null),
 		}));
 	};
+
 	const handleReorderComponents = (newComponentOrder: { id: string; order: number }[]) => {
 		reorderMutation.mutate({
-			widgetId: widget?.id,
+			// FIXME: fix widgetId
+			// widgetId: widget?.id,
 			components: newComponentOrder,
 		});
 	};
+
 	const handleCreateWidget = () => {
-		createWidgetMutation.mutate({
-			pageId,
-			name: generateSequentialName({
-				currentNames: widgets?.map((w: any) => w.name) as string[],
-				prefix: 'widget',
-			}),
+		createMutation.mutate({
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				widgets: [
+					...(properties?.widgets || []),
+					{
+						name: generateSequentialName({
+							currentNames: widgets?.map((w: any) => w.name) as string[],
+							prefix: 'widget',
+						}),
+						components: [],
+					},
+				],
+			},
 		});
 	};
-	const handleChooseWidget = (widgetId: any) => {
+
+	const handleChooseWidget = (newWidgetId: any) => {
 		setPageAtom((oldPageAtom) => ({
 			...oldPageAtom,
-			widgetId,
+			widgetId: newWidgetId,
 		}));
 	};
+
 	const handleOnDragEnd = (result: any) => {
 		const { destination, source } = result;
 		if (!destination) {
@@ -110,9 +155,7 @@ export const AppPreview = () => {
 		setComponentsState(components);
 	}, [components]);
 
-	const mutation = useCreateWidget();
-
-	if (!widgetId) {
+	if (!widgetName) {
 		if (!isDevMode) {
 			return null;
 		}
@@ -154,14 +197,9 @@ export const AppPreview = () => {
 						w="fit-content"
 						colorScheme="blue"
 						size="sm"
-						isLoading={mutation.isLoading}
+						isLoading={createMutation.isLoading}
 						isDisabled={!isConnected}
-						onClick={() => {
-							mutation.mutate({
-								pageId,
-								name: 'widget1',
-							});
-						}}
+						onClick={handleCreateWidget}
 					>
 						Build Widget
 					</Button>
@@ -181,24 +219,24 @@ export const AppPreview = () => {
 						</AccordionButton>
 						<AccordionPanel p={0}>
 							<Stack direction="column" p="1">
-								{widgets?.map((widget: any) => (
+								{widgets?.map((w: any) => (
 									<Stack
 										as="button"
 										px="2"
 										borderRadius="sm"
 										direction="row"
 										alignItems="center"
-										bg={widget?.id === widgetId ? 'gray.50' : 'white'}
-										borderWidth={widget?.id === widgetId ? '1px' : '0'}
-										color={widget?.id === widgetId ? 'gray.900' : 'gray.700'}
-										onClick={() => handleChooseWidget(widget.id)}
+										bg={w?.name === widgetName ? 'gray.50' : 'white'}
+										borderWidth={w?.name === widgetName ? '1px' : '0'}
+										color={w?.name === widgetName ? 'gray.900' : 'gray.700'}
+										onClick={() => handleChooseWidget(w.id)}
 										_hover={{
 											bg: 'gray.50',
 											color: 'gray.800',
 										}}
 									>
 										<Icon as={Tool} mr="2" />
-										<Text>{widget?.name}</Text>
+										<Text>{w?.name}</Text>
 									</Stack>
 								))}
 
@@ -207,6 +245,7 @@ export const AppPreview = () => {
 										variant="outline"
 										size="sm"
 										colorScheme="gray"
+										isLoading={createMutation.isLoading}
 										onClick={handleCreateWidget}
 									>
 										<Stack
@@ -231,14 +270,14 @@ export const AppPreview = () => {
 					alignItems="center"
 					justifyContent="space-between"
 				>
-					<InspectorContainer noPadding type="widget" id={widgetId}>
+					<InspectorContainer noPadding type="widget" id={widgetName}>
 						<Stack spacing="0">
 							<Text fontSize="md" fontWeight="semibold">
-								{widget?.property?.name}
+								{widgetName}
 							</Text>
-							{widget?.property?.description ? (
+							{widgetDescription ? (
 								<Text fontSize="sm" color="gray.600">
-									{widget?.property?.description}
+									{widgetDescription}
 								</Text>
 							) : null}
 						</Stack>
@@ -246,7 +285,7 @@ export const AppPreview = () => {
 				</Stack>
 				<DragDropContext onDragEnd={handleOnDragEnd}>
 					<Droppable droppableId="droppable-1">
-						{(provided: any, _: any) => (
+						{(provided: any) => (
 							<Stack
 								ref={provided.innerRef}
 								p="4"
@@ -258,17 +297,21 @@ export const AppPreview = () => {
 							>
 								{componentsState.map((c: any, index: number) => {
 									return (
-										<Draggable key={c.id} draggableId={c.id} index={index}>
-											{(provided: any, _: any) => (
+										<Draggable key={c.name} draggableId={c.name} index={index}>
+											{(p: any) => (
 												<InspectorContainer
-													ref={provided.innerRef}
-													key={c.id}
-													id={c.id}
+													ref={p.innerRef}
+													key={c.name}
+													id={c.name}
 													type="component"
-													{...provided.draggableProps}
-													{...provided.dragHandleProps}
+													{...p.draggableProps}
+													{...p.dragHandleProps}
 												>
-													<AppComponent key={c.id} {...c} />
+													<AppComponent
+														key={c.name}
+														sendJsonMessage={sendJsonMessage}
+														{...c}
+													/>
 												</InspectorContainer>
 											)}
 										</Draggable>

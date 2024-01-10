@@ -1,33 +1,26 @@
-import { useQuery } from 'react-query';
 import { useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
-import { axios } from '@/lib/axios';
+import { useGetPage } from '@/features/page';
 
 export const WIDGET_PREVIEW_QUERY_KEY = 'widget/preview';
 
-const fetchWidgetPreview = async ({ widgetId }: { widgetId: string }) => {
-	const response = await axios.get<any>(`/widget/ui/${widgetId}`);
+export const useGetWidgetPreview = (widgetName: string) => {
+	const { appName, pageName } = useParams();
 
-	return response.data;
-};
-
-export const useGetWidgetPreview = (widgetId: string) => {
-	const queryKey = [WIDGET_PREVIEW_QUERY_KEY, widgetId];
-
-	const { data: response, ...rest } = useQuery(queryKey, () => fetchWidgetPreview({ widgetId }), {
-		enabled: Boolean(widgetId),
-	});
+	const { widgets, ...rest } = useGetPage({ appName, pageName });
 
 	const info = useMemo(() => {
-		return {
-			components: response?.components || [],
-			widget: response?.widget || {},
-		};
-	}, [response]);
+		return (
+			widgets.find((w: any) => w.name === widgetName) || {
+				components: [],
+				name: '',
+			}
+		);
+	}, [widgets, widgetName]);
 
 	return {
 		...rest,
-		queryKey,
 		...info,
 	};
 };

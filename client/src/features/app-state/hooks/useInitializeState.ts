@@ -3,8 +3,9 @@ import { useEffect } from 'react';
 import {
 	selectedRowAtom,
 	allWidgetStateAtom,
-	nonWidgetStateAtom,
+	nonWidgetContextAtom,
 	allWidgetsInputAtom,
+	tableStateAtom,
 } from '@/features/app-state';
 import { useAppState } from '@/features/app-state/hooks';
 
@@ -16,8 +17,9 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 
 	const setRowData = useSetAtom(selectedRowAtom);
 	const setWidgetState = useSetAtom(allWidgetStateAtom);
-	const setNonInteractiveState = useSetAtom(nonWidgetStateAtom);
+	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
 	const setWidgetsInputs = useSetAtom(allWidgetsInputAtom);
+	const setTableState = useSetAtom(tableStateAtom);
 
 	useEffect(() => {
 		setRowData((oldTables: any) => {
@@ -43,10 +45,11 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 					};
 				}, {});
 			}
+			setTableState(tables);
 
 			return tables;
 		});
-	}, [state, setRowData]);
+	}, [state, setRowData, setTableState]);
 
 	useEffect(() => {
 		setWidgetsInputs(state.widgets);
@@ -73,12 +76,12 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 	return rest;
 };
 
-export const useInitializeWidgetState = ({ widgetId, appName, pageName }: any) => {
+export const useInitializeWidgetState = ({ widgetName, appName, pageName }: any) => {
 	useInitializePageState(appName, pageName);
 
 	const setWidgetState = useSetAtom(allWidgetStateAtom);
 
 	useEffect(() => {
-		setWidgetState((s) => ({ ...s, selected: widgetId }));
-	}, [widgetId, setWidgetState]);
+		setWidgetState((s) => ({ ...s, selected: widgetName }));
+	}, [widgetName, setWidgetState]);
 };

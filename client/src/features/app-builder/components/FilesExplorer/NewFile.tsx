@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { Plus, Table, Box as BoxIcon, Code } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 
@@ -30,7 +30,7 @@ import { useStatus } from '@/layout/StatusBar';
 import { useCreateFile, usePageFiles } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { generateSequentialName, getErrorMessage } from '@/utils';
 import { developerTabAtom } from '../../atoms';
 
@@ -71,11 +71,9 @@ export const NewFile = (props: any) => {
 		shouldUnregister: true,
 	});
 
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
-	const { files } = useGetPage(pageId);
-
-	const { pageName, appName } = useAtomValue(pageAtom);
+	const { files } = useGetPage({ appName, pageName });
 
 	const setDevTab = useSetAtom(developerTabAtom);
 
@@ -95,7 +93,7 @@ export const NewFile = (props: any) => {
 		onSuccess: (data: any) => {
 			setDevTab({
 				type: data.type === 'sql' ? 'sql' : 'function',
-				id: data.id,
+				id: data.name,
 			});
 
 			toast({
@@ -118,7 +116,6 @@ export const NewFile = (props: any) => {
 
 	const onSubmit = ({ type, name }: any) => {
 		mutation.mutate({
-			pageId,
 			pageName,
 			appName,
 			fileName: name,

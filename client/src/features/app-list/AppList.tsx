@@ -58,7 +58,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 	});
 
 	const handleClick = () => {
-		navigate(`/apps/${app.id}/${app?.pages?.[0]?.id}/preview`);
+		navigate(`/apps/${app.name}/${app?.pages?.[0]?.name}`);
 	};
 
 	const onSubmit = () => {
@@ -195,11 +195,8 @@ export const AppList = () => {
 	const { handleCreateApp: handleCreateAppFlow, isLoading: createAppIsLoading } =
 		useCreateAppFlow({
 			onSuccess: (_: any, variables: any) => {
-				if (variables?.appTemplate?.page?.id) {
-					navigate(
-						`/apps/${variables?.appId}/${variables?.appTemplate?.page?.id}/editor`,
-					);
-				}
+				navigate(`/apps/${variables?.appName}/page1/studio`);
+
 				refetch();
 				onClose();
 			},
@@ -221,7 +218,6 @@ export const AppList = () => {
 	const onSubmit = async ({ name: appName }: any) => {
 		await handleCreateAppFlow({
 			name: appName,
-			workspaceId: workspaceId || '',
 		});
 	};
 

@@ -2,9 +2,10 @@ import { Plus, Trash } from 'react-feather';
 import { Badge, Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
-import { useGetComponentProperties } from '@/features/app-builder/hooks';
+import { useEffect, useState } from 'react';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
+import { tableStateAtom } from '@/features/app-state';
 
 const OPERATORS = [
 	{
@@ -47,16 +48,129 @@ const formLabelProps = {
 	mb: '1',
 };
 
-export const DisplayRulesEditor = ({ id }: any) => {
-	const { widgetId } = useAtomValue(pageAtom);
-	const { values: components } = useGetComponentProperties(widgetId || '');
+const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }: any) => {
+	const { widgets } = useAtomValue(pageAtom);
+	const tableState = useAtomValue(tableStateAtom);
+	const [category, setCategory] = useState<string>('widgets');
+	const [specificCategory, setSpecificCategory] = useState<string>('');
 
+	const compilePathName = (target: string) => {
+		return `${category}.${specificCategory}.${target}`;
+	};
+
+	const getCategoryOptions = () => {
+		if (category === 'tables') {
+			return Object.keys(tableState).map((c: any) => ({
+				name: c,
+				value: c,
+			}));
+		}
+
+		return widgets?.map((c: any) => ({
+			name: c.name,
+			value: c.name,
+		}));
+	};
+	const getSpecificCategoryOptions = () => {
+		if (category === 'tables') {
+			const table: any = tableState?.[specificCategory as keyof typeof tableState];
+			return Object.keys(table || {}).map((c: any) => ({
+				name: c,
+				value: compilePathName(c),
+			}));
+		}
+
+		return componentNames.map((c: any) => ({
+			name: c,
+			value: compilePathName(c),
+		}));
+	};
+
+	useEffect(() => {
+		if (rule.target) {
+			const [initCategory, initSpecificCategory] = rule.target.split('.');
+			setCategory(initCategory);
+			setSpecificCategory(initSpecificCategory);
+		}
+	}, [rule.target]);
+	return (
+		<Stack alignItems="end" key={rule.id} direction="row">
+			<FormControl>
+				{index === 0 ? <FormLabel {...formLabelProps}>Category</FormLabel> : null}
+				<InputRenderer
+					size="sm"
+					flex="1"
+					type="select"
+					placeholder="Category"
+					value={rule?.target?.split('.')[0]}
+					options={[
+						{
+							name: 'tables',
+							value: 'tables',
+						},
+						{
+							name: 'widgets',
+							value: 'widgets',
+						},
+					]}
+					onChange={(newValue: any) => {
+						setCategory(newValue);
+					}}
+				/>
+			</FormControl>
+			<FormControl>
+				{index === 0 ? <FormLabel {...formLabelProps}>Name</FormLabel> : null}
+				<InputRenderer
+					size="sm"
+					flex="1"
+					type="select"
+					placeholder="Category"
+					value={rule?.target?.split('.')[1]}
+					options={getCategoryOptions()}
+					onChange={(newValue: any) => {
+						setSpecificCategory(newValue);
+					}}
+				/>
+			</FormControl>
+			<FormControl>
+				{index === 0 ? <FormLabel {...formLabelProps}>Target</FormLabel> : null}
+				<InputRenderer
+					size="sm"
+					flex="1"
+					type="select"
+					placeholder="component name"
+					value={rule.target}
+					options={getSpecificCategoryOptions()}
+					onChange={(newValue: any) => {
+						onChange(
+							displayRules.map((r: any) => {
+								if (r.id === rule.id) {
+									return {
+										...r,
+										target: newValue,
+									};
+								}
+
+								return r;
+							}),
+						);
+					}}
+				/>
+			</FormControl>
+		</Stack>
+	);
+};
+
+export const DisplayRulesEditor = ({ name }: any) => {
+	const { widgetName, widgets } = useAtomValue(pageAtom);
+	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
 	const { control } = useFormContext();
-
 	const componentsProperties = components
-		.filter((c: any) => c.id !== id && (c.type === 'select' || c.type === 'input'))
-		.reduce((agg: any, c: any) => ({ ...agg, [c?.property?.name]: c }), {});
-
+		.filter(
+			(c: any) =>
+				c.name !== name && (c.component_type === 'select' || c.component_type === 'input'),
+		)
+		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
 	const componentNames = Object.keys(componentsProperties);
 
 	return (
@@ -93,98 +207,75 @@ export const DisplayRulesEditor = ({ id }: any) => {
 								}
 
 								return (
-									<Stack alignItems="end" key={rule.id} direction="row">
+									<Stack key={rule.id} direction="column" spacing="2">
 										{index === 0 ? null : (
-											<Box w="8" alignSelf="center">
-												<Badge
-													colorScheme="gray"
-													variant="subtle"
-													size="xs"
-												>
-													And
-												</Badge>
-											</Box>
-										)}
-										<FormControl>
-											{index === 0 ? (
-												<FormLabel {...formLabelProps}>Component</FormLabel>
-											) : null}
-											<InputRenderer
-												size="sm"
-												flex="1"
-												type="select"
-												placeholder="component name"
-												value={rule.name}
-												options={componentNames.map((c: any) => ({
-													name: c,
-													value: c,
-												}))}
-												onChange={(newValue: any) => {
-													onChange(
-														displayRules.map((r: any) => {
-															if (r.id === rule.id) {
-																return {
-																	...r,
-																	name: newValue,
-																};
-															}
-
-															return r;
-														}),
-													);
-												}}
-											/>
-										</FormControl>
-
-										<FormControl>
-											{index === 0 ? (
-												<FormLabel {...formLabelProps}>Operator</FormLabel>
-											) : null}
-											<InputRenderer
-												size="sm"
-												flex="1"
-												type="select"
-												placeholder="Operator"
-												value={rule.operator}
-												options={[
-													...OPERATORS,
-													...(isNumberInput ? COMPERATOR_OPERATORS : []),
-												]}
-												onChange={(newValue: any) => {
-													onChange(
-														displayRules.map((r: any) => {
-															if (r.id === rule.id) {
-																return {
-																	...r,
-																	operator: newValue,
-																};
-															}
-
-															return r;
-														}),
-													);
-												}}
-											/>
-										</FormControl>
-										{OPERATOR_WITH_NO_VALUE.includes(rule.operator) ? null : (
-											<FormControl>
-												{index === 0 ? (
-													<FormLabel {...formLabelProps}>Value</FormLabel>
-												) : null}
+											<Box w="20" alignSelf="center">
 												<InputRenderer
 													size="sm"
 													flex="1"
-													disabled={!rule.name}
-													placeholder="select value"
-													{...input}
-													value={rule.value}
+													type="select"
+													placeholder="Andor"
+													value={rule?.andor}
+													options={[
+														{
+															name: 'And',
+															value: 'and',
+														},
+														{
+															name: 'Or',
+															value: 'or',
+														},
+													]}
 													onChange={(newValue: any) => {
 														onChange(
 															displayRules.map((r: any) => {
 																if (r.id === rule.id) {
 																	return {
 																		...r,
-																		value: newValue,
+																		andor: newValue,
+																	};
+																}
+
+																return r;
+															}),
+														);
+													}}
+												/>
+											</Box>
+										)}
+										<TargetSelector
+											rule={rule}
+											index={index}
+											onChange={onChange}
+											displayRules={displayRules}
+											componentNames={componentNames}
+										/>
+										<Stack alignItems="end" key={rule.id} direction="row">
+											<FormControl>
+												{index === 0 ? (
+													<FormLabel {...formLabelProps}>
+														Operator
+													</FormLabel>
+												) : null}
+												<InputRenderer
+													size="sm"
+													flex="1"
+													type="select"
+													placeholder="Operator"
+													value={rule.operator}
+													options={[
+														...OPERATORS,
+														...(isNumberInput
+															? COMPERATOR_OPERATORS
+															: []),
+													]}
+													onChange={(newValue: any) => {
+														onChange(
+															displayRules.map((r: any) => {
+																if (r.id === rule.id) {
+																	return {
+																		...r,
+																		operator: newValue,
 																	};
 																}
 
@@ -194,21 +285,54 @@ export const DisplayRulesEditor = ({ id }: any) => {
 													}}
 												/>
 											</FormControl>
-										)}
-										<IconButton
-											aria-label="Delete"
-											icon={<Trash size="14" />}
-											size="sm"
-											variant="ghost"
-											colorScheme="red"
-											onClick={() => {
-												onChange(
-													displayRules.filter(
-														(o: any) => o.id !== rule.id,
-													),
-												);
-											}}
-										/>
+											{OPERATOR_WITH_NO_VALUE.includes(
+												rule.operator,
+											) ? null : (
+												<FormControl>
+													{index === 0 ? (
+														<FormLabel {...formLabelProps}>
+															Value
+														</FormLabel>
+													) : null}
+													<InputRenderer
+														size="sm"
+														flex="1"
+														disabled={!rule.target}
+														placeholder="select value"
+														{...input}
+														value={rule.value}
+														onChange={(newValue: any) => {
+															onChange(
+																displayRules.map((r: any) => {
+																	if (r.id === rule.id) {
+																		return {
+																			...r,
+																			value: newValue,
+																		};
+																	}
+
+																	return r;
+																}),
+															);
+														}}
+													/>
+												</FormControl>
+											)}
+											<IconButton
+												aria-label="Delete"
+												icon={<Trash size="14" />}
+												size="sm"
+												variant="ghost"
+												colorScheme="red"
+												onClick={() => {
+													onChange(
+														displayRules.filter(
+															(o: any) => o.id !== rule.id,
+														),
+													);
+												}}
+											/>
+										</Stack>
 									</Stack>
 								);
 							})}
@@ -222,9 +346,10 @@ export const DisplayRulesEditor = ({ id }: any) => {
 									onChange([
 										...displayRules,
 										{
-											name: null,
+											target: null,
 											value: null,
 											operator: null,
+											andor: 'and',
 											id: crypto.randomUUID(),
 										},
 									]);

@@ -1,25 +1,34 @@
-import { Button, FormControl, FormLabel, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react';
-import { Save } from 'react-feather';
-import { useAtomValue, useSetAtom } from 'jotai';
+import {
+	Box,
+	Button,
+	FormControl,
+	FormLabel,
+	IconButton,
+	Skeleton,
+	SkeletonCircle,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
+import { Play, Save } from 'react-feather';
+import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { MonacoEditor } from '@/components/Editor';
 import { useFile, useSaveCode, useSources } from '@/features/app-builder/hooks';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { previewCodeAtom } from '../../atoms';
 
-export const SQLEditor = ({ id }: any) => {
+export const SQLEditor = ({ name }: any) => {
 	const toast = useToast();
-	const { pageId } = useParams();
-	const { files } = useGetPage(pageId);
+	const { appName, pageName } = useParams();
+	const { files } = useGetPage({ appName, pageName });
 
-	const file = files.find((f: any) => f.id === id);
+	const file = files.find((f: any) => f.name === name);
 	const sqlName = file?.name;
-	const { pageName, appName } = useAtomValue(pageAtom);
 
 	const [selectedSource, setSource] = useState();
 
@@ -46,11 +55,11 @@ export const SQLEditor = ({ id }: any) => {
 
 	useEffect(() => {
 		setCode(defaultCode);
-	}, [defaultCode, id]);
+	}, [defaultCode, name]);
 
 	useEffect(() => {
 		setPreviewFile({
-			id,
+			name,
 			code,
 			source: selectedSource,
 			execute: false,
@@ -58,13 +67,22 @@ export const SQLEditor = ({ id }: any) => {
 
 		return () => {
 			setPreviewFile({
-				id: null,
+				name: null,
 				code: null,
 				source: null,
 				execute: false,
 			});
 		};
-	}, [id, code, selectedSource, setPreviewFile]);
+	}, [name, code, selectedSource, setPreviewFile]);
+
+	const executeRunCommand = () => {
+		setPreviewFile({
+			name,
+			code,
+			source: selectedSource,
+			execute: true,
+		});
+	};
 
 	const saveSQLMutation = useSaveCode({
 		onSuccess: () => {
@@ -90,7 +108,7 @@ export const SQLEditor = ({ id }: any) => {
 			fileName: sqlName,
 			sql: code,
 			source: selectedSource,
-			fileId: id,
+			fileId: name,
 			fileType: file?.type,
 		});
 	};
@@ -108,38 +126,67 @@ export const SQLEditor = ({ id }: any) => {
 	}
 
 	return (
-		<Stack bg="white" h="full" overflowY="auto" overflowX="hidden" spacing="3">
-			<Stack p="3" borderBottomWidth="1px" alignItems="start" direction="row">
-				<FormControl>
-					<FormLabel>Source</FormLabel>
-					<InputRenderer
-						size="sm"
-						flex="1"
-						maxW="sm"
-						type="select"
-						placeholder="Sources"
-						value={selectedSource}
-						options={sources.map((s) => ({ name: s, value: s }))}
-						onChange={(newSelectedSource: any) => {
-							setSource(newSelectedSource);
-						}}
-					/>
-				</FormControl>
-				<Button
-					w="fit-content"
-					isLoading={saveSQLMutation.isLoading}
-					onClick={handleSave}
-					variant="outline"
-					colorScheme="gray"
-					size="sm"
-					isDisabled={code === defaultCode && file?.source === selectedSource}
-					leftIcon={<Save size="14" />}
+		<Stack bg="white" h="full" overflowY="auto" overflowX="hidden" spacing="0">
+			<Stack spacing="3">
+				<Stack
+					p="2"
+					borderBottomWidth="1px"
+					direction="row"
+					alignItems="center"
+					justifyContent="space-between"
 				>
-					Update
-				</Button>
-			</Stack>
+					<Text fontSize="sm" fontWeight="semibold">
+						{fullFileName}
+					</Text>
 
-			<MonacoEditor value={code} onChange={setCode} language="sql" />
+					<Button
+						w="fit-content"
+						isLoading={saveSQLMutation.isLoading}
+						onClick={handleSave}
+						variant="outline"
+						colorScheme="gray"
+						size="sm"
+						isDisabled={code === defaultCode && file?.source === selectedSource}
+						leftIcon={<Save size="14" />}
+					>
+						Update
+					</Button>
+				</Stack>
+				<Stack px="3" pb="3" borderBottomWidth="1px" alignItems="start" direction="row">
+					<FormControl>
+						<FormLabel>Source</FormLabel>
+						<InputRenderer
+							size="sm"
+							flex="1"
+							maxW="sm"
+							type="select"
+							placeholder="Sources"
+							value={selectedSource}
+							options={sources.map((s) => ({ name: s, value: s }))}
+							onChange={(newSelectedSource: any) => {
+								setSource(newSelectedSource);
+							}}
+						/>
+					</FormControl>
+				</Stack>
+			</Stack>
+			<Stack h="full" spacing="0" direction="row">
+				<IconButton
+					mx="1"
+					aria-label="Run function"
+					size="2xs"
+					mt="2"
+					flexShrink="0"
+					colorScheme="gray"
+					variant="outline"
+					borderRadius="md"
+					icon={<Play size={12} />}
+					onClick={executeRunCommand}
+				/>
+				<Box h="full" pt="2" w="full" borderLeftWidth="1px">
+					<MonacoEditor value={code} onChange={setCode} language="sql" />
+				</Box>
+			</Stack>
 		</Stack>
 	);
 };

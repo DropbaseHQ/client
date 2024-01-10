@@ -2,16 +2,10 @@ import { Button, FormControl, FormHelperText, FormLabel, Text } from '@chakra-ui
 import { useAtom, useAtomValue } from 'jotai';
 import { getErrorMessage } from '@/utils';
 
-import { useExecuteAction, useGetWidgetPreview } from '@/features/app-preview/hooks';
+import { useExecuteAction } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
-import {
-	widgetComponentsAtom,
-	useSyncState,
-	newPageStateAtom,
-	allWidgetsInputAtom,
-} from '@/features/app-state';
+import { widgetComponentsAtom, useSyncState, newPageStateAtom } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
-import { checkAllRulesPass } from '@/features/app-preview/utils';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -22,32 +16,34 @@ const sizeMap: any = {
 };
 
 export const AppComponent = (props: any) => {
+	const { sendJsonMessage } = props;
+
 	const toast = useToast();
-	const { pageName, appName } = useAtomValue(pageAtom);
-	const { type, property: component } = props;
+	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
+	const {
+		component_type: componentType,
+		type,
+		data_type: dataType,
+		name,
+		display_rules: displayRules,
+		color,
+		label,
+		on_click: onClick,
+		...component
+	} = props;
 
 	const pageState = useAtomValue(newPageStateAtom);
-
-	const { widgetId } = useAtomValue(pageAtom);
-	const { widget } = useGetWidgetPreview(widgetId || '');
-
 	const [allWidgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
-	const widgetComponents = allWidgetComponents[widget.name]?.components || {};
-	const inputState = widgetComponents?.[component.name] || {};
-
-	const allUserInputValues: any = useAtomValue(allWidgetsInputAtom);
-
-	const widgetInputs = allUserInputValues?.[widget.name] || {};
+	const widgetComponents = allWidgetComponents[widgetName || '']?.components || {};
+	const inputState = widgetComponents?.[name] || {};
 
 	const syncState = useSyncState();
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isEditorMode = !isPreview;
 
-	const shouldDisplay = checkAllRulesPass({
-		values: widgetInputs,
-		rules: component.display_rules,
-	});
+	const shouldDisplay =
+		widgetComponents?.[name]?.visible || widgetComponents?.[name]?.visible === null;
 	const grayOutComponent = !shouldDisplay && isEditorMode;
 
 	const actionMutation = useExecuteAction({
@@ -76,26 +72,32 @@ export const AppComponent = (props: any) => {
 		return null;
 	}
 
-	if (type === 'button') {
+	if (componentType === 'button') {
 		return (
 			<Button
 				my="1.5"
 				size="sm"
 				isLoading={actionMutation.isLoading}
 				bgColor={grayOutComponent ? 'gray.100' : ''}
-				colorScheme={component.color || 'blue'}
+				colorScheme={color || 'blue'}
 				onClick={() => {
-					if (component.on_click) {
-						handleAction(component.on_click);
+					if (onClick) {
+						handleAction(onClick);
 					}
+					sendJsonMessage({
+						type: 'display_rule',
+						state_context: pageState,
+						app_name: appName,
+						page_name: pageName,
+					});
 				}}
 			>
-				{component.label}
+				{label}
 			</Button>
 		);
 	}
 
-	if (type === 'text') {
+	if (componentType === 'text') {
 		return (
 			<Text
 				fontSize={sizeMap[component.size]}
@@ -108,21 +110,27 @@ export const AppComponent = (props: any) => {
 	}
 
 	return (
-		<FormControl key={component.name} bgColor={grayOutComponent ? 'gray.100' : ''}>
-			{component.label ? <FormLabel lineHeight={1}>{component.label}</FormLabel> : null}
+		<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
+			{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
 			<InputRenderer
 				placeholder={component?.placeholder}
 				value={inputState?.value}
-				name={component.name}
-				type={type === 'select' ? 'select' : component.type}
+				name={name}
+				type={componentType === 'select' ? 'select' : dataType || type}
 				onChange={(newValue: any) => {
 					setWidgetComponentValues({
-						[component.name]: newValue,
+						[name]: newValue,
 					});
 
 					if (component.on_change) {
 						handleAction(component.on_change);
 					}
+					sendJsonMessage({
+						type: 'display_rule',
+						state_context: pageState,
+						app_name: appName,
+						page_name: pageName,
+					});
 				}}
 				options={inputState.options || component.options}
 			/>

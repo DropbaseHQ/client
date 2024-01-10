@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 
 import { Save } from 'react-feather';
 import { useParams } from 'react-router-dom';
-import { useCurrentTableData, useCurrentTableId, useSaveEdits } from '../hooks';
+import { useCurrentTableData, useCurrentTableName, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { cellEditsAtom } from '@/features/smart-table/atoms';
 import { getErrorMessage } from '@/utils';
@@ -17,18 +17,18 @@ import { useGetPage } from '@/features/page';
 export const TableBar = () => {
 	const toast = useToast();
 
-	const tableId = useCurrentTableId();
+	const tableName = useCurrentTableName();
 
-	const { table, type: tableType } = useGetTable(tableId || '');
+	const { fetcher, type: tableType } = useGetTable(tableName || '');
 
-	const { pageId } = useParams();
-	const { files } = useGetPage(pageId);
-	const file = files.find((f: any) => f.id === table?.file_id);
+	const { appName, pageName } = useParams();
+	const { files } = useGetPage({ appName, pageName });
+	const file = files.find((f: any) => f.name === fetcher);
 
-	const { rows, columns } = useCurrentTableData(tableId);
+	const { rows, columns } = useCurrentTableData(tableName);
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
-	const cellEdits = allCellEdits[tableId] || [];
+	const cellEdits = allCellEdits[tableName] || [];
 
 	const saveEditsMutation = useSaveEdits({
 		onSuccess: () => {
@@ -38,7 +38,7 @@ export const TableBar = () => {
 			});
 			setCellEdits((old: any) => ({
 				...old,
-				[tableId]: [],
+				[tableName]: [],
 			}));
 		},
 		onError: (error: any) => {

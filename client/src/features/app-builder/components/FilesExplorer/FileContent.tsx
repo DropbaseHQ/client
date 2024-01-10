@@ -20,8 +20,8 @@ const componentsMap: any = {
 };
 
 export const FileContent = () => {
-	const { pageId } = useParams();
-	const { files, isLoading, error } = useGetPage(pageId);
+	const { appName, pageName } = useParams();
+	const { files, isLoading, error } = useGetPage({ appName, pageName });
 
 	const panelRef = useRef<any>(null);
 
@@ -61,7 +61,7 @@ export const FileContent = () => {
 			<Panel>
 				<Box h="full" overflowX="hidden" overflowY="auto">
 					{Component ? (
-						<Component id={devTab.id} />
+						<Component name={devTab.id} />
 					) : (
 						<Center p="4" h="full">
 							<Text size="sm" fontWeight="medium">
