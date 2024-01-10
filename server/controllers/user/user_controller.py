@@ -71,8 +71,31 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
             subject=user.email, expires_time=REFRESH_TOKEN_EXPIRE_SECONDS
         )
 
-        Authorize.set_access_cookies(access_token)
-        Authorize.set_refresh_cookies(refresh_token)
+        # Authorize.set_access_cookies(access_token)
+        response = Authorize._response
+        # Set Access Cookie
+        response.set_cookie(
+            Authorize._access_cookie_key,
+            access_token,
+            max_age=Authorize._cookie_max_age,
+            path=Authorize._access_cookie_path,
+            domain=Authorize._cookie_domain,
+            secure=Authorize._cookie_secure,
+            httponly=False,
+            samesite=Authorize._cookie_samesite,
+        )
+        # Authorize.set_refresh_cookies(refresh_token)
+        # Set Refresh Cookie
+        response.set_cookie(
+            Authorize._refresh_cookie_key,
+            refresh_token,
+            max_age=Authorize._cookie_max_age,
+            path=Authorize._refresh_cookie_path,
+            domain=Authorize._cookie_domain,
+            secure=Authorize._cookie_secure,
+            httponly=False,
+            samesite=Authorize._cookie_samesite,
+        )
         workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
         workspace = (
             ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
