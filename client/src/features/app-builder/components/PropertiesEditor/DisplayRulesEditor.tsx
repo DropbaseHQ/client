@@ -343,16 +343,27 @@ export const DisplayRulesEditor = ({ name }: any) => {
 								variant="outline"
 								colorScheme="gray"
 								onClick={() => {
-									onChange([
-										...displayRules,
-										{
-											target: null,
-											value: null,
-											operator: null,
-											andor: 'and',
-											id: crypto.randomUUID(),
-										},
-									]);
+									onChange(
+										displayRules?.length > 0
+											? [
+													...displayRules,
+													{
+														target: null,
+														value: null,
+														operator: null,
+														andor: 'and',
+														id: crypto.randomUUID(),
+													},
+											  ]
+											: [
+													{
+														target: null,
+														value: null,
+														operator: null,
+														id: crypto.randomUUID(),
+													},
+											  ],
+									);
 								}}
 							>
 								Add rule
