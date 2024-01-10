@@ -4,7 +4,13 @@ export const pageAtom = atom<{
 	widgetName: string | null;
 	appName: string | null;
 	pageName: string | null;
-	widgets: string[] | null;
+	widgets:
+		| {
+				name: string;
+				description: string;
+				components: any[];
+		  }[]
+		| null;
 }>({
 	widgetName: null,
 	appName: null,
