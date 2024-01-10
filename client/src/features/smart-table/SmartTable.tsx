@@ -213,7 +213,7 @@ export const SmartTable = ({ tableName }: any) => {
 			  };
 
 	const visibleColumns = header.filter(
-		(columnName: any) => !columnDict?.[columnName] || columnDict[columnName]?.visible,
+		(column: any) => !columnDict?.[column?.name] || columnDict[column?.name]?.visible,
 	);
 
 	const gridColumns = visibleColumns.map((column: any) => {
