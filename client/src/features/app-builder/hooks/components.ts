@@ -69,6 +69,7 @@ export const useGetComponentProperties = (widgetId: string) => {
 	};
 };
 
+// TODO: @yash-dropbase please review, removed from backend
 const syncComponentsToWorker = async ({ appName, pageName }: any) => {
 	const response = await workerAxios.post(`/sync/components/`, {
 		app_name: appName,

@@ -52,7 +52,7 @@ export const NewTable = (props: any) => {
 					...(properties?.tables || []),
 					{
 						name: nextName,
-						type: 'postgres',
+						type: 'sql',
 						columns: [],
 					},
 				],

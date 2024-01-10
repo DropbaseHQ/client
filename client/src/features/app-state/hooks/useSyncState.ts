@@ -25,6 +25,7 @@ export const useSyncState = () => {
 	return handleSyncState;
 };
 
+// TODO: @yash-dropbase please review, removed from backend
 const forceSyncState = async ({ pageId }: any) => {
 	const response = await workerAxios.put(`/sync/page/${pageId}`, {
 		page_id: pageId,

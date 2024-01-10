@@ -62,7 +62,6 @@ export const DeleteFile = ({ name, id, type, ...props }: any) => {
 			pageName,
 			appName,
 			fileName: name,
-			fileId: id,
 			fileType: type,
 		});
 	};
