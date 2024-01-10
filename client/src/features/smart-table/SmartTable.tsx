@@ -488,7 +488,7 @@ export const SmartTable = ({ tableName }: any) => {
 								...t,
 								columns: header.map((c: any) => ({
 									...(columnDict?.[c] || {}),
-									name: c,
+									...c,
 								})),
 							};
 						}
