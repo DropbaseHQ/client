@@ -284,7 +284,12 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 
 				{previewData?.columns ? (
 					<Box px="3" w="full" mt="3" pb="3" borderBottomWidth="1px">
-						<ChakraTable {...previewData} maxH="md" borderRadius="sm" />
+						<ChakraTable
+							{...previewData}
+							columns={previewData?.columns?.map((c: any) => c.name)}
+							maxH="md"
+							borderRadius="sm"
+						/>
 					</Box>
 				) : null}
 			</Stack>
