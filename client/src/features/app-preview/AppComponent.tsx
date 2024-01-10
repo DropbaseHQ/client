@@ -23,6 +23,7 @@ export const AppComponent = (props: any) => {
 	const {
 		component_type: componentType,
 		type,
+		data_type: dataType,
 		name,
 		display_rules: displayRules,
 		color,
@@ -115,7 +116,7 @@ export const AppComponent = (props: any) => {
 				placeholder={component?.placeholder}
 				value={inputState?.value}
 				name={name}
-				type={componentType === 'select' ? 'select' : type}
+				type={componentType === 'select' ? 'select' : dataType || type}
 				onChange={(newValue: any) => {
 					setWidgetComponentValues({
 						[name]: newValue,
