@@ -102,7 +102,7 @@ const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }:
 					flex="1"
 					type="select"
 					placeholder="Category"
-					value={rule.target.split('.')[0]}
+					value={rule?.target?.split('.')[0]}
 					options={[
 						{
 							name: 'tables',
@@ -125,7 +125,7 @@ const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }:
 					flex="1"
 					type="select"
 					placeholder="Category"
-					value={rule.target.split('.')[1]}
+					value={rule?.target?.split('.')[1]}
 					options={getCategoryOptions()}
 					onChange={(newValue: any) => {
 						setSpecificCategory(newValue);
@@ -209,14 +209,38 @@ export const DisplayRulesEditor = ({ name }: any) => {
 								return (
 									<Stack key={rule.id} direction="column" spacing="2">
 										{index === 0 ? null : (
-											<Box w="8" alignSelf="center">
-												<Badge
-													colorScheme="gray"
-													variant="subtle"
-													size="xs"
-												>
-													And
-												</Badge>
+											<Box w="20" alignSelf="center">
+												<InputRenderer
+													size="sm"
+													flex="1"
+													type="select"
+													placeholder="Andor"
+													value={rule?.andor}
+													options={[
+														{
+															name: 'And',
+															value: 'and',
+														},
+														{
+															name: 'Or',
+															value: 'or',
+														},
+													]}
+													onChange={(newValue: any) => {
+														onChange(
+															displayRules.map((r: any) => {
+																if (r.id === rule.id) {
+																	return {
+																		...r,
+																		andor: newValue,
+																	};
+																}
+
+																return r;
+															}),
+														);
+													}}
+												/>
 											</Box>
 										)}
 										<TargetSelector
@@ -325,6 +349,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 											target: null,
 											value: null,
 											operator: null,
+											andor: 'and',
 											id: crypto.randomUUID(),
 										},
 									]);
