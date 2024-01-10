@@ -212,9 +212,7 @@ export const SmartTable = ({ tableName }: any) => {
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.3)(theme),
 			  };
 
-	const visibleColumns = header.filter(
-		(columnName: any) => !columnDict?.[columnName] || columnDict[columnName]?.visible,
-	);
+	const visibleColumns = header.filter((column: any) => columnDict[column?.name]?.visible);
 
 	const gridColumns = visibleColumns.map((column: any) => {
 		// ⚠️ only by passing undefined we can hide column icon
