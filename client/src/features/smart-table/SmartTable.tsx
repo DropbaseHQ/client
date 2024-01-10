@@ -60,7 +60,9 @@ export const SmartTable = ({ tableName }: any) => {
 
 	const { appName, pageName } = useParams();
 
-	const { sendJsonMessage } = useWebSocket(SOCKET_URL);
+	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
+		share: true,
+	});
 
 	const pageState = useAtomValue(newPageStateAtom);
 	const { isPreview } = useAtomValue(appModeAtom);
