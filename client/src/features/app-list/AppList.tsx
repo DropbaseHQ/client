@@ -58,7 +58,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 	});
 
 	const handleClick = () => {
-		navigate(`/apps/${app.name}/${app?.pages?.[0]?.name}/preview`);
+		navigate(`/apps/${app.name}/${app?.pages?.[0]?.name}`);
 	};
 
 	const onSubmit = () => {
@@ -195,9 +195,8 @@ export const AppList = () => {
 	const { handleCreateApp: handleCreateAppFlow, isLoading: createAppIsLoading } =
 		useCreateAppFlow({
 			onSuccess: (_: any, variables: any) => {
-				if (variables?.appTemplate?.page?.id) {
-					navigate(`/apps/${variables?.app_nema}/page1/editor`);
-				}
+				navigate(`/apps/${variables?.appName}/page1/studio`);
+
 				refetch();
 				onClose();
 			},

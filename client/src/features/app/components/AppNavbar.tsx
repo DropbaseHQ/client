@@ -54,9 +54,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 	const nameNotUnique = (newName: any) => {
 		return apps.find((a) => {
-			return true;
-			// FIXME: fix appId
-			// return a.name === newName && a.id !== appId;
+			return a.name === newName;
 		});
 	};
 
@@ -175,7 +173,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 							ml="auto"
 							mr="4"
 							as={Link}
-							to={isPreview ? '../editor' : '../preview'}
+							to={isPreview ? 'studio' : '../'}
 						>
 							{isPreview ? 'Edit' : 'Preview'}
 						</Button>

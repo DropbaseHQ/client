@@ -1,4 +1,12 @@
-import { Button, FormControl, FormLabel, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react';
+import {
+	Button,
+	FormControl,
+	FormLabel,
+	Skeleton,
+	SkeletonCircle,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
 import { Save } from 'react-feather';
 import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
@@ -108,7 +116,31 @@ export const SQLEditor = ({ name }: any) => {
 
 	return (
 		<Stack bg="white" h="full" overflowY="auto" overflowX="hidden" spacing="3">
-			<Stack p="3" borderBottomWidth="1px" alignItems="start" direction="row">
+			<Stack
+				p="2"
+				borderBottomWidth="1px"
+				direction="row"
+				alignItems="center"
+				justifyContent="space-between"
+			>
+				<Text fontSize="sm" fontWeight="semibold">
+					{fullFileName}
+				</Text>
+
+				<Button
+					w="fit-content"
+					isLoading={saveSQLMutation.isLoading}
+					onClick={handleSave}
+					variant="outline"
+					colorScheme="gray"
+					size="sm"
+					isDisabled={code === defaultCode && file?.source === selectedSource}
+					leftIcon={<Save size="14" />}
+				>
+					Update
+				</Button>
+			</Stack>
+			<Stack px="3" pb="3" borderBottomWidth="1px" alignItems="start" direction="row">
 				<FormControl>
 					<FormLabel>Source</FormLabel>
 					<InputRenderer
@@ -124,18 +156,6 @@ export const SQLEditor = ({ name }: any) => {
 						}}
 					/>
 				</FormControl>
-				<Button
-					w="fit-content"
-					isLoading={saveSQLMutation.isLoading}
-					onClick={handleSave}
-					variant="outline"
-					colorScheme="gray"
-					size="sm"
-					isDisabled={code === defaultCode && file?.source === selectedSource}
-					leftIcon={<Save size="14" />}
-				>
-					Update
-				</Button>
 			</Stack>
 
 			<MonacoEditor value={code} onChange={setCode} language="sql" />

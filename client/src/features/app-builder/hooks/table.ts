@@ -35,6 +35,7 @@ export const useGetTable = (tableName: string): any => {
 
 	return {
 		...rest,
+		table,
 		...info,
 	};
 };
@@ -112,9 +113,8 @@ export const useUpdateTableProperties = (props: any = {}) => {
 	});
 };
 
-const convertToSmartTable = async ({ file, table, state, appName, pageName }: any) => {
+const convertToSmartTable = async ({ table, state, appName, pageName }: any) => {
 	const response = await workerAxios.post(`/tables/convert/`, {
-		file,
 		table,
 		state,
 		app_name: appName,
