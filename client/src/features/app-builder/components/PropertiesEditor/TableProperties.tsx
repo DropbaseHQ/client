@@ -75,7 +75,14 @@ export const TableProperties = () => {
 				keepDirtyValues: false,
 			},
 		);
-	}, [defaultDependsOn, defaultFetcher, defaultTableName, defaultTableHeight, reset]);
+	}, [
+		defaultDependsOn,
+		defaultFetcher,
+		defaultTableName,
+		defaultTableLabel,
+		defaultTableHeight,
+		reset,
+	]);
 
 	const onSubmit = ({ fetcher, height, depends, ...rest }: any) => {
 		mutation.mutate({

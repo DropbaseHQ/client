@@ -70,7 +70,7 @@ export const useTableSyncStatus = (tableName: any) => {
 	useEffect(() => {
 		if (!isLoading || !isRefetching) {
 			const isSynced =
-				header.every((c: any) => (columnDict as any)[c]) &&
+				header.every((c: any) => (columnDict as any)[c?.name]) &&
 				header.length === columns.length;
 
 			setNeedSync(!isSynced);

@@ -265,11 +265,9 @@ export const ColumnsProperties = () => {
 					<Text>Editable</Text>
 					<Text>Visible</Text>
 				</SimpleGrid>
-				{columns
-					.sort((a: any, b: any) => a?.name.localeCompare(b?.name))
-					.map((column: any) => (
-						<ColumnProperty key={column.name} {...column} />
-					))}
+				{columns.map((column: any) => (
+					<ColumnProperty key={column.name} {...column} />
+				))}
 			</Stack>
 		</Stack>
 	);

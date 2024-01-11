@@ -90,10 +90,10 @@ export const NewFile = (props: any) => {
 	});
 
 	const mutation = useCreateFile({
-		onSuccess: (data: any) => {
+		onSuccess: (_: any, variables: any) => {
 			setDevTab({
-				type: data.type === 'sql' ? 'sql' : 'function',
-				id: data.name,
+				type: variables?.type === 'sql' ? 'sql' : 'function',
+				id: variables?.fileName,
 			});
 
 			toast({

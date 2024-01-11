@@ -162,23 +162,21 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Stack>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				{app?.editable && (
-					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
-						<Button
-							size="sm"
-							variant="secondary"
-							colorScheme="blue"
-							leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
-							aria-label="Preview"
-							ml="auto"
-							mr="4"
-							as={Link}
-							to={isPreview ? 'studio' : '../'}
-						>
-							{isPreview ? 'Edit' : 'Preview'}
-						</Button>
-					</Tooltip>
-				)}
+				<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
+					<Button
+						size="sm"
+						variant="secondary"
+						colorScheme="blue"
+						leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
+						aria-label="Preview"
+						ml="auto"
+						mr="4"
+						as={Link}
+						to={isPreview ? 'studio' : '../'}
+					>
+						{isPreview ? 'Edit' : 'Preview'}
+					</Button>
+				</Tooltip>
 			</Stack>
 		</Stack>
 	);
