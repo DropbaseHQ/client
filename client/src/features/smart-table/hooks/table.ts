@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue } from 'jotai';
 
@@ -53,6 +53,8 @@ export const useTableData = ({
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
 
 	const pageState: any = useAtomValue(newPageStateAtom);
+	const pageStateRef = useRef(pageState);
+	pageStateRef.current = pageState;
 
 	const table = tables.find((t: any) => t.name === tableName);
 
@@ -88,7 +90,7 @@ export const useTableData = ({
 			fetchTableData({
 				appName,
 				pageName,
-				state: pageState,
+				state: pageStateRef.current,
 				table,
 				filters,
 				sorts,
@@ -100,6 +102,7 @@ export const useTableData = ({
 				!isLoadingPage &&
 				!isFetchingAppState &&
 				table?.name in tablesState &&
+				table?.fetcher &&
 				table &&
 				appName &&
 				pageName &&
