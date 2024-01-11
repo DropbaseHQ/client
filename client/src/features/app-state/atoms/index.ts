@@ -8,7 +8,7 @@ export const selectedRowAtom: any = atom({});
 
 // use to handle tables part of state, and other fields apart from widget in future
 // I think this is used for table context
-export const nonWidgetContextAtom = atom({});
+export const nonWidgetContextAtom = atom<any>({});
 
 export const tableStateAtom = atom({});
 // use to handle widgets part of state

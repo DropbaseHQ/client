@@ -25,7 +25,7 @@ import '@glideapps/glide-data-grid/dist/index.css';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
-import { newPageStateAtom, selectedRowAtom } from '@/features/app-state';
+import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
 import { SOCKET_URL } from '../app-preview';
 
 import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
@@ -104,6 +104,23 @@ export const SmartTable = ({ tableName }: any) => {
 			});
 		},
 	});
+	const [nonWidgetContext, setNonWidgetContext] = useAtom(nonWidgetContextAtom);
+	const currentTableContext = nonWidgetContext?.tables?.[tableName];
+	useEffect(() => {
+		if (currentTableContext && currentTableContext?.should_reload) {
+			refetch();
+			setNonWidgetContext((old: any) => ({
+				...old,
+				tables: {
+					...old.tables,
+					[tableName]: {
+						...old.tables[tableName],
+						should_reload: false,
+					},
+				},
+			}));
+		}
+	}, [currentTableContext, setNonWidgetContext, tableName, refetch]);
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
 	const cellEdits = allCellEdits?.[tableName] || [];
