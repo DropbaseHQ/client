@@ -3,7 +3,7 @@ import { Box, Progress, Stack } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useParams } from 'react-router-dom';
-import { useGetPage } from '@/features/page';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 import { SmartTable } from './SmartTable';
 import { InspectorContainer } from '@/features/app-builder';
 import { appModeAtom } from '@/features/app/atoms';
@@ -15,11 +15,12 @@ export const StackedTables = () => {
 	const { appName, pageName } = useParams();
 
 	const { isPreview } = useAtomValue(appModeAtom);
-	const { tables } = useGetPage({ appName, pageName });
+	const { tables, properties } = useGetPage({ appName, pageName });
 
 	const [tableState, setTableState] = useState(tables);
 
 	const reorderMutation = useReorderTables();
+	const updateMutation = useUpdatePageData();
 
 	const handleDragEnd = (result: any) => {
 		const { destination, source } = result;
@@ -33,15 +34,16 @@ export const StackedTables = () => {
 		const newTableOrder = Array.from(tableState);
 		const movedEl = newTableOrder.splice(source.index, 1);
 		newTableOrder.splice(destination.index, 0, movedEl[0]);
-
 		setTableState(newTableOrder);
-		reorderMutation.mutate({
-			// FIXME: pageId
-			// pageId,
-			tables: newTableOrder.map((t: any, index: number) => ({ id: t.id, order: index })),
+		updateMutation.mutate({
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				tables: newTableOrder,
+			},
 		});
 	};
-
 	useEffect(() => {
 		setTableState(tables);
 	}, [tables]);
@@ -63,15 +65,15 @@ export const StackedTables = () => {
 					>
 						{tableState.map((table: any, index: number) => (
 							<Draggable
-								key={table.id}
-								draggableId={table.id}
+								key={table.name}
+								draggableId={table.name}
 								index={index}
 								isDragDisabled={isPreview}
 							>
 								{(p: any) => (
 									<Box
 										flexShrink="0"
-										key={table.id}
+										key={`${table.name}-box`}
 										ref={p.innerRef}
 										{...p.draggableProps}
 										{...p.dragHandleProps}
