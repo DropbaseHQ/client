@@ -106,6 +106,7 @@ export const SmartTable = ({ tableName }: any) => {
 	});
 	const [nonWidgetContext, setNonWidgetContext] = useAtom(nonWidgetContextAtom);
 	const currentTableContext = nonWidgetContext?.tables?.[tableName];
+
 	useEffect(() => {
 		if (currentTableContext && currentTableContext?.should_reload) {
 			refetch();

@@ -97,8 +97,6 @@ const updatePageData = async (data: any) => {
 export const useUpdatePageData = (props: any = {}) => {
 	const queryClient = useQueryClient();
 
-	const syncState = useSyncState();
-
 	return useMutation(updatePageData, {
 		...props,
 		onSettled: () => {
@@ -108,7 +106,8 @@ export const useUpdatePageData = (props: any = {}) => {
 			props?.onSettled?.();
 		},
 		onSuccess: (data: any) => {
-			syncState(data);
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 
 			props?.onSuccess?.(data);
 		},

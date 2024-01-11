@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
-import { APP_STATE_QUERY_KEY, useAppState } from '@/features/app-state';
+import { APP_STATE_QUERY_KEY, newPageStateAtom, useAppState } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
@@ -44,7 +44,6 @@ export const useTableData = ({
 	tableName,
 	filters = [],
 	sorts = [],
-	state,
 	appName,
 	pageName,
 	currentPage,
@@ -53,6 +52,8 @@ export const useTableData = ({
 	const { tables, isFetching: isLoadingPage } = useGetPage({ appName, pageName });
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
 
+	const pageState: any = useAtomValue(newPageStateAtom);
+
 	const table = tables.find((t: any) => t.name === tableName);
 
 	const hasSelectedRows = useAtomValue(hasSelectedRowAtom);
@@ -60,7 +61,7 @@ export const useTableData = ({
 	const depends = tables.find((t: any) => t.name === tableName)?.depends_on || [];
 	const tablesWithNoSelection = depends.filter((name: any) => !hasSelectedRows[name]);
 
-	const tablesState = state?.state?.tables;
+	const tablesState = pageState?.state?.tables;
 
 	const dependentTableData = depends.reduce(
 		(agg: any, tName: any) => ({
@@ -74,6 +75,7 @@ export const useTableData = ({
 		TABLE_DATA_QUERY_KEY,
 		appName,
 		pageName,
+		tableName,
 		table?.type,
 		currentPage,
 		pageSize,
@@ -86,7 +88,7 @@ export const useTableData = ({
 			fetchTableData({
 				appName,
 				pageName,
-				state,
+				state: pageState,
 				table,
 				filters,
 				sorts,
@@ -101,7 +103,7 @@ export const useTableData = ({
 				table &&
 				appName &&
 				pageName &&
-				Object.keys(state?.state?.tables || {}).length > 0 &&
+				Object.keys(pageState?.state?.tables || {}).length > 0 &&
 				tablesWithNoSelection.length === 0
 			),
 		},

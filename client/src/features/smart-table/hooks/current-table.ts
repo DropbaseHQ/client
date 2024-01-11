@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { useTableData } from './table';
 import { filtersAtom, sortsAtom, tablePageInfoAtom } from '@/features/smart-table/atoms';
-import { newPageStateAtom } from '@/features/app-state';
 import { DEFAULT_PAGE_SIZE } from '../constants';
 import { useGetPage } from '@/features/page';
 
@@ -34,13 +33,10 @@ export const useCurrentTableData = (tableName: any) => {
 		pageSize: DEFAULT_PAGE_SIZE,
 	};
 
-	const state = useAtomValue(newPageStateAtom);
-
 	const tableData = useTableData({
 		tableName,
 		filters,
 		sorts,
-		state,
 		pageName,
 		appName,
 		...pageInfo,
@@ -52,7 +48,7 @@ export const useCurrentTableData = (tableName: any) => {
 	return {
 		...tableData,
 		isLoading: isLoadingPage || tableData.isLoading,
-		columns: table.columns,
+		columns: table?.columns,
 		columnDict: table?.columns?.reduce((agg: any, c: any) => {
 			return {
 				...agg,
@@ -71,7 +67,7 @@ export const useTableSyncStatus = (tableName: any) => {
 		if (!isLoading || !isRefetching) {
 			const isSynced =
 				header.every((c: any) => (columnDict as any)[c?.name]) &&
-				header.length === columns.length;
+				header.length === columns?.length;
 
 			setNeedSync(!isSynced);
 		}
