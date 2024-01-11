@@ -18,7 +18,7 @@ import {
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useStatus } from '@/layout/StatusBar';
 import { FormInput } from '@/components/FormInput';
-import { useComponentFields, useDeleteComponent } from '@/features/app-builder/hooks';
+import { useResourceFields, useDeleteComponent } from '@/features/app-builder/hooks';
 import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { NavLoader } from '@/components/Loader';
@@ -36,7 +36,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		.find((w: any) => w.name === widgetName)
 		?.components?.find((c: any) => c.name === id);
 
-	const { fields } = useComponentFields();
+	const { fields } = useResourceFields();
 
 	const currentCategories = [
 		...new Set(

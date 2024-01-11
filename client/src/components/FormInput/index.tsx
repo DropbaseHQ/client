@@ -42,7 +42,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		...inputProps
 	} = props;
 
-	if (type === 'number') {
+	if (type === 'number' || type === 'integer') {
 		return (
 			<NumberInput
 				onChange={(_, valueAsNumber) => {

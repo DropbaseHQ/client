@@ -47,7 +47,10 @@ export const Pagination = () => {
 					type="select"
 					placeholder="select page size"
 					value={tablePageInfo.pageSize}
-					options={[1, 10, 20, 50, 100].map((size) => ({ name: size, value: size }))}
+					options={[1, 10, 20, 50, 100, tablePageInfo.pageSize].map((size) => ({
+						name: size,
+						value: size,
+					}))}
 					onChange={handlePageSize}
 				/>
 			</FormControl>
