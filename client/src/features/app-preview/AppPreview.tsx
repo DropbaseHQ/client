@@ -70,6 +70,12 @@ export const AppPreview = () => {
 	const createMutation = useCreateWidget();
 
 	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
+		onOpen: () => {
+			sendJsonMessage({
+				type: 'auth',
+				access_token: localStorage.getItem('worker_access_token'),
+			});
+		},
 		onMessage: (message) => {
 			try {
 				const { widgets: newWidgetsData, ...rest } =
