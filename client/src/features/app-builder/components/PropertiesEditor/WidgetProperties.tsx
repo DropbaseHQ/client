@@ -75,6 +75,16 @@ export const WidgetProperties = ({ widgetId }: any) => {
 			});
 	};
 	const handleDeleteWidget = () => {
+		if (allProperties?.widgets.length == 1) {
+			toast({
+				status: 'error',
+				title: 'Failed to delete widget',
+				description: 'Your app must have atleast one widget',
+			});
+			
+			return;
+		}
+
 		if (widgetId) {
 			deleteMutation.mutate({
 				app_name: appName,
