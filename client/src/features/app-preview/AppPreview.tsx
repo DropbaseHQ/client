@@ -31,7 +31,7 @@ import {
 	allWidgetStateAtom,
 	nonWidgetContextAtom,
 } from '@/features/app-state';
-import { pageAtom, useGetPage } from '@/features/page';
+import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { useCreateWidget, useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
@@ -60,6 +60,8 @@ export const AppPreview = () => {
 	const [componentsState, setComponentsState] = useState(components);
 
 	useInitializeWidgetState({ widgetName, appName, pageName });
+
+	const updateMutation = useUpdatePageData();
 
 	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
 
@@ -102,11 +104,21 @@ export const AppPreview = () => {
 		}));
 	};
 
-	const handleReorderComponents = (newComponentOrder: { id: string; order: number }[]) => {
-		reorderMutation.mutate({
-			// FIXME: fix widgetId
-			// widgetId: widget?.id,
-			components: newComponentOrder,
+	const handleReorderComponents = (newCompState: any[]) => {
+		updateMutation.mutate({
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				widgets: newCompState.map(() => {
+					return {
+						name: widgetName,
+						label: null, // connect to widget label later
+						description: null, // connect to widget description later
+						components: newCompState,
+					};
+				}),
+			},
 		});
 	};
 
@@ -147,17 +159,11 @@ export const AppPreview = () => {
 			return;
 		}
 
-		const newComponentIds = Array.from(componentsState);
-		const movedEl = newComponentIds.splice(source.index, 1);
-		newComponentIds.splice(destination.index, 0, movedEl[0]);
-
-		setComponentsState(newComponentIds);
-		handleReorderComponents(
-			newComponentIds.map((c: any, index: number) => ({
-				id: c.id,
-				order: index,
-			})),
-		);
+		const newComponentState = Array.from(componentsState);
+		const movedEl = newComponentState.splice(source.index, 1);
+		newComponentState.splice(destination.index, 0, movedEl[0]);
+		setComponentsState(newComponentState);
+		handleReorderComponents(newComponentState);
 	};
 
 	useEffect(() => {
