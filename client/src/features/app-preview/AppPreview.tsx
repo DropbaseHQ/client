@@ -78,8 +78,11 @@ export const AppPreview = () => {
 		},
 		onMessage: (message) => {
 			try {
-				const { widgets: newWidgetsData, ...rest } =
-					JSON.parse(message?.data)?.context || {};
+				const messageContext = JSON.parse(message?.data)?.context;
+				const { widgets: newWidgetsData, ...rest } = messageContext || {};
+				if (!messageContext) {
+					return;
+				}
 				setWidgetData((s: any) => ({ ...s, state: newWidgetsData || {} }));
 				setNonInteractiveState(rest);
 			} catch (e) {
