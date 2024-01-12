@@ -3,7 +3,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { Trash } from 'react-feather';
 import { Stack, Skeleton, Button, Text, IconButton } from '@chakra-ui/react';
 import {
-	useDeleteWidget,
 	useGetWidget,
 	useUpdateWidgetProperties,
 } from '@/features/app-builder/hooks';
@@ -11,7 +10,8 @@ import { FormInput } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 
 export const WidgetProperties = ({ widgetId }: any) => {
 	const toast = useToast();
@@ -22,6 +22,9 @@ export const WidgetProperties = ({ widgetId }: any) => {
 		refetch,
 	} = useGetWidget(widgetId || '');
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
+	
+	const { pageName, appName } = useAtomValue(pageAtom);
+	const { properties: allProperties } = useGetPage({ appName, pageName });
 
 	const mutation = useUpdateWidgetProperties({
 		onSuccess: () => {
@@ -35,7 +38,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 			});
 		},
 	});
-	const deleteMutation = useDeleteWidget({
+	const deleteMutation = useUpdatePageData({
 		onSuccess: () => {
 			setInspectedResource({
 				id: null,
@@ -72,10 +75,26 @@ export const WidgetProperties = ({ widgetId }: any) => {
 			});
 	};
 	const handleDeleteWidget = () => {
-		if (widgetId)
-			deleteMutation.mutate({
-				widgetId,
+		if (allProperties?.widgets.length == 1) {
+			toast({
+				status: 'error',
+				title: 'Failed to delete widget',
+				description: 'Your app must have atleast one widget',
 			});
+			
+			return;
+		}
+
+		if (widgetId) {
+			deleteMutation.mutate({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(allProperties || {}),
+					widgets: allProperties?.widgets.filter((w: any) => w.name !== widgetId)
+				}
+			});
+		}
 	};
 
 	return (

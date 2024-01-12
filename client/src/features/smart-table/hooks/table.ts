@@ -49,7 +49,8 @@ export const useTableData = ({
 	currentPage,
 	pageSize,
 }: any) => {
-	const { tables, isFetching: isLoadingPage } = useGetPage({ appName, pageName });
+	const { tables, files, isFetching: isLoadingPage } = useGetPage({ appName, pageName });
+	
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
 
 	const pageState: any = useAtomValue(newPageStateAtom);
@@ -60,7 +61,7 @@ export const useTableData = ({
 
 	const hasSelectedRows = useAtomValue(hasSelectedRowAtom);
 
-	const depends = tables.find((t: any) => t.name === tableName)?.depends_on || [];
+	const depends = files.find((f: any) => f.name === table?.fetcher)?.depends_on || [];
 	const tablesWithNoSelection = depends.filter((name: any) => !hasSelectedRows[name]);
 
 	const tablesState = pageState?.state?.tables;

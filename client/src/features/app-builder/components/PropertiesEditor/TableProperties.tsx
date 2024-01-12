@@ -191,7 +191,7 @@ export const TableProperties = () => {
 												return (
 													<FormInput
 														id="name"
-														name="Table Name"
+														name={property.title}
 														type="text"
 														validation={{
 															validate: {
@@ -246,7 +246,7 @@ export const TableProperties = () => {
 													<FormInput
 														type="custom-select"
 														id="fetcher"
-														name="Fetcher"
+														name={property.title}
 														placeholder="Select data fetcher"
 														onSelect={resetDependsOn}
 														options={(fetchers as any).map(
@@ -304,7 +304,7 @@ export const TableProperties = () => {
 													<FormInput
 														type="select"
 														id="height"
-														name="Table height"
+														name={property.title}
 														placeholder="Select table height"
 														options={['1/3', '1/2', 'full'].map(
 															(size: any) => ({
@@ -322,7 +322,7 @@ export const TableProperties = () => {
 														type="multiselect"
 														id="depends"
 														isDisabled={selectedFile?.type === 'sql'}
-														name="Depends on"
+														name={property.title}
 														placeholder="Select the table which it depends on"
 														options={tables
 															.filter((t: any) => t.name !== tableId)
@@ -342,6 +342,7 @@ export const TableProperties = () => {
 												<FormInput
 													{...property}
 													id={property.name}
+													name={property.title}
 													type={
 														showFunctionList ? 'select' : property.type
 													}
