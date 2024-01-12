@@ -144,10 +144,10 @@ export const AppPreview = () => {
 		});
 	};
 
-	const handleChooseWidget = (newWidgetId: any) => {
+	const handleChooseWidget = (newWidgetName: any) => {
 		setPageAtom((oldPageAtom) => ({
 			...oldPageAtom,
-			widgetId: newWidgetId,
+			widgetName: newWidgetName,
 		}));
 	};
 
@@ -224,7 +224,6 @@ export const AppPreview = () => {
 			</Stack>
 		);
 	}
-
 	return (
 		<Loader isLoading={isLoading}>
 			<Stack bg="white" h="full">
@@ -246,7 +245,7 @@ export const AppPreview = () => {
 										bg={w?.name === widgetName ? 'gray.50' : 'white'}
 										borderWidth={w?.name === widgetName ? '1px' : '0'}
 										color={w?.name === widgetName ? 'gray.900' : 'gray.700'}
-										onClick={() => handleChooseWidget(w.id)}
+										onClick={() => handleChooseWidget(w.name)}
 										_hover={{
 											bg: 'gray.50',
 											color: 'gray.800',
