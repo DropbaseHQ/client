@@ -58,7 +58,6 @@ export const AppPreview = () => {
 		description: widgetDescription,
 	} = useGetWidgetPreview(widgetName || '');
 	const [componentsState, setComponentsState] = useState(components);
-
 	useInitializeWidgetState({ widgetName, appName, pageName });
 
 	const updateMutation = useUpdatePageData();
@@ -70,7 +69,6 @@ export const AppPreview = () => {
 
 	const { properties } = useGetPage({ appName, pageName });
 	const createMutation = useCreateWidget();
-
 	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
 		onOpen: () => {
 			sendJsonMessage({
@@ -105,20 +103,24 @@ export const AppPreview = () => {
 	};
 
 	const handleReorderComponents = (newCompState: any[]) => {
+		const newProps = {
+			...(properties || {}),
+
+			widgets: properties?.widgets?.map((w: any) => {
+				if (w.name !== widgetName) {
+					return w;
+				}
+
+				return {
+					...w,
+					components: newCompState,
+				};
+			}),
+		};
 		updateMutation.mutate({
 			app_name: appName,
 			page_name: pageName,
-			properties: {
-				...(properties || {}),
-				widgets: newCompState.map(() => {
-					return {
-						name: widgetName,
-						label: null, // connect to widget label later
-						description: null, // connect to widget description later
-						components: newCompState,
-					};
-				}),
-			},
+			properties: newProps,
 		});
 	};
 
