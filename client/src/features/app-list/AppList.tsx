@@ -62,11 +62,8 @@ const AppCard = ({ app }: { app: AppType }) => {
 	};
 
 	const onSubmit = () => {
-		if (app.id) {
-			deleteMutation.mutate({
-				appId: app.id,
-				appName: app.name,
-			});
+		if (app.name) {
+			deleteMutation.mutate(app.name);
 		}
 	};
 
@@ -133,7 +130,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 					<FormProvider {...methods}>
 						<form onSubmit={methods.handleSubmit(onSubmit)}>
 							<ModalHeader fontSize="md" borderBottomWidth="1px">
-								Confirm App deletion
+								Confirm app deletion
 							</ModalHeader>
 							<ModalCloseButton />
 							<ModalBody py="6">
@@ -144,7 +141,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 									placeholder={`Write ${app.name} to delete`}
 									validation={{
 										validate: (value: any) =>
-											value === app.name || 'App name didnt match',
+											value === app.name || 'App name did not match',
 									}}
 								/>
 							</ModalBody>
