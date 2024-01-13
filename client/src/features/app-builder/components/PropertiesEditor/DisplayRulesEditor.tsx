@@ -1,5 +1,5 @@
 import { Plus, Trash } from 'react-feather';
-import { Badge, Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
