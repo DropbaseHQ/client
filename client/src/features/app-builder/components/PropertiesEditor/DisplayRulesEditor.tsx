@@ -1,8 +1,29 @@
-import { Plus, Trash } from 'react-feather';
-import { Badge, Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
+import { Plus, Trash, Crosshair } from 'react-feather';
+import {
+	Box,
+	Button,
+	FormControl,
+	FormLabel,
+	IconButton,
+	Stack,
+	Accordion,
+	AccordionItem,
+	AccordionButton,
+	AccordionPanel,
+	AccordionIcon,
+	MenuButton,
+	MenuList,
+	Menu,
+	MenuItem,
+	InputGroup,
+	InputRightElement,
+	Select,
+	Portal,
+	Collapse,
+} from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { tableStateAtom } from '@/features/app-state';
@@ -48,18 +69,18 @@ const formLabelProps = {
 	mb: '1',
 };
 
-const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }: any) => {
+const TargetSelector = ({ rule, onChange, displayRules }: any) => {
 	const { widgets } = useAtomValue(pageAtom);
 	const tableState = useAtomValue(tableStateAtom);
-	const [category, setCategory] = useState<string>(rule?.target?.split('.')[0]);
-	const [specificCategory, setSpecificCategory] = useState<string>(rule?.target?.split('.')[1]);
 
-	const compilePathName = (target: string) => {
-		return `${category}.${specificCategory}.${target}`;
+	const stateCategory = ['tables', 'widgets'];
+
+	const compilePathName = (chosenCat: string, chosenSpecificCat: string, target: string) => {
+		return `${chosenCat}.${chosenSpecificCat}.${target}`;
 	};
 
-	const getCategoryOptions = () => {
-		if (category === 'tables') {
+	const getCategoryOptions = (chosenCat: string) => {
+		if (chosenCat === 'tables') {
 			return Object.keys(tableState).map((c: any) => ({
 				name: c,
 				value: c,
@@ -71,92 +92,124 @@ const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }:
 			value: c.name,
 		}));
 	};
-	const getSpecificCategoryOptions = () => {
-		if (category === 'tables') {
-			const table: any = tableState?.[specificCategory as keyof typeof tableState];
+	const getSpecificCategoryOptions = (chosenCat: string, chosenSpecificCat: string) => {
+		if (chosenCat === 'tables') {
+			const table: any = tableState?.[chosenSpecificCat as keyof typeof tableState];
 			return Object.keys(table || {}).map((c: any) => ({
 				name: c,
-				value: compilePathName(c),
+				value: compilePathName(chosenCat, chosenSpecificCat, c),
 			}));
 		}
 
-		return componentNames.map((c: any) => ({
-			name: c,
-			value: compilePathName(c),
+		const chosenWidget = widgets?.find((w: any) => w.name === chosenSpecificCat);
+		return chosenWidget?.components.map((c: any) => ({
+			name: c.name,
+			value: compilePathName(chosenCat, chosenSpecificCat, c.name),
 		}));
 	};
 
-	useEffect(() => {
-		if (rule.target) {
-			const [initCategory, initSpecificCategory] = rule.target.split('.');
-			setCategory(initCategory);
-			setSpecificCategory(initSpecificCategory);
-		}
-	}, [rule.target]);
+	const Collapsible = ({ comp, optionGetter }: any) => {
+		const [isOpen, setIsOpen] = useState(false);
+		const toggleCollapsible = () => setIsOpen(!isOpen);
+		return (
+			<>
+				<Box
+					onClick={toggleCollapsible}
+					ml="1"
+					display="flex"
+					cursor="pointer"
+					pr="2"
+					pl="2"
+					pb="1"
+					_hover={{ bg: 'gray.50' }}
+					borderLeftWidth="2px"
+					alignItems="center"
+				>
+					{/* <Divider w="2" borderWidth="1px" px="0" mr="1" /> */}
+					{comp}
+				</Box>
+				<Collapse in={isOpen} animateOpacity>
+					{optionGetter().map((c: any) => (
+						<MenuItem
+							icon={<Crosshair size="12" />}
+							key={c.name}
+							py="0"
+							ml="1"
+							borderLeftWidth="2px"
+							onClick={() => {
+								onChange(
+									displayRules.map((r: any) => {
+										if (r.id === rule.id) {
+											return {
+												...r,
+												target: c.value,
+											};
+										}
+
+										return r;
+									}),
+								);
+								setIsOpen(false);
+							}}
+						>
+							{/* <Box borderLeftWidth="2px" pl="2" display="flex" alignItems="center"> */}
+							{/* <Divider w="2" borderWidth="1px" px="0" mr="1" /> */}
+							{c.name}
+							{/* </Box> */}
+						</MenuItem>
+					))}
+				</Collapse>
+			</>
+		);
+	};
+
 	return (
 		<Stack alignItems="end" key={rule.id} direction="row">
-			<FormControl>
-				{index === 0 ? <FormLabel {...formLabelProps}>Category</FormLabel> : null}
-				<InputRenderer
-					size="sm"
-					flex="1"
-					type="select"
-					placeholder="Category"
-					value={category}
-					options={[
-						{
-							name: 'tables',
-							value: 'tables',
-						},
-						{
-							name: 'widgets',
-							value: 'widgets',
-						},
-					]}
-					onChange={(newValue: any) => {
-						setCategory(newValue);
-					}}
-				/>
-			</FormControl>
-			<FormControl>
-				{index === 0 ? <FormLabel {...formLabelProps}>Name</FormLabel> : null}
-				<InputRenderer
-					size="sm"
-					flex="1"
-					type="select"
-					placeholder="Category"
-					value={specificCategory}
-					options={getCategoryOptions()}
-					onChange={(newValue: any) => {
-						setSpecificCategory(newValue);
-					}}
-				/>
-			</FormControl>
-			<FormControl>
-				{index === 0 ? <FormLabel {...formLabelProps}>Target</FormLabel> : null}
-				<InputRenderer
-					size="sm"
-					flex="1"
-					type="select"
-					placeholder="component name"
-					value={rule.target}
-					options={getSpecificCategoryOptions()}
-					onChange={(newValue: any) => {
-						onChange(
-							displayRules.map((r: any) => {
-								if (r.id === rule.id) {
-									return {
-										...r,
-										target: newValue,
-									};
-								}
-
-								return r;
-							}),
-						);
-					}}
-				/>
-			</FormControl>
+			<Menu gutter={0} matchWidth>
+				<InputGroup>
+					<MenuButton w="full" onClick={(e) => e.stopPropagation()}>
+						<Select w="full" size="sm" placeholder={rule.target} />
+					</MenuButton>
+					<InputRightElement>
+						<Portal>
+							<MenuList w="full">
+								<Accordion allowToggle>
+									{stateCategory.map((chosenCat: any) => {
+										return (
+											<AccordionItem>
+												<h2>
+													<AccordionButton>
+														<Box as="span" flex="1" textAlign="left">
+															{chosenCat}
+														</Box>
+														<AccordionIcon />
+													</AccordionButton>
+												</h2>
+												<AccordionPanel pb={4}>
+													{getCategoryOptions(chosenCat)?.map(
+														(c: any) => (
+															<Collapsible
+																key={c.name}
+																comp={c.name}
+																optionGetter={() =>
+																	getSpecificCategoryOptions(
+																		chosenCat,
+																		c.name,
+																	)
+																}
+															/>
+														),
+													)}
+												</AccordionPanel>
+											</AccordionItem>
+										);
+									})}
+								</Accordion>
+							</MenuList>
+						</Portal>
+					</InputRightElement>
+				</InputGroup>
+			</Menu>
 		</Stack>
 	);
 };
