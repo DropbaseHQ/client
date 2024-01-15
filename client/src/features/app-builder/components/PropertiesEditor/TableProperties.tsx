@@ -323,7 +323,7 @@ export const TableProperties = () => {
 														id="size"
 														name={property.title}
 														placeholder="Select table size"
-														options={['1', '10', '20', '50', '100'].map(
+														options={[1, 10, 20, 50, 100].map(
 															(size: any) => ({
 																name: size,
 																value: size,
