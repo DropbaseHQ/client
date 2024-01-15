@@ -1,3 +1,4 @@
+import { axios } from '@/lib/axios';
 import {
 	Alert,
 	AlertDescription,
@@ -16,7 +17,7 @@ import {
 	AccordionIcon,
 	Icon,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, X, Tool, Plus } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
@@ -47,6 +48,8 @@ export const AppPreview = () => {
 	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
 	const { widgetName, widgets } = useAtomValue(pageAtom);
+	const retryCounter = useRef(0);
+	const failedData = useRef<any>(null);
 	const setPageAtom = useSetAtom(pageAtom);
 
 	const { isPreview } = useAtomValue(appModeAtom);
@@ -76,19 +79,45 @@ export const AppPreview = () => {
 				access_token: localStorage.getItem('worker_access_token'),
 			});
 		},
-		onMessage: (message) => {
+		onMessage: async (message) => {
 			try {
-				const messageContext = JSON.parse(message?.data)?.context;
-				const { widgets: newWidgetsData, ...rest } = messageContext || {};
+				const messageData: {
+					authenticated?: boolean;
+					context?: any;
+					failed_data?: any;
+					type?: string;
+				} = JSON.parse(message?.data);
+				if (messageData?.type === 'auth_error' && retryCounter.current < 3) {
+					const response = await axios.post('/user/refresh');
+					const accessToken = response?.data?.access_token;
+					localStorage.setItem('worker_access_token', accessToken);
+					sendJsonMessage({
+						type: 'auth',
+						access_token: accessToken,
+					});
+					retryCounter.current += 1;
+					failedData.current = messageData?.failed_data;
+				}
+				if (messageData?.authenticated === true) {
+					if (failedData.current) {
+						sendJsonMessage(failedData.current);
+						failedData.current = null;
+					}
+				}
+
+				const messageContext = messageData?.context;
 				if (!messageContext) {
 					return;
 				}
+				const { widgets: newWidgetsData, ...rest } = messageContext || {};
+
 				setWidgetData((s: any) => ({ ...s, state: newWidgetsData || {} }));
 				setNonInteractiveState(rest);
 			} catch (e) {
 				//
 			}
 		},
+
 		share: true,
 	});
 
