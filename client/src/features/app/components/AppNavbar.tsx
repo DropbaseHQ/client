@@ -17,6 +17,7 @@ import {
 	FormErrorMessage,
 	TabList,
 	Tab,
+	Tabs,
 } from '@chakra-ui/react';
 import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
 import { useEffect, useState } from 'react';
@@ -151,7 +152,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 				variant="ghost"
 			/>
 			<Stack alignItems="center" direction="row">
-				<Text fontWeight="semibold" fontSize="lg">
+				<Text fontWeight="semibold" fontSize="xl">
 					{app?.name}
 				</Text>
 				{isPreview ? null : (
@@ -210,6 +211,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 				)}
 			</Stack>
 			<Tabs
+				ml="12"
 				mt="auto"
 				variant="enclosed"
 				size="sm"
