@@ -1,7 +1,4 @@
-import pytest
 from fastapi.testclient import TestClient
-
-from server.main import app
 
 # Constants
 TEST_WORKSPACE = "4dee8d8f-c483-4ed7-9dbd-a5104f00d69f"
@@ -162,15 +159,11 @@ class HomeTestClient:
         return response
 
     def add_user_to_group(self, group_id, user_id):
-        response = self.client.post(
-            f"/group/add_user/{group_id}", json={"user_id": user_id}
-        )
+        response = self.client.post(f"/group/add_user/{group_id}", json={"user_id": user_id})
         return response
 
     def remove_user_from_group(self, group_id, user_id):
-        response = self.client.post(
-            f"/group/remove_user/{group_id}", json={"user_id": user_id}
-        )
+        response = self.client.post(f"/group/remove_user/{group_id}", json={"user_id": user_id})
         return response
 
     # Users
