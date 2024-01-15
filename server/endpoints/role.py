@@ -8,7 +8,6 @@ from server.schemas.role import CreateRole, UpdateRole
 from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.utils.connect import get_db
 
-
 role_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WORKSPACE)
 
 router = APIRouter(

@@ -1,12 +1,12 @@
 from typing import List
 from uuid import UUID
 
+from sqlalchemy import and_
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql import func
-from sqlalchemy import and_
 
 from server.crud.base import CRUDBase
-from server.models import UserRole, Workspace, Policy, Group, User, Role
+from server.models import Group, Policy, Role, User, UserRole, Workspace
 from server.schemas.workspace import CreateWorkspace, UpdateWorkspace
 
 
@@ -71,9 +71,7 @@ class CRUDWorkspace(CRUDBase[Workspace, CreateWorkspace, UpdateWorkspace]):
         UserRoleAlias = aliased(UserRole)
 
         oldest_users_subquery = (
-            db.query(
-                UserRoleAlias.workspace_id, func.min(UserRoleAlias.date).label("date")
-            )
+            db.query(UserRoleAlias.workspace_id, func.min(UserRoleAlias.date).label("date"))
             .group_by(UserRoleAlias.workspace_id)
             .subquery("oldest_users_subquery")
         )

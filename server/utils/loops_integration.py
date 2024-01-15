@@ -1,5 +1,7 @@
 import datetime
+
 from requests import Session
+
 from server.credentials import LOOPS_API_KEY
 
 LOOPS_BASE_URL = "https://app.loops.so/api/v1"

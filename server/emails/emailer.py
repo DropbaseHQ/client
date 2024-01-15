@@ -1,7 +1,9 @@
-import os
-import boto3
 import json
+import os
+
+import boto3
 from jinja2 import Environment, FileSystemLoader
+
 from server.credentials import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 
 REGION_NAME = "us-east-1"
@@ -31,9 +33,7 @@ def _get_email_args(email_name: str, email_params: dict):
 
     html_file_path = os.path.join(folder_path, f"{email_name}.html")
     if not os.path.isfile(html_file_path):
-        raise ValueError(
-            f"HTML template file '{email_name}.html' not found in folder '{email_name}'."
-        )
+        raise ValueError(f"HTML template file '{email_name}.html' not found in folder '{email_name}'.")
 
     with open(html_file_path, "r") as file:
         template_string = file.read()
@@ -42,9 +42,7 @@ def _get_email_args(email_name: str, email_params: dict):
 
     json_file_path = os.path.join(folder_path, f"{email_name}.json")
     if not os.path.isfile(json_file_path):
-        raise ValueError(
-            f"JSON file '{email_name}.json' not found in folder '{email_name}'."
-        )
+        raise ValueError(f"JSON file '{email_name}.json' not found in folder '{email_name}'.")
 
     with open(json_file_path, "r") as json_file:
         json_data = json.load(json_file)
@@ -60,9 +58,7 @@ def _get_email_args(email_name: str, email_params: dict):
 CHARSET = "UTF-8"
 
 
-def send_email(
-    email_name: str, email_params: dict, sender_email: str = DROPBASE_SUPPORT_EMAIL
-):
+def send_email(email_name: str, email_params: dict, sender_email: str = DROPBASE_SUPPORT_EMAIL):
     receiver_email, subject, html, text_part = _get_email_args(email_name, email_params)
     response = ses_client.send_email(
         Destination={"ToAddresses": [receiver_email]},
