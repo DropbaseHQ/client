@@ -381,7 +381,7 @@ export const SmartTable = ({ tableName }: any) => {
 		const [col, row] = cell;
 		const currentRow = rows[row];
 
-		const column = columnDict[visibleColumns[col]];
+		const column = columnDict[visibleColumns[col]?.name];
 
 		if (column?.edit_keys?.length > 0) {
 			setCellEdits((old: any) => {
