@@ -13,7 +13,6 @@ import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 export const WidgetProperties = ({ widgetId }: any) => {
 	const toast = useToast();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
-
 	const { fields } = useResourceFields();
 
 	const { pageName, appName } = useAtomValue(pageAtom);
