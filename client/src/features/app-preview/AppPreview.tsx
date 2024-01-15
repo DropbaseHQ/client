@@ -154,6 +154,11 @@ export const AppPreview = () => {
 	};
 
 	const handleCreateWidget = () => {
+		const widgetName = generateSequentialName({
+			currentNames: widgets?.map((w: any) => w.name) as string[],
+			prefix: 'widget',
+		});
+
 		createMutation.mutate({
 			app_name: appName,
 			page_name: pageName,
@@ -162,10 +167,9 @@ export const AppPreview = () => {
 				widgets: [
 					...(properties?.widgets || []),
 					{
-						name: generateSequentialName({
-							currentNames: widgets?.map((w: any) => w.name) as string[],
-							prefix: 'widget',
-						}),
+						name: widgetName,
+						// TODO: @yash-dropbase fix me, this is a patch to make the widget work. label is now requireds
+						label: widgetName.charAt(0).toUpperCase() + widgetName.slice(1),
 						components: [],
 					},
 				],
