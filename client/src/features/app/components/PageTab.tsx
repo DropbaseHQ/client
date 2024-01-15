@@ -113,10 +113,15 @@ export const PageTab = (props: any) => {
 							status: 'success',
 							title: 'Page deleted',
 						});
+						const firstDifferentPage = pages.find(
+							(xPage: any) => xPage.name !== pageName,
+						);
 						if (isPreview) {
-							navigate(`../${pages[0].name}`, { relative: 'path' });
+							navigate(`../${firstDifferentPage.name}`, { relative: 'path' });
 						} else {
-							navigate(`../../${pages[0].name}/studio`, { relative: 'path' });
+							navigate(`../../${firstDifferentPage.name}/studio`, {
+								relative: 'path',
+							});
 						}
 					},
 					onError: (error: any) => {
