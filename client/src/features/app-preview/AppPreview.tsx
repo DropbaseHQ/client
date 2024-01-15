@@ -1,4 +1,3 @@
-import { axios } from '@/lib/axios';
 import {
 	Alert,
 	AlertDescription,
@@ -25,6 +24,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import useWebSocket from 'react-use-websocket';
 import { useStatus } from '@/layout/StatusBar';
+import { axios } from '@/lib/axios';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import {
@@ -109,6 +109,7 @@ export const AppPreview = () => {
 				if (!messageContext) {
 					return;
 				}
+ 
 				const { widgets: newWidgetsData, ...rest } = messageContext || {};
 
 				setWidgetData((s: any) => ({ ...s, state: newWidgetsData || {} }));

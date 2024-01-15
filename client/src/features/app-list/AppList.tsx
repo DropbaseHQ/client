@@ -192,10 +192,10 @@ export const AppList = () => {
 	const { handleCreateApp: handleCreateAppFlow, isLoading: createAppIsLoading } =
 		useCreateAppFlow({
 			onSuccess: (_: any, variables: any) => {
-				navigate(`/apps/${variables?.appName}/page1/studio`);
-
 				refetch();
+
 				onClose();
+				navigate(`/apps/${variables?.appName}/page1/studio`);
 			},
 			onError: (error: any) => {
 				toast({

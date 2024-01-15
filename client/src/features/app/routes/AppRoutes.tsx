@@ -10,9 +10,9 @@ export const AppRoutes = () => {
 	const { isLoading: isLoadingTokens } = useSyncProxyToken();
 	const { appName } = useParams();
 
-	const { apps, isLoading } = useGetWorkspaceApps();
+	const { apps, isFetching: isFetchingApps } = useGetWorkspaceApps();
 
-	if (isLoadingTokens || isLoading) {
+	if (isLoadingTokens || isFetchingApps) {
 		return (
 			<Center as={Stack} spacing="6" w="full" h="full">
 				<Text color="heading" fontSize="lg" fontWeight="medium">
