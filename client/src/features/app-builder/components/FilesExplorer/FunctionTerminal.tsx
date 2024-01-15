@@ -47,10 +47,27 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 		setPreviewData(null);
 	};
 
+	const savedCodeKey = '2y108eyd2uiyqidh';
+
 	useEffect(() => {
 		resetRunData();
-		setTestCode('');
+
+		const file_key = `${savedCodeKey}_${appName}_${pageName}_${name}`
+
+		const savedCode = sessionStorage.getItem(file_key);
+		if (savedCode !== null) {
+			setTestCode(savedCode);
+		} else {
+			setTestCode('');
+		}
 	}, [name]);
+
+	useEffect(() => {
+		if (name && testCode !== null) {
+			const fileSpecificKey = `${savedCodeKey}_${appName}_${pageName}_${name}`;
+			sessionStorage.setItem(fileSpecificKey, testCode);
+		}
+	}, [testCode, name]);
 
 	const runHandlers = {
 		onSuccess: (data: any) => {
