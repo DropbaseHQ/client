@@ -3,7 +3,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Save, Trash } from 'react-feather';
 import { Stack, Text, IconButton, ButtonGroup, StackDivider } from '@chakra-ui/react';
-import { useComponentFields } from '@/features/app-builder/hooks';
+import { useResourceFields } from '@/features/app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
@@ -14,7 +14,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 	const toast = useToast();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 
-	const { fields } = useComponentFields();
+	const { fields } = useResourceFields();
 
 	const { pageName, appName } = useAtomValue(pageAtom);
 	const { widgets, properties, refetch } = useGetPage({ appName, pageName });
