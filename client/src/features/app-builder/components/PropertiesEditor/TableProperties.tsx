@@ -316,6 +316,23 @@ export const TableProperties = () => {
 												);
 											}
 
+											if (property.name === 'size') {
+												return (
+													<FormInput
+														type="select"
+														id="size"
+														name={property.title}
+														placeholder="Select table size"
+														options={[1, 10, 20, 50, 100].map(
+															(size: any) => ({
+																name: size,
+																value: size,
+															}),
+														)}
+													/>
+												);
+											}
+
 											if (property.name === 'depends_on') {
 												return (
 													<FormInput
