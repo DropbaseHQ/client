@@ -1,14 +1,18 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { Center, Progress, Stack, Text } from '@chakra-ui/react';
 
 import { AppBuilder } from '@/features/app-builder';
 import { App } from '../components';
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
+import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 
 export const AppRoutes = () => {
 	const { isLoading: isLoadingTokens } = useSyncProxyToken();
+	const { appName } = useParams();
 
-	if (isLoadingTokens) {
+	const { apps, isLoading } = useGetWorkspaceApps();
+
+	if (isLoadingTokens || isLoading) {
 		return (
 			<Center as={Stack} spacing="6" w="full" h="full">
 				<Text color="heading" fontSize="lg" fontWeight="medium">
@@ -17,6 +21,13 @@ export const AppRoutes = () => {
 				<Progress minW="sm" size="xs" isIndeterminate />
 			</Center>
 		);
+	}
+
+	const app = apps.find((a) => a.name === appName);
+
+	// Invalid app
+	if (!app) {
+		return <Navigate to="/" />;
 	}
 
 	return (
