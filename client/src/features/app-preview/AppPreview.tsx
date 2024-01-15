@@ -109,7 +109,7 @@ export const AppPreview = () => {
 				if (!messageContext) {
 					return;
 				}
- 
+
 				const { widgets: newWidgetsData, ...rest } = messageContext || {};
 
 				setWidgetData((s: any) => ({ ...s, state: newWidgetsData || {} }));
@@ -155,7 +155,7 @@ export const AppPreview = () => {
 	};
 
 	const handleCreateWidget = () => {
-		const widgetName = generateSequentialName({
+		const wName = generateSequentialName({
 			currentNames: widgets?.map((w: any) => w.name) as string[],
 			prefix: 'widget',
 		});
@@ -170,7 +170,7 @@ export const AppPreview = () => {
 					{
 						name: widgetName,
 						// TODO: @yash-dropbase fix me, this is a patch to make the widget work. label is now requireds
-						label: widgetName.charAt(0).toUpperCase() + widgetName.slice(1),
+						label: wName.charAt(0).toUpperCase() + wName.slice(1),
 						components: [],
 					},
 				],
