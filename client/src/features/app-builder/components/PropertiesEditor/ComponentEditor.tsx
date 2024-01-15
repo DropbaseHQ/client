@@ -220,6 +220,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												<FormInput
 													{...property}
 													id={property.name}
+													name={property.title}
 													type={
 														showFunctionList ? 'select' : property.type
 													}
