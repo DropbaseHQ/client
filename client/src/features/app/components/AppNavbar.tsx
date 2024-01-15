@@ -1,4 +1,5 @@
 import {
+	Box,
 	Text,
 	IconButton,
 	Stack,
@@ -19,93 +20,53 @@ import {
 	MenuButton,
 	MenuList,
 	MenuItem,
+	Tabs,
+	TabList,
+	Tab,
+	Flex,
+	useDisclosure,
 } from '@chakra-ui/react';
-import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
+import { ArrowLeft, Edit, Eye, Plus, MoreVertical } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useToast } from '@/lib/chakra-ui';
-import { useCreatePage, useRenamePage } from '@/features/page';
+import { useCreatePage, useDeletePage, useRenamePage } from '@/features/page';
 import { getErrorMessage, generateSequentialName } from '@/utils';
 
-export const AppNavbar = ({ isPreview }: any) => {
-	const toast = useToast();
-	const navigate = useNavigate();
+const PageTab = (props: any) => {
+	const { isPreview, index, tabIndex, page, pages } = props;
+
+	const { isOpen: isRenameOpen, onOpen: onRenameOpen, onClose: onRenameClose } = useDisclosure();
+	const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
+
 	const { appName, pageName } = useParams();
-	const { apps } = useGetWorkspaceApps();
-
-	const [name, setAppName] = useState('');
 	const [pageNameEdit, setPageNameEdit] = useState('');
-	const [isValid, setIsValid] = useState(true);
-	const updateMutation = useUpdateApp({
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to update app',
-				description: getErrorMessage(error),
-			});
-		},
-	});
-	const createPageMutation = useCreatePage();
+	const toast = useToast();
+
 	const renamePageMutation = useRenamePage();
+	const deletePageMutation = useDeletePage();
 
-	const app = apps.find((a) => a.name === appName);
+	const navigate = useNavigate();
+	const pageLink = `/apps/${appName}/${page?.name}`;
 
-	useEffect(() => {
-		if (app) {
-			setAppName(app?.name);
-		}
-		if (pageName) {
-			setPageNameEdit(pageName);
-		}
-	}, [app, pageName]);
-
-	const nameNotUnique = (newName: any) => {
-		return apps.find((a) => {
-			return a.name === newName;
-		});
-	};
-
-	const handleChangeAppName = (e: any) => {
-		setAppName(e.target.value);
-		if (nameNotUnique(e.target.value)) {
-			setIsValid(false);
-		} else {
-			setIsValid(true);
-		}
-	};
-	const handleChangePageName = (e: any) => {
-		const pageNameNotUnique = (newName: any) => {
-			return app?.pages.find((a: any) => {
-				return a.name === newName;
-			});
-		};
-		setPageNameEdit(e.target.value);
-		if (pageNameNotUnique(e.target.value)) {
-			setIsValid(false);
-		} else {
-			setIsValid(true);
-		}
-	};
-	const handleReset = () => {
-		if (app) setAppName(app?.name);
-	};
 	const handleResetPage = () => {
 		if (pageName) setPageNameEdit(pageName);
+		onRenameClose();
+	};
+	const pageNameNotUnique = (newName: any) => {
+		return pages
+			.filter((xPage: any) => xPage.name !== pageName)
+			.find((a: any) => {
+				return a.name === newName;
+			});
+	};
+	const handleChangePageName = (e: any) => {
+		setPageNameEdit(e.target.value);
 	};
 
-	const handleUpdate = () => {
-		if (app) {
-			updateMutation.mutate({
-				// FIXME: fix appId
-				// appId,
-				oldName: app.name,
-				newName: name,
-			});
-		}
-	};
 	const handleRenamePage = () => {
 		if (appName && pageName) {
 			renamePageMutation.mutate(
@@ -137,6 +98,223 @@ export const AppNavbar = ({ isPreview }: any) => {
 			);
 		}
 	};
+	const handleDeletePage = () => {
+		if (appName && pageName) {
+			deletePageMutation.mutate(
+				{
+					appName,
+					pageName,
+				},
+				{
+					onSuccess: () => {
+						toast({
+							status: 'success',
+							title: 'Page deleted',
+						});
+						if (isPreview) {
+							navigate(`../${pages[0].name}`, { relative: 'path' });
+						} else {
+							navigate(`../../${pages[0].name}/studio`, { relative: 'path' });
+						}
+					},
+					onError: (error: any) => {
+						toast({
+							status: 'error',
+							title: 'Failed to delete page',
+							description: getErrorMessage(error),
+						});
+					},
+				},
+			);
+		}
+	};
+
+	return (
+		<Tab key={page.name} as={Link} to={isPreview ? pageLink : `${pageLink}/studio`} px="4">
+			<Flex align="center" justifyContent="space-between">
+				<Box flex="1" pl="1">
+					{page.name}
+				</Box>
+				{index === tabIndex && !isPreview ? (
+					<Menu closeOnSelect={false}>
+						<MenuButton>
+							<Box ml="2">
+								<MoreVertical size="14" />
+							</Box>
+						</MenuButton>
+						<MenuList>
+							<Popover
+								placement="right"
+								closeOnBlur={false}
+								onClose={onRenameClose}
+								isOpen={isRenameOpen}
+								onOpen={onRenameOpen}
+							>
+								<PopoverTrigger>
+									<MenuItem>Edit</MenuItem>
+								</PopoverTrigger>
+								<PopoverContent
+									onClick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+									}}
+								>
+									<PopoverArrow />
+									<PopoverBody>
+										<FormControl isInvalid={pageNameNotUnique(pageNameEdit)}>
+											<FormLabel>Edit Page name</FormLabel>
+											<Input
+												size="sm"
+												placeholder="Page name"
+												value={pageNameEdit}
+												onChange={handleChangePageName}
+											/>
+
+											<FormErrorMessage>
+												A page with this name already exists.
+											</FormErrorMessage>
+										</FormControl>
+									</PopoverBody>
+									<PopoverFooter display="flex" alignItems="end">
+										<ButtonGroup ml="auto" size="sm">
+											<Button
+												onClick={handleResetPage}
+												colorScheme="red"
+												variant="outline"
+											>
+												Cancel
+											</Button>
+											<Button
+												isDisabled={
+													pageNameEdit === page.name ||
+													!page.name ||
+													pageNameNotUnique(pageNameEdit)
+												}
+												colorScheme="blue"
+												onClick={handleRenamePage}
+												isLoading={renamePageMutation.isLoading}
+											>
+												Update
+											</Button>
+										</ButtonGroup>
+									</PopoverFooter>
+								</PopoverContent>
+							</Popover>
+							<Popover
+								placement="right"
+								closeOnBlur={false}
+								onClose={onDeleteClose}
+								isOpen={isDeleteOpen}
+								onOpen={onDeleteOpen}
+							>
+								<PopoverTrigger>
+									<MenuItem>Delete</MenuItem>
+								</PopoverTrigger>
+								<PopoverContent
+									onClick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+									}}
+								>
+									<PopoverArrow />
+									<PopoverBody>
+										Are you sure you want to delete this page?
+									</PopoverBody>
+									<PopoverFooter display="flex" alignItems="end">
+										<ButtonGroup ml="auto" size="sm">
+											<Button
+												colorScheme="grey"
+												variant="outline"
+												onClick={onDeleteClose}
+											>
+												Cancel
+											</Button>
+											<Button
+												colorScheme="red"
+												isLoading={deletePageMutation.isLoading}
+												onClick={handleDeletePage}
+											>
+												Delete
+											</Button>
+										</ButtonGroup>
+									</PopoverFooter>
+								</PopoverContent>
+							</Popover>
+						</MenuList>
+					</Menu>
+				) : null}
+			</Flex>
+		</Tab>
+	);
+};
+
+export const AppNavbar = ({ isPreview }: any) => {
+	const toast = useToast();
+	const navigate = useNavigate();
+	const { appName, pageName } = useParams();
+	const { apps } = useGetWorkspaceApps();
+	const [tabIndex, setTabIndex] = useState(0);
+
+	const [name, setAppName] = useState('');
+	const [isValid, setIsValid] = useState(true);
+	const updateMutation = useUpdateApp({
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to update app',
+				description: getErrorMessage(error),
+			});
+		},
+	});
+	const createPageMutation = useCreatePage();
+
+	const app = apps.find((a) => a.name === appName);
+	const currentPageIndex = app?.pages.findIndex((p: any) => p.name === pageName);
+
+	useEffect(() => {
+		if (app) {
+			setAppName(app?.name);
+		}
+		if (currentPageIndex !== undefined) {
+			setTabIndex(currentPageIndex);
+		}
+	}, [app, pageName, currentPageIndex]);
+
+	const handleTabsChange = (index: any) => {
+		setTabIndex(index);
+		(document.activeElement as HTMLElement)?.blur();
+	};
+
+	const nameNotUnique = (newName: any) => {
+		return apps.find((a) => {
+			return a.name === newName;
+		});
+	};
+
+	const handleChangeAppName = (e: any) => {
+		setAppName(e.target.value);
+		if (nameNotUnique(e.target.value)) {
+			setIsValid(false);
+		} else {
+			setIsValid(true);
+		}
+	};
+
+	const handleReset = () => {
+		if (app) setAppName(app?.name);
+	};
+
+	const handleUpdate = () => {
+		if (app) {
+			updateMutation.mutate({
+				// FIXME: fix appId
+				// appId,
+				oldName: app.name,
+				newName: name,
+			});
+		}
+	};
+
 	const handleCreatePage = () => {
 		if (appName) {
 			createPageMutation.mutate(
@@ -250,88 +428,33 @@ export const AppNavbar = ({ isPreview }: any) => {
 					</Popover>
 				)}
 			</Stack>
+			<Tabs
+				mt="auto"
+				variant="enclosed"
+				size="sm"
+				index={tabIndex}
+				onChange={handleTabsChange}
+			>
+				<TabList>
+					{app?.pages.map((page: any, index: number) => {
+						return (
+							<PageTab
+								key={page.name}
+								{...{ isPreview, index, tabIndex, page, pages: app?.pages }}
+							/>
+						);
+					})}
+					<Tab
+						tabIndex={-1}
+						as={IconButton}
+						onClick={handleCreatePage}
+						variant="ghost"
+						icon={<Plus size="14" />}
+					/>
+				</TabList>
+			</Tabs>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				<ButtonGroup variant="outline" isAttached>
-					<Menu>
-						<MenuButton size="sm" variant="secondary" colorScheme="blue" as={Button}>
-							{pageName}
-						</MenuButton>
-						<MenuList>
-							{app?.pages.map((page: any) => {
-								const pageLink = `/apps/${appName}/${page.name}`;
-								return (
-									<MenuItem
-										key={page.name}
-										as={Link}
-										to={isPreview ? pageLink : `${pageLink}/studio`}
-									>
-										{page.name}
-									</MenuItem>
-								);
-							})}
-						</MenuList>
-
-						{!isPreview && (
-							<Popover>
-								<PopoverTrigger>
-									<IconButton
-										size="sm"
-										variant="secondary"
-										aria-label="Edit Page Name"
-										icon={<Edit size="14" />}
-									/>
-								</PopoverTrigger>
-								<PopoverContent>
-									<PopoverArrow />
-									<PopoverBody>
-										<FormControl isInvalid={!isValid}>
-											<FormLabel>Edit Page name</FormLabel>
-											<Input
-												size="sm"
-												placeholder="Page name"
-												value={pageNameEdit}
-												onChange={handleChangePageName}
-											/>
-
-											<FormErrorMessage>
-												A page with this name already exists.
-											</FormErrorMessage>
-										</FormControl>
-									</PopoverBody>
-									<PopoverFooter display="flex" alignItems="end">
-										<ButtonGroup ml="auto" size="sm">
-											<Button
-												onClick={handleResetPage}
-												colorScheme="red"
-												variant="outline"
-											>
-												Cancel
-											</Button>
-											<Button
-												isDisabled={pageName === name || !name || !isValid}
-												colorScheme="blue"
-												onClick={handleRenamePage}
-												isLoading={renamePageMutation.isLoading}
-											>
-												Update
-											</Button>
-										</ButtonGroup>
-									</PopoverFooter>
-								</PopoverContent>
-							</Popover>
-						)}
-						<IconButton
-							size="sm"
-							variant="secondary"
-							aria-label="Add Page"
-							icon={<Plus size="14" />}
-							onClick={handleCreatePage}
-							isLoading={createPageMutation.isLoading}
-						/>
-					</Menu>
-				</ButtonGroup>
-
 				<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
 					<Button
 						size="sm"

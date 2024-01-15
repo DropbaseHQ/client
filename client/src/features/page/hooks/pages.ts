@@ -148,3 +148,18 @@ export const useRenamePage = () => {
 		},
 	});
 };
+
+const deletePage = async ({ appName, pageName }: any) => {
+	const response = await workerAxios.delete(`/page/${appName}/${pageName}`);
+	return response.data;
+};
+
+export const useDeletePage = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation(deletePage, {
+		onSuccess: () => {
+			queryClient.invalidateQueries(APPS_QUERY_KEY);
+		},
+	});
+};
