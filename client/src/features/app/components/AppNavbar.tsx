@@ -227,13 +227,15 @@ export const AppNavbar = ({ isPreview }: any) => {
 							/>
 						);
 					})}
-					<Tab
-						tabIndex={-1}
-						as={IconButton}
-						onClick={handleCreatePage}
-						variant="ghost"
-						icon={<Plus size="14" />}
-					/>
+					{!isPreview && (
+						<Tab
+							tabIndex={-1}
+							as={IconButton}
+							onClick={handleCreatePage}
+							variant="ghost"
+							icon={<Plus size="14" />}
+						/>
+					)}
 				</TabList>
 			</Tabs>
 
