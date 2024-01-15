@@ -18,7 +18,7 @@ import {
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useStatus } from '@/layout/StatusBar';
 import { FormInput } from '@/components/FormInput';
-import { useComponentFields, useDeleteComponent } from '@/features/app-builder/hooks';
+import { useResourceFields } from '@/features/app-builder/hooks';
 import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { NavLoader } from '@/components/Loader';
@@ -36,7 +36,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		.find((w: any) => w.name === widgetName)
 		?.components?.find((c: any) => c.name === id);
 
-	const { fields } = useComponentFields();
+	const { fields } = useResourceFields();
 
 	const currentCategories = [
 		...new Set(
@@ -70,7 +70,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		},
 	});
 
-	const deleteMutation = useDeleteComponent({
+	const deleteMutation = useUpdatePageData({
 		onSuccess: () => {
 			setInspectedResource({
 				id: null,
@@ -173,7 +173,19 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 								onClick={(e) => {
 									e.stopPropagation();
 									deleteMutation.mutate({
-										componentId: id,
+										app_name: appName,
+										page_name: pageName,
+										properties: {
+											...(properties || {}),
+											widgets: widgets.map((w: any) => ({
+												...w,
+												components: w?.components.filter(
+													(c: any) =>
+														c?.name !== component?.name ||
+														w?.name !== widgetName,
+												),
+											})),
+										},
 									});
 								}}
 								icon={<Trash size="14" />}
@@ -208,6 +220,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												<FormInput
 													{...property}
 													id={property.name}
+													name={property.title}
 													type={
 														showFunctionList ? 'select' : property.type
 													}

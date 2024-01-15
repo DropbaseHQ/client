@@ -16,7 +16,7 @@ import {
 	AccordionIcon,
 	Icon,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, X, Tool, Plus } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
@@ -24,6 +24,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import useWebSocket from 'react-use-websocket';
 import { useStatus } from '@/layout/StatusBar';
+import { axios } from '@/lib/axios';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import {
@@ -31,7 +32,7 @@ import {
 	allWidgetStateAtom,
 	nonWidgetContextAtom,
 } from '@/features/app-state';
-import { pageAtom, useGetPage } from '@/features/page';
+import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { useCreateWidget, useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
@@ -47,6 +48,8 @@ export const AppPreview = () => {
 	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
 	const { widgetName, widgets } = useAtomValue(pageAtom);
+	const retryCounter = useRef(0);
+	const failedData = useRef<any>(null);
 	const setPageAtom = useSetAtom(pageAtom);
 
 	const { isPreview } = useAtomValue(appModeAtom);
@@ -58,8 +61,9 @@ export const AppPreview = () => {
 		description: widgetDescription,
 	} = useGetWidgetPreview(widgetName || '');
 	const [componentsState, setComponentsState] = useState(components);
-
 	useInitializeWidgetState({ widgetName, appName, pageName });
+
+	const updateMutation = useUpdatePageData();
 
 	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
 
@@ -68,7 +72,6 @@ export const AppPreview = () => {
 
 	const { properties } = useGetPage({ appName, pageName });
 	const createMutation = useCreateWidget();
-
 	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
 		onOpen: () => {
 			sendJsonMessage({
@@ -76,16 +79,46 @@ export const AppPreview = () => {
 				access_token: localStorage.getItem('worker_access_token'),
 			});
 		},
-		onMessage: (message) => {
+		onMessage: async (message) => {
 			try {
-				const { widgets: newWidgetsData, ...rest } =
-					JSON.parse(message?.data)?.context || {};
+				const messageData: {
+					authenticated?: boolean;
+					context?: any;
+					failed_data?: any;
+					type?: string;
+				} = JSON.parse(message?.data);
+				if (messageData?.type === 'auth_error' && retryCounter.current < 3) {
+					const response = await axios.post('/user/refresh');
+					const accessToken = response?.data?.access_token;
+					localStorage.setItem('worker_access_token', accessToken);
+					sendJsonMessage({
+						type: 'auth',
+						access_token: accessToken,
+					});
+					retryCounter.current += 1;
+					failedData.current = messageData?.failed_data;
+				}
+				if (messageData?.authenticated === true) {
+					if (failedData.current) {
+						sendJsonMessage(failedData.current);
+						failedData.current = null;
+					}
+				}
+
+				const messageContext = messageData?.context;
+				if (!messageContext) {
+					return;
+				}
+
+				const { widgets: newWidgetsData, ...rest } = messageContext || {};
+
 				setWidgetData((s: any) => ({ ...s, state: newWidgetsData || {} }));
 				setNonInteractiveState(rest);
 			} catch (e) {
 				//
 			}
 		},
+
 		share: true,
 	});
 
@@ -99,15 +132,34 @@ export const AppPreview = () => {
 		}));
 	};
 
-	const handleReorderComponents = (newComponentOrder: { id: string; order: number }[]) => {
-		reorderMutation.mutate({
-			// FIXME: fix widgetId
-			// widgetId: widget?.id,
-			components: newComponentOrder,
+	const handleReorderComponents = (newCompState: any[]) => {
+		const newProps = {
+			...(properties || {}),
+
+			widgets: properties?.widgets?.map((w: any) => {
+				if (w.name !== widgetName) {
+					return w;
+				}
+
+				return {
+					...w,
+					components: newCompState,
+				};
+			}),
+		};
+		updateMutation.mutate({
+			app_name: appName,
+			page_name: pageName,
+			properties: newProps,
 		});
 	};
 
 	const handleCreateWidget = () => {
+		const wName = generateSequentialName({
+			currentNames: widgets?.map((w: any) => w.name) as string[],
+			prefix: 'widget',
+		});
+
 		createMutation.mutate({
 			app_name: appName,
 			page_name: pageName,
@@ -116,10 +168,9 @@ export const AppPreview = () => {
 				widgets: [
 					...(properties?.widgets || []),
 					{
-						name: generateSequentialName({
-							currentNames: widgets?.map((w: any) => w.name) as string[],
-							prefix: 'widget',
-						}),
+						name: wName,
+						// TODO: @yash-dropbase fix me, this is a patch to make the widget work. label is now requireds
+						label: wName.charAt(0).toUpperCase() + wName.slice(1),
 						components: [],
 					},
 				],
@@ -127,10 +178,10 @@ export const AppPreview = () => {
 		});
 	};
 
-	const handleChooseWidget = (newWidgetId: any) => {
+	const handleChooseWidget = (newWidgetName: any) => {
 		setPageAtom((oldPageAtom) => ({
 			...oldPageAtom,
-			widgetId: newWidgetId,
+			widgetName: newWidgetName,
 		}));
 	};
 
@@ -144,17 +195,11 @@ export const AppPreview = () => {
 			return;
 		}
 
-		const newComponentIds = Array.from(componentsState);
-		const movedEl = newComponentIds.splice(source.index, 1);
-		newComponentIds.splice(destination.index, 0, movedEl[0]);
-
-		setComponentsState(newComponentIds);
-		handleReorderComponents(
-			newComponentIds.map((c: any, index: number) => ({
-				id: c.id,
-				order: index,
-			})),
-		);
+		const newComponentState = Array.from(componentsState);
+		const movedEl = newComponentState.splice(source.index, 1);
+		newComponentState.splice(destination.index, 0, movedEl[0]);
+		setComponentsState(newComponentState);
+		handleReorderComponents(newComponentState);
 	};
 
 	useEffect(() => {
@@ -213,7 +258,6 @@ export const AppPreview = () => {
 			</Stack>
 		);
 	}
-
 	return (
 		<Loader isLoading={isLoading}>
 			<Stack bg="white" h="full">
@@ -235,7 +279,7 @@ export const AppPreview = () => {
 										bg={w?.name === widgetName ? 'gray.50' : 'white'}
 										borderWidth={w?.name === widgetName ? '1px' : '0'}
 										color={w?.name === widgetName ? 'gray.900' : 'gray.700'}
-										onClick={() => handleChooseWidget(w.id)}
+										onClick={() => handleChooseWidget(w.name)}
 										_hover={{
 											bg: 'gray.50',
 											color: 'gray.800',

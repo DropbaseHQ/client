@@ -61,7 +61,11 @@ export const getErrorMessage = (error: any) => {
 	}
 
 	const errorMessage =
-		error?.response?.data?.error || error?.response?.data || error?.message || '';
+		error?.response?.data?.error ||
+		error?.response?.data?.message ||
+		error?.response?.data ||
+		error?.message ||
+		'';
 
 	if (typeof errorMessage !== 'string') {
 		return JSON.stringify(errorMessage);

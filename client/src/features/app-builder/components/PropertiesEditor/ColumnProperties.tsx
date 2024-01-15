@@ -35,7 +35,7 @@ const DISPLAY_COLUMN_PROPERTIES = [
 	'unique',
 ];
 
-const ColumnProperty = ({ type, edit_keys, ...properties }: any) => {
+const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 	const toast = useToast();
 	const tableName = useAtomValue(selectedTableIdAtom);
 	const { appName, pageName } = useParams();
@@ -88,7 +88,7 @@ const ColumnProperty = ({ type, edit_keys, ...properties }: any) => {
 		});
 	};
 
-	const hasNoEditKeys = properties.edit_keys?.length === 0;
+	const hasNoEditKeys = edit_keys?.length === 0;
 
 	const allVisibleProperties = [].filter((property: any) =>
 		DISPLAY_COLUMN_PROPERTIES.includes(property.name),
@@ -115,7 +115,7 @@ const ColumnProperty = ({ type, edit_keys, ...properties }: any) => {
 					<InputRenderer
 						type="boolean"
 						isDisabled={
-							type !== 'postgres' || hasNoEditKeys || updateMutation.isLoading
+							tableType !== 'sql' || hasNoEditKeys || updateMutation.isLoading
 						}
 						id="editable"
 						value={properties.editable}
@@ -266,7 +266,7 @@ export const ColumnsProperties = () => {
 					<Text>Visible</Text>
 				</SimpleGrid>
 				{columns.map((column: any) => (
-					<ColumnProperty key={column.name} {...column} />
+					<ColumnProperty tableType={type} key={column.name} {...column} />
 				))}
 			</Stack>
 		</Stack>

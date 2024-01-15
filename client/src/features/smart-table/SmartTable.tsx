@@ -86,6 +86,8 @@ export const SmartTable = ({ tableName }: any) => {
 		depends_on: dependsOn,
 		isLoading: isLoadingTable,
 		height,
+		size,
+		table,
 	} = useGetTable(tableName || '');
 	const tableIsUnsynced = useTableSyncStatus(tableName);
 
@@ -188,10 +190,10 @@ export const SmartTable = ({ tableName }: any) => {
 			...old,
 			[tableName]: {
 				currentPage: 0,
-				pageSize: DEFAULT_PAGE_SIZE,
+				pageSize: size,
 			},
 		}));
-	}, [tableName, setPageInfo]);
+	}, [tableName, size, setPageInfo]);
 
 	const gridTheme =
 		colorMode === 'dark'
@@ -404,7 +406,7 @@ export const SmartTable = ({ tableName }: any) => {
 		const [col, row] = cell;
 		const currentRow = rows[row];
 
-		const column = columnDict[visibleColumns[col]];
+		const column = columnDict[visibleColumns[col]?.name];
 
 		if (column?.edit_keys?.length > 0) {
 			setCellEdits((old: any) => {
@@ -570,7 +572,7 @@ export const SmartTable = ({ tableName }: any) => {
 				<NavLoader isLoading={isLoadingTable}>
 					<Flex justifyContent="space-between">
 						<Stack spacing="0" px="2" flexShrink="0">
-							<Text fontWeight="semibold">{tableName}</Text>
+							<Text fontWeight="semibold">{table?.label || tableName}</Text>
 							{dependantTablesWithNoRowSelection.length > 0 ? (
 								<Stack direction="row" spacing="1" alignItems="center">
 									<Box color="orange.500">
@@ -604,7 +606,7 @@ export const SmartTable = ({ tableName }: any) => {
 							</Tooltip>
 
 							{!isLoading && !isPreview && tableIsUnsynced ? (
-								<Tooltip label="Sync columns">
+								<Tooltip label="Save columns">
 									<Button
 										variant="outline"
 										colorScheme="gray"
@@ -613,7 +615,7 @@ export const SmartTable = ({ tableName }: any) => {
 										onClick={handleCommitColumns}
 										isLoading={mutation.isLoading}
 									>
-										Commit
+										Save Columns
 									</Button>
 								</Tooltip>
 							) : null}

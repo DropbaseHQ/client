@@ -62,11 +62,8 @@ const AppCard = ({ app }: { app: AppType }) => {
 	};
 
 	const onSubmit = () => {
-		if (app.id) {
-			deleteMutation.mutate({
-				appId: app.id,
-				appName: app.name,
-			});
+		if (app.name) {
+			deleteMutation.mutate(app.name);
 		}
 	};
 
@@ -133,18 +130,18 @@ const AppCard = ({ app }: { app: AppType }) => {
 					<FormProvider {...methods}>
 						<form onSubmit={methods.handleSubmit(onSubmit)}>
 							<ModalHeader fontSize="md" borderBottomWidth="1px">
-								Confirm App deletion
+								Confirm app deletion
 							</ModalHeader>
 							<ModalCloseButton />
 							<ModalBody py="6">
 								<FormInput
-									name="App name"
+									name={`Write ${app.name} to delete the app`}
 									autoFocus
 									id="name"
-									placeholder={`Write ${app.name} to delete`}
+									placeholder={app.name}
 									validation={{
 										validate: (value: any) =>
-											value === app.name || 'App name didnt match',
+											value === app.name || 'App name did not match',
 									}}
 								/>
 							</ModalBody>
@@ -195,10 +192,10 @@ export const AppList = () => {
 	const { handleCreateApp: handleCreateAppFlow, isLoading: createAppIsLoading } =
 		useCreateAppFlow({
 			onSuccess: (_: any, variables: any) => {
-				navigate(`/apps/${variables?.appName}/page1/studio`);
-
 				refetch();
+
 				onClose();
+				navigate(`/apps/${variables?.appName}/page1/studio`);
 			},
 			onError: (error: any) => {
 				toast({

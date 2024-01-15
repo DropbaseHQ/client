@@ -1,7 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue } from 'jotai';
-
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
@@ -49,16 +48,19 @@ export const useTableData = ({
 	currentPage,
 	pageSize,
 }: any) => {
-	const { tables, isFetching: isLoadingPage } = useGetPage({ appName, pageName });
+	const { tables, files, isFetching: isLoadingPage } = useGetPage({ appName, pageName });
+
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
 
 	const pageState: any = useAtomValue(newPageStateAtom);
+	const pageStateRef = useRef(pageState);
+	pageStateRef.current = pageState;
 
 	const table = tables.find((t: any) => t.name === tableName);
 
 	const hasSelectedRows = useAtomValue(hasSelectedRowAtom);
 
-	const depends = tables.find((t: any) => t.name === tableName)?.depends_on || [];
+	const depends = files.find((f: any) => f.name === table?.fetcher)?.depends_on || [];
 	const tablesWithNoSelection = depends.filter((name: any) => !hasSelectedRows[name]);
 
 	const tablesState = pageState?.state?.tables;
@@ -79,7 +81,8 @@ export const useTableData = ({
 		table?.type,
 		currentPage,
 		pageSize,
-		JSON.stringify({ filters, sorts, dependentTableData, table }),
+		table?.fetcher,
+		JSON.stringify({ filters, sorts, dependentTableData }),
 	];
 
 	const { data: response, ...rest } = useQuery(
@@ -88,7 +91,7 @@ export const useTableData = ({
 			fetchTableData({
 				appName,
 				pageName,
-				state: pageState,
+				state: pageStateRef.current,
 				table,
 				filters,
 				sorts,
@@ -100,12 +103,14 @@ export const useTableData = ({
 				!isLoadingPage &&
 				!isFetchingAppState &&
 				table?.name in tablesState &&
+				table?.fetcher &&
 				table &&
 				appName &&
 				pageName &&
 				Object.keys(pageState?.state?.tables || {}).length > 0 &&
 				tablesWithNoSelection.length === 0
 			),
+			staleTime: Infinity,
 		},
 	);
 

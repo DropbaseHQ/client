@@ -11,8 +11,8 @@ const fetchComponentFields = async () => {
 	return response.data;
 };
 
-export const useComponentFields = () => {
-	const queryKey = ['component/fields'];
+export const useResourceFields = () => {
+	const queryKey = ['resource/fields'];
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchComponentFields());
 

@@ -30,13 +30,14 @@ app.mount("/worker", worker_app)
 # app.middleware("http")(catch_exceptions_middleware)
 
 # origins = ["https://dropbase.io"]
-origins = [
-    "http://127.0.0.1:3030",
-    "https://dev.dropbase.io",
-    "https://www.dev.dropbase.io",
-    "http://localhost:3030",
-    "http://www.localhost:3030",
-]
+origins = ["*"]
+# origins = [
+#     "http://127.0.0.1:3030",
+#     "https://dev.dropbase.io",
+#     "https://www.dev.dropbase.io",
+#     "http://localhost:3030",
+#     "http://www.localhost:3030",
+# ]
 
 app.add_middleware(
     CORSMiddleware,

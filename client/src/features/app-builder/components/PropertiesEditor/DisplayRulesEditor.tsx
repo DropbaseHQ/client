@@ -51,8 +51,8 @@ const formLabelProps = {
 const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }: any) => {
 	const { widgets } = useAtomValue(pageAtom);
 	const tableState = useAtomValue(tableStateAtom);
-	const [category, setCategory] = useState<string>('widgets');
-	const [specificCategory, setSpecificCategory] = useState<string>('');
+	const [category, setCategory] = useState<string>(rule?.target?.split('.')[0]);
+	const [specificCategory, setSpecificCategory] = useState<string>(rule?.target?.split('.')[1]);
 
 	const compilePathName = (target: string) => {
 		return `${category}.${specificCategory}.${target}`;
@@ -102,7 +102,7 @@ const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }:
 					flex="1"
 					type="select"
 					placeholder="Category"
-					value={rule?.target?.split('.')[0]}
+					value={category}
 					options={[
 						{
 							name: 'tables',
@@ -125,7 +125,7 @@ const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }:
 					flex="1"
 					type="select"
 					placeholder="Category"
-					value={rule?.target?.split('.')[1]}
+					value={specificCategory}
 					options={getCategoryOptions()}
 					onChange={(newValue: any) => {
 						setSpecificCategory(newValue);

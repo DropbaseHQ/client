@@ -186,7 +186,7 @@ export const FilesExplorer = () => {
 	}
 
 	if (error) {
-		return <Box>{JSON.stringify(error)}</Box>;
+		return <Box color="red.400">{getErrorMessage(error)}</Box>;
 	}
 
 	return (
