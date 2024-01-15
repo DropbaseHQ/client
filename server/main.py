@@ -59,4 +59,4 @@ def authjwt_exception_handler(_: Request, exc: AuthJWTException):
 
 @app.get("/")
 async def root():
-    return {"message": "Dropbase backend 0.1"}
+    return {"message": "Dropbase backend 0.2.0"}
