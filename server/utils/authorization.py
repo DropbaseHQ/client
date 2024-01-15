@@ -38,17 +38,9 @@ class ACTIONS:
 
 
 resource_query_mapper = {
-    RESOURCES.WIDGET: crud.widget,
-    RESOURCES.APP: crud.app,
-    RESOURCES.COLUMNS: crud.columns,
-    RESOURCES.COMPONENTS: crud.components,
-    RESOURCES.FILES: crud.files,
-    RESOURCES.PAGE: crud.page,
     RESOURCES.ROLE: crud.user_role,
     RESOURCES.USER: crud.user,
     RESOURCES.WORKSPACE: crud.workspace,
-    RESOURCES.TABLE: crud.tables,
-    RESOURCES.TABLES: crud.tables,
 }
 request_action_mapper = {
     "GET": ACTIONS.USE,
