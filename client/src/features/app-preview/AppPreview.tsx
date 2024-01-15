@@ -168,7 +168,7 @@ export const AppPreview = () => {
 				widgets: [
 					...(properties?.widgets || []),
 					{
-						name: widgetName,
+						name: wName,
 						// TODO: @yash-dropbase fix me, this is a patch to make the widget work. label is now requireds
 						label: wName.charAt(0).toUpperCase() + wName.slice(1),
 						components: [],
