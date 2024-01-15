@@ -581,7 +581,7 @@ export const SmartTable = ({ tableName }: any) => {
 							</Tooltip>
 
 							{!isLoading && !isPreview && tableIsUnsynced ? (
-								<Tooltip label="Sync columns">
+								<Tooltip label="Save columns">
 									<Button
 										variant="outline"
 										colorScheme="gray"
@@ -590,7 +590,7 @@ export const SmartTable = ({ tableName }: any) => {
 										onClick={handleCommitColumns}
 										isLoading={mutation.isLoading}
 									>
-										Commit
+										Save Columns
 									</Button>
 								</Tooltip>
 							) : null}
