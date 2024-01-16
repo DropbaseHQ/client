@@ -38,7 +38,7 @@ export const NewTable = (props: any) => {
 	});
 
 	const onSubmit = () => {
-		const nextName = generateSequentialName({
+		const { name: nextName, label: nextLabel } = generateSequentialName({
 			currentNames: tables.map((t: any) => t.name) || [],
 			prefix: 'table',
 		});
@@ -52,7 +52,7 @@ export const NewTable = (props: any) => {
 					...(properties?.tables || []),
 					{
 						name: nextName,
-						label: nextName.toUpperCase(),
+						label: nextLabel,
 						type: 'sql',
 						columns: [],
 					},
