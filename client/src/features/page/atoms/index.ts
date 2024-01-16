@@ -7,6 +7,7 @@ export const pageAtom = atom<{
 	widgets:
 		| {
 				name: string;
+				label: string;
 				description: string;
 				components: any[];
 		  }[]

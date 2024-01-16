@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { Trash } from 'react-feather';
-import { Stack, Skeleton, Button, Text, IconButton } from '@chakra-ui/react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useGetWidget, useUpdateWidgetProperties } from '@/features/app-builder/hooks';
+import { Save, Trash } from 'react-feather';
+import { Stack, Text, IconButton, ButtonGroup, StackDivider } from '@chakra-ui/react';
+import { useResourceFields } from '@/features/app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
@@ -12,20 +12,21 @@ import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 
 export const WidgetProperties = ({ widgetId }: any) => {
 	const toast = useToast();
-	const {
-		isLoading,
-		schema,
-		values: { property: properties },
-		refetch,
-	} = useGetWidget(widgetId || '');
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
+	const { fields } = useResourceFields();
 
 	const { pageName, appName } = useAtomValue(pageAtom);
-	const { properties: allProperties } = useGetPage({ appName, pageName });
+	const { widgets, properties, refetch } = useGetPage({ appName, pageName });
 
-	const mutation = useUpdateWidgetProperties({
+	const widget = widgets.find((w: any) => w.name === widgetId);
+
+	const mutation = useUpdatePageData({
 		onSuccess: () => {
 			refetch();
+			setInspectedResource({
+				id: null,
+				type: 'widget',
+			})
 		},
 		onError: (error: any) => {
 			toast({
@@ -58,21 +59,27 @@ export const WidgetProperties = ({ widgetId }: any) => {
 	} = methods;
 
 	useEffect(() => {
-		reset(properties, {
+		reset(widget, {
 			keepDirty: false,
 			keepDirtyValues: false,
 		});
-	}, [properties, reset]);
+	}, [widget, reset]);
 
 	const onSubmit = (formValues: any) => {
-		if (widgetId)
+		if (widgetId) {
 			mutation.mutate({
-				widgetId,
-				payload: formValues,
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(properties || {}),
+					widgets: properties?.widgets.map((w: any) => w.name === widgetId ? {...w, ...formValues} : w )
+				}
 			});
+		}
 	};
+
 	const handleDeleteWidget = () => {
-		if (allProperties?.widgets.length === 1) {
+		if (properties?.widgets.length == 1) {
 			toast({
 				status: 'error',
 				title: 'Failed to delete widget',
@@ -87,49 +94,69 @@ export const WidgetProperties = ({ widgetId }: any) => {
 				app_name: appName,
 				page_name: pageName,
 				properties: {
-					...(allProperties || {}),
-					widgets: allProperties?.widgets.filter((w: any) => w.name !== widgetId),
-				},
+					...(properties || {}),
+					widgets: properties?.widgets.filter((w: any) => w.name !== widgetId)
+				}
 			});
 		}
 	};
 
 	return (
-		<Stack spacing="0.5" h="full" bg="white">
-			<Stack py="1" px="3" direction="row" borderBottomWidth="1px" alignItems="center">
-				<Text fontWeight="semibold" size="sm">
-					{properties?.name} Properties
-				</Text>
-				<IconButton
-					ml="auto"
-					aria-label="Delete widget"
-					variant="ghost"
-					colorScheme="red"
-					icon={<Trash size="14" />}
-					onClick={handleDeleteWidget}
-					isLoading={deleteMutation.isLoading}
-				/>
-			</Stack>
+		<Stack h="full" overflowY="auto" w="full" bg="white">
+			<form onSubmit={methods.handleSubmit(onSubmit)}>
+				<FormProvider {...methods}>
+					<Stack
+						py="2"
+						px="4"
+						borderBottomWidth="1px"
+						flex="1"
+						alignItems="center"
+						direction="row"
+					>
+						<Text fontWeight="semibold" size="sm">
+							{widgetId || ''} Properties
+						</Text>
 
-			<Skeleton isLoaded={!isLoading}>
-				<form onSubmit={methods.handleSubmit(onSubmit)}>
-					<FormProvider {...methods}>
-						<Stack p="4" spacing="3">
-							{schema.map((property: any) => (
-								<FormInput {...property} id={property.name} key={property.name} />
-							))}
-
+						<ButtonGroup ml="auto" size="xs">
 							{isDirty ? (
-								<Stack direction="row">
-									<Button isLoading={mutation.isLoading} type="submit">
-										Save
-									</Button>
-								</Stack>
+								<IconButton
+									aria-label="Update widget"
+									isLoading={mutation.isLoading}
+									type="submit"
+									onClick={(e) => {
+										e.stopPropagation();
+									}}
+									icon={<Save size="14" />}
+								/>
 							) : null}
+							<IconButton
+								aria-label="Delete widget"
+								variant="ghost"
+								colorScheme="red"
+								isLoading={deleteMutation.isLoading}
+								onClick={handleDeleteWidget}
+								icon={<Trash size="14" />}
+							/>
+						</ButtonGroup>
+					</Stack>
+					<Stack spacing="0" divider={<StackDivider />}>	
+						<Stack spacing="3" p="3">
+							<Stack>
+								{fields?.widget?.map((property: any) => {
+										return (
+											<FormInput
+												{...property}
+												id={property.name}
+												type={property.type}
+												key={property.name}
+											/>
+										);
+									})}
+							</Stack>
 						</Stack>
-					</FormProvider>
-				</form>
-			</Skeleton>
+					</Stack>
+				</FormProvider>
+			</form>
 		</Stack>
 	);
 };
