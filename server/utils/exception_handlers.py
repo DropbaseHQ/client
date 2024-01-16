@@ -1,5 +1,3 @@
-from traceback import print_exception
-
 from starlette.requests import Request
 from starlette.responses import Response
 

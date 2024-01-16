@@ -3,9 +3,10 @@ from uuid import UUID
 
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import or_
-from sqlalchemy.orm import Session, Query
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Query, Session
+
 from server.models import Policy
 
 ModelType = TypeVar("ModelType", bound=declarative_base())

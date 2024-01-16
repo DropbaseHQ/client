@@ -4,19 +4,18 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas.workspace import (
-    CreateWorkspace,
-    UpdateWorkspace,
-    AddUserRequest,
-    RemoveUserRequest,
-    UpdateUserRoleRequest,
-    UpdateWorkspaceToken,
-    RequestCloud,
-)
-from server.utils.connect import get_db
 from server.controllers import workspace as workspace_controller
-from server.utils.authorization import RESOURCES, AuthZDepFactory
-from server.utils.authorization import get_current_user
+from server.schemas.workspace import (
+    AddUserRequest,
+    CreateWorkspace,
+    RemoveUserRequest,
+    RequestCloud,
+    UpdateUserRoleRequest,
+    UpdateWorkspace,
+    UpdateWorkspaceToken,
+)
+from server.utils.authorization import RESOURCES, AuthZDepFactory, get_current_user
+from server.utils.connect import get_db
 
 workspace_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WORKSPACE)
 
@@ -43,9 +42,7 @@ def get_workspace_groups(workspace_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.post("/{workspace_id}/add_user")
-def add_user_to_workspace(
-    workspace_id: UUID, request: AddUserRequest, db: Session = Depends(get_db)
-):
+def add_user_to_workspace(workspace_id: UUID, request: AddUserRequest, db: Session = Depends(get_db)):
     return workspace_controller.add_user_to_workspace(
         db, workspace_id, request.user_email, request.role_id
     )
@@ -55,9 +52,7 @@ def add_user_to_workspace(
 def remove_user_from_workspace(
     workspace_id: UUID, request: RemoveUserRequest, db: Session = Depends(get_db)
 ):
-    return workspace_controller.remove_user_from_workspace(
-        db, workspace_id, request.user_id
-    )
+    return workspace_controller.remove_user_from_workspace(db, workspace_id, request.user_id)
 
 
 @router.put("/{workspace_id}/user_role")
@@ -76,16 +71,12 @@ def update_workspace_token(
 
 @router.post("/")
 def create_workspace(request: CreateWorkspace, db: Session = Depends(get_db)):
-    raise HTTPException(
-        status_code=501, detail="Endpoint POST /workspace is not implemented"
-    )
+    raise HTTPException(status_code=501, detail="Endpoint POST /workspace is not implemented")
     return crud.workspace.create(db, obj_in=request)
 
 
 @router.put("/{workspace_id}")
-def update_workspace(
-    workspace_id: UUID, request: UpdateWorkspace, db: Session = Depends(get_db)
-):
+def update_workspace(workspace_id: UUID, request: UpdateWorkspace, db: Session = Depends(get_db)):
     return crud.workspace.update_by_pk(db, pk=workspace_id, obj_in=request)
 
 

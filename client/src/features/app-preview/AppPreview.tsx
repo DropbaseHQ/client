@@ -51,6 +51,7 @@ export const AppPreview = () => {
 	const retryCounter = useRef(0);
 	const failedData = useRef<any>(null);
 	const setPageAtom = useSetAtom(pageAtom);
+	const widgetLabel = widgets?.find(w => w.name === widgetName)?.label;
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isDevMode = !isPreview;
@@ -323,7 +324,7 @@ export const AppPreview = () => {
 					<InspectorContainer noPadding type="widget" id={widgetName}>
 						<Stack spacing="0">
 							<Text fontSize="md" fontWeight="semibold">
-								{widgetName}
+								{widgetLabel ? widgetLabel : widgetName}
 							</Text>
 							{widgetDescription ? (
 								<Text fontSize="sm" color="gray.600">

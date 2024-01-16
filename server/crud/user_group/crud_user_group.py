@@ -1,9 +1,9 @@
+from typing import List
+
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import UserGroup, Group
-from server.schemas.user import CreateUser, UpdateUser
-from typing import List
+from server.models import Group, UserGroup
 
 
 class CRUDUserGroup(CRUDBase[UserGroup, UserGroup, UserGroup]):
