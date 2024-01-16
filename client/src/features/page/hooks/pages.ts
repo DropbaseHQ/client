@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 
 import { workerAxios } from '@/lib/axios';
 import { pageAtom } from '../atoms';
-import { APP_STATE_QUERY_KEY, useSyncState } from '@/features/app-state';
+import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 
 export const PAGE_DATA_QUERY_KEY = 'pageData';
 

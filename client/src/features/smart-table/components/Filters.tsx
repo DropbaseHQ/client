@@ -176,7 +176,7 @@ export const FilterButton = () => {
 
 		if (!isPreview) {
 			pinFilterMutation.mutate({
-				tableId,
+				tableName: tableId,
 				filters: updatedFilters.filter((f: any) => f.pinned),
 			});
 		}
