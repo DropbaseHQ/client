@@ -129,7 +129,7 @@ export const NewFile = (props: any) => {
 			generateSequentialName({
 				currentNames: files.map((f: any) => f.name),
 				prefix: 'function',
-			}),
+			})?.name,
 		);
 	}, [methods, isOpen, files]);
 
