@@ -1,23 +1,12 @@
-from typing import Literal, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
-from server.controllers.tables.common import ComponentDisplayProperties
 
+class PgSmartColumnProperty(BaseModel):
 
-class PgColumnSharedProperty(BaseModel):
-    visible: bool = True
-    editable: bool = False
-
-
-class PgColumnContextProperty(ComponentDisplayProperties, PgColumnSharedProperty):
-    pass
-
-
-class PgColumnBaseProperty(BaseModel):
     name: str
-    column_type: Optional[str]
-    display_type: Optional[Literal["text", "integer", "float", "boolean", "datetime", "date", "time"]]
+    type: Optional[str]
 
     schema_name: str = None
     table_name: str = None
@@ -31,6 +20,5 @@ class PgColumnBaseProperty(BaseModel):
 
     edit_keys: list = []
 
-
-class PgColumnDefinedProperty(PgColumnBaseProperty, PgColumnSharedProperty):
-    pass
+    visible: bool = True
+    editable: bool = False
