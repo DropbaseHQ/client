@@ -214,7 +214,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 			<Flex alignItems="center" h="100%" justifyContent="center">
 				<Tabs
 					ml="12"
-					variant="soft-rounded"
+					variant="unstyled"
 					size="sm"
 					index={tabIndex}
 					onChange={handleTabsChange}

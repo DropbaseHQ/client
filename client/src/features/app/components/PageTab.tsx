@@ -145,9 +145,14 @@ export const PageTab = (props: any) => {
 			to={isPreview ? pageLink : `${pageLink}/studio`}
 			px="4"
 			py="1"
+			_selected={{
+				bg: 'blue.500',
+				color: 'white',
+				borderRadius: 'md',
+			}}
 		>
 			<Flex align="center" justifyContent="space-between" h="24px">
-				<Box flex="1" pl="1">
+				<Box flex="1" pl="1" fontWeight="semibold">
 					{page.name}
 				</Box>
 				{index === tabIndex && !isPreview ? (
@@ -163,7 +168,7 @@ export const PageTab = (props: any) => {
 								<MoreVertical size="14" />
 							</Box>
 						</MenuButton>
-						<MenuList>
+						<MenuList color="black">
 							<Popover
 								placement="right"
 								onClose={onRenameClose}
@@ -174,13 +179,14 @@ export const PageTab = (props: any) => {
 									<MenuItem data-db-id="rename-page">Edit</MenuItem>
 								</PopoverTrigger>
 								<PopoverContent
+									textColor="black"
+									color="black"
 									onClick={(e) => {
 										e.preventDefault();
 										e.stopPropagation();
 									}}
 									onBlur={(e) => {
 										if (e.relatedTarget?.id.includes('menu-list')) {
-											console.log('here');
 											e.preventDefault();
 										}
 									}}
@@ -205,7 +211,8 @@ export const PageTab = (props: any) => {
 										<ButtonGroup ml="auto" size="sm">
 											<Button
 												onClick={handleResetPage}
-												colorScheme="red"
+												colorScheme="gray"
+												textColor="gray"
 												variant="outline"
 											>
 												Cancel
@@ -249,7 +256,8 @@ export const PageTab = (props: any) => {
 									<PopoverFooter display="flex" alignItems="end">
 										<ButtonGroup ml="auto" size="sm">
 											<Button
-												colorScheme="grey"
+												colorScheme="gray"
+												textColor="gray"
 												variant="outline"
 												onClick={onDeleteClose}
 											>
