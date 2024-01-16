@@ -237,10 +237,12 @@ export const SmartTable = ({ tableName }: any) => {
 	);
 
 	const gridColumns = visibleColumns.map((column: any) => {
-		// ⚠️ only by passing undefined we can hide column icon
-		let icon = column?.display_type ? GridColumnIcon.HeaderString : undefined;
+		const col = columnDict[column?.name] || column;
 
-		switch (column?.display_type) {
+		// ⚠️ only by passing undefined we can hide column icon
+		let icon = col?.display_type ? GridColumnIcon.HeaderString : undefined;
+
+		switch (col?.display_type) {
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -298,19 +300,33 @@ export const SmartTable = ({ tableName }: any) => {
 		return gridColumn;
 	});
 
-	const formatDateTime = (date: Date) => {
+	const formatDate = (date: Date) => {
 		const year = date.getFullYear();
 		const month = date.getMonth() + 1;
 		const day = date.getDate();
 
+		return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+	};
+
+	const formatTime = (time: string) => {
+		let [hours, mins, secs] = time.split(':');
+		const suffix = parseInt(hours, 10) >= 12 ? 'PM' : 'AM';
+		hours = hours === '12' ? '12' : String(parseInt(hours, 10) % 12).padStart(2, '0');
+		mins = String(Math.round(parseInt(mins, 10))).padStart(2, '0');
+		secs = String(Math.round(parseInt(secs, 10))).padStart(2, '0');
+
+		return `${hours}:${mins}:${secs} ${suffix}`;
+	};
+
+	const formatDateTime = (date: Date) => {
 		const hours = date.getHours();
 		const minutes = date.getMinutes();
 		const seconds = date.getSeconds();
 
-		return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ` +
-			`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-	}
-	
+		return `${formatDate(date)} ${hours.toString().padStart(2, '0')}:${minutes
+			.toString()
+			.padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+	};
 
 	const getCellContent: any = ([col, row]: any) => {
 		const currentRow = rows[row];
@@ -383,7 +399,29 @@ export const SmartTable = ({ tableName }: any) => {
 					kind: GridCellKind.Text,
 					data: cellValue,
 					allowOverlay: canEdit,
-					displayData: formatDateTime(new Date(parseInt(cellValue))),
+					displayData: formatDateTime(new Date(parseInt(cellValue, 10))),
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'date': {
+				return {
+					kind: GridCellKind.Text,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData: formatDate(new Date(parseInt(cellValue, 10))),
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'time': {
+				return {
+					kind: GridCellKind.Text,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData: formatTime(cellValue),
 					readonly: !canEdit,
 					...themeOverride,
 				};
