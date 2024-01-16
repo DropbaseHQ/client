@@ -1,8 +1,16 @@
+import { useMemo } from 'react';
 import { Plus, Trash } from 'react-feather';
-import { Badge, Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
+import {
+	AutoComplete,
+	AutoCompleteInput,
+	AutoCompleteItem,
+	AutoCompleteList,
+	AutoCompleteGroup,
+	AutoCompleteGroupTitle,
+} from '@choc-ui/chakra-autocomplete';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { tableStateAtom } from '@/features/app-state';
@@ -48,130 +56,41 @@ const formLabelProps = {
 	mb: '1',
 };
 
-const TargetSelector = ({ rule, index, onChange, displayRules, componentNames }: any) => {
-	const { widgets } = useAtomValue(pageAtom);
+export const DisplayRulesEditor = ({ name }: any) => {
+	const { widgetName, widgets } = useAtomValue(pageAtom);
 	const tableState = useAtomValue(tableStateAtom);
-	const [category, setCategory] = useState<string>(rule?.target?.split('.')[0]);
-	const [specificCategory, setSpecificCategory] = useState<string>(rule?.target?.split('.')[1]);
+	const currentWidget = widgets?.find((w: any) => w.name === widgetName);
 
-	const compilePathName = (target: string) => {
+	const compilePathName = (category: string, specificCategory: string, target: string) => {
 		return `${category}.${specificCategory}.${target}`;
 	};
 
-	const getCategoryOptions = () => {
-		if (category === 'tables') {
-			return Object.keys(tableState).map((c: any) => ({
-				name: c,
-				value: c,
-			}));
-		}
-
-		return widgets?.map((c: any) => ({
-			name: c.name,
-			value: c.name,
-		}));
-	};
-	const getSpecificCategoryOptions = () => {
-		if (category === 'tables') {
-			const table: any = tableState?.[specificCategory as keyof typeof tableState];
-			return Object.keys(table || {}).map((c: any) => ({
-				name: c,
-				value: compilePathName(c),
-			}));
-		}
-
-		return componentNames.map((c: any) => ({
-			name: c,
-			value: compilePathName(c),
-		}));
-	};
-
-	useEffect(() => {
-		if (rule.target) {
-			const [initCategory, initSpecificCategory] = rule.target.split('.');
-			setCategory(initCategory);
-			setSpecificCategory(initSpecificCategory);
-		}
-	}, [rule.target]);
-	return (
-		<Stack alignItems="end" key={rule.id} direction="row">
-			<FormControl>
-				{index === 0 ? <FormLabel {...formLabelProps}>Category</FormLabel> : null}
-				<InputRenderer
-					size="sm"
-					flex="1"
-					type="select"
-					placeholder="Category"
-					value={category}
-					options={[
-						{
-							name: 'tables',
-							value: 'tables',
-						},
-						{
-							name: 'widgets',
-							value: 'widgets',
-						},
-					]}
-					onChange={(newValue: any) => {
-						setCategory(newValue);
-					}}
-				/>
-			</FormControl>
-			<FormControl>
-				{index === 0 ? <FormLabel {...formLabelProps}>Name</FormLabel> : null}
-				<InputRenderer
-					size="sm"
-					flex="1"
-					type="select"
-					placeholder="Category"
-					value={specificCategory}
-					options={getCategoryOptions()}
-					onChange={(newValue: any) => {
-						setSpecificCategory(newValue);
-					}}
-				/>
-			</FormControl>
-			<FormControl>
-				{index === 0 ? <FormLabel {...formLabelProps}>Target</FormLabel> : null}
-				<InputRenderer
-					size="sm"
-					flex="1"
-					type="select"
-					placeholder="component name"
-					value={rule.target}
-					options={getSpecificCategoryOptions()}
-					onChange={(newValue: any) => {
-						onChange(
-							displayRules.map((r: any) => {
-								if (r.id === rule.id) {
-									return {
-										...r,
-										target: newValue,
-									};
-								}
-
-								return r;
-							}),
-						);
-					}}
-				/>
-			</FormControl>
-		</Stack>
-	);
-};
-
-export const DisplayRulesEditor = ({ name }: any) => {
-	const { widgetName, widgets } = useAtomValue(pageAtom);
 	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
 	const { control } = useFormContext();
+
 	const componentsProperties = components
 		.filter(
 			(c: any) =>
 				c.name !== name && (c.component_type === 'select' || c.component_type === 'input'),
 		)
 		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
-	const componentNames = Object.keys(componentsProperties);
+
+	const tableTargets = useMemo(() => {
+		return Object.keys(tableState)
+			.map((tableName: any) => {
+				const targetTable: any = tableState?.[tableName as keyof typeof tableState];
+				return Object.keys(targetTable || {})?.map((c: any) => ({
+					label: `${tableName}.${c}`,
+					value: compilePathName('tables', tableName, c),
+				}));
+			})
+			.flat();
+	}, [tableState]);
+
+	const widgetTargets = currentWidget?.components.map((c: any) => ({
+		label: `${currentWidget?.name}.${c.name}`,
+		value: compilePathName('widgets', currentWidget?.name, c.name),
+	}));
 
 	return (
 		<FormControl>
@@ -243,13 +162,44 @@ export const DisplayRulesEditor = ({ name }: any) => {
 												/>
 											</Box>
 										)}
-										<TargetSelector
-											rule={rule}
-											index={index}
-											onChange={onChange}
-											displayRules={displayRules}
-											componentNames={componentNames}
-										/>
+										<AutoComplete>
+											<FormControl>
+												<FormLabel {...formLabelProps}>Target</FormLabel>
+												<AutoCompleteInput size="sm" />
+											</FormControl>
+											<AutoCompleteList>
+												<AutoCompleteGroup key="tables" showDivider>
+													<AutoCompleteGroupTitle>
+														Tables
+													</AutoCompleteGroupTitle>
+													{tableTargets?.map((xTable: any) => {
+														return (
+															<AutoCompleteItem
+																key={xTable?.value}
+																value={xTable?.value}
+															>
+																{xTable?.label}
+															</AutoCompleteItem>
+														);
+													})}
+												</AutoCompleteGroup>
+												<AutoCompleteGroup key="widgets" showDivider>
+													<AutoCompleteGroupTitle>
+														Widgets
+													</AutoCompleteGroupTitle>
+													{widgetTargets?.map((widgetTarget: any) => {
+														return (
+															<AutoCompleteItem
+																key={widgetTarget.value}
+																value={widgetTarget.value}
+															>
+																{widgetTarget.label}
+															</AutoCompleteItem>
+														);
+													})}
+												</AutoCompleteGroup>
+											</AutoCompleteList>
+										</AutoComplete>
 										<Stack alignItems="end" key={rule.id} direction="row">
 											<FormControl>
 												{index === 0 ? (
