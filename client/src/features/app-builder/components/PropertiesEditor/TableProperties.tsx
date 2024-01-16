@@ -193,6 +193,7 @@ export const TableProperties = () => {
 														id="name"
 														name={property.title}
 														type="text"
+														required
 														validation={{
 															validate: {
 																noUpperCase: (value: any) => {
