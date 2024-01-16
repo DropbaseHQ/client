@@ -162,7 +162,22 @@ export const DisplayRulesEditor = ({ name }: any) => {
 												/>
 											</Box>
 										)}
-										<AutoComplete>
+										<AutoComplete
+											onSelectOption={({ item }: any) => {
+												onChange(
+													displayRules.map((r: any) => {
+														if (r.id === rule.id) {
+															return {
+																...r,
+																target: item.value,
+															};
+														}
+
+														return r;
+													}),
+												);
+											}}
+										>
 											<FormControl>
 												<FormLabel {...formLabelProps}>Target</FormLabel>
 												<AutoCompleteInput size="sm" />
