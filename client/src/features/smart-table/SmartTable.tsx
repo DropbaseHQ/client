@@ -110,7 +110,7 @@ export const SmartTable = ({ tableName }: any) => {
 	const currentTableContext = nonWidgetContext?.tables?.[tableName];
 
 	useEffect(() => {
-		if (currentTableContext && currentTableContext?.should_reload) {
+		if (currentTableContext && currentTableContext?.reload) {
 			refetch();
 			setNonWidgetContext((old: any) => ({
 				...old,
@@ -118,7 +118,7 @@ export const SmartTable = ({ tableName }: any) => {
 					...old.tables,
 					[tableName]: {
 						...old.tables[tableName],
-						should_reload: false,
+						reload: false,
 					},
 				},
 			}));
