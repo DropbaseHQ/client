@@ -6,9 +6,7 @@ from .base import Base
 
 
 class User(Base):
-    id = Column(
-        UUID(as_uuid=True), server_default=text("uuid_generate_v4()"), primary_key=True
-    )
+    id = Column(UUID(as_uuid=True), server_default=text("uuid_generate_v4()"), primary_key=True)
 
     name = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)

@@ -1,5 +1,3 @@
-import datetime
-
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
 

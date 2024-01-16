@@ -7,11 +7,11 @@ Small changes made to make it work with our project.
 from contextlib import contextmanager
 
 from casbin import persist
-from sqlalchemy import Column, Integer, String
-from sqlalchemy import create_engine, or_
+from sqlalchemy import Column, Integer, String, create_engine, or_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from server.models import Role, Policy
+
+from server.models import Policy, Role
 
 Base = declarative_base()
 
@@ -101,7 +101,7 @@ class Adapter(persist.Adapter, persist.adapters.UpdateAdapter):
             lines = (
                 session.query(self._db_class)
                 .join(Role, Role.id == self._db_class.role_id)
-                .filter(Role.is_default == True)
+                .filter(Role.is_default is True)
                 .all()
             )
 
@@ -129,11 +129,10 @@ class Adapter(persist.Adapter, persist.adapters.UpdateAdapter):
         return querydb.order_by(self._db_class.id)
 
     def _save_policy_line(self, ptype, rule):
-        with self._session_scope() as session:
+        with self._session_scope():
             line = self._db_class(ptype=ptype)
             for i, v in enumerate(rule):
                 setattr(line, "v{}".format(i), v)
-            # session.add(line)
 
     def save_policy(self, model):
         """saves all policy rules to the storage."""
@@ -221,7 +220,7 @@ class Adapter(persist.Adapter, persist.adapters.UpdateAdapter):
 
             # need the length of the longest_rule to perform overwrite
             longest_rule = old_rule if len(old_rule) > len(new_rule) else new_rule
-            old_rule_line = query.one()
+            # old_rule_line = query.one()
 
             # overwrite the old rule with the new rule
             for index in range(len(longest_rule)):

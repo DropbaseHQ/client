@@ -17,5 +17,3 @@ REFRESH_TOKEN_EXPIRE_SECONDS = 60 * 60 * 24 * 7  # 7 days
 
 # Ordered from most to least privileged
 ALLOWED_ACTIONS = ["own", "edit", "use"]
-
-FILE_NAME_REGEX = re.compile(r"^[A-Za-z0-9_]+$")

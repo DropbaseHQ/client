@@ -92,18 +92,6 @@ def test_admin_can_create_edit_delete_widget(admin_client):
     assert delete_response.status_code == 200
 
 
-# TODO: Does not get response from create table
-# def test_admin_can_create_table(admin_client):
-#     response = admin_client.create_table()
-#     assert response.status_code == 200
-
-# response = admin_client.edit_table(response.json().get("id"))
-# assert response.status_code == 200
-
-# delete_response = admin_client.delete_table(response.json().get("id"))
-# assert delete_response.status_code == 200
-
-
 def test_admin_can_update_columns(admin_client):
     response = admin_client.update_columns_visible(True)
     assert response.status_code == 200

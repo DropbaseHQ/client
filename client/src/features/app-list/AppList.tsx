@@ -275,12 +275,14 @@ export const AppList = () => {
 											if (value.includes(' ')) {
 												return 'Name cannot have spaces';
 											}
-
 											if (!value) {
 												return 'Name required';
 											}
 											if (nameNotUnique(value)) {
 												return 'Name already exists';
+											}
+											if (!value.match(/^[A-Za-z0-9_.]+$/g)) {
+												return 'Name contains invalid characters';
 											}
 
 											return true;

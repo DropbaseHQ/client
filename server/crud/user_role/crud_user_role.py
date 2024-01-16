@@ -1,17 +1,14 @@
-from typing import List
 from uuid import UUID
 
 from sqlalchemy.orm import Session
 
 from server.crud.base import CRUDBase
-from server.models import UserRole, Role
+from server.models import Role, UserRole
 from server.schemas.role import CreateRole, UpdateRole
 
 
 class CRUDUserRole(CRUDBase[UserRole, CreateRole, UpdateRole]):
-    def user_is_in_workspace(
-        self, db: Session, user_id: UUID, workspace_id: UUID
-    ) -> bool:
+    def user_is_in_workspace(self, db: Session, user_id: UUID, workspace_id: UUID) -> bool:
         return (
             db.query(UserRole)
             .filter(UserRole.user_id == str(user_id))
@@ -29,9 +26,7 @@ class CRUDUserRole(CRUDBase[UserRole, CreateRole, UpdateRole]):
             .one_or_none()
         )
 
-    def get_user_user_role(
-        self, db: Session, user_id: UUID, workspace_id: UUID
-    ) -> UserRole:
+    def get_user_user_role(self, db: Session, user_id: UUID, workspace_id: UUID) -> UserRole:
         return (
             db.query(UserRole)
             .join(Role, UserRole.role_id == Role.id)

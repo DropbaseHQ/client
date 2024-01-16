@@ -1,12 +1,12 @@
-from server import crud
-from server.models import Policy, User
-from server.schemas import UpdateUserRoleRequest, UpdateWorkspaceToken, RequestCloud
-from server.credentials import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
-from server.emails.emailer import send_email
-from sqlalchemy.orm import Session
 from uuid import UUID
-import boto3
+
 from botocore.exceptions import ClientError
+from sqlalchemy.orm import Session
+
+from server import crud
+from server.emails.emailer import send_email
+from server.models import Policy, User
+from server.schemas import RequestCloud, UpdateUserRoleRequest, UpdateWorkspaceToken
 
 
 def get_workspace_users(db, workspace_id):
@@ -65,9 +65,7 @@ def remove_user_from_workspace(db, workspace_id, user_id):
         user = crud.user.get_object_by_id_or_404(db, id=user_id)
         if not user:
             raise Exception("User does not exist")
-        user_role = crud.user_role.get_user_user_role(
-            db, user_id=user_id, workspace_id=workspace_id
-        )
+        user_role = crud.user_role.get_user_user_role(db, user_id=user_id, workspace_id=workspace_id)
         if not user_role:
             raise Exception("User does not belong to the workspace")
 
@@ -99,9 +97,7 @@ def remove_user_from_workspace(db, workspace_id, user_id):
         raise e
 
 
-def update_user_role_in_workspace(
-    db: Session, workspace_id: UUID, request: UpdateUserRoleRequest
-):
+def update_user_role_in_workspace(db: Session, workspace_id: UUID, request: UpdateUserRoleRequest):
     try:
         # Update user role in user role table
         user_role = crud.user_role.get_user_user_role(
@@ -118,9 +114,7 @@ def update_user_role_in_workspace(
             Policy.ptype == "g",
             Policy.v0 == str(request.user_id),
             Policy.v1 == old_role_name,
-        ).filter(Policy.workspace_id == str(workspace_id)).update(
-            {"v1": str(role.name)}
-        )
+        ).filter(Policy.workspace_id == str(workspace_id)).update({"v1": str(role.name)})
 
         db.commit()
 
@@ -129,15 +123,11 @@ def update_user_role_in_workspace(
         raise e
 
 
-def update_workspace_token(
-    db: Session, workspace_id: UUID, request: UpdateWorkspaceToken
-):
+def update_workspace_token(db: Session, workspace_id: UUID, request: UpdateWorkspaceToken):
     try:
         target_token = crud.token.get_object_by_id_or_404(db, id=request.token_id)
         crud.token.reset_workspace_selected_token(db, workspace_id=workspace_id)
-        crud.token.update_by_pk(
-            db, pk=target_token.id, obj_in={"is_selected": True}, auto_commit=False
-        )
+        crud.token.update_by_pk(db, pk=target_token.id, obj_in={"is_selected": True}, auto_commit=False)
         db.commit()
     except Exception as e:
         db.rollback()

@@ -1,8 +1,8 @@
+import logging
 from pathlib import Path
 from uuid import UUID
 
 import casbin
-import logging
 from casbin import persist
 from sqlalchemy.orm import Session
 
