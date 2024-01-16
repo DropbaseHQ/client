@@ -137,8 +137,16 @@ export const PageTab = (props: any) => {
 	};
 
 	return (
-		<Tab key={page.name} as={Link} to={isPreview ? pageLink : `${pageLink}/studio`} px="4">
-			<Flex align="center" justifyContent="space-between">
+		<Tab
+			key={page.name}
+			display="flex"
+			alignItems="center"
+			as={Link}
+			to={isPreview ? pageLink : `${pageLink}/studio`}
+			px="4"
+			py="1"
+		>
+			<Flex align="center" justifyContent="space-between" h="24px">
 				<Box flex="1" pl="1">
 					{page.name}
 				</Box>

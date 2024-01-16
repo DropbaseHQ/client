@@ -1,4 +1,5 @@
 import {
+	Flex,
 	Text,
 	IconButton,
 	Stack,
@@ -210,33 +211,35 @@ export const AppNavbar = ({ isPreview }: any) => {
 					</Popover>
 				)}
 			</Stack>
-			<Tabs
-				ml="12"
-				variant="soft-rounded"
-				size="sm"
-				index={tabIndex}
-				onChange={handleTabsChange}
-			>
-				<TabList>
-					{app?.pages.map((page: any, index: number) => {
-						return (
-							<PageTab
-								key={page.name}
-								{...{ isPreview, index, tabIndex, page, pages: app?.pages }}
+			<Flex alignItems="center" h="100%" justifyContent="center">
+				<Tabs
+					ml="12"
+					variant="soft-rounded"
+					size="sm"
+					index={tabIndex}
+					onChange={handleTabsChange}
+				>
+					<TabList display="flex" alignItems="center">
+						{app?.pages.map((page: any, index: number) => {
+							return (
+								<PageTab
+									key={page.name}
+									{...{ isPreview, index, tabIndex, page, pages: app?.pages }}
+								/>
+							);
+						})}
+						{!isPreview && (
+							<Tab
+								tabIndex={-1}
+								as={IconButton}
+								onClick={handleCreatePage}
+								variant="ghost"
+								icon={<Plus size="14" />}
 							/>
-						);
-					})}
-					{!isPreview && (
-						<Tab
-							tabIndex={-1}
-							as={IconButton}
-							onClick={handleCreatePage}
-							variant="ghost"
-							icon={<Plus size="14" />}
-						/>
-					)}
-				</TabList>
-			</Tabs>
+						)}
+					</TabList>
+				</Tabs>
+			</Flex>
 
 			<Stack direction="row" spacing="2" ml="auto">
 				<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
