@@ -14,7 +14,6 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 		state: { context, state },
 		...rest
 	} = useAppState(appName, pageName);
-
 	const setRowData = useSetAtom(selectedRowAtom);
 	const setWidgetState = useSetAtom(allWidgetStateAtom);
 	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
@@ -24,6 +23,8 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 	useEffect(() => {
 		setRowData((oldTables: any) => {
 			const { tables } = state;
+			setTableState(tables);
+
 			if (oldTables && state.tables) {
 				return Object.keys(tables).reduce((agg: any, tableName: any) => {
 					if (oldTables[tableName]) {
@@ -45,7 +46,6 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 					};
 				}, {});
 			}
-			setTableState(tables);
 
 			return tables;
 		});
