@@ -320,16 +320,19 @@ export const SmartTable = ({ tableName }: any) => {
 
 		return `${hours}:${mins}:${secs} ${suffix}`;
 	};
-	
+
 	// converts Date object to string of format yyyy-mm-dd hh:mm:ss
 	const formatDateTime = (date: Date) => {
-		const hours = date.getUTCHours();
+		let hours = date.getUTCHours();
+		const suffix = hours >= 12 ? 'PM' : 'AM';
+		hours %= 12;
+		if (hours === 0) hours = 12;
 		const minutes = date.getUTCMinutes();
 		const seconds = date.getUTCSeconds();
 
 		return `${formatDate(date)} ${hours.toString().padStart(2, '0')}:${minutes
 			.toString()
-			.padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+			.padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${suffix}`;
 	};
 
 	const getCellContent: any = ([col, row]: any) => {
