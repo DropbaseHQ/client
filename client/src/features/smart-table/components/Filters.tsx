@@ -29,7 +29,6 @@ import {
 } from '@/features/smart-table/hooks';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
-import { getPGColumnBaseType } from '@/utils';
 import { appModeAtom } from '@/features/app/atoms';
 
 const COMMON_OPERATORS = [
@@ -81,7 +80,11 @@ const TEXT_OPERATORS = [
 
 const getConditionsByType = (type?: string) => {
 	if (type) {
-		switch (getPGColumnBaseType(type)) {
+		if (type.startsWith('VARCHAR')) {
+			return [...TEXT_OPERATORS, ...COMMON_OPERATORS];
+		}
+
+		switch (type) {
 			case 'float':
 			case 'integer': {
 				return [...COMMON_OPERATORS, ...COMPARISON_OPERATORS];
@@ -211,11 +214,11 @@ export const FilterButton = () => {
 					) : (
 						<VStack alignItems="start" w="full">
 							{filters.map((filter: any, index: any) => {
-								const colType = columns[filter?.column_name]?.type;
+								const colType = columns[filter?.column_name]?.display_type;
 
 								let inputType = 'text';
 
-								if (getPGColumnBaseType(colType) === 'integer') {
+								if (colType === 'integer') {
 									inputType = 'number';
 								}
 

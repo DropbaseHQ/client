@@ -49,8 +49,9 @@ export const generateSequentialName = ({ currentNames, prefix }: any) => {
 	}
 
 	const newName = `${prefix}${nameIndex}`;
+	const newLabel = `${prefix.charAt(0).toUpperCase() + prefix.slice(1)} ${nameIndex}`;
 
-	return newName;
+	return { name: newName, label: newLabel };
 };
 
 export const getErrorMessage = (error: any) => {

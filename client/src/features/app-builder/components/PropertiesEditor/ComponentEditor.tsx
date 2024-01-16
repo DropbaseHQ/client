@@ -24,7 +24,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
-import { getErrorMessage } from '@/utils';
+import { generateSequentialName, getErrorMessage } from '@/utils';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -281,20 +281,17 @@ export const NewComponent = (props: any) => {
 			.filter((c: any) => c.component_type === type)
 			.map((c: any) => c.name);
 
-		let nameIndex = 1;
-
-		while (currentNames.includes(`${type}${nameIndex}`)) {
-			nameIndex += 1;
-		}
-
-		const newName = `${type}${nameIndex}`;
+		const { name: newName, label: newLabel } = generateSequentialName({
+			currentNames,
+			prefix: type,
+		});
 
 		let otherProperty: any = {
-			label: newName,
+			label: newLabel,
 		};
 
 		if (type === 'input') {
-			otherProperty = { type: 'text', label: newName };
+			otherProperty = { type: 'text', label: newLabel };
 		}
 
 		if (type === 'text') {

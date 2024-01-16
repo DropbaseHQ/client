@@ -51,7 +51,7 @@ export const AppPreview = () => {
 	const retryCounter = useRef(0);
 	const failedData = useRef<any>(null);
 	const setPageAtom = useSetAtom(pageAtom);
-	const widgetLabel = widgets?.find(w => w.name === widgetName)?.label;
+	const widgetLabel = widgets?.find((w) => w.name === widgetName)?.label;
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isDevMode = !isPreview;
@@ -156,7 +156,7 @@ export const AppPreview = () => {
 	};
 
 	const handleCreateWidget = () => {
-		const wName = generateSequentialName({
+		const { name: wName, label: wLabel } = generateSequentialName({
 			currentNames: widgets?.map((w: any) => w.name) as string[],
 			prefix: 'widget',
 		});
@@ -170,8 +170,7 @@ export const AppPreview = () => {
 					...(properties?.widgets || []),
 					{
 						name: wName,
-						// TODO: @yash-dropbase fix me, this is a patch to make the widget work. label is now requireds
-						label: wName.charAt(0).toUpperCase() + wName.slice(1),
+						label: wLabel,
 						components: [],
 					},
 				],
@@ -324,7 +323,7 @@ export const AppPreview = () => {
 					<InspectorContainer noPadding type="widget" id={widgetName}>
 						<Stack spacing="0">
 							<Text fontSize="md" fontWeight="semibold">
-								{widgetLabel ? widgetLabel : widgetName}
+								{widgetLabel || widgetName}
 							</Text>
 							{widgetDescription ? (
 								<Text fontSize="sm" color="gray.600">
@@ -377,7 +376,7 @@ export const AppPreview = () => {
 										borderWidth="1px"
 										borderStyle="dashed"
 										borderRadius="md"
-										mt="auto"
+										mt="2"
 									>
 										<NewComponent w="full" variant="secondary" />
 									</Box>
