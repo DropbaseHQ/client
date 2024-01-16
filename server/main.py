@@ -26,13 +26,13 @@ app.mount("/worker", worker_app)
 
 # origins = ["https://dropbase.io"]
 
-origins = ["*"]
-# origins = [
-#     "https://www.app.dropbase.io",
-#     "https://app.dropbase.io",
-#     "http://localhost:3030",
-#     "http://www.localhost:3030",
-# ]
+# origins = ["*"]
+origins = [
+    "https://www.app.dropbase.io",
+    "https://app.dropbase.io",
+    "http://localhost:3030",
+    "http://www.localhost:3030",
+]
 
 app.add_middleware(
     CORSMiddleware,
