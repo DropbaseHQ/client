@@ -212,8 +212,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Stack>
 			<Tabs
 				ml="12"
-				mt="auto"
-				variant="enclosed"
+				variant="soft-rounded"
 				size="sm"
 				index={tabIndex}
 				onChange={handleTabsChange}
