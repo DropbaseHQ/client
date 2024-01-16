@@ -106,7 +106,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 					pageName: generateSequentialName({
 						currentNames: app?.pages.map((p: any) => p.name) || [],
 						prefix: 'page',
-					}),
+					})?.name,
 				},
 				{
 					onSuccess: (_, variables: any) => {
