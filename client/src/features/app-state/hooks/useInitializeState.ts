@@ -3,8 +3,9 @@ import { useEffect } from 'react';
 import {
 	selectedRowAtom,
 	allWidgetStateAtom,
-	nonWidgetStateAtom,
+	nonWidgetContextAtom,
 	allWidgetsInputAtom,
+	tableStateAtom,
 } from '@/features/app-state';
 import { useAppState } from '@/features/app-state/hooks';
 
@@ -13,15 +14,17 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 		state: { context, state },
 		...rest
 	} = useAppState(appName, pageName);
-
 	const setRowData = useSetAtom(selectedRowAtom);
 	const setWidgetState = useSetAtom(allWidgetStateAtom);
-	const setNonInteractiveState = useSetAtom(nonWidgetStateAtom);
+	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
 	const setWidgetsInputs = useSetAtom(allWidgetsInputAtom);
+	const setTableState = useSetAtom(tableStateAtom);
 
 	useEffect(() => {
 		setRowData((oldTables: any) => {
 			const { tables } = state;
+			setTableState(tables);
+
 			if (oldTables && state.tables) {
 				return Object.keys(tables).reduce((agg: any, tableName: any) => {
 					if (oldTables[tableName]) {
@@ -46,11 +49,9 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 
 			return tables;
 		});
-	}, [state, setRowData]);
 
-	useEffect(() => {
 		setWidgetsInputs(state.widgets);
-	}, [state, setWidgetsInputs]);
+	}, [state, setRowData, setTableState, setWidgetsInputs]);
 
 	useEffect(() => {
 		const { widgets, ...other } = context || {};
@@ -73,12 +74,12 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 	return rest;
 };
 
-export const useInitializeWidgetState = ({ widgetId, appName, pageName }: any) => {
+export const useInitializeWidgetState = ({ widgetName, appName, pageName }: any) => {
 	useInitializePageState(appName, pageName);
 
 	const setWidgetState = useSetAtom(allWidgetStateAtom);
 
 	useEffect(() => {
-		setWidgetState((s) => ({ ...s, selected: widgetId }));
-	}, [widgetId, setWidgetState]);
+		setWidgetState((s) => ({ ...s, selected: widgetName }));
+	}, [widgetName, setWidgetState]);
 };

@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { Plus, Table, Box as BoxIcon, Code } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 
@@ -30,7 +30,7 @@ import { useStatus } from '@/layout/StatusBar';
 import { useCreateFile, usePageFiles } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { generateSequentialName, getErrorMessage } from '@/utils';
 import { developerTabAtom } from '../../atoms';
 
@@ -71,11 +71,9 @@ export const NewFile = (props: any) => {
 		shouldUnregister: true,
 	});
 
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
-	const { files } = useGetPage(pageId);
-
-	const { pageName, appName } = useAtomValue(pageAtom);
+	const { files } = useGetPage({ appName, pageName });
 
 	const setDevTab = useSetAtom(developerTabAtom);
 
@@ -92,10 +90,10 @@ export const NewFile = (props: any) => {
 	});
 
 	const mutation = useCreateFile({
-		onSuccess: (data: any) => {
+		onSuccess: (_: any, variables: any) => {
 			setDevTab({
-				type: data.type === 'sql' ? 'sql' : 'function',
-				id: data.id,
+				type: variables?.type === 'sql' ? 'sql' : 'function',
+				id: variables?.fileName,
 			});
 
 			toast({
@@ -118,7 +116,6 @@ export const NewFile = (props: any) => {
 
 	const onSubmit = ({ type, name }: any) => {
 		mutation.mutate({
-			pageId,
 			pageName,
 			appName,
 			fileName: name,
@@ -132,7 +129,7 @@ export const NewFile = (props: any) => {
 			generateSequentialName({
 				currentNames: files.map((f: any) => f.name),
 				prefix: 'function',
-			}),
+			})?.name,
 		);
 	}, [methods, isOpen, files]);
 
@@ -142,7 +139,11 @@ export const NewFile = (props: any) => {
 				<IconButton
 					aria-label="Add function"
 					icon={<Plus size="14" />}
-					onClick={onToggle}
+					onClick={(e) => {
+						e.stopPropagation();
+
+						onToggle();
+					}}
 					isDisabled={!isConnected}
 					isLoading={mutation.isLoading}
 					{...props}
@@ -150,7 +151,11 @@ export const NewFile = (props: any) => {
 			</PopoverTrigger>
 
 			<Portal>
-				<PopoverContent>
+				<PopoverContent
+					onClick={(e) => {
+						e.stopPropagation();
+					}}
+				>
 					<PopoverHeader pt={4} fontWeight="bold" border="0">
 						Create a new function
 					</PopoverHeader>

@@ -20,11 +20,11 @@ import {
 import { ChevronsUp as SortIcon, Plus, Trash } from 'react-feather';
 import { useAtom } from 'jotai';
 import { sortsAtom } from '@/features/smart-table/atoms';
-import { useCurrentTableData, useCurrentTableId } from '@/features/smart-table/hooks';
+import { useCurrentTableData, useCurrentTableName } from '@/features/smart-table/hooks';
 
 export const SortButton = () => {
 	const { isOpen, onToggle, onClose } = useDisclosure();
-	const tableId = useCurrentTableId();
+	const tableId = useCurrentTableName();
 	const { columns } = useCurrentTableData(tableId);
 
 	const [allSorts, setSorts] = useAtom(sortsAtom);
@@ -105,9 +105,9 @@ export const SortButton = () => {
 												bg="bg-canvas"
 												placeholder="Select column"
 											>
-												{Object.keys(columns).map((column: any) => (
-													<option value={column} key={column}>
-														{column}
+												{columns.map((column: any) => (
+													<option value={column.name} key={column.name}>
+														{column.name}
 													</option>
 												))}
 											</Select>

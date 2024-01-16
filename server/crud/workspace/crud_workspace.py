@@ -1,10 +1,12 @@
 from typing import List
 from uuid import UUID
 
-from sqlalchemy.orm import Session
+from sqlalchemy import and_
+from sqlalchemy.orm import Session, aliased
+from sqlalchemy.sql import func
 
 from server.crud.base import CRUDBase
-from server.models import UserRole, Workspace, Policy, Group, User, Role
+from server.models import Group, Policy, Role, User, UserRole, Workspace
 from server.schemas.workspace import CreateWorkspace, UpdateWorkspace
 
 
@@ -36,24 +38,6 @@ class CRUDWorkspace(CRUDBase[Workspace, CreateWorkspace, UpdateWorkspace]):
             .all()
         )
 
-    # def get_workspace_users(self, db: Session, workspace_id: UUID):
-    #     sql = """
-    #         SELECT
-    #             u.id AS user_id,
-    #             u.email,
-    #             r.name AS role_name,
-    #             ARRAY_AGG(DISTINCT g.id) AS group_ids,
-    #             ARRAY_AGG(DISTINCT g.name) AS group_names
-    #         FROM "user" AS u
-    #         LEFT JOIN user_role AS ur ON u.id = ur.user_id
-    #         LEFT JOIN role AS r ON ur.role_id = r.id
-    #         LEFT JOIN "user_group" AS ug ON u.id = ug.user_id
-    #         LEFT JOIN "group" AS g ON ug.group_id = g.id
-    #         WHERE ur.workspace_id = :workspace_id
-    #         AND g.workspace_id = :workspace_id
-    #         GROUP BY u.id, u.email, r.name
-    #     """
-    #     return db.execute(sql, {"workspace_id": workspace_id}).all()
     def get_workspace_users(self, db: Session, workspace_id: UUID):
         return (
             db.query(User)
@@ -61,7 +45,11 @@ class CRUDWorkspace(CRUDBase[Workspace, CreateWorkspace, UpdateWorkspace]):
             .join(Role, Role.id == UserRole.role_id)
             .filter(UserRole.workspace_id == workspace_id)
             .with_entities(
-                User.id, User.email, User.name, Role.name.label("role_name"), Role.id.label("role_id")
+                User.id,
+                User.email,
+                User.name,
+                Role.name.label("role_name"),
+                Role.id.label("role_id"),
             )
             .all()
         )
@@ -77,6 +65,29 @@ class CRUDWorkspace(CRUDBase[Workspace, CreateWorkspace, UpdateWorkspace]):
             .order_by(UserRole.date)
             .with_entities(User.id, User.email)
             .first()
+        )
+
+    def get_user_owned_workspaces(self, db: Session, user_id: UUID):
+        UserRoleAlias = aliased(UserRole)
+
+        oldest_users_subquery = (
+            db.query(UserRoleAlias.workspace_id, func.min(UserRoleAlias.date).label("date"))
+            .group_by(UserRoleAlias.workspace_id)
+            .subquery("oldest_users_subquery")
+        )
+
+        return (
+            db.query(Workspace)
+            .join(UserRole, UserRole.workspace_id == Workspace.id)
+            .join(
+                oldest_users_subquery,
+                and_(
+                    UserRole.workspace_id == oldest_users_subquery.c.workspace_id,
+                    UserRole.date == oldest_users_subquery.c.date,
+                ),
+            )
+            .filter(UserRole.user_id == user_id)
+            .all()
         )
 
 

@@ -1,10 +1,19 @@
+import { useMemo, useState, useEffect } from 'react';
 import { Plus, Trash } from 'react-feather';
-import { Badge, Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
-import { useGetComponentProperties } from '@/features/app-builder/hooks';
+import {
+	AutoComplete,
+	AutoCompleteInput,
+	AutoCompleteItem,
+	AutoCompleteList,
+	AutoCompleteGroup,
+	AutoCompleteGroupTitle,
+} from '@choc-ui/chakra-autocomplete';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
+import { tableStateAtom } from '@/features/app-state';
 
 const OPERATORS = [
 	{
@@ -47,17 +56,101 @@ const formLabelProps = {
 	mb: '1',
 };
 
-export const DisplayRulesEditor = ({ id }: any) => {
-	const { widgetId } = useAtomValue(pageAtom);
-	const { values: components } = useGetComponentProperties(widgetId || '');
+const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRules }: any) => {
+	const [editTarget, setEditTarget] = useState<string>(rule.target);
 
+	useEffect(() => {
+		setEditTarget(rule.target);
+	}, [rule.target]);
+
+	return (
+		<AutoComplete
+			onSelectOption={({ item }: any) => {
+				onChange(
+					displayRules.map((r: any) => {
+						if (r.id === rule.id) {
+							return {
+								...r,
+								target: item.value,
+							};
+						}
+
+						return r;
+					}),
+				);
+			}}
+		>
+			<FormControl>
+				<FormLabel {...formLabelProps}>Target</FormLabel>
+				<AutoCompleteInput
+					size="sm"
+					value={editTarget}
+					onChange={(e: any) => {
+						setEditTarget(e.target.value);
+					}}
+				/>
+			</FormControl>
+			<AutoCompleteList>
+				<AutoCompleteGroup key="tables" showDivider>
+					<AutoCompleteGroupTitle>Tables</AutoCompleteGroupTitle>
+					{tableTargets?.map((xTable: any) => {
+						return (
+							<AutoCompleteItem key={xTable?.value} value={xTable?.value}>
+								{xTable?.label}
+							</AutoCompleteItem>
+						);
+					})}
+				</AutoCompleteGroup>
+				<AutoCompleteGroup key="widgets" showDivider>
+					<AutoCompleteGroupTitle>Widgets</AutoCompleteGroupTitle>
+					{widgetTargets?.map((widgetTarget: any) => {
+						return (
+							<AutoCompleteItem key={widgetTarget.value} value={widgetTarget.value}>
+								{widgetTarget.label}
+							</AutoCompleteItem>
+						);
+					})}
+				</AutoCompleteGroup>
+			</AutoCompleteList>
+		</AutoComplete>
+	);
+};
+
+export const DisplayRulesEditor = ({ name }: any) => {
+	const { widgetName, widgets } = useAtomValue(pageAtom);
+	const tableState = useAtomValue(tableStateAtom);
+	const currentWidget = widgets?.find((w: any) => w.name === widgetName);
+
+	const compilePathName = (category: string, specificCategory: string, target: string) => {
+		return `${category}.${specificCategory}.${target}`;
+	};
+
+	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
 	const { control } = useFormContext();
 
 	const componentsProperties = components
-		.filter((c: any) => c.id !== id && (c.type === 'select' || c.type === 'input'))
-		.reduce((agg: any, c: any) => ({ ...agg, [c?.property?.name]: c }), {});
+		.filter(
+			(c: any) =>
+				c.name !== name && (c.component_type === 'select' || c.component_type === 'input'),
+		)
+		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
 
-	const componentNames = Object.keys(componentsProperties);
+	const tableTargets = useMemo(() => {
+		return Object.keys(tableState)
+			.map((tableName: any) => {
+				const targetTable: any = tableState?.[tableName as keyof typeof tableState];
+				return Object.keys(targetTable || {})?.map((c: any) => ({
+					label: `${tableName}.${c}`,
+					value: compilePathName('tables', tableName, c),
+				}));
+			})
+			.flat();
+	}, [tableState]);
+
+	const widgetTargets = currentWidget?.components.map((c: any) => ({
+		label: `${currentWidget?.name}.${c.name}`,
+		value: compilePathName('widgets', currentWidget?.name, c.name),
+	}));
 
 	return (
 		<FormControl>
@@ -93,98 +186,128 @@ export const DisplayRulesEditor = ({ id }: any) => {
 								}
 
 								return (
-									<Stack alignItems="end" key={rule.id} direction="row">
+									<Stack key={rule.id} direction="column" spacing="2">
 										{index === 0 ? null : (
-											<Box w="8" alignSelf="center">
-												<Badge
-													colorScheme="gray"
-													variant="subtle"
-													size="xs"
-												>
-													And
-												</Badge>
-											</Box>
-										)}
-										<FormControl>
-											{index === 0 ? (
-												<FormLabel {...formLabelProps}>Component</FormLabel>
-											) : null}
-											<InputRenderer
-												size="sm"
-												flex="1"
-												type="select"
-												placeholder="component name"
-												value={rule.name}
-												options={componentNames.map((c: any) => ({
-													name: c,
-													value: c,
-												}))}
-												onChange={(newValue: any) => {
-													onChange(
-														displayRules.map((r: any) => {
-															if (r.id === rule.id) {
-																return {
-																	...r,
-																	name: newValue,
-																};
-															}
-
-															return r;
-														}),
-													);
-												}}
-											/>
-										</FormControl>
-
-										<FormControl>
-											{index === 0 ? (
-												<FormLabel {...formLabelProps}>Operator</FormLabel>
-											) : null}
-											<InputRenderer
-												size="sm"
-												flex="1"
-												type="select"
-												placeholder="Operator"
-												value={rule.operator}
-												options={[
-													...OPERATORS,
-													...(isNumberInput ? COMPERATOR_OPERATORS : []),
-												]}
-												onChange={(newValue: any) => {
-													onChange(
-														displayRules.map((r: any) => {
-															if (r.id === rule.id) {
-																return {
-																	...r,
-																	operator: newValue,
-																};
-															}
-
-															return r;
-														}),
-													);
-												}}
-											/>
-										</FormControl>
-										{OPERATOR_WITH_NO_VALUE.includes(rule.operator) ? null : (
-											<FormControl>
-												{index === 0 ? (
-													<FormLabel {...formLabelProps}>Value</FormLabel>
-												) : null}
+											<Box w="20" alignSelf="center">
 												<InputRenderer
 													size="sm"
 													flex="1"
-													disabled={!rule.name}
-													placeholder="select value"
-													{...input}
-													value={rule.value}
+													type="select"
+													placeholder="Andor"
+													value={rule?.andor}
+													options={[
+														{
+															name: 'And',
+															value: 'and',
+														},
+														{
+															name: 'Or',
+															value: 'or',
+														},
+													]}
 													onChange={(newValue: any) => {
 														onChange(
 															displayRules.map((r: any) => {
 																if (r.id === rule.id) {
 																	return {
 																		...r,
-																		value: newValue,
+																		andor: newValue,
+																	};
+																}
+
+																return r;
+															}),
+														);
+													}}
+												/>
+											</Box>
+										)}
+										<TargetSelector
+											rule={rule}
+											onChange={onChange}
+											tableTargets={tableTargets}
+											widgetTargets={widgetTargets}
+											displayRules={displayRules}
+										/>
+										{/* <AutoComplete
+											onSelectOption={({ item }: any) => {
+												onChange(
+													displayRules.map((r: any) => {
+														if (r.id === rule.id) {
+															return {
+																...r,
+																target: item.value,
+															};
+														}
+
+														return r;
+													}),
+												);
+											}}
+										>
+											<FormControl>
+												<FormLabel {...formLabelProps}>Target</FormLabel>
+												<AutoCompleteInput size="sm" value={rule.target} />
+											</FormControl>
+											<AutoCompleteList>
+												<AutoCompleteGroup key="tables" showDivider>
+													<AutoCompleteGroupTitle>
+														Tables
+													</AutoCompleteGroupTitle>
+													{tableTargets?.map((xTable: any) => {
+														return (
+															<AutoCompleteItem
+																key={xTable?.value}
+																value={xTable?.value}
+															>
+																{xTable?.label}
+															</AutoCompleteItem>
+														);
+													})}
+												</AutoCompleteGroup>
+												<AutoCompleteGroup key="widgets" showDivider>
+													<AutoCompleteGroupTitle>
+														Widgets
+													</AutoCompleteGroupTitle>
+													{widgetTargets?.map((widgetTarget: any) => {
+														return (
+															<AutoCompleteItem
+																key={widgetTarget.value}
+																value={widgetTarget.value}
+															>
+																{widgetTarget.label}
+															</AutoCompleteItem>
+														);
+													})}
+												</AutoCompleteGroup>
+											</AutoCompleteList>
+										</AutoComplete> */}
+										<Stack alignItems="end" key={rule.id} direction="row">
+											<FormControl>
+												{index === 0 ? (
+													<FormLabel {...formLabelProps}>
+														Operator
+													</FormLabel>
+												) : null}
+												<InputRenderer
+													size="sm"
+													flex="1"
+													type="select"
+													placeholder="Operator"
+													value={rule.operator}
+													options={[
+														...OPERATORS,
+														...(isNumberInput
+															? COMPERATOR_OPERATORS
+															: []),
+													]}
+													onChange={(newValue: any) => {
+														onChange(
+															displayRules.map((r: any) => {
+																if (r.id === rule.id) {
+																	return {
+																		...r,
+																		operator: newValue,
 																	};
 																}
 
@@ -194,21 +317,54 @@ export const DisplayRulesEditor = ({ id }: any) => {
 													}}
 												/>
 											</FormControl>
-										)}
-										<IconButton
-											aria-label="Delete"
-											icon={<Trash size="14" />}
-											size="sm"
-											variant="ghost"
-											colorScheme="red"
-											onClick={() => {
-												onChange(
-													displayRules.filter(
-														(o: any) => o.id !== rule.id,
-													),
-												);
-											}}
-										/>
+											{OPERATOR_WITH_NO_VALUE.includes(
+												rule.operator,
+											) ? null : (
+												<FormControl>
+													{index === 0 ? (
+														<FormLabel {...formLabelProps}>
+															Value
+														</FormLabel>
+													) : null}
+													<InputRenderer
+														size="sm"
+														flex="1"
+														disabled={!rule.target}
+														placeholder="select value"
+														{...input}
+														value={rule.value}
+														onChange={(newValue: any) => {
+															onChange(
+																displayRules.map((r: any) => {
+																	if (r.id === rule.id) {
+																		return {
+																			...r,
+																			value: newValue,
+																		};
+																	}
+
+																	return r;
+																}),
+															);
+														}}
+													/>
+												</FormControl>
+											)}
+											<IconButton
+												aria-label="Delete"
+												icon={<Trash size="14" />}
+												size="sm"
+												variant="ghost"
+												colorScheme="red"
+												onClick={() => {
+													onChange(
+														displayRules.filter(
+															(o: any) => o.id !== rule.id,
+														),
+													);
+												}}
+											/>
+										</Stack>
 									</Stack>
 								);
 							})}
@@ -219,15 +375,27 @@ export const DisplayRulesEditor = ({ id }: any) => {
 								variant="outline"
 								colorScheme="gray"
 								onClick={() => {
-									onChange([
-										...displayRules,
-										{
-											name: null,
-											value: null,
-											operator: null,
-											id: crypto.randomUUID(),
-										},
-									]);
+									onChange(
+										displayRules?.length > 0
+											? [
+													...displayRules,
+													{
+														target: null,
+														value: null,
+														operator: null,
+														andor: 'and',
+														id: crypto.randomUUID(),
+													},
+											  ]
+											: [
+													{
+														target: null,
+														value: null,
+														operator: null,
+														id: crypto.randomUUID(),
+													},
+											  ],
+									);
 								}}
 							>
 								Add rule

@@ -1,10 +1,11 @@
 import secrets
+
 from sqlalchemy.orm import Session
-from server.schemas.workspace import CreateWorkspace
-from server.schemas.user_role import CreateUserRole
-from server.models import Policy, Token
 
 from server import crud
+from server.models import Policy, Token
+from server.schemas.user_role import CreateUserRole
+from server.schemas.workspace import CreateWorkspace
 
 
 class WorkspaceCreator:
@@ -20,9 +21,7 @@ class WorkspaceCreator:
             name=workspace_name,
             active=True,
         )
-        workspace = crud.workspace.create(
-            db=self.db, obj_in=workspace_obj, auto_commit=False
-        )
+        workspace = crud.workspace.create(db=self.db, obj_in=workspace_obj, auto_commit=False)
         self.db.flush()
         self.workspace_id = workspace.id
         return workspace
@@ -33,9 +32,7 @@ class WorkspaceCreator:
             workspace_id=self.workspace_id,
             role_id=self.admin_role_id,
         )
-        default_admin_role = crud.user_role.create(
-            self.db, obj_in=role_obj, auto_commit=False
-        )
+        default_admin_role = crud.user_role.create(self.db, obj_in=role_obj, auto_commit=False)
         self.db.flush()
 
         return default_admin_role
@@ -112,12 +109,8 @@ class WorkspaceCreator:
         return new_token
 
     def _update_workspace_token(self, token: Token):
-        crud.token.reset_workspace_selected_token(
-            self.db, workspace_id=self.workspace_id
-        )
-        crud.token.update_by_pk(
-            self.db, pk=token.id, obj_in={"is_selected": True}, auto_commit=False
-        )
+        crud.token.reset_workspace_selected_token(self.db, workspace_id=self.workspace_id)
+        crud.token.update_by_pk(self.db, pk=token.id, obj_in={"is_selected": True}, auto_commit=False)
 
     def create(self, workspace_name: str = None, auto_commit: bool = False):
         try:

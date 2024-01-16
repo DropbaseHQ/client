@@ -15,39 +15,38 @@ import {
 	Skeleton,
 	StackDivider,
 } from '@chakra-ui/react';
-import { useParams } from 'react-router-dom';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useStatus } from '@/layout/StatusBar';
 import { FormInput } from '@/components/FormInput';
-import {
-	useAllPageFunctionNames,
-	useCreateComponents,
-	useDeleteComponent,
-	useGetComponentProperties,
-	useSyncComponents,
-	useUpdateComponentProperties,
-} from '@/features/app-builder/hooks';
-import { pageAtom } from '@/features/page';
+import { useResourceFields } from '@/features/app-builder/hooks';
+import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
-import { getErrorMessage } from '@/utils';
+import { generateSequentialName, getErrorMessage } from '@/utils';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
-	const { widgetId, pageName, appName } = useAtomValue(pageAtom);
-	const { schema, refetch, values, isLoading, categories } = useGetComponentProperties(
-		widgetId || '',
-	);
+	const { widgetName, pageName, appName } = useAtomValue(pageAtom);
 
-	const { type, property: properties } = values.find((v: any) => v.id === id) || {};
-	const currentCategories = (categories as any)?.[type] || [];
+	const { widgets, isLoading, properties, files } = useGetPage({ appName, pageName });
+	const component = widgets
+		.find((w: any) => w.name === widgetName)
+		?.components?.find((c: any) => c.name === id);
 
-	const { pageId } = useParams();
+	const { fields } = useResourceFields();
 
-	const { functions } = useAllPageFunctionNames({ pageId });
+	const currentCategories = [
+		...new Set(
+			fields?.[component?.component_type]
+				?.map((property: any) => property?.category)
+				.filter(Boolean) || [],
+		),
+	];
+
+	const functions = files.filter((f: any) => f.type === 'ui')?.map((f: any) => f?.name);
 
 	const methods = useForm();
 	const {
@@ -55,20 +54,12 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		reset,
 	} = methods;
 
-	const syncToWorker = useSyncComponents();
-
-	const updateMutation = useUpdateComponentProperties({
-		onSuccess: (_: any, variables: any) => {
+	const updateMutation = useUpdatePageData({
+		onSuccess: () => {
 			toast({
 				status: 'success',
 				title: 'Updated component properties',
 			});
-
-			if (variables.payload?.name !== properties?.name) {
-				syncToWorker.mutate({ appName, pageName });
-			}
-
-			refetch();
 		},
 		onError: (error: any) => {
 			toast({
@@ -79,9 +70,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		},
 	});
 
-	const deleteMutation = useDeleteComponent({
+	const deleteMutation = useUpdatePageData({
 		onSuccess: () => {
-			refetch();
 			setInspectedResource({
 				id: null,
 				type: null,
@@ -97,21 +87,42 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	});
 
 	useEffect(() => {
-		reset(properties, {
+		reset(component, {
 			keepDirty: false,
 			keepDirtyValues: false,
 		});
-	}, [properties, reset]);
+	}, [component, reset]);
 
 	const onSubmit = (formValues: any) => {
 		updateMutation.mutate({
-			componentId: id,
-			payload: formValues,
-			type,
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				widgets: [
+					...(properties?.widgets || []).map((w: any) => {
+						if (w.name === widgetName) {
+							return {
+								...w,
+								components: (w.components || []).map((c: any) => {
+									if (c.name === id) {
+										return {
+											...c,
+											...formValues,
+										};
+									}
+
+									return c;
+								}),
+							};
+						}
+
+						return w;
+					}),
+				],
+			},
 		});
 	};
-
-	const allProperties = schema[type] || [];
 
 	if (isLoading) {
 		return (
@@ -139,7 +150,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 						direction="row"
 					>
 						<Text fontWeight="semibold" size="sm">
-							{properties?.name} Properties
+							{component?.name || id} Properties
 						</Text>
 
 						<ButtonGroup ml="auto" size="xs">
@@ -162,7 +173,19 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 								onClick={(e) => {
 									e.stopPropagation();
 									deleteMutation.mutate({
-										componentId: id,
+										app_name: appName,
+										page_name: pageName,
+										properties: {
+											...(properties || {}),
+											widgets: widgets.map((w: any) => ({
+												...w,
+												components: w?.components.filter(
+													(c: any) =>
+														c?.name !== component?.name ||
+														w?.name !== widgetName,
+												),
+											})),
+										},
 									});
 								}}
 								icon={<Trash size="14" />}
@@ -178,14 +201,14 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 									</Text>
 								)}
 								<Stack>
-									{allProperties
+									{fields[component?.component_type]
 										.filter((property: any) => property.category === category)
 										.map((property: any) => {
 											if (
 												property.name === 'display_rules' ||
 												property.type === 'rules'
 											) {
-												return <DisplayRulesEditor id={id} />;
+												return <DisplayRulesEditor name={component.name} />;
 											}
 
 											const showFunctionList =
@@ -197,6 +220,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												<FormInput
 													{...property}
 													id={property.name}
+													name={property.title}
 													type={
 														showFunctionList ? 'select' : property.type
 													}
@@ -226,21 +250,15 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 export const NewComponent = (props: any) => {
 	const toast = useToast();
 	const { isConnected } = useStatus();
-	const { widgetId, appName, pageName } = useAtomValue(pageAtom);
-	const { values } = useGetComponentProperties(widgetId || '');
+	const { widgetName, appName, pageName } = useAtomValue(pageAtom);
+	const { properties } = useGetPage({ appName, pageName });
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 
-	const syncComponents = useSyncComponents();
-
-	const mutation = useCreateComponents({
+	const mutation = useUpdatePageData({
 		onSuccess: (data: any) => {
 			setInspectedResource({
 				id: data.id,
 				type: 'component',
-			});
-			syncComponents.mutate({
-				appName,
-				pageName,
 			});
 			toast({
 				status: 'success',
@@ -257,21 +275,24 @@ export const NewComponent = (props: any) => {
 	});
 
 	const onSubmit = ({ type }: any) => {
-		const currentNames = values
-			.filter((c: any) => c.type === type)
-			.map((c: any) => c.property.name);
+		const currentNames = (
+			properties?.widgets?.find((w: any) => w.name === widgetName)?.components || []
+		)
+			.filter((c: any) => c.component_type === type)
+			.map((c: any) => c.name);
 
-		let nameIndex = 1;
-
-		while (currentNames.includes(`${type}${nameIndex}`)) {
-			nameIndex += 1;
-		}
-
-		const newName = `${type}${nameIndex}`;
+		const { name: newName, label: newLabel } = generateSequentialName({
+			currentNames,
+			prefix: type,
+		});
 
 		let otherProperty: any = {
-			label: newName,
+			label: newLabel,
 		};
+
+		if (type === 'input') {
+			otherProperty = { type: 'text', label: newLabel };
+		}
 
 		if (type === 'text') {
 			otherProperty = {
@@ -280,10 +301,30 @@ export const NewComponent = (props: any) => {
 		}
 
 		mutation.mutate({
-			widgetId,
-			property: { name: newName, ...otherProperty },
-			type,
-			after: values?.[values.length - 1]?.id || null,
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				widgets: [
+					...(properties?.widgets || []).map((w: any) => {
+						if (w.name === widgetName) {
+							return {
+								...w,
+								components: [
+									...(w.components || []),
+									{
+										name: newName,
+										component_type: type,
+										...otherProperty,
+									},
+								],
+							};
+						}
+
+						return w;
+					}),
+				],
+			},
 		});
 	};
 

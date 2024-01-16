@@ -6,8 +6,8 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.utils.connect import get_db
 from server.credentials import ENVIRONMENT
+from server.utils.connect import get_db
 
 
 class Settings(BaseModel):

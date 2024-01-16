@@ -1,40 +1,111 @@
-import { Box, Stack } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
+import { Box, Progress, Stack } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { useParams } from 'react-router-dom';
-import { useGetPage } from '@/features/page';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 import { SmartTable } from './SmartTable';
 import { InspectorContainer } from '@/features/app-builder';
 import { appModeAtom } from '@/features/app/atoms';
 import { NewTable } from '@/features/app-builder/components/PropertiesEditor/NewTable';
 
+import { useReorderTables } from './hooks';
+
 export const StackedTables = () => {
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 
 	const { isPreview } = useAtomValue(appModeAtom);
-	const { tables } = useGetPage(pageId);
+	const { tables, properties } = useGetPage({ appName, pageName });
+
+	const [tableState, setTableState] = useState(tables);
+
+	const reorderMutation = useReorderTables();
+	const updateMutation = useUpdatePageData();
+
+	const handleDragEnd = (result: any) => {
+		const { destination, source } = result;
+		if (!destination) {
+			return;
+		}
+		if (destination.droppableId === source.droppableId && destination.index === source.index) {
+			return;
+		}
+
+		const newTableOrder = Array.from(tableState);
+		const movedEl = newTableOrder.splice(source.index, 1);
+		newTableOrder.splice(destination.index, 0, movedEl[0]);
+		setTableState(newTableOrder);
+		updateMutation.mutate({
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				tables: newTableOrder,
+			},
+		});
+	};
+	useEffect(() => {
+		setTableState(tables);
+	}, [tables]);
 
 	return (
-		<Stack bg="white" spacing="8" p="4" h="full" overflow="auto">
-			{tables.map((table: any) => (
-				<Box flexShrink="0" key={table.id}>
-					<InspectorContainer h="full" w="full" type="table" id={table.id}>
-						<SmartTable tableId={table.id} />
-					</InspectorContainer>
-				</Box>
-			))}
+		<DragDropContext onDragEnd={handleDragEnd}>
+			{reorderMutation.isLoading && <Progress size="xs" isIndeterminate />}
 
-			{isPreview ? null : (
-				<Box
-					ml="auto"
-					borderWidth="1px"
-					borderStyle="dashed"
-					p="2"
-					borderRadius="md"
-					minW="48"
-				>
-					<NewTable w="full" variant="secondary" />
-				</Box>
-			)}
-		</Stack>
+			<Droppable droppableId="droppable-2">
+				{(provided: any) => (
+					<Stack
+						ref={provided.innerRef}
+						bg="white"
+						spacing="8"
+						p="4"
+						h="full"
+						overflow="auto"
+						{...provided.droppableProps}
+					>
+						{tableState.map((table: any, index: number) => (
+							<Draggable
+								key={table.name}
+								draggableId={table.name}
+								index={index}
+								isDragDisabled={isPreview}
+							>
+								{(p: any) => (
+									<Box
+										flexShrink="0"
+										key={`${table.name}-box`}
+										ref={p.innerRef}
+										{...p.draggableProps}
+										{...p.dragHandleProps}
+									>
+										<InspectorContainer
+											h="full"
+											w="full"
+											type="table"
+											id={table.name}
+										>
+											<SmartTable tableName={table.name} />
+										</InspectorContainer>
+									</Box>
+								)}
+							</Draggable>
+						))}
+						{provided.placeholder}
+						{isPreview ? null : (
+							<Box
+								ml="auto"
+								borderWidth="1px"
+								borderStyle="dashed"
+								p="2"
+								borderRadius="md"
+								minW="48"
+							>
+								<NewTable w="full" variant="secondary" />
+							</Box>
+						)}
+					</Stack>
+				)}
+			</Droppable>
+		</DragDropContext>
 	);
 };

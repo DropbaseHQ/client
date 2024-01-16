@@ -19,17 +19,12 @@ import {
 	PopoverHeader,
 } from '@chakra-ui/react';
 import { InputRenderer } from '@/components/FormInput';
-import {
-	useConvertSmartTable,
-	useGetColumnProperties,
-	useGetTable,
-	useUpdateColumnProperties,
-} from '@/features/app-builder/hooks';
+import { useConvertSmartTable, useGetTable } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { newPageStateAtom } from '@/features/app-state';
-import { pageAtom, useGetPage } from '@/features/page';
 import { getErrorMessage } from '@/utils';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 
 const DISPLAY_COLUMN_PROPERTIES = [
 	'schema_name',
@@ -40,15 +35,15 @@ const DISPLAY_COLUMN_PROPERTIES = [
 	'unique',
 ];
 
-const ColumnProperty = ({ id, property: properties, type }: any) => {
+const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 	const toast = useToast();
-	const tableId = useAtomValue(selectedTableIdAtom);
+	const tableName = useAtomValue(selectedTableIdAtom);
+	const { appName, pageName } = useParams();
 
-	const { schema, refetch } = useGetColumnProperties(tableId || '');
+	const { properties: pageProperties } = useGetPage({ appName, pageName });
 
-	const mutation = useUpdateColumnProperties({
+	const updateMutation = useUpdatePageData({
 		onSuccess: () => {
-			refetch();
 			toast({
 				status: 'success',
 				title: 'Updated column properties',
@@ -64,16 +59,38 @@ const ColumnProperty = ({ id, property: properties, type }: any) => {
 	});
 
 	const handleUpdate = (partialValues: any) => {
-		mutation.mutate({
-			columnId: id,
-			payload: { ...properties, ...partialValues },
-			type,
+		updateMutation.mutate({
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(pageProperties || {}),
+				tables: (pageProperties?.tables || []).map((t: any) => {
+					if (t.name === tableName) {
+						return {
+							...t,
+							columns: (t?.columns || []).map((c: any) => {
+								if (c.name === properties.name) {
+									return {
+										...c,
+										...properties,
+										...partialValues,
+									};
+								}
+
+								return c;
+							}),
+						};
+					}
+
+					return t;
+				}),
+			},
 		});
 	};
 
-	const hasNoEditKeys = properties.edit_keys?.length === 0;
+	const hasNoEditKeys = edit_keys?.length === 0;
 
-	const allVisibleProperties = schema.filter((property: any) =>
+	const allVisibleProperties = [].filter((property: any) =>
 		DISPLAY_COLUMN_PROPERTIES.includes(property.name),
 	);
 
@@ -97,7 +114,9 @@ const ColumnProperty = ({ id, property: properties, type }: any) => {
 				<Box>
 					<InputRenderer
 						type="boolean"
-						isDisabled={hasNoEditKeys || mutation.isLoading}
+						isDisabled={
+							tableType !== 'sql' || hasNoEditKeys || updateMutation.isLoading
+						}
 						id="editable"
 						value={properties.editable}
 						onChange={(newValue: any) => {
@@ -112,7 +131,7 @@ const ColumnProperty = ({ id, property: properties, type }: any) => {
 				<InputRenderer
 					type="boolean"
 					id="visible"
-					isDisabled={mutation.isLoading}
+					isDisabled={updateMutation.isLoading}
 					value={properties.visible}
 					onChange={(newValue: any) => {
 						handleUpdate({
@@ -166,20 +185,12 @@ const ColumnProperty = ({ id, property: properties, type }: any) => {
 export const ColumnsProperties = () => {
 	const toast = useToast();
 
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 
 	const tableId = useAtomValue(selectedTableIdAtom);
 	const pageState = useAtomValue(newPageStateAtom);
 
-	const { appName, pageName } = useAtomValue(pageAtom);
-
-	const { files } = useGetPage(pageId);
-
-	const { table } = useGetTable(tableId || '');
-	const file = files.find((f: any) => f.id === table?.file_id);
-	const type = file?.type;
-
-	const { isLoading, values } = useGetColumnProperties(tableId || '');
+	const { type, columns, isLoading, table } = useGetTable(tableId || '');
 
 	const convertMutation = useConvertSmartTable({
 		onSuccess: () => {
@@ -198,14 +209,12 @@ export const ColumnsProperties = () => {
 	});
 
 	const handleConvert = () => {
-		if (table && file)
-			convertMutation.mutate({
-				file,
-				table,
-				state: pageState.state,
-				appName,
-				pageName,
-			});
+		convertMutation.mutate({
+			table,
+			state: pageState.state,
+			appName,
+			pageName,
+		});
 	};
 
 	if (isLoading) {
@@ -256,11 +265,9 @@ export const ColumnsProperties = () => {
 					<Text>Editable</Text>
 					<Text>Visible</Text>
 				</SimpleGrid>
-				{values
-					.sort((a: any, b: any) => a?.property?.name.localeCompare(b?.property?.name))
-					.map((value: any) => (
-						<ColumnProperty key={value.id} {...value} />
-					))}
+				{columns.map((column: any) => (
+					<ColumnProperty tableType={type} key={column.name} {...column} />
+				))}
 			</Stack>
 		</Stack>
 	);

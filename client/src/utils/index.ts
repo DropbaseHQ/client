@@ -49,8 +49,9 @@ export const generateSequentialName = ({ currentNames, prefix }: any) => {
 	}
 
 	const newName = `${prefix}${nameIndex}`;
+	const newLabel = `${prefix.charAt(0).toUpperCase() + prefix.slice(1)} ${nameIndex}`;
 
-	return newName;
+	return { name: newName, label: newLabel };
 };
 
 export const getErrorMessage = (error: any) => {
@@ -61,7 +62,11 @@ export const getErrorMessage = (error: any) => {
 	}
 
 	const errorMessage =
-		error?.response?.data?.error || error?.response?.data || error?.message || '';
+		error?.response?.data?.error ||
+		error?.response?.data?.message ||
+		error?.response?.data ||
+		error?.message ||
+		'';
 
 	if (typeof errorMessage !== 'string') {
 		return JSON.stringify(errorMessage);

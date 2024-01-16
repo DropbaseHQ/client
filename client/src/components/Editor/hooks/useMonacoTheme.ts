@@ -2,7 +2,7 @@ import { useColorMode } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import GhDark from 'monaco-themes/themes/GitHub Dark.json';
-import GhLight from 'monaco-themes/themes/GitHub Light.json';
+import ChromeLight from 'monaco-themes/themes/Chrome DevTools.json';
 
 export const useMonacoTheme = (monaco: any) => {
 	const [themeLoaded, setThemeLoaded] = useState(false);
@@ -12,7 +12,7 @@ export const useMonacoTheme = (monaco: any) => {
 		if (!monaco) return;
 
 		monaco.editor.defineTheme('gh-dark', GhDark);
-		monaco.editor.defineTheme('gh-light', GhLight);
+		monaco.editor.defineTheme('chrome-devtools', ChromeLight);
 
 		setThemeLoaded(true);
 	}, [monaco]);
@@ -24,7 +24,7 @@ export const useMonacoTheme = (monaco: any) => {
 			if (isDark) {
 				monaco.editor.setTheme('gh-dark');
 			} else {
-				monaco.editor.setTheme('gh-light');
+				monaco.editor.setTheme('chrome-devtools');
 			}
 		}
 	}, [monaco, themeLoaded, colorMode]);

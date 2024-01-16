@@ -9,6 +9,7 @@ import {
 	ModalFooter,
 	ModalHeader,
 	ModalOverlay,
+	Progress,
 	Stack,
 	Text,
 } from '@chakra-ui/react';
@@ -54,8 +55,38 @@ const data = [
 export const WorkerDisconnected = () => {
 	const { isConnected, isLoading } = useStatus();
 
-	if (isConnected || isLoading) {
+	if (isConnected) {
 		return null;
+	}
+
+	if (isLoading) {
+		return (
+			<Modal isCentered size="xl" isOpen onClose={() => {}}>
+				<ModalOverlay />
+				<ModalContent>
+					<ModalHeader pos="relative">
+						<Stack spacing="0">
+							<Text fontSize="xl">Checking worker connection</Text>
+							<Text fontSize="sm" color="gray.700" fontWeight="medium">
+								We are trying to make sure the worker is connected with the app.
+							</Text>
+						</Stack>
+
+						<Progress
+							pos="absolute"
+							bottom="0"
+							left="0"
+							right="0"
+							borderTopLeftRadius="0"
+							borderTopRightRadius="0"
+							size="xs"
+							width="full"
+							isIndeterminate
+						/>
+					</ModalHeader>
+				</ModalContent>
+			</Modal>
+		);
 	}
 
 	return (

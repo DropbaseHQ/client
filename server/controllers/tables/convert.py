@@ -1,12 +1,11 @@
 import json
-from typing import Dict
+from typing import Any, Dict
 
 import openai
 from pydantic import BaseModel
 
 from server.constants import GPT_MODEL, GPT_TEMPERATURE
-from server.controllers.state.models import PgColumnDefinedProperty
-from server.controllers.tables.helper import FullDBSchema
+from server.controllers.tables.pg_column import PgSmartColumnProperty
 from server.credentials import OPENAI_API_KEY, OPENAI_ORG_ID
 
 from .gpt_template import get_gpt_input
@@ -25,9 +24,12 @@ class OutputSchema(BaseModel):
     output: Dict[str, ColumnInfo]
 
 
+FullDBSchema = dict[str, dict[str, dict[str, dict[str, Any]]]]
+
+
 def fill_smart_cols_data(
     smart_col_paths: dict, db_schema: FullDBSchema
-) -> dict[str, PgColumnDefinedProperty]:
+) -> dict[str, PgSmartColumnProperty]:
     smart_cols_data = {}
     for name, col_path in smart_col_paths.items():
         try:
@@ -39,7 +41,7 @@ def fill_smart_cols_data(
             # Skip ChatGPT "hallucinated" columns
             continue
         print(col_schema_data)
-        smart_cols_data[name] = PgColumnDefinedProperty(name=name, **col_schema_data)
+        smart_cols_data[name] = PgSmartColumnProperty(name=name, **col_schema_data)
     return smart_cols_data
 
 

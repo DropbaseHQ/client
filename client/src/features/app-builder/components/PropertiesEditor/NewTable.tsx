@@ -4,21 +4,20 @@ import { useSetAtom } from 'jotai';
 
 import { Plus } from 'react-feather';
 import { useToast } from '@/lib/chakra-ui';
-import { useCreateTable } from '@/features/app-builder/hooks';
-import { useGetPage } from '@/features/page';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 import { generateSequentialName, getErrorMessage } from '@/utils';
 import { useStatus } from '@/layout/StatusBar';
 import { inspectedResourceAtom } from '../../atoms';
 
 export const NewTable = (props: any) => {
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
-	const { tables } = useGetPage(pageId);
+	const { tables, properties } = useGetPage({ appName, pageName });
 	const toast = useToast();
 
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 
-	const mutation = useCreateTable({
+	const mutation = useUpdatePageData({
 		onSuccess: (data: any) => {
 			toast({
 				status: 'success',
@@ -38,18 +37,27 @@ export const NewTable = (props: any) => {
 		},
 	});
 
-	const currentLastTable = tables[tables.length - 1];
-
 	const onSubmit = () => {
-		const nextName = generateSequentialName({
+		const { name: nextName, label: nextLabel } = generateSequentialName({
 			currentNames: tables.map((t: any) => t.name) || [],
 			prefix: 'table',
 		});
 
 		mutation.mutate({
-			name: nextName,
-			pageId,
-			property: { appears_after: currentLastTable?.name },
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				tables: [
+					...(properties?.tables || []),
+					{
+						name: nextName,
+						label: nextLabel,
+						type: 'sql',
+						columns: [],
+					},
+				],
+			},
 		});
 	};
 

@@ -5,6 +5,24 @@ import { axios, workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 
+const fetchComponentFields = async () => {
+	const response = await workerAxios.get<any>(`/components/properties/all`);
+
+	return response.data;
+};
+
+export const useResourceFields = () => {
+	const queryKey = ['resource/fields'];
+
+	const { data: response, ...rest } = useQuery(queryKey, () => fetchComponentFields());
+
+	return {
+		...rest,
+		queryKey,
+		fields: response || {},
+	};
+};
+
 export const WIDGET_PROPERTIES_QUERY_KEY = 'widget/properties';
 
 const fetchTableColumnProperties = async ({ widgetId }: { widgetId: string }) => {
@@ -51,6 +69,7 @@ export const useGetComponentProperties = (widgetId: string) => {
 	};
 };
 
+// TODO: @yash-dropbase please review, removed from backend
 const syncComponentsToWorker = async ({ appName, pageName }: any) => {
 	const response = await workerAxios.post(`/sync/components/`, {
 		app_name: appName,
@@ -103,30 +122,6 @@ export const useUpdateComponentProperties = (props: any = {}) => {
 	});
 };
 
-const createComponents = async ({ widgetId, property, type, after }: any) => {
-	const response = await workerAxios.post(`/components/`, {
-		widget_id: widgetId,
-		property,
-		type,
-		after,
-	});
-
-	return response.data;
-};
-
-export const useCreateComponents = (props: any = {}) => {
-	const queryClient = useQueryClient();
-
-	return useMutation(createComponents, {
-		...props,
-		onSettled: () => {
-			queryClient.invalidateQueries(WIDGET_PROPERTIES_QUERY_KEY);
-			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
-		},
-	});
-};
-
 const deleteComponent = async ({ componentId }: any) => {
 	const response = await workerAxios.delete(`/components/${componentId}`);
 	return response.data;
@@ -140,6 +135,25 @@ export const useDeleteComponent = (props: any = {}) => {
 			queryClient.invalidateQueries(WIDGET_PROPERTIES_QUERY_KEY);
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
 			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+		},
+	});
+};
+
+const reorderComponents = async ({ widgetId, components }: any) => {
+	const response = await axios.post(`/components/reorder`, {
+		widget_id: widgetId,
+		components,
+	});
+	return response.data;
+};
+
+export const useReorderComponents = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(reorderComponents, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(WIDGET_PROPERTIES_QUERY_KEY);
+			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
 		},
 	});
 };

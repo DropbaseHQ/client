@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { useQuery } from 'react-query';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
 
 export type App = {
@@ -12,8 +12,8 @@ export type App = {
 	editable: boolean;
 };
 
-const fetchWorkspaceApps = async ({ workspaceId }: { workspaceId: any }) => {
-	const { data } = await axios.get<App[]>(`/app/list/${workspaceId}`);
+const fetchWorkspaceApps = async () => {
+	const { data } = await workerAxios.get<App[]>(`/app/list/`);
 	return data;
 };
 
@@ -24,7 +24,7 @@ export const useGetWorkspaceApps = () => {
 	const queryKey = [APPS_QUERY_KEY, workspaceId];
 	const { data: response, ...rest } = useQuery(
 		queryKey,
-		() => fetchWorkspaceApps({ workspaceId }),
+		() => fetchWorkspaceApps(),
 		{
 			enabled: !!workspaceId,
 		},

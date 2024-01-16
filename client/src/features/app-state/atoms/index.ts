@@ -7,15 +7,17 @@ export const selectedRowAtom: any = atom({});
 // state is divided in two parts - tables & widget
 
 // use to handle tables part of state, and other fields apart from widget in future
-export const nonWidgetStateAtom = atom({});
+// I think this is used for table context
+export const nonWidgetContextAtom = atom<any>({});
 
+export const tableStateAtom = atom({});
 // use to handle widgets part of state
 export const allWidgetStateAtom = atom({
 	selected: null,
 	state: {},
 });
 
-export const allWidgetsInputAtom = atom({});
+export const allWidgetsInputAtom: any = atom({});
 
 // read-write atom for widget components based on widgetState
 export const widgetComponentsAtom: any = atom(
@@ -25,23 +27,18 @@ export const widgetComponentsAtom: any = atom(
 		return currentState.state;
 	},
 	(get, set, inputs: any) => {
-		let widgetState: any = get(allWidgetStateAtom);
-		let currentInputs = get(allWidgetsInputAtom);
+		const widgetState: any = get(allWidgetStateAtom);
+		let currentInputs: any = get(allWidgetsInputAtom);
 
 		if (widgetState.selected) {
+			// FIXME: use just allWidgetsInputAtom
 			Object.keys(inputs).forEach((i) => {
-				widgetState = lodashSet(
-					widgetState,
-					`state.${widgetState.selected}.components.${i}.value`,
-					inputs[i],
-				);
 				currentInputs = lodashSet(currentInputs, `${widgetState.selected}.${i}`, inputs[i]);
 			});
 
 			set(allWidgetsInputAtom, {
 				...JSON.parse(JSON.stringify(currentInputs)),
 			});
-			set(allWidgetStateAtom, { ...JSON.parse(JSON.stringify(widgetState)) });
 		}
 	},
 );
@@ -54,6 +51,6 @@ export const newPageStateAtom = atom((get) => {
 			tables: get(selectedRowAtom) || {},
 			widgets: userInputState || {},
 		},
-		context: { ...get(nonWidgetStateAtom), widgets: get(allWidgetStateAtom).state || {} },
+		context: { ...get(nonWidgetContextAtom), widgets: get(allWidgetStateAtom).state || {} },
 	};
 });

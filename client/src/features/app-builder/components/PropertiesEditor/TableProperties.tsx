@@ -3,40 +3,42 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { Save, Table } from 'react-feather';
-import { Stack, Text, IconButton, ButtonGroup, Icon, Badge } from '@chakra-ui/react';
-import {
-	useDataFetchers,
-	useGetTable,
-	useUpdateTableProperties,
-} from '@/features/app-builder/hooks';
+import { Stack, Text, IconButton, ButtonGroup, Icon, Badge, StackDivider } from '@chakra-ui/react';
+import { useGetTable, useResourceFields } from '@/features/app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { InputLoader } from '@/components/Loader';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { DeleteTable } from '@/features/app-builder/components/PropertiesEditor/DeleteTable';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 import { newPageStateAtom } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 
 export const TableProperties = () => {
 	const tableId = useAtomValue(selectedTableIdAtom);
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 	const toast = useToast();
 
-	const { isLoading, table, refetch, height: defaultTableHeight } = useGetTable(tableId || '');
+	const {
+		isLoading,
+		depends_on: defaultDependsOn,
+		name: defaultTableName,
+		fetcher: defaultFetcher,
+		height: defaultTableHeight,
+		label: defaultTableLabel,
+		table,
+	} = useGetTable(tableId || '');
 
-	const { pageName, appName } = useAtomValue(pageAtom);
+	const { fields } = useResourceFields();
 
-	const { tables } = useGetPage(pageId);
+	const currentCategories = ['Default', 'Events'];
+
+	const { tables, files, properties } = useGetPage({ appName, pageName });
 
 	const pageState = useAtomValue(newPageStateAtom);
 
-	const { fetchers } = useDataFetchers(pageId);
-
-	const mutation = useUpdateTableProperties({
+	const mutation = useUpdatePageData({
 		onSuccess: () => {
-			refetch();
-
 			toast({
 				title: 'Updated table properties',
 				status: 'success',
@@ -59,41 +61,69 @@ export const TableProperties = () => {
 		setValue,
 	} = methods;
 
-	const selectedFileId = watch('fileId');
-	const selectedFile = fetchers.find((f: any) => f.id === selectedFileId);
+	const fetchers = files.filter((f: any) => f.type === 'sql' || f.type === 'data_fetcher');
+
+	const functions = files.filter((f: any) => f.type === 'ui')?.map((f: any) => f?.name);
+
+	const selectedFetcher = watch('fetcher');
+	const selectedFile = files.find((f: any) => f.name === selectedFetcher);
 
 	useEffect(() => {
 		reset(
 			{
-				name: table?.name,
-				fileId: table?.file_id || '',
+				...table,
+				name: defaultTableName,
+				label: defaultTableLabel,
+				fetcher: defaultFetcher || '',
 				height: defaultTableHeight || '',
-				depends: table?.depends_on || null,
+				depends: defaultDependsOn || null,
 			},
 			{
 				keepDirty: false,
 				keepDirtyValues: false,
 			},
 		);
-	}, [table, tableId, defaultTableHeight, reset]);
+	}, [
+		defaultDependsOn,
+		defaultFetcher,
+		defaultTableName,
+		defaultTableLabel,
+		defaultTableHeight,
+		table,
+		reset,
+	]);
 
-	const onSubmit = ({ fileId, height, depends, ...rest }: any) => {
+	const onSubmit = ({ fetcher, height, depends, ...rest }: any) => {
 		mutation.mutate({
-			tableId,
-			appName,
-			pageName,
-			tableName: rest.name,
-			table,
-			file: fetchers.find((f: any) => f.id === fileId),
-			pageId,
-			state: pageState?.state,
-			property: { ...(table?.property || {}), height },
-			depends,
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				tables: [
+					...(properties?.tables || []).map((t: any) => {
+						if (t.name === tableId) {
+							return {
+								...t,
+								...rest,
+								fetcher,
+								depends_on: depends,
+								height,
+								type:
+									fetchers?.find((f: any) => f.name === fetcher)?.type === 'sql'
+										? 'sql'
+										: 'python',
+							};
+						}
+
+						return t;
+					}),
+				],
+			},
 		});
 	};
 
 	const resetDependsOn = (newFileId: any) => {
-		const newFile = fetchers.find((f: any) => f.id === newFileId);
+		const newFile = files.find((f: any) => f.name === newFileId);
 
 		if (newFile?.type === 'data_fetcher') {
 			setValue('depends', null);
@@ -134,108 +164,221 @@ export const TableProperties = () => {
 									icon={<Save size="14" />}
 								/>
 							) : null}
-							<DeleteTable tableId={tableId} tableName={table?.name} />
+							<DeleteTable tableId={tableId} tableName={defaultTableName} />
 						</ButtonGroup>
 					</Stack>
-					<Stack px="4" py="2" h="full" overflowY="auto">
-						<Stack spacing="4">
-							<FormInput
-								id="name"
-								name="Table Name"
-								type="text"
-								validation={{
-									validate: {
-										noUpperCase: (value: any) => {
-											if (value && value !== value.toLowerCase()) {
-												return 'Must be lowercase';
+					{/* FIXME: create a categorized section component */}
+					<Stack spacing="0" h="full" overflowY="auto" divider={<StackDivider />}>
+						{currentCategories.map((category: any) => (
+							<Stack spacing="3" p="3">
+								{category.toLowerCase() === 'default' ? null : (
+									<Text fontSize="md" fontWeight="semibold">
+										{category}
+									</Text>
+								)}
+								<Stack spacing="3">
+									{fields?.table
+										?.filter((property: any) => property.category === category)
+										.map((property: any) => {
+											if (
+												property.name === 'filters' ||
+												property.name === 'type'
+											) {
+												return null;
 											}
-											return true;
-										},
-										noSpecialChars: (value: any) => {
-											if (value && /[^a-z0-9]/.test(value)) {
-												return 'Must not contain special characters';
-											}
-											return true;
-										},
-										isUnique: (value: any) => {
-											if (value && table?.name !== value) {
-												const isUnique = Object.keys(
-													pageState?.state?.tables,
-												).find(
-													(t: any) =>
-														t === value && value !== table?.name,
+
+											if (property.name === 'name') {
+												return (
+													<FormInput
+														id="name"
+														name={property.title}
+														type="text"
+														validation={{
+															validate: {
+																noUpperCase: (value: any) => {
+																	if (
+																		value &&
+																		value !==
+																			value.toLowerCase()
+																	) {
+																		return 'Must be lowercase';
+																	}
+																	return true;
+																},
+																noSpecialChars: (value: any) => {
+																	if (
+																		value &&
+																		/[^a-z0-9_]/.test(value)
+																	) {
+																		return 'Must not contain special characters other than underscores';
+																	}
+																	return true;
+																},
+																isUnique: (value: any) => {
+																	if (
+																		value &&
+																		defaultTableName !== value
+																	) {
+																		const isUnique =
+																			Object.keys(
+																				pageState?.state
+																					?.tables,
+																			).find(
+																				(t: any) =>
+																					t === value &&
+																					value !==
+																						defaultTableName,
+																			);
+																		if (isUnique) {
+																			return 'Table name must be unique';
+																		}
+																	}
+																	return true;
+																},
+															},
+														}}
+													/>
 												);
-												if (isUnique) {
-													return 'Table name must be unique';
-												}
 											}
-											return true;
-										},
-									},
-								}}
-							/>
 
-							<FormInput
-								type="custom-select"
-								id="fileId"
-								name="Fetcher"
-								placeholder="Select data fetcher"
-								onSelect={resetDependsOn}
-								options={(fetchers as any).map((file: any) => ({
-									name: file.name,
-									value: file.id,
-									icon: null,
-									render: (isSelected: boolean) => {
-										return (
-											<Stack alignItems="center" direction="row">
-												<Icon
-													boxSize="6"
-													as={Table}
-													flexShrink="0"
-													color={isSelected ? 'blue.500' : ''}
+											if (property.name === 'fetcher') {
+												return (
+													<FormInput
+														type="custom-select"
+														id="fetcher"
+														name={property.title}
+														placeholder="Select data fetcher"
+														onSelect={resetDependsOn}
+														options={(fetchers as any).map(
+															(file: any) => ({
+																name: file.name,
+																value: file.name,
+																icon: null,
+																render: (isSelected: boolean) => {
+																	return (
+																		<Stack
+																			alignItems="center"
+																			direction="row"
+																		>
+																			<Icon
+																				boxSize="6"
+																				as={Table}
+																				flexShrink="0"
+																				color={
+																					isSelected
+																						? 'blue.500'
+																						: ''
+																				}
+																			/>
+																			<Stack spacing="0">
+																				<Text fontWeight="medium">
+																					{file.name}
+																				</Text>
+																			</Stack>
+																			<Badge
+																				textTransform="lowercase"
+																				size="xs"
+																				ml="auto"
+																				colorScheme={
+																					isSelected
+																						? 'blue'
+																						: 'gray'
+																				}
+																			>
+																				.
+																				{file.type === 'sql'
+																					? 'sql'
+																					: 'py'}
+																			</Badge>
+																		</Stack>
+																	);
+																},
+															}),
+														)}
+													/>
+												);
+											}
+
+											if (property.name === 'height') {
+												return (
+													<FormInput
+														type="select"
+														id="height"
+														name={property.title}
+														placeholder="Select table height"
+														options={['1/3', '1/2', 'full'].map(
+															(size: any) => ({
+																name: size,
+																value: size,
+															}),
+														)}
+													/>
+												);
+											}
+
+											if (property.name === 'size') {
+												return (
+													<FormInput
+														type="select"
+														id="size"
+														name={property.title}
+														placeholder="Select table size"
+														options={[1, 10, 20, 50, 100].map(
+															(size: any) => ({
+																name: size,
+																value: size,
+															}),
+														)}
+													/>
+												);
+											}
+
+											if (property.name === 'depends_on') {
+												return (
+													<FormInput
+														type="multiselect"
+														id="depends"
+														isDisabled={selectedFile?.type === 'sql'}
+														name={property.title}
+														placeholder="Select the table which it depends on"
+														options={tables
+															.filter((t: any) => t.name !== tableId)
+															.map((t: any) => ({
+																name: t.name,
+																value: t.name,
+															}))}
+													/>
+												);
+											}
+
+											const showFunctionList =
+												property.type === 'on_row_change' ||
+												property.name === 'on_row_select';
+
+											return (
+												<FormInput
+													{...property}
+													id={property.name}
+													name={property.title}
+													type={
+														showFunctionList ? 'select' : property.type
+													}
+													options={(
+														(showFunctionList
+															? functions
+															: property.enum || property.options) ||
+														[]
+													).map((o: any) => ({
+														name: o,
+														value: o,
+													}))}
+													key={property.name}
 												/>
-												<Stack spacing="0">
-													<Text fontWeight="medium">{file.name}</Text>
-												</Stack>
-												<Badge
-													textTransform="lowercase"
-													size="xs"
-													ml="auto"
-													colorScheme={isSelected ? 'blue' : 'gray'}
-												>
-													.{file.type === 'sql' ? 'sql' : 'py'}
-												</Badge>
-											</Stack>
-										);
-									},
-								}))}
-							/>
-
-							<FormInput
-								type="select"
-								id="height"
-								name="Table height"
-								placeholder="Select table height"
-								options={['1/3', '1/2', 'full'].map((size: any) => ({
-									name: size,
-									value: size,
-								}))}
-							/>
-
-							<FormInput
-								type="multiselect"
-								id="depends"
-								isDisabled={selectedFile?.type === 'sql'}
-								name="Depends on"
-								placeholder="Select the table which it depends on"
-								options={tables
-									.filter((t: any) => t.id !== tableId)
-									.map((t: any) => ({
-										name: t.name,
-										value: t.name,
-									}))}
-							/>
-						</Stack>
+											);
+										})}
+								</Stack>
+							</Stack>
+						))}
 					</Stack>
 				</Stack>
 			</FormProvider>

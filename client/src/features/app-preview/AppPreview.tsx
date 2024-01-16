@@ -4,185 +4,209 @@ import {
 	AlertIcon,
 	Box,
 	Button,
-	FormControl,
-	FormHelperText,
-	FormLabel,
 	IconButton,
+	Progress,
 	Skeleton,
 	Stack,
 	Text,
+	Accordion,
+	AccordionItem,
+	AccordionButton,
+	AccordionPanel,
+	AccordionIcon,
+	Icon,
 } from '@chakra-ui/react';
-import { ChevronDown, X } from 'react-feather';
+import { useEffect, useRef, useState } from 'react';
+import { ChevronDown, X, Tool, Plus } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import useWebSocket from 'react-use-websocket';
 import { useStatus } from '@/layout/StatusBar';
-import { getErrorMessage } from '@/utils';
+import { axios } from '@/lib/axios';
 
-import { useExecuteAction, useGetWidgetPreview } from '@/features/app-preview/hooks';
-import { InputRenderer } from '@/components/FormInput';
+import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import {
-	widgetComponentsAtom,
 	useInitializeWidgetState,
 	allWidgetStateAtom,
-	useSyncState,
-	newPageStateAtom,
-	allWidgetsInputAtom,
+	nonWidgetContextAtom,
 } from '@/features/app-state';
-import { pageAtom } from '@/features/page';
-import { useCreateWidget } from '@/features/app-builder/hooks';
+import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
+import { useCreateWidget, useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
-import { checkAllRulesPass } from '@/features/app-preview/utils';
 import { InspectorContainer } from '@/features/app-builder';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
 import { appModeAtom } from '@/features/app/atoms';
-import { useToast } from '@/lib/chakra-ui';
+import { AppComponent } from './AppComponent';
+import { generateSequentialName } from '@/utils';
 
-const sizeMap: any = {
-	small: 'sm',
-	medium: 'md',
-	large: 'lg',
-};
-
-const AppComponent = (props: any) => {
-	const toast = useToast();
-	const { pageName, appName } = useAtomValue(pageAtom);
-	const { type, property: component } = props;
-
-	const pageState = useAtomValue(newPageStateAtom);
-
-	const { widgetId } = useAtomValue(pageAtom);
-	const { widget } = useGetWidgetPreview(widgetId || '');
-
-	const [allWidgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
-	const widgetComponents = allWidgetComponents[widget.name]?.components || {};
-	const inputState = widgetComponents?.[component.name] || {};
-
-	const allUserInputValues: any = useAtomValue(allWidgetsInputAtom);
-
-	const widgetInputs = allUserInputValues?.[widget.name] || {};
-
-	const syncState = useSyncState();
-
-	const { isPreview } = useAtomValue(appModeAtom);
-	const isEditorMode = !isPreview;
-
-	const shouldDisplay = checkAllRulesPass({
-		values: widgetInputs,
-		rules: component.display_rules,
-	});
-	const grayOutComponent = !shouldDisplay && isEditorMode;
-
-	const actionMutation = useExecuteAction({
-		onSuccess: (data: any) => {
-			syncState(data);
-		},
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to execute action',
-				description: getErrorMessage(error),
-			});
-		},
-	});
-
-	const handleAction = (actionName: string) => {
-		actionMutation.mutate({
-			pageName,
-			appName,
-			functionName: actionName,
-			pageState,
-		});
-	};
-
-	if (!shouldDisplay && !isEditorMode) {
-		return null;
-	}
-
-	if (type === 'button') {
-		return (
-			<Button
-				my="1.5"
-				size="sm"
-				isLoading={actionMutation.isLoading}
-				bgColor={grayOutComponent ? 'gray.100' : ''}
-				colorScheme={component.color || 'blue'}
-				onClick={() => {
-					if (component.on_click) {
-						handleAction(component.on_click);
-					}
-				}}
-			>
-				{component.label}
-			</Button>
-		);
-	}
-
-	if (type === 'text') {
-		return (
-			<Text
-				fontSize={sizeMap[component.size]}
-				color={component.color || `${component.color}.500`}
-				bgColor={grayOutComponent ? 'gray.100' : ''}
-			>
-				{component.text}
-			</Text>
-		);
-	}
-
-	return (
-		<FormControl key={component.name} bgColor={grayOutComponent ? 'gray.100' : ''}>
-			{component.label ? <FormLabel lineHeight={1}>{component.label}</FormLabel> : null}
-			<InputRenderer
-				placeholder={component?.placeholder}
-				value={inputState?.value}
-				name={component.name}
-				type={type === 'select' ? 'select' : component.type}
-				onChange={(newValue: any) => {
-					setWidgetComponentValues({
-						[component.name]: newValue,
-					});
-
-					if (component.on_change) {
-						handleAction(component.on_change);
-					}
-				}}
-				options={inputState.options || component.options}
-			/>
-
-			{inputState?.message ? <FormHelperText>{inputState.message}</FormHelperText> : null}
-		</FormControl>
-	);
-};
+// websocket
+export const SOCKET_URL = 'ws://localhost:9090/ws';
 
 export const AppPreview = () => {
-	const { pageId } = useParams();
+	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
-	const { widgetId } = useAtomValue(pageAtom);
+	const { widgetName, widgets } = useAtomValue(pageAtom);
+	const retryCounter = useRef(0);
+	const failedData = useRef<any>(null);
+	const setPageAtom = useSetAtom(pageAtom);
+	const widgetLabel = widgets?.find((w) => w.name === widgetName)?.label;
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isDevMode = !isPreview;
 
-	const { isLoading, components, widget } = useGetWidgetPreview(widgetId || '');
+	const {
+		isLoading,
+		components,
+		description: widgetDescription,
+	} = useGetWidgetPreview(widgetName || '');
+	const [componentsState, setComponentsState] = useState(components);
+	useInitializeWidgetState({ widgetName, appName, pageName });
 
-	const { appName, pageName } = useAtomValue(pageAtom);
+	const updateMutation = useUpdatePageData();
 
-	useInitializeWidgetState({ widgetId: widget?.name, appName, pageName });
+	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
 
 	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
 	const allWidgetState = widgetData.state;
 
-	const widgetState: any = allWidgetState[widget?.name];
+	const { properties } = useGetPage({ appName, pageName });
+	const createMutation = useCreateWidget();
+	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
+		onOpen: () => {
+			sendJsonMessage({
+				type: 'auth',
+				access_token: localStorage.getItem('worker_access_token'),
+			});
+		},
+		onMessage: async (message) => {
+			try {
+				const messageData: {
+					authenticated?: boolean;
+					context?: any;
+					failed_data?: any;
+					type?: string;
+				} = JSON.parse(message?.data);
+				if (messageData?.type === 'auth_error' && retryCounter.current < 3) {
+					const response = await axios.post('/user/refresh');
+					const accessToken = response?.data?.access_token;
+					localStorage.setItem('worker_access_token', accessToken);
+					sendJsonMessage({
+						type: 'auth',
+						access_token: accessToken,
+					});
+					retryCounter.current += 1;
+					failedData.current = messageData?.failed_data;
+				}
+				if (messageData?.authenticated === true) {
+					if (failedData.current) {
+						sendJsonMessage(failedData.current);
+						failedData.current = null;
+					}
+				}
+
+				const messageContext = messageData?.context;
+				if (!messageContext) {
+					return;
+				}
+
+				const { widgets: newWidgetsData, ...rest } = messageContext || {};
+
+				setWidgetData((s: any) => ({ ...s, state: newWidgetsData || {} }));
+				setNonInteractiveState(rest);
+			} catch (e) {
+				//
+			}
+		},
+
+		share: true,
+	});
+
+	const reorderMutation = useReorderComponents();
+
+	const widgetState: any = allWidgetState[widgetName || ''];
 
 	const handleRemoveAlert = () => {
 		setWidgetData((oldData: any) => ({
-			...lodashSet(oldData, `state.${widget?.name}.message`, null),
+			...lodashSet(oldData, `state.${widgetName}.message`, null),
 		}));
 	};
 
-	const mutation = useCreateWidget();
+	const handleReorderComponents = (newCompState: any[]) => {
+		const newProps = {
+			...(properties || {}),
 
-	if (!widgetId) {
+			widgets: properties?.widgets?.map((w: any) => {
+				if (w.name !== widgetName) {
+					return w;
+				}
+
+				return {
+					...w,
+					components: newCompState,
+				};
+			}),
+		};
+		updateMutation.mutate({
+			app_name: appName,
+			page_name: pageName,
+			properties: newProps,
+		});
+	};
+
+	const handleCreateWidget = () => {
+		const { name: wName, label: wLabel } = generateSequentialName({
+			currentNames: widgets?.map((w: any) => w.name) as string[],
+			prefix: 'widget',
+		});
+
+		createMutation.mutate({
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				widgets: [
+					...(properties?.widgets || []),
+					{
+						name: wName,
+						label: wLabel,
+						components: [],
+					},
+				],
+			},
+		});
+	};
+
+	const handleChooseWidget = (newWidgetName: any) => {
+		setPageAtom((oldPageAtom) => ({
+			...oldPageAtom,
+			widgetName: newWidgetName,
+		}));
+	};
+
+	const handleOnDragEnd = (result: any) => {
+		const { destination, source } = result;
+		if (!destination) {
+			return;
+		}
+
+		if (destination.droppableId === source.droppableId && destination.index === source.index) {
+			return;
+		}
+
+		const newComponentState = Array.from(componentsState);
+		const movedEl = newComponentState.splice(source.index, 1);
+		newComponentState.splice(destination.index, 0, movedEl[0]);
+		setComponentsState(newComponentState);
+		handleReorderComponents(newComponentState);
+	};
+
+	useEffect(() => {
+		setComponentsState(components);
+	}, [components]);
+
+	if (!widgetName) {
 		if (!isDevMode) {
 			return null;
 		}
@@ -224,14 +248,9 @@ export const AppPreview = () => {
 						w="fit-content"
 						colorScheme="blue"
 						size="sm"
-						isLoading={mutation.isLoading}
+						isLoading={createMutation.isLoading}
 						isDisabled={!isConnected}
-						onClick={() => {
-							mutation.mutate({
-								pageId,
-								name: 'widget1',
-							});
-						}}
+						onClick={handleCreateWidget}
 					>
 						Build Widget
 					</Button>
@@ -239,10 +258,60 @@ export const AppPreview = () => {
 			</Stack>
 		);
 	}
-
 	return (
 		<Loader isLoading={isLoading}>
 			<Stack bg="white" h="full">
+				{reorderMutation.isLoading && <Progress size="xs" isIndeterminate />}
+				<Accordion allowToggle>
+					<AccordionItem>
+						<AccordionButton display="flex" justifyContent="center" h="5">
+							<AccordionIcon />
+						</AccordionButton>
+						<AccordionPanel p={0}>
+							<Stack direction="column" p="1">
+								{widgets?.map((w: any) => (
+									<Stack
+										as="button"
+										px="2"
+										borderRadius="sm"
+										direction="row"
+										alignItems="center"
+										bg={w?.name === widgetName ? 'gray.50' : 'white'}
+										borderWidth={w?.name === widgetName ? '1px' : '0'}
+										color={w?.name === widgetName ? 'gray.900' : 'gray.700'}
+										onClick={() => handleChooseWidget(w.name)}
+										_hover={{
+											bg: 'gray.50',
+											color: 'gray.800',
+										}}
+									>
+										<Icon as={Tool} mr="2" />
+										<Text>{w?.name}</Text>
+									</Stack>
+								))}
+
+								{!isPreview && (
+									<Button
+										variant="outline"
+										size="sm"
+										colorScheme="gray"
+										isLoading={createMutation.isLoading}
+										onClick={handleCreateWidget}
+									>
+										<Stack
+											alignItems="center"
+											justifyContent="center"
+											direction="row"
+										>
+											<Icon as={Plus} mr="2" />
+											<Box>Add Widget</Box>
+										</Stack>
+									</Button>
+								)}
+							</Stack>
+						</AccordionPanel>
+					</AccordionItem>
+				</Accordion>
 				<Stack
 					px="4"
 					py="2"
@@ -251,42 +320,71 @@ export const AppPreview = () => {
 					alignItems="center"
 					justifyContent="space-between"
 				>
-					<InspectorContainer noPadding type="widget" id={widgetId}>
+					<InspectorContainer noPadding type="widget" id={widgetName}>
 						<Stack spacing="0">
 							<Text fontSize="md" fontWeight="semibold">
-								{widget?.property?.name}
+								{widgetLabel || widgetName}
 							</Text>
-							{widget?.property?.description ? (
+							{widgetDescription ? (
 								<Text fontSize="sm" color="gray.600">
-									{widget?.property?.description}
+									{widgetDescription}
 								</Text>
 							) : null}
 						</Stack>
 					</InspectorContainer>
 				</Stack>
-
-				<Stack p="4" h="full" overflow="auto" spacing="3">
-					{components.map((c: any) => {
-						return (
-							<InspectorContainer key={c.id} id={c.id} type="component">
-								<AppComponent key={c.id} {...c} />
-							</InspectorContainer>
-						);
-					})}
-					{isDevMode ? (
-						<Box
-							w="full"
-							p="2"
-							bg="white"
-							borderWidth="1px"
-							borderStyle="dashed"
-							borderRadius="md"
-							mt="auto"
-						>
-							<NewComponent w="full" variant="secondary" />
-						</Box>
-					) : null}
-				</Stack>
+				<DragDropContext onDragEnd={handleOnDragEnd}>
+					<Droppable droppableId="droppable-1">
+						{(provided: any) => (
+							<Stack
+								ref={provided.innerRef}
+								p="4"
+								pt="2"
+								h="full"
+								overflow="auto"
+								spacing="3"
+								{...provided.droppableProps}
+							>
+								{componentsState.map((c: any, index: number) => {
+									return (
+										<Draggable key={c.name} draggableId={c.name} index={index}>
+											{(p: any) => (
+												<InspectorContainer
+													ref={p.innerRef}
+													key={c.name}
+													id={c.name}
+													type="component"
+													{...p.draggableProps}
+													{...p.dragHandleProps}
+												>
+													<AppComponent
+														key={c.name}
+														sendJsonMessage={sendJsonMessage}
+														{...c}
+													/>
+												</InspectorContainer>
+											)}
+										</Draggable>
+									);
+								})}
+								{provided.placeholder}
+								{isDevMode ? (
+									<Box
+										w="full"
+										p="2"
+										bg="white"
+										borderWidth="1px"
+										borderStyle="dashed"
+										borderRadius="md"
+										mt="2"
+									>
+										<NewComponent w="full" variant="secondary" />
+									</Box>
+								) : null}
+							</Stack>
+						)}
+					</Droppable>
+				</DragDropContext>
 
 				{widgetState?.message ? (
 					<Stack

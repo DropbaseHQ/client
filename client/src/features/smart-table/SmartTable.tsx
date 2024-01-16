@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
-import { RefreshCw, RotateCw } from 'react-feather';
+import { Info, RotateCw, UploadCloud } from 'react-feather';
 
 import DataEditor, {
 	CompactSelection,
@@ -23,26 +23,29 @@ import DataEditor, {
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
 import { useParams } from 'react-router-dom';
+import useWebSocket from 'react-use-websocket';
 
-import { newPageStateAtom, selectedRowAtom } from '@/features/app-state';
+import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
+import { SOCKET_URL } from '../app-preview';
+
+import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
 
 import {
-	CurrentTableContext,
-	useCurrentTableData,
-	useSyncDropbaseColumns,
-	useTableSyncStatus,
-	// useTableSyncStatus,
-} from './hooks';
-
-import { cellEditsAtom, tablePageInfoAtom } from './atoms';
+	cellEditsAtom,
+	hasSelectedRowAtom,
+	tableColumnWidthAtom,
+	tablePageInfoAtom,
+} from './atoms';
 import { TableBar } from './components';
-import { getPGColumnBaseType } from '@/utils';
+import { getErrorMessage, getPGColumnBaseType } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
-import { pageAtom, useGetPage } from '../page';
+
 import { appModeAtom } from '@/features/app/atoms';
 import { Pagination } from './components/Pagination';
 import { DEFAULT_PAGE_SIZE } from './constants';
+import { useGetPage, useUpdatePageData } from '@/features/page';
+import { useToast } from '@/lib/chakra-ui';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -50,11 +53,22 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-export const SmartTable = ({ tableId }: any) => {
+export const SmartTable = ({ tableName }: any) => {
+	const toast = useToast();
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
 
+	const { appName, pageName } = useParams();
+
+	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
+		share: true,
+	});
+
+	const pageState = useAtomValue(newPageStateAtom);
 	const { isPreview } = useAtomValue(appModeAtom);
+
+	const [allTableColumnWidth, setTableColumnWidth] = useAtom(tableColumnWidthAtom);
+	const [tablesRowSelected, setTableRowSelection] = useAtom(hasSelectedRowAtom);
 
 	const [selection, setSelection] = useState({
 		rows: CompactSelection.empty(),
@@ -62,38 +76,83 @@ export const SmartTable = ({ tableId }: any) => {
 		current: undefined,
 	});
 
-	const { isLoading, rows, columns, header, refetch, isRefetching, tableError, error } =
-		useCurrentTableData(tableId);
-	const { table, isLoading: isLoadingTable, height } = useGetTable(tableId || '');
-	const tableIsUnsynced = useTableSyncStatus(tableId);
-	const syncMutation = useSyncDropbaseColumns();
+	const tableColumnWidth = allTableColumnWidth?.[tableName];
 
-	const tableName = table?.name;
+	const { properties } = useGetPage({ appName, pageName });
+
+	const { isLoading, rows, columnDict, header, refetch, isRefetching, tableError, error } =
+		useCurrentTableData(tableName);
+	const {
+		depends_on: dependsOn,
+		isLoading: isLoadingTable,
+		height,
+		size,
+		table,
+	} = useGetTable(tableName || '');
+	const tableIsUnsynced = useTableSyncStatus(tableName);
+
+	const mutation = useUpdatePageData({
+		onSuccess: () => {
+			toast({
+				title: 'Commited Columns details',
+				status: 'success',
+			});
+		},
+		onError: (err: any) => {
+			toast({
+				title: 'Failed to commit',
+				status: 'error',
+				description: getErrorMessage(err),
+			});
+		},
+	});
+	const [nonWidgetContext, setNonWidgetContext] = useAtom(nonWidgetContextAtom);
+	const currentTableContext = nonWidgetContext?.tables?.[tableName];
+
+	useEffect(() => {
+		if (currentTableContext && currentTableContext?.reload) {
+			refetch();
+			setNonWidgetContext((old: any) => ({
+				...old,
+				tables: {
+					...old.tables,
+					[tableName]: {
+						...old.tables[tableName],
+						reload: false,
+					},
+				},
+			}));
+		}
+	}, [currentTableContext, setNonWidgetContext, tableName, refetch]);
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
-	const cellEdits = allCellEdits?.[tableId] || [];
+	const cellEdits = allCellEdits?.[tableName] || [];
 
 	const [selectedData, selectRow] = useAtom(selectedRowAtom);
 	const selectedRow = (selectedData as any)?.[tableName];
 
 	const [allTablePageInfo, setPageInfo] = useAtom(tablePageInfoAtom);
-	const pageInfo = allTablePageInfo[tableId] || {};
+	const pageInfo = allTablePageInfo[tableName] || {};
 
-	const [columnWidth, setColumnWidth] = useState<any>({});
+	const [columnWidth, setColumnWidth] = useState<any>(tableColumnWidth || {});
 
-	const { pageName, appName } = useAtomValue(pageAtom);
+	const onColumnResize = useCallback(
+		(col: any, newSize: any) => {
+			setColumnWidth((c: any) => ({
+				...c,
+				[col.id]: newSize,
+			}));
 
-	const { pageId } = useParams();
-	const { files } = useGetPage(pageId);
-
-	const pageState = useAtomValue(newPageStateAtom);
-
-	const onColumnResize = useCallback((col: any, newSize: any) => {
-		setColumnWidth((c: any) => ({
-			...c,
-			[col.id]: newSize,
-		}));
-	}, []);
+			setTableColumnWidth((old: any) => ({
+				...old,
+				[tableName]: {
+					...(old?.[tableName] || {}),
+					[col.id]: newSize,
+				},
+			}));
+		},
+		[setTableColumnWidth, tableName],
+	);
 
 	useEffect(() => {
 		const selectedIndex = rows.findIndex(
@@ -108,22 +167,33 @@ export const SmartTable = ({ tableId }: any) => {
 		}
 	}, [selectedRow, rows, selection]);
 
+	// only fill column width if the current state is empty
+	useEffect(() => {
+		setColumnWidth((curr: any) => {
+			if (Object.keys(curr).length === 0 && tableColumnWidth) {
+				return tableColumnWidth;
+			}
+
+			return curr;
+		});
+	}, [tableColumnWidth, setColumnWidth]);
+
 	useEffect(() => {
 		setCellEdits((old: any) => ({
 			...old,
-			[tableId]: [],
+			[tableName]: [],
 		}));
-	}, [tableId, setCellEdits]);
+	}, [tableName, setCellEdits]);
 
 	useEffect(() => {
 		setPageInfo((old: any) => ({
 			...old,
-			[tableId]: {
+			[tableName]: {
 				currentPage: 0,
-				pageSize: DEFAULT_PAGE_SIZE,
+				pageSize: size,
 			},
 		}));
-	}, [tableId, setPageInfo]);
+	}, [tableName, size, setPageInfo]);
 
 	const gridTheme =
 		colorMode === 'dark'
@@ -163,18 +233,14 @@ export const SmartTable = ({ tableId }: any) => {
 			  };
 
 	const visibleColumns = header.filter(
-		(columnName: any) => !columns?.[columnName] || columns[columnName]?.visible,
+		(column: any) => !columnDict?.[column?.name] || columnDict[column?.name]?.visible,
 	);
 
-	const gridColumns = visibleColumns.map((columnName: any) => {
-		const column = columns[columnName] || {
-			name: columnName,
-		};
-
+	const gridColumns = visibleColumns.map((column: any) => {
 		// ⚠️ only by passing undefined we can hide column icon
-		let icon = column?.type ? GridColumnIcon.HeaderString : undefined;
+		let icon = column?.display_type ? GridColumnIcon.HeaderString : undefined;
 
-		switch (getPGColumnBaseType(column?.type)) {
+		switch (column?.display_type) {
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -218,7 +284,7 @@ export const SmartTable = ({ tableId }: any) => {
 			};
 		}
 
-		if (!columns[columnName]) {
+		if (!columnDict[column?.name]) {
 			return {
 				...gridColumn,
 				themeOverride: {
@@ -234,9 +300,7 @@ export const SmartTable = ({ tableId }: any) => {
 
 	const getCellContent: any = ([col, row]: any) => {
 		const currentRow = rows[row];
-		const column = columns[visibleColumns[col]] || {
-			name: visibleColumns[col],
-		};
+		const column = columnDict[visibleColumns[col]?.name] || visibleColumns[col];
 
 		const currentValue = currentRow?.[column?.name];
 
@@ -317,11 +381,11 @@ export const SmartTable = ({ tableId }: any) => {
 		const [col, row] = cell;
 		const currentRow = rows[row];
 
-		const column = columns[visibleColumns[col]];
+		const column = columnDict[visibleColumns[col]?.name];
 
 		if (column?.edit_keys?.length > 0) {
 			setCellEdits((old: any) => {
-				const hasCellEdit = (old?.[tableId] || []).find(
+				const hasCellEdit = (old?.[tableName] || []).find(
 					(cellEdit: any) =>
 						cellEdit.rowIndex === row && column.name === cellEdit.column_name,
 				);
@@ -329,7 +393,7 @@ export const SmartTable = ({ tableId }: any) => {
 				if (hasCellEdit) {
 					return {
 						...old,
-						[tableId]: (old?.[tableId] || []).map((cellEdit: any) => {
+						[tableName]: (old?.[tableName] || []).map((cellEdit: any) => {
 							if (cellEdit.rowIndex === row && column.name === cellEdit.column_name) {
 								return {
 									...cellEdit,
@@ -344,8 +408,8 @@ export const SmartTable = ({ tableId }: any) => {
 
 				return {
 					...old,
-					[tableId]: [
-						...(old?.[tableId] || []),
+					[tableName]: [
+						...(old?.[tableName] || []),
 						{
 							new_value: newValue.data === undefined ? null : newValue.data,
 							value: currentRow[column.name],
@@ -359,6 +423,38 @@ export const SmartTable = ({ tableId }: any) => {
 				};
 			});
 		}
+	};
+
+	const onSelectionCleared = () => {
+		setSelection({
+			rows: CompactSelection.empty(),
+			columns: CompactSelection.empty(),
+			current: undefined,
+		});
+
+		const newSelectedRow = {
+			[tableName]: Object.keys(selectedRow).reduce(
+				(acc: { [col: string]: string | null }, curr: string) => ({ ...acc, [curr]: null }),
+				{},
+			),
+		};
+
+		selectRow((old: any) => ({
+			...old,
+			...newSelectedRow,
+		}));
+
+		setTableRowSelection((curr: any) => ({
+			...curr,
+			[tableName]: false,
+		}));
+		pageState.state.tables = newSelectedRow;
+		sendJsonMessage({
+			type: 'display_rule',
+			state_context: pageState,
+			app_name: appName,
+			page_name: pageName,
+		});
 	};
 
 	const handleSetSelection = (newSelection: any) => {
@@ -382,15 +478,45 @@ export const SmartTable = ({ tableId }: any) => {
 				...old,
 				...newSelectedRow,
 			}));
+
+			setTableRowSelection((curr: any) => ({
+				...curr,
+				[tableName]: true,
+			}));
+			pageState.state.tables = newSelectedRow;
+			sendJsonMessage({
+				type: 'display_rule',
+				state_context: pageState,
+				app_name: appName,
+				page_name: pageName,
+			});
+		} else {
+			onSelectionCleared();
 		}
 	};
-	const handleSyncColumns = () => {
-		syncMutation.mutate({
-			pageName,
-			appName,
-			table,
-			file: files.find((f: any) => f.id === table?.file_id),
-			state: pageState.state,
+
+	const handleCommitColumns = () => {
+		mutation.mutate({
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				tables: [
+					...(properties?.tables || []).map((t: any) => {
+						if (t.name === tableName) {
+							return {
+								...t,
+								columns: header.map((c: any) => ({
+									...(columnDict?.[c] || {}),
+									...c,
+								})),
+							};
+						}
+
+						return t;
+					}),
+				],
+			},
 		});
 	};
 
@@ -407,20 +533,41 @@ export const SmartTable = ({ tableId }: any) => {
 		};
 	});
 
-	const memoizedContext = useMemo(() => ({ tableId }), [tableId]);
+	const memoizedContext = useMemo(() => ({ tableName }), [tableName]);
 
 	const errorMessage = tableError || error?.response?.data?.result?.error || error?.message;
+
+	const dependantTablesWithNoRowSelection = (dependsOn || []).filter(
+		(name: any) => !tablesRowSelected[name],
+	);
 
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="1">
 				<NavLoader isLoading={isLoadingTable}>
 					<Flex justifyContent="space-between">
-						<Text flexShrink="0" px="2" fontWeight="semibold">
-							{tableName}
-						</Text>
+						<Stack spacing="0" px="2" flexShrink="0">
+							<Text fontWeight="semibold">{table?.label || tableName}</Text>
+							{dependantTablesWithNoRowSelection.length > 0 ? (
+								<Stack direction="row" spacing="1" alignItems="center">
+									<Box color="orange.500">
+										<Info size="14" />
+									</Box>
+									<Text fontSize="xs">
+										This table depends on{' '}
+										<Box as="span" px=".5" fontWeight="semibold">
+											{(dependsOn || []).join(', ')}
+										</Box>
+										. No row selection found for{' '}
+										<Box as="span" fontWeight="semibold" color="orange.500">
+											{dependantTablesWithNoRowSelection.join(', ')}
+										</Box>
+									</Text>
+								</Stack>
+							) : null}
+						</Stack>
 
-						<Stack direction="row" spacing="2">
+						<Stack alignItems="center" direction="row" spacing="2">
 							<Tooltip label="Refresh data">
 								<IconButton
 									aria-label="Refresh Data"
@@ -434,16 +581,16 @@ export const SmartTable = ({ tableId }: any) => {
 							</Tooltip>
 
 							{!isLoading && !isPreview && tableIsUnsynced ? (
-								<Tooltip label="Sync columns">
+								<Tooltip label="Save columns">
 									<Button
 										variant="outline"
 										colorScheme="gray"
-										leftIcon={<RefreshCw size="14" />}
+										leftIcon={<UploadCloud size="14" />}
 										size="sm"
-										onClick={handleSyncColumns}
-										isLoading={syncMutation.isLoading}
+										onClick={handleCommitColumns}
+										isLoading={mutation.isLoading}
 									>
-										Resync
+										Save Columns
 									</Button>
 								</Tooltip>
 							) : null}
@@ -453,7 +600,12 @@ export const SmartTable = ({ tableId }: any) => {
 
 				<Stack spacing="2">
 					<TableBar />
-					<Box minH={heightMap[height] || '3xs'} borderWidth="1px" borderRadius="sm">
+					<Box
+						minH={heightMap[height] || '3xs'}
+						borderWidth="1px"
+						borderRadius="sm"
+						contentEditable
+					>
 						{isLoading ? (
 							<Center h="full" as={Stack}>
 								<Spinner size="md" />
@@ -475,7 +627,10 @@ export const SmartTable = ({ tableId }: any) => {
 								) : (
 									<DataEditor
 										columns={gridColumns}
-										rows={pageInfo.pageSize || DEFAULT_PAGE_SIZE}
+										rows={Math.min(
+											rows.length,
+											pageInfo.pageSize || DEFAULT_PAGE_SIZE,
+										)}
 										width="100%"
 										height="100%"
 										getCellContent={getCellContent}
@@ -484,16 +639,18 @@ export const SmartTable = ({ tableId }: any) => {
 										smoothScrollY
 										theme={gridTheme}
 										onGridSelectionChange={handleSetSelection}
+										onSelectionCleared={onSelectionCleared}
 										gridSelection={selection}
 										highlightRegions={highlights}
 										onCellEdited={onCellEdited}
 										keybindings={{ search: true }}
 										onColumnResize={onColumnResize}
 									/>
-								)}{' '}
+								)}
 							</>
 						)}
 					</Box>
+
 					<Pagination />
 				</Stack>
 			</Stack>

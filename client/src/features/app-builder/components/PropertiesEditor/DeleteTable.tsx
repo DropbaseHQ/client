@@ -17,14 +17,19 @@ import {
 import { useSetAtom } from 'jotai';
 
 import { Trash } from 'react-feather';
+import { useParams } from 'react-router-dom';
 import { useToast } from '@/lib/chakra-ui';
-import { useDeleteTable } from '@/features/app-builder/hooks';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { getErrorMessage } from '@/utils';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 
 export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 	const toast = useToast();
 	const setDevTab = useSetAtom(inspectedResourceAtom);
+
+	const { appName, pageName } = useParams();
+
+	const { properties } = useGetPage({ appName, pageName });
 
 	const { isOpen, onToggle, onClose } = useDisclosure({
 		onClose: () => {
@@ -35,7 +40,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 		},
 	});
 
-	const mutation = useDeleteTable({
+	const mutation = useUpdatePageData({
 		onSuccess: () => {
 			onClose();
 			toast({
@@ -57,8 +62,22 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 	});
 
 	const onSubmit = () => {
+		if (properties.tables.length == 1) {
+			toast({
+				status: 'error',
+				title: 'Failed to delete table',
+				description: 'Your app must have atleast one table',
+			});
+			return;
+		}
+
 		mutation.mutate({
-			tableId,
+			app_name: appName,
+			page_name: pageName,
+			properties: {
+				...(properties || {}),
+				tables: [...(properties?.tables || []).filter((t: any) => t.name !== tableId)],
+			},
 		});
 	};
 

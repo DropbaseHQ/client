@@ -15,3 +15,8 @@ export const selectedTableIdAtom = atom((get) => {
 
 	return devTab.type === 'table' ? devTab.id : null;
 });
+
+export const previewCodeAtom = atom<any>({
+	name: null,
+	code: null,
+});
