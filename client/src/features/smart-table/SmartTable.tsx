@@ -321,7 +321,7 @@ export const SmartTable = ({ tableName }: any) => {
 		return `${hours}:${mins}:${secs} ${suffix}`;
 	};
 
-	// converts Date object to string of format yyyy-mm-dd hh:mm:ss
+	// converts Date object to string of format yyyy-mm-dd hh:mm:ss AM/PM
 	const formatDateTime = (date: Date) => {
 		let hours = date.getUTCHours();
 		const suffix = hours >= 12 ? 'PM' : 'AM';
