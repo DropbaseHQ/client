@@ -311,7 +311,8 @@ export const SmartTable = ({ tableName }: any) => {
 	const formatTime = (time: string) => {
 		let [hours, mins, secs] = time.split(':');
 		const suffix = parseInt(hours, 10) >= 12 ? 'PM' : 'AM';
-		hours = hours === '12' ? '12' : String(parseInt(hours, 10) % 12).padStart(2, '0');
+		hours = String(parseInt(hours, 10) % 12).padStart(2, '0');
+		if (hours === '00') hours = '12';
 		mins = String(Math.round(parseInt(mins, 10))).padStart(2, '0');
 		secs = String(Math.round(parseInt(secs, 10))).padStart(2, '0');
 
