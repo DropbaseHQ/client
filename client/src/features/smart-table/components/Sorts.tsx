@@ -105,9 +105,9 @@ export const SortButton = () => {
 												bg="bg-canvas"
 												placeholder="Select column"
 											>
-												{Object.keys(columns).map((column: any) => (
-													<option value={column} key={column}>
-														{column}
+												{columns.map((column: any) => (
+													<option value={column.name} key={column.name}>
+														{column.name}
 													</option>
 												))}
 											</Select>

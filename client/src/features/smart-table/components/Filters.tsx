@@ -19,18 +19,15 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Filter as FilterIcon, Plus, Star, Trash } from 'react-feather';
 import { useAtom, useAtomValue } from 'jotai';
 import { filtersAtom } from '@/features/smart-table/atoms';
-import {
-	useCurrentTableData,
-	useCurrentTableName,
-	usePinFilters,
-} from '@/features/smart-table/hooks';
+import { useCurrentTableData, useCurrentTableName } from '@/features/smart-table/hooks';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
-import { getPGColumnBaseType } from '@/utils';
 import { appModeAtom } from '@/features/app/atoms';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 
 const COMMON_OPERATORS = [
 	{
@@ -81,7 +78,11 @@ const TEXT_OPERATORS = [
 
 const getConditionsByType = (type?: string) => {
 	if (type) {
-		switch (getPGColumnBaseType(type)) {
+		if (type.startsWith('VARCHAR')) {
+			return [...TEXT_OPERATORS, ...COMMON_OPERATORS];
+		}
+
+		switch (type) {
 			case 'float':
 			case 'integer': {
 				return [...COMMON_OPERATORS, ...COMPARISON_OPERATORS];
@@ -118,18 +119,27 @@ export const FilterButton = () => {
 	const tableId = useCurrentTableName();
 	const { isOpen, onToggle, onClose } = useDisclosure();
 
+	const { appName, pageName } = useParams();
+
 	const { isPreview } = useAtomValue(appModeAtom);
 
+	const { properties } = useGetPage({ appName, pageName });
 	const { columnDict: columns } = useCurrentTableData(tableId);
 
 	const [allFilters, setFilters] = useAtom(filtersAtom);
 	const filters = allFilters[tableId] || [];
 
-	const pinFilterMutation = usePinFilters({
+	const mutation = useUpdatePageData({
 		onSuccess: () => {
 			toast({
 				status: 'success',
 				title: 'Pinned filters updated',
+			});
+		},
+		onError: () => {
+			toast({
+				status: 'error',
+				title: 'Failed to update pinned filters',
 			});
 		},
 	});
@@ -175,9 +185,29 @@ export const FilterButton = () => {
 		}));
 
 		if (!isPreview) {
-			pinFilterMutation.mutate({
-				tableId,
-				filters: updatedFilters.filter((f: any) => f.pinned),
+			mutation.mutate({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(properties || {}),
+					tables: [
+						...(properties?.tables || []).map((t: any) => {
+							if (t.name === tableId) {
+								return {
+									...t,
+									filters: updatedFilters
+										.filter((f: any) => f.pinned)
+										.map((f: any) => ({
+											column_name: f.column_name,
+											condition: f.condition,
+										})),
+								};
+							}
+
+							return t;
+						}),
+					],
+				},
 			});
 		}
 	};
@@ -211,11 +241,11 @@ export const FilterButton = () => {
 					) : (
 						<VStack alignItems="start" w="full">
 							{filters.map((filter: any, index: any) => {
-								const colType = columns[filter?.column_name]?.type;
+								const colType = columns[filter?.column_name]?.display_type;
 
 								let inputType = 'text';
 
-								if (getPGColumnBaseType(colType) === 'integer') {
+								if (colType === 'integer') {
 									inputType = 'number';
 								}
 
