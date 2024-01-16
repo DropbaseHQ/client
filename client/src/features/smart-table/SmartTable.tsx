@@ -300,14 +300,16 @@ export const SmartTable = ({ tableName }: any) => {
 		return gridColumn;
 	});
 
+	// converts Date object to string of format yyyy-mm-dd
 	const formatDate = (date: Date) => {
-		const year = date.getFullYear();
-		const month = date.getMonth() + 1;
-		const day = date.getDate();
+		const year = date.getUTCFullYear();
+		const month = date.getUTCMonth() + 1;
+		const day = date.getUTCDate();
 
 		return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 	};
 
+	// converts hh:mm:ss.mmmmmm to hh:mm:ss AM/PM
 	const formatTime = (time: string) => {
 		let [hours, mins, secs] = time.split(':');
 		const suffix = parseInt(hours, 10) >= 12 ? 'PM' : 'AM';
@@ -318,11 +320,12 @@ export const SmartTable = ({ tableName }: any) => {
 
 		return `${hours}:${mins}:${secs} ${suffix}`;
 	};
-
+	
+	// converts Date object to string of format yyyy-mm-dd hh:mm:ss
 	const formatDateTime = (date: Date) => {
-		const hours = date.getHours();
-		const minutes = date.getMinutes();
-		const seconds = date.getSeconds();
+		const hours = date.getUTCHours();
+		const minutes = date.getUTCMinutes();
+		const seconds = date.getUTCSeconds();
 
 		return `${formatDate(date)} ${hours.toString().padStart(2, '0')}:${minutes
 			.toString()
