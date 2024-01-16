@@ -1,26 +1,23 @@
 from uuid import UUID
-from typing import List
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from server import crud
+from server.controllers.group import GroupController
+from server.controllers.group import get_group as c_get_group
+from server.models import User
 from server.schemas.group import (
-    CreateGroup,
-    UpdateGroup,
-    AddUser,
-    RemoveUser,
     AddGroupPolicyRequest,
+    AddUser,
+    CreateGroup,
     RemoveGroupPolicyRequest,
+    RemoveUser,
+    UpdateGroup,
     UpdateGroupPolicyRequest,
 )
-from server.models import User
 from server.utils.authorization import RESOURCES, AuthZDepFactory, get_current_user
 from server.utils.connect import get_db
-from server.controllers.group import (
-    GroupController,
-    get_group as c_get_group,
-)
-
 
 group_authorizer = AuthZDepFactory(default_resource_type=RESOURCES.WORKSPACE)
 

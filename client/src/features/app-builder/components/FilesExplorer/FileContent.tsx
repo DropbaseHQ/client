@@ -13,6 +13,7 @@ import { SQLEditor } from './SQLEditor';
 import { useGetPage } from '@/features/page';
 import { FunctionTerminal } from './FunctionTerminal';
 import { PanelHandle } from '@/components/Panel';
+import { getErrorMessage } from '@/utils';
 
 const componentsMap: any = {
 	function: FunctionEditor,
@@ -51,7 +52,7 @@ export const FileContent = () => {
 	}
 
 	if (error) {
-		return <Box>{JSON.stringify(error)}</Box>;
+		return <Box color="red.400">{getErrorMessage(error)}</Box>;
 	}
 
 	const Component = componentsMap[devTab.type];

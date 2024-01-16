@@ -1,7 +1,6 @@
 import { useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue } from 'jotai';
-
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
@@ -50,7 +49,7 @@ export const useTableData = ({
 	pageSize,
 }: any) => {
 	const { tables, files, isFetching: isLoadingPage } = useGetPage({ appName, pageName });
-	
+
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
 
 	const pageState: any = useAtomValue(newPageStateAtom);
@@ -82,7 +81,8 @@ export const useTableData = ({
 		table?.type,
 		currentPage,
 		pageSize,
-		JSON.stringify({ filters, sorts, dependentTableData, table }),
+		table?.fetcher,
+		JSON.stringify({ filters, sorts, dependentTableData }),
 	];
 
 	const { data: response, ...rest } = useQuery(
@@ -110,6 +110,7 @@ export const useTableData = ({
 				Object.keys(pageState?.state?.tables || {}).length > 0 &&
 				tablesWithNoSelection.length === 0
 			),
+			staleTime: Infinity,
 		},
 	);
 

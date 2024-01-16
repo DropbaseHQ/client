@@ -16,7 +16,7 @@ import {
 	AccordionIcon,
 	Icon,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, X, Tool, Plus } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
@@ -24,6 +24,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import useWebSocket from 'react-use-websocket';
 import { useStatus } from '@/layout/StatusBar';
+import { axios } from '@/lib/axios';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import {
@@ -47,7 +48,10 @@ export const AppPreview = () => {
 	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
 	const { widgetName, widgets } = useAtomValue(pageAtom);
+	const retryCounter = useRef(0);
+	const failedData = useRef<any>(null);
 	const setPageAtom = useSetAtom(pageAtom);
+	const widgetLabel = widgets?.find(w => w.name === widgetName)?.label;
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isDevMode = !isPreview;
@@ -76,19 +80,46 @@ export const AppPreview = () => {
 				access_token: localStorage.getItem('worker_access_token'),
 			});
 		},
-		onMessage: (message) => {
+		onMessage: async (message) => {
 			try {
-				const messageContext = JSON.parse(message?.data)?.context;
-				const { widgets: newWidgetsData, ...rest } = messageContext || {};
+				const messageData: {
+					authenticated?: boolean;
+					context?: any;
+					failed_data?: any;
+					type?: string;
+				} = JSON.parse(message?.data);
+				if (messageData?.type === 'auth_error' && retryCounter.current < 3) {
+					const response = await axios.post('/user/refresh');
+					const accessToken = response?.data?.access_token;
+					localStorage.setItem('worker_access_token', accessToken);
+					sendJsonMessage({
+						type: 'auth',
+						access_token: accessToken,
+					});
+					retryCounter.current += 1;
+					failedData.current = messageData?.failed_data;
+				}
+				if (messageData?.authenticated === true) {
+					if (failedData.current) {
+						sendJsonMessage(failedData.current);
+						failedData.current = null;
+					}
+				}
+
+				const messageContext = messageData?.context;
 				if (!messageContext) {
 					return;
 				}
+
+				const { widgets: newWidgetsData, ...rest } = messageContext || {};
+
 				setWidgetData((s: any) => ({ ...s, state: newWidgetsData || {} }));
 				setNonInteractiveState(rest);
 			} catch (e) {
 				//
 			}
 		},
+
 		share: true,
 	});
 
@@ -125,6 +156,11 @@ export const AppPreview = () => {
 	};
 
 	const handleCreateWidget = () => {
+		const wName = generateSequentialName({
+			currentNames: widgets?.map((w: any) => w.name) as string[],
+			prefix: 'widget',
+		});
+
 		createMutation.mutate({
 			app_name: appName,
 			page_name: pageName,
@@ -133,10 +169,9 @@ export const AppPreview = () => {
 				widgets: [
 					...(properties?.widgets || []),
 					{
-						name: generateSequentialName({
-							currentNames: widgets?.map((w: any) => w.name) as string[],
-							prefix: 'widget',
-						}),
+						name: wName,
+						// TODO: @yash-dropbase fix me, this is a patch to make the widget work. label is now requireds
+						label: wName.charAt(0).toUpperCase() + wName.slice(1),
 						components: [],
 					},
 				],
@@ -289,7 +324,7 @@ export const AppPreview = () => {
 					<InspectorContainer noPadding type="widget" id={widgetName}>
 						<Stack spacing="0">
 							<Text fontSize="md" fontWeight="semibold">
-								{widgetName}
+								{widgetLabel ? widgetLabel : widgetName}
 							</Text>
 							{widgetDescription ? (
 								<Text fontSize="sm" color="gray.600">

@@ -192,10 +192,10 @@ export const AppList = () => {
 	const { handleCreateApp: handleCreateAppFlow, isLoading: createAppIsLoading } =
 		useCreateAppFlow({
 			onSuccess: (_: any, variables: any) => {
-				navigate(`/apps/${variables?.appName}/page1/studio`);
-
 				refetch();
+
 				onClose();
+				navigate(`/apps/${variables?.appName}/page1/studio`);
 			},
 			onError: (error: any) => {
 				toast({
@@ -275,12 +275,14 @@ export const AppList = () => {
 											if (value.includes(' ')) {
 												return 'Name cannot have spaces';
 											}
-
 											if (!value) {
 												return 'Name required';
 											}
 											if (nameNotUnique(value)) {
 												return 'Name already exists';
+											}
+											if (!value.match(/^[A-Za-z0-9_.]+$/g)) {
+												return 'Name contains invalid characters';
 											}
 
 											return true;

@@ -1,12 +1,11 @@
 import json
-from typing import Dict
+from typing import Any, Dict
 
 import openai
 from pydantic import BaseModel
 
 from server.constants import GPT_MODEL, GPT_TEMPERATURE
-from server.controllers.state.models import PgColumnDefinedProperty
-from server.controllers.tables.helper import FullDBSchema
+from server.controllers.tables.pg_column import PgColumnDefinedProperty
 from server.credentials import OPENAI_API_KEY, OPENAI_ORG_ID
 
 from .gpt_template import get_gpt_input
@@ -23,6 +22,9 @@ class ColumnInfo(BaseModel):
 
 class OutputSchema(BaseModel):
     output: Dict[str, ColumnInfo]
+
+
+FullDBSchema = dict[str, dict[str, dict[str, dict[str, Any]]]]
 
 
 def fill_smart_cols_data(

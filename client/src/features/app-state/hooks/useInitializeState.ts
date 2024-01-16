@@ -49,11 +49,9 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 
 			return tables;
 		});
-	}, [state, setRowData, setTableState]);
 
-	useEffect(() => {
 		setWidgetsInputs(state.widgets);
-	}, [state, setWidgetsInputs]);
+	}, [state, setRowData, setTableState, setWidgetsInputs]);
 
 	useEffect(() => {
 		const { widgets, ...other } = context || {};

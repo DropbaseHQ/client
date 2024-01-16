@@ -4,7 +4,12 @@ import { getErrorMessage } from '@/utils';
 
 import { useExecuteAction } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
-import { widgetComponentsAtom, useSyncState, newPageStateAtom } from '@/features/app-state';
+import {
+	widgetComponentsAtom,
+	useSyncState,
+	newPageStateAtom,
+	allWidgetsInputAtom,
+} from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
@@ -35,7 +40,11 @@ export const AppComponent = (props: any) => {
 	const pageState = useAtomValue(newPageStateAtom);
 	const [allWidgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
 	const widgetComponents = allWidgetComponents[widgetName || '']?.components || {};
+
 	const inputState = widgetComponents?.[name] || {};
+
+	const inputValues: any = useAtomValue(allWidgetsInputAtom);
+	const inputValue = inputValues?.[widgetName || '']?.[name];
 
 	const syncState = useSyncState();
 
@@ -114,7 +123,7 @@ export const AppComponent = (props: any) => {
 			{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
 			<InputRenderer
 				placeholder={component?.placeholder}
-				value={inputState?.value}
+				value={inputValue}
 				name={name}
 				type={componentType === 'select' ? 'select' : dataType || type}
 				onChange={(newValue: any) => {
