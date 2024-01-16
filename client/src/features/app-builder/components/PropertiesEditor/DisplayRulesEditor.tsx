@@ -25,7 +25,7 @@ const OPERATORS = [
 		value: 'not_equals',
 	},
 	{
-		name: 'exists',
+		name: 'Exists',
 		value: 'exists',
 	},
 ];
