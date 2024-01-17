@@ -25,6 +25,7 @@ import '@glideapps/glide-data-grid/dist/index.css';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
+import { formatDate, formatTime, formatDateTime } from '@/features/smart-table/utils';
 import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
 import { SOCKET_URL } from '../app-preview';
 
@@ -37,7 +38,7 @@ import {
 	tablePageInfoAtom,
 } from './atoms';
 import { TableBar } from './components';
-import { getErrorMessage, getPGColumnBaseType } from '@/utils';
+import { getErrorMessage } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 
@@ -237,10 +238,12 @@ export const SmartTable = ({ tableName }: any) => {
 	);
 
 	const gridColumns = visibleColumns.map((column: any) => {
-		// ⚠️ only by passing undefined we can hide column icon
-		let icon = column?.display_type ? GridColumnIcon.HeaderString : undefined;
+		const col = columnDict[column?.name] || column;
 
-		switch (column?.display_type) {
+		// ⚠️ only by passing undefined we can hide column icon
+		let icon = col?.display_type ? GridColumnIcon.HeaderString : undefined;
+
+		switch (col?.display_type) {
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -339,7 +342,7 @@ export const SmartTable = ({ tableName }: any) => {
 					},
 			  };
 
-		switch (getPGColumnBaseType(column?.type)) {
+		switch (column?.display_type) {
 			case 'float':
 			case 'integer': {
 				return {
@@ -359,6 +362,39 @@ export const SmartTable = ({ tableName }: any) => {
 					kind: GridCellKind.Boolean,
 					data: validType ? unParsedValue : undefined,
 					allowOverlay: false,
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'datetime': {
+				return {
+					kind: GridCellKind.Text,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData: formatDateTime(parseInt(cellValue, 10)),
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'date': {
+				return {
+					kind: GridCellKind.Text,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData: formatDate(parseInt(cellValue, 10)),
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'time': {
+				return {
+					kind: GridCellKind.Text,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData: formatTime(cellValue),
 					readonly: !canEdit,
 					...themeOverride,
 				};
