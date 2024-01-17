@@ -66,7 +66,11 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 					rows: data?.result?.data || [],
 					columns: data?.result?.columns || [],
 				});
-			} else if (typeof data.result === 'object' && 'dataframe' in data.result) {
+			} else if (
+				data?.result &&
+				typeof data.result === 'object' &&
+				'dataframe' in data.result
+			) {
 				setPreviewData({
 					rows: data?.result?.dataframe?.data || [],
 					columns: data?.result?.dataframe?.columns || [],
