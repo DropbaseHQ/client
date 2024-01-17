@@ -25,6 +25,7 @@ import '@glideapps/glide-data-grid/dist/index.css';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
+import { formatDate, formatTime, formatDateTime } from '@/features/smart-table/utils';
 import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
 import { SOCKET_URL } from '../app-preview';
 
@@ -300,41 +301,6 @@ export const SmartTable = ({ tableName }: any) => {
 		return gridColumn;
 	});
 
-	// converts Date object to string of format yyyy-mm-dd
-	const formatDate = (date: Date) => {
-		const year = date.getUTCFullYear();
-		const month = date.getUTCMonth() + 1;
-		const day = date.getUTCDate();
-
-		return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-	};
-
-	// converts hh:mm:ss.mmmmmm to hh:mm:ss AM/PM
-	const formatTime = (time: string) => {
-		let [hours, mins, secs] = time.split(':');
-		const suffix = parseInt(hours, 10) >= 12 ? 'PM' : 'AM';
-		hours = String(parseInt(hours, 10) % 12).padStart(2, '0');
-		if (hours === '00') hours = '12';
-		mins = String(Math.round(parseInt(mins, 10))).padStart(2, '0');
-		secs = String(Math.round(parseInt(secs, 10))).padStart(2, '0');
-
-		return `${hours}:${mins}:${secs} ${suffix}`;
-	};
-
-	// converts Date object to string of format yyyy-mm-dd hh:mm:ss AM/PM
-	const formatDateTime = (date: Date) => {
-		let hours = date.getUTCHours();
-		const suffix = hours >= 12 ? 'PM' : 'AM';
-		hours %= 12;
-		if (hours === 0) hours = 12;
-		const minutes = date.getUTCMinutes();
-		const seconds = date.getUTCSeconds();
-
-		return `${formatDate(date)} ${hours.toString().padStart(2, '0')}:${minutes
-			.toString()
-			.padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${suffix}`;
-	};
-
 	const getCellContent: any = ([col, row]: any) => {
 		const currentRow = rows[row];
 		const column = columnDict[visibleColumns[col]?.name] || visibleColumns[col];
@@ -406,7 +372,7 @@ export const SmartTable = ({ tableName }: any) => {
 					kind: GridCellKind.Text,
 					data: cellValue,
 					allowOverlay: canEdit,
-					displayData: formatDateTime(new Date(parseInt(cellValue, 10))),
+					displayData: formatDateTime(parseInt(cellValue, 10)),
 					readonly: !canEdit,
 					...themeOverride,
 				};
@@ -417,7 +383,7 @@ export const SmartTable = ({ tableName }: any) => {
 					kind: GridCellKind.Text,
 					data: cellValue,
 					allowOverlay: canEdit,
-					displayData: formatDate(new Date(parseInt(cellValue, 10))),
+					displayData: formatDate(parseInt(cellValue, 10)),
 					readonly: !canEdit,
 					...themeOverride,
 				};
