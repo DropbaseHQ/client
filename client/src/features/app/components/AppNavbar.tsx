@@ -213,7 +213,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Stack>
 			<Flex alignItems="center" h="100%" justifyContent="center">
 				<Tabs
-					ml="12"
+					ml="6"
 					variant="unstyled"
 					size="sm"
 					index={tabIndex}
@@ -229,9 +229,9 @@ export const AppNavbar = ({ isPreview }: any) => {
 							);
 						})}
 						{!isPreview && (
-							<Tab
-								tabIndex={-1}
-								as={IconButton}
+							<IconButton
+								size="sm"
+								aria-label="Create page"
 								onClick={handleCreatePage}
 								variant="ghost"
 								icon={<Plus size="14" />}
