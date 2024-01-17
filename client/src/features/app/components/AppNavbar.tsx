@@ -131,6 +131,16 @@ export const AppNavbar = ({ isPreview }: any) => {
 		}
 	};
 
+	const pageSorter = (a: any, b: any) => {
+		if (a.name < b.name) {
+			return -1;
+		}
+		if (a.name > b.name) {
+			return 1;
+		}
+		return 0;
+	};
+
 	return (
 		<Stack
 			alignItems="center"
@@ -219,7 +229,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 					onChange={handleTabsChange}
 				>
 					<TabList display="flex" alignItems="center">
-						{app?.pages.map((page: any, index: number) => {
+						{app?.pages.sort(pageSorter).map((page: any, index: number) => {
 							return (
 								<PageTab
 									key={page.name}
