@@ -411,7 +411,16 @@ export const FormInput = ({
 
 	return (
 		<FormControl isInvalid={!!errors?.[id]} key={name}>
-			{name ? <FormLabel>{name}</FormLabel> : null}
+			{name && (
+				<FormLabel>
+					{name}{' '}
+					{inputProps?.required && (
+						<Box as="span" color="red.500">
+							*
+						</Box>
+					)}
+				</FormLabel>
+			)}
 
 			<BaseFormInput
 				name={name}
