@@ -255,11 +255,7 @@ export const NewComponent = (props: any) => {
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 
 	const mutation = useUpdatePageData({
-		onSuccess: (data: any) => {
-			setInspectedResource({
-				id: data.id,
-				type: 'component',
-			});
+		onSuccess: () => {
 			toast({
 				status: 'success',
 				title: 'Component added',
@@ -274,7 +270,7 @@ export const NewComponent = (props: any) => {
 		},
 	});
 
-	const onSubmit = ({ type }: any) => {
+	const onSubmit = async ({ type }: any) => {
 		const currentNames = (
 			properties?.widgets?.find((w: any) => w.name === widgetName)?.components || []
 		)
@@ -300,32 +296,40 @@ export const NewComponent = (props: any) => {
 			};
 		}
 
-		mutation.mutate({
-			app_name: appName,
-			page_name: pageName,
-			properties: {
-				...(properties || {}),
-				widgets: [
-					...(properties?.widgets || []).map((w: any) => {
-						if (w.name === widgetName) {
-							return {
-								...w,
-								components: [
-									...(w.components || []),
-									{
-										name: newName,
-										component_type: type,
-										...otherProperty,
-									},
-								],
-							};
-						}
+		try {
+			await mutation.mutateAsync({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(properties || {}),
+					widgets: [
+						...(properties?.widgets || []).map((w: any) => {
+							if (w.name === widgetName) {
+								return {
+									...w,
+									components: [
+										...(w.components || []),
+										{
+											name: newName,
+											component_type: type,
+											...otherProperty,
+										},
+									],
+								};
+							}
 
-						return w;
-					}),
-				],
-			},
-		});
+							return w;
+						}),
+					],
+				},
+			});
+			setInspectedResource({
+				id: newName,
+				type: 'component',
+			});
+		} catch (e) {
+			//
+		}
 	};
 
 	return (

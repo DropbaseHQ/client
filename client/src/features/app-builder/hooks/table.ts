@@ -31,6 +31,7 @@ export const useGetTable = (tableName: string): any => {
 			height: table?.height,
 			name: table?.name,
 			label: table?.label,
+			columns: table?.columns || [],
 		};
 	}, [table]);
 

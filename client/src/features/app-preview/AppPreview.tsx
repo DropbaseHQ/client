@@ -42,7 +42,7 @@ import { AppComponent } from './AppComponent';
 import { generateSequentialName } from '@/utils';
 
 // websocket
-export const SOCKET_URL = 'ws://localhost:9090/ws';
+export const SOCKET_URL = `${import.meta.env.VITE_WORKER_WS_ENDPOINT}/ws`;
 
 export const AppPreview = () => {
 	const { appName, pageName } = useParams();
