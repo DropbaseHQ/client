@@ -78,7 +78,9 @@ export const SortButton = () => {
 				<PopoverCloseButton mt={2} onClick={onClose} />
 				<PopoverBody>
 					{sorts.length === 0 ? (
-						<Text color="gray">No sorts applied</Text>
+						<Text color="gray" fontSize="md">
+							No sorts applied
+						</Text>
 					) : (
 						<VStack alignItems="start" w="full">
 							{sorts.map((sort: any, index: any) => {

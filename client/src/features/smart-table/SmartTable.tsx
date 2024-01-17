@@ -583,7 +583,9 @@ export const SmartTable = ({ tableName }: any) => {
 				<NavLoader isLoading={isLoadingTable}>
 					<Flex justifyContent="space-between">
 						<Stack spacing="0" px="2" flexShrink="0">
-							<Text fontWeight="semibold">{table?.label || tableName}</Text>
+							<Text fontWeight="semibold" fontSize="lg">
+								{table?.label || tableName}
+							</Text>
 							{dependantTablesWithNoRowSelection.length > 0 ? (
 								<Stack direction="row" spacing="1" alignItems="center">
 									<Box color="orange.500">
@@ -645,7 +647,7 @@ export const SmartTable = ({ tableName }: any) => {
 						{isLoading ? (
 							<Center h="full" as={Stack}>
 								<Spinner size="md" />
-								<Text>Loading data...</Text>
+								<Text fontSize="md">Loading data...</Text>
 							</Center>
 						) : (
 							<>

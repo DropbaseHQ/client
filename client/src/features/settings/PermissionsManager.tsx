@@ -145,7 +145,7 @@ const GroupMemberCard = ({
 						<PopoverCloseButton />
 						<PopoverHeader>Confirm remove member</PopoverHeader>
 						<PopoverBody>
-							<Text>{`Are you sure you want to\nremove ${user.email}?`}</Text>
+							<Text fontSize="md">{`Are you sure you want to\nremove ${user.email}?`}</Text>
 						</PopoverBody>
 						<PopoverFooter display="flex" justifyContent="flex-end">
 							<ButtonGroup size="sm">

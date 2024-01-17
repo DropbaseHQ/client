@@ -149,7 +149,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 						alignItems="center"
 						direction="row"
 					>
-						<Text fontWeight="semibold" size="sm">
+						<Text fontWeight="semibold" fontSize="lg">
 							{component?.name || id} Properties
 						</Text>
 

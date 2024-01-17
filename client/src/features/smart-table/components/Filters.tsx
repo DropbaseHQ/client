@@ -237,7 +237,9 @@ export const FilterButton = () => {
 				<PopoverCloseButton mt={2} onClick={onClose} />
 				<PopoverBody>
 					{filters.length === 0 ? (
-						<Text color="gray">No filters applied</Text>
+						<Text color="gray" fontSize="md">
+							No filters applied
+						</Text>
 					) : (
 						<VStack alignItems="start" w="full">
 							{filters.map((filter: any, index: any) => {

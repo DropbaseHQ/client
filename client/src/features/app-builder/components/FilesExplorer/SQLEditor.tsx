@@ -135,7 +135,7 @@ export const SQLEditor = ({ name }: any) => {
 					alignItems="center"
 					justifyContent="space-between"
 				>
-					<Text fontSize="sm" fontWeight="semibold">
+					<Text fontSize="md" fontWeight="semibold">
 						{fullFileName}
 					</Text>
 
