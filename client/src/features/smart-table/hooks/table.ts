@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue } from 'jotai';
 import { axios, workerAxios } from '@/lib/axios';
@@ -8,7 +8,7 @@ import { APP_STATE_QUERY_KEY, newPageStateAtom, useAppState } from '@/features/a
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
-
+import { useSyncState } from '@/features/app-state';
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
 const fetchTableData = async ({
@@ -26,6 +26,7 @@ const fetchTableData = async ({
 		page_name: pageName,
 		table,
 		state: state.state,
+		context: state.context,
 		filter_sort: {
 			filters,
 			sorts,
@@ -51,6 +52,8 @@ export const useTableData = ({
 	const { tables, files, isFetching: isLoadingPage } = useGetPage({ appName, pageName });
 
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
+
+	const syncState = useSyncState();
 
 	const pageState: any = useAtomValue(newPageStateAtom);
 	const pageStateRef = useRef(pageState);
@@ -114,12 +117,27 @@ export const useTableData = ({
 		},
 	);
 
+	useEffect(() => {
+		if (response?.result?.context) {
+			response.succcess = true;
+
+			syncState(response);
+		}
+	}, [response, syncState]);
+
 	const parsedData: any = useMemo(() => {
 		if (response) {
-			const header = response?.result?.columns || [];
+			let dataframe;
+			if (response?.result && 'dataframe' in response.result) {
+				dataframe = response.result.dataframe;
+			} else {
+				dataframe = response.result;
+			}
+
+			const header = dataframe?.columns || [];
 
 			const rows: any =
-				response?.result?.data?.map((r: any) => {
+				dataframe?.data?.map((r: any) => {
 					return r.reduce((agg: any, item: any, index: any) => {
 						return {
 							...agg,
@@ -132,7 +150,7 @@ export const useTableData = ({
 				rows,
 				header,
 				tableName: response.table_name,
-				tableError: response?.result?.error,
+				tableError: dataframe?.error,
 			};
 		}
 
