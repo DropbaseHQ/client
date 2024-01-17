@@ -152,7 +152,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 				variant="ghost"
 			/>
 			<Stack alignItems="center" direction="row">
-				<Text fontWeight="semibold" fontSize="xl">
+				<Text fontWeight="semibold" fontSize="lg">
 					{app?.name}
 				</Text>
 				{isPreview ? null : (

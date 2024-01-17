@@ -9,6 +9,53 @@ import * as components from './components';
 
 const customComponents = merge(proTheme.components, components);
 
+const REDUCER = 0.95;
+
+const SIZE_FIELDS = ['fontSizes', 'letterSpacings', 'lineHeights', 'radii', 'sizes', 'space'];
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const reducedSizeFields = SIZE_FIELDS.reduce((agg: any, field: any) => {
+	const mergedValues = {
+		...(baseTheme as any)[field as any],
+		...(proTheme as any)[field as any],
+	};
+
+	return {
+		...agg,
+		[field]: Object.keys(mergedValues).reduce((acc: any, item: any) => {
+			const value = mergedValues[item];
+
+			if (typeof value === 'number') {
+				return {
+					...acc,
+					[item]: value * REDUCER,
+				};
+			}
+
+			if (typeof value === 'string' && item !== 'px' && item !== 'full') {
+				const splitter = value.split(/(\d+)/);
+				const unit = splitter[splitter.length - 1];
+
+				const number = parseFloat(value);
+
+				const newValue = Number.isNaN(number)
+					? value
+					: `${parseFloat(value) * REDUCER}${unit}`;
+
+				return {
+					...acc,
+					[item]: newValue,
+				};
+			}
+
+			return {
+				...acc,
+				[item]: value,
+			};
+		}, {}),
+	};
+}, {});
+
 export const theme = extendTheme({
 	...proTheme,
 	components: customComponents,
