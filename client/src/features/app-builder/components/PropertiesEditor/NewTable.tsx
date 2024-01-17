@@ -18,14 +18,10 @@ export const NewTable = (props: any) => {
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 
 	const mutation = useUpdatePageData({
-		onSuccess: (data: any) => {
+		onSuccess: () => {
 			toast({
 				status: 'success',
 				title: 'Table created',
-			});
-			setInspectedResource({
-				id: data.id,
-				type: 'table',
 			});
 		},
 		onError: (error: any) => {
@@ -37,28 +33,37 @@ export const NewTable = (props: any) => {
 		},
 	});
 
-	const onSubmit = () => {
+	const onSubmit = async () => {
 		const { name: nextName, label: nextLabel } = generateSequentialName({
 			currentNames: tables.map((t: any) => t.name) || [],
 			prefix: 'table',
 		});
 
-		mutation.mutate({
-			app_name: appName,
-			page_name: pageName,
-			properties: {
-				...(properties || {}),
-				tables: [
-					...(properties?.tables || []),
-					{
-						name: nextName,
-						label: nextLabel,
-						type: 'sql',
-						columns: [],
-					},
-				],
-			},
-		});
+		try {
+			await mutation.mutateAsync({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(properties || {}),
+					tables: [
+						...(properties?.tables || []),
+						{
+							name: nextName,
+							label: nextLabel,
+							type: 'sql',
+							columns: [],
+						},
+					],
+				},
+			});
+
+			setInspectedResource({
+				id: nextName,
+				type: 'table',
+			});
+		} catch (e) {
+			//
+		}
 	};
 
 	return (
