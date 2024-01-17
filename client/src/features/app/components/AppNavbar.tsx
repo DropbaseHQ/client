@@ -17,7 +17,6 @@ import {
 	FormLabel,
 	FormErrorMessage,
 	TabList,
-	Tab,
 	Tabs,
 } from '@chakra-ui/react';
 import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
