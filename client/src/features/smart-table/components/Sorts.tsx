@@ -14,6 +14,7 @@ import {
 	PopoverTrigger,
 	Select,
 	Text,
+	Tooltip,
 	useDisclosure,
 	VStack,
 } from '@chakra-ui/react';
@@ -21,6 +22,7 @@ import { ChevronsUp as SortIcon, Plus, Trash } from 'react-feather';
 import { useAtom } from 'jotai';
 import { sortsAtom } from '@/features/smart-table/atoms';
 import { useCurrentTableData, useCurrentTableName } from '@/features/smart-table/hooks';
+import { useGetTable } from '@/features/app-builder/hooks';
 
 export const SortButton = () => {
 	const { isOpen, onToggle, onClose } = useDisclosure();
@@ -29,6 +31,8 @@ export const SortButton = () => {
 
 	const [allSorts, setSorts] = useAtom(sortsAtom);
 	const sorts: any = allSorts[tableId] || [];
+
+	const { smart: isSmartTable } = useGetTable(tableId);
 
 	const haveSortsApplied = sorts.length > 0 && sorts.every((f: any) => f.column_name);
 
@@ -60,15 +64,18 @@ export const SortButton = () => {
 	return (
 		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur>
 			<PopoverTrigger>
-				<Button
-					leftIcon={<SortIcon size={14} />}
-					size="sm"
-					onClick={onToggle}
-					variant="ghost"
-					colorScheme={haveSortsApplied ? 'blue' : 'gray'}
-				>
-					Sorts
-				</Button>
+				<Tooltip label={isSmartTable ? '' : 'Convert to Smart Table to enable sort'}>
+					<Button
+						leftIcon={<SortIcon size={14} />}
+						size="sm"
+						onClick={onToggle}
+						variant="ghost"
+						isDisabled={!isSmartTable}
+						colorScheme={haveSortsApplied ? 'blue' : 'gray'}
+					>
+						Sorts
+					</Button>
+				</Tooltip>
 			</PopoverTrigger>
 			<PopoverContent boxShadow="md" minW="35rem">
 				<PopoverHeader pt={4} fontWeight="bold" border="0">

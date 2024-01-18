@@ -1,7 +1,7 @@
-import { IconButton, Stack, Tooltip } from '@chakra-ui/react';
+import { Icon, IconButton, Stack, Text, Tooltip } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
 
-import { Save } from 'react-feather';
+import { AlertCircle, Save } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useCurrentTableData, useCurrentTableName, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
@@ -19,7 +19,7 @@ export const TableBar = () => {
 
 	const tableName = useCurrentTableName();
 
-	const { fetcher, type: tableType } = useGetTable(tableName || '');
+	const { fetcher, type: tableType, smart: isSmartTable } = useGetTable(tableName || '');
 
 	const { appName, pageName } = useParams();
 	const { files } = useGetPage({ appName, pageName });
@@ -73,6 +73,7 @@ export const TableBar = () => {
 				borderRadius="sm"
 				direction="row"
 				p="1.5"
+				alignItems="center"
 				justifyContent="space-between"
 			>
 				{tableType === 'sql' ? (
@@ -82,6 +83,24 @@ export const TableBar = () => {
 						<PinnedFilters />
 					</Stack>
 				) : null}
+
+				{isSmartTable ? null : (
+					<Stack
+						bg="yellow.50"
+						borderRadius="sm"
+						borderWidth="1px"
+						borderColor="yellow.200"
+						p="1.5"
+						alignItems="center"
+						ml="auto"
+						direction="row"
+					>
+						<Icon as={AlertCircle} color="yellow.500" size="14" />
+						<Text fontSize="sm">
+							Convert to smart table to enable filter, sorts and editing
+						</Text>
+					</Stack>
+				)}
 
 				<Stack direction="row">
 					{cellEdits.length > 0 ? (
