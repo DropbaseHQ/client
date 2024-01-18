@@ -4,7 +4,6 @@ import {
 	AlertIcon,
 	Button,
 	FormControl,
-	FormHelperText,
 	FormLabel,
 	Text,
 } from '@chakra-ui/react';
@@ -18,6 +17,7 @@ import {
 	useSyncState,
 	newPageStateAtom,
 	allWidgetsInputAtom,
+	allWidgetStateAtom,
 } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
@@ -31,6 +31,9 @@ const sizeMap: any = {
 
 export const AppComponent = (props: any) => {
 	const { sendJsonMessage } = props;
+
+	const [widgetData]: any = useAtom(allWidgetStateAtom);
+	const allWidgetState = widgetData.state;
 
 	const toast = useToast();
 	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
@@ -63,6 +66,9 @@ export const AppComponent = (props: any) => {
 	const shouldDisplay =
 		widgetComponents?.[name]?.visible || widgetComponents?.[name]?.visible === null;
 	const grayOutComponent = !shouldDisplay && isEditorMode;
+
+	const editable = allWidgetState?.[widgetName || '']?.components?.[name].editable;
+	const isReadOnly = editable !== undefined ? !editable : false;
 
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
@@ -151,6 +157,8 @@ export const AppComponent = (props: any) => {
 					});
 				}}
 				options={inputState.options || component.options}
+				isReadOnly={isReadOnly}
+				bgColor={isReadOnly ? 'gray.100' : 'white'}
 			/>
 
 			{/* input.message */}
