@@ -1,4 +1,13 @@
-import { Button, FormControl, FormHelperText, FormLabel, Text } from '@chakra-ui/react';
+import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	Button,
+	FormControl,
+	FormHelperText,
+	FormLabel,
+	Text,
+} from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import { getErrorMessage } from '@/utils';
 
@@ -144,7 +153,20 @@ export const AppComponent = (props: any) => {
 				options={inputState.options || component.options}
 			/>
 
-			{inputState?.message ? <FormHelperText>{inputState.message}</FormHelperText> : null}
+			{/* input.message */}
+
+			{inputState?.message ? (
+				<div>
+					<Alert
+						variant="left-accent"
+						status={inputState?.message_type || 'info'}
+						height="30px"
+					>
+						<AlertIcon boxSize={4} />
+						<AlertDescription fontSize={14}>{inputState?.message}</AlertDescription>
+					</Alert>
+				</div>
+			) : null}
 		</FormControl>
 	);
 };
