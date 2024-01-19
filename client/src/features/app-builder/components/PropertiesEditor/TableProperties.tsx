@@ -262,7 +262,7 @@ export const TableProperties = () => {
 																			direction="row"
 																		>
 																			<Icon
-																				boxSize="6"
+																				boxSize="5"
 																				as={Table}
 																				flexShrink="0"
 																				color={

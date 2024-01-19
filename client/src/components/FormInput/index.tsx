@@ -87,10 +87,13 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	if (type === 'custom-select') {
 		const selectedValue = selectOptions.find((option: any) => option.value === value);
 
-		const valueRenderer = selectedValue?.name;
+		const valueLabel = selectedValue?.name;
+		const valueRenderer = selectedValue?.render?.(selectedValue);
 
 		const children = (
-			<Text fontSize="sm">{valueRenderer || inputProps?.placeholder || 'Select option'}</Text>
+			<Text fontSize="sm">
+				{valueRenderer || valueLabel || inputProps?.placeholder || 'Select option'}
+			</Text>
 		);
 
 		const allOptions = selectOptions || [];

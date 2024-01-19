@@ -1,4 +1,5 @@
 import {
+	Box,
 	Button,
 	ButtonGroup,
 	IconButton,
@@ -15,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { Save } from 'react-feather';
+import { Save, Zap } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useCurrentTableData, useCurrentTableName, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
@@ -124,43 +125,57 @@ export const TableBar = () => {
 			>
 				{tableType === 'sql' ? (
 					<Stack spacing="0" alignItems="center" direction="row">
-						<Popover
-							returnFocusOnClose={false}
-							isOpen={!isPreview && !isSmartTable && fetcher && isOpen}
-							onClose={onClose}
-							placement="bottom-end"
-							closeOnBlur={false}
-						>
-							<PopoverTrigger>
-								<Stack direction="row" onMouseOver={onOpen} onMouseEnter={onOpen}>
-									<FilterButton />
-									<SortButton />
-								</Stack>
-							</PopoverTrigger>
-							<PopoverContent>
-								<PopoverHeader fontWeight="semibold">
-									Convert to Smart Table
-								</PopoverHeader>
+						<Box onMouseLeave={onClose}>
+							<Popover
+								returnFocusOnClose={false}
+								isOpen={!isPreview && !isSmartTable && fetcher && isOpen}
+								onClose={onClose}
+								placement="bottom-end"
+								closeOnBlur={false}
+							>
+								<PopoverTrigger>
+									<Stack
+										onMouseOver={onOpen}
+										onMouseEnter={onOpen}
+										direction="row"
+									>
+										<FilterButton />
+										<SortButton />
+									</Stack>
+								</PopoverTrigger>
+								<PopoverContent zIndex="popover" mt="-2">
+									<PopoverHeader fontWeight="semibold">
+										Convert to Smart Table
+									</PopoverHeader>
 
-								<PopoverCloseButton size="xs" />
-								<PopoverBody fontSize="sm">
-									Convert to smart table to enable filter, sorts and editing cells
-								</PopoverBody>
-								<PopoverFooter display="flex" justifyContent="flex-end">
-									<ButtonGroup size="sm">
-										<Button onClick={onClose} variant="outline">
-											Cancel
-										</Button>
-										<Button
-											isLoading={convertMutation.isLoading}
-											onClick={handleConvert}
-										>
-											Convert to Smart Table
-										</Button>
-									</ButtonGroup>
-								</PopoverFooter>
-							</PopoverContent>
-						</Popover>
+									<PopoverCloseButton size="xs" />
+									<PopoverBody fontSize="sm">
+										Convert to smart table to enable filter, sorts and editing
+										cells
+									</PopoverBody>
+									<PopoverFooter display="flex" justifyContent="flex-end">
+										<ButtonGroup size="sm">
+											<Button
+												onClick={onClose}
+												colorScheme="gray"
+												variant="outline"
+											>
+												Cancel
+											</Button>
+											<Button
+												isLoading={convertMutation.isLoading}
+												onClick={handleConvert}
+												colorScheme="gray"
+												variant="outline"
+												leftIcon={<Zap size="14" />}
+											>
+												Convert to Smart Table
+											</Button>
+										</ButtonGroup>
+									</PopoverFooter>
+								</PopoverContent>
+							</Popover>
+						</Box>
 
 						<PinnedFilters />
 					</Stack>
