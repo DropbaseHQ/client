@@ -178,6 +178,7 @@ export const PageTab = (props: any) => {
 								onClose={onRenameClose}
 								isOpen={isRenameOpen}
 								onOpen={handleRenameOpen}
+								closeOnBlur={false}
 							>
 								<PopoverTrigger>
 									<MenuItem data-db-id="rename-page">Edit</MenuItem>
