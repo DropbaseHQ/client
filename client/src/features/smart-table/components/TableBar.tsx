@@ -156,13 +156,6 @@ export const TableBar = () => {
 									<PopoverFooter display="flex" justifyContent="flex-end">
 										<ButtonGroup size="sm">
 											<Button
-												onClick={onClose}
-												colorScheme="gray"
-												variant="outline"
-											>
-												Cancel
-											</Button>
-											<Button
 												isLoading={convertMutation.isLoading}
 												onClick={handleConvert}
 												colorScheme="gray"

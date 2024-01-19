@@ -254,7 +254,7 @@ export const AppPreview = () => {
 				<Stack px="4" py="2" borderBottomWidth="1px" direction="row" alignItems="center">
 					<InspectorContainer flex="1" noPadding type="widget" id={widgetName}>
 						<Stack spacing="0">
-							<Text fontSize="md" fontWeight="semibold">
+							<Text fontSize="lg" fontWeight="semibold">
 								{widgetLabel || widgetName}
 							</Text>
 							{widgetDescription ? (
