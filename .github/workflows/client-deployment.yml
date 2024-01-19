@@ -1,0 +1,41 @@
+name: Client Deployment
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+    - client
+
+  workflow_dispatch:
+
+env:
+  CLOUDFLARE_ACCOUNT_ID: 74c5779b693bd2c6e69632e8a533e618
+  CLOUDFLARE_PAGES_PROJECT: dropbase-client
+
+jobs:
+  build-and-deploy:
+    name: Build and deploy to staging (Hub-portal)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: cd client && yarn install
+
+      - name: Build
+        run: cd client && yarn install
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ env.CLOUDFLARE_PAGES_PROJECT }}
+          directory: client/dist
