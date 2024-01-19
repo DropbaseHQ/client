@@ -15,7 +15,6 @@ import {
 	PopoverTrigger,
 	Select,
 	Text,
-	Tooltip,
 	useDisclosure,
 	VStack,
 } from '@chakra-ui/react';
@@ -221,18 +220,16 @@ export const FilterButton = () => {
 	return (
 		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur>
 			<PopoverTrigger>
-				<Tooltip label={isSmartTable ? '' : 'Convert to Smart Table to enable filters'}>
-					<Button
-						leftIcon={<FilterIcon size={14} />}
-						size="sm"
-						isDisabled={!isSmartTable}
-						variant="ghost"
-						onClick={onToggle}
-						colorScheme={haveFiltersApplied ? 'blue' : 'gray'}
-					>
-						Filters
-					</Button>
-				</Tooltip>
+				<Button
+					leftIcon={<FilterIcon size={14} />}
+					size="sm"
+					isDisabled={!isSmartTable}
+					variant="ghost"
+					onClick={onToggle}
+					colorScheme={haveFiltersApplied ? 'blue' : 'gray'}
+				>
+					Filters
+				</Button>
 			</PopoverTrigger>
 			<PopoverContent boxShadow="md" minW="35rem">
 				<PopoverHeader pt={4} fontWeight="bold" border="0">

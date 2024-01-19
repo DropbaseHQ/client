@@ -14,7 +14,6 @@ import {
 	PopoverTrigger,
 	Select,
 	Text,
-	Tooltip,
 	useDisclosure,
 	VStack,
 } from '@chakra-ui/react';
@@ -64,18 +63,16 @@ export const SortButton = () => {
 	return (
 		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur>
 			<PopoverTrigger>
-				<Tooltip label={isSmartTable ? '' : 'Convert to Smart Table to enable sort'}>
-					<Button
-						leftIcon={<SortIcon size={14} />}
-						size="sm"
-						onClick={onToggle}
-						variant="ghost"
-						isDisabled={!isSmartTable}
-						colorScheme={haveSortsApplied ? 'blue' : 'gray'}
-					>
-						Sorts
-					</Button>
-				</Tooltip>
+				<Button
+					leftIcon={<SortIcon size={14} />}
+					size="sm"
+					onClick={onToggle}
+					variant="ghost"
+					isDisabled={!isSmartTable}
+					colorScheme={haveSortsApplied ? 'blue' : 'gray'}
+				>
+					Sorts
+				</Button>
 			</PopoverTrigger>
 			<PopoverContent boxShadow="md" minW="35rem">
 				<PopoverHeader pt={4} fontWeight="bold" border="0">

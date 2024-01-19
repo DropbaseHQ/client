@@ -1,7 +1,21 @@
-import { Icon, IconButton, Stack, Text, Tooltip } from '@chakra-ui/react';
-import { useAtom } from 'jotai';
+import {
+	Button,
+	ButtonGroup,
+	IconButton,
+	Popover,
+	PopoverBody,
+	PopoverCloseButton,
+	PopoverContent,
+	PopoverFooter,
+	PopoverHeader,
+	PopoverTrigger,
+	Stack,
+	Tooltip,
+	useDisclosure,
+} from '@chakra-ui/react';
+import { useAtom, useAtomValue } from 'jotai';
 
-import { AlertCircle, Save } from 'react-feather';
+import { Save } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useCurrentTableData, useCurrentTableName, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
@@ -11,15 +25,20 @@ import { getErrorMessage } from '@/utils';
 import { FilterButton } from './Filters';
 import { SortButton } from './Sorts';
 import { PinnedFilters } from './PinnedFilters';
-import { useGetTable } from '@/features/app-builder/hooks';
+import { useConvertSmartTable, useGetTable } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
+import { newPageStateAtom } from '@/features/app-state';
+import { appModeAtom } from '@/features/app/atoms';
 
 export const TableBar = () => {
 	const toast = useToast();
 
 	const tableName = useCurrentTableName();
 
-	const { fetcher, type: tableType, smart: isSmartTable } = useGetTable(tableName || '');
+	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	const { isPreview } = useAtomValue(appModeAtom);
+	const { fetcher, type: tableType, smart: isSmartTable, table } = useGetTable(tableName || '');
 
 	const { appName, pageName } = useParams();
 	const { files } = useGetPage({ appName, pageName });
@@ -29,6 +48,33 @@ export const TableBar = () => {
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
 	const cellEdits = allCellEdits[tableName] || [];
+
+	const pageState = useAtomValue(newPageStateAtom);
+
+	const convertMutation = useConvertSmartTable({
+		onSuccess: () => {
+			toast({
+				status: 'success',
+				title: 'SmartTable converted',
+			});
+		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to convert table',
+				description: getErrorMessage(error),
+			});
+		},
+	});
+
+	const handleConvert = () => {
+		convertMutation.mutate({
+			table,
+			state: pageState.state,
+			appName,
+			pageName,
+		});
+	};
 
 	const saveEditsMutation = useSaveEdits({
 		onSuccess: () => {
@@ -78,29 +124,47 @@ export const TableBar = () => {
 			>
 				{tableType === 'sql' ? (
 					<Stack spacing="0" alignItems="center" direction="row">
-						<FilterButton />
-						<SortButton />
+						<Popover
+							returnFocusOnClose={false}
+							isOpen={!isPreview && !isSmartTable && fetcher && isOpen}
+							onClose={onClose}
+							placement="bottom-end"
+							closeOnBlur={false}
+						>
+							<PopoverTrigger>
+								<Stack direction="row" onMouseOver={onOpen} onMouseEnter={onOpen}>
+									<FilterButton />
+									<SortButton />
+								</Stack>
+							</PopoverTrigger>
+							<PopoverContent>
+								<PopoverHeader fontWeight="semibold">
+									Convert to Smart Table
+								</PopoverHeader>
+
+								<PopoverCloseButton size="xs" />
+								<PopoverBody fontSize="sm">
+									Convert to smart table to enable filter, sorts and editing cells
+								</PopoverBody>
+								<PopoverFooter display="flex" justifyContent="flex-end">
+									<ButtonGroup size="sm">
+										<Button onClick={onClose} variant="outline">
+											Cancel
+										</Button>
+										<Button
+											isLoading={convertMutation.isLoading}
+											onClick={handleConvert}
+										>
+											Convert to Smart Table
+										</Button>
+									</ButtonGroup>
+								</PopoverFooter>
+							</PopoverContent>
+						</Popover>
+
 						<PinnedFilters />
 					</Stack>
 				) : null}
-
-				{isSmartTable ? null : (
-					<Stack
-						bg="yellow.50"
-						borderRadius="sm"
-						borderWidth="1px"
-						borderColor="yellow.200"
-						p="1.5"
-						alignItems="center"
-						ml="auto"
-						direction="row"
-					>
-						<Icon as={AlertCircle} color="yellow.500" size="14" />
-						<Text fontSize="sm">
-							Convert to smart table to enable filter, sorts and editing
-						</Text>
-					</Stack>
-				)}
 
 				<Stack direction="row">
 					{cellEdits.length > 0 ? (
