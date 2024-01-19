@@ -122,8 +122,7 @@ export const FunctionEditor = ({ name }: any) => {
 			pageName,
 			appName,
 			fileName,
-			sql: updatedCode,
-			fileId: name,
+			code: updatedCode,
 			fileType: file?.type,
 		});
 	};

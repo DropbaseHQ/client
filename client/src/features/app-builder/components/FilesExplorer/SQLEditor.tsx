@@ -106,9 +106,8 @@ export const SQLEditor = ({ name }: any) => {
 			pageName,
 			appName,
 			fileName: sqlName,
-			sql: code,
+			code,
 			source: selectedSource,
-			fileId: name,
 			fileType: file?.type,
 		});
 	};
