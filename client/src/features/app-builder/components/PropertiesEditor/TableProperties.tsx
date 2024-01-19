@@ -152,7 +152,7 @@ export const TableProperties = () => {
 						alignItems="center"
 						direction="row"
 					>
-						<Text fontWeight="semibold" size="sm">
+						<Text fontWeight="semibold" fontSize="lg">
 							Table Properties
 						</Text>
 						<ButtonGroup ml="auto" size="xs">
@@ -272,7 +272,10 @@ export const TableProperties = () => {
 																				}
 																			/>
 																			<Stack spacing="0">
-																				<Text fontWeight="medium">
+																				<Text
+																					fontWeight="medium"
+																					fontSize="sm"
+																				>
 																					{file.name}
 																				</Text>
 																			</Stack>

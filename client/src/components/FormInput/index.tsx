@@ -131,7 +131,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					>
 						{allOptions.length === 0 ? (
 							<Center>
-								<Text>No options present</Text>
+								<Text fontSize="sm">No options present</Text>
 							</Center>
 						) : (
 							<MenuOptionGroup

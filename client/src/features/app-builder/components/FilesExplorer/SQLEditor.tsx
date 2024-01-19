@@ -106,9 +106,8 @@ export const SQLEditor = ({ name }: any) => {
 			pageName,
 			appName,
 			fileName: sqlName,
-			sql: code,
+			code,
 			source: selectedSource,
-			fileId: name,
 			fileType: file?.type,
 		});
 	};
@@ -135,7 +134,7 @@ export const SQLEditor = ({ name }: any) => {
 					alignItems="center"
 					justifyContent="space-between"
 				>
-					<Text fontSize="sm" fontWeight="semibold">
+					<Text fontSize="md" fontWeight="semibold">
 						{fullFileName}
 					</Text>
 

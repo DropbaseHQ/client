@@ -26,7 +26,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 			setInspectedResource({
 				id: null,
 				type: 'widget',
-			})
+			});
 		},
 		onError: (error: any) => {
 			toast({
@@ -72,8 +72,10 @@ export const WidgetProperties = ({ widgetId }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: properties?.widgets.map((w: any) => w.name === widgetId ? {...w, ...formValues} : w )
-				}
+					widgets: properties?.widgets.map((w: any) =>
+						w.name === widgetId ? { ...w, ...formValues } : w,
+					),
+				},
 			});
 		}
 	};
@@ -95,8 +97,8 @@ export const WidgetProperties = ({ widgetId }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: properties?.widgets.filter((w: any) => w.name !== widgetId)
-				}
+					widgets: properties?.widgets.filter((w: any) => w.name !== widgetId),
+				},
 			});
 		}
 	};
@@ -113,7 +115,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 						alignItems="center"
 						direction="row"
 					>
-						<Text fontWeight="semibold" size="sm">
+						<Text fontWeight="semibold" fontSize="lg">
 							{widgetId || ''} Properties
 						</Text>
 
@@ -139,19 +141,19 @@ export const WidgetProperties = ({ widgetId }: any) => {
 							/>
 						</ButtonGroup>
 					</Stack>
-					<Stack spacing="0" divider={<StackDivider />}>	
+					<Stack spacing="0" divider={<StackDivider />}>
 						<Stack spacing="3" p="3">
 							<Stack>
 								{fields?.widget?.map((property: any) => {
-										return (
-											<FormInput
-												{...property}
-												id={property.name}
-												type={property.type}
-												key={property.name}
-											/>
-										);
-									})}
+									return (
+										<FormInput
+											{...property}
+											id={property.name}
+											type={property.type}
+											key={property.name}
+										/>
+									);
+								})}
 							</Stack>
 						</Stack>
 					</Stack>

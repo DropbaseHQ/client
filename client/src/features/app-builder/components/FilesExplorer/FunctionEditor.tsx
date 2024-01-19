@@ -122,8 +122,7 @@ export const FunctionEditor = ({ name }: any) => {
 			pageName,
 			appName,
 			fileName,
-			sql: updatedCode,
-			fileId: name,
+			code: updatedCode,
 			fileType: file?.type,
 		});
 	};
@@ -176,7 +175,7 @@ export const FunctionEditor = ({ name }: any) => {
 	return (
 		<Stack h="full" bg="white" spacing="0" divider={<Divider />} w="full">
 			<Stack p="2" direction="row" alignItems="center" justifyContent="space-between">
-				<Text fontSize="sm" fontWeight="semibold">
+				<Text fontSize="md" fontWeight="semibold">
 					{fileName}
 				</Text>
 

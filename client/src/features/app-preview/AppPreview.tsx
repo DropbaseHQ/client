@@ -230,7 +230,7 @@ export const AppPreview = () => {
 					</Box>
 				</Stack>
 				<Stack mt="6">
-					<Text fontWeight="medium">
+					<Text fontWeight="medium" fontSize="md">
 						Extend your Smart Table with Widgets and Functions
 					</Text>
 					<Button

@@ -9,7 +9,7 @@ import * as components from './components';
 
 const customComponents = merge(proTheme.components, components);
 
-const REDUCER = 0.95;
+const REDUCER = .85;
 
 const SIZE_FIELDS = ['fontSizes', 'letterSpacings', 'lineHeights', 'radii', 'sizes', 'space'];
 
@@ -59,6 +59,7 @@ const reducedSizeFields = SIZE_FIELDS.reduce((agg: any, field: any) => {
 export const theme = extendTheme({
 	...proTheme,
 	components: customComponents,
+	...reducedSizeFields,
 	colors: {
 		...baseTheme.colors,
 		blue: {

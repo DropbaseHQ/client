@@ -21,7 +21,9 @@ export const EmailConfirmation = () => {
 
 				{isSuccess ? (
 					<Flex direction="column">
-						<Text textAlign="center">Email Confirmation Success!</Text>
+						<Text textAlign="center" fontSize="md">
+							Email Confirmation Success!
+						</Text>
 						<Button
 							marginTop="4"
 							onClick={() => {
@@ -32,7 +34,9 @@ export const EmailConfirmation = () => {
 						</Button>
 					</Flex>
 				) : (
-					<Text textAlign="center">Unable to confirm email!</Text>
+					<Text textAlign="center" fontSize="md">
+						Unable to confirm email!
+					</Text>
 				)}
 			</Box>
 		</Container>
