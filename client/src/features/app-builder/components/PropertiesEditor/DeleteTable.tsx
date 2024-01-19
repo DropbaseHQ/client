@@ -99,7 +99,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 
 			<Portal>
 				<PopoverContent>
-					<PopoverHeader pt={4} fontWeight="bold" border="0">
+					<PopoverHeader pt={4} fontWeight="bold" border="0" fontSize="md">
 						Delete table
 					</PopoverHeader>
 					<PopoverArrow />

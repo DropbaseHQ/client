@@ -87,8 +87,10 @@ export const GroupCard = ({
 				<PopoverContent>
 					<PopoverArrow />
 					<PopoverCloseButton />
-					<PopoverHeader>Confirm Delete</PopoverHeader>
-					<PopoverBody>Are you sure you want to delete this group?</PopoverBody>
+					<PopoverHeader fontSize="md">Confirm Delete</PopoverHeader>
+					<PopoverBody fontSize="md">
+						Are you sure you want to delete this group?
+					</PopoverBody>
 					<PopoverFooter display="flex" justifyContent="flex-end">
 						<ButtonGroup>
 							<Button

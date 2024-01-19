@@ -144,7 +144,7 @@ export const TableBar = () => {
 									</Stack>
 								</PopoverTrigger>
 								<PopoverContent zIndex="popover" mt="-2">
-									<PopoverHeader fontWeight="semibold">
+									<PopoverHeader fontWeight="semibold" fontSize="md">
 										Convert to Smart Table
 									</PopoverHeader>
 
