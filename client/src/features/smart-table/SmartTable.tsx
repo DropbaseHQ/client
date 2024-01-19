@@ -215,6 +215,7 @@ export const SmartTable = ({ tableName }: any) => {
 					bgBubbleSelected: theme.colors.blue['500'],
 					textBubble: theme.colors.gray['600'],
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.2)(theme),
+					baseFontStyle: '12px',
 			  }
 			: {
 					accentColor: theme.colors.blue['500'], // main blue
@@ -231,6 +232,7 @@ export const SmartTable = ({ tableName }: any) => {
 					bgHeaderHasFocus: theme.colors.gray['100'], // hovered color of header cells
 					bgBubble: theme.colors.gray['100'],
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.3)(theme),
+					baseFontStyle: '12px',
 			  };
 
 	const visibleColumns = header.filter(
@@ -683,6 +685,7 @@ export const SmartTable = ({ tableName }: any) => {
 										onCellEdited={onCellEdited}
 										keybindings={{ search: true }}
 										onColumnResize={onColumnResize}
+										rowHeight={30}
 									/>
 								)}
 							</>

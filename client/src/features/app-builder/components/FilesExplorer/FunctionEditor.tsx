@@ -125,7 +125,7 @@ export const FunctionEditor = ({ name }: any) => {
 		savePythonMutation.mutate({
 			pageName,
 			appName,
-			fileName,
+			fileName: name,
 			code: updatedCode,
 			fileType: file?.type,
 			depends,
