@@ -11,16 +11,36 @@ import {
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ChevronDown } from 'react-feather';
 import { pageAtom } from '@/features/page';
+import { allWidgetsInputAtom } from '@/features/app-state';
 
 export const WidgetSwitcher = () => {
 	const { widgetName, widgets } = useAtomValue(pageAtom);
 	const setPageAtom = useSetAtom(pageAtom);
+	const widgetsInput = useAtomValue(allWidgetsInputAtom);
+	const setWidgetsInputAtom = useSetAtom(allWidgetsInputAtom);
+
+	const resetWidgetInputs = (targetWidgetName: string) => {
+		const targetWidgetState: { [key: string]: any } | undefined =
+			widgetsInput?.[targetWidgetName as keyof typeof widgetsInput];
+
+		const newWidgetState: { [key: string]: any } = {};
+		Object.keys(targetWidgetState || {}).forEach((key) => {
+			newWidgetState[key] = null;
+		});
+		setWidgetsInputAtom((oldWidgetsInputAtom: any) => {
+			return {
+				...oldWidgetsInputAtom,
+				[targetWidgetName || '']: newWidgetState,
+			};
+		});
+	};
 
 	const handleChooseWidget = (newWidgetName: any) => {
 		setPageAtom((oldPageAtom) => ({
 			...oldPageAtom,
 			widgetName: newWidgetName,
 		}));
+		resetWidgetInputs(newWidgetName);
 	};
 
 	return (
