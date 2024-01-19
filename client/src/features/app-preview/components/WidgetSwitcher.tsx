@@ -24,7 +24,7 @@ export const WidgetSwitcher = () => {
 	};
 
 	return (
-		<Menu closeOnSelect={false}>
+		<Menu placement="bottom-end" closeOnSelect>
 			<Tooltip label="Switch widget">
 				<MenuButton
 					icon={<ChevronDown size="14" />}
@@ -35,7 +35,7 @@ export const WidgetSwitcher = () => {
 					size="xs"
 				/>
 			</Tooltip>
-			<MenuList minWidth="240px">
+			<MenuList minWidth="xs">
 				<MenuOptionGroup
 					value={widgetName || ''}
 					onChange={handleChooseWidget}
