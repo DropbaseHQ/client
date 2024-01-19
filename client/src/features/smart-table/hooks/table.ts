@@ -4,11 +4,16 @@ import { useAtomValue } from 'jotai';
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
-import { APP_STATE_QUERY_KEY, newPageStateAtom, useAppState } from '@/features/app-state';
+import {
+	APP_STATE_QUERY_KEY,
+	newPageStateAtom,
+	useAppState,
+	useSyncState,
+} from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
-import { useSyncState } from '@/features/app-state';
+
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
 const fetchTableData = async ({

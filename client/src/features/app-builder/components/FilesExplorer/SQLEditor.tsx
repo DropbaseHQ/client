@@ -25,7 +25,7 @@ import { previewCodeAtom } from '../../atoms';
 export const SQLEditor = ({ name }: any) => {
 	const toast = useToast();
 	const { appName, pageName } = useParams();
-	const { files } = useGetPage({ appName, pageName });
+	const { files, tables } = useGetPage({ appName, pageName });
 
 	const file = files.find((f: any) => f.name === name);
 	const sqlName = file?.name;
@@ -151,7 +151,7 @@ export const SQLEditor = ({ name }: any) => {
 						Update
 					</Button>
 				</Stack>
-				<Stack px="3" pb="3" borderBottomWidth="1px" alignItems="start" direction="row">
+				<Stack px="3" pb="3" borderBottomWidth="1px" alignItems="start">
 					<FormControl>
 						<FormLabel>Source</FormLabel>
 						<InputRenderer
@@ -165,6 +165,22 @@ export const SQLEditor = ({ name }: any) => {
 							onChange={(newSelectedSource: any) => {
 								setSource(newSelectedSource);
 							}}
+						/>
+					</FormControl>
+
+					<FormControl>
+						<FormLabel>Depends</FormLabel>
+						<InputRenderer
+							type="multiselect"
+							id="depends"
+							maxW="sm"
+							name="Depends on"
+							placeholder="Select the table which it depends on"
+							options={tables.map((t: any) => ({
+								name: t.name,
+								value: t.name,
+							}))}
+							value={file?.depends_on || []}
 						/>
 					</FormControl>
 				</Stack>

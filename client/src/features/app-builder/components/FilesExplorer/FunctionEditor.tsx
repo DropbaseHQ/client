@@ -5,6 +5,8 @@ import {
 	Box,
 	Button,
 	Divider,
+	FormControl,
+	FormLabel,
 	IconButton,
 	Skeleton,
 	SkeletonCircle,
@@ -32,6 +34,7 @@ import { getErrorMessage } from '@/utils';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 import { findFunctionDeclarations } from '../../utils';
 import { previewCodeAtom } from '../../atoms';
+import { InputRenderer } from '@/components/FormInput';
 
 const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name }: any) => {
 	const [code, setCode] = useState(defaultCode);
@@ -78,7 +81,7 @@ export const FunctionEditor = ({ name }: any) => {
 	const queryClient = useQueryClient();
 	const toast = useToast();
 	const { appName, pageName } = useParams();
-	const { files } = useGetPage({ appName, pageName });
+	const { files, tables } = useGetPage({ appName, pageName });
 
 	const { files: workerFiles, isLoading: isLoadingWorkerFiles } = usePageFiles({
 		pageName: pageName || '',
@@ -99,6 +102,7 @@ export const FunctionEditor = ({ name }: any) => {
 	});
 
 	const [updatedCode, setCode] = useState(code || '');
+	const [depends, setDepends] = useState([]);
 
 	const savePythonMutation = useSaveCode({
 		onSuccess: () => {
@@ -124,12 +128,17 @@ export const FunctionEditor = ({ name }: any) => {
 			fileName,
 			code: updatedCode,
 			fileType: file?.type,
+			depends,
 		});
 	};
 
 	useEffect(() => {
 		setCode(code);
 	}, [name, code]);
+
+	useEffect(() => {
+		setDepends(file.depends_on);
+	}, [file]);
 
 	useEffect(() => {
 		setPreviewFile({
@@ -185,7 +194,10 @@ export const FunctionEditor = ({ name }: any) => {
 					variant="outline"
 					colorScheme="gray"
 					size="sm"
-					isDisabled={code === updatedCode}
+					isDisabled={
+						code === updatedCode &&
+						JSON.stringify(depends) === JSON.stringify(file?.depends_on)
+					}
 					leftIcon={<Save size="14" />}
 				>
 					Update
@@ -201,6 +213,30 @@ export const FunctionEditor = ({ name }: any) => {
 					</AlertDescription>
 				</Alert>
 			) : null}
+
+			{file?.type === 'data_fetcher' ? (
+				<Stack p="3" borderBottomWidth="1px" alignItems="start" direction="row">
+					<FormControl>
+						<FormLabel>Depends</FormLabel>
+						<InputRenderer
+							type="multiselect"
+							id="depends"
+							maxW="sm"
+							name="Depends on"
+							placeholder="Select the table which it depends on"
+							options={tables.map((t: any) => ({
+								name: t.name,
+								value: t.name,
+							}))}
+							value={depends}
+							onChange={(newDepends: any) => {
+								setDepends(newDepends);
+							}}
+						/>
+					</FormControl>
+				</Stack>
+			) : null}
+
 			<Box overflowY="auto" h="full">
 				<PythonEditorLSP
 					code={code}
