@@ -6,7 +6,7 @@ on:
       - dev
       - main
     paths:
-    - client
+      - client
 
   workflow_dispatch:
 
@@ -30,7 +30,7 @@ jobs:
         run: cd client && yarn install
 
       - name: Build
-        run: cd client && yarn install
+        run: cd client && yarn run build
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
