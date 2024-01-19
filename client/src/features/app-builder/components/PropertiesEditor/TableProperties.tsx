@@ -1,23 +1,25 @@
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { Save, Table } from 'react-feather';
 import { Stack, Text, IconButton, ButtonGroup, Icon, Badge, StackDivider } from '@chakra-ui/react';
 import { useGetTable, useResourceFields } from '@/features/app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { InputLoader } from '@/components/Loader';
-import { selectedTableIdAtom } from '@/features/app-builder/atoms';
+import { inspectedResourceAtom, selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { DeleteTable } from '@/features/app-builder/components/PropertiesEditor/DeleteTable';
 import { useGetPage, useUpdatePageData } from '@/features/page';
-import { newPageStateAtom } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
+import { NameEditor } from '@/features/app-builder/components/NameEditor';
 
 export const TableProperties = () => {
 	const tableId = useAtomValue(selectedTableIdAtom);
 	const { appName, pageName } = useParams();
 	const toast = useToast();
+
+	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 
 	const {
 		isLoading,
@@ -34,8 +36,6 @@ export const TableProperties = () => {
 	const currentCategories = ['Default', 'Events'];
 
 	const { tables, files, properties } = useGetPage({ appName, pageName });
-
-	const pageState = useAtomValue(newPageStateAtom);
 
 	const mutation = useUpdatePageData({
 		onSuccess: () => {
@@ -122,6 +122,37 @@ export const TableProperties = () => {
 		});
 	};
 
+	const handleUpdateName = async (newName: any) => {
+		try {
+			await mutation.mutateAsync({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(properties || {}),
+					tables: [
+						...(properties?.tables || []).map((t: any) => {
+							if (t.name === tableId) {
+								return {
+									...t,
+									name: newName,
+								};
+							}
+
+							return t;
+						}),
+					],
+				},
+			});
+
+			setInspectedResource({
+				id: newName,
+				type: 'table',
+			});
+		} catch (e) {
+			//
+		}
+	};
+
 	const resetDependsOn = (newFileId: any) => {
 		const newFile = files.find((f: any) => f.name === newFileId);
 
@@ -145,16 +176,24 @@ export const TableProperties = () => {
 			<FormProvider {...methods}>
 				<Stack key={tableId}>
 					<Stack
-						py="2"
+						py="1.5"
 						px="4"
 						borderBottomWidth="1px"
 						flex="1"
 						alignItems="center"
 						direction="row"
 					>
-						<Text fontWeight="semibold" fontSize="lg">
-							Table Properties
-						</Text>
+						<Stack direction="row" alignItems="center">
+							<Text fontWeight="semibold" fontSize="lg">
+								{tableId}
+							</Text>
+							<NameEditor
+								value={tableId}
+								currentNames={(properties?.tables || []).map((t: any) => t.name)}
+								onUpdate={handleUpdateName}
+								resource="table"
+							/>
+						</Stack>
 						<ButtonGroup ml="auto" size="xs">
 							{isDirty ? (
 								<IconButton
@@ -188,58 +227,7 @@ export const TableProperties = () => {
 											}
 
 											if (property.name === 'name') {
-												return (
-													<FormInput
-														id="name"
-														name={property.title}
-														type="text"
-														required
-														validation={{
-															validate: {
-																noUpperCase: (value: any) => {
-																	if (
-																		value &&
-																		value !==
-																			value.toLowerCase()
-																	) {
-																		return 'Must be lowercase';
-																	}
-																	return true;
-																},
-																noSpecialChars: (value: any) => {
-																	if (
-																		value &&
-																		/[^a-z0-9_]/.test(value)
-																	) {
-																		return 'Must not contain special characters other than underscores';
-																	}
-																	return true;
-																},
-																isUnique: (value: any) => {
-																	if (
-																		value &&
-																		defaultTableName !== value
-																	) {
-																		const isUnique =
-																			Object.keys(
-																				pageState?.state
-																					?.tables,
-																			).find(
-																				(t: any) =>
-																					t === value &&
-																					value !==
-																						defaultTableName,
-																			);
-																		if (isUnique) {
-																			return 'Table name must be unique';
-																		}
-																	}
-																	return true;
-																},
-															},
-														}}
-													/>
-												);
+												return null;
 											}
 
 											if (property.name === 'fetcher') {
