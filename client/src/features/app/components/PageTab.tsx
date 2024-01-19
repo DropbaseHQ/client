@@ -205,6 +205,11 @@ export const PageTab = (props: any) => {
 												placeholder="Page name"
 												value={pageNameEdit}
 												onChange={handleChangePageName}
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') {
+														handleRenamePage();
+													}
+												}}
 											/>
 
 											<FormErrorMessage>
