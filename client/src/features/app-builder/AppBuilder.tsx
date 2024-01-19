@@ -39,13 +39,13 @@ export const AppBuilder = () => {
 						<PanelGroup autoSaveId="main-panel" direction="vertical">
 							<Panel defaultSize={45}>
 								<PanelGroup autoSaveId="data-panel" direction="horizontal">
-									<Panel defaultSize={80}>
+									<Panel defaultSize={80} minSize={10}>
 										<Loader isLoading={isLoading}>
 											<StackedTables />
 										</Loader>
 									</Panel>
 									<PanelHandle direction="vertical" />
-									<Panel>
+									<Panel minSize={10}>
 										<Loader isLoading={isLoading}>
 											<AppPreview />
 										</Loader>
