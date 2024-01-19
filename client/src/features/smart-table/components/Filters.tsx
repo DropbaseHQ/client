@@ -125,6 +125,7 @@ export const FilterButton = () => {
 
 	const { properties } = useGetPage({ appName, pageName });
 	const { columnDict: columns } = useCurrentTableData(tableId);
+	const { smart: isSmartTable } = useGetTable(tableId);
 
 	const [allFilters, setFilters] = useAtom(filtersAtom);
 	const filters = allFilters[tableId] || [];
@@ -222,6 +223,7 @@ export const FilterButton = () => {
 				<Button
 					leftIcon={<FilterIcon size={14} />}
 					size="sm"
+					isDisabled={!isSmartTable}
 					variant="ghost"
 					onClick={onToggle}
 					colorScheme={haveFiltersApplied ? 'blue' : 'gray'}
@@ -237,7 +239,9 @@ export const FilterButton = () => {
 				<PopoverCloseButton mt={2} onClick={onClose} />
 				<PopoverBody>
 					{filters.length === 0 ? (
-						<Text color="gray">No filters applied</Text>
+						<Text color="gray" fontSize="md">
+							No filters applied
+						</Text>
 					) : (
 						<VStack alignItems="start" w="full">
 							{filters.map((filter: any, index: any) => {

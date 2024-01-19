@@ -25,6 +25,7 @@ import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { generateSequentialName, getErrorMessage } from '@/utils';
+import { NameEditor } from '@/features/app-builder/components/NameEditor';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -124,6 +125,46 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		});
 	};
 
+	const handleUpdateName = async (newName: any) => {
+		try {
+			await updateMutation.mutate({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(properties || {}),
+					widgets: [
+						...(properties?.widgets || []).map((w: any) => {
+							if (w.name === widgetName) {
+								return {
+									...w,
+									components: (w.components || []).map((c: any) => {
+										if (c.name === id) {
+											return {
+												...c,
+												name: newName,
+											};
+										}
+
+										return c;
+									}),
+								};
+							}
+
+							return w;
+						}),
+					],
+				},
+			});
+
+			setInspectedResource({
+				id: newName,
+				type: 'component',
+			});
+		} catch (e) {
+			//
+		}
+	};
+
 	if (isLoading) {
 		return (
 			<Stack bg="white" h="full">
@@ -149,9 +190,19 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 						alignItems="center"
 						direction="row"
 					>
-						<Text fontWeight="semibold" size="sm">
-							{component?.name || id} Properties
-						</Text>
+						<Stack direction="row" alignItems="center">
+							<Text fontWeight="semibold" fontSize="lg">
+								{component?.name || id}
+							</Text>
+							<NameEditor
+								value={id}
+								currentNames={(
+									properties?.widgets?.[widgetName || '']?.components || []
+								).map((c: any) => c.name)}
+								onUpdate={handleUpdateName}
+								resource="component"
+							/>
+						</Stack>
 
 						<ButtonGroup ml="auto" size="xs">
 							{isDirty ? (
@@ -204,6 +255,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 									{fields[component?.component_type]
 										.filter((property: any) => property.category === category)
 										.map((property: any) => {
+											if (property?.name === 'name') {
+												return null;
+											}
+
 											if (
 												property.name === 'display_rules' ||
 												property.type === 'rules'

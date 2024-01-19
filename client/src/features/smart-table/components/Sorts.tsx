@@ -21,6 +21,7 @@ import { ChevronsUp as SortIcon, Plus, Trash } from 'react-feather';
 import { useAtom } from 'jotai';
 import { sortsAtom } from '@/features/smart-table/atoms';
 import { useCurrentTableData, useCurrentTableName } from '@/features/smart-table/hooks';
+import { useGetTable } from '@/features/app-builder/hooks';
 
 export const SortButton = () => {
 	const { isOpen, onToggle, onClose } = useDisclosure();
@@ -29,6 +30,8 @@ export const SortButton = () => {
 
 	const [allSorts, setSorts] = useAtom(sortsAtom);
 	const sorts: any = allSorts[tableId] || [];
+
+	const { smart: isSmartTable } = useGetTable(tableId);
 
 	const haveSortsApplied = sorts.length > 0 && sorts.every((f: any) => f.column_name);
 
@@ -65,6 +68,7 @@ export const SortButton = () => {
 					size="sm"
 					onClick={onToggle}
 					variant="ghost"
+					isDisabled={!isSmartTable}
 					colorScheme={haveSortsApplied ? 'blue' : 'gray'}
 				>
 					Sorts
@@ -78,7 +82,9 @@ export const SortButton = () => {
 				<PopoverCloseButton mt={2} onClick={onClose} />
 				<PopoverBody>
 					{sorts.length === 0 ? (
-						<Text color="gray">No sorts applied</Text>
+						<Text color="gray" fontSize="md">
+							No sorts applied
+						</Text>
 					) : (
 						<VStack alignItems="start" w="full">
 							{sorts.map((sort: any, index: any) => {

@@ -215,6 +215,7 @@ export const SmartTable = ({ tableName }: any) => {
 					bgBubbleSelected: theme.colors.blue['500'],
 					textBubble: theme.colors.gray['600'],
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.2)(theme),
+					baseFontStyle: '12px',
 			  }
 			: {
 					accentColor: theme.colors.blue['500'], // main blue
@@ -231,6 +232,7 @@ export const SmartTable = ({ tableName }: any) => {
 					bgHeaderHasFocus: theme.colors.gray['100'], // hovered color of header cells
 					bgBubble: theme.colors.gray['100'],
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.3)(theme),
+					baseFontStyle: '12px',
 			  };
 
 	const visibleColumns = header.filter(
@@ -583,7 +585,9 @@ export const SmartTable = ({ tableName }: any) => {
 				<NavLoader isLoading={isLoadingTable}>
 					<Flex justifyContent="space-between">
 						<Stack spacing="0" px="2" flexShrink="0">
-							<Text fontWeight="semibold">{table?.label || tableName}</Text>
+							<Text fontWeight="semibold" fontSize="lg">
+								{table?.label || tableName}
+							</Text>
 							{dependantTablesWithNoRowSelection.length > 0 ? (
 								<Stack direction="row" spacing="1" alignItems="center">
 									<Box color="orange.500">
@@ -645,7 +649,7 @@ export const SmartTable = ({ tableName }: any) => {
 						{isLoading ? (
 							<Center h="full" as={Stack}>
 								<Spinner size="md" />
-								<Text>Loading data...</Text>
+								<Text fontSize="md">Loading data...</Text>
 							</Center>
 						) : (
 							<>
@@ -681,6 +685,7 @@ export const SmartTable = ({ tableName }: any) => {
 										onCellEdited={onCellEdited}
 										keybindings={{ search: true }}
 										onColumnResize={onColumnResize}
+										rowHeight={30}
 									/>
 								)}
 							</>

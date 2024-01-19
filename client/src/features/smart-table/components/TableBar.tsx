@@ -1,7 +1,22 @@
-import { IconButton, Stack, Tooltip } from '@chakra-ui/react';
-import { useAtom } from 'jotai';
+import {
+	Box,
+	Button,
+	ButtonGroup,
+	IconButton,
+	Popover,
+	PopoverBody,
+	PopoverCloseButton,
+	PopoverContent,
+	PopoverFooter,
+	PopoverHeader,
+	PopoverTrigger,
+	Stack,
+	Tooltip,
+	useDisclosure,
+} from '@chakra-ui/react';
+import { useAtom, useAtomValue } from 'jotai';
 
-import { Save } from 'react-feather';
+import { Save, Zap } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useCurrentTableData, useCurrentTableName, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
@@ -11,15 +26,20 @@ import { getErrorMessage } from '@/utils';
 import { FilterButton } from './Filters';
 import { SortButton } from './Sorts';
 import { PinnedFilters } from './PinnedFilters';
-import { useGetTable } from '@/features/app-builder/hooks';
+import { useConvertSmartTable, useGetTable } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
+import { newPageStateAtom } from '@/features/app-state';
+import { appModeAtom } from '@/features/app/atoms';
 
 export const TableBar = () => {
 	const toast = useToast();
 
 	const tableName = useCurrentTableName();
 
-	const { fetcher, type: tableType } = useGetTable(tableName || '');
+	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	const { isPreview } = useAtomValue(appModeAtom);
+	const { fetcher, type: tableType, smart: isSmartTable, table } = useGetTable(tableName || '');
 
 	const { appName, pageName } = useParams();
 	const { files } = useGetPage({ appName, pageName });
@@ -29,6 +49,33 @@ export const TableBar = () => {
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
 	const cellEdits = allCellEdits[tableName] || [];
+
+	const pageState = useAtomValue(newPageStateAtom);
+
+	const convertMutation = useConvertSmartTable({
+		onSuccess: () => {
+			toast({
+				status: 'success',
+				title: 'SmartTable converted',
+			});
+		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to convert table',
+				description: getErrorMessage(error),
+			});
+		},
+	});
+
+	const handleConvert = () => {
+		convertMutation.mutate({
+			table,
+			state: pageState.state,
+			appName,
+			pageName,
+		});
+	};
 
 	const saveEditsMutation = useSaveEdits({
 		onSuccess: () => {
@@ -73,12 +120,56 @@ export const TableBar = () => {
 				borderRadius="sm"
 				direction="row"
 				p="1.5"
+				alignItems="center"
 				justifyContent="space-between"
 			>
 				{tableType === 'sql' ? (
 					<Stack spacing="0" alignItems="center" direction="row">
-						<FilterButton />
-						<SortButton />
+						<Box onMouseLeave={onClose}>
+							<Popover
+								returnFocusOnClose={false}
+								isOpen={!isPreview && !isSmartTable && fetcher && isOpen}
+								onClose={onClose}
+								placement="bottom-end"
+								closeOnBlur={false}
+							>
+								<PopoverTrigger>
+									<Stack
+										onMouseOver={onOpen}
+										onMouseEnter={onOpen}
+										direction="row"
+									>
+										<FilterButton />
+										<SortButton />
+									</Stack>
+								</PopoverTrigger>
+								<PopoverContent zIndex="popover" mt="-2">
+									<PopoverHeader fontWeight="semibold">
+										Convert to Smart Table
+									</PopoverHeader>
+
+									<PopoverCloseButton size="xs" />
+									<PopoverBody fontSize="sm">
+										Convert to smart table to enable filter, sorts and editing
+										cells
+									</PopoverBody>
+									<PopoverFooter display="flex" justifyContent="flex-end">
+										<ButtonGroup size="sm">
+											<Button
+												isLoading={convertMutation.isLoading}
+												onClick={handleConvert}
+												colorScheme="gray"
+												variant="outline"
+												leftIcon={<Zap size="14" />}
+											>
+												Convert to Smart Table
+											</Button>
+										</ButtonGroup>
+									</PopoverFooter>
+								</PopoverContent>
+							</Popover>
+						</Box>
+
 						<PinnedFilters />
 					</Stack>
 				) : null}
