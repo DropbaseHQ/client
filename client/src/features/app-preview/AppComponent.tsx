@@ -68,7 +68,7 @@ export const AppComponent = (props: any) => {
 	const grayOutComponent = !shouldDisplay && isEditorMode;
 
 	const editable = allWidgetState?.[widgetName || '']?.components?.[name].editable;
-	const isReadOnly = editable !== undefined ? !editable : false;
+	const isReadOnly = editable !== null ? !editable : false;
 
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
