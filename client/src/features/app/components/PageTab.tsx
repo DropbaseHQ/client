@@ -178,6 +178,7 @@ export const PageTab = (props: any) => {
 								onClose={onRenameClose}
 								isOpen={isRenameOpen}
 								onOpen={handleRenameOpen}
+								closeOnBlur={false}
 							>
 								<PopoverTrigger>
 									<MenuItem data-db-id="rename-page">Edit</MenuItem>
@@ -204,6 +205,11 @@ export const PageTab = (props: any) => {
 												placeholder="Page name"
 												value={pageNameEdit}
 												onChange={handleChangePageName}
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') {
+														handleRenamePage();
+													}
+												}}
 											/>
 
 											<FormErrorMessage>

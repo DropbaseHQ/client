@@ -1,0 +1,45 @@
+name: Client Deployment - Dev
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - client
+  workflow_dispatch:
+
+env:
+  CLOUDFLARE_ACCOUNT_ID: 74c5779b693bd2c6e69632e8a533e618
+  CLOUDFLARE_PAGES_PROJECT: dropbase-client-dev
+  CLIENT_URL: "https://dropbase-client-dev.pages.dev"
+  LOOPS_API_KEY: "771ca36f885accd66ab864342acabf6b"
+  VITE_API_ENDPOINT: "https://api.dev.dropbase.io/"
+  VITE_PYTHON_LSP_SERVER: "wss://api.dev.dropbase.io"
+  VITE_WORKER_API_ENDPOINT: "https://api.dev.dropbase.io"
+
+jobs:
+  build-and-deploy:
+    name: Build and deploy
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: cd client && yarn install
+
+      - name: Build
+        run: cd client && yarn run build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ env.CLOUDFLARE_PAGES_PROJECT }}
+          directory: client/dist
+          branch: dev
