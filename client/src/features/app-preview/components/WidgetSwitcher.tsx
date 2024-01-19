@@ -31,6 +31,7 @@ export const WidgetSwitcher = () => {
 					as={IconButton}
 					colorScheme="gray"
 					variant="outline"
+					ml="auto"
 					size="xs"
 				/>
 			</Tooltip>
