@@ -22,6 +22,7 @@ import DataEditor, {
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
 import '@glideapps/glide-data-grid/dist/index.css';
+import { LinksCell } from '@glideapps/glide-data-grid-cells';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
@@ -47,6 +48,8 @@ import { Pagination } from './components/Pagination';
 import { DEFAULT_PAGE_SIZE } from './constants';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
+
+const allCells = [LinksCell];
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -343,6 +346,31 @@ export const SmartTable = ({ tableName }: any) => {
 						bgCell: theme.colors.gray['50'],
 					},
 			  };
+
+		return {
+			kind: GridCellKind.Custom,
+			allowOverlay: false,
+			copyData: '4',
+			data: {
+				kind: 'links-cell',
+				underlineOffset: 6,
+				readOnly: false,
+				navigateOn: 'click',
+				links: [
+					{
+						title: 'Linky phone',
+						href: 'https://google.com',
+						onClick: () => {
+							window.open('https://google.com', '_blank');
+						},
+					},
+					{
+						title: 'Click the linky dinky',
+						href: 'https://google.com',
+					},
+				],
+			},
+		};
 
 		switch (column?.display_type) {
 			case 'float':
@@ -671,6 +699,7 @@ export const SmartTable = ({ tableName }: any) => {
 											rows.length,
 											pageInfo.pageSize || DEFAULT_PAGE_SIZE,
 										)}
+										customRenderers={allCells}
 										width="100%"
 										height="100%"
 										getCellContent={getCellContent}
