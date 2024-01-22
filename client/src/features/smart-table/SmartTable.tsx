@@ -1,5 +1,8 @@
 import { useAtom, useAtomValue } from 'jotai';
 import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
 	Box,
 	Button,
 	Center,
@@ -694,6 +697,21 @@ export const SmartTable = ({ tableName }: any) => {
 
 					<Pagination />
 				</Stack>
+
+				{pageState?.context?.tables?.[tableName].message ? (
+					<div>
+						<Alert
+							variant="left-accent"
+							status={pageState?.context?.tables?.[tableName].message_type || 'info'}
+							height="30px"
+						>
+							<AlertIcon boxSize={4} />
+							<AlertDescription fontSize={14}>
+								{pageState?.context?.tables?.[tableName].message}
+							</AlertDescription>
+						</Alert>
+					</div>
+				) : null}
 			</Stack>
 		</CurrentTableContext.Provider>
 	);
