@@ -137,7 +137,7 @@ export const FunctionEditor = ({ name }: any) => {
 	}, [name, code]);
 
 	useEffect(() => {
-		setDepends(file.depends_on);
+		setDepends(file?.depends_on);
 	}, [file]);
 
 	useEffect(() => {

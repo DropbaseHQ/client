@@ -162,9 +162,9 @@ const UserRow = (item: any) => {
 						<PopoverContent>
 							<PopoverArrow />
 							<PopoverCloseButton />
-							<PopoverHeader>Confirm member removal</PopoverHeader>
+							<PopoverHeader fontSize="md">Confirm member removal</PopoverHeader>
 							<PopoverBody>
-								<Text>{`Are you sure you want to\nremove ${item.user.email}?`}</Text>
+								<Text fontSize="md">{`Are you sure you want to\nremove ${item.user.email}?`}</Text>
 							</PopoverBody>
 							<PopoverFooter display="flex" justifyContent="flex-end">
 								<ButtonGroup size="sm">

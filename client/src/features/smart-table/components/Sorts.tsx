@@ -75,7 +75,7 @@ export const SortButton = () => {
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent boxShadow="md" minW="35rem">
-				<PopoverHeader pt={4} fontWeight="bold" border="0">
+				<PopoverHeader pt={4} fontWeight="bold" border="0" fontSize="md">
 					Sort Data
 				</PopoverHeader>
 				<PopoverArrow />

@@ -153,7 +153,7 @@ const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 						</Box>
 					</PopoverTrigger>
 					<PopoverContent>
-						<PopoverHeader fontSize="sm" fontWeight="medium">
+						<PopoverHeader fontSize="md" fontWeight="medium">
 							Config for {properties.name}
 						</PopoverHeader>
 						<PopoverBody>
