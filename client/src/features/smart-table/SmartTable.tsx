@@ -347,31 +347,6 @@ export const SmartTable = ({ tableName }: any) => {
 					},
 			  };
 
-		return {
-			kind: GridCellKind.Custom,
-			allowOverlay: false,
-			copyData: '4',
-			data: {
-				kind: 'links-cell',
-				underlineOffset: 6,
-				readOnly: false,
-				navigateOn: 'click',
-				links: [
-					{
-						title: 'Linky phone',
-						href: 'https://google.com',
-						onClick: () => {
-							window.open('https://google.com', '_blank');
-						},
-					},
-					{
-						title: 'Click the linky dinky',
-						href: 'https://google.com',
-					},
-				],
-			},
-		};
-
 		switch (column?.display_type) {
 			case 'float':
 			case 'integer': {
@@ -431,6 +406,31 @@ export const SmartTable = ({ tableName }: any) => {
 			}
 
 			default: {
+				const urlRegex =
+					/^(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?$/g;
+				if (urlRegex.test(cellValue)) {
+					return {
+						kind: GridCellKind.Custom,
+						allowOverlay: false,
+						copyData: '4',
+						data: {
+							kind: 'links-cell',
+							underlineOffset: 6,
+							readOnly: false,
+							navigateOn: 'click',
+							links: [
+								{
+									title: cellValue,
+									onClick: () => {
+										window.open(cellValue, '_blank');
+									},
+								},
+							],
+						},
+						...themeOverride,
+					};
+				}
+
 				return {
 					kind: GridCellKind.Text,
 					data: cellValue,
