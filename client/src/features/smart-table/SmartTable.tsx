@@ -425,7 +425,7 @@ export const SmartTable = ({ tableName }: any) => {
 				return {
 					kind: GridCellKind.Text,
 					data: cellValue,
-					allowOverlay: canEdit,
+					allowOverlay: true,
 					displayData: String(cellValue),
 					readonly: !canEdit,
 					...themeOverride,
