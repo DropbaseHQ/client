@@ -682,7 +682,9 @@ export const SmartTable = ({ tableName }: any) => {
 										onSelectionCleared={onSelectionCleared}
 										gridSelection={selection}
 										highlightRegions={highlights}
+										getCellsForSelection
 										onCellEdited={onCellEdited}
+										onPaste
 										keybindings={{ search: true }}
 										onColumnResize={onColumnResize}
 										rowHeight={30}
