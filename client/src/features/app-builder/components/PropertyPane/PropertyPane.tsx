@@ -10,7 +10,7 @@ import { WidgetProperties } from '@/features/app-builder/components/PropertiesEd
 const EmptyPane = () => {
 	return (
 		<Stack as={Stack} p={6} bg="white" w="full" h="full">
-			<Text lineHeight={1.2} fontWeight="medium">
+			<Text lineHeight={1.4} fontSize="md">
 				Select table or component to inspect properties
 			</Text>
 			<Stack

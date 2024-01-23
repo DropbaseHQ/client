@@ -31,6 +31,7 @@ export const useGetTable = (tableName: string): any => {
 			height: table?.height,
 			name: table?.name,
 			label: table?.label,
+			columns: table?.columns || [],
 		};
 	}, [table]);
 
@@ -203,15 +204,15 @@ export const useRunSQLQuery = (props: any = {}) => {
 	});
 };
 
-const saveSql = async ({ pageName, appName, fileType, fileName, fileId, sql, source }: any) => {
-	const response = await workerAxios.put(`files/${fileId}`, {
+const saveSql = async ({ pageName, appName, fileType, fileName, code, source, depends }: any) => {
+	const response = await workerAxios.put(`files/${fileName}`, {
 		page_name: pageName,
 		app_name: appName,
-		name: fileName,
-		sql,
+		file_name: fileName,
+		code,
 		source,
-		file_id: fileId,
 		type: fileType,
+		depends_on: depends,
 	});
 
 	return response.data;
@@ -220,9 +221,9 @@ const saveSql = async ({ pageName, appName, fileType, fileName, fileId, sql, sou
 export const useSaveCode = (props: any = {}) => {
 	const queryClient = useQueryClient();
 	return useMutation(saveSql, {
-		onSettled: () => {
+		onSettled: (_, __, variables: any) => {
 			queryClient.invalidateQueries(TABLE_QUERY_KEY);
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries([TABLE_DATA_QUERY_KEY, variables?.fileName]);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
 			queryClient.invalidateQueries(DATA_FETCHER_QUERY_KEY);

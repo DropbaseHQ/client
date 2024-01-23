@@ -87,10 +87,13 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	if (type === 'custom-select') {
 		const selectedValue = selectOptions.find((option: any) => option.value === value);
 
-		const valueRenderer = selectedValue?.name;
+		const valueLabel = selectedValue?.name;
+		const valueRenderer = selectedValue?.render?.(selectedValue);
 
 		const children = (
-			<Text fontSize="sm">{valueRenderer || inputProps?.placeholder || 'Select option'}</Text>
+			<Text fontSize="sm">
+				{valueRenderer || valueLabel || inputProps?.placeholder || 'Select option'}
+			</Text>
 		);
 
 		const allOptions = selectOptions || [];
@@ -128,7 +131,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					>
 						{allOptions.length === 0 ? (
 							<Center>
-								<Text>No options present</Text>
+								<Text fontSize="sm">No options present</Text>
 							</Center>
 						) : (
 							<MenuOptionGroup
@@ -281,7 +284,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					alignItems="center"
 					borderWidth="1px"
 					borderRadius="sm"
-					p="1.5"
+					p="2"
 					cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
 					{...inputProps}
 				>
@@ -411,7 +414,16 @@ export const FormInput = ({
 
 	return (
 		<FormControl isInvalid={!!errors?.[id]} key={name}>
-			{name ? <FormLabel>{name}</FormLabel> : null}
+			{name && (
+				<FormLabel>
+					{name}{' '}
+					{inputProps?.required && (
+						<Box as="span" color="red.500">
+							*
+						</Box>
+					)}
+				</FormLabel>
+			)}
 
 			<BaseFormInput
 				name={name}

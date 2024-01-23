@@ -65,7 +65,7 @@ export const FileContent = () => {
 						<Component name={devTab.id} />
 					) : (
 						<Center p="4" h="full">
-							<Text size="sm" fontWeight="medium">
+							<Text fontSize="md" fontWeight="medium">
 								{files.length > 0 ? 'Select a file' : 'Create a File'}
 							</Text>
 						</Center>

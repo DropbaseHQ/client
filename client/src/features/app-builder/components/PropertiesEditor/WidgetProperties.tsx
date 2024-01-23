@@ -9,6 +9,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
+import { NameEditor } from '@/features/app-builder/components/NameEditor';
 
 export const WidgetProperties = ({ widgetId }: any) => {
 	const toast = useToast();
@@ -26,7 +27,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 			setInspectedResource({
 				id: null,
 				type: 'widget',
-			})
+			});
 		},
 		onError: (error: any) => {
 			toast({
@@ -72,14 +73,37 @@ export const WidgetProperties = ({ widgetId }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: properties?.widgets.map((w: any) => w.name === widgetId ? {...w, ...formValues} : w )
-				}
+					widgets: properties?.widgets.map((w: any) =>
+						w.name === widgetId ? { ...w, ...formValues } : w,
+					),
+				},
 			});
 		}
 	};
 
+	const handleUpdateName = async (newName: any) => {
+		try {
+			await mutation.mutateAsync({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(properties || {}),
+					widgets: properties?.widgets.map((w: any) =>
+						w.name === widgetId ? { ...w, name: newName } : w,
+					),
+				},
+			});
+			setInspectedResource({
+				id: newName,
+				type: 'widget',
+			});
+		} catch (e) {
+			//
+		}
+	};
+
 	const handleDeleteWidget = () => {
-		if (properties?.widgets.length == 1) {
+		if (properties?.widgets.length === 1) {
 			toast({
 				status: 'error',
 				title: 'Failed to delete widget',
@@ -95,8 +119,8 @@ export const WidgetProperties = ({ widgetId }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: properties?.widgets.filter((w: any) => w.name !== widgetId)
-				}
+					widgets: properties?.widgets.filter((w: any) => w.name !== widgetId),
+				},
 			});
 		}
 	};
@@ -113,9 +137,17 @@ export const WidgetProperties = ({ widgetId }: any) => {
 						alignItems="center"
 						direction="row"
 					>
-						<Text fontWeight="semibold" size="sm">
-							{widgetId || ''} Properties
-						</Text>
+						<Stack direction="row" alignItems="center">
+							<Text fontWeight="semibold" fontSize="lg">
+								{widgetId}
+							</Text>
+							<NameEditor
+								value={widgetId}
+								currentNames={(properties?.widgets || []).map((w: any) => w.name)}
+								onUpdate={handleUpdateName}
+								resource="widget"
+							/>
+						</Stack>
 
 						<ButtonGroup ml="auto" size="xs">
 							{isDirty ? (
@@ -139,19 +171,23 @@ export const WidgetProperties = ({ widgetId }: any) => {
 							/>
 						</ButtonGroup>
 					</Stack>
-					<Stack spacing="0" divider={<StackDivider />}>	
+					<Stack spacing="0" divider={<StackDivider />}>
 						<Stack spacing="3" p="3">
 							<Stack>
 								{fields?.widget?.map((property: any) => {
-										return (
-											<FormInput
-												{...property}
-												id={property.name}
-												type={property.type}
-												key={property.name}
-											/>
-										);
-									})}
+									if (property?.name === 'name') {
+										return null;
+									}
+
+									return (
+										<FormInput
+											{...property}
+											id={property.name}
+											type={property.type}
+											key={property.name}
+										/>
+									);
+								})}
 							</Stack>
 						</Stack>
 					</Stack>

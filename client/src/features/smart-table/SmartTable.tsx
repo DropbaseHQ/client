@@ -25,6 +25,7 @@ import '@glideapps/glide-data-grid/dist/index.css';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
+import { formatDate, formatTime, formatDateTime } from '@/features/smart-table/utils';
 import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
 import { SOCKET_URL } from '../app-preview';
 
@@ -37,7 +38,7 @@ import {
 	tablePageInfoAtom,
 } from './atoms';
 import { TableBar } from './components';
-import { getErrorMessage, getPGColumnBaseType } from '@/utils';
+import { getErrorMessage } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 
@@ -214,6 +215,7 @@ export const SmartTable = ({ tableName }: any) => {
 					bgBubbleSelected: theme.colors.blue['500'],
 					textBubble: theme.colors.gray['600'],
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.2)(theme),
+					baseFontStyle: '12px',
 			  }
 			: {
 					accentColor: theme.colors.blue['500'], // main blue
@@ -230,6 +232,7 @@ export const SmartTable = ({ tableName }: any) => {
 					bgHeaderHasFocus: theme.colors.gray['100'], // hovered color of header cells
 					bgBubble: theme.colors.gray['100'],
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.3)(theme),
+					baseFontStyle: '12px',
 			  };
 
 	const visibleColumns = header.filter(
@@ -237,10 +240,12 @@ export const SmartTable = ({ tableName }: any) => {
 	);
 
 	const gridColumns = visibleColumns.map((column: any) => {
-		// ⚠️ only by passing undefined we can hide column icon
-		let icon = column?.display_type ? GridColumnIcon.HeaderString : undefined;
+		const col = columnDict[column?.name] || column;
 
-		switch (column?.display_type) {
+		// ⚠️ only by passing undefined we can hide column icon
+		let icon = col?.display_type ? GridColumnIcon.HeaderString : undefined;
+
+		switch (col?.display_type) {
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -339,7 +344,7 @@ export const SmartTable = ({ tableName }: any) => {
 					},
 			  };
 
-		switch (getPGColumnBaseType(column?.type)) {
+		switch (column?.display_type) {
 			case 'float':
 			case 'integer': {
 				return {
@@ -364,11 +369,63 @@ export const SmartTable = ({ tableName }: any) => {
 				};
 			}
 
-			default: {
+			case 'datetime': {
 				return {
 					kind: GridCellKind.Text,
 					data: cellValue,
 					allowOverlay: canEdit,
+					displayData: formatDateTime(parseInt(cellValue, 10)),
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'date': {
+				return {
+					kind: GridCellKind.Text,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData: formatDate(parseInt(cellValue, 10)),
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'time': {
+				return {
+					kind: GridCellKind.Text,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData: formatTime(cellValue),
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			default: {
+				const urlRegex =
+					/^(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/g;
+
+				if (urlRegex.test(cellValue)) {
+					return {
+						kind: GridCellKind.Uri,
+						displayData: cellValue,
+						data: cellValue,
+						hoverEffect: true,
+						allowOverlay: true,
+						readonly: !canEdit,
+						onClickUri: (e: any) => {
+							e.preventDefault();
+							window.open(cellValue, '_blank');
+						},
+						...themeOverride,
+					};
+				}
+
+				return {
+					kind: GridCellKind.Text,
+					data: cellValue,
+					allowOverlay: true,
 					displayData: String(cellValue),
 					readonly: !canEdit,
 					...themeOverride,
@@ -547,7 +604,9 @@ export const SmartTable = ({ tableName }: any) => {
 				<NavLoader isLoading={isLoadingTable}>
 					<Flex justifyContent="space-between">
 						<Stack spacing="0" px="2" flexShrink="0">
-							<Text fontWeight="semibold">{table?.label || tableName}</Text>
+							<Text fontWeight="semibold" fontSize="lg">
+								{table?.label || tableName}
+							</Text>
 							{dependantTablesWithNoRowSelection.length > 0 ? (
 								<Stack direction="row" spacing="1" alignItems="center">
 									<Box color="orange.500">
@@ -609,7 +668,7 @@ export const SmartTable = ({ tableName }: any) => {
 						{isLoading ? (
 							<Center h="full" as={Stack}>
 								<Spinner size="md" />
-								<Text>Loading data...</Text>
+								<Text fontSize="md">Loading data...</Text>
 							</Center>
 						) : (
 							<>
@@ -642,9 +701,12 @@ export const SmartTable = ({ tableName }: any) => {
 										onSelectionCleared={onSelectionCleared}
 										gridSelection={selection}
 										highlightRegions={highlights}
+										getCellsForSelection
 										onCellEdited={onCellEdited}
+										onPaste
 										keybindings={{ search: true }}
 										onColumnResize={onColumnResize}
+										rowHeight={30}
 									/>
 								)}
 							</>

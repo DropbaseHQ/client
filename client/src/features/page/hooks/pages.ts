@@ -91,7 +91,7 @@ export const useInitPage = () => {
 };
 
 const updatePageData = async (data: any) => {
-	const response = await workerAxios.post(`/page`, data);
+	const response = await workerAxios.post(`/page/`, data);
 	return response.data;
 };
 

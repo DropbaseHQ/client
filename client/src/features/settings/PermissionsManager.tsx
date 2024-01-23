@@ -143,9 +143,9 @@ const GroupMemberCard = ({
 					<PopoverContent>
 						<PopoverArrow />
 						<PopoverCloseButton />
-						<PopoverHeader>Confirm remove member</PopoverHeader>
+						<PopoverHeader fontSize="md">Confirm remove member</PopoverHeader>
 						<PopoverBody>
-							<Text>{`Are you sure you want to\nremove ${user.email}?`}</Text>
+							<Text fontSize="md">{`Are you sure you want to\nremove ${user.email}?`}</Text>
 						</PopoverBody>
 						<PopoverFooter display="flex" justifyContent="flex-end">
 							<ButtonGroup size="sm">
@@ -298,8 +298,10 @@ export const Permissions = () => {
 								<PopoverContent>
 									<PopoverArrow />
 									<PopoverCloseButton />
-									<PopoverHeader>Add a member to this group!</PopoverHeader>
-									<PopoverBody>
+									<PopoverHeader fontSize="md">
+										Add a member to this group!
+									</PopoverHeader>
+									<PopoverBody fontSize="md">
 										<Select
 											placeholder="Select a member to invite"
 											value={invitedMember}

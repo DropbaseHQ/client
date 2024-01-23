@@ -36,12 +36,7 @@ If you are developing a production application, we recommend updating the config
 -   Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
 -   Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
 
-## deploying to amplify
+## Deploying to amplify
 
-if deployment fails, run
-
-```
-yarn run build
-```
-
-first and fix all the build issues before pushing to github
+The deployment happens automatically when there are changes in `./client` directory.
+See [client-deployment-dev.yml](../.github/workflows/client-deployment-dev.yml) for pipeline definition.
