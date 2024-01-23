@@ -13,7 +13,7 @@ import {
 } from '@choc-ui/chakra-autocomplete';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
-import { tableStateAtom } from '@/features/app-state';
+import { allWidgetsInputAtom, tableStateAtom } from '@/features/app-state';
 
 const OPERATORS = [
 	{
@@ -116,14 +116,17 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 	);
 };
 
+const compilePathName = (category: string, specificCategory: string, target: string) => {
+	return `${category}.${specificCategory}.${target}`;
+};
+
 export const DisplayRulesEditor = ({ name }: any) => {
 	const { widgetName, widgets } = useAtomValue(pageAtom);
+	const widgetsInputs = useAtomValue(allWidgetsInputAtom);
 	const tableState = useAtomValue(tableStateAtom);
-	const currentWidget = widgets?.find((w: any) => w.name === widgetName);
 
-	const compilePathName = (category: string, specificCategory: string, target: string) => {
-		return `${category}.${specificCategory}.${target}`;
-	};
+	const currentWidget: { [key: string]: any } =
+		widgetsInputs?.[widgetName as keyof typeof widgetsInputs] || {};
 
 	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
 	const { control } = useFormContext();
@@ -147,9 +150,9 @@ export const DisplayRulesEditor = ({ name }: any) => {
 			.flat();
 	}, [tableState]);
 
-	const widgetTargets = currentWidget?.components.map((c: any) => ({
-		label: `${currentWidget?.name}.${c.name}`,
-		value: compilePathName('widgets', currentWidget?.name, c.name),
+	const widgetTargets = Object.keys(currentWidget)?.map((c: any) => ({
+		label: `${widgetName}.${c}`,
+		value: compilePathName('widgets', widgetName || '', c),
 	}));
 
 	return (
