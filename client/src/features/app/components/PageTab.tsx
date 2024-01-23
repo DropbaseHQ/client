@@ -143,19 +143,15 @@ export const PageTab = (props: any) => {
 			alignItems="center"
 			as={Link}
 			to={isPreview ? pageLink : `${pageLink}/studio`}
-			px="4"
+			px="3"
 			py="1"
 			_selected={{
-				bg: 'blue.500',
-				color: 'white',
-				borderRadius: 'md',
+				color: 'blue.500',
 			}}
 		>
-			<Flex align="center" justifyContent="space-between" h="24px">
-				<Box flex="1" pl="1" fontWeight="semibold">
-					{page.name}
-				</Box>
-				{index === tabIndex && !isPreview ? (
+			<Flex align="center" justifyContent="center" h="24px">
+				<Box fontWeight="semibold">{page.name}</Box>
+				{!isPreview ? (
 					<Menu
 						closeOnSelect={false}
 						onClose={() => {
@@ -163,8 +159,16 @@ export const PageTab = (props: any) => {
 							onDeleteClose();
 						}}
 					>
-						<MenuButton>
-							<Box ml="2">
+						<MenuButton
+							ml="0.5"
+							color="gray.400"
+							_hover={{
+								color: 'gray.600',
+							}}
+							visibility={tabIndex === index ? 'visible' : 'hidden'}
+							disabled={tabIndex !== index}
+						>
+							<Box>
 								<MoreVertical size="14" />
 							</Box>
 						</MenuButton>
@@ -174,6 +178,7 @@ export const PageTab = (props: any) => {
 								onClose={onRenameClose}
 								isOpen={isRenameOpen}
 								onOpen={handleRenameOpen}
+								closeOnBlur={false}
 							>
 								<PopoverTrigger>
 									<MenuItem data-db-id="rename-page">Edit</MenuItem>
@@ -200,6 +205,11 @@ export const PageTab = (props: any) => {
 												placeholder="Page name"
 												value={pageNameEdit}
 												onChange={handleChangePageName}
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') {
+														handleRenamePage();
+													}
+												}}
 											/>
 
 											<FormErrorMessage>

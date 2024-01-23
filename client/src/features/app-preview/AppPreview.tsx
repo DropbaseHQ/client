@@ -9,15 +9,9 @@ import {
 	Skeleton,
 	Stack,
 	Text,
-	Accordion,
-	AccordionItem,
-	AccordionButton,
-	AccordionPanel,
-	AccordionIcon,
-	Icon,
 } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, X, Tool, Plus } from 'react-feather';
+import { ChevronDown, X } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
@@ -40,6 +34,8 @@ import { NewComponent } from '@/features/app-builder/components/PropertiesEditor
 import { appModeAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
 import { generateSequentialName } from '@/utils';
+import { NewWidget } from '@/features/app-preview/components/NewWidget';
+import { WidgetSwitcher } from '@/features/app-preview/components/WidgetSwitcher';
 
 // websocket
 export const SOCKET_URL = `${import.meta.env.VITE_WORKER_WS_ENDPOINT}/ws`;
@@ -50,7 +46,7 @@ export const AppPreview = () => {
 	const { widgetName, widgets } = useAtomValue(pageAtom);
 	const retryCounter = useRef(0);
 	const failedData = useRef<any>(null);
-	const setPageAtom = useSetAtom(pageAtom);
+
 	const widgetLabel = widgets?.find((w) => w.name === widgetName)?.label;
 
 	const { isPreview } = useAtomValue(appModeAtom);
@@ -178,13 +174,6 @@ export const AppPreview = () => {
 		});
 	};
 
-	const handleChooseWidget = (newWidgetName: any) => {
-		setPageAtom((oldPageAtom) => ({
-			...oldPageAtom,
-			widgetName: newWidgetName,
-		}));
-	};
-
 	const handleOnDragEnd = (result: any) => {
 		const { destination, source } = result;
 		if (!destination) {
@@ -241,7 +230,7 @@ export const AppPreview = () => {
 					</Box>
 				</Stack>
 				<Stack mt="6">
-					<Text fontWeight="medium">
+					<Text fontWeight="medium" fontSize="md">
 						Extend your Smart Table with Widgets and Functions
 					</Text>
 					<Button
@@ -262,69 +251,20 @@ export const AppPreview = () => {
 		<Loader isLoading={isLoading}>
 			<Stack bg="white" h="full">
 				{reorderMutation.isLoading && <Progress size="xs" isIndeterminate />}
-				<Accordion allowToggle>
-					<AccordionItem>
-						<AccordionButton display="flex" justifyContent="center" h="5">
-							<AccordionIcon />
-						</AccordionButton>
-						<AccordionPanel p={0}>
-							<Stack direction="column" p="1">
-								{widgets?.map((w: any) => (
-									<Stack
-										as="button"
-										px="2"
-										borderRadius="sm"
-										direction="row"
-										alignItems="center"
-										bg={w?.name === widgetName ? 'gray.50' : 'white'}
-										borderWidth={w?.name === widgetName ? '1px' : '0'}
-										color={w?.name === widgetName ? 'gray.900' : 'gray.700'}
-										onClick={() => handleChooseWidget(w.name)}
-										_hover={{
-											bg: 'gray.50',
-											color: 'gray.800',
-										}}
-									>
-										<Icon as={Tool} mr="2" />
-										<Text>{w?.name}</Text>
-									</Stack>
-								))}
-
-								{!isPreview && (
-									<Button
-										variant="outline"
-										size="sm"
-										colorScheme="gray"
-										isLoading={createMutation.isLoading}
-										onClick={handleCreateWidget}
-									>
-										<Stack
-											alignItems="center"
-											justifyContent="center"
-											direction="row"
-										>
-											<Icon as={Plus} mr="2" />
-											<Box>Add Widget</Box>
-										</Stack>
-									</Button>
-								)}
-							</Stack>
-						</AccordionPanel>
-					</AccordionItem>
-				</Accordion>
-				<Stack
-					px="4"
-					py="2"
-					borderBottomWidth="1px"
-					direction="row"
-					alignItems="center"
-					justifyContent="space-between"
-				>
-					<InspectorContainer noPadding type="widget" id={widgetName}>
+				<Stack px="4" py="2" borderBottomWidth="1px" direction="row" alignItems="center">
+					<InspectorContainer flex="1" noPadding type="widget" id={widgetName}>
 						<Stack spacing="0">
-							<Text fontSize="md" fontWeight="semibold">
-								{widgetLabel || widgetName}
-							</Text>
+							<Box display="flex" alignItems="center">
+								<Text fontSize="lg" fontWeight="semibold">
+									{widgetLabel || widgetName}
+								</Text>
+								{!isPreview && (
+									<Text fontSize="sm" color="gray.500" ml="3">
+										{widgetName}
+									</Text>
+								)}
+							</Box>
+
 							{widgetDescription ? (
 								<Text fontSize="sm" color="gray.600">
 									{widgetDescription}
@@ -332,6 +272,9 @@ export const AppPreview = () => {
 							) : null}
 						</Stack>
 					</InspectorContainer>
+
+					<NewWidget />
+					<WidgetSwitcher />
 				</Stack>
 				<DragDropContext onDragEnd={handleOnDragEnd}>
 					<Droppable droppableId="droppable-1">

@@ -32,13 +32,13 @@ export const App = () => {
 		<Stack spacing="0" h="full">
 			<AppNavbar isPreview />
 			<PanelGroup direction="horizontal">
-				<Panel defaultSize={80}>
+				<Panel defaultSize={80} minSize={10}>
 					<Loader isLoading={isLoading}>
 						<StackedTables />
 					</Loader>
 				</Panel>
 				<PanelHandle direction="vertical" />
-				<Panel>
+				<Panel minSize={10}>
 					<Loader isLoading={isLoading}>
 						<AppPreview />
 					</Loader>

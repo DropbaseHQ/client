@@ -25,7 +25,7 @@ import { previewCodeAtom } from '../../atoms';
 export const SQLEditor = ({ name }: any) => {
 	const toast = useToast();
 	const { appName, pageName } = useParams();
-	const { files } = useGetPage({ appName, pageName });
+	const { files, tables } = useGetPage({ appName, pageName });
 
 	const file = files.find((f: any) => f.name === name);
 	const sqlName = file?.name;
@@ -106,9 +106,8 @@ export const SQLEditor = ({ name }: any) => {
 			pageName,
 			appName,
 			fileName: sqlName,
-			sql: code,
+			code,
 			source: selectedSource,
-			fileId: name,
 			fileType: file?.type,
 		});
 	};
@@ -135,7 +134,7 @@ export const SQLEditor = ({ name }: any) => {
 					alignItems="center"
 					justifyContent="space-between"
 				>
-					<Text fontSize="sm" fontWeight="semibold">
+					<Text fontSize="md" fontWeight="semibold">
 						{fullFileName}
 					</Text>
 
@@ -152,12 +151,11 @@ export const SQLEditor = ({ name }: any) => {
 						Update
 					</Button>
 				</Stack>
-				<Stack px="3" pb="3" borderBottomWidth="1px" alignItems="start" direction="row">
+				<Stack direction="row" px="3" pb="3" borderBottomWidth="1px" alignItems="start">
 					<FormControl>
 						<FormLabel>Source</FormLabel>
 						<InputRenderer
 							size="sm"
-							flex="1"
 							maxW="sm"
 							type="select"
 							placeholder="Sources"
@@ -166,6 +164,22 @@ export const SQLEditor = ({ name }: any) => {
 							onChange={(newSelectedSource: any) => {
 								setSource(newSelectedSource);
 							}}
+						/>
+					</FormControl>
+
+					<FormControl>
+						<FormLabel>Depends</FormLabel>
+						<InputRenderer
+							type="multiselect"
+							id="depends"
+							maxW="sm"
+							name="Depends on"
+							placeholder="Select the table which it depends on"
+							options={tables.map((t: any) => ({
+								name: t.name,
+								value: t.name,
+							}))}
+							value={file?.depends_on || []}
 						/>
 					</FormControl>
 				</Stack>

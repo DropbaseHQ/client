@@ -86,6 +86,7 @@ const createFile = async ({ pageName, fileName, appName, pageId, type }: any) =>
 		page_name: pageName,
 		type,
 		source: null,
+		depends_on: [],
 	});
 
 	return response.data;

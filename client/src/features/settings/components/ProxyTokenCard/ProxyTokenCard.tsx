@@ -185,7 +185,9 @@ export const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
 					>
 						<PopoverArrow />
 						<PopoverCloseButton />
-						<PopoverHeader textAlign="left">Confirm delete token!</PopoverHeader>
+						<PopoverHeader textAlign="left" fontSize="md">
+							Confirm delete token!
+						</PopoverHeader>
 						<PopoverBody textAlign="left">
 							Are you sure you want to delete this token?
 						</PopoverBody>
