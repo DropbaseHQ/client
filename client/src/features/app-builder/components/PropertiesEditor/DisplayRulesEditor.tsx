@@ -229,59 +229,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 											widgetTargets={widgetTargets}
 											displayRules={displayRules}
 										/>
-										{/* <AutoComplete
-											onSelectOption={({ item }: any) => {
-												onChange(
-													displayRules.map((r: any) => {
-														if (r.id === rule.id) {
-															return {
-																...r,
-																target: item.value,
-															};
-														}
 
-														return r;
-													}),
-												);
-											}}
-										>
-											<FormControl>
-												<FormLabel {...formLabelProps}>Target</FormLabel>
-												<AutoCompleteInput size="sm" value={rule.target} />
-											</FormControl>
-											<AutoCompleteList>
-												<AutoCompleteGroup key="tables" showDivider>
-													<AutoCompleteGroupTitle>
-														Tables
-													</AutoCompleteGroupTitle>
-													{tableTargets?.map((xTable: any) => {
-														return (
-															<AutoCompleteItem
-																key={xTable?.value}
-																value={xTable?.value}
-															>
-																{xTable?.label}
-															</AutoCompleteItem>
-														);
-													})}
-												</AutoCompleteGroup>
-												<AutoCompleteGroup key="widgets" showDivider>
-													<AutoCompleteGroupTitle>
-														Widgets
-													</AutoCompleteGroupTitle>
-													{widgetTargets?.map((widgetTarget: any) => {
-														return (
-															<AutoCompleteItem
-																key={widgetTarget.value}
-																value={widgetTarget.value}
-															>
-																{widgetTarget.label}
-															</AutoCompleteItem>
-														);
-													})}
-												</AutoCompleteGroup>
-											</AutoCompleteList>
-										</AutoComplete> */}
 										<Stack alignItems="end" key={rule.id} direction="row">
 											<FormControl>
 												{index === 0 ? (
