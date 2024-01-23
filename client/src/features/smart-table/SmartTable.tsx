@@ -5,6 +5,7 @@ import {
 	AlertIcon,
 	Box,
 	Button,
+	Card,
 	Center,
 	Flex,
 	IconButton,
@@ -139,6 +140,15 @@ export const SmartTable = ({ tableName }: any) => {
 	const pageInfo = allTablePageInfo[tableName] || {};
 
 	const [columnWidth, setColumnWidth] = useState<any>(tableColumnWidth || {});
+
+	const [columnMessage, setColumnMessage] = useState({
+		message: '',
+		col: -1,
+		x: 0,
+		y: 0,
+		width: 0,
+		height: 0,
+	});
 
 	const onColumnResize = useCallback(
 		(col: any, newSize: any) => {
@@ -279,11 +289,14 @@ export const SmartTable = ({ tableName }: any) => {
 			}
 		}
 
+		const message = pageState?.context?.tables?.[tableName]?.columns?.[column.name]?.message;
+
 		const gridColumn = {
 			id: column.name,
 			title: column.name,
 			width: columnWidth[column.name] || String(column.name).length * 10 + 35 + 30,
 			icon,
+			hasMenu: message !== '' && message !== null,
 		};
 
 		if (column.editable) {
@@ -668,28 +681,62 @@ export const SmartTable = ({ tableName }: any) => {
 										</Text>
 									</Center>
 								) : (
-									<DataEditor
-										columns={gridColumns}
-										rows={Math.min(
-											rows.length,
-											pageInfo.pageSize || DEFAULT_PAGE_SIZE,
+									<>
+										<DataEditor
+											columns={gridColumns}
+											rows={Math.min(
+												rows.length,
+												pageInfo.pageSize || DEFAULT_PAGE_SIZE,
+											)}
+											width="100%"
+											height="100%"
+											getCellContent={getCellContent}
+											rowMarkers="both"
+											smoothScrollX
+											smoothScrollY
+											theme={gridTheme}
+											onGridSelectionChange={handleSetSelection}
+											onSelectionCleared={onSelectionCleared}
+											gridSelection={selection}
+											highlightRegions={highlights}
+											onCellEdited={onCellEdited}
+											keybindings={{ search: true }}
+											onColumnResize={onColumnResize}
+											rowHeight={30}
+											onHeaderMenuClick={(col, bounds) => {
+												if (
+													columnMessage.col === col &&
+													columnMessage.message !== ''
+												) {
+													setColumnMessage({
+														message: '',
+														col,
+														...bounds,
+													});
+												} else {
+													const message =
+														pageState?.context?.tables?.[tableName]
+															?.columns?.[header[col].name]?.message;
+
+													setColumnMessage({ message, col, ...bounds });
+												}
+											}}
+										/>
+
+										{columnMessage.message !== '' && (
+											<Card
+												style={{
+													position: 'absolute',
+													top: columnMessage.y - 80,
+													left: columnMessage.x,
+													padding: '5px 10px',
+												}}
+												contentEditable={false}
+											>
+												{columnMessage.message}
+											</Card>
 										)}
-										width="100%"
-										height="100%"
-										getCellContent={getCellContent}
-										rowMarkers="both"
-										smoothScrollX
-										smoothScrollY
-										theme={gridTheme}
-										onGridSelectionChange={handleSetSelection}
-										onSelectionCleared={onSelectionCleared}
-										gridSelection={selection}
-										highlightRegions={highlights}
-										onCellEdited={onCellEdited}
-										keybindings={{ search: true }}
-										onColumnResize={onColumnResize}
-										rowHeight={30}
-									/>
+									</>
 								)}
 							</>
 						)}
