@@ -1,4 +1,5 @@
 import { useAtom, useAtomValue } from 'jotai';
+import { CheckCircleIcon, InfoIcon, SpinnerIcon, WarningIcon } from '@chakra-ui/icons';
 import {
 	Alert,
 	AlertDescription,
@@ -30,7 +31,12 @@ import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
 import { formatDate, formatTime, formatDateTime } from '@/features/smart-table/utils';
-import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
+import {
+	newPageStateAtom,
+	selectedRowAtom,
+	nonWidgetContextAtom,
+	AppState,
+} from '@/features/app-state';
 import { SOCKET_URL } from '../app-preview';
 
 import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
@@ -143,6 +149,7 @@ export const SmartTable = ({ tableName }: any) => {
 
 	const [columnMessage, setColumnMessage] = useState({
 		message: '',
+		icon: <></>,
 		col: -1,
 		x: 0,
 		y: 0,
@@ -349,6 +356,7 @@ export const SmartTable = ({ tableName }: any) => {
 				themeOverride: {
 					bgCell: theme.colors.gray['50'],
 				},
+				hasMenu: true,
 			};
 		}
 
@@ -595,6 +603,63 @@ export const SmartTable = ({ tableName }: any) => {
 		(name: any) => !tablesRowSelected[name],
 	);
 
+	const handleHeaderMenuClick = (col: number, bounds: any) => {
+		if (columnMessage.col === col && columnMessage.message !== '') {
+			setColumnMessage({
+				message: '',
+				icon: <></>,
+				col,
+				...bounds,
+			});
+		} else {
+			const messageInfo =
+				pageState?.context?.tables?.[tableName]?.columns?.[header[col].name];
+
+			const message = messageInfo?.message;
+			const messageType = messageInfo?.message_type;
+
+			let icon;
+
+			switch (messageType) {
+				case 'info': {
+					icon = <InfoIcon pr={1} color="blue.500" />;
+					break;
+				}
+
+				case 'warning': {
+					icon = <WarningIcon pr={1} color="orange.500" />;
+					break;
+				}
+
+				case 'success': {
+					icon = <CheckCircleIcon pr={1} color="green.500" />;
+					break;
+				}
+
+				case 'error': {
+					icon = <WarningIcon pr={1} color="red.500" />;
+					break;
+				}
+
+				case 'loading': {
+					icon = <SpinnerIcon pr={1} />;
+					break;
+				}
+				default: {
+					icon = <></>;
+					break;
+				}
+			}
+
+			setColumnMessage({
+				message,
+				icon,
+				col,
+				...bounds,
+			});
+		}
+	};
+
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="1">
@@ -703,24 +768,7 @@ export const SmartTable = ({ tableName }: any) => {
 											keybindings={{ search: true }}
 											onColumnResize={onColumnResize}
 											rowHeight={30}
-											onHeaderMenuClick={(col, bounds) => {
-												if (
-													columnMessage.col === col &&
-													columnMessage.message !== ''
-												) {
-													setColumnMessage({
-														message: '',
-														col,
-														...bounds,
-													});
-												} else {
-													const message =
-														pageState?.context?.tables?.[tableName]
-															?.columns?.[header[col].name]?.message;
-
-													setColumnMessage({ message, col, ...bounds });
-												}
-											}}
+											onHeaderMenuClick={handleHeaderMenuClick}
 										/>
 
 										{columnMessage.message !== '' && (
@@ -733,7 +781,10 @@ export const SmartTable = ({ tableName }: any) => {
 												}}
 												contentEditable={false}
 											>
-												{columnMessage.message}
+												<Flex alignItems="center">
+													{columnMessage.icon}
+													{columnMessage.message}
+												</Flex>
 											</Card>
 										)}
 									</>
