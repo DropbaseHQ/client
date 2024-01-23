@@ -151,12 +151,11 @@ export const SQLEditor = ({ name }: any) => {
 						Update
 					</Button>
 				</Stack>
-				<Stack px="3" pb="3" borderBottomWidth="1px" alignItems="start">
+				<Stack direction="row" px="3" pb="3" borderBottomWidth="1px" alignItems="start">
 					<FormControl>
 						<FormLabel>Source</FormLabel>
 						<InputRenderer
 							size="sm"
-							flex="1"
 							maxW="sm"
 							type="select"
 							placeholder="Sources"
