@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import Editor, { useMonaco } from '@monaco-editor/react';
 import { useMonacoTheme } from './hooks/useMonacoTheme';
 
@@ -7,9 +7,17 @@ export const MonacoEditor = (props: any) => {
 	useMonacoTheme(monaco);
 
 	const { onMount, height: defaultHeight, options, ...otherProps } = props;
+	const lineHeight = 30; // Assuming a single line height of 30 pixels
+    const [height, setHeight] = useState(defaultHeight || lineHeight);
 
 	const handleEditorMount = useCallback(
 		(editor: any, ...rest: any) => {
+            editor.onDidContentSizeChange((event: any) => {
+                const editorHeight = event.contentHeight;
+                setHeight(editorHeight); // Dynamically adjust height based on content
+                editor.layout();
+            });
+
 			if (onMount) {
 				onMount(editor, ...rest);
 			}
@@ -46,6 +54,7 @@ export const MonacoEditor = (props: any) => {
 				},
 			}}
 			onMount={handleEditorMount}
+            height={height}
 		/>
 	);
 };
