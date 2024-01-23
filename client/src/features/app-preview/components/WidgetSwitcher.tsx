@@ -14,9 +14,11 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { ChevronDown } from 'react-feather';
 import { pageAtom } from '@/features/page';
 import { allWidgetsInputAtom } from '@/features/app-state';
+import { appModeAtom } from '@/features/app/atoms';
 
 export const WidgetSwitcher = () => {
 	const { widgetName, widgets } = useAtomValue(pageAtom);
+	const { isPreview } = useAtomValue(appModeAtom);
 	const setPageAtom = useSetAtom(pageAtom);
 	const widgetsInput = useAtomValue(allWidgetsInputAtom);
 	const setWidgetsInputAtom = useSetAtom(allWidgetsInputAtom);
@@ -68,9 +70,11 @@ export const WidgetSwitcher = () => {
 						<MenuItemOption key={w?.name} value={w?.name}>
 							<Box display="flex" alignItems="end">
 								<Text>{w.label}</Text>
-								<Text fontSize="md" color="gray.500" ml="auto">
-									{w.name}
-								</Text>
+								{!isPreview && (
+									<Text fontSize="md" color="gray.500" ml="auto">
+										{w.name}
+									</Text>
+								)}
 							</Box>
 						</MenuItemOption>
 					))}
