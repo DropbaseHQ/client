@@ -239,14 +239,19 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 					<Text py="1" px="4" color="gray.700" fontSize="sm">
 						Click play to see query results
 					</Text>
-				) : (
+				) : (file?.type === 'ui' || file?.type === 'data_fetcher') ? (
 					<MonacoEditor
 						value={testCode}
 						onChange={setTestCode}
 						language="python"
 						path={`${MODEL_SCHEME}:${MODEL_PATH}`}
 					/>
+				) : (
+					<Text py="1" px="4" color="gray.700" fontSize="sm">
+						Select a file to start editing
+					</Text>
 				)}
+
 			</Stack>
 
 			<Stack h="full" overflowY="auto">
