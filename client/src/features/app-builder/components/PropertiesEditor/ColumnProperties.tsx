@@ -43,7 +43,7 @@ const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 	const { properties: pageProperties } = useGetPage({ appName, pageName });
 
 	const { fields } = useResourceFields();
-	const columnFields = fields[tableType === 'sql' ? 'pgcolumn' : 'pycolumn'];
+	const columnFields = fields[tableType === 'sql' ? 'pgcolumn' : 'pycolumn'] || [];
 
 	const updateMutation = useUpdatePageData({
 		onSuccess: () => {

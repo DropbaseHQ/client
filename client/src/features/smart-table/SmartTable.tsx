@@ -403,6 +403,25 @@ export const SmartTable = ({ tableName }: any) => {
 			}
 
 			default: {
+				const urlRegex =
+					/^(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/g;
+
+				if (urlRegex.test(cellValue)) {
+					return {
+						kind: GridCellKind.Uri,
+						displayData: cellValue,
+						data: cellValue,
+						hoverEffect: true,
+						allowOverlay: true,
+						readonly: !canEdit,
+						onClickUri: (e: any) => {
+							e.preventDefault();
+							window.open(cellValue, '_blank');
+						},
+						...themeOverride,
+					};
+				}
+
 				return {
 					kind: GridCellKind.Text,
 					data: cellValue,
