@@ -87,13 +87,13 @@ export const useTableData = ({
 
 	const queryKey = [
 		TABLE_DATA_QUERY_KEY,
+		table?.fetcher,
+		tableName,
 		appName,
 		pageName,
-		tableName,
 		table?.type,
 		currentPage,
 		pageSize,
-		table?.fetcher,
 		JSON.stringify({ debouncedFilters, sorts, dependentTableData }),
 	];
 

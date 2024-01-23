@@ -221,9 +221,9 @@ const saveSql = async ({ pageName, appName, fileType, fileName, code, source, de
 export const useSaveCode = (props: any = {}) => {
 	const queryClient = useQueryClient();
 	return useMutation(saveSql, {
-		onSettled: () => {
+		onSettled: (_, __, variables: any) => {
 			queryClient.invalidateQueries(TABLE_QUERY_KEY);
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries([TABLE_DATA_QUERY_KEY, variables?.fileName]);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
 			queryClient.invalidateQueries(DATA_FETCHER_QUERY_KEY);
