@@ -67,9 +67,6 @@ export const AppComponent = (props: any) => {
 		widgetComponents?.[name]?.visible || widgetComponents?.[name]?.visible === null;
 	const grayOutComponent = !shouldDisplay && isEditorMode;
 
-	const editable = allWidgetState?.[widgetName || '']?.components?.[name].editable;
-	const isReadOnly = editable !== null ? !editable : false;
-
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
 			syncState(data);
@@ -157,8 +154,6 @@ export const AppComponent = (props: any) => {
 					});
 				}}
 				options={inputState.options || component.options}
-				isReadOnly={isReadOnly}
-				bgColor={isReadOnly ? 'gray.100' : 'white'}
 			/>
 
 			{inputState?.message ? (
