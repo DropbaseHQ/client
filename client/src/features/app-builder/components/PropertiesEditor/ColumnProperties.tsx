@@ -132,10 +132,10 @@ const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 					type="boolean"
 					id="visible"
 					isDisabled={updateMutation.isLoading}
-					value={properties.visible}
+					value={!properties.hidden}
 					onChange={(newValue: any) => {
 						handleUpdate({
-							visible: newValue,
+							hidden: !newValue,
 						});
 					}}
 				/>
