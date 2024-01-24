@@ -168,6 +168,28 @@ export const SmartTable = ({ tableName }: any) => {
 		}
 	}, [selectedRow, rows, selection]);
 
+	useEffect(() => {
+		/**
+		 * If row is not present just reset the selected row with column names
+		 */
+		const selectedIndex = rows.findIndex(
+			(r: any) => JSON.stringify(r) === JSON.stringify(selectedRow),
+		);
+
+		if (selectedIndex !== -1 && selectedRow) {
+			selectRow((old: any) => ({
+				...old,
+				[tableName]: Object.keys(selectedRow).reduce(
+					(acc: { [col: string]: string | null }, curr: string) => ({
+						...acc,
+						[curr]: null,
+					}),
+					{},
+				),
+			}));
+		}
+	}, [selectedRow, tableName, rows, selectRow]);
+
 	// only fill column width if the current state is empty
 	useEffect(() => {
 		setColumnWidth((curr: any) => {
