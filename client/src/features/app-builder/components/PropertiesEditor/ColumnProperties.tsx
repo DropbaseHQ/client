@@ -133,12 +133,12 @@ const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 			<Stack alignItems="center" justifyContent="space-between" direction="row">
 				<InputRenderer
 					type="boolean"
-					id="visible"
+					id="hidden"
 					isDisabled={updateMutation.isLoading}
-					value={!properties.hidden}
+					value={properties.hidden}
 					onChange={(newValue: any) => {
 						handleUpdate({
-							hidden: !newValue,
+							hidden: newValue,
 						});
 					}}
 				/>
@@ -266,7 +266,7 @@ export const ColumnsProperties = () => {
 				>
 					<Text>Column</Text>
 					<Text>Editable</Text>
-					<Text>Visible</Text>
+					<Text>Hidden</Text>
 				</SimpleGrid>
 				{columns.map((column: any) => (
 					<ColumnProperty tableType={type} key={column.name} {...column} />
