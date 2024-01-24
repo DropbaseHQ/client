@@ -217,13 +217,13 @@ export const FunctionEditor = ({ name }: any) => {
 			{file?.type === 'data_fetcher' ? (
 				<Stack p="3" borderBottomWidth="1px" alignItems="start" direction="row">
 					<FormControl>
-						<FormLabel>Depends</FormLabel>
+						<FormLabel>Refetch on row change in table…</FormLabel>
 						<InputRenderer
 							type="multiselect"
 							id="depends"
-							maxW="sm"
+							maxW="lg"
 							name="Depends on"
-							placeholder="Select the table which it depends on"
+							placeholder="Select the table for which row changes trigger this function to refetch"
 							options={tables.map((t: any) => ({
 								name: t.name,
 								value: t.name,
