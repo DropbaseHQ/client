@@ -284,7 +284,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					alignItems="center"
 					borderWidth="1px"
 					borderRadius="sm"
-					p="1.5"
+					p="2"
 					cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
 					{...inputProps}
 				>

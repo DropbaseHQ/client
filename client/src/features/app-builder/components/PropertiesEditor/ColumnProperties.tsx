@@ -19,7 +19,7 @@ import {
 	PopoverHeader,
 } from '@chakra-ui/react';
 import { InputRenderer } from '@/components/FormInput';
-import { useConvertSmartTable, useGetTable } from '@/features/app-builder/hooks';
+import { useConvertSmartTable, useGetTable, useResourceFields } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { newPageStateAtom } from '@/features/app-state';
@@ -41,6 +41,9 @@ const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 	const { appName, pageName } = useParams();
 
 	const { properties: pageProperties } = useGetPage({ appName, pageName });
+
+	const { fields } = useResourceFields();
+	const columnFields = fields[tableType === 'sql' ? 'pgcolumn' : 'pycolumn'] || [];
 
 	const updateMutation = useUpdatePageData({
 		onSuccess: () => {
@@ -90,7 +93,7 @@ const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 
 	const hasNoEditKeys = edit_keys?.length === 0;
 
-	const allVisibleProperties = [].filter((property: any) =>
+	const allVisibleProperties = columnFields.filter((property: any) =>
 		DISPLAY_COLUMN_PROPERTIES.includes(property.name),
 	);
 

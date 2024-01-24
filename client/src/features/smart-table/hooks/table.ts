@@ -1,6 +1,8 @@
 import { useMemo, useRef, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue } from 'jotai';
+import { useDebounce } from 'use-debounce';
+
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
@@ -56,6 +58,8 @@ export const useTableData = ({
 }: any) => {
 	const { tables, files, isFetching: isLoadingPage } = useGetPage({ appName, pageName });
 
+	const [debouncedFilters] = useDebounce(filters, 1000);
+
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
 
 	const syncState = useSyncState();
@@ -83,14 +87,14 @@ export const useTableData = ({
 
 	const queryKey = [
 		TABLE_DATA_QUERY_KEY,
+		table?.fetcher,
+		tableName,
 		appName,
 		pageName,
-		tableName,
 		table?.type,
 		currentPage,
 		pageSize,
-		table?.fetcher,
-		JSON.stringify({ filters, sorts, dependentTableData }),
+		JSON.stringify({ debouncedFilters, sorts, dependentTableData }),
 	];
 
 	const { data: response, ...rest } = useQuery(
