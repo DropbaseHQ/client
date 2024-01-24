@@ -1,5 +1,4 @@
 import { useAtom, useAtomValue } from 'jotai';
-import { CheckCircleIcon, InfoIcon, SpinnerIcon, WarningIcon } from '@chakra-ui/icons';
 import {
 	Alert,
 	AlertDescription,
@@ -17,6 +16,7 @@ import {
 	useColorMode,
 	useTheme,
 } from '@chakra-ui/react';
+import { CheckCircleIcon, InfoIcon, SpinnerIcon, WarningIcon } from '@chakra-ui/icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 import { Info, RotateCw, UploadCloud } from 'react-feather';
@@ -356,7 +356,6 @@ export const SmartTable = ({ tableName }: any) => {
 				themeOverride: {
 					bgCell: theme.colors.gray['50'],
 				},
-				hasMenu: true,
 			};
 		}
 
