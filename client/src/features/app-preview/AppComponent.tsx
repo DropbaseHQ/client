@@ -161,8 +161,6 @@ export const AppComponent = (props: any) => {
 				bgColor={isReadOnly ? 'gray.100' : 'white'}
 			/>
 
-			{/* input.message */}
-
 			{inputState?.message ? (
 				<div>
 					<Alert

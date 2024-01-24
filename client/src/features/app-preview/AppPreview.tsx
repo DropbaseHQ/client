@@ -321,7 +321,6 @@ export const AppPreview = () => {
 					</Droppable>
 				</DragDropContext>
 
-				{/* widget.message */}
 				{widgetState?.message ? (
 					<Stack
 						flexShrink="0"
