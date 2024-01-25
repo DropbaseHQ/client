@@ -16,6 +16,9 @@ export const setWorkerAxiosToken = (token: string | null) => {
 export const setWorkerAxiosBaseURL = (url: string) => {
 	workerAxios.defaults.baseURL = url;
 };
+export const setWorkerAxiosWorkspaceIdHeader = (workspaceId: string) => {
+	workerAxios.defaults.headers['workspace-id'] = workspaceId;
+};
 
 axios.interceptors.response.use(
 	(res) => {
