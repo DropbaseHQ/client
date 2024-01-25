@@ -159,12 +159,12 @@ export const AppComponent = (props: any) => {
 			{inputState?.message ? (
 				<div>
 					<Alert
-						variant="left-accent"
+						bgColor="white"
 						status={inputState?.message_type || 'info'}
 						height="30px"
 					>
 						<AlertIcon boxSize={4} />
-						<AlertDescription fontSize={14}>{inputState?.message}</AlertDescription>
+						<AlertDescription fontSize={12}>{inputState?.message}</AlertDescription>
 					</Alert>
 				</div>
 			) : null}
