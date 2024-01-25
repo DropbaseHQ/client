@@ -24,10 +24,20 @@ import { getErrorMessage } from '@/utils';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 
 export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
+	const { appName, pageName } = useParams();
+	const { tables } = useGetPage({ appName, pageName });
+
+	const table = tables.find((tables: any) => tables.name === tableId);
+
+	let isDeleteImmediate = true
+	if(table) {
+		if(table.smart) {
+			isDeleteImmediate = false
+		}
+	}
+
 	const toast = useToast();
 	const setDevTab = useSetAtom(inspectedResourceAtom);
-
-	const { appName, pageName } = useParams();
 
 	const { properties } = useGetPage({ appName, pageName });
 
@@ -88,7 +98,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 					variant="ghost"
 					colorScheme="red"
 					aria-label="Delete table"
-					onClick={onToggle}
+					onClick={isDeleteImmediate ? onSubmit : onToggle}
 					type="button"
 					isLoading={mutation.isLoading}
 					size="sm"
