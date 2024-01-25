@@ -1,10 +1,18 @@
 import { useCallback } from 'react';
 import Editor, { useMonaco } from '@monaco-editor/react';
 import { useMonacoTheme } from './hooks/useMonacoTheme';
+import { useSQLCompletion } from './hooks/useSQLCompletion';
+import { newPageStateAtom } from '@/features/app-state';
+import { useAtomValue } from 'jotai';
+import { databaseSchema } from '@/components/Editor/utils/constants'
 
 export const MonacoEditor = (props: any) => {
+	const newPage = useAtomValue(newPageStateAtom)
+
 	const monaco = useMonaco();
 	useMonacoTheme(monaco);
+
+    useSQLCompletion(databaseSchema, newPage);
 
 	const { onMount, height: defaultHeight, options, ...otherProps } = props;
 

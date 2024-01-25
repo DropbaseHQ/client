@@ -8,7 +8,7 @@ export interface CompletionData {
 	metadata: Record<string, string>;
 }
 
-const SQL_KEYWORDS = ['select', 'from', 'with', 'as'];
+const SQL_KEYWORDS = ['SELECT', 'FROM', 'WITH', 'AS', 'WHERE'];
 
 const countChars = (str: string, char: string) => {
 	return str.split(char).length - 1;
@@ -17,16 +17,156 @@ const countChars = (str: string, char: string) => {
 const completePhrase = (
 	lineUpToCursor: string,
 	databaseSchema: CompletionData,
+	directoryStructure: any,
 ): CompletionSuggestion[] => {
-	// completionData is the real database schema,
-	// databaseSchema also contains metadata about the database
 	const completionData = databaseSchema.schema;
 	const [currentWord, prevWord, prevPrevWord] = lineUpToCursor.split(' ').reverse(); // the last three words of the current line
 	const cleanedCurrentWord = currentWord.replace(/^("|\.)+|("|\.)+$/g, ''); // remove leading/trailing punctuation
 	const [curSchema, curTable] = cleanedCurrentWord.split('.'); // the current schema and table
 
 	const suggestions: CompletionSuggestion[] = [];
-	if (prevWord?.toLowerCase() === 'from') {
+
+	const regex_state = /{{state(?:\.([^{}.]+))?(?:\.([^{}.]+))?/;	
+    const match_state = lineUpToCursor.match(regex_state);
+
+	const regex_context = /{{context(?:\.([^{}.]+))?(?:\.([^{}.]+))?(?:\.([^{}.]+))?(?:\.([^{}.]+))?/;	
+    const match_context = lineUpToCursor.match(regex_context);
+	
+    if (lineUpToCursor.includes('{{')) {
+		let currentState;
+		if (match_state) {
+			const zeroPart = match_state[0]
+			const firstPart = match_state[1]; 
+			const secondPart = match_state[2]; 
+	
+			if (secondPart) {
+				currentState = directoryStructure.state[firstPart][secondPart];
+				if (currentState) {
+					Object.keys(currentState).forEach(item => {
+						suggestions.push({
+							label: item,
+							kind: monacoLib.languages.CompletionItemKind.Property,
+							insertText: item,
+						});
+					});
+				}
+			}
+			else if (firstPart) {
+				currentState = directoryStructure.state[firstPart]; 
+				if (currentState) {
+					Object.keys(currentState).forEach(item => {
+						suggestions.push({
+							label: item,
+							kind: monacoLib.languages.CompletionItemKind.Property,
+							insertText: item,
+						});
+					});
+				}
+			}  
+			else if (zeroPart) {
+				currentState = directoryStructure.state;
+				Object.keys(currentState).forEach(key => {
+					suggestions.push({
+						label: key,
+						kind: monacoLib.languages.CompletionItemKind.Property,
+						insertText: key,
+					});
+				});
+			} 	
+			
+			else {
+				currentState = directoryStructure;
+				Object.keys(currentState).forEach(key => {
+					suggestions.push({
+						label: key,
+						kind: monacoLib.languages.CompletionItemKind.Property,
+						insertText: key,
+					});
+				})
+			}
+		} 
+		
+		else if (match_context) {
+			const zeroPart = match_context[0]
+			const firstPart = match_context[1]; 
+			const secondPart = match_context[2]; 
+			const thirdPart = match_context[3];
+			const fourthPart = match_context[4];
+			
+			if (fourthPart) {
+				currentState = directoryStructure.context[firstPart][secondPart][thirdPart][fourthPart];
+				if (currentState) {
+					Object.keys(currentState).forEach(item => {
+						suggestions.push({
+							label: item,
+							kind: monacoLib.languages.CompletionItemKind.Property,
+							insertText: item,
+						});
+					});
+				}
+			}
+			else if (thirdPart) {
+				currentState = directoryStructure.context[firstPart][secondPart][thirdPart];
+				if (currentState) {
+					Object.keys(currentState).forEach(item => {
+						suggestions.push({
+							label: item,
+							kind: monacoLib.languages.CompletionItemKind.Property,
+							insertText: item,
+						});
+					});
+				}
+			}
+			else if (secondPart) {
+				currentState = directoryStructure.context[firstPart][secondPart];
+				if (currentState) {
+					Object.keys(currentState).forEach(item => {
+						suggestions.push({
+							label: item,
+							kind: monacoLib.languages.CompletionItemKind.Property,
+							insertText: item,
+						});
+					});
+				}
+			}
+			else if (firstPart) {
+				currentState = directoryStructure.context[firstPart]; 
+				if (currentState) {
+					Object.keys(currentState).forEach(item => {
+						suggestions.push({
+							label: item,
+							kind: monacoLib.languages.CompletionItemKind.Property,
+							insertText: item,
+						});
+					});
+				}
+			}  
+			else if (zeroPart) {
+				currentState = directoryStructure.context;
+				Object.keys(currentState).forEach(key => {
+					suggestions.push({
+						label: key,
+						kind: monacoLib.languages.CompletionItemKind.Property,
+						insertText: key,
+					});
+				});
+			} 			
+		} else {
+			currentState = directoryStructure;
+			Object.keys(currentState).forEach(key => {
+				suggestions.push({
+					label: key,
+					kind: monacoLib.languages.CompletionItemKind.Property,
+					insertText: key,
+				});
+			})
+		}
+	
+
+		return suggestions
+    }
+
+	if (prevWord?.toUpperCase() === 'FROM') {
 		// populate all possible tables
 		Object.keys(completionData).forEach((schema) => {
 			Object.keys(completionData[schema]).forEach((table) => {
@@ -55,9 +195,9 @@ const completePhrase = (
 		return suggestions;
 	}
 
-	if (prevWord?.toLowerCase() !== 'as' || !prevPrevWord) {
+	if (prevWord?.toUpperCase() !== 'AS' || !prevPrevWord) {
 		// if not an alias or a select table, only offer keyword completions
-		return SQL_KEYWORDS.filter((word) => word.includes(cleanedCurrentWord.toLowerCase())).map(
+		return SQL_KEYWORDS.filter((word) => word.includes(cleanedCurrentWord.toUpperCase())).map(
 			(keyword) => ({
 				label: keyword,
 				kind: CompletionItemKind.Keyword,
@@ -161,6 +301,7 @@ const completePhrase = (
 		sug.sortText = `${periods}${suggestion.label}`;
 	});
 
+
 	return suggestions;
 };
 
@@ -168,6 +309,7 @@ export const provideCompletionItems = (
 	model: monacoLib.editor.ITextModel,
 	position: monacoLib.Position,
 	databaseSchema: CompletionData,
+	directoryStructure: any
 ) => {
 	const lineUpToPosition = model.getValueInRange({
 		startLineNumber: position.lineNumber,
@@ -179,6 +321,7 @@ export const provideCompletionItems = (
 		suggestions: completePhrase(
 			lineUpToPosition,
 			databaseSchema,
+			directoryStructure,
 		) as monacoLib.languages.CompletionItem[],
 	};
 };
