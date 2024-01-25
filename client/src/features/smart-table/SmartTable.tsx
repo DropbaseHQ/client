@@ -325,7 +325,7 @@ export const SmartTable = ({ tableName }: any) => {
 			title: column.name,
 			width: columnWidth[column.name] || String(column.name).length * 10 + 35 + 30,
 			icon,
-			hasMenu: message !== '' && message !== null,
+			hasMenu: message !== '' && message !== null && message !== undefined,
 		};
 
 		if (column.editable) {
