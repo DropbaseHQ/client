@@ -161,10 +161,11 @@ export const AppComponent = (props: any) => {
 					<Alert
 						bgColor="white"
 						status={inputState?.message_type || 'info'}
-						height="30px"
+						pl={0}
+						pt={1}
 					>
-						<AlertIcon boxSize={4} />
-						<AlertDescription fontSize={12}>{inputState?.message}</AlertDescription>
+						<AlertIcon boxSize={4} mr={2} />
+						<AlertDescription fontSize="sm">{inputState?.message}</AlertDescription>
 					</Alert>
 				</div>
 			) : null}
