@@ -80,7 +80,7 @@ const PolicyTable = ({
 						{apps.map((app: any) => (
 							<Tr key={app.id}>
 								<Td>{app.name}</Td>
-								<Td>{getSelector(selectedResourceId, app.id)}</Td>
+								<Td>{getSelector(selectedResourceId, app.name)}</Td>
 							</Tr>
 						))}
 					</Tbody>

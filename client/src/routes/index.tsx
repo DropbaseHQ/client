@@ -4,8 +4,9 @@ import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { Login, Register, ResetPassword, EmailConfirmation } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
 import { App } from '@/features/app';
-import { Users, DeveloperSettings } from '@/features/settings';
+import { Users, DeveloperSettings, Permissions } from '@/features/settings';
 import { Workspaces, useWorkspaces } from '@/features/workspaces';
+
 import { RequestResetLink } from '@/features/authorization/RequestResetLink';
 import {
 	useSetWorkerAxiosToken,
@@ -83,7 +84,7 @@ export const DashboardRoutes = () => {
 								<Route path="settings/members" element={<Users />} />
 							</>
 						)}
-						{/* <Route path="settings/permissions" element={<Permissions />} /> */}
+						<Route path="settings/permissions" element={<Permissions />} />
 						<Route path="settings/developer" element={<DeveloperSettings />} />
 					</Route>
 
