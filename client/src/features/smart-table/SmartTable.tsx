@@ -816,14 +816,16 @@ export const SmartTable = ({ tableName }: any) => {
 										{columnMessage.message !== '' && (
 											<Card
 												style={{
-													position: 'absolute',
-													top: columnMessage.y - 80,
-													left: columnMessage.x,
+													position: 'fixed',
+													top: columnMessage.y - 36,
+													left: columnMessage.x + columnMessage.width / 2,
+													transform: 'translateX(-50%)',
 													padding: '5px 10px',
+													zIndex: 1,
 												}}
 												contentEditable={false}
 											>
-												<Flex alignItems="center">
+												<Flex alignItems="center" fontSize={12}>
 													{columnMessage.icon}
 													{columnMessage.message}
 												</Flex>
