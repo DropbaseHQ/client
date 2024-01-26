@@ -103,6 +103,7 @@ export const Login = () => {
 										placeholder="Please enter your email"
 										id="email"
 										type="email"
+										data-cy="email"
 										{...register('email', {
 											required: 'Email is required',
 										})}
@@ -116,6 +117,7 @@ export const Login = () => {
 										placeholder="Please enter your password"
 										id="password"
 										type="password"
+										data-cy="password"
 										{...register('password', {
 											required: 'Password is required',
 										})}
@@ -125,7 +127,12 @@ export const Login = () => {
 								</FormControl>
 							</Stack>
 							<Stack spacing="6">
-								<Button isLoading={isLoading} type="submit" colorScheme="blue">
+								<Button
+									isLoading={isLoading}
+									type="submit"
+									colorScheme="blue"
+									data-cy="sign-in"
+								>
 									Sign in
 								</Button>
 								<Link to="/forgot">
