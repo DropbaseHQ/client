@@ -287,6 +287,7 @@ export const AppPreview = () => {
 								h="full"
 								overflow="auto"
 								spacing="3"
+								data-cy="components-list"
 								{...provided.droppableProps}
 							>
 								{componentsState.map((c: any, index: number) => {
