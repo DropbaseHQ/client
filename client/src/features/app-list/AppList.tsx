@@ -103,6 +103,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 					minH="none"
 					icon={<MoreVertical size="14" />}
 					ml="auto"
+					data-cy={`app-menu-${app.name}`}
 					onClick={(e) => {
 						e.stopPropagation();
 					}}
@@ -110,6 +111,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 
 				<MenuList>
 					<MenuItem
+						data-cy={`delete-app-${app.name}`}
 						color="red"
 						onClick={(e) => {
 							e.stopPropagation();
@@ -138,6 +140,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 									name={`Write ${app.name} to delete the app`}
 									autoFocus
 									id="name"
+									data-cy={`confirm-delete-app-input-${app.name}`}
 									placeholder={app.name}
 									validation={{
 										validate: (value: any) =>
@@ -161,6 +164,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 									type="submit"
 									size="sm"
 									colorScheme="red"
+									data-cy={`confirm-delete-app-${app.name}`}
 								>
 									Delete
 								</Button>
