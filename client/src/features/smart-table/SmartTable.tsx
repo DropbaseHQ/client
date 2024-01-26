@@ -1,7 +1,11 @@
 import { useAtom, useAtomValue } from 'jotai';
 import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
 	Box,
 	Button,
+	Card,
 	Center,
 	Flex,
 	IconButton,
@@ -13,6 +17,7 @@ import {
 	usePrevious,
 	useTheme,
 } from '@chakra-ui/react';
+import { CheckCircleIcon, InfoIcon, SpinnerIcon, WarningIcon } from '@chakra-ui/icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 import { Info, RotateCw, UploadCloud } from 'react-feather';
@@ -27,7 +32,12 @@ import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
 import { formatDate, formatTime, formatDateTime } from '@/features/smart-table/utils';
-import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
+import {
+	newPageStateAtom,
+	selectedRowAtom,
+	nonWidgetContextAtom,
+	AppState,
+} from '@/features/app-state';
 import { SOCKET_URL } from '../app-preview';
 
 import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
@@ -139,6 +149,16 @@ export const SmartTable = ({ tableName }: any) => {
 	const pageInfo = allTablePageInfo[tableName] || {};
 
 	const [columnWidth, setColumnWidth] = useState<any>(tableColumnWidth || {});
+
+	const [columnMessage, setColumnMessage] = useState({
+		message: '',
+		icon: <></>,
+		col: -1,
+		x: 0,
+		y: 0,
+		width: 0,
+		height: 0,
+	});
 
 	const onColumnResize = useCallback(
 		(col: any, newSize: any) => {
@@ -267,7 +287,7 @@ export const SmartTable = ({ tableName }: any) => {
 			  };
 
 	const visibleColumns = header.filter(
-		(column: any) => !columnDict?.[column?.name] || columnDict[column?.name]?.visible,
+		(column: any) => !columnDict?.[column?.name] || !columnDict[column?.name]?.hidden,
 	);
 
 	const gridColumns = visibleColumns.map((column: any) => {
@@ -307,11 +327,14 @@ export const SmartTable = ({ tableName }: any) => {
 			}
 		}
 
+		const message = pageState?.context?.tables?.[tableName]?.columns?.[column.name]?.message;
+
 		const gridColumn = {
 			id: column.name,
 			title: column.name,
 			width: columnWidth[column.name] || String(column.name).length * 10 + 35 + 30,
 			icon,
+			hasMenu: message !== '' && message !== null && message !== undefined,
 		};
 
 		if (column.editable) {
@@ -629,6 +652,63 @@ export const SmartTable = ({ tableName }: any) => {
 		(name: any) => !tablesRowSelected[name],
 	);
 
+	const handleHeaderMenuClick = (col: number, bounds: any) => {
+		if (columnMessage.col === col && columnMessage.message !== '') {
+			setColumnMessage({
+				message: '',
+				icon: <></>,
+				col,
+				...bounds,
+			});
+		} else {
+			const messageInfo =
+				pageState?.context?.tables?.[tableName]?.columns?.[header[col].name];
+
+			const message = messageInfo?.message;
+			const messageType = messageInfo?.message_type;
+
+			let icon;
+
+			switch (messageType) {
+				case 'info': {
+					icon = <InfoIcon pr={1} color="blue.500" />;
+					break;
+				}
+
+				case 'warning': {
+					icon = <WarningIcon pr={1} color="orange.500" />;
+					break;
+				}
+
+				case 'success': {
+					icon = <CheckCircleIcon pr={1} color="green.500" />;
+					break;
+				}
+
+				case 'error': {
+					icon = <WarningIcon pr={1} color="red.500" />;
+					break;
+				}
+
+				case 'loading': {
+					icon = <SpinnerIcon pr={1} />;
+					break;
+				}
+				default: {
+					icon = <></>;
+					break;
+				}
+			}
+
+			setColumnMessage({
+				message,
+				icon,
+				col,
+				...bounds,
+			});
+		}
+	};
+
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="1">
@@ -715,30 +795,52 @@ export const SmartTable = ({ tableName }: any) => {
 										</Text>
 									</Center>
 								) : (
-									<DataEditor
-										columns={gridColumns}
-										rows={Math.min(
-											rows.length,
-											pageInfo.pageSize || DEFAULT_PAGE_SIZE,
+									<>
+										<DataEditor
+											columns={gridColumns}
+											rows={Math.min(
+												rows.length,
+												pageInfo.pageSize || DEFAULT_PAGE_SIZE,
+											)}
+											width="100%"
+											height="100%"
+											getCellContent={getCellContent}
+											rowMarkers="both"
+											smoothScrollX
+											smoothScrollY
+											theme={gridTheme}
+											onGridSelectionChange={handleSetSelection}
+											onSelectionCleared={onSelectionCleared}
+											gridSelection={selection}
+											highlightRegions={highlights}
+											getCellsForSelection
+											onCellEdited={onCellEdited}
+											onPaste
+											keybindings={{ search: true }}
+											onColumnResize={onColumnResize}
+											rowHeight={30}
+											onHeaderMenuClick={handleHeaderMenuClick}
+										/>
+
+										{columnMessage.message !== '' && (
+											<Card
+												style={{
+													position: 'fixed',
+													top: columnMessage.y - 36,
+													left: columnMessage.x + columnMessage.width / 2,
+													transform: 'translateX(-50%)',
+													padding: '5px 10px',
+													zIndex: 1,
+												}}
+												contentEditable={false}
+											>
+												<Flex alignItems="center" fontSize={12}>
+													{columnMessage.icon}
+													{columnMessage.message}
+												</Flex>
+											</Card>
 										)}
-										width="100%"
-										height="100%"
-										getCellContent={getCellContent}
-										rowMarkers="both"
-										smoothScrollX
-										smoothScrollY
-										theme={gridTheme}
-										onGridSelectionChange={handleSetSelection}
-										onSelectionCleared={onSelectionCleared}
-										gridSelection={selection}
-										highlightRegions={highlights}
-										getCellsForSelection
-										onCellEdited={onCellEdited}
-										onPaste
-										keybindings={{ search: true }}
-										onColumnResize={onColumnResize}
-										rowHeight={30}
-									/>
+									</>
 								)}
 							</>
 						)}
@@ -746,6 +848,21 @@ export const SmartTable = ({ tableName }: any) => {
 
 					<Pagination />
 				</Stack>
+
+				{pageState?.context?.tables?.[tableName].message ? (
+					<div>
+						<Alert
+							variant="left-accent"
+							status={pageState?.context?.tables?.[tableName].message_type || 'info'}
+							height="30px"
+						>
+							<AlertIcon boxSize={4} />
+							<AlertDescription fontSize={14}>
+								{pageState?.context?.tables?.[tableName].message}
+							</AlertDescription>
+						</Alert>
+					</div>
+				) : null}
 			</Stack>
 		</CurrentTableContext.Provider>
 	);

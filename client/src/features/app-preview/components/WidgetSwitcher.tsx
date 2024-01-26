@@ -69,7 +69,7 @@ export const WidgetSwitcher = () => {
 					{widgets?.map((w: any) => (
 						<MenuItemOption key={w?.name} value={w?.name}>
 							<Box display="flex" alignItems="end">
-								<Text>{w.label}</Text>
+								<Text fontSize="md">{w.label}</Text>
 								{!isPreview && (
 									<Text fontSize="md" color="gray.500" ml="auto">
 										{w.name}
