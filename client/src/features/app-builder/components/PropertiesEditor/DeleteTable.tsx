@@ -22,19 +22,12 @@ import { useToast } from '@/lib/chakra-ui';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { getErrorMessage } from '@/utils';
 import { useGetPage, useUpdatePageData } from '@/features/page';
+import { useGetTable } from '@/features/app-builder/hooks';
 
 export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 	const { appName, pageName } = useParams();
-	const { tables } = useGetPage({ appName, pageName });
 
-	const table = tables.find((tables: any) => tables.name === tableId);
-
-	let isDeleteImmediate = true
-	if(table) {
-		if(table.smart) {
-			isDeleteImmediate = false
-		}
-	}
+	const { smart: isSmartTable = false } = useGetTable(tableId || '') || {};
 
 	const toast = useToast();
 	const setDevTab = useSetAtom(inspectedResourceAtom);
@@ -98,7 +91,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 					variant="ghost"
 					colorScheme="red"
 					aria-label="Delete table"
-					onClick={isDeleteImmediate ? onSubmit : onToggle}
+					onClick={isSmartTable ? onToggle : onSubmit}
 					type="button"
 					isLoading={mutation.isLoading}
 					size="sm"
