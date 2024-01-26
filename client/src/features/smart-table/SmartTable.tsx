@@ -14,6 +14,7 @@ import {
 	Text,
 	Tooltip,
 	useColorMode,
+	usePrevious,
 	useTheme,
 } from '@chakra-ui/react';
 import { CheckCircleIcon, InfoIcon, SpinnerIcon, WarningIcon } from '@chakra-ui/icons';
@@ -142,6 +143,8 @@ export const SmartTable = ({ tableName }: any) => {
 	const [selectedData, selectRow] = useAtom(selectedRowAtom);
 	const selectedRow = (selectedData as any)?.[tableName];
 
+	const previousSelectedRow = usePrevious(selectedRow);
+
 	const [allTablePageInfo, setPageInfo] = useAtom(tablePageInfoAtom);
 	const pageInfo = allTablePageInfo[tableName] || {};
 
@@ -189,26 +192,32 @@ export const SmartTable = ({ tableName }: any) => {
 	}, [selectedRow, rows, selection]);
 
 	useEffect(() => {
-		/**
-		 * If row is not present just reset the selected row with column names
-		 */
-		const selectedIndex = rows.findIndex(
-			(r: any) => JSON.stringify(r) === JSON.stringify(selectedRow),
-		);
+		if (JSON.stringify(previousSelectedRow) !== JSON.stringify(selectedRow)) {
+			/**
+			 * If row is not present just reset the selected row with column names
+			 */
+			const selectedIndex = rows.findIndex(
+				(r: any) => JSON.stringify(r) === JSON.stringify(selectedRow),
+			);
 
-		if (selectedIndex !== -1 && selectedRow) {
-			selectRow((old: any) => ({
-				...old,
-				[tableName]: Object.keys(selectedRow).reduce(
-					(acc: { [col: string]: string | null }, curr: string) => ({
-						...acc,
-						[curr]: null,
-					}),
-					{},
-				),
-			}));
+			const isEmptyRow = Object.keys(selectedRow || {}).find(
+				(key: any) => selectedRow[key] !== null,
+			);
+
+			if (selectedIndex === -1 && selectedRow && !isEmptyRow) {
+				selectRow((old: any) => ({
+					...old,
+					[tableName]: Object.keys(selectedRow).reduce(
+						(acc: { [col: string]: string | null }, curr: string) => ({
+							...acc,
+							[curr]: null,
+						}),
+						{},
+					),
+				}));
+			}
 		}
-	}, [selectedRow, tableName, rows, selectRow]);
+	}, [selectedRow, previousSelectedRow, tableName, rows, selectRow]);
 
 	// only fill column width if the current state is empty
 	useEffect(() => {

@@ -5038,6 +5038,11 @@ util@^0.10.3:
   dependencies:
     inherits "2.0.3"
 
+vite-plugin-html-env@^1.2.8:
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/vite-plugin-html-env/-/vite-plugin-html-env-1.2.8.tgz#c4907e1222b773fc53e2c3567c17cf1f8c86f30c"
+  integrity sha512-Uqo2NqcmhVjuXv83oyRC80mZF+B2J3pcon8Bnm9F3T67EvkPYf64Gk0NReAE4MRGElt8pCGpCMQDIzs12NWUAA==
+
 vite@^4.4.5:
   version "4.5.2"
   resolved "https://registry.npmjs.org/vite/-/vite-4.5.2.tgz"
