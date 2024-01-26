@@ -181,7 +181,7 @@ export const useRunTableQuery = (props: any = {}) => {
 };
 
 const runSQLQuery = async ({ appName, pageName, state, source, fileContent }: any) => {
-	const response = await workerAxios.post(`/run_sql/run_sql_string/`, {
+	const response = await workerAxios.post(`/query/sql_string/`, {
 		app_name: appName,
 		page_name: pageName,
 		state,

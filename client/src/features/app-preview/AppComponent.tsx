@@ -1,4 +1,12 @@
-import { Button, FormControl, FormHelperText, FormLabel, Text } from '@chakra-ui/react';
+import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	Button,
+	FormControl,
+	FormLabel,
+	Text,
+} from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import { getErrorMessage } from '@/utils';
 
@@ -9,6 +17,7 @@ import {
 	useSyncState,
 	newPageStateAtom,
 	allWidgetsInputAtom,
+	allWidgetStateAtom,
 } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
@@ -22,6 +31,9 @@ const sizeMap: any = {
 
 export const AppComponent = (props: any) => {
 	const { sendJsonMessage } = props;
+
+	const [widgetData]: any = useAtom(allWidgetStateAtom);
+	const allWidgetState = widgetData.state;
 
 	const toast = useToast();
 	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
@@ -144,7 +156,19 @@ export const AppComponent = (props: any) => {
 				options={inputState.options || component.options}
 			/>
 
-			{inputState?.message ? <FormHelperText>{inputState.message}</FormHelperText> : null}
+			{inputState?.message ? (
+				<div>
+					<Alert
+						bgColor="white"
+						status={inputState?.message_type || 'info'}
+						pl={0}
+						pt={1}
+					>
+						<AlertIcon boxSize={4} mr={2} />
+						<AlertDescription fontSize="sm">{inputState?.message}</AlertDescription>
+					</Alert>
+				</div>
+			) : null}
 		</FormControl>
 	);
 };

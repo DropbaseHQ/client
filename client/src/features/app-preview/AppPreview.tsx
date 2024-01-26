@@ -251,10 +251,10 @@ export const AppPreview = () => {
 		<Loader isLoading={isLoading}>
 			<Stack bg="white" h="full">
 				{reorderMutation.isLoading && <Progress size="xs" isIndeterminate />}
-				<Stack px="4" py="2" borderBottomWidth="1px" direction="row" alignItems="center">
+				<Stack px="4" pt="4" pb="2" borderBottomWidth="1px" direction="row">
 					<InspectorContainer flex="1" noPadding type="widget" id={widgetName}>
 						<Stack spacing="0">
-							<Box display="flex" alignItems="center">
+							<Stack direction="row" display="flex" alignItems="center">
 								<Text fontSize="lg" fontWeight="semibold">
 									{widgetLabel || widgetName}
 								</Text>
@@ -263,7 +263,7 @@ export const AppPreview = () => {
 										{widgetName}
 									</Text>
 								)}
-							</Box>
+							</Stack>
 
 							{widgetDescription ? (
 								<Text fontSize="sm" color="gray.600">
