@@ -229,7 +229,13 @@ export const AppList = () => {
 		<PageLayout
 			title="Your apps"
 			action={
-				<Button size="sm" ml="auto" onClick={onOpen} isDisabled={!workerIsConnected}>
+				<Button
+					size="sm"
+					ml="auto"
+					onClick={onOpen}
+					isDisabled={!workerIsConnected}
+					data-cy="create-app-button"
+				>
 					Create app
 				</Button>
 			}
@@ -269,6 +275,7 @@ export const AppList = () => {
 								<FormInput
 									name="App name"
 									id="name"
+									data-cy="app-name"
 									placeholder="Enter app name"
 									validation={{
 										validate: (value: any) => {
@@ -306,6 +313,7 @@ export const AppList = () => {
 									isLoading={createAppIsLoading}
 									type="submit"
 									size="sm"
+									data-cy="confirm-create-app"
 								>
 									Create
 								</Button>
