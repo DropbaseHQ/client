@@ -395,6 +395,7 @@ export const NewComponent = (props: any) => {
 				size="sm"
 				flexShrink="0"
 				mr="auto"
+				data-cy="add-component-button"
 				isDisabled={!isConnected}
 				isLoading={mutation.isLoading}
 				{...props}
