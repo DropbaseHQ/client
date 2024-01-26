@@ -39,6 +39,8 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	const [log, setLog] = useState<any>(null);
 	const [previewData, setPreviewData] = useState<any>(null);
 
+	const [testCodeHeight, setTestCodeHeight] = useState(16);
+
 	const pageState = useAtomValue(newPageStateAtom);
 	const syncState = useSyncState();
 
@@ -199,6 +201,14 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 
 	const isLoading = runPythonMutation.isLoading || runSQLQueryMutation.isLoading;
 
+	const handleTestCodeMount = (editor: any) => {
+		editor.onDidContentSizeChange((event: any) => {
+			const editorHeight = event.contentHeight;
+			setTestCodeHeight(editorHeight); // Dynamically adjust height based on content
+			editor.layout();
+		});
+	};
+
 	if (isLoadingFiles) {
 		<Stack direction="row">
 			<SkeletonCircle h="10" w="10" />
@@ -245,6 +255,8 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 						onChange={setTestCode}
 						language="python"
 						path={`${MODEL_SCHEME}:${MODEL_PATH}`}
+						onMount={handleTestCodeMount}
+						height={testCodeHeight}
 					/>
 				)}
 			</Stack>
