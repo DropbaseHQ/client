@@ -160,7 +160,7 @@ export const PageTab = (props: any) => {
 						}}
 					>
 						<MenuButton
-							ml="0.5"
+							ml="1"
 							color="gray.400"
 							_hover={{
 								color: 'gray.600',

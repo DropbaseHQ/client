@@ -95,7 +95,11 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 					<AutoCompleteGroupTitle>Tables</AutoCompleteGroupTitle>
 					{tableTargets?.map((xTable: any) => {
 						return (
-							<AutoCompleteItem key={xTable?.value} value={xTable?.value}>
+							<AutoCompleteItem
+								key={xTable?.value}
+								value={xTable?.value}
+								fontSize="sm"
+							>
 								{xTable?.label}
 							</AutoCompleteItem>
 						);
@@ -105,7 +109,11 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 					<AutoCompleteGroupTitle>Widgets</AutoCompleteGroupTitle>
 					{widgetTargets?.map((widgetTarget: any) => {
 						return (
-							<AutoCompleteItem key={widgetTarget.value} value={widgetTarget.value}>
+							<AutoCompleteItem
+								key={widgetTarget.value}
+								value={widgetTarget.value}
+								fontSize="sm"
+							>
 								{widgetTarget.label}
 							</AutoCompleteItem>
 						);
