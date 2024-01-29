@@ -327,14 +327,37 @@ export const SmartTable = ({ tableName }: any) => {
 			}
 		}
 
-		const message = pageState?.context?.tables?.[tableName]?.columns?.[column.name]?.message;
+		const messageType =
+			pageState?.context?.tables?.[tableName]?.columns?.[column.name]?.message_type;
+
+		let color = '';
+
+		switch (messageType) {
+			case 'error': {
+				color = '#C53030'; // red.600
+				break;
+			}
+			case 'warning': {
+				color = '#C05621'; // orange.500
+				break;
+			}
+			case 'info': {
+				color = '#2B6CB0'; // blue.100
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+
+		const themeOverride = color !== '' ? { textHeader: color, bgIconHeader: color } : {};
 
 		const gridColumn = {
 			id: column.name,
 			title: column.name,
 			width: columnWidth[column.name] || String(column.name).length * 10 + 35 + 30,
 			icon,
-			hasMenu: message !== '' && message !== null && message !== undefined,
+			themeOverride,
 		};
 
 		if (column.editable) {
@@ -652,17 +675,9 @@ export const SmartTable = ({ tableName }: any) => {
 		(name: any) => !tablesRowSelected[name],
 	);
 
-	const handleHeaderMenuClick = (col: number, bounds: any) => {
-		if (columnMessage.col === col && columnMessage.message !== '') {
-			setColumnMessage({
-				message: '',
-				icon: <></>,
-				col,
-				...bounds,
-			});
-		} else {
-			const messageInfo =
-				pageState?.context?.tables?.[tableName]?.columns?.[header[col].name];
+	const drawHeader = (args: any) => {
+		if (args.isHovered && columnMessage.x !== args.rect.x) {
+			const messageInfo = pageState?.context?.tables?.[tableName]?.columns?.[args.column.id];
 
 			const message = messageInfo?.message;
 			const messageType = messageInfo?.message_type;
@@ -703,10 +718,12 @@ export const SmartTable = ({ tableName }: any) => {
 			setColumnMessage({
 				message,
 				icon,
-				col,
-				...bounds,
+				...args.rect,
+				height: args.menuBounds.height,
 			});
 		}
+
+		return false;
 	};
 
 	return (
@@ -796,6 +813,27 @@ export const SmartTable = ({ tableName }: any) => {
 									</Center>
 								) : (
 									<>
+										{columnMessage.message !== '' &&
+											columnMessage.message !== undefined &&
+											columnMessage.message !== null && (
+												<Card
+													style={{
+														position: 'absolute',
+														transform: `translate(-50%, -${columnMessage.height}px)`,
+														left:
+															columnMessage.x +
+															columnMessage.width / 2,
+														padding: '5px 10px',
+														zIndex: 1,
+													}}
+													contentEditable={false}
+												>
+													<Flex alignItems="center" fontSize="sm">
+														{columnMessage.icon}
+														{columnMessage.message}
+													</Flex>
+												</Card>
+											)}
 										<DataEditor
 											columns={gridColumns}
 											rows={Math.min(
@@ -819,27 +857,8 @@ export const SmartTable = ({ tableName }: any) => {
 											keybindings={{ search: true }}
 											onColumnResize={onColumnResize}
 											rowHeight={30}
-											onHeaderMenuClick={handleHeaderMenuClick}
+											drawHeader={drawHeader}
 										/>
-
-										{columnMessage.message !== '' && (
-											<Card
-												style={{
-													position: 'fixed',
-													top: columnMessage.y - 36,
-													left: columnMessage.x + columnMessage.width / 2,
-													transform: 'translateX(-50%)',
-													padding: '5px 10px',
-													zIndex: 1,
-												}}
-												contentEditable={false}
-											>
-												<Flex alignItems="center" fontSize={12}>
-													{columnMessage.icon}
-													{columnMessage.message}
-												</Flex>
-											</Card>
-										)}
 									</>
 								)}
 							</>
