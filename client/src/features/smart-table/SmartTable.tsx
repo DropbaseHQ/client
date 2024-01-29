@@ -740,31 +740,33 @@ export const SmartTable = ({ tableName }: any) => {
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="1">
 				<NavLoader isLoading={isLoadingTable}>
-					<Flex justifyContent="space-between">
+					<Stack
+						direction="row"
+						justifyContent="space-between"
+						w="full"
+						overflow="hidden"
+					>
 						<Stack spacing="0" px="2" flexShrink="0">
-							<Flex>
+							<Stack direction="row" overflow="hidden">
 								<Text fontWeight="semibold" fontSize="lg">
 									{table?.label || tableName}
 								</Text>
 								{pageState?.context?.tables?.[tableName].message ? (
-									<Box>
-										<Alert
-											status={
-												pageState?.context?.tables?.[tableName]
-													.message_type || 'info'
-											}
-											bgColor="transparent"
-											ml={10}
-											pt={0}
-										>
-											<AlertIcon boxSize={4} />
-											<AlertDescription fontSize="sm">
-												{pageState?.context?.tables?.[tableName].message}
-											</AlertDescription>
-										</Alert>
-									</Box>
+									<Alert
+										status={
+											pageState?.context?.tables?.[tableName].message_type ||
+											'info'
+										}
+										bgColor="transparent"
+										pt={0}
+									>
+										<AlertIcon boxSize={4} />
+										<AlertDescription fontSize="sm">
+											{pageState?.context?.tables?.[tableName].message}
+										</AlertDescription>
+									</Alert>
 								) : null}
-							</Flex>
+							</Stack>
 							{dependantTablesWithNoRowSelection.length > 0 ? (
 								<Stack direction="row" spacing="1" alignItems="center">
 									<Box color="orange.500">
@@ -784,7 +786,7 @@ export const SmartTable = ({ tableName }: any) => {
 							) : null}
 						</Stack>
 
-						<Stack alignItems="center" direction="row" spacing="2">
+						<Stack alignItems="center" direction="row" spacing="2" flexShrink="0">
 							<Tooltip label="Refresh data">
 								<IconButton
 									aria-label="Refresh Data"
@@ -812,7 +814,7 @@ export const SmartTable = ({ tableName }: any) => {
 								</Tooltip>
 							) : null}
 						</Stack>
-					</Flex>
+					</Stack>
 				</NavLoader>
 
 				<Stack spacing="2">
