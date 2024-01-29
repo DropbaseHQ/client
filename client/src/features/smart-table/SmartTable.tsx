@@ -446,7 +446,7 @@ export const SmartTable = ({ tableName }: any) => {
 
 					data: {
 						kind: 'date-picker-cell',
-						date: new Date(cellValue),
+						date: new Date(+cellValue),
 						displayDate: formatDate(cellValue),
 						format: 'date',
 					},
@@ -511,6 +511,8 @@ export const SmartTable = ({ tableName }: any) => {
 					newValue = editedCell?.data?.date?.getTime();
 				}
 			}
+
+			// TODO @param can you add logic for date and time pickers
 		} else {
 			newValue = editedCell.data;
 		}
