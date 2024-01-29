@@ -1,6 +1,7 @@
 import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import useWebSocket from 'react-use-websocket';
 import { Login, Register, ResetPassword, EmailConfirmation } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
 import { App } from '@/features/app';
@@ -15,12 +16,17 @@ import { useSyncProxyToken } from '@/features/settings/hooks/token';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
 import { Welcome } from '../features/welcome';
 import { isProductionApp } from '../utils';
+import { SOCKET_URL } from '@/features/app-preview';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
 	useSyncProxyToken();
 	useSetWorkerAxiosToken();
 	useSetWorkerAxiosBaseURL();
+	// Initialize websocket
+	useWebSocket(SOCKET_URL, {
+		share: true,
+	});
 
 	if (isLoading) {
 		return (
