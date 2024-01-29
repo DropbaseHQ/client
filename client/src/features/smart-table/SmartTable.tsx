@@ -27,17 +27,14 @@ import DataEditor, {
 	GridCellKind,
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
+import { DatePickerCell } from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
+
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
 import { formatDate, formatTime, formatDateTime } from '@/features/smart-table/utils';
-import {
-	newPageStateAtom,
-	selectedRowAtom,
-	nonWidgetContextAtom,
-	AppState,
-} from '@/features/app-state';
+import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
 import { SOCKET_URL } from '../app-preview';
 
 import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
@@ -64,6 +61,8 @@ const heightMap: any = {
 	'1/2': 'xs',
 	full: '2xl',
 };
+
+const ALL_CELLS = [DatePickerCell];
 
 export const SmartTable = ({ tableName }: any) => {
 	const toast = useToast();
@@ -425,22 +424,32 @@ export const SmartTable = ({ tableName }: any) => {
 
 			case 'datetime': {
 				return {
-					kind: GridCellKind.Text,
-					data: cellValue,
-					allowOverlay: canEdit,
-					displayData: formatDateTime(parseInt(cellValue, 10)),
+					kind: GridCellKind.Custom,
+					allowOverlay: true,
 					readonly: !canEdit,
+					data: {
+						kind: 'date-picker-cell',
+						date: new Date(+cellValue),
+						displayDate: formatDateTime(cellValue),
+						format: 'datetime-local',
+					},
+
 					...themeOverride,
 				};
 			}
 
 			case 'date': {
 				return {
-					kind: GridCellKind.Text,
-					data: cellValue,
+					kind: GridCellKind.Custom,
 					allowOverlay: canEdit,
-					displayData: formatDate(parseInt(cellValue, 10)),
 					readonly: !canEdit,
+
+					data: {
+						kind: 'date-picker-cell',
+						date: new Date(cellValue),
+						displayDate: formatDate(cellValue),
+						format: 'date',
+					},
 					...themeOverride,
 				};
 			}
@@ -488,11 +497,23 @@ export const SmartTable = ({ tableName }: any) => {
 		}
 	};
 
-	const onCellEdited = (cell: any, newValue: any) => {
+	const onCellEdited = (cell: any, editedCell: any) => {
 		const [col, row] = cell;
 		const currentRow = rows[row];
 
 		const column = columnDict[visibleColumns[col]?.name];
+
+		let newValue: any = null;
+
+		if (editedCell.kind === GridCellKind.Custom) {
+			if (editedCell.data.kind === 'date-picker-cell') {
+				if (editedCell?.data?.format === 'datetime-local') {
+					newValue = editedCell?.data?.date?.getTime();
+				}
+			}
+		} else {
+			newValue = editedCell.data;
+		}
 
 		if (column?.edit_keys?.length > 0) {
 			setCellEdits((old: any) => {
@@ -508,7 +529,7 @@ export const SmartTable = ({ tableName }: any) => {
 							if (cellEdit.rowIndex === row && column.name === cellEdit.column_name) {
 								return {
 									...cellEdit,
-									new_value: newValue.data === undefined ? null : newValue.data,
+									new_value: newValue === undefined ? null : newValue,
 								};
 							}
 
@@ -522,7 +543,7 @@ export const SmartTable = ({ tableName }: any) => {
 					[tableName]: [
 						...(old?.[tableName] || []),
 						{
-							new_value: newValue.data === undefined ? null : newValue.data,
+							new_value: newValue === undefined ? null : newValue,
 							value: currentRow[column.name],
 							column_name: column.name,
 
@@ -802,6 +823,7 @@ export const SmartTable = ({ tableName }: any) => {
 												rows.length,
 												pageInfo.pageSize || DEFAULT_PAGE_SIZE,
 											)}
+											customRenderers={ALL_CELLS}
 											width="100%"
 											height="100%"
 											getCellContent={getCellContent}
