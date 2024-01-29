@@ -8,7 +8,7 @@ export interface CompletionData {
 	metadata: Record<string, string>;
 }
 
-const SQL_KEYWORDS = ['SELECT', 'FROM', 'WITH', 'AS', 'WHERE'];
+const SQL_KEYWORDS = ['SELECT', 'FROM', 'AS', 'WHERE', 'ORDER BY', 'GROUP BY', 'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'ON', 'AND', 'OR', 'NOT', 'IN', 'BETWEEN', 'AS', 'WITH'];
 
 const countChars = (str: string, char: string) => {
 	return str.split(char).length - 1;
@@ -57,7 +57,7 @@ const completePhrase = (
 						suggestions.push({
 							label: item,
 							kind: monacoLib.languages.CompletionItemKind.Property,
-							insertText: item,
+							insertText: item
 						});
 					});
 				}
@@ -71,7 +71,7 @@ const completePhrase = (
 						insertText: key,
 					});
 				});
-			} 	
+			}  	
 		} 
 		
 		else if (match_context) {
@@ -138,7 +138,19 @@ const completePhrase = (
 					});
 				});
 			} 			
-		} 
+		}
+
+		else {
+			currentState = directoryStructure;
+			Object.keys(currentState).forEach(key => {
+				suggestions.push({
+					label: key,
+					kind: monacoLib.languages.CompletionItemKind.Property,
+					insertText: key,
+				});
+			});
+
+		}
 
 		return suggestions
     }

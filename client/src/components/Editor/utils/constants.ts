@@ -5,7 +5,7 @@ export const MONARCH_TOKENIZER = {
 		root: [
 			// SQL keywords
 			[
-				/(SELECT|FROM|WHERE|ORDER BY|GROUP BY|JOIN|LEFT JOIN|RIGHT JOIN|ON|AND|OR|NOT|IN|BETWEEN|AS|WITH)\b/i,
+				/(SELECT|select|FROM|from|WHERE|where|ORDER BY|order by|GROUP BY|group by|JOIN|join|LEFT JOIN|left join|RIGHT JOIN|right join|ON|on|AND|and|OR|or|NOT|not|IN|in|BETWEEN|between|AS|as|WITH|with)\b/i,
 				'keyword',
 			],
 			// SQL strings
