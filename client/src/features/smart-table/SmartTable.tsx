@@ -724,6 +724,14 @@ export const SmartTable = ({ tableName }: any) => {
 				height: args.menuBounds.height,
 			});
 		}
+		// clear column message if it is set and isHovered is false
+		else if (
+			!args.isHovered &&
+			args.columnIndex === columnMessage.col &&
+			columnMessage.col !== -1
+		) {
+			setColumnMessage({ message: '', icon: <></>, col: -1, ...args.rect });
+		}
 
 		return false;
 	};
@@ -734,9 +742,29 @@ export const SmartTable = ({ tableName }: any) => {
 				<NavLoader isLoading={isLoadingTable}>
 					<Flex justifyContent="space-between">
 						<Stack spacing="0" px="2" flexShrink="0">
-							<Text fontWeight="semibold" fontSize="lg">
-								{table?.label || tableName}
-							</Text>
+							<Flex>
+								<Text fontWeight="semibold" fontSize="lg">
+									{table?.label || tableName}
+								</Text>
+								{pageState?.context?.tables?.[tableName].message ? (
+									<Box>
+										<Alert
+											status={
+												pageState?.context?.tables?.[tableName]
+													.message_type || 'info'
+											}
+											bgColor="transparent"
+											ml={10}
+											pt={0}
+										>
+											<AlertIcon boxSize={4} />
+											<AlertDescription fontSize="sm">
+												{pageState?.context?.tables?.[tableName].message}
+											</AlertDescription>
+										</Alert>
+									</Box>
+								) : null}
+							</Flex>
 							{dependantTablesWithNoRowSelection.length > 0 ? (
 								<Stack direction="row" spacing="1" alignItems="center">
 									<Box color="orange.500">
@@ -869,21 +897,6 @@ export const SmartTable = ({ tableName }: any) => {
 
 					<Pagination />
 				</Stack>
-
-				{pageState?.context?.tables?.[tableName].message ? (
-					<div>
-						<Alert
-							variant="left-accent"
-							status={pageState?.context?.tables?.[tableName].message_type || 'info'}
-							height="30px"
-						>
-							<AlertIcon boxSize={4} />
-							<AlertDescription fontSize={14}>
-								{pageState?.context?.tables?.[tableName].message}
-							</AlertDescription>
-						</Alert>
-					</div>
-				) : null}
 			</Stack>
 		</CurrentTableContext.Provider>
 	);
