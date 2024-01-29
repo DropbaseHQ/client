@@ -676,7 +676,8 @@ export const SmartTable = ({ tableName }: any) => {
 	);
 
 	const drawHeader = (args: any) => {
-		if (args.isHovered && columnMessage.x !== args.rect.x) {
+		// setColumnMessage if header is hovered and columnMessage is not already set
+		if (args.isHovered && columnMessage.col !== args.columnIndex) {
 			const messageInfo = pageState?.context?.tables?.[tableName]?.columns?.[args.column.id];
 
 			const message = messageInfo?.message;
@@ -718,6 +719,7 @@ export const SmartTable = ({ tableName }: any) => {
 			setColumnMessage({
 				message,
 				icon,
+				col: args.columnIndex,
 				...args.rect,
 				height: args.menuBounds.height,
 			});
