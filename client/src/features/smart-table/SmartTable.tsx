@@ -402,7 +402,7 @@ export const SmartTable = ({ tableName }: any) => {
 			case 'integer': {
 				return {
 					kind: GridCellKind.Number,
-					data: +cellValue,
+					data: cellValue,
 					allowOverlay: canEdit,
 					displayData: unParsedValue === null ? '' : cellValue,
 					readonly: !canEdit,
@@ -516,7 +516,7 @@ export const SmartTable = ({ tableName }: any) => {
 				}
 			}
 
-			// TODO @param can you add logic for date and time pickers
+			// TODO: @param can you add logic for date and time pickers
 		} else {
 			newValue = editedCell.data;
 		}
