@@ -60,7 +60,7 @@ export const WidgetSwitcher = () => {
 					size="xs"
 				/>
 			</Tooltip>
-			<MenuList minWidth="xs">
+			<MenuList minWidth="sm">
 				<MenuOptionGroup
 					value={widgetName || ''}
 					onChange={handleChooseWidget}
