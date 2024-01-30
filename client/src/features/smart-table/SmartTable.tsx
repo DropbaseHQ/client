@@ -32,12 +32,7 @@ import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
 import { formatDate, formatTime, formatDateTime } from '@/features/smart-table/utils';
-import {
-	newPageStateAtom,
-	selectedRowAtom,
-	nonWidgetContextAtom,
-	AppState,
-} from '@/features/app-state';
+import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
 import { SOCKET_URL } from '../app-preview';
 
 import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
@@ -723,13 +718,12 @@ export const SmartTable = ({ tableName }: any) => {
 				...args.rect,
 				height: args.menuBounds.height,
 			});
-		}
-		// clear column message if it is set and isHovered is false
-		else if (
+		} else if (
 			!args.isHovered &&
 			args.columnIndex === columnMessage.col &&
 			columnMessage.col !== -1
 		) {
+			// clear column message if it is set and isHovered is false
 			setColumnMessage({ message: '', icon: <></>, col: -1, ...args.rect });
 		}
 
@@ -740,33 +734,12 @@ export const SmartTable = ({ tableName }: any) => {
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="1">
 				<NavLoader isLoading={isLoadingTable}>
-					<Stack
-						direction="row"
-						justifyContent="space-between"
-						w="full"
-						overflow="hidden"
-					>
+					<Stack alignItems="center" direction="row" w="full" overflow="hidden">
 						<Stack spacing="0" px="2" flexShrink="0">
-							<Stack direction="row" overflow="hidden">
-								<Text fontWeight="semibold" fontSize="lg">
-									{table?.label || tableName}
-								</Text>
-								{pageState?.context?.tables?.[tableName].message ? (
-									<Alert
-										status={
-											pageState?.context?.tables?.[tableName].message_type ||
-											'info'
-										}
-										bgColor="transparent"
-										pt={0}
-									>
-										<AlertIcon boxSize={4} />
-										<AlertDescription fontSize="sm">
-											{pageState?.context?.tables?.[tableName].message}
-										</AlertDescription>
-									</Alert>
-								) : null}
-							</Stack>
+							<Text fontWeight="semibold" fontSize="lg">
+								{table?.label || tableName}
+							</Text>
+
 							{dependantTablesWithNoRowSelection.length > 0 ? (
 								<Stack direction="row" spacing="1" alignItems="center">
 									<Box color="orange.500">
@@ -786,7 +759,31 @@ export const SmartTable = ({ tableName }: any) => {
 							) : null}
 						</Stack>
 
-						<Stack alignItems="center" direction="row" spacing="2" flexShrink="0">
+						{pageState?.context?.tables?.[tableName].message ? (
+							<Stack ml="auto" overflow="hidden">
+								<Alert
+									status={
+										pageState?.context?.tables?.[tableName].message_type ||
+										'info'
+									}
+									bgColor="transparent"
+									p={0}
+								>
+									<AlertIcon boxSize={4} />
+									<AlertDescription fontSize="sm">
+										{pageState?.context?.tables?.[tableName].message}
+									</AlertDescription>
+								</Alert>
+							</Stack>
+						) : null}
+
+						<Stack
+							ml="auto"
+							alignItems="center"
+							direction="row"
+							spacing="2"
+							flexShrink="0"
+						>
 							<Tooltip label="Refresh data">
 								<IconButton
 									aria-label="Refresh Data"
@@ -837,11 +834,7 @@ export const SmartTable = ({ tableName }: any) => {
 										<Text color="red.500" fontWeight="medium" fontSize="lg">
 											Failed to load data
 										</Text>
-										<Text fontSize="md">
-											{typeof errorMessage === 'object'
-												? JSON.stringify(errorMessage)
-												: errorMessage}
-										</Text>
+										<Text fontSize="md">{getErrorMessage(errorMessage)}</Text>
 									</Center>
 								) : (
 									<>
