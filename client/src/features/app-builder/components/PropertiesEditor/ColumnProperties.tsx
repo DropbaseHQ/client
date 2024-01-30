@@ -243,7 +243,7 @@ export const ColumnsProperties = () => {
 
 	return (
 		<Stack h="full" overflowY="auto">
-			{type === 'sql' ? (
+			{type === 'sql' && !table?.smart ? (
 				<Button
 					leftIcon={<Zap size="14" />}
 					size="sm"

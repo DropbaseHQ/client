@@ -501,6 +501,10 @@ export const SmartTable = ({ tableName }: any) => {
 		const [col, row] = cell;
 		const currentRow = rows[row];
 
+		if (editedCell.readonly) {
+			return;
+		}
+
 		const column = columnDict[visibleColumns[col]?.name];
 
 		let newValue: any = null;
