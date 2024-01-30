@@ -7,7 +7,7 @@ const ClickableCode = ({ children, ...props }: any) => {
 	return (
 		<Code
 			cursor="pointer"
-			fontSize="xs"
+			fontSize="sm"
 			_hover={{ bg: 'gray.100' }}
 			colorScheme="white"
 			{...props}

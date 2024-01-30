@@ -411,6 +411,7 @@ export const NewComponent = (props: any) => {
 							onSubmit({ type: c });
 						}}
 						key={c}
+						fontSize="md"
 					>
 						{c}
 					</MenuItem>

@@ -6,7 +6,7 @@ import { useMonacoTheme } from './useMonacoTheme';
 
 import { CompletionData, provideCompletionItems } from '../utils/sql-completion';
 
-export const useSQLCompletion = (databaseSchema: CompletionData) => {
+export const useSQLCompletion = (databaseSchema: CompletionData, directoryStructure: any) => {
 	const monaco = useMonaco();
 
 	useMonacoTheme(monaco);
@@ -22,7 +22,7 @@ export const useSQLCompletion = (databaseSchema: CompletionData) => {
 		const { dispose } = monaco.languages.registerCompletionItemProvider('sql', {
 			triggerCharacters: ['.', '"'],
 			provideCompletionItems: (model, position) =>
-				provideCompletionItems(model, position, databaseSchema),
+				provideCompletionItems(model, position, databaseSchema, directoryStructure),
 		});
 
 		return dispose;

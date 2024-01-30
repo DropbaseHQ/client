@@ -32,6 +32,9 @@ const sizeMap: any = {
 export const AppComponent = (props: any) => {
 	const { sendJsonMessage } = props;
 
+	const [widgetData]: any = useAtom(allWidgetStateAtom);
+	const allWidgetState = widgetData.state;
+
 	const toast = useToast();
 	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
 	const {

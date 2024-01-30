@@ -27,7 +27,9 @@ import DataEditor, {
 	GridCellKind,
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
+import { DatePickerCell } from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
+
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
@@ -59,6 +61,8 @@ const heightMap: any = {
 	'1/2': 'xs',
 	full: '2xl',
 };
+
+const ALL_CELLS = [DatePickerCell];
 
 export const SmartTable = ({ tableName }: any) => {
 	const toast = useToast();
@@ -421,7 +425,7 @@ export const SmartTable = ({ tableName }: any) => {
 			case 'integer': {
 				return {
 					kind: GridCellKind.Number,
-					data: +cellValue,
+					data: cellValue,
 					allowOverlay: canEdit,
 					displayData: unParsedValue === null ? '' : cellValue,
 					readonly: !canEdit,
@@ -443,22 +447,32 @@ export const SmartTable = ({ tableName }: any) => {
 
 			case 'datetime': {
 				return {
-					kind: GridCellKind.Text,
-					data: cellValue,
-					allowOverlay: canEdit,
-					displayData: formatDateTime(parseInt(cellValue, 10)),
+					kind: GridCellKind.Custom,
+					allowOverlay: true,
 					readonly: !canEdit,
+					data: {
+						kind: 'date-picker-cell',
+						date: new Date(+cellValue),
+						displayDate: formatDateTime(cellValue),
+						format: 'datetime-local',
+					},
+
 					...themeOverride,
 				};
 			}
 
 			case 'date': {
 				return {
-					kind: GridCellKind.Text,
-					data: cellValue,
+					kind: GridCellKind.Custom,
 					allowOverlay: canEdit,
-					displayData: formatDate(parseInt(cellValue, 10)),
 					readonly: !canEdit,
+
+					data: {
+						kind: 'date-picker-cell',
+						date: new Date(+cellValue),
+						displayDate: formatDate(cellValue),
+						format: 'date',
+					},
 					...themeOverride,
 				};
 			}
@@ -506,11 +520,29 @@ export const SmartTable = ({ tableName }: any) => {
 		}
 	};
 
-	const onCellEdited = (cell: any, newValue: any) => {
+	const onCellEdited = (cell: any, editedCell: any) => {
 		const [col, row] = cell;
 		const currentRow = rows[row];
 
+		if (editedCell.readonly) {
+			return;
+		}
+
 		const column = columnDict[visibleColumns[col]?.name];
+
+		let newValue: any = null;
+
+		if (editedCell.kind === GridCellKind.Custom) {
+			if (editedCell.data.kind === 'date-picker-cell') {
+				if (editedCell?.data?.format === 'datetime-local') {
+					newValue = editedCell?.data?.date?.getTime();
+				}
+			}
+
+			// TODO: @param can you add logic for date and time pickers
+		} else {
+			newValue = editedCell.data;
+		}
 
 		if (column?.edit_keys?.length > 0) {
 			setCellEdits((old: any) => {
@@ -526,7 +558,7 @@ export const SmartTable = ({ tableName }: any) => {
 							if (cellEdit.rowIndex === row && column.name === cellEdit.column_name) {
 								return {
 									...cellEdit,
-									new_value: newValue.data === undefined ? null : newValue.data,
+									new_value: newValue === undefined ? null : newValue,
 								};
 							}
 
@@ -540,7 +572,7 @@ export const SmartTable = ({ tableName }: any) => {
 					[tableName]: [
 						...(old?.[tableName] || []),
 						{
-							new_value: newValue.data === undefined ? null : newValue.data,
+							new_value: newValue === undefined ? null : newValue,
 							value: currentRow[column.name],
 							column_name: column.name,
 
@@ -674,7 +706,6 @@ export const SmartTable = ({ tableName }: any) => {
 		// setColumnMessage if header is hovered and columnMessage is not already set
 		if (args.isHovered && columnMessage.col !== args.columnIndex) {
 			const messageInfo = pageState?.context?.tables?.[tableName]?.columns?.[args.column.id];
-
 			const message = messageInfo?.message;
 			const messageType = messageInfo?.message_type;
 
@@ -865,6 +896,7 @@ export const SmartTable = ({ tableName }: any) => {
 												rows.length,
 												pageInfo.pageSize || DEFAULT_PAGE_SIZE,
 											)}
+											customRenderers={ALL_CELLS}
 											width="100%"
 											height="100%"
 											getCellContent={getCellContent}
@@ -892,6 +924,21 @@ export const SmartTable = ({ tableName }: any) => {
 
 					<Pagination />
 				</Stack>
+
+				{pageState?.context?.tables?.[tableName].message ? (
+					<div>
+						<Alert
+							variant="left-accent"
+							status={pageState?.context?.tables?.[tableName].message_type || 'info'}
+							height="30px"
+						>
+							<AlertIcon boxSize={4} />
+							<AlertDescription fontSize={14}>
+								{pageState?.context?.tables?.[tableName].message}
+							</AlertDescription>
+						</Alert>
+					</div>
+				) : null}
 			</Stack>
 		</CurrentTableContext.Provider>
 	);
