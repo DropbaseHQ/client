@@ -78,7 +78,7 @@ const PolicyTable = ({
 					</Thead>
 					<Tbody>
 						{apps.map((app: any) => (
-							<Tr key={app.id}>
+							<Tr key={app.id} data-cy={`permission-row-${app.name}`}>
 								<Td>{app.name}</Td>
 								<Td>{getSelector(selectedResourceId, app.name)}</Td>
 							</Tr>
@@ -252,6 +252,7 @@ export const Permissions = () => {
 						<Button
 							flexGrow="1"
 							variant={resourceType === 'users' ? 'solid' : 'outline'}
+							data-cy="user-permissions"
 							onClick={setResourceTypeToUsers}
 						>
 							Users

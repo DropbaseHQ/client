@@ -84,6 +84,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 				borderColor: 'gray.300',
 			}}
 			onClick={handleClick}
+			data-cy={`app-card-${app.name}`}
 		>
 			<Layout strokeWidth="1.5px" size="40px" />
 			<Stack spacing="0">

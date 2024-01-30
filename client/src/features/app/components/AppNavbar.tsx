@@ -260,6 +260,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 						aria-label="Preview"
 						ml="auto"
 						mr="4"
+						data-cy="preview-toggle"
 						as={Link}
 						to={isPreview ? 'studio' : '../'}
 					>

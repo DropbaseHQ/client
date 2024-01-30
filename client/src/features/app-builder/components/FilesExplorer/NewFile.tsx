@@ -260,7 +260,12 @@ export const NewFile = (props: any) => {
 								pb={4}
 							>
 								<ButtonGroup size="sm">
-									<Button onClick={onClose} colorScheme="red" variant="outline">
+									<Button
+										onClick={onClose}
+										colorScheme="red"
+										variant="outline"
+										data-cy="cancel-create-file"
+									>
 										Cancel
 									</Button>
 									<Button
