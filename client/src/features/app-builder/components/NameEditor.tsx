@@ -50,6 +50,12 @@ export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resourc
 			setInvalidMessage('Must be lowercase');
 		} else if (nameNotUnique(e.target.value)) {
 			setInvalidMessage(`An ${resource} with this name already exists.`);
+		} else if (newName.includes(' ')) {
+			setInvalidMessage('Name cannot have spaces');
+		} else if (newName !== '' && !Number.isNaN(parseInt(newName[0], 10))) {
+			setInvalidMessage('Name cannot start with a number');
+		} else if (!newName.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/g) && newName !== '') {
+			setInvalidMessage('Name contains invalid characters');
 		} else {
 			setInvalidMessage(false);
 		}
