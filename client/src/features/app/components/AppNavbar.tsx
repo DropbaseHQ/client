@@ -74,7 +74,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 		setInvalidMessage(
 			invalidResourceName(
-				appName | '',
+				appName || '',
 				newName,
 				apps.map((a) => a.name),
 			),
