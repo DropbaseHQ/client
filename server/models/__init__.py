@@ -10,3 +10,4 @@ from .user_role import UserRole
 from .worker_status import WorkerStatus
 from .workspace import Workspace
 from .app import App
+from .page import Page
