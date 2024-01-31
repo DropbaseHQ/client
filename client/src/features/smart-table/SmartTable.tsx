@@ -5,7 +5,6 @@ import {
 	AlertIcon,
 	Box,
 	Button,
-	Card,
 	Center,
 	Flex,
 	IconButton,
@@ -851,7 +850,14 @@ export const SmartTable = ({ tableName }: any) => {
 										/>
 
 										{columnMessage.message !== '' && (
-											<Card
+											<Stack
+												direction="row"
+												fontSize={12}
+												alignItems="center"
+												borderRadius="md"
+												shadow="xs"
+												borderWidth="1px"
+												bg="white"
 												style={{
 													position: 'fixed',
 													top: columnMessage.y - 36,
@@ -860,13 +866,10 @@ export const SmartTable = ({ tableName }: any) => {
 													padding: '5px 10px',
 													zIndex: 1,
 												}}
-												contentEditable={false}
 											>
-												<Flex alignItems="center" fontSize={12}>
-													{columnMessage.icon}
-													{columnMessage.message}
-												</Flex>
-											</Card>
+												{columnMessage.icon}
+												{columnMessage.message || 'no memmsms'}
+											</Stack>
 										)}
 									</>
 								)}
