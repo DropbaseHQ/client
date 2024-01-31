@@ -17,7 +17,7 @@ app = FastAPI()
 worker_app = FastAPI()
 worker_app.include_router(worker_routers.misc_router)
 worker_app.include_router(worker_routers.worker_status_router)
-
+worker_app.include_router(worker_routers.app_router)
 
 app.mount("/worker", worker_app)
 

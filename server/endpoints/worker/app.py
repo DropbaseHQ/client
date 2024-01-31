@@ -12,4 +12,4 @@ def create_app(request: CreateAppRequest, db: Session = Depends(get_db)):
     if not request:
         raise HTTPException(status_code=400, detail="Invalid request")
 
-    return crud.app.create(db, request)
+    return crud.app.create(db, obj_in=request.dict())
