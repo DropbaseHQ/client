@@ -6,6 +6,8 @@ on:
       - dev
     paths:
       - client/**
+    tags:
+      - "*"g
   workflow_dispatch:
 
 jobs:
