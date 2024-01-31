@@ -873,8 +873,9 @@ export const SmartTable = ({ tableName }: any) => {
 										{columnMessage.message !== '' &&
 											columnMessage.message !== undefined &&
 											columnMessage.message !== null && (
-												<Card
+												<Stack
 													style={{
+														backgroundColor: 'white'
 														position: 'absolute',
 														transform: `translate(-50%, -${columnMessage.height}px)`,
 														left:
@@ -883,13 +884,12 @@ export const SmartTable = ({ tableName }: any) => {
 														padding: '5px 10px',
 														zIndex: 1,
 													}}
-													contentEditable={false}
 												>
 													<Flex alignItems="center" fontSize="sm">
 														{columnMessage.icon}
 														{columnMessage.message}
 													</Flex>
-												</Card>
+												</Stack>
 											)}
 										<DataEditor
 											columns={gridColumns}
