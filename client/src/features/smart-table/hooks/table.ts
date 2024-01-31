@@ -29,7 +29,7 @@ const fetchTableData = async ({
 	currentPage,
 	pageSize,
 }: any) => {
-	const response = await workerAxios.post<any>(`/query/test`, {
+	const response = await workerAxios.post<any>(`/query/`, {
 		app_name: appName,
 		page_name: pageName,
 		table,
