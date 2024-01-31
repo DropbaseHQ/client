@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { Edit } from 'react-feather';
+import { invalidResourceName } from '@/utils';
 
 export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resource }: any) => {
 	const [name, setName] = useState(value);
@@ -31,34 +32,11 @@ export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resourc
 		setInvalidMessage(false);
 	}, [value]);
 
-	const nameNotUnique = (newName: any) => {
-		return currentNames
-			.filter((n: any) => n !== value)
-			.find((n: any) => {
-				return n === newName;
-			});
-	};
-
 	const handleChangeAppName = (e: any) => {
-		const {
-			target: { value: newName },
-		} = e;
+		const newName = e.target.value;
 
+		setInvalidMessage(invalidResourceName(value, newName, currentNames));
 		setName(newName);
-
-		if (newName !== newName.toLowerCase()) {
-			setInvalidMessage('Must be lowercase');
-		} else if (nameNotUnique(newName)) {
-			setInvalidMessage(`An ${resource} with this name already exists.`);
-		} else if (newName.includes(' ')) {
-			setInvalidMessage('Name cannot have spaces');
-		} else if (newName !== '' && !Number.isNaN(parseInt(newName[0], 10))) {
-			setInvalidMessage('Name cannot start with a number');
-		} else if (!newName.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/g) && newName !== '') {
-			setInvalidMessage('Name contains invalid characters');
-		} else {
-			setInvalidMessage(false);
-		}
 	};
 
 	const handleUpdate = () => {

@@ -27,7 +27,7 @@ import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceAp
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useToast } from '@/lib/chakra-ui';
 import { useCreatePage } from '@/features/page';
-import { getErrorMessage, generateSequentialName } from '@/utils';
+import { getErrorMessage, generateSequentialName, invalidResourceName } from '@/utils';
 import { PageTab } from './PageTab';
 
 export const AppNavbar = ({ isPreview }: any) => {
@@ -69,29 +69,18 @@ export const AppNavbar = ({ isPreview }: any) => {
 		(document.activeElement as HTMLElement)?.blur();
 	};
 
-	const nameNotUnique = (newName: any) => {
-		return apps.find((a) => {
-			return a.name === newName;
-		});
-	};
-
 	const handleChangeAppName = (e: any) => {
 		const newName = e.target.value;
-		setAppName(newName);
 
-		if (newName !== newName.toLowerCase()) {
-			setInvalidMessage('Must be lowercase');
-		} else if (nameNotUnique(newName)) {
-			setInvalidMessage(`An page with this name already exists.`);
-		} else if (newName.includes(' ')) {
-			setInvalidMessage('Name cannot have spaces');
-		} else if (newName !== '' && !Number.isNaN(parseInt(newName[0], 10))) {
-			setInvalidMessage('Name cannot start with a number');
-		} else if (!newName.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/g) && newName !== '') {
-			setInvalidMessage('Name contains invalid characters');
-		} else {
-			setInvalidMessage(false);
-		}
+		setInvalidMessage(
+			invalidResourceName(
+				appName | '',
+				newName,
+				apps.map((a) => a.name),
+			),
+		);
+
+		setAppName(newName);
 	};
 
 	const handleReset = () => {

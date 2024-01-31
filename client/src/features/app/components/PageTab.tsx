@@ -25,7 +25,7 @@ import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@/lib/chakra-ui';
 import { useDeletePage, useRenamePage } from '@/features/page';
-import { getErrorMessage } from '@/utils';
+import { getErrorMessage, invalidResourceName } from '@/utils';
 
 export const PageTab = (props: any) => {
 	const { isPreview, index, tabIndex, page, pages } = props;
@@ -72,19 +72,13 @@ export const PageTab = (props: any) => {
 
 		setPageNameEdit(newName);
 
-		if (newName !== newName.toLowerCase()) {
-			setInvalidMessage('Must be lowercase');
-		} else if (pageNameNotUnique(newName)) {
-			setInvalidMessage(`An page with this name already exists.`);
-		} else if (newName.includes(' ')) {
-			setInvalidMessage('Name cannot have spaces');
-		} else if (newName !== '' && !Number.isNaN(parseInt(newName[0], 10))) {
-			setInvalidMessage('Name cannot start with a number');
-		} else if (!newName.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/g) && newName !== '') {
-			setInvalidMessage('Name contains invalid characters');
-		} else {
-			setInvalidMessage(false);
-		}
+		setInvalidMessage(
+			invalidResourceName(
+				pageName | '',
+				newName,
+				pages.map((p) => p.name),
+			),
+		);
 	};
 
 	const handleRenamePage = () => {
