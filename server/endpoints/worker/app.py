@@ -13,3 +13,8 @@ def create_app(request: CreateAppRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Invalid request")
 
     return crud.app.create(db, obj_in=request.dict())
+
+
+@router.delete("/{app_id}")
+def delete_app(app_id: str, db: Session = Depends(get_db)):
+    return crud.app.remove(db, id=app_id)
