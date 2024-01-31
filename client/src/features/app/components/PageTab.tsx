@@ -60,21 +60,16 @@ export const PageTab = (props: any) => {
 		if (pageName) setPageNameEdit(pageName);
 		onRenameClose();
 	};
-	const pageNameNotUnique = (newName: any) => {
-		return pages
-			.filter((xPage: any) => xPage.name !== pageName)
-			.find((a: any) => {
-				return a.name === newName;
-			});
-	};
+
 	const handleChangePageName = (e: any) => {
 		const newName = e.target.value;
 
 		setPageNameEdit(newName);
+		console.log(pageName);
 
 		setInvalidMessage(
 			invalidResourceName(
-				pageName | '',
+				pageName || '',
 				newName,
 				pages.map((p) => p.name),
 			),
