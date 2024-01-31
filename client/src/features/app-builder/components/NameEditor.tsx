@@ -48,7 +48,7 @@ export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resourc
 
 		if (newName !== newName.toLowerCase()) {
 			setInvalidMessage('Must be lowercase');
-		} else if (nameNotUnique(e.target.value)) {
+		} else if (nameNotUnique(newName)) {
 			setInvalidMessage(`An ${resource} with this name already exists.`);
 		} else if (newName.includes(' ')) {
 			setInvalidMessage('Name cannot have spaces');
@@ -91,9 +91,7 @@ export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resourc
 									onChange={handleChangeAppName}
 								/>
 
-								{invalidMessage ? (
-									<FormErrorMessage>{invalidMessage}</FormErrorMessage>
-								) : null}
+								<FormErrorMessage>{invalidMessage}</FormErrorMessage>
 							</FormControl>
 						</PopoverBody>
 						<PopoverFooter display="flex" alignItems="end">
