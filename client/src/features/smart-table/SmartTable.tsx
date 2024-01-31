@@ -755,7 +755,7 @@ export const SmartTable = ({ tableName }: any) => {
 			columnMessage.col !== -1
 		) {
 			// clear column message if it is set and isHovered is false
-			setColumnMessage({ message: '', icon: <></>, col: -1, ...args.rect });
+			setColumnMessage({ message: '', icon: null, col: -1, ...args.rect });
 		}
 
 		return false;
