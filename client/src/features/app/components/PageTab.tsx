@@ -40,6 +40,8 @@ export const PageTab = (props: any) => {
 	const renamePageMutation = useRenamePage();
 	const deletePageMutation = useDeletePage();
 
+	const [invalidMessage, setInvalidMessage] = useState<string | boolean>(false);
+
 	const navigate = useNavigate();
 	const pageLink = `/apps/${appName}/${page?.name}`;
 
@@ -66,7 +68,23 @@ export const PageTab = (props: any) => {
 			});
 	};
 	const handleChangePageName = (e: any) => {
-		setPageNameEdit(e.target.value);
+		const newName = e.target.value;
+
+		setPageNameEdit(newName);
+
+		if (newName !== newName.toLowerCase()) {
+			setInvalidMessage('Must be lowercase');
+		} else if (pageNameNotUnique(newName)) {
+			setInvalidMessage(`An page with this name already exists.`);
+		} else if (newName.includes(' ')) {
+			setInvalidMessage('Name cannot have spaces');
+		} else if (newName !== '' && !Number.isNaN(parseInt(newName[0], 10))) {
+			setInvalidMessage('Name cannot start with a number');
+		} else if (!newName.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/g) && newName !== '') {
+			setInvalidMessage('Name contains invalid characters');
+		} else {
+			setInvalidMessage(false);
+		}
 	};
 
 	const handleRenamePage = () => {
@@ -198,7 +216,7 @@ export const PageTab = (props: any) => {
 								>
 									<PopoverArrow />
 									<PopoverBody>
-										<FormControl isInvalid={pageNameNotUnique(pageNameEdit)}>
+										<FormControl isInvalid={Boolean(invalidMessage)}>
 											<FormLabel>Edit Page name</FormLabel>
 											<Input
 												size="sm"
@@ -212,9 +230,7 @@ export const PageTab = (props: any) => {
 												}}
 											/>
 
-											<FormErrorMessage>
-												A page with this name already exists.
-											</FormErrorMessage>
+											<FormErrorMessage>{invalidMessage}</FormErrorMessage>
 										</FormControl>
 									</PopoverBody>
 									<PopoverFooter display="flex" alignItems="end">
@@ -231,7 +247,7 @@ export const PageTab = (props: any) => {
 												isDisabled={
 													pageNameEdit === page.name ||
 													!page.name ||
-													pageNameNotUnique(pageNameEdit)
+													invalidMessage
 												}
 												colorScheme="blue"
 												onClick={handleRenamePage}
