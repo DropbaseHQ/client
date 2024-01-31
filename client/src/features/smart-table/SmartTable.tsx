@@ -63,7 +63,7 @@ const heightMap: any = {
 
 const ALL_CELLS = [DatePickerCell];
 
-export const SmartTable = ({ tableName }: any) => {
+export const SmartTable = ({ tableName, provider }: any) => {
 	const toast = useToast();
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
@@ -797,10 +797,19 @@ export const SmartTable = ({ tableName }: any) => {
 				<Stack spacing="2">
 					<TableBar />
 					<Box
+						// https://linear.app/dropbase/issue/DBA-561/cant-resize-table-columns-whole-table-moves
+						// https://github.com/atlassian/react-beautiful-dnd/issues/1810#issuecomment-1077952496
+						data-rbd-drag-handle-context-id={
+							provider?.dragHandleProps?.['data-rbd-drag-handle-context-id']
+						}
+						data-rbd-drag-handle-draggable-id="gibberish"
+						style={{
+							// When you set the data-rbd-drag-handle-context-id, RBD applies cursor: grab, so we need to revert that
+							cursor: 'auto',
+						}}
 						minH={heightMap[height] || '3xs'}
 						borderWidth="1px"
 						borderRadius="sm"
-						contentEditable
 					>
 						{isLoading ? (
 							<Center h="full" as={Stack}>
