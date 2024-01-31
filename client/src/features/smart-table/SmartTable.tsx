@@ -511,7 +511,11 @@ export const SmartTable = ({ tableName }: any) => {
 
 		if (editedCell.kind === GridCellKind.Custom) {
 			if (editedCell.data.kind === 'date-picker-cell') {
-				if (editedCell?.data?.format === 'datetime-local') {
+				console.log(editedCell?.data?.format);
+				if (
+					editedCell?.data?.format === 'datetime-local' ||
+					editedCell?.data?.format === 'date'
+				) {
 					newValue = editedCell?.data?.date?.getTime();
 				}
 			}
