@@ -337,11 +337,11 @@ export const SmartTable = ({ tableName }: any) => {
 				break;
 			}
 			case 'warning': {
-				color = '#C05621'; // orange.500
+				color = '#C05621'; // orange.600
 				break;
 			}
 			case 'info': {
-				color = '#2B6CB0'; // blue.100
+				color = '#2B6CB0'; // blue.600
 				break;
 			}
 			default: {
