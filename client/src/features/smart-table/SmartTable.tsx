@@ -875,7 +875,7 @@ export const SmartTable = ({ tableName }: any) => {
 											columnMessage.message !== null && (
 												<Stack
 													style={{
-														backgroundColor: 'white'
+														backgroundColor: 'white',
 														position: 'absolute',
 														transform: `translate(-50%, -${columnMessage.height}px)`,
 														left:
