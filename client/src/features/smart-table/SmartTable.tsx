@@ -552,7 +552,7 @@ export const SmartTable = ({ tableName }: any) => {
 							new_value: newValue === undefined ? null : newValue,
 							value: currentRow[column.name],
 							column_name: column.name,
-
+							column_type: columnDict[column.name].column_type,
 							old_value: currentRow[column.name],
 							rowIndex: row,
 							columnIndex: col,
