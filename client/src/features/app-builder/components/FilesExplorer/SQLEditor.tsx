@@ -22,6 +22,11 @@ import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { previewCodeAtom } from '../../atoms';
 
+import { useSQLCompletion } from '@/components/Editor/hooks/useSQLCompletion';
+import { newPageStateAtom } from '@/features/app-state';
+import { useAtomValue } from 'jotai';
+import { databaseSchema } from '@/components/Editor/utils/constants'
+
 export const SQLEditor = ({ name }: any) => {
 	const toast = useToast();
 	const { appName, pageName } = useParams();
@@ -111,6 +116,10 @@ export const SQLEditor = ({ name }: any) => {
 			fileType: file?.type,
 		});
 	};
+
+	const newPage = useAtomValue(newPageStateAtom)
+
+	useSQLCompletion(databaseSchema, newPage);
 
 	if (isLoading || isLoadingSources) {
 		return (

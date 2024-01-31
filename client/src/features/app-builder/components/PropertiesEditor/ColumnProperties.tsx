@@ -17,6 +17,7 @@ import {
 	PopoverContent,
 	PopoverBody,
 	PopoverHeader,
+	Code,
 } from '@chakra-ui/react';
 import { InputRenderer } from '@/components/FormInput';
 import { useConvertSmartTable, useGetTable, useResourceFields } from '@/features/app-builder/hooks';
@@ -99,18 +100,22 @@ const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 
 	return (
 		<SimpleGrid alignItems="center" gap={3} columns={3}>
-			<Box overflow="hidden">
+			<Box alignSelf="center" overflow="hidden">
 				<Tooltip placement="left-end" label={properties.name}>
-					<Text
+					<Code
+						h="full"
+						bg="transparent"
 						fontSize="sm"
 						whiteSpace="nowrap"
+						display="inline"
 						w="full"
 						overflow="hidden"
+						lineHeight={1}
 						textOverflow="ellipsis"
 						size="sm"
 					>
 						{properties.name}
-					</Text>
+					</Code>
 				</Tooltip>
 			</Box>
 			<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
@@ -243,7 +248,7 @@ export const ColumnsProperties = () => {
 
 	return (
 		<Stack h="full" overflowY="auto">
-			{type === 'sql' ? (
+			{type === 'sql' && !table?.smart ? (
 				<Button
 					leftIcon={<Zap size="14" />}
 					size="sm"

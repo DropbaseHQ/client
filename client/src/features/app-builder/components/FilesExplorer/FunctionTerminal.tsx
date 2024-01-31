@@ -54,22 +54,22 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	useEffect(() => {
 		resetRunData();
 
-		const file_key = `${savedCodeKey}_${appName}_${pageName}_${name}`
+		const fileKey = `${savedCodeKey}_${appName}_${pageName}_${name}`;
 
-		const savedCode = sessionStorage.getItem(file_key);
+		const savedCode = sessionStorage.getItem(fileKey);
 		if (savedCode !== null) {
 			setTestCode(savedCode);
 		} else {
 			setTestCode('');
 		}
-	}, [name]);
+	}, [name, appName, pageName]);
 
 	useEffect(() => {
 		if (name && testCode !== null) {
 			const fileSpecificKey = `${savedCodeKey}_${appName}_${pageName}_${name}`;
 			sessionStorage.setItem(fileSpecificKey, testCode);
 		}
-	}, [testCode, name]);
+	}, [testCode, name, appName, pageName]);
 
 	const runHandlers = {
 		onSuccess: (data: any) => {

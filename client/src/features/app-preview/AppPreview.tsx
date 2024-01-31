@@ -4,6 +4,7 @@ import {
 	AlertIcon,
 	Box,
 	Button,
+	Code,
 	IconButton,
 	Progress,
 	Skeleton,
@@ -259,9 +260,9 @@ export const AppPreview = () => {
 									{widgetLabel || widgetName}
 								</Text>
 								{!isPreview && (
-									<Text fontSize="sm" color="gray.500" ml="3">
+									<Code fontSize="sm" bg="transparent" color="gray.600" ml="3">
 										{widgetName}
-									</Text>
+									</Code>
 								)}
 							</Stack>
 
