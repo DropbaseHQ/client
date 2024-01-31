@@ -38,7 +38,9 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const [tabIndex, setTabIndex] = useState(0);
 
 	const [name, setAppName] = useState('');
-	const [isValid, setIsValid] = useState(true);
+
+	const [invalidMessage, setInvalidMessage] = useState<string | boolean>(false);
+
 	const updateMutation = useUpdateApp({
 		onError: (error: any) => {
 			toast({
@@ -74,11 +76,21 @@ export const AppNavbar = ({ isPreview }: any) => {
 	};
 
 	const handleChangeAppName = (e: any) => {
-		setAppName(e.target.value);
-		if (nameNotUnique(e.target.value)) {
-			setIsValid(false);
+		const newName = e.target.value;
+		setAppName(newName);
+
+		if (newName !== newName.toLowerCase()) {
+			setInvalidMessage('Must be lowercase');
+		} else if (nameNotUnique(newName)) {
+			setInvalidMessage(`An page with this name already exists.`);
+		} else if (newName.includes(' ')) {
+			setInvalidMessage('Name cannot have spaces');
+		} else if (newName !== '' && !Number.isNaN(parseInt(newName[0], 10))) {
+			setInvalidMessage('Name cannot start with a number');
+		} else if (!newName.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/g) && newName !== '') {
+			setInvalidMessage('Name contains invalid characters');
 		} else {
-			setIsValid(true);
+			setInvalidMessage(false);
 		}
 	};
 
@@ -182,7 +194,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 								<PopoverContent>
 									<PopoverArrow />
 									<PopoverBody>
-										<FormControl isInvalid={!isValid}>
+										<FormControl isInvalid={Boolean(invalidMessage)}>
 											<FormLabel>Edit App name</FormLabel>
 											<Input
 												size="sm"
@@ -191,9 +203,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 												onChange={handleChangeAppName}
 											/>
 
-											<FormErrorMessage>
-												An app with this name already exists.
-											</FormErrorMessage>
+											<FormErrorMessage>{invalidMessage}</FormErrorMessage>
 										</FormControl>
 									</PopoverBody>
 									<PopoverFooter display="flex" alignItems="end">
@@ -206,7 +216,11 @@ export const AppNavbar = ({ isPreview }: any) => {
 												Cancel
 											</Button>
 											<Button
-												isDisabled={app?.name === name || !name || !isValid}
+												isDisabled={
+													app?.name === name ||
+													!name ||
+													Boolean(invalidMessage)
+												}
 												colorScheme="blue"
 												onClick={handleUpdate}
 											>

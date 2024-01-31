@@ -247,7 +247,7 @@ export const PageTab = (props: any) => {
 												isDisabled={
 													pageNameEdit === page.name ||
 													!page.name ||
-													invalidMessage
+													Boolean(invalidMessage)
 												}
 												colorScheme="blue"
 												onClick={handleRenamePage}
