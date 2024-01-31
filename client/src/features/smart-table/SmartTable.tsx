@@ -6,7 +6,6 @@ import {
 	Box,
 	Button,
 	Center,
-	Flex,
 	IconButton,
 	Spinner,
 	Stack,
@@ -882,8 +881,14 @@ export const SmartTable = ({ tableName, provider }: any) => {
 											columnMessage.message !== undefined &&
 											columnMessage.message !== null && (
 												<Stack
+													direction="row"
+													fontSize={12}
+													alignItems="center"
+													borderRadius="md"
+													shadow="xs"
+													borderWidth="1px"
+													bg="white"
 													style={{
-														backgroundColor: 'white',
 														position: 'absolute',
 														transform: `translate(-50%, -${columnMessage.height}px)`,
 														left:
@@ -893,10 +898,8 @@ export const SmartTable = ({ tableName, provider }: any) => {
 														zIndex: 1,
 													}}
 												>
-													<Flex alignItems="center" fontSize="sm">
-														{columnMessage.icon}
-														{columnMessage.message}
-													</Flex>
+													{columnMessage.icon}
+													{columnMessage.message}
 												</Stack>
 											)}
 										<DataEditor
