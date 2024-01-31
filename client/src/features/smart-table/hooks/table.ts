@@ -15,6 +15,7 @@ import {
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
+import { fetchJobStatus } from '@/utils/worker-job';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
@@ -28,7 +29,7 @@ const fetchTableData = async ({
 	currentPage,
 	pageSize,
 }: any) => {
-	const response = await workerAxios.post<any>(`/query/`, {
+	const response = await workerAxios.post<any>(`/query/test`, {
 		app_name: appName,
 		page_name: pageName,
 		table,
@@ -44,7 +45,13 @@ const fetchTableData = async ({
 		},
 	});
 
-	return response.data;
+	if (response.data?.job_id){
+		const jobResponse = await fetchJobStatus(response.data.job_id);
+		return jobResponse;
+	}
+	else {
+		throw new Error('Failed to fetch table data');
+	}
 };
 
 export const useTableData = ({
@@ -126,27 +133,12 @@ export const useTableData = ({
 		},
 	);
 
-	useEffect(() => {
-		if (response?.result?.context) {
-			response.succcess = true;
-
-			syncState(response);
-		}
-	}, [response, syncState]);
-
 	const parsedData: any = useMemo(() => {
 		if (response) {
-			let dataframe;
-			if (response?.result && 'dataframe' in response.result) {
-				dataframe = response.result.dataframe;
-			} else {
-				dataframe = response.result;
-			}
-
-			const header = dataframe?.columns || [];
+			const header = response?.columns || [];
 
 			const rows: any =
-				dataframe?.data?.map((r: any) => {
+				response?.data?.map((r: any) => {
 					return r.reduce((agg: any, item: any, index: any) => {
 						return {
 							...agg,
@@ -159,7 +151,7 @@ export const useTableData = ({
 				rows,
 				header,
 				tableName: response.table_name,
-				tableError: dataframe?.error,
+				tableError: response?.error,
 			};
 		}
 

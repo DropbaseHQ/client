@@ -143,10 +143,12 @@ export const FunctionEditor = ({ name }: any) => {
 	useEffect(() => {
 		setPreviewFile({
 			name,
-			code,
+			code: updatedCode,
 			execute: false,
 		});
+	}, [updatedCode, name]);
 
+	useEffect(() => {
 		return () => {
 			setPreviewFile({
 				name: null,
