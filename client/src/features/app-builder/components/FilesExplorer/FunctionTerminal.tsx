@@ -70,8 +70,6 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	const pageState = useAtomValue(newPageStateAtom);
 	const syncState = useSyncState();
 
-	console.log(code, name);
-
 	const resetRunData = () => {
 		setLog(null);
 		setPreviewData(null);
