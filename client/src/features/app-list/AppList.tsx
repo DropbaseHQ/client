@@ -215,6 +215,7 @@ export const AppList = () => {
 	const onSubmit = async ({ name: appName }: any) => {
 		await handleCreateAppFlow({
 			name: appName,
+			workspaceId: workspaceId as string,
 		});
 	};
 
