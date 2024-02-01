@@ -16,6 +16,8 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 		pathname.startsWith('/email-confirmation') ||
 		pathname.startsWith('/forgot');
 
+	const shouldNotShowStatusBar = loginRoutes || import.meta.env.VITE_APP_TYPE === 'app';
+
 	const shouldNotDisplayNavbar = pathname.startsWith('/apps/') || loginRoutes || !isSuccess;
 
 	return (
@@ -26,7 +28,7 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 					{children}
 				</Box>
 			</Flex>
-			{loginRoutes ? null : (
+			{shouldNotShowStatusBar ? null : (
 				<Box maxH="20px" flexShrink="0">
 					<StatusBar />
 				</Box>

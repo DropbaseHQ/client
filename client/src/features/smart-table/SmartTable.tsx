@@ -1,5 +1,8 @@
 import { useAtom, useAtomValue } from 'jotai';
 import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
 	Box,
 	Button,
 	Center,
@@ -10,8 +13,10 @@ import {
 	Text,
 	Tooltip,
 	useColorMode,
+	usePrevious,
 	useTheme,
 } from '@chakra-ui/react';
+import { CheckCircleIcon, InfoIcon, SpinnerIcon, WarningIcon } from '@chakra-ui/icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 import { Info, RotateCw, UploadCloud } from 'react-feather';
@@ -21,7 +26,9 @@ import DataEditor, {
 	GridCellKind,
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
+import { DatePickerCell } from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
+
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
@@ -54,7 +61,9 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-export const SmartTable = ({ tableName }: any) => {
+const ALL_CELLS = [DatePickerCell];
+
+export const SmartTable = ({ tableName, provider }: any) => {
 	const toast = useToast();
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
@@ -132,10 +141,22 @@ export const SmartTable = ({ tableName }: any) => {
 	const [selectedData, selectRow] = useAtom(selectedRowAtom);
 	const selectedRow = (selectedData as any)?.[tableName];
 
+	const previousSelectedRow = usePrevious(selectedRow);
+
 	const [allTablePageInfo, setPageInfo] = useAtom(tablePageInfoAtom);
 	const pageInfo = allTablePageInfo[tableName] || {};
 
 	const [columnWidth, setColumnWidth] = useState<any>(tableColumnWidth || {});
+
+	const [columnMessage, setColumnMessage] = useState({
+		message: '',
+		icon: <></>,
+		col: -1,
+		x: 0,
+		y: 0,
+		width: 0,
+		height: 0,
+	});
 
 	const onColumnResize = useCallback(
 		(col: any, newSize: any) => {
@@ -167,6 +188,34 @@ export const SmartTable = ({ tableName }: any) => {
 			}));
 		}
 	}, [selectedRow, rows, selection]);
+
+	useEffect(() => {
+		if (JSON.stringify(previousSelectedRow) !== JSON.stringify(selectedRow)) {
+			/**
+			 * If row is not present just reset the selected row with column names
+			 */
+			const selectedIndex = rows.findIndex(
+				(r: any) => JSON.stringify(r) === JSON.stringify(selectedRow),
+			);
+
+			const isEmptyRow = Object.keys(selectedRow || {}).find(
+				(key: any) => selectedRow[key] !== null,
+			);
+
+			if (selectedIndex === -1 && selectedRow && !isEmptyRow) {
+				selectRow((old: any) => ({
+					...old,
+					[tableName]: Object.keys(selectedRow).reduce(
+						(acc: { [col: string]: string | null }, curr: string) => ({
+							...acc,
+							[curr]: null,
+						}),
+						{},
+					),
+				}));
+			}
+		}
+	}, [selectedRow, previousSelectedRow, tableName, rows, selectRow]);
 
 	// only fill column width if the current state is empty
 	useEffect(() => {
@@ -236,7 +285,7 @@ export const SmartTable = ({ tableName }: any) => {
 			  };
 
 	const visibleColumns = header.filter(
-		(column: any) => !columnDict?.[column?.name] || columnDict[column?.name]?.visible,
+		(column: any) => !columnDict?.[column?.name] || !columnDict[column?.name]?.hidden,
 	);
 
 	const gridColumns = visibleColumns.map((column: any) => {
@@ -276,11 +325,14 @@ export const SmartTable = ({ tableName }: any) => {
 			}
 		}
 
+		const message = pageState?.context?.tables?.[tableName]?.columns?.[column.name]?.message;
+
 		const gridColumn = {
 			id: column.name,
 			title: column.name,
 			width: columnWidth[column.name] || String(column.name).length * 10 + 35 + 30,
 			icon,
+			hasMenu: message !== '' && message !== null && message !== undefined,
 		};
 
 		if (column.editable) {
@@ -349,7 +401,7 @@ export const SmartTable = ({ tableName }: any) => {
 			case 'integer': {
 				return {
 					kind: GridCellKind.Number,
-					data: +cellValue,
+					data: cellValue,
 					allowOverlay: canEdit,
 					displayData: unParsedValue === null ? '' : cellValue,
 					readonly: !canEdit,
@@ -371,22 +423,32 @@ export const SmartTable = ({ tableName }: any) => {
 
 			case 'datetime': {
 				return {
-					kind: GridCellKind.Text,
-					data: cellValue,
-					allowOverlay: canEdit,
-					displayData: formatDateTime(parseInt(cellValue, 10)),
+					kind: GridCellKind.Custom,
+					allowOverlay: true,
 					readonly: !canEdit,
+					data: {
+						kind: 'date-picker-cell',
+						date: new Date(+cellValue),
+						displayDate: formatDateTime(cellValue),
+						format: 'datetime-local',
+					},
+
 					...themeOverride,
 				};
 			}
 
 			case 'date': {
 				return {
-					kind: GridCellKind.Text,
-					data: cellValue,
+					kind: GridCellKind.Custom,
 					allowOverlay: canEdit,
-					displayData: formatDate(parseInt(cellValue, 10)),
 					readonly: !canEdit,
+
+					data: {
+						kind: 'date-picker-cell',
+						date: new Date(+cellValue),
+						displayDate: formatDate(cellValue),
+						format: 'date',
+					},
 					...themeOverride,
 				};
 			}
@@ -434,11 +496,29 @@ export const SmartTable = ({ tableName }: any) => {
 		}
 	};
 
-	const onCellEdited = (cell: any, newValue: any) => {
+	const onCellEdited = (cell: any, editedCell: any) => {
 		const [col, row] = cell;
 		const currentRow = rows[row];
 
+		if (editedCell.readonly) {
+			return;
+		}
+
 		const column = columnDict[visibleColumns[col]?.name];
+
+		let newValue: any = null;
+
+		if (editedCell.kind === GridCellKind.Custom) {
+			if (editedCell.data.kind === 'date-picker-cell') {
+				if (editedCell?.data?.format === 'datetime-local') {
+					newValue = editedCell?.data?.date?.getTime();
+				}
+			}
+
+			// TODO: @param can you add logic for date and time pickers
+		} else {
+			newValue = editedCell.data;
+		}
 
 		if (column?.edit_keys?.length > 0) {
 			setCellEdits((old: any) => {
@@ -454,7 +534,7 @@ export const SmartTable = ({ tableName }: any) => {
 							if (cellEdit.rowIndex === row && column.name === cellEdit.column_name) {
 								return {
 									...cellEdit,
-									new_value: newValue.data === undefined ? null : newValue.data,
+									new_value: newValue === undefined ? null : newValue,
 								};
 							}
 
@@ -468,7 +548,7 @@ export const SmartTable = ({ tableName }: any) => {
 					[tableName]: [
 						...(old?.[tableName] || []),
 						{
-							new_value: newValue.data === undefined ? null : newValue.data,
+							new_value: newValue === undefined ? null : newValue,
 							value: currentRow[column.name],
 							column_name: column.name,
 
@@ -598,6 +678,63 @@ export const SmartTable = ({ tableName }: any) => {
 		(name: any) => !tablesRowSelected[name],
 	);
 
+	const handleHeaderMenuClick = (col: number, bounds: any) => {
+		if (columnMessage.col === col && columnMessage.message !== '') {
+			setColumnMessage({
+				message: '',
+				icon: <></>,
+				col,
+				...bounds,
+			});
+		} else {
+			const messageInfo =
+				pageState?.context?.tables?.[tableName]?.columns?.[header[col].name];
+
+			const message = messageInfo?.message;
+			const messageType = messageInfo?.message_type;
+
+			let icon;
+
+			switch (messageType) {
+				case 'info': {
+					icon = <InfoIcon pr={1} color="blue.500" />;
+					break;
+				}
+
+				case 'warning': {
+					icon = <WarningIcon pr={1} color="orange.500" />;
+					break;
+				}
+
+				case 'success': {
+					icon = <CheckCircleIcon pr={1} color="green.500" />;
+					break;
+				}
+
+				case 'error': {
+					icon = <WarningIcon pr={1} color="red.500" />;
+					break;
+				}
+
+				case 'loading': {
+					icon = <SpinnerIcon pr={1} />;
+					break;
+				}
+				default: {
+					icon = <></>;
+					break;
+				}
+			}
+
+			setColumnMessage({
+				message,
+				icon,
+				col,
+				...bounds,
+			});
+		}
+	};
+
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="1">
@@ -660,10 +797,19 @@ export const SmartTable = ({ tableName }: any) => {
 				<Stack spacing="2">
 					<TableBar />
 					<Box
+						// https://linear.app/dropbase/issue/DBA-561/cant-resize-table-columns-whole-table-moves
+						// https://github.com/atlassian/react-beautiful-dnd/issues/1810#issuecomment-1077952496
+						data-rbd-drag-handle-context-id={
+							provider?.dragHandleProps?.['data-rbd-drag-handle-context-id']
+						}
+						data-rbd-drag-handle-draggable-id="gibberish"
+						style={{
+							// When you set the data-rbd-drag-handle-context-id, RBD applies cursor: grab, so we need to revert that
+							cursor: 'auto',
+						}}
 						minH={heightMap[height] || '3xs'}
 						borderWidth="1px"
 						borderRadius="sm"
-						contentEditable
 					>
 						{isLoading ? (
 							<Center h="full" as={Stack}>
@@ -684,30 +830,57 @@ export const SmartTable = ({ tableName }: any) => {
 										</Text>
 									</Center>
 								) : (
-									<DataEditor
-										columns={gridColumns}
-										rows={Math.min(
-											rows.length,
-											pageInfo.pageSize || DEFAULT_PAGE_SIZE,
+									<>
+										<DataEditor
+											columns={gridColumns}
+											rows={Math.min(
+												rows.length,
+												pageInfo.pageSize || DEFAULT_PAGE_SIZE,
+											)}
+											customRenderers={ALL_CELLS}
+											width="100%"
+											height="100%"
+											getCellContent={getCellContent}
+											rowMarkers="both"
+											smoothScrollX
+											smoothScrollY
+											theme={gridTheme}
+											onGridSelectionChange={handleSetSelection}
+											onSelectionCleared={onSelectionCleared}
+											gridSelection={selection}
+											highlightRegions={highlights}
+											getCellsForSelection
+											onCellEdited={onCellEdited}
+											onPaste
+											keybindings={{ search: true }}
+											onColumnResize={onColumnResize}
+											rowHeight={30}
+											onHeaderMenuClick={handleHeaderMenuClick}
+										/>
+
+										{columnMessage.message !== '' && (
+											<Stack
+												direction="row"
+												fontSize={12}
+												alignItems="center"
+												borderRadius="md"
+												shadow="xs"
+												borderWidth="1px"
+												bg="white"
+												style={{
+													position: 'fixed',
+													top: columnMessage.y - 36,
+													left: columnMessage.x + columnMessage.width / 2,
+													transform: 'translateX(-50%)',
+													padding: '5px 10px',
+													zIndex: 1,
+												}}
+											>
+												{columnMessage.icon}
+												{columnMessage.message || 'no memmsms'}
+											</Stack>
 										)}
-										width="100%"
-										height="100%"
-										getCellContent={getCellContent}
-										rowMarkers="both"
-										smoothScrollX
-										smoothScrollY
-										theme={gridTheme}
-										onGridSelectionChange={handleSetSelection}
-										onSelectionCleared={onSelectionCleared}
-										gridSelection={selection}
-										highlightRegions={highlights}
-										getCellsForSelection
-										onCellEdited={onCellEdited}
-										onPaste
-										keybindings={{ search: true }}
-										onColumnResize={onColumnResize}
-										rowHeight={30}
-									/>
+									</>
 								)}
 							</>
 						)}
@@ -715,6 +888,21 @@ export const SmartTable = ({ tableName }: any) => {
 
 					<Pagination />
 				</Stack>
+
+				{pageState?.context?.tables?.[tableName].message ? (
+					<div>
+						<Alert
+							variant="left-accent"
+							status={pageState?.context?.tables?.[tableName].message_type || 'info'}
+							height="30px"
+						>
+							<AlertIcon boxSize={4} />
+							<AlertDescription fontSize={14}>
+								{pageState?.context?.tables?.[tableName].message}
+							</AlertDescription>
+						</Alert>
+					</div>
+				) : null}
 			</Stack>
 		</CurrentTableContext.Provider>
 	);

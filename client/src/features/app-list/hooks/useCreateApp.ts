@@ -1,7 +1,7 @@
 import { useMutation } from 'react-query';
 import { workerAxios } from '@/lib/axios';
 
-const createApp = async ({ name } : { name: string}) => {
+const createApp = async ({ name }: { name: string }) => {
 	const response = await workerAxios.post('/app/', { app_name: name });
 	return response.data;
 };
@@ -13,12 +13,15 @@ export const useCreateApp = (mutationConfig?: any) => {
 };
 
 const createWorkerApp = async ({
-	appName
+	appName,
+	workspaceId,
 }: {
 	appName: string;
+	workspaceId: string;
 }) => {
 	const response = await workerAxios.post('/app/', {
-		app_name: appName
+		app_name: appName,
+		workspace_id: workspaceId,
 	});
 	return response.data;
 };
@@ -26,10 +29,16 @@ const createWorkerApp = async ({
 export const useCreateAppFlow = (mutationConfig?: any) => {
 	const useCreateWorkerAppMutation = useMutation(createWorkerApp, { ...(mutationConfig || {}) });
 
-	const handleCreateApp = async ({ name }: { name: string }) => {
-
+	const handleCreateApp = async ({
+		name,
+		workspaceId,
+	}: {
+		name: string;
+		workspaceId: string;
+	}) => {
 		const { data: workerData } = await useCreateWorkerAppMutation.mutateAsync({
-			appName: name
+			appName: name,
+			workspaceId,
 		});
 
 		return workerData;
