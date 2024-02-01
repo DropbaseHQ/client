@@ -23,6 +23,31 @@ import { previewCodeAtom } from '../../atoms';
 import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 
+// {
+//     "stdout": "",
+//     "traceback": "",
+//     "message": "Job has been completed",
+//     "type": "table",
+//     "data": [
+//         [
+//             1
+//         ],
+//         [
+//             2
+//         ],
+//         [
+//             3
+//         ]
+//     ],
+//     "columns": [
+//         {
+//             "name": "a",
+//             "column_type": "int64",
+//             "display_type": "integer"
+//         }
+//     ]
+// }
+
 export const FunctionTerminal = ({ panelRef }: any) => {
 	const [{ code, name, source, execute }, setPreviewCode] = useAtom(previewCodeAtom);
 
@@ -38,6 +63,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	const [testCode, setTestCode] = useState('');
 	const [log, setLog] = useState<any>(null);
 	const [previewData, setPreviewData] = useState<any>(null);
+	const [previewDataType, setPreviewDataType] = useState<any>(null);
 
 	const [testCodeHeight, setTestCodeHeight] = useState(16);
 
@@ -47,52 +73,44 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	const resetRunData = () => {
 		setLog(null);
 		setPreviewData(null);
+		setPreviewDataType(null);
 	};
-
-	const savedCodeKey = '2y108eyd2uiyqidh';
 
 	useEffect(() => {
 		resetRunData();
 
-		const file_key = `${savedCodeKey}_${appName}_${pageName}_${name}`
+		const fileKey = `${appName}_${pageName}_${name}`;
 
-		const savedCode = sessionStorage.getItem(file_key);
+		const savedCode = sessionStorage.getItem(fileKey);
 		if (savedCode !== null) {
 			setTestCode(savedCode);
 		} else {
 			setTestCode('');
 		}
-	}, [name]);
+	}, [name, appName, pageName]);
 
 	useEffect(() => {
 		if (name && testCode !== null) {
-			const fileSpecificKey = `${savedCodeKey}_${appName}_${pageName}_${name}`;
+			const fileSpecificKey = `${appName}_${pageName}_${name}`;
 			sessionStorage.setItem(fileSpecificKey, testCode);
 		}
-	}, [testCode, name]);
+	}, [testCode, name, appName, pageName]);
 
 	const runHandlers = {
-		onSuccess: (data: any) => {
-			syncState(data);
-			setLog(logBuilder(data));
+		onSuccess: (response: any) => {
+			syncState(response);
+			setLog(logBuilder(response));
+
+			setPreviewDataType(response?.type);
 
 			if (panelRef?.current?.getSize() < 20) {
 				panelRef?.current?.resize(70);
 			}
 
-			if (data?.result?.columns) {
+			if (response?.columns) {
 				setPreviewData({
-					rows: data?.result?.data || [],
-					columns: data?.result?.columns || [],
-				});
-			} else if (
-				data?.result &&
-				typeof data.result === 'object' &&
-				'dataframe' in data.result
-			) {
-				setPreviewData({
-					rows: data?.result?.dataframe?.data || [],
-					columns: data?.result?.dataframe?.columns || [],
+					rows: response?.data || [],
+					columns: response?.columns || [],
 				});
 			}
 		},
@@ -143,11 +161,9 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	const handleRunPythonFunction = useCallback(() => {
 		if (testCode) {
 			runPythonMutation.mutate({
-				pageName,
-				appName,
 				pageState,
-				code: testCode,
-				file,
+				testCode,
+				fileCode: code,
 			});
 		} else {
 			const declarations = findFunctionDeclarations(code);
@@ -156,14 +172,12 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 			setTestCode(defaultTestCode);
 
 			runPythonMutation.mutate({
-				pageName,
-				appName,
 				pageState,
-				code: defaultTestCode,
-				file,
+				testCode: defaultTestCode,
+				fileCode: code,
 			});
 		}
-	}, [appName, code, file, pageName, pageState, runPythonMutation, testCode]);
+	}, [code, file, pageState, runPythonMutation, testCode]);
 
 	const handleRunSQLQuery = useCallback(() => {
 		runSQLQueryMutation.mutate({
@@ -320,7 +334,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 					</Stack>
 				) : null}
 
-				{previewData?.columns ? (
+				{previewDataType === 'table' && previewData?.columns?.length > 0 ? (
 					<Box px="3" w="full" mt="3" pb="3" borderBottomWidth="1px">
 						<ChakraTable
 							{...previewData}

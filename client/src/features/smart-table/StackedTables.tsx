@@ -24,6 +24,7 @@ export const StackedTables = () => {
 
 	const handleDragEnd = (result: any) => {
 		const { destination, source } = result;
+
 		if (!destination) {
 			return;
 		}
@@ -44,6 +45,7 @@ export const StackedTables = () => {
 			},
 		});
 	};
+
 	useEffect(() => {
 		setTableState(tables);
 	}, [tables]);
@@ -84,7 +86,7 @@ export const StackedTables = () => {
 											type="table"
 											id={table.name}
 										>
-											<SmartTable tableName={table.name} />
+											<SmartTable provider={p} tableName={table.name} />
 										</InspectorContainer>
 									</Box>
 								)}
