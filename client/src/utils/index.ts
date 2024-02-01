@@ -62,10 +62,11 @@ export const getErrorMessage = (error: any) => {
 	}
 
 	const errorMessage =
+		error?.message ||
 		error?.response?.data?.error ||
 		error?.response?.data?.message ||
+		error?.response?.data?.result ||
 		error?.response?.data ||
-		error?.message ||
 		'';
 
 	if (typeof errorMessage !== 'string') {
