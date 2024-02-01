@@ -13,3 +13,8 @@ def create_page(request: CreatePageRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Invalid request")
 
     return crud.page.create(db, obj_in=request.dict())
+
+
+@router.delete("/{page_id}")
+def delete_page(page_id: str, db: Session = Depends(get_db)):
+    return crud.page.remove(db, id=page_id)
