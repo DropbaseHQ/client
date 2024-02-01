@@ -44,10 +44,10 @@ const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name }: any)
 	const executeRunCommand = useCallback(() => {
 		setPreviewFile({
 			name,
-			code: defaultCode,
+			code,
 			execute: true,
 		});
-	}, [defaultCode, name, setPreviewFile]);
+	}, [code, name, setPreviewFile]);
 
 	const editorRef = usePythonEditor({
 		filepath: filePath,
@@ -143,10 +143,12 @@ export const FunctionEditor = ({ name }: any) => {
 	useEffect(() => {
 		setPreviewFile({
 			name,
-			code,
+			code: updatedCode,
 			execute: false,
 		});
+	}, [updatedCode, name, setPreviewFile]);
 
+	useEffect(() => {
 		return () => {
 			setPreviewFile({
 				name: null,
