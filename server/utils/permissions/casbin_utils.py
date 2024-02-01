@@ -11,7 +11,6 @@ from server.models import Policy
 from server.utils.connect import SQLALCHEMY_DATABASE_URL
 from server.utils.permissions.casbin_sqlalchemy_adaptor import Adapter
 
-# from server.utils.authorization import RESOURCES
 from server.constants import ALLOWED_ACTIONS
 
 adapter = Adapter(SQLALCHEMY_DATABASE_URL, db_class=Policy)
@@ -40,8 +39,8 @@ def get_contexted_enforcer(db, workspace_id):
     model = casbin.Model()
     model.load_model_from_text(casbin_config)
     enforcer = casbin.Enforcer(model, adapter, True)
-    # logging.getLogger("casbin.enforcer").setLevel(logging.CRITICAL)
-    # logging.getLogger("casbin.role").setLevel(logging.CRITICAL)
+    logging.getLogger("casbin.enforcer").setLevel(logging.CRITICAL)
+    logging.getLogger("casbin.role").setLevel(logging.CRITICAL)
     enforcer.auto_build_role_links = True
 
     # Refreshes policy. Allows dynamic policy changes while deployed.
