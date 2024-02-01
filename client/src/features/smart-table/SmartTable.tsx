@@ -711,27 +711,27 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 			switch (messageType) {
 				case 'info': {
-					icon = <InfoIcon pr={1} color="blue.500" />;
+					icon = <InfoIcon pr={0} color="blue.500" />;
 					break;
 				}
 
 				case 'warning': {
-					icon = <WarningIcon pr={1} color="orange.500" />;
+					icon = <WarningIcon pr={0} color="orange.500" />;
 					break;
 				}
 
 				case 'success': {
-					icon = <CheckCircleIcon pr={1} color="green.500" />;
+					icon = <CheckCircleIcon pr={0} color="green.500" />;
 					break;
 				}
 
 				case 'error': {
-					icon = <WarningIcon pr={1} color="red.500" />;
+					icon = <WarningIcon pr={0} color="red.500" />;
 					break;
 				}
 
 				case 'loading': {
-					icon = <SpinnerIcon pr={1} />;
+					icon = <SpinnerIcon pr={0} />;
 					break;
 				}
 				default: {
@@ -877,31 +877,27 @@ export const SmartTable = ({ tableName, provider }: any) => {
 									</Center>
 								) : (
 									<>
-										{columnMessage.message !== '' &&
-											columnMessage.message !== undefined &&
-											columnMessage.message !== null && (
-												<Stack
-													direction="row"
-													fontSize={12}
-													alignItems="center"
-													borderRadius="md"
-													shadow="xs"
-													borderWidth="1px"
-													bg="white"
-													style={{
-														position: 'absolute',
-														transform: `translate(-50%, -${columnMessage.height}px)`,
-														left:
-															columnMessage.x +
-															columnMessage.width / 2,
-														padding: '5px 10px',
-														zIndex: 1,
-													}}
-												>
-													{columnMessage.icon}
-													{columnMessage.message}
-												</Stack>
-											)}
+										{columnMessage.message ? (
+											<Stack
+												direction="row"
+												fontSize={12}
+												alignItems="center"
+												borderRadius="md"
+												shadow="xs"
+												borderWidth="1px"
+												bg="white"
+												style={{
+													position: 'absolute',
+													transform: `translate(-50%, -${columnMessage.height}px)`,
+													left: columnMessage.x + columnMessage.width / 2,
+													padding: '5px 10px',
+													zIndex: 1,
+												}}
+											>
+												{columnMessage.icon}
+												<Text>{columnMessage.message}</Text>
+											</Stack>
+										) : null}
 										<DataEditor
 											columns={gridColumns}
 											rows={Math.min(
