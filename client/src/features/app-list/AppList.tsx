@@ -116,7 +116,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 							onOpen();
 						}}
 					>
-						<Stack alignItems="center" direction="row">
+						<Stack alignItems="center" direction="row" fontSize="md">
 							<Trash size="14" />
 							<Box>Delete App</Box>
 						</Stack>

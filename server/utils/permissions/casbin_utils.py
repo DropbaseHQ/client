@@ -11,10 +11,14 @@ from server.models import Policy
 from server.utils.connect import SQLALCHEMY_DATABASE_URL
 from server.utils.permissions.casbin_sqlalchemy_adaptor import Adapter
 
+from server.constants import ALLOWED_ACTIONS
+
 adapter = Adapter(SQLALCHEMY_DATABASE_URL, db_class=Policy)
 
 casbin_config = ""
-with open(str(Path(__file__).parent.absolute().joinpath("./casbin_model.conf")), "r") as f:
+with open(
+    str(Path(__file__).parent.absolute().joinpath("./casbin_model.conf")), "r"
+) as f:
     casbin_config = f.read()
 
 
@@ -55,14 +59,15 @@ def get_contexted_enforcer(db, workspace_id):
     enforcer.add_grouping_policies(formatted_groups)
 
     _ = enforcer.get_policy()
-    # print("Loaded policies", loaded_policies)
     grouping_policies = enforcer.get_grouping_policy()
     # print("Loaded grouping policies", grouping_policies)
 
     return enforcer
 
 
-def enforce_action(db, user_id, workspace_id, resource, action, resource_crud, resource_id=None):
+def enforce_action(
+    db, user_id, workspace_id, resource, action, resource_crud, resource_id=None
+):
     enforcer = get_contexted_enforcer(db, workspace_id)
 
     try:
@@ -154,3 +159,22 @@ def unload_policy_line(line, model):
     except ValueError:
         # Handle the case where the policy rule is not found
         pass
+
+
+def get_all_action_permissions(
+    db: Session, user_id: str, workspace_id: str, app_name: str
+):
+    enforcer = get_contexted_enforcer(db, workspace_id)
+
+    permissions_dict = {}
+    # Go through allowed actions and check if user has permission to perform action on resource
+    for action in ALLOWED_ACTIONS:
+        if app_name not in permissions_dict:
+            permissions_dict[action] = False
+
+        if enforcer.enforce(str(user_id), app_name, action):
+            permissions_dict[action] = True
+        if enforcer.enforce(str(user_id), "app", action):
+            permissions_dict[action] = True
+
+    return permissions_dict
