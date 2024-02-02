@@ -13,7 +13,7 @@ import {
 } from '@choc-ui/chakra-autocomplete';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
-import { allWidgetsInputAtom, tableStateAtom } from '@/features/app-state';
+import { allWidgetsInputAtom, tableColumnTypesAtom, tableStateAtom } from '@/features/app-state';
 
 const OPERATORS = [
 	{
@@ -95,7 +95,11 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 					<AutoCompleteGroupTitle>Tables</AutoCompleteGroupTitle>
 					{tableTargets?.map((xTable: any) => {
 						return (
-							<AutoCompleteItem key={xTable?.value} value={xTable?.value}>
+							<AutoCompleteItem
+								key={xTable?.value}
+								value={xTable?.value}
+								fontSize="sm"
+							>
 								{xTable?.label}
 							</AutoCompleteItem>
 						);
@@ -105,7 +109,11 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 					<AutoCompleteGroupTitle>Widgets</AutoCompleteGroupTitle>
 					{widgetTargets?.map((widgetTarget: any) => {
 						return (
-							<AutoCompleteItem key={widgetTarget.value} value={widgetTarget.value}>
+							<AutoCompleteItem
+								key={widgetTarget.value}
+								value={widgetTarget.value}
+								fontSize="sm"
+							>
 								{widgetTarget.label}
 							</AutoCompleteItem>
 						);
@@ -124,6 +132,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 	const { widgetName, widgets } = useAtomValue(pageAtom);
 	const widgetsInputs = useAtomValue(allWidgetsInputAtom);
 	const tableState = useAtomValue(tableStateAtom);
+	const tableColumnTypes = useAtomValue(tableColumnTypesAtom);
 
 	const currentWidget: { [key: string]: any } =
 		widgetsInputs?.[widgetName as keyof typeof widgetsInputs] || {};
@@ -131,6 +140,14 @@ export const DisplayRulesEditor = ({ name }: any) => {
 	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
 	const { control } = useFormContext();
 
+	const getColType = (target: string) => {
+		if (!target || target === 'widgets') {
+			return 'text';
+		}
+		const [, specificCategory, targetName] = target.split('.');
+		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
+		return table?.[targetName as keyof typeof table];
+	};
 	const componentsProperties = components
 		.filter(
 			(c: any) =>
@@ -167,9 +184,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 						<Stack spacing="2.5">
 							{displayRules.map((rule: any, index: any) => {
 								const componentProperty = componentsProperties?.[rule?.name];
-
 								let isNumberInput = false;
-
 								let input: any = {
 									type: 'text',
 								};
@@ -283,6 +298,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														disabled={!rule.target}
 														placeholder="select value"
 														{...input}
+														type={getColType(rule.target)}
 														value={rule.value}
 														onChange={(newValue: any) => {
 															onChange(

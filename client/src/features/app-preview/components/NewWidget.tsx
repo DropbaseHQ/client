@@ -47,6 +47,8 @@ export const NewWidget = (props: any) => {
 						{
 							name: wName,
 							label: wLabel,
+							type: 'base',
+							menu_item: true,
 							components: [],
 						},
 					],

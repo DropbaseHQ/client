@@ -4,6 +4,7 @@ import {
 	AlertIcon,
 	Box,
 	Button,
+	Code,
 	IconButton,
 	Progress,
 	Skeleton,
@@ -167,6 +168,8 @@ export const AppPreview = () => {
 					{
 						name: wName,
 						label: wLabel,
+						type: 'base',
+						menu_item: true,
 						components: [],
 					},
 				],
@@ -252,19 +255,19 @@ export const AppPreview = () => {
 		<Loader isLoading={isLoading}>
 			<Stack bg="white" h="full">
 				{reorderMutation.isLoading && <Progress size="xs" isIndeterminate />}
-				<Stack px="4" py="2" borderBottomWidth="1px" direction="row" alignItems="center">
+				<Stack px="4" pt="4" pb="2" borderBottomWidth="1px" direction="row">
 					<InspectorContainer flex="1" noPadding type="widget" id={widgetName}>
 						<Stack spacing="0">
-							<Box display="flex" alignItems="center">
+							<Stack direction="row" display="flex" alignItems="center">
 								<Text fontSize="lg" fontWeight="semibold">
 									{widgetLabel || widgetName}
 								</Text>
 								{!isPreview && (
-									<Text fontSize="sm" color="gray.500" ml="3">
+									<Code fontSize="sm" bg="transparent" color="gray.600" ml="3">
 										{widgetName}
-									</Text>
+									</Code>
 								)}
-							</Box>
+							</Stack>
 
 							{widgetDescription ? (
 								<Text fontSize="sm" color="gray.600">

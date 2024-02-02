@@ -22,6 +22,11 @@ import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { previewCodeAtom } from '../../atoms';
 
+import { useSQLCompletion } from '@/components/Editor/hooks/useSQLCompletion';
+import { newPageStateAtom } from '@/features/app-state';
+import { useAtomValue } from 'jotai';
+import { databaseSchema } from '@/components/Editor/utils/constants'
+
 export const SQLEditor = ({ name }: any) => {
 	const toast = useToast();
 	const { appName, pageName } = useParams();
@@ -112,6 +117,10 @@ export const SQLEditor = ({ name }: any) => {
 		});
 	};
 
+	const newPage = useAtomValue(newPageStateAtom)
+
+	useSQLCompletion(databaseSchema, newPage);
+
 	if (isLoading || isLoadingSources) {
 		return (
 			<Stack p="3" spacing="2">
@@ -153,10 +162,15 @@ export const SQLEditor = ({ name }: any) => {
 				</Stack>
 				<Stack direction="row" px="3" pb="3" borderBottomWidth="1px" alignItems="start">
 					<FormControl>
-						<FormLabel>Source</FormLabel>
+						<FormLabel>
+							Source
+							<Box as="span" color="red.500">
+								*
+							</Box>
+						</FormLabel>
 						<InputRenderer
 							size="sm"
-							maxW="sm"
+							maxW="lg"
 							type="select"
 							placeholder="Sources"
 							value={selectedSource}
@@ -168,13 +182,13 @@ export const SQLEditor = ({ name }: any) => {
 					</FormControl>
 
 					<FormControl>
-						<FormLabel>Depends</FormLabel>
+						<FormLabel> Refetch on row change in table…</FormLabel>
 						<InputRenderer
 							type="multiselect"
 							id="depends"
-							maxW="sm"
+							maxW="lg"
 							name="Depends on"
-							placeholder="Select the table which it depends on"
+							placeholder="Select table for which a row change triggers this function to refetch"
 							options={tables.map((t: any) => ({
 								name: t.name,
 								value: t.name,

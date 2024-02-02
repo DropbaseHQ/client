@@ -8,6 +8,7 @@ import {
 	MenuItemOption,
 	Tooltip,
 	Text,
+	Code,
 } from '@chakra-ui/react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -59,7 +60,7 @@ export const WidgetSwitcher = () => {
 					size="xs"
 				/>
 			</Tooltip>
-			<MenuList minWidth="xs">
+			<MenuList minWidth="sm">
 				<MenuOptionGroup
 					value={widgetName || ''}
 					onChange={handleChooseWidget}
@@ -69,11 +70,11 @@ export const WidgetSwitcher = () => {
 					{widgets?.map((w: any) => (
 						<MenuItemOption key={w?.name} value={w?.name}>
 							<Box display="flex" alignItems="end">
-								<Text>{w.label}</Text>
+								<Text fontSize="md">{w.label}</Text>
 								{!isPreview && (
-									<Text fontSize="md" color="gray.500" ml="auto">
+									<Code fontSize="sm" bg="transparent" color="gray.600" ml="auto">
 										{w.name}
-									</Text>
+									</Code>
 								)}
 							</Box>
 						</MenuItemOption>

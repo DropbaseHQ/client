@@ -53,7 +53,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				value={value === null ? '' : value}
 				{...inputProps}
 			>
-				<NumberInputField ref={ref} />
+				<NumberInputField ref={ref} h="9" />
 				<NumberInputStepper>
 					<NumberIncrementStepper />
 					<NumberDecrementStepper />

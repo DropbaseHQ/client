@@ -142,7 +142,6 @@ export const NewFile = (props: any) => {
 					icon={<Plus size="14" />}
 					onClick={(e) => {
 						e.stopPropagation();
-
 						onToggle();
 					}}
 					isDisabled={!isConnected}
