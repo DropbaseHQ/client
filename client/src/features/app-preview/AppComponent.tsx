@@ -92,7 +92,14 @@ export const AppComponent = (props: any) => {
 			if (widget?.type === 'modal') {
 				setPageContext((oldPage: any) => ({
 					...oldPage,
-					modals: [...oldPage.modals, clickEvent.value],
+					widgetName: clickEvent.value,
+					modals: [
+						...oldPage.modals,
+						{
+							name: clickEvent.value,
+							caller: widgetName,
+						},
+					],
 				}));
 			} else {
 				setPageContext((oldPage: any) => ({

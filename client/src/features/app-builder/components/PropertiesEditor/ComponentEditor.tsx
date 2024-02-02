@@ -197,8 +197,9 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 							<NameEditor
 								value={id}
 								currentNames={(
-									properties?.widgets.find((w) => w.name === (widgetName || ''))
-										?.components || []
+									properties?.widgets.find(
+										(w: any) => w.name === (widgetName || ''),
+									)?.components || []
 								).map((c: any) => c.name)}
 								onUpdate={handleUpdateName}
 								resource="component"
@@ -303,10 +304,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	);
 };
 
-export const NewComponent = (props: any) => {
+export const NewComponent = ({ widgetName, ...props }: any) => {
 	const toast = useToast();
 	const { isConnected } = useStatus();
-	const { widgetName, appName, pageName } = useAtomValue(pageAtom);
+	const { appName, pageName } = useAtomValue(pageAtom);
 	const { properties } = useGetPage({ appName, pageName });
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 

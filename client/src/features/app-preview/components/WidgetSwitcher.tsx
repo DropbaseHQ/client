@@ -50,6 +50,8 @@ export const WidgetSwitcher = () => {
 		resetWidgetInputs(newWidgetName);
 	};
 
+	const widgetsToDisplay = widgets?.filter((w: any) => (isPreview ? w.type !== 'modal' : true));
+
 	return (
 		<Menu placement="bottom-end" closeOnSelect>
 			<Tooltip label="Switch widget">
@@ -69,13 +71,15 @@ export const WidgetSwitcher = () => {
 					title="Select widget"
 					type="radio"
 				>
-					{widgets?.map((w: any) => (
+					{widgetsToDisplay?.map((w: any) => (
 						<MenuItemOption key={w?.name} value={w?.name}>
 							<Box display="flex" alignItems="end">
 								<Stack direction="row">
 									<Text fontSize="md">{w.label}</Text>
 									{w.type === 'modal' ? (
-										<Tag colorScheme="yellow">Modal</Tag>
+										<Tag size="sm" colorScheme="yellow">
+											<Code bg="transparent">Modal</Code>
+										</Tag>
 									) : null}
 								</Stack>
 								{!isPreview && (

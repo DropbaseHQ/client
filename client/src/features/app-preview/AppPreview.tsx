@@ -1,4 +1,4 @@
-import { Box, Button, Code, Progress, Skeleton, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Code, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { ChevronDown } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
@@ -7,7 +7,7 @@ import { useStatus } from '@/layout/StatusBar';
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import { useInitializeWidgetState } from '@/features/app-state';
 import { pageAtom, useGetPage } from '@/features/page';
-import { useCreateWidget, useReorderComponents } from '@/features/app-builder/hooks';
+import { useCreateWidget } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
 import { appModeAtom } from '@/features/app/atoms';
@@ -31,8 +31,6 @@ export const AppPreview = () => {
 
 	const { properties } = useGetPage({ appName, pageName });
 	const createMutation = useCreateWidget();
-
-	const reorderMutation = useReorderComponents();
 
 	const handleCreateWidget = () => {
 		const { name: wName, label: wLabel } = generateSequentialName({
@@ -112,12 +110,13 @@ export const AppPreview = () => {
 		);
 	}
 
-	const widgetsToDisplay = [widgetName, ...modals].filter(Boolean);
+	const widgetsToDisplay = [...new Set([widgetName, ...modals.map((m: any) => m.name)])].filter(
+		Boolean,
+	);
 
 	return (
 		<Loader isLoading={isLoading}>
 			<Stack bg="white" h="full">
-				{reorderMutation.isLoading && <Progress size="xs" isIndeterminate />}
 				<Stack px="4" pt="4" pb="2" borderBottomWidth="1px" direction="row">
 					<InspectorContainer flex="1" noPadding type="widget" id={widgetName}>
 						<Stack spacing="0">
@@ -143,9 +142,11 @@ export const AppPreview = () => {
 					<NewWidget />
 					<WidgetSwitcher />
 				</Stack>
-				{widgetsToDisplay.map((wName: string) => (
-					<WidgetPreview key={wName} widgetName={wName} />
-				))}
+				<Stack position="relative" overflowX="hidden" h="full">
+					{widgetsToDisplay.map((wName: string) => (
+						<WidgetPreview key={wName} widgetName={wName} />
+					))}
+				</Stack>
 			</Stack>
 		</Loader>
 	);

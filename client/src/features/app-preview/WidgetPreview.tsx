@@ -3,6 +3,7 @@ import {
 	AlertDescription,
 	AlertIcon,
 	Box,
+	CloseButton,
 	IconButton,
 	Progress,
 	Stack,
@@ -35,7 +36,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 	const retryCounter = useRef(0);
 	const failedData = useRef<any>(null);
 
-	const { widgets } = useAtomValue(pageAtom);
+	const [{ widgets, modals }, setPageContext] = useAtom(pageAtom);
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isDevMode = !isPreview;
@@ -159,14 +160,35 @@ export const WidgetPreview = ({ widgetName }: any) => {
 		setComponentsState(components);
 	}, [components]);
 
-	const containerStyles = isModal
+	const disableModal = () => {
+		setPageContext((oldPage: any) => {
+			const currentModal = oldPage.modals.find((m: any) => m.name === widgetName);
+
+			console.log(oldPage.modals.filter((m: any) => m.name !== widgetName));
+
+			return {
+				...oldPage,
+				widgetName: currentModal.caller,
+				modals: oldPage.modals.filter((m: any) => m.name !== widgetName),
+			};
+		});
+	};
+
+	const showModalStyles = isModal && modals.map((m: any) => m.name).includes(widgetName);
+
+	const containerStyles = showModalStyles
 		? {
-				w: '80%',
+				width: 'calc(100% - 20px)',
 				mx: 'auto',
-				h: '80%',
-				shadow: 'sm',
-				borderRadius: 'sm',
-				borderWidth: '1px solid',
+				height: 'calc(100% - 20px)',
+				shadow: 'xl',
+				borderRadius: 'md',
+				borderWidth: '1px',
+
+				pt: 3,
+				top: '10px',
+				left: '10px',
+				zIndex: 3,
 		  }
 		: {
 				h: 'full',
@@ -174,7 +196,34 @@ export const WidgetPreview = ({ widgetName }: any) => {
 
 	return (
 		<Loader isLoading={isLoading}>
-			<Stack {...containerStyles} bg="white">
+			{showModalStyles ? (
+				<Box
+					w="full"
+					h="full"
+					position="fixed"
+					bg="blackAlpha.100"
+					top="0"
+					left="0"
+					zIndex={2}
+					onClick={disableModal}
+				/>
+			) : null}
+			<Stack
+				position={showModalStyles ? 'absolute' : 'initial'}
+				{...containerStyles}
+				bg="white"
+			>
+				{showModalStyles ? (
+					<CloseButton
+						bg="white"
+						borderWidth="1px"
+						position="absolute"
+						top="-3"
+						right="-3"
+						size="xs"
+						onClick={disableModal}
+					/>
+				) : null}
 				<DragDropContext onDragEnd={handleOnDragEnd}>
 					<Droppable droppableId={`widget-${widgetName}-drop-area`}>
 						{(provided: any) => (
@@ -220,14 +269,17 @@ export const WidgetPreview = ({ widgetName }: any) => {
 										borderRadius="md"
 										mt="2"
 									>
-										<NewComponent w="full" variant="secondary" />
+										<NewComponent
+											widgetName={widgetName}
+											w="full"
+											variant="secondary"
+										/>
 									</Box>
 								) : null}
 							</Stack>
 						)}
 					</Droppable>
 				</DragDropContext>
-
 				{widgetState?.message ? (
 					<Stack
 						flexShrink="0"
@@ -268,7 +320,6 @@ export const WidgetPreview = ({ widgetName }: any) => {
 						/>
 					</Stack>
 				) : null}
-
 				{reorderMutation.isLoading && <Progress mt="auto" size="xs" isIndeterminate />}
 			</Stack>
 		</Loader>
