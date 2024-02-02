@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue } from 'jotai';
 import { useDebounce } from 'use-debounce';
@@ -45,13 +45,12 @@ const fetchTableData = async ({
 		},
 	});
 
-	if (response.data?.job_id){
+	if (response.data?.job_id) {
 		const jobResponse = await fetchJobStatus(response.data.job_id);
 		return jobResponse;
 	}
-	else {
-		throw new Error('Failed to fetch table data');
-	}
+
+	throw new Error('Failed to fetch table data');
 };
 
 export const useTableData = ({
@@ -68,8 +67,6 @@ export const useTableData = ({
 	const [debouncedFilters] = useDebounce(filters, 1000);
 
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
-
-	const syncState = useSyncState();
 
 	const pageState: any = useAtomValue(newPageStateAtom);
 	const pageStateRef = useRef(pageState);
