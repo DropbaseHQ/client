@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { axios, workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { fetchJobStatus } from '@/utils/worker-job';
+import { el } from 'date-fns/locale';
 
 export const ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY = 'functionNames';
 
@@ -42,15 +43,16 @@ export const useAllPageFunctionNames = ({ pageId }: any) => {
 const runPythonFunction = async ({ fileCode, testCode, pageState }: any) => {
 	const response = await workerAxios.post(`query/python_string/`, {
 		file_code: fileCode,
-		test_code: testCode,
-		...pageState,
+		test_code: testCode, 
+		...pageState
 	});
 
-	if (response.data?.job_id) {
+	if (response.data?.job_id){
 		const jobResponse = await fetchJobStatus(response.data.job_id);
 		return jobResponse;
-	} else {
-		console.error('No associated job id found');
+	}
+	else {
+		console.error("No associated job id found")
 		throw new Error('Failed to run python function');
 	}
 };
