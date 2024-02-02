@@ -1,10 +1,10 @@
-import { axios } from '@/lib/axios';
+import { axios, setWorkerAxiosWorkspaceIdHeader } from '@/lib/axios';
 import { MutationConfig } from '@/lib/react-query';
 import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useWorkspaces } from '@/features/workspaces';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { workspaceAtom } from '@/features/workspaces';
 import { setWorkerAxiosToken, setWorkerAxiosBaseURL } from '@/lib/axios';
 
@@ -31,6 +31,7 @@ export const useLogin = (mutationConfig: MutationConfig<typeof loginUser>) => {
 
 export const useSetWorkerAxiosToken = () => {
 	const navigate = useNavigate();
+	const workspaceId = useAtomValue(workspaceAtom) as string | null;
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -49,7 +50,8 @@ export const useSetWorkerAxiosToken = () => {
 		};
 
 		fetchData();
-	}, []);
+		setWorkerAxiosWorkspaceIdHeader(workspaceId || '');
+	}, [navigate, workspaceId]);
 };
 export const useSetWorkerAxiosBaseURL = () => {
 	const [workspaceId] = useAtom(workspaceAtom);
