@@ -175,7 +175,7 @@ export const Permissions = () => {
 	const [resourceType, setResourceType] = useState('groups' as string);
 	const [invitedMember, setInviteMember] = useState('' as string);
 
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
 	const {
 		isOpen: createGroupIsOpen,

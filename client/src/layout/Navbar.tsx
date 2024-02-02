@@ -9,7 +9,7 @@ import {
 	Box,
 } from '@chakra-ui/react';
 
-import { Settings, LogOut, Grid, Repeat, Key } from 'react-feather';
+import { Settings, LogOut, Grid, Repeat, Key, Users, Lock } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
@@ -70,18 +70,30 @@ export const Navbar = () => {
 					</Tooltip>
 				)}
 
-				{/* <Tooltip label="Members (Coming soon)" placement="right">
+				<Tooltip label="Members" placement="right">
 					<IconButton
 						variant="ghost"
-						// as={Link}
-						isDisabled
-						// to="/settings/members"
+						as={Link}
+						// isDisabled
+						to="/settings/members"
 						color={pathname === '/settings/members' ? 'blue.500' : 'body'}
 						colorScheme={pathname === '/settings/members' ? 'blue' : 'gray'}
 						aria-label="Members"
 						icon={<Users size="22" />}
 					/>
-				</Tooltip> */}
+				</Tooltip>
+				<Tooltip label="Permissions" placement="right">
+					<IconButton
+						variant="ghost"
+						as={Link}
+						// isDisabled
+						to="/settings/permissions"
+						color={pathname === '/settings/permissions' ? 'blue.500' : 'body'}
+						colorScheme={pathname === '/settings/permissions' ? 'blue' : 'gray'}
+						aria-label="permissions"
+						icon={<Lock size="22" />}
+					/>
+				</Tooltip>
 
 				<Stack mt="auto" alignItems="center">
 					<Menu>

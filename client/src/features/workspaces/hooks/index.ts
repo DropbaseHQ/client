@@ -40,7 +40,7 @@ export const useWorkspaces = () => {
 		enabled: !loginRoutes,
 		onSuccess: (data: any) => {
 			if (!currentWorkspace) {
-				updateWorkspace(data?.[0]?.id);
+				updateWorkspace({ id: data?.[0]?.id });
 			}
 		},
 	});

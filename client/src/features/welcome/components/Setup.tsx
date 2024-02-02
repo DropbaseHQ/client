@@ -70,7 +70,7 @@ const CodeSnippet = ({ code, file }: any) => {
 };
 
 export const Setup = () => {
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { user } = useGetCurrentUser();
 
 	const { tokens } = useProxyTokens({ userId: user.id, workspaceId });

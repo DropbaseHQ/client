@@ -176,7 +176,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 export const AppList = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { workspaces } = useWorkspaces();
 	const { status } = useStatus();
 	const methods = useForm();
