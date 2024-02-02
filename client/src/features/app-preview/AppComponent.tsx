@@ -8,7 +8,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
-import { getErrorMessage } from '@/utils';
+import { extractTemplateString, getErrorMessage } from '@/utils';
 
 import { useExecuteAction } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
@@ -28,6 +28,8 @@ const sizeMap: any = {
 	large: 'lg',
 };
 
+const potentialTemplatesField = ['label', 'text', 'placeholder'];
+
 export const AppComponent = (props: any) => {
 	const { sendJsonMessage } = props;
 
@@ -40,7 +42,6 @@ export const AppComponent = (props: any) => {
 		name,
 		display_rules: displayRules,
 		color,
-		label,
 		on_click: onClick,
 		...component
 	} = props;
@@ -116,6 +117,14 @@ export const AppComponent = (props: any) => {
 		return null;
 	}
 
+	const { label, text, placeholder } = potentialTemplatesField.reduce(
+		(agg: any, field: any) => ({
+			...agg,
+			[field]: extractTemplateString(component?.[field], pageState) || '',
+		}),
+		{},
+	);
+
 	if (componentType === 'button') {
 		return (
 			<Button
@@ -148,7 +157,7 @@ export const AppComponent = (props: any) => {
 				color={component.color || `${component.color}.500`}
 				bgColor={grayOutComponent ? 'gray.100' : ''}
 			>
-				{component.text}
+				{text}
 			</Text>
 		);
 	}
@@ -157,7 +166,7 @@ export const AppComponent = (props: any) => {
 		<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
 			{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
 			<InputRenderer
-				placeholder={component?.placeholder}
+				placeholder={placeholder}
 				value={inputValue}
 				name={name}
 				type={componentType === 'select' ? 'select' : dataType || type}

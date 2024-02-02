@@ -164,8 +164,6 @@ export const WidgetPreview = ({ widgetName }: any) => {
 		setPageContext((oldPage: any) => {
 			const currentModal = oldPage.modals.find((m: any) => m.name === widgetName);
 
-			console.log(oldPage.modals.filter((m: any) => m.name !== widgetName));
-
 			return {
 				...oldPage,
 				widgetName: currentModal.caller,
