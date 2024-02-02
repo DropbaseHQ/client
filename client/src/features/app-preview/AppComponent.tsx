@@ -155,7 +155,7 @@ export const AppComponent = (props: any) => {
 			{inputState?.message ? (
 				<div>
 					<Alert
-						bgColor="white"
+						bgColor="transparent"
 						status={inputState?.message_type || 'info'}
 						pl={0}
 						pt={1}
