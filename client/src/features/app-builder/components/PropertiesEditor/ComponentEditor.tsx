@@ -197,7 +197,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 							<NameEditor
 								value={id}
 								currentNames={(
-									properties?.widgets?.[widgetName || '']?.components || []
+									properties?.widgets.find((w) => w.name === (widgetName || ''))
+										?.components || []
 								).map((c: any) => c.name)}
 								onUpdate={handleUpdateName}
 								resource="component"
