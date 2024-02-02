@@ -32,7 +32,7 @@ export const AppComponent = (props: any) => {
 	const { sendJsonMessage } = props;
 
 	const toast = useToast();
-	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
+	const [{ pageName, appName, widgetName, widgets }, setPageContext] = useAtom(pageAtom);
 	const {
 		component_type: componentType,
 		type,
@@ -86,7 +86,23 @@ export const AppComponent = (props: any) => {
 	};
 
 	const handleClick = (clickEvent: any) => {
-		// TODO: track for type
+		if (clickEvent.type === 'widget') {
+			const widget = widgets?.find((w: any) => w.name === clickEvent.value);
+
+			if (widget?.type === 'modal') {
+				setPageContext((oldPage: any) => ({
+					...oldPage,
+					modals: [...oldPage.modals, clickEvent.value],
+				}));
+			} else {
+				setPageContext((oldPage: any) => ({
+					...oldPage,
+					widgetName: clickEvent.value,
+				}));
+			}
+		} else if (clickEvent.type === 'function') {
+			handleAction(clickEvent.value);
+		}
 	};
 
 	if (!shouldDisplay && !isEditorMode) {
