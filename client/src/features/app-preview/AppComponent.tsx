@@ -85,6 +85,10 @@ export const AppComponent = (props: any) => {
 		});
 	};
 
+	const handleClick = (clickEvent: any) => {
+		// TODO: track for type
+	};
+
 	if (!shouldDisplay && !isEditorMode) {
 		return null;
 	}
@@ -99,7 +103,7 @@ export const AppComponent = (props: any) => {
 				colorScheme={color || 'blue'}
 				onClick={() => {
 					if (onClick) {
-						handleAction(onClick);
+						handleClick(onClick);
 					}
 					sendJsonMessage({
 						type: 'display_rule',

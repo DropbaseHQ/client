@@ -71,7 +71,7 @@ export const useCreateWidget = (props: any = {}) => {
 		onSuccess: (data: any) => {
 			updatePageContext((old) => ({
 				...old,
-				widgetId: data?.widget?.id,
+				widgetName: data?.widget?.id,
 			}));
 
 			toast({

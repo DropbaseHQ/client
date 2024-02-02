@@ -9,6 +9,8 @@ import {
 	Tooltip,
 	Text,
 	Code,
+	Stack,
+	Tag,
 } from '@chakra-ui/react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -70,7 +72,12 @@ export const WidgetSwitcher = () => {
 					{widgets?.map((w: any) => (
 						<MenuItemOption key={w?.name} value={w?.name}>
 							<Box display="flex" alignItems="end">
-								<Text fontSize="md">{w.label}</Text>
+								<Stack direction="row">
+									<Text fontSize="md">{w.label}</Text>
+									{w.type === 'modal' ? (
+										<Tag colorScheme="yellow">Modal</Tag>
+									) : null}
+								</Stack>
 								{!isPreview && (
 									<Code fontSize="sm" bg="transparent" color="gray.600" ml="auto">
 										{w.name}

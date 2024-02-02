@@ -70,6 +70,7 @@ export const useInitPage = () => {
 					pageName,
 					appName,
 					widgets,
+					modals: [],
 				});
 				ref.current = true;
 			}
@@ -83,6 +84,7 @@ export const useInitPage = () => {
 				pageName: null,
 				appName: null,
 				widgets: null,
+				modals: [],
 			});
 		};
 	}, [setPageContext]);
