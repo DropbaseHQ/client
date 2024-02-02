@@ -7,9 +7,9 @@ export const workspaceAtom = atomWithStorage<{
 		id: string;
 		email: string;
 	};
-	workerUrl?: string;
-	inTrial?: boolean;
-	trialEndDate?: string;
+	worker_url?: string;
+	in_trial?: boolean;
+	trial_end_date?: string;
 }>('workspaceId', {
 	id: null,
 });
