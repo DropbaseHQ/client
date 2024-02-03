@@ -78,9 +78,9 @@ const PolicyTable = ({
 					</Thead>
 					<Tbody>
 						{apps.map((app: any) => (
-							<Tr key={app.id}>
+							<Tr key={app.name}>
 								<Td>{app.name}</Td>
-								<Td>{getSelector(selectedResourceId, app.id)}</Td>
+								<Td>{getSelector(selectedResourceId, app.name)}</Td>
 							</Tr>
 						))}
 					</Tbody>
