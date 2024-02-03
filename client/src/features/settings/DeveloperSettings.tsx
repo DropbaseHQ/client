@@ -91,11 +91,15 @@ export const DeveloperSettings = () => {
 				<Text fontSize="lg" fontWeight="bold" mb="4">
 					Worker Settings
 				</Text>
-				<Flex>
+				<Flex direction="column">
 					<FormControl>
+						<FormLabel>Workspace ID</FormLabel>
+						<Input value={workspaceId ? String(workspaceId) : ''} isReadOnly />
+					</FormControl>
+					<FormControl mt="4">
 						<FormLabel>Worker URL</FormLabel>
 						<InputGroup size="md">
-							<InputLeftAddon children="http://" />
+							<InputLeftAddon>https://</InputLeftAddon>
 							<Input
 								placeholder="localhost:9000"
 								value={workerUrl}
