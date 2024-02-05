@@ -6,7 +6,6 @@ import {
 	Box,
 	Button,
 	Center,
-	Flex,
 	IconButton,
 	Spinner,
 	Stack,
@@ -325,14 +324,37 @@ export const SmartTable = ({ tableName, provider }: any) => {
 			}
 		}
 
-		const message = pageState?.context?.tables?.[tableName]?.columns?.[column.name]?.message;
+		const messageType =
+			pageState?.context?.tables?.[tableName]?.columns?.[column.name]?.message_type;
+
+		let color = '';
+
+		switch (messageType) {
+			case 'error': {
+				color = '#C53030'; // red.600
+				break;
+			}
+			case 'warning': {
+				color = '#C05621'; // orange.600
+				break;
+			}
+			case 'info': {
+				color = '#2B6CB0'; // blue.600
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+
+		const themeOverride = color !== '' ? { textHeader: color, bgIconHeader: color } : {};
 
 		const gridColumn = {
 			id: column.name,
 			title: column.name,
 			width: columnWidth[column.name] || String(column.name).length * 10 + 35 + 30,
 			icon,
-			hasMenu: message !== '' && message !== null && message !== undefined,
+			themeOverride,
 		};
 
 		if (column.editable) {
@@ -694,18 +716,10 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		(name: any) => !tablesRowSelected[name],
 	);
 
-	const handleHeaderMenuClick = (col: number, bounds: any) => {
-		if (columnMessage.col === col && columnMessage.message !== '') {
-			setColumnMessage({
-				message: '',
-				icon: <></>,
-				col,
-				...bounds,
-			});
-		} else {
-			const messageInfo =
-				pageState?.context?.tables?.[tableName]?.columns?.[header[col].name];
-
+	const drawHeader = (args: any, draw: any) => {
+		// setColumnMessage if header is hovered and columnMessage is not already set
+		if (args.isHovered && columnMessage.col !== args.columnIndex) {
+			const messageInfo = pageState?.context?.tables?.[tableName]?.columns?.[args.column.id];
 			const message = messageInfo?.message;
 			const messageType = messageInfo?.message_type;
 
@@ -713,27 +727,27 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 			switch (messageType) {
 				case 'info': {
-					icon = <InfoIcon pr={1} color="blue.500" />;
+					icon = <InfoIcon pr={0} color="blue.500" />;
 					break;
 				}
 
 				case 'warning': {
-					icon = <WarningIcon pr={1} color="orange.500" />;
+					icon = <WarningIcon pr={0} color="orange.500" />;
 					break;
 				}
 
 				case 'success': {
-					icon = <CheckCircleIcon pr={1} color="green.500" />;
+					icon = <CheckCircleIcon pr={0} color="green.500" />;
 					break;
 				}
 
 				case 'error': {
-					icon = <WarningIcon pr={1} color="red.500" />;
+					icon = <WarningIcon pr={0} color="red.500" />;
 					break;
 				}
 
 				case 'loading': {
-					icon = <SpinnerIcon pr={1} />;
+					icon = <SpinnerIcon pr={0} />;
 					break;
 				}
 				default: {
@@ -745,21 +759,33 @@ export const SmartTable = ({ tableName, provider }: any) => {
 			setColumnMessage({
 				message,
 				icon,
-				col,
-				...bounds,
+				col: args.columnIndex,
+				...args.rect,
+				height: args.menuBounds.height,
 			});
+		} else if (
+			!args.isHovered &&
+			args.columnIndex === columnMessage.col &&
+			columnMessage.col !== -1
+		) {
+			// clear column message if it is set and isHovered is false
+			setColumnMessage({ message: '', icon: null, col: -1, ...args.rect });
 		}
+
+		draw();
+		return false;
 	};
 
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="1">
 				<NavLoader isLoading={isLoadingTable}>
-					<Flex justifyContent="space-between">
+					<Stack alignItems="center" direction="row" w="full" overflow="hidden">
 						<Stack spacing="0" px="2" flexShrink="0">
 							<Text fontWeight="semibold" fontSize="lg">
 								{table?.label || tableName}
 							</Text>
+
 							{dependantTablesWithNoRowSelection.length > 0 ? (
 								<Stack direction="row" spacing="1" alignItems="center">
 									<Box color="orange.500">
@@ -779,7 +805,31 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							) : null}
 						</Stack>
 
-						<Stack alignItems="center" direction="row" spacing="2">
+						{pageState?.context?.tables?.[tableName].message ? (
+							<Stack ml="auto" overflow="hidden">
+								<Alert
+									status={
+										pageState?.context?.tables?.[tableName].message_type ||
+										'info'
+									}
+									bgColor="transparent"
+									p={0}
+								>
+									<AlertIcon boxSize={4} />
+									<AlertDescription fontSize="sm">
+										{pageState?.context?.tables?.[tableName].message}
+									</AlertDescription>
+								</Alert>
+							</Stack>
+						) : null}
+
+						<Stack
+							ml="auto"
+							alignItems="center"
+							direction="row"
+							spacing="2"
+							flexShrink="0"
+						>
 							<Tooltip label="Refresh data">
 								<IconButton
 									aria-label="Refresh Data"
@@ -807,7 +857,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 								</Tooltip>
 							) : null}
 						</Stack>
-					</Flex>
+					</Stack>
 				</NavLoader>
 
 				<Stack spacing="2">
@@ -839,14 +889,31 @@ export const SmartTable = ({ tableName, provider }: any) => {
 										<Text color="red.500" fontWeight="medium" fontSize="lg">
 											Failed to load data
 										</Text>
-										<Text fontSize="md">
-											{typeof errorMessage === 'object'
-												? JSON.stringify(errorMessage)
-												: errorMessage}
-										</Text>
+										<Text fontSize="md">{getErrorMessage(errorMessage)}</Text>
 									</Center>
 								) : (
 									<>
+										{columnMessage.message ? (
+											<Stack
+												direction="row"
+												fontSize={12}
+												alignItems="center"
+												borderRadius="md"
+												shadow="xs"
+												borderWidth="1px"
+												bg="white"
+												style={{
+													position: 'absolute',
+													transform: `translate(-50%, -${columnMessage.height}px)`,
+													left: columnMessage.x + columnMessage.width / 2,
+													padding: '5px 10px',
+													zIndex: 1,
+												}}
+											>
+												{columnMessage.icon}
+												<Text>{columnMessage.message}</Text>
+											</Stack>
+										) : null}
 										<DataEditor
 											columns={gridColumns}
 											rows={Math.min(
@@ -871,31 +938,8 @@ export const SmartTable = ({ tableName, provider }: any) => {
 											keybindings={{ search: true }}
 											onColumnResize={onColumnResize}
 											rowHeight={30}
-											onHeaderMenuClick={handleHeaderMenuClick}
+											drawHeader={drawHeader}
 										/>
-
-										{columnMessage.message !== '' && (
-											<Stack
-												direction="row"
-												fontSize={12}
-												alignItems="center"
-												borderRadius="md"
-												shadow="xs"
-												borderWidth="1px"
-												bg="white"
-												style={{
-													position: 'fixed',
-													top: columnMessage.y - 36,
-													left: columnMessage.x + columnMessage.width / 2,
-													transform: 'translateX(-50%)',
-													padding: '5px 10px',
-													zIndex: 1,
-												}}
-											>
-												{columnMessage.icon}
-												{columnMessage.message || 'no memmsms'}
-											</Stack>
-										)}
 									</>
 								)}
 							</>
@@ -904,21 +948,6 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 					<Pagination />
 				</Stack>
-
-				{pageState?.context?.tables?.[tableName].message ? (
-					<div>
-						<Alert
-							variant="left-accent"
-							status={pageState?.context?.tables?.[tableName].message_type || 'info'}
-							height="30px"
-						>
-							<AlertIcon boxSize={4} />
-							<AlertDescription fontSize={14}>
-								{pageState?.context?.tables?.[tableName].message}
-							</AlertDescription>
-						</Alert>
-					</div>
-				) : null}
 			</Stack>
 		</CurrentTableContext.Provider>
 	);

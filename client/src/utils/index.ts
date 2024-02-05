@@ -78,3 +78,29 @@ export const getErrorMessage = (error: any) => {
 export const isProductionApp = () => {
 	return window.location.href.includes('app.dropbase.io');
 };
+
+export const invalidResourceName = (oldName: string, newName: string, names: any) => {
+	const notUnique = names.find((n: string) => n === newName && n !== oldName);
+
+	if (newName !== newName.toLowerCase()) {
+		return 'Must be lowercase';
+	}
+
+	if (notUnique) {
+		return 'Name already exists';
+	}
+
+	if (newName.includes(' ')) {
+		return 'Name cannot have spaces';
+	}
+
+	if (newName !== '' && !Number.isNaN(parseInt(newName[0], 10))) {
+		return 'Name cannot start with a number';
+	}
+
+	if (!newName.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/g) && newName !== '') {
+		return 'Name contains invalid characters';
+	}
+
+	return false;
+};
