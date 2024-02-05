@@ -170,8 +170,10 @@ def get_all_action_permissions(
 ):
     enforcer = get_contexted_enforcer(db, workspace_id)
     workspace = crud.workspace.get_object_by_id_or_404(db, id=workspace_id)
-
-    can_use_granular_permissions = workspace.in_trial
+    workspace_owner = crud.workspace.get_oldest_user(db, workspace_id)
+    can_use_granular_permissions = workspace.in_trial or workspace_owner.email.endswith(
+        "@dropbase.io"
+    )
 
     permissions_dict = {}
     # Go through allowed actions and check if user has permission to perform action on resource
