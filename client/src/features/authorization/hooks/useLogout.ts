@@ -1,6 +1,6 @@
 import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
-import { axios } from '@/lib/axios';
+import { axios, setAxiosToken, setWorkerAxiosToken } from '@/lib/axios';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 
@@ -15,6 +15,10 @@ export const useLogout = () => {
 	const navigate = useNavigate();
 	return useMutation(() => logoutUser(), {
 		onSuccess: () => {
+			setWorkerAxiosToken(null);
+			setAxiosToken(null);
+			localStorage.removeItem('access_token');
+			localStorage.removeItem('refresh_token');
 			navigate('/login');
 		},
 		onError: (err: any) => {

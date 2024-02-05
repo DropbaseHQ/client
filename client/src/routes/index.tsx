@@ -9,7 +9,7 @@ import { Users, DeveloperSettings, Permissions } from '@/features/settings';
 import { Workspaces, useWorkspaces } from '@/features/workspaces';
 import { RequestResetLink } from '@/features/authorization/RequestResetLink';
 import {
-	useSetWorkerAxiosToken,
+	useSetAxiosToken,
 	useSetWorkerAxiosBaseURL,
 } from '@/features/authorization/hooks/useLogin';
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
@@ -21,7 +21,7 @@ import { SOCKET_URL } from '@/features/app-preview';
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
 	useSyncProxyToken();
-	useSetWorkerAxiosToken();
+	useSetAxiosToken();
 	useSetWorkerAxiosBaseURL();
 	// Initialize websocket
 	useWebSocket(SOCKET_URL, {
