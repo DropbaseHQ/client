@@ -116,7 +116,7 @@ export const AppPreview = () => {
 
 	return (
 		<Loader isLoading={isLoading}>
-			<Stack bg="white" h="full">
+			<Stack position="relative" bg="white" h="full">
 				<Stack px="4" pt="4" pb="2" borderBottomWidth="1px" direction="row">
 					<InspectorContainer flex="1" noPadding type="widget" id={widgetName}>
 						<Stack spacing="0">
@@ -142,7 +142,7 @@ export const AppPreview = () => {
 					<NewWidget />
 					<WidgetSwitcher />
 				</Stack>
-				<Stack position="relative" overflowX="hidden" h="full">
+				<Stack overflowX="hidden" h="full">
 					{widgetsToDisplay.map((wName: string) => (
 						<WidgetPreview key={wName} widgetName={wName} />
 					))}

@@ -26,6 +26,7 @@ import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { generateSequentialName, getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
+import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -268,9 +269,12 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												return <DisplayRulesEditor name={component.name} />;
 											}
 
+											if (property.name === 'on_click') {
+												return <EventPropertyEditor id="on_click" />;
+											}
+
 											const showFunctionList =
 												property.type === 'function' ||
-												property.name === 'on_click' ||
 												property.name === 'on_change';
 
 											return (
