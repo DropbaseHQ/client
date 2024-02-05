@@ -2,10 +2,10 @@ import Axios from 'axios';
 
 export const axios = Axios.create({
 	baseURL: import.meta.env.VITE_API_ENDPOINT,
-	headers: {
-		Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`,
-	},
 });
+if (localStorage.getItem('access_token')) {
+	axios.defaults.headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
+}
 
 export const workerAxios = Axios.create({
 	baseURL: `${import.meta.env.VITE_WORKER_API_ENDPOINT}`,
