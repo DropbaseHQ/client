@@ -501,7 +501,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		const currentRow = rows[row];
 
 		if (editedCell.readonly) {
-			return;
+			return false;
 		}
 
 		const column = columnDict[visibleColumns[col]?.name];
@@ -510,7 +510,6 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 		if (editedCell.kind === GridCellKind.Custom) {
 			if (editedCell.data.kind === 'date-picker-cell') {
-				console.log(editedCell?.data?.format);
 				if (
 					editedCell?.data?.format === 'datetime-local' ||
 					editedCell?.data?.format === 'date'
@@ -518,9 +517,20 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					newValue = editedCell?.data?.date?.getTime();
 				}
 			}
-
-			// TODO: @param can you add logic for date and time pickers
 		} else {
+			const displayType = properties?.tables?.find((t: any) => t.name === tableName)?.columns[
+				col
+			].display_type;
+
+			// time columns have editedCell.kind text
+			if (displayType === 'time') {
+				const regex = /^(2[0-3]|[01]?\d):\d{2}:\d{2}(\.\d{1,5})?$/;
+
+				if (!regex.test(editedCell.data)) {
+					return false;
+				}
+			}
+
 			newValue = editedCell.data;
 		}
 
@@ -564,6 +574,8 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				};
 			});
 		}
+
+		return true;
 	};
 
 	const onSelectionCleared = () => {
