@@ -3,6 +3,9 @@ import { format, parse } from 'date-fns';
 const convertToUTC = (epoch: string) =>
 	new Date(parseInt(epoch, 10) + new Date().getTimezoneOffset() * 60 * 1000);
 
+const convertToLocal = (epoch: number) =>
+	new Date(epoch - new Date().getTimezoneOffset() * 60 * 1000);
+
 // converts epoch time to string of format yyyy-mm-dd
 export const formatDate = (epoch: string) => {
 	try {
@@ -19,6 +22,27 @@ export const formatTime = (time: string) => {
 		return format(date, 'hh:mm:ss a');
 	} catch (e) {
 		return time;
+	}
+};
+
+// converts hh:mm:ss.ms to epoch seconds
+export const getEpochFromTimeString = (time: string) => {
+	try {
+		const utcDate = parse(time.split('.')[0], 'HH:mm:ss', new Date()).getTime();
+		const localDate = convertToLocal(utcDate).getTime();
+		if (Number.isNaN(localDate)) throw new Error('Invalid date');
+		return localDate;
+	} catch (e) {
+		return new Date().getTime();
+	}
+};
+
+// converts epoch seconds to hh:mm:ss.ms
+export const getTimeStringFromEpoch = (epoch: string) => {
+	try {
+		return format(convertToUTC(epoch), 'HH:mm:ss');
+	} catch (e) {
+		return format(new Date(), 'HH:mm:ss');
 	}
 };
 

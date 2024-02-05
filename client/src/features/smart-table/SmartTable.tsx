@@ -31,7 +31,13 @@ import '@glideapps/glide-data-grid/dist/index.css';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
-import { formatDate, formatTime, formatDateTime } from '@/features/smart-table/utils';
+import {
+	formatDate,
+	formatTime,
+	formatDateTime,
+	getEpochFromTimeString,
+	getTimeStringFromEpoch,
+} from '@/features/smart-table/utils';
 import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
 import { SOCKET_URL } from '../app-preview';
 
@@ -477,11 +483,16 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 			case 'time': {
 				return {
-					kind: GridCellKind.Text,
-					data: cellValue,
+					kind: GridCellKind.Custom,
 					allowOverlay: canEdit,
-					displayData: formatTime(cellValue),
 					readonly: !canEdit,
+
+					data: {
+						kind: 'date-picker-cell',
+						date: new Date(getEpochFromTimeString(cellValue)),
+						displayDate: formatTime(cellValue),
+						format: 'time',
+					},
 					...themeOverride,
 				};
 			}
@@ -537,22 +548,11 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					editedCell?.data?.format === 'date'
 				) {
 					newValue = editedCell?.data?.date?.getTime();
+				} else if (editedCell?.data?.format === 'time') {
+					newValue = getTimeStringFromEpoch(editedCell?.data?.date?.getTime());
 				}
 			}
 		} else {
-			const displayType = properties?.tables?.find((t: any) => t.name === tableName)?.columns[
-				col
-			].display_type;
-
-			// time columns have editedCell.kind text
-			if (displayType === 'time') {
-				const regex = /^(2[0-3]|[01]?\d):\d{2}:\d{2}(\.\d{1,5})?$/;
-
-				if (!regex.test(editedCell.data)) {
-					return false;
-				}
-			}
-
 			newValue = editedCell.data;
 		}
 
