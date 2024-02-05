@@ -78,9 +78,9 @@ const PolicyTable = ({
 					</Thead>
 					<Tbody>
 						{apps.map((app: any) => (
-							<Tr key={app.id}>
+							<Tr key={app.name}>
 								<Td>{app.name}</Td>
-								<Td>{getSelector(selectedResourceId, app.id)}</Td>
+								<Td>{getSelector(selectedResourceId, app.name)}</Td>
 							</Tr>
 						))}
 					</Tbody>
@@ -175,7 +175,7 @@ export const Permissions = () => {
 	const [resourceType, setResourceType] = useState('groups' as string);
 	const [invitedMember, setInviteMember] = useState('' as string);
 
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
 	const {
 		isOpen: createGroupIsOpen,

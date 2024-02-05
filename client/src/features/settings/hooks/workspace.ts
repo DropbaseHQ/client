@@ -16,7 +16,7 @@ const fetchWorkspaceGroups = async ({ workspaceId }: { workspaceId: any }) => {
 
 export const GET_WORKSPACE_GROUPS_QUERY_KEY = 'workspaceGroups';
 export const useGetWorkspaceGroups = () => {
-	const currentWorkspaceId = useAtomValue(workspaceAtom);
+	const { id: currentWorkspaceId } = useAtomValue(workspaceAtom);
 	const queryKey = [GET_WORKSPACE_GROUPS_QUERY_KEY, currentWorkspaceId];
 	const { data: response, ...rest } = useQuery(
 		queryKey,
@@ -46,7 +46,7 @@ const fetchWorkspaceUsers = async ({ workspaceId }: { workspaceId: any }) => {
 
 export const GET_WORKSPACE_USERS_QUERY_KEY = 'workspaceUsers';
 export const useGetWorkspaceUsers = () => {
-	const currentWorkspaceId = useAtomValue(workspaceAtom);
+	const { id: currentWorkspaceId } = useAtomValue(workspaceAtom);
 	const queryKey = [GET_WORKSPACE_USERS_QUERY_KEY, currentWorkspaceId];
 	const { data: response, ...rest } = useQuery(
 		queryKey,
