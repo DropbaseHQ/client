@@ -33,7 +33,6 @@ import useWebSocket from 'react-use-websocket';
 
 import { formatDate, formatTime, formatDateTime } from '@/features/smart-table/utils';
 import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
-import { SOCKET_URL } from '../app-preview';
 
 import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
 
@@ -53,6 +52,7 @@ import { Pagination } from './components/Pagination';
 import { DEFAULT_PAGE_SIZE } from './constants';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
+import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 
 const heightMap: any = {
 	'1/3': '3xs',

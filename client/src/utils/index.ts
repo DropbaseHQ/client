@@ -1,3 +1,5 @@
+import get from 'lodash/get';
+
 export const PG_COLUMN_BASE_TYPE: any = {
 	TEXT: 'text',
 	VARCHAR: 'text',
@@ -103,4 +105,23 @@ export const invalidResourceName = (oldName: string, newName: string, names: any
 	}
 
 	return false;
+};
+
+export const extractTemplateString = (value: any, state: any) => {
+	try {
+		const regex = /\{{(.*?)\}}/g;
+		const matches = value?.matchAll(regex);
+
+		let newInputString = value;
+
+		[...matches].forEach((element) => {
+			const [mainStr, underlyingValue] = element;
+
+			newInputString = newInputString.replace(mainStr, get(state, underlyingValue, ''));
+		});
+
+		return newInputString;
+	} catch (e) {
+		return value;
+	}
 };

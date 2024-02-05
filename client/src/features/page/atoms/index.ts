@@ -10,11 +10,17 @@ export const pageAtom = atom<{
 				label: string;
 				description: string;
 				components: any[];
+				type: string;
 		  }[]
 		| null;
+	modals: {
+		name: string;
+		caller: string;
+	}[];
 }>({
 	widgetName: null,
 	appName: null,
 	pageName: null,
 	widgets: [],
+	modals: [],
 });

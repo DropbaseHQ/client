@@ -16,7 +16,7 @@ import { useSyncProxyToken } from '@/features/settings/hooks/token';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
 import { Welcome } from '../features/welcome';
 import { isProductionApp } from '../utils';
-import { SOCKET_URL } from '@/features/app-preview';
+import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
