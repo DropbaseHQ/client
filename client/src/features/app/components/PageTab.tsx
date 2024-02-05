@@ -71,7 +71,7 @@ export const PageTab = (props: any) => {
 			invalidResourceName(
 				pageName || '',
 				newName,
-				pages.map((p) => p.name),
+				pages.map((p: any) => p.name),
 			),
 		);
 	};

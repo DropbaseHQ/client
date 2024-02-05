@@ -79,7 +79,7 @@ export const isProductionApp = () => {
 	return window.location.href.includes('app.dropbase.io');
 };
 
-export const invalidResourceName = (oldName: string, newName: string, names) => {
+export const invalidResourceName = (oldName: string, newName: string, names: any) => {
 	const notUnique = names.find((n: string) => n === newName && n !== oldName);
 
 	if (newName !== newName.toLowerCase()) {
