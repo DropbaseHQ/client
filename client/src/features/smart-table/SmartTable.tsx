@@ -534,7 +534,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		const currentRow = rows[row];
 
 		if (editedCell.readonly) {
-			return false;
+			return;
 		}
 
 		const column = columnDict[visibleColumns[col]?.name];
@@ -596,8 +596,6 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				};
 			});
 		}
-
-		return true;
 	};
 
 	const onSelectionCleared = () => {
