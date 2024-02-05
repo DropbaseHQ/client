@@ -11,7 +11,7 @@ import {
 	Tooltip,
 } from '@chakra-ui/react';
 import { Play, Save, Info } from 'react-feather';
-import { useSetAtom } from 'jotai';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
@@ -25,7 +25,7 @@ import { previewCodeAtom } from '../../atoms';
 
 import { useSQLCompletion } from '@/components/Editor/hooks/useSQLCompletion';
 import { newPageStateAtom } from '@/features/app-state';
-import { useAtomValue } from 'jotai';
+
 import { databaseSchema } from '@/components/Editor/utils/constants';
 
 export const SQLEditor = ({ name }: any) => {
@@ -155,7 +155,11 @@ export const SQLEditor = ({ name }: any) => {
 						variant="outline"
 						colorScheme="gray"
 						size="sm"
-						isDisabled={code === defaultCode && file?.source === selectedSource}
+						isDisabled={
+							!selectedSource ||
+							!code ||
+							(code === defaultCode && file?.source === selectedSource)
+						}
 						leftIcon={<Save size="14" />}
 					>
 						Update
