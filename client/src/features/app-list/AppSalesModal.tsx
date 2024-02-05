@@ -27,7 +27,7 @@ interface FormInput {
 }
 export const SalesModal = ({ isOpen, setIsOpen }: any) => {
 	const methods = useForm<FormInput>();
-	const workspace = useAtomValue(workspaceAtom);
+	const { id: workspace } = useAtomValue(workspaceAtom);
 	const upgradeMutation = useSendCloudRequest();
 
 	const onSubmit = (data: FormInput) => {

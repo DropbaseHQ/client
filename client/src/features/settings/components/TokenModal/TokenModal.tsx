@@ -24,7 +24,7 @@ import { workspaceAtom } from '@/features/workspaces';
 import { useToast } from '@/lib/chakra-ui';
 
 export const TokenModal = () => {
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { user } = useGetCurrentUser();
 
 	const toast = useToast();

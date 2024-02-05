@@ -31,7 +31,7 @@ export const useLogin = (mutationConfig: MutationConfig<typeof loginUser>) => {
 
 export const useSetWorkerAxiosToken = () => {
 	const navigate = useNavigate();
-	const workspaceId = useAtomValue(workspaceAtom) as string | null;
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -54,7 +54,8 @@ export const useSetWorkerAxiosToken = () => {
 	}, [navigate, workspaceId]);
 };
 export const useSetWorkerAxiosBaseURL = () => {
-	const [workspaceId] = useAtom(workspaceAtom);
+	const [workspace] = useAtom(workspaceAtom);
+	const workspaceId = workspace?.id;
 	const { workspaces } = useWorkspaces();
 	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
 	useEffect(() => {

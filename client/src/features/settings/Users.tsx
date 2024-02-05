@@ -5,7 +5,7 @@ import { workspaceAtom } from '@/features/workspaces';
 import { useAtomValue } from 'jotai';
 
 export const UserPolicySelector = ({ userId, appId }: { userId: string; appId: string }) => {
-	const workspaceId = useAtomValue<string>(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const [option, setOption] = useState<string>('none');
 	const updateUserPolicyMutation = useUpdateUserPolicy();
 	const { permissions, isLoading: permissionsIsLoading } = useGetUserDetails({
