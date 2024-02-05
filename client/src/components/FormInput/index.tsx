@@ -24,12 +24,40 @@ import {
 	Center,
 	Portal,
 } from '@chakra-ui/react';
-import { forwardRef } from 'react';
+import { forwardRef, useState } from 'react';
 import { ChevronDown, Plus, Trash } from 'react-feather';
 import { ErrorMessage } from '@hookform/error-message';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { MonacoEditor } from '@/components/Editor';
+
+const TemplateEditor = (props: any) => {
+	const [codeHeight, setCodeHeight] = useState(30);
+
+	const handleCodeMount = (editor: any) => {
+		editor.onDidContentSizeChange((event: any) => {
+			const editorHeight = event.contentHeight;
+			setCodeHeight(editorHeight); // Dynamically adjust height based on content
+			editor.layout();
+		});
+	};
+
+	return (
+		<MonacoEditor
+			{...props}
+			options={{
+				lineNumbers: 'off',
+				glyphMargin: false,
+				folding: false,
+				// Undocumented see https://github.com/Microsoft/vscode/issues/30795#issuecomment-410998882
+				lineDecorationsWidth: 0,
+				lineNumbersMinChars: 0,
+			}}
+			height={codeHeight}
+			onMount={handleCodeMount}
+		/>
+	);
+};
 
 export const InputRenderer = forwardRef((props: any, ref: any) => {
 	const {
@@ -338,6 +366,19 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		return (
 			<Box w="full" borderWidth="1px" borderColor="gray.300" borderRadius="sm" p="0.5">
 				<MonacoEditor language="sql" value={value} onChange={onChange} />
+			</Box>
+		);
+	}
+
+	if (type === 'template') {
+		return (
+			<Box w="full" borderWidth="1px" p="1.5" borderRadius="sm">
+				<TemplateEditor
+					language="plaintext"
+					{...inputProps}
+					value={value}
+					onChange={onChange}
+				/>
 			</Box>
 		);
 	}

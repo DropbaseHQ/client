@@ -27,6 +27,8 @@ import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { generateSequentialName, getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
+import { useTemplateCompletion } from '@/components/Editor/hooks/useTemplateCompletion';
+import { newPageStateAtom } from '@/features/app-state';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -37,6 +39,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const component = widgets
 		.find((w: any) => w.name === widgetName)
 		?.components?.find((c: any) => c.name === id);
+
+	const pageState = useAtomValue(newPageStateAtom);
+
+	useTemplateCompletion(pageState);
 
 	const { fields } = useResourceFields();
 
@@ -260,6 +266,19 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 										.map((property: any) => {
 											if (property?.name === 'name') {
 												return null;
+											}
+
+											// FIXME: just for testing
+											if (property?.name === 'label') {
+												return (
+													<FormInput
+														{...property}
+														id={property.name}
+														name={property.title}
+														type="template"
+														key={property.name}
+													/>
+												);
 											}
 
 											if (

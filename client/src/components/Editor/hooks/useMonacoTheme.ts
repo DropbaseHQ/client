@@ -2,7 +2,7 @@ import { useColorMode } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 
 import GhDark from 'monaco-themes/themes/GitHub Dark.json';
-import ChromeLight from 'monaco-themes/themes/Chrome DevTools.json';
+import ChromeLight from 'monaco-themes/themes/GitHub Light.json';
 
 export const useMonacoTheme = (monaco: any) => {
 	const [themeLoaded, setThemeLoaded] = useState(false);
