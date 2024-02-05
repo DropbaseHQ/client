@@ -33,6 +33,7 @@ export const getEpochFromTimeString = (time: string) => {
 		if (Number.isNaN(localDate)) throw new Error('Invalid date');
 		return localDate;
 	} catch (e) {
+		// fall back on current time if time string is invalid or null
 		return new Date().getTime();
 	}
 };
@@ -42,7 +43,8 @@ export const getTimeStringFromEpoch = (epoch: string) => {
 	try {
 		return format(convertToUTC(epoch), 'HH:mm:ss');
 	} catch (e) {
-		return format(new Date(), 'HH:mm:ss');
+		// fall back on empty string if epoch is null
+		return '';
 	}
 };
 
