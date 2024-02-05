@@ -6,10 +6,13 @@ import { SimpleGrid, Skeleton, Box, Text } from '@chakra-ui/react';
 
 export const Workspaces = () => {
 	const { workspaces, isLoading } = useWorkspaces();
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const updateWorkspace = useSetAtom(workspaceAtom);
-	const handleSwitchWorkspace = (workspaceId: string) => {
-		updateWorkspace(workspaceId);
+	const handleSwitchWorkspace = (targetWorkspaceId: string) => {
+		const targetWorkspace = workspaces?.find(
+			(workspace: any) => workspace.id === targetWorkspaceId,
+		);
+		updateWorkspace(targetWorkspace);
 	};
 	return (
 		<PageLayout title="Workspaces">

@@ -16,8 +16,8 @@ export const useSyncState = () => {
 
 	const handleSyncState = useCallback(
 		(data: any) => {
-			if (data?.result?.context && data?.success) {
-				const { widgets, ...other } = data.result.context;
+			if (data?.context && data?.type === "context") {
+				const { widgets, ...other } = data.context;
 
 				setWidgetState((s) => ({ ...s, state: widgets || {} }));
 				setNonInteractiveState(other || {});

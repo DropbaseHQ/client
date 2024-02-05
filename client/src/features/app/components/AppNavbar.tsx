@@ -27,7 +27,7 @@ import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceAp
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useToast } from '@/lib/chakra-ui';
 import { useCreatePage } from '@/features/page';
-import { getErrorMessage, generateSequentialName } from '@/utils';
+import { getErrorMessage, generateSequentialName, invalidResourceName } from '@/utils';
 import { PageTab } from './PageTab';
 
 export const AppNavbar = ({ isPreview }: any) => {
@@ -38,7 +38,9 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const [tabIndex, setTabIndex] = useState(0);
 
 	const [name, setAppName] = useState('');
-	const [isValid, setIsValid] = useState(true);
+
+	const [invalidMessage, setInvalidMessage] = useState<string | boolean>(false);
+
 	const updateMutation = useUpdateApp({
 		onError: (error: any) => {
 			toast({
@@ -67,19 +69,18 @@ export const AppNavbar = ({ isPreview }: any) => {
 		(document.activeElement as HTMLElement)?.blur();
 	};
 
-	const nameNotUnique = (newName: any) => {
-		return apps.find((a) => {
-			return a.name === newName;
-		});
-	};
-
 	const handleChangeAppName = (e: any) => {
-		setAppName(e.target.value);
-		if (nameNotUnique(e.target.value)) {
-			setIsValid(false);
-		} else {
-			setIsValid(true);
-		}
+		const newName = e.target.value;
+
+		setInvalidMessage(
+			invalidResourceName(
+				appName || '',
+				newName,
+				apps.map((a) => a.name),
+			),
+		);
+
+		setAppName(newName);
 	};
 
 	const handleReset = () => {
@@ -172,7 +173,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 								<PopoverContent>
 									<PopoverArrow />
 									<PopoverBody>
-										<FormControl isInvalid={!isValid}>
+										<FormControl isInvalid={Boolean(invalidMessage)}>
 											<FormLabel>Edit App name</FormLabel>
 											<Input
 												size="sm"
@@ -181,9 +182,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 												onChange={handleChangeAppName}
 											/>
 
-											<FormErrorMessage>
-												An app with this name already exists.
-											</FormErrorMessage>
+											<FormErrorMessage>{invalidMessage}</FormErrorMessage>
 										</FormControl>
 									</PopoverBody>
 									<PopoverFooter display="flex" alignItems="end">
@@ -196,7 +195,11 @@ export const AppNavbar = ({ isPreview }: any) => {
 												Cancel
 											</Button>
 											<Button
-												isDisabled={app?.name === name || !name || !isValid}
+												isDisabled={
+													app?.name === name ||
+													!name ||
+													Boolean(invalidMessage)
+												}
 												colorScheme="blue"
 												onClick={handleUpdate}
 											>

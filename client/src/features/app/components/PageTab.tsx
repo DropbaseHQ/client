@@ -25,7 +25,7 @@ import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@/lib/chakra-ui';
 import { useDeletePage, useRenamePage } from '@/features/page';
-import { getErrorMessage } from '@/utils';
+import { getErrorMessage, invalidResourceName } from '@/utils';
 
 export const PageTab = (props: any) => {
 	const { isPreview, index, tabIndex, page, pages } = props;
@@ -39,6 +39,8 @@ export const PageTab = (props: any) => {
 
 	const renamePageMutation = useRenamePage();
 	const deletePageMutation = useDeletePage();
+
+	const [invalidMessage, setInvalidMessage] = useState<string | boolean>(false);
 
 	const navigate = useNavigate();
 	const pageLink = `/apps/${appName}/${page?.name}`;
@@ -58,15 +60,20 @@ export const PageTab = (props: any) => {
 		if (pageName) setPageNameEdit(pageName);
 		onRenameClose();
 	};
-	const pageNameNotUnique = (newName: any) => {
-		return pages
-			.filter((xPage: any) => xPage.name !== pageName)
-			.find((a: any) => {
-				return a.name === newName;
-			});
-	};
+
 	const handleChangePageName = (e: any) => {
-		setPageNameEdit(e.target.value);
+		const newName = e.target.value;
+
+		setPageNameEdit(newName);
+		console.log(pageName);
+
+		setInvalidMessage(
+			invalidResourceName(
+				pageName || '',
+				newName,
+				pages.map((p: any) => p.name),
+			),
+		);
 	};
 
 	const handleRenamePage = () => {
@@ -198,7 +205,7 @@ export const PageTab = (props: any) => {
 								>
 									<PopoverArrow />
 									<PopoverBody>
-										<FormControl isInvalid={pageNameNotUnique(pageNameEdit)}>
+										<FormControl isInvalid={Boolean(invalidMessage)}>
 											<FormLabel>Edit Page name</FormLabel>
 											<Input
 												size="sm"
@@ -212,9 +219,7 @@ export const PageTab = (props: any) => {
 												}}
 											/>
 
-											<FormErrorMessage>
-												A page with this name already exists.
-											</FormErrorMessage>
+											<FormErrorMessage>{invalidMessage}</FormErrorMessage>
 										</FormControl>
 									</PopoverBody>
 									<PopoverFooter display="flex" alignItems="end">
@@ -231,7 +236,7 @@ export const PageTab = (props: any) => {
 												isDisabled={
 													pageNameEdit === page.name ||
 													!page.name ||
-													pageNameNotUnique(pageNameEdit)
+													Boolean(invalidMessage)
 												}
 												colorScheme="blue"
 												onClick={handleRenamePage}

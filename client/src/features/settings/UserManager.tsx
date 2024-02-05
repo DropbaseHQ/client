@@ -47,7 +47,7 @@ const ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
 // const MEMBER_UUID = '00000000-0000-0000-0000-000000000004';
 
 const UserRow = (item: any) => {
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
 
 	// const [newRole] = useState(item.user.role_id);
@@ -188,7 +188,7 @@ const UserRow = (item: any) => {
 	);
 };
 export const Users = () => {
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 
 	const [newMemberEmail, setNewMemberEmail] = useState('');
 	const [newMemberRole] = useState(ADMIN_UUID);
