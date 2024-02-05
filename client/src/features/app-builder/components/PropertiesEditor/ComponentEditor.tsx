@@ -26,6 +26,9 @@ import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { generateSequentialName, getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
+import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
+import { useTemplateCompletion } from '@/components/Editor/hooks/useTemplateCompletion';
+import { newPageStateAtom } from '@/features/app-state';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -36,6 +39,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const component = widgets
 		.find((w: any) => w.name === widgetName)
 		?.components?.find((c: any) => c.name === id);
+
+	const pageState = useAtomValue(newPageStateAtom);
+
+	useTemplateCompletion(pageState);
 
 	const { fields } = useResourceFields();
 
@@ -197,8 +204,9 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 							<NameEditor
 								value={id}
 								currentNames={(
-									properties?.widgets.find((w) => w.name === (widgetName || ''))
-										?.components || []
+									properties?.widgets.find(
+										(w: any) => w.name === (widgetName || ''),
+									)?.components || []
 								).map((c: any) => c.name)}
 								onUpdate={handleUpdateName}
 								resource="component"
@@ -260,6 +268,19 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												return null;
 											}
 
+											// FIXME: just for testing
+											if (property?.name === 'label') {
+												return (
+													<FormInput
+														{...property}
+														id={property.name}
+														name={property.title}
+														type="template"
+														key={property.name}
+													/>
+												);
+											}
+
 											if (
 												property.name === 'display_rules' ||
 												property.type === 'rules'
@@ -267,9 +288,12 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												return <DisplayRulesEditor name={component.name} />;
 											}
 
+											if (property.name === 'on_click') {
+												return <EventPropertyEditor id="on_click" />;
+											}
+
 											const showFunctionList =
 												property.type === 'function' ||
-												property.name === 'on_click' ||
 												property.name === 'on_change';
 
 											return (
@@ -303,10 +327,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	);
 };
 
-export const NewComponent = (props: any) => {
+export const NewComponent = ({ widgetName, ...props }: any) => {
 	const toast = useToast();
 	const { isConnected } = useStatus();
-	const { widgetName, appName, pageName } = useAtomValue(pageAtom);
+	const { appName, pageName } = useAtomValue(pageAtom);
 	const { properties } = useGetPage({ appName, pageName });
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 

@@ -77,12 +77,15 @@ const PolicyTable = ({
 						</Tr>
 					</Thead>
 					<Tbody>
-						{apps.map((app: any) => (
-							<Tr key={app.id}>
-								<Td>{app.name}</Td>
-								<Td>{getSelector(selectedResourceId, app.id)}</Td>
-							</Tr>
-						))}
+						{apps.map((app: any) => {
+							const appIdentifier = app?.id ? app.id : app.name;
+							return (
+								<Tr key={appIdentifier}>
+									<Td>{app.name}</Td>
+									<Td>{getSelector(selectedResourceId, appIdentifier)}</Td>
+								</Tr>
+							);
+						})}
 					</Tbody>
 				</Table>
 			)}
@@ -175,7 +178,7 @@ export const Permissions = () => {
 	const [resourceType, setResourceType] = useState('groups' as string);
 	const [invitedMember, setInviteMember] = useState('' as string);
 
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
 	const {
 		isOpen: createGroupIsOpen,

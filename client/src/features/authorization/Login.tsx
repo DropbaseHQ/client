@@ -60,7 +60,7 @@ export const Login = () => {
 			localStorage.setItem('worker_refresh_token', data?.refresh_token);
 			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
 
-			updateWorkspace(data?.workspace?.id);
+			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
 			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
 			setDisplayEmailConfirmation(false);
 			navigate('/apps');

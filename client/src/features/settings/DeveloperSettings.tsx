@@ -26,7 +26,7 @@ import { ProxyTokenCard } from './components/ProxyTokenCard';
 import { TokenModal } from './components/TokenModal/TokenModal';
 
 export const DeveloperSettings = () => {
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { user } = useGetCurrentUser();
 	const [workerUrl, setWorkerUrl] = useState('');
 	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
