@@ -39,22 +39,26 @@ export const EventPropertyEditor = ({ id }: any) => {
 
 	const uiFunctions = files
 		.filter((f: any) => f.type === 'ui')
-		?.map((f: any) => ({ name: f?.name, type: 'ui', label: f?.label }));
+		?.map((f: any) => ({ value: f?.name, type: 'function', label: f?.label }));
 
 	const modalWidgets = widgets
 		.filter((f: any) => f.type === 'modal')
-		?.map((f: any) => ({ name: f?.name, type: 'widget', label: f?.label }));
+		?.map((f: any) => ({ value: f?.name, type: 'widget', label: f?.label }));
 
 	const baseWidgets = widgets
 		.filter((f: any) => f.type === 'base')
-		?.map((f: any) => ({ name: f?.name, type: 'widget', label: f?.label }));
+		?.map((f: any) => ({ value: f?.name, type: 'widget', label: f?.label }));
 
 	const allOptions = [...uiFunctions, ...modalWidgets, ...baseWidgets];
 
 	const optionValueRenderer = ({ option, showBadge }: any) => {
-		const selectedValue = allOptions.find((o: any) => {
-			return option.type === o.type && o.name === option.name;
+		const selectedValue = (allOptions || [])?.find((o: any) => {
+			return option.type === o.type && o.value === option.value;
 		});
+
+		if (!selectedValue) {
+			return null;
+		}
 
 		let icon = Layout;
 		let badge = {
@@ -62,14 +66,14 @@ export const EventPropertyEditor = ({ id }: any) => {
 			children: 'UI Function',
 		};
 
-		if (selectedValue.type === 'ui') {
+		if (selectedValue.type === 'function') {
 			icon = BoxIcon;
 		}
 
 		const isWidget = selectedValue?.type === 'widget';
 
 		if (isWidget) {
-			const baseWidget = widgets.find((w: any) => w.name === selectedValue.name);
+			const baseWidget = widgets.find((w: any) => w.name === selectedValue.value);
 
 			if (baseWidget) {
 				badge = {
@@ -94,7 +98,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 						</Text>
 					) : null}
 					<Code bg="transparent" ml={selectedValue?.label ? '1.5' : '0'}>
-						{selectedValue?.name}
+						{selectedValue?.value}
 					</Code>
 				</Stack>
 				{showBadge ? (
@@ -113,7 +117,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 	};
 
 	const optionRenderer = (option: any) => {
-		const optionValue = `${option.type}-${option.name}`;
+		const optionValue = `${option.type}-${option.value}`;
 
 		return (
 			<MenuItemOption fontSize="sm" key={optionValue} value={optionValue}>
@@ -152,7 +156,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 												...c,
 												on_click: {
 													type: 'widget',
-													name: wName,
+													value: wName,
 												},
 											};
 										}
@@ -198,16 +202,16 @@ export const EventPropertyEditor = ({ id }: any) => {
 						}
 
 						const selectedOption = allOptions.find(
-							(o: any) => `${o.type}-${o.name}` === newValue,
+							(o: any) => `${o.type}-${o.value}` === newValue,
 						);
 
 						onChange({
 							type: selectedOption.type,
-							name: selectedOption.name,
+							value: selectedOption.value,
 						});
 					};
 
-					const valueForMenu = value ? `${value.type}-${value.name}` : '';
+					const valueForMenu = value ? `${value.type}-${value.value}` : '';
 
 					return (
 						<Menu>
