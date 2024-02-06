@@ -241,7 +241,7 @@ export const Permissions = () => {
 		inviteMemberOnClose();
 	};
 
-	const canUseGranularPermissions = inTrial || userInfo?.email?.endsWith('.dropbase.io');
+	const canUseGranularPermissions = inTrial || userInfo?.email?.endsWith('dropbase.io');
 
 	if (!canUseGranularPermissions) {
 		return (
