@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 
 from server.controllers.tables.convert import call_gpt, fill_smart_cols_data
 from server.utils.authorization import get_current_user
+from server.schemas import CheckPermissionRequest
+from server.controllers.user import user_controller
 from server.utils.connect import get_db
 from server.models import User
 
@@ -34,3 +36,12 @@ def get_smart_cols(req: ConvertTable, db: Session = Depends(get_db)):
 )
 def verify_token(user: User = Depends(get_current_user)):
     return {"user_id": user.id}
+
+
+@router.post("/check_permission")
+def check_permission(
+    request: CheckPermissionRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    return user_controller.check_permissions(db, user, request)
