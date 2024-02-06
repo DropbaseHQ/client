@@ -22,7 +22,7 @@ import { useUpdateWorkspaceWorkerURL, useWorkspaces, workspaceAtom } from '@/fea
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { useCreateProxyToken, useProxyTokens, ProxyToken } from '@/features/settings/hooks/token';
 import { proxyTokenAtom } from '@/features/settings/atoms';
-import { ProxyTokenCard } from './components/ProxyTokenCard';
+import { WorkerTokenCard } from './components/ProxyTokenCard';
 import { TokenModal } from './components/TokenModal/TokenModal';
 
 export const DeveloperSettings = () => {
@@ -37,8 +37,7 @@ export const DeveloperSettings = () => {
 	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
 	const handleButtonClick = async () => {
 		createMutation.mutate({
-			workspaceId,
-			userId: user.id,
+			workspaceId: workspaceId || '',
 		});
 	};
 	const workerURLHasChanged = currentWorkspace?.worker_url !== workerUrl;
@@ -65,7 +64,7 @@ export const DeveloperSettings = () => {
 			<Stack>
 				<Flex direction="row" justifyContent="space-between" alignItems="center" mb="4">
 					<Text fontSize="lg" fontWeight="bold">
-						Proxy Tokens
+						Worker Tokens
 					</Text>
 					<Button
 						size="sm"
@@ -77,15 +76,15 @@ export const DeveloperSettings = () => {
 					</Button>
 				</Flex>
 
-				{selectedToken ? null : (
+				{/* {selectedToken ? null : (
 					<Alert status="error">
 						<AlertIcon />
 						<AlertTitle>Please select a token to continue!</AlertTitle>
 					</Alert>
-				)}
+				)} */}
 				<SimpleGrid columns={3} spacing={4}>
 					{tokens.map((token: ProxyToken) => {
-						return <ProxyTokenCard token={token} />;
+						return <WorkerTokenCard token={token} />;
 					})}
 				</SimpleGrid>
 				<Text fontSize="lg" fontWeight="bold" mb="4">

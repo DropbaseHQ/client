@@ -39,7 +39,7 @@ export const maskedString = (token_str: string) => {
 	return '*'.repeat(token_str.length - 4) + token_str.slice(-4);
 };
 
-export const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
+export const WorkerTokenCard = ({ token }: { token: ProxyToken }) => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const [selectedToken, setToken] = useAtom(proxyTokenAtom);
 
