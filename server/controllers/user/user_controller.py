@@ -69,7 +69,9 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
                 detail="Email needs to be verified.",
             )
         access_token = Authorize.create_access_token(
-            subject=user.email, expires_time=ACCESS_TOKEN_EXPIRE_SECONDS
+            subject=user.email,
+            expires_time=ACCESS_TOKEN_EXPIRE_SECONDS,
+            user_claims={"user_id": str(user.id)},
         )
         refresh_token = Authorize.create_refresh_token(
             subject=user.email, expires_time=REFRESH_TOKEN_EXPIRE_SECONDS
@@ -134,7 +136,11 @@ def refresh_token(Authorize: AuthJWT):
     try:
         Authorize.jwt_refresh_token_required()
         current_user = Authorize.get_jwt_subject()
-        new_access_token = Authorize.create_access_token(subject=current_user)
+        all_claims = Authorize.get_raw_jwt()
+        user_id = all_claims.get("user_id")
+        new_access_token = Authorize.create_access_token(
+            subject=current_user, user_claims={"user_id": user_id}
+        )
         return {"msg": "Successfully refresh token", "access_token": new_access_token}
     except Exception as e:
         print("error", e)
@@ -403,10 +409,12 @@ def delete_user(db: Session, user_id: UUID):
 
 
 def check_permissions(db: Session, user: User, request: CheckPermissionRequest):
-    workspace_id = request.workspace_id
-    app_name = request.app_name
+
+    app_id = request.app_id
+    app = crud.app.get_object_by_id_or_404(db, id=app_id)
+    workspace_id = app.workspace_id
 
     permissions_dict = get_all_action_permissions(
-        db, str(user.id), workspace_id, app_name
+        db, str(user.id), workspace_id, app_id
     )
     return permissions_dict
