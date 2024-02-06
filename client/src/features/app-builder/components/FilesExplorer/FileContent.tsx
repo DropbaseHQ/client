@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useAtom } from 'jotai';
-import { Box, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
+import { Box, Center, Skeleton, Stack, Text, useToast } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 
@@ -28,6 +28,8 @@ export const FileContent = () => {
 
 	const isReady = useMonacoLoader();
 
+	const toast = useToast();
+
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
 
 	useEffect(() => {
@@ -52,6 +54,11 @@ export const FileContent = () => {
 	}
 
 	if (error) {
+		toast({
+			status: 'error',
+			title: 'Error fetching app',
+			description: getErrorMessage(error),
+		});
 		return <Box color="red.400">{getErrorMessage(error)}</Box>;
 	}
 
