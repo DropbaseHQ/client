@@ -77,12 +77,15 @@ const PolicyTable = ({
 						</Tr>
 					</Thead>
 					<Tbody>
-						{apps.map((app: any) => (
-							<Tr key={app.name}>
-								<Td>{app.name}</Td>
-								<Td>{getSelector(selectedResourceId, app.name)}</Td>
-							</Tr>
-						))}
+						{apps.map((app: any) => {
+							const appIdentifier = app?.id ? app.id : app.name;
+							return (
+								<Tr key={appIdentifier}>
+									<Td>{app.name}</Td>
+									<Td>{getSelector(selectedResourceId, appIdentifier)}</Td>
+								</Tr>
+							);
+						})}
 					</Tbody>
 				</Table>
 			)}
