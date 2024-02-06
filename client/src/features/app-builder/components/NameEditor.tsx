@@ -35,7 +35,7 @@ export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resourc
 	const handleChangeAppName = (e: any) => {
 		const newName = e.target.value;
 
-		setInvalidMessage(invalidResourceName(value, newName, currentNames));
+		setInvalidMessage(invalidResourceName(value, newName, currentNames, resource !== 'app'));
 		setName(newName);
 	};
 
