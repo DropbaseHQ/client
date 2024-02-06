@@ -1,24 +1,4 @@
-import {
-	Flex,
-	Text,
-	IconButton,
-	Stack,
-	Tooltip,
-	Popover,
-	PopoverTrigger,
-	PopoverContent,
-	PopoverArrow,
-	PopoverBody,
-	Input,
-	PopoverFooter,
-	ButtonGroup,
-	Button,
-	FormControl,
-	FormLabel,
-	FormErrorMessage,
-	TabList,
-	Tabs,
-} from '@chakra-ui/react';
+import { Flex, Text, IconButton, Stack, Tooltip, Button, TabList, Tabs } from '@chakra-ui/react';
 import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
@@ -27,8 +7,9 @@ import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceAp
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useToast } from '@/lib/chakra-ui';
 import { useCreatePage } from '@/features/page';
-import { getErrorMessage, generateSequentialName, invalidResourceName } from '@/utils';
+import { getErrorMessage, generateSequentialName } from '@/utils';
 import { PageTab } from './PageTab';
+import { NameEditor } from '@/features/app-builder/components/NameEditor';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const toast = useToast();
@@ -38,8 +19,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const [tabIndex, setTabIndex] = useState(0);
 
 	const [name, setAppName] = useState('');
-
-	const [invalidMessage, setInvalidMessage] = useState<string | boolean>(false);
 
 	const updateMutation = useUpdateApp({
 		onError: (error: any) => {
@@ -69,31 +48,13 @@ export const AppNavbar = ({ isPreview }: any) => {
 		(document.activeElement as HTMLElement)?.blur();
 	};
 
-	const handleChangeAppName = (e: any) => {
-		const newName = e.target.value;
-
-		setInvalidMessage(
-			invalidResourceName(
-				appName || '',
-				newName,
-				apps.map((a) => a.name),
-			),
-		);
-
-		setAppName(newName);
-	};
-
-	const handleReset = () => {
-		if (app) setAppName(app?.name);
-	};
-
-	const handleUpdate = () => {
+	const handleUpdate = (newName: string) => {
 		if (app) {
 			updateMutation.mutate({
 				// FIXME: fix appId
 				// appId,
 				oldName: app.name,
-				newName: name,
+				newName,
 			});
 		}
 	};
@@ -157,60 +118,12 @@ export const AppNavbar = ({ isPreview }: any) => {
 					{app?.name}
 				</Text>
 				{isPreview ? null : (
-					<Popover onClose={handleReset} placement="bottom-end" closeOnBlur={false}>
-						{({ onClose }) => (
-							<>
-								<PopoverTrigger>
-									<IconButton
-										isLoading={updateMutation.isLoading}
-										size="sm"
-										variant="ghost"
-										colorScheme="gray"
-										icon={<Edit size="14" />}
-										aria-label="Edit app"
-									/>
-								</PopoverTrigger>
-								<PopoverContent>
-									<PopoverArrow />
-									<PopoverBody>
-										<FormControl isInvalid={Boolean(invalidMessage)}>
-											<FormLabel>Edit App name</FormLabel>
-											<Input
-												size="sm"
-												placeholder="App name"
-												value={name}
-												onChange={handleChangeAppName}
-											/>
-
-											<FormErrorMessage>{invalidMessage}</FormErrorMessage>
-										</FormControl>
-									</PopoverBody>
-									<PopoverFooter display="flex" alignItems="end">
-										<ButtonGroup ml="auto" size="sm">
-											<Button
-												onClick={onClose}
-												colorScheme="red"
-												variant="outline"
-											>
-												Cancel
-											</Button>
-											<Button
-												isDisabled={
-													app?.name === name ||
-													!name ||
-													Boolean(invalidMessage)
-												}
-												colorScheme="blue"
-												onClick={handleUpdate}
-											>
-												Update
-											</Button>
-										</ButtonGroup>
-									</PopoverFooter>
-								</PopoverContent>
-							</>
-						)}
-					</Popover>
+					<NameEditor
+						value={name}
+						onUpdate={handleUpdate}
+						currentNames={apps.map((a) => a.name)}
+						resource="app"
+					/>
 				)}
 			</Stack>
 			<Flex alignItems="center" h="100%" justifyContent="center">
