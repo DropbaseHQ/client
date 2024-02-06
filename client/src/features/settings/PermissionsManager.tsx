@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { PageLayout } from '@/layout';
 import {
 	Input,
 	Button,
@@ -34,23 +33,29 @@ import {
 	PopoverCloseButton,
 	Select,
 } from '@chakra-ui/react';
-import { useCreateGroup } from './hooks/group';
-import { workspaceAtom } from '@/features/workspaces';
 import { UserPlus, UserMinus } from 'react-feather';
 import { useAtomValue } from 'jotai';
-import { useGetWorkspaceGroups, GET_WORKSPACE_GROUPS_QUERY_KEY } from './hooks/workspace';
-import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
-
-import { useAddUserToGroup } from './hooks/group';
 import { useQueryClient } from 'react-query';
+import { PageLayout } from '@/layout';
+import {
+	useCreateGroup,
+	useAddUserToGroup,
+	useGetGroupUsers,
+	useRemoveUserFromGroup,
+} from './hooks/group';
+import { workspaceAtom } from '@/features/workspaces';
+
+import {
+	useGetWorkspaceGroups,
+	useGetWorkspaceUsers,
+	GET_WORKSPACE_GROUPS_QUERY_KEY,
+} from './hooks/workspace';
+import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { useGetWorkspaceApps, App } from '../app-list/hooks/useGetWorkspaceApps';
 import { UserPolicySelector, GroupPolicySelector } from './components/PolicySelector';
 import { GroupCard } from './Group';
 import { UserCard } from './Users';
 import { PermissionsCard } from './components/EntityCard/EntityCard';
-import { useGetWorkspaceUsers } from './hooks/workspace';
-import { useGetGroupUsers } from './hooks/group';
-import { useRemoveUserFromGroup } from './hooks/group';
 
 const PolicyTable = ({
 	selectedResourceId,
@@ -61,12 +66,12 @@ const PolicyTable = ({
 	apps: App[];
 	resourceType: string;
 }) => {
-	const getSelector = (selectedResourceId: string, appId: string) => {
+	const getSelector = (targetResourceId: string, appId: string) => {
 		if (resourceType === 'users') {
-			return <UserPolicySelector userId={selectedResourceId} appId={appId} />;
+			return <UserPolicySelector userId={targetResourceId} appId={appId} />;
 		}
 
-		return <GroupPolicySelector groupId={selectedResourceId} appId={appId} />;
+		return <GroupPolicySelector groupId={targetResourceId} appId={appId} />;
 	};
 	return (
 		<Box flexGrow="4" ml="8">
@@ -236,7 +241,7 @@ export const Permissions = () => {
 		inviteMemberOnClose();
 	};
 
-	const canUseGranularPermissions = true;
+	const canUseGranularPermissions = inTrial || userInfo?.email?.endsWith('.dropbase.io');
 
 	if (!canUseGranularPermissions) {
 		return (
