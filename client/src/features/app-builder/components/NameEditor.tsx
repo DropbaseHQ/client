@@ -68,7 +68,7 @@ export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resourc
 									value={name}
 									onChange={handleChangeAppName}
 									onKeyDown={(event) => {
-										if (event.key === 'Enter') {
+										if (event.key === 'Enter' && invalidMessage === false) {
 											handleUpdate();
 											event.preventDefault();
 										}
