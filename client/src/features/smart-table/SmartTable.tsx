@@ -803,11 +803,11 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							) : null}
 						</Stack>
 
-						{pageState?.context?.tables?.[tableName].message ? (
+						{pageState?.context?.tables?.[tableName]?.message ? (
 							<Stack ml="auto" overflow="hidden">
 								<Alert
 									status={
-										pageState?.context?.tables?.[tableName].message_type ||
+										pageState?.context?.tables?.[tableName]?.message_type ||
 										'info'
 									}
 									bgColor="transparent"
@@ -815,7 +815,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 								>
 									<AlertIcon boxSize={4} />
 									<AlertDescription fontSize="sm">
-										{pageState?.context?.tables?.[tableName].message}
+										{pageState?.context?.tables?.[tableName]?.message}
 									</AlertDescription>
 								</Alert>
 							</Stack>
