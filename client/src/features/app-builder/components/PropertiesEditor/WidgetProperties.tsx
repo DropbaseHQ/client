@@ -24,10 +24,6 @@ export const WidgetProperties = ({ widgetId }: any) => {
 	const mutation = useUpdatePageData({
 		onSuccess: () => {
 			refetch();
-			setInspectedResource({
-				id: null,
-				type: 'widget',
-			});
 		},
 		onError: (error: any) => {
 			toast({
