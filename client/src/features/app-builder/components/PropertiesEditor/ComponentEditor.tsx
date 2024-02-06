@@ -288,13 +288,14 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												return <DisplayRulesEditor name={component.name} />;
 											}
 
-											if (property.name === 'on_click') {
+											if (
+												property.name === 'on_click' ||
+												property.name === 'on_change'
+											) {
 												return <EventPropertyEditor id="on_click" />;
 											}
 
-											const showFunctionList =
-												property.type === 'function' ||
-												property.name === 'on_change';
+											const showFunctionList = property.type === 'function';
 
 											return (
 												<FormInput

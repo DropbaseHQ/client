@@ -405,6 +405,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 			value={value || ''}
 			size="sm"
 			ref={ref}
+			type={type === 'datetime' ? 'datetime-local' : type}
 			{...inputProps}
 		/>
 	);
