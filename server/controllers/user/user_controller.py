@@ -8,11 +8,18 @@ from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.constants import ACCESS_TOKEN_EXPIRE_SECONDS, CLIENT_URL, REFRESH_TOKEN_EXPIRE_SECONDS
-from server.controllers.policy import PolicyUpdater, format_permissions_for_highest_action
+from server.constants import (
+    ACCESS_TOKEN_EXPIRE_SECONDS,
+    CLIENT_URL,
+    REFRESH_TOKEN_EXPIRE_SECONDS,
+)
+from server.controllers.policy import (
+    PolicyUpdater,
+    format_permissions_for_highest_action,
+)
 from server.controllers.user.workspace_creator import WorkspaceCreator
 from server.emails.emailer import send_email
-from server.models import Policy
+from server.models import Policy, User
 from server.schemas.user import (
     AddPolicyRequest,
     CreateUser,
@@ -21,13 +28,21 @@ from server.schemas.user import (
     ReadUser,
     ResetPasswordRequest,
     UpdateUserPolicyRequest,
+    CheckPermissionRequest,
 )
 from server.schemas.workspace import ReadWorkspace
-from server.utils.authentication import authenticate_user, get_password_hash, verify_password
+from server.utils.authentication import (
+    authenticate_user,
+    get_password_hash,
+    verify_password,
+)
 from server.utils.hash import get_confirmation_token_hash
 from server.utils.helper import raise_http_exception
 from server.utils.loops_integration import loops_controller
-from server.utils.permissions.casbin_utils import get_contexted_enforcer
+from server.utils.permissions.casbin_utils import (
+    get_contexted_enforcer,
+    get_all_action_permissions,
+)
 from server.utils.slack import slack_sign_up
 
 
@@ -86,7 +101,9 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
             samesite=Authorize._cookie_samesite,
         )
         workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
-        workspace = ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
+        workspace = (
+            ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
+        )
         return {
             "user": ReadUser.from_orm(user),
             "workspace": workspace,
@@ -128,7 +145,9 @@ def refresh_token(Authorize: AuthJWT):
 def register_user(db: Session, request: CreateUserRequest):
     try:
         hashed_password = get_password_hash(request.password)
-        confirmation_token = get_confirmation_token_hash(request.email + hashed_password + request.name)
+        confirmation_token = get_confirmation_token_hash(
+            request.email + hashed_password + request.name
+        )
 
         user_obj = CreateUser(
             name=request.name,
@@ -143,7 +162,9 @@ def register_user(db: Session, request: CreateUserRequest):
         workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
         workspace_creator.create()
 
-        confirmation_link = f"{CLIENT_URL}/email-confirmation/{confirmation_token}/{user.id}"
+        confirmation_link = (
+            f"{CLIENT_URL}/email-confirmation/{confirmation_token}/{user.id}"
+        )
         send_email(
             email_name="verifyEmail",
             email_params={
@@ -166,7 +187,9 @@ def verify_user(db: Session, token: str, user_id: UUID):
         try:
             user.confirmation_token = None
             user.active = True
-            loops_controller.add_user(user_email=user.email, name=user.name, user_id=str(user.id))
+            loops_controller.add_user(
+                user_email=user.email, name=user.name, user_id=str(user.id)
+            )
             db.commit()
             return {"message": "User successfully confirmed"}
         except Exception as e:
@@ -220,7 +243,9 @@ def remove_policy(db: Session, user_id: UUID, request: AddPolicyRequest):
 
 def get_user_permissions(db: Session, user_id: UUID, workspace_id: UUID):
     user = crud.user.get_object_by_id_or_404(db, id=user_id)
-    user_role = crud.user_role.get_user_role(db, user_id=user_id, workspace_id=workspace_id)
+    user_role = crud.user_role.get_user_role(
+        db, user_id=user_id, workspace_id=workspace_id
+    )
     enforcer = get_contexted_enforcer(db, workspace_id)
     permissions = enforcer.get_filtered_policy(1, str(user.id))
 
@@ -252,13 +277,17 @@ def get_user_workspaces(db: Session, user_id: UUID):
     workspaces = crud.workspace.get_user_workspaces(db, user_id=user_id)
     formatted_workspaces = []
     for workspace in workspaces:
-        workspace_oldest_user = crud.workspace.get_oldest_user(db, workspace_id=workspace.id)
+        workspace_oldest_user = crud.workspace.get_oldest_user(
+            db, workspace_id=workspace.id
+        )
         formatted_workspaces.append(
             {
                 "id": workspace.id,
                 "name": workspace.name,
                 "oldest_user": workspace_oldest_user,
                 "worker_url": workspace.worker_url,
+                "in_trial": workspace.in_trial,
+                "trial_end_date": workspace.trial_end_date,
             }
         )
 
@@ -267,7 +296,9 @@ def get_user_workspaces(db: Session, user_id: UUID):
 
 def resend_confirmation_email(db: Session, user_email: str):
     user = crud.user.get_user_by_email(db, email=user_email)
-    confirmation_link = f"{CLIENT_URL}/email-confirmation/{user.confirmation_token}/{user.id}"
+    confirmation_link = (
+        f"{CLIENT_URL}/email-confirmation/{user.confirmation_token}/{user.id}"
+    )
 
     send_email(
         email_name="verifyEmail",
@@ -293,7 +324,9 @@ def request_reset_password(db: Session, request: ResetPasswordRequest):
         expiry_hours = 2
         expiration_time = datetime.now() + timedelta(hours=expiry_hours)
         reset_link = f"{CLIENT_URL}/reset"
-        link_with_q_params = _add_query_params(reset_link, {"email": user.email, "token": reset_token})
+        link_with_q_params = _add_query_params(
+            reset_link, {"email": user.email, "token": reset_token}
+        )
         crud.reset_token.create(
             db,
             obj_in={
@@ -329,7 +362,9 @@ def reset_password(db: Session, request: ResetPasswordRequest):
         raise_http_exception(400, "Token is no longer valid.")
 
     if datetime.now() > user_reset_token.expiration_time:
-        crud.reset_token.update_by_pk(db, pk=user_reset_token.id, obj_in={"status": "expired"})
+        crud.reset_token.update_by_pk(
+            db, pk=user_reset_token.id, obj_in={"status": "expired"}
+        )
         raise_http_exception(400, "Token is expired.")
 
     try:
@@ -356,7 +391,9 @@ def delete_user(db: Session, user_id: UUID):
     try:
         # user = crud.user.get_object_by_id_or_404(db, id=user_id)
         crud.user.remove(db, id=user_id, auto_commit=False)
-        user_owned_workspaces = crud.workspace.get_user_owned_workspaces(db, user_id=user_id)
+        user_owned_workspaces = crud.workspace.get_user_owned_workspaces(
+            db, user_id=user_id
+        )
         for workspace in user_owned_workspaces:
             crud.workspace.remove(db, id=workspace.id, auto_commit=False)
         db.commit()
@@ -364,3 +401,13 @@ def delete_user(db: Session, user_id: UUID):
         db.rollback()
         raise_http_exception(status_code=500, message="Internal server error")
     return {"message": "User successfully deleted"}
+
+
+def check_permissions(db: Session, user: User, request: CheckPermissionRequest):
+    workspace_id = request.workspace_id
+    app_name = request.app_name
+
+    permissions_dict = get_all_action_permissions(
+        db, str(user.id), workspace_id, app_name
+    )
+    return permissions_dict

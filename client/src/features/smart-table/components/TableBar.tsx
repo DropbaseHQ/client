@@ -105,6 +105,7 @@ export const TableBar = () => {
 					row: rows[edit.rowIndex],
 					column_name: edit.column_name,
 					columns,
+					column_type: edit.column_type,
 					old_value: edit.old_value,
 					new_value: edit.new_value,
 				})),
@@ -144,7 +145,7 @@ export const TableBar = () => {
 									</Stack>
 								</PopoverTrigger>
 								<PopoverContent zIndex="popover" mt="-2">
-									<PopoverHeader fontWeight="semibold">
+									<PopoverHeader fontWeight="semibold" fontSize="md">
 										Convert to Smart Table
 									</PopoverHeader>
 

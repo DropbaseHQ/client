@@ -7,6 +7,8 @@ import { ComponentPropertyEditor } from '../PropertiesEditor/ComponentEditor';
 import { TableConfig } from '../PropertiesEditor/TableConfig';
 import { WidgetProperties } from '@/features/app-builder/components/PropertiesEditor/WidgetProperties';
 
+import './monaco-suggestion-styles.css';
+
 const EmptyPane = () => {
 	return (
 		<Stack as={Stack} p={6} bg="white" w="full" h="full">

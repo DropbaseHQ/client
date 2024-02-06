@@ -12,6 +12,7 @@
 	},
 	"dependencies": {
 		"@chakra-ui/cli": "^2.4.1",
+		"@chakra-ui/icons": "^2.1.1",
 		"@chakra-ui/pro-theme": "^0.10.0",
 		"@chakra-ui/react": "^2.8.0",
 		"@chakra-ui/theme-tools": "^2.1.1",
@@ -19,14 +20,15 @@
 		"@emotion/react": "^11.11.1",
 		"@emotion/styled": "^11.11.0",
 		"@fontsource-variable/inter": "^5.0.8",
-		"@glideapps/glide-data-grid": "5.2.2-beta5",
-		"@glideapps/glide-data-grid-cells": "^5.2.1",
+		"@glideapps/glide-data-grid": "^6.0.0",
+		"@glideapps/glide-data-grid-cells": "^6.0.0",
 		"@hookform/error-message": "^2.0.1",
 		"@monaco-editor/react": "^4.5.1",
 		"@types/react-beautiful-dnd": "^13.1.7",
 		"axios": "^1.4.0",
 		"copy-to-clipboard": "^3.3.3",
 		"date-fns": "^2.30.0",
+		"date-fns-tz": "^2.0.0",
 		"framer-motion": "^10.15.1",
 		"jotai": "^2.3.1",
 		"lodash": "^4.17.21",
@@ -45,6 +47,7 @@
 		"react-responsive-carousel": "^3.2.23",
 		"react-router-dom": "^6.14.2",
 		"react-use-websocket": "^4.5.0",
+		"use-debounce": "^10.0.0",
 		"vscode-languageclient": "^8.1.0",
 		"vscode-oniguruma": "^1.7.0",
 		"vscode-textmate": "^9.0.0",
@@ -77,7 +80,8 @@
 		"path": "^0.12.7",
 		"prettier": "^3.0.1",
 		"typescript": "^5.0.2",
-		"vite": "^4.4.5"
+		"vite": "^4.4.5",
+		"vite-plugin-html-env": "^1.2.8"
 	},
 	"optionalDependencies": {
 		"@esbuild/linux-x64": "^0.19.2"

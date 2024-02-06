@@ -24,10 +24,6 @@ export const WidgetProperties = ({ widgetId }: any) => {
 	const mutation = useUpdatePageData({
 		onSuccess: () => {
 			refetch();
-			setInspectedResource({
-				id: null,
-				type: 'widget',
-			});
 		},
 		onError: (error: any) => {
 			toast({
@@ -185,6 +181,12 @@ export const WidgetProperties = ({ widgetId }: any) => {
 											id={property.name}
 											type={property.type}
 											key={property.name}
+											options={(property.enum || property.options || []).map(
+												(o: any) => ({
+													name: o,
+													value: o,
+												}),
+											)}
 										/>
 									);
 								})}

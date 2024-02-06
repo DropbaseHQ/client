@@ -85,3 +85,8 @@ class ResendConfirmationEmailRequest(BaseModel):
 
 class RequestResetPassword(BaseModel):
     email: str
+
+
+class CheckPermissionRequest(BaseModel):
+    app_name: str
+    workspace_id: str

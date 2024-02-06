@@ -11,6 +11,7 @@ import {
 import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
 import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
+import { fetchJobStatus } from '@/utils/worker-job';
 
 export const TABLE_QUERY_KEY = 'table';
 
@@ -181,7 +182,7 @@ export const useRunTableQuery = (props: any = {}) => {
 };
 
 const runSQLQuery = async ({ appName, pageName, state, source, fileContent }: any) => {
-	const response = await workerAxios.post(`/run_sql/run_sql_string/`, {
+	const response = await workerAxios.post(`/query/sql_string/`, {
 		app_name: appName,
 		page_name: pageName,
 		state,
@@ -189,7 +190,15 @@ const runSQLQuery = async ({ appName, pageName, state, source, fileContent }: an
 		file_content: fileContent,
 	});
 
-	return response.data;
+	if (response.data?.job_id){
+		const jobResponse = await fetchJobStatus(response.data.job_id);
+		return jobResponse;
+	}
+	else {
+		console.error("No associated job id found")
+		throw new Error('Failed to run python function');
+	}
+
 };
 
 export const useRunSQLQuery = (props: any = {}) => {
@@ -198,7 +207,6 @@ export const useRunSQLQuery = (props: any = {}) => {
 	return useMutation(runSQLQuery, {
 		...props,
 		onSettled: () => {
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
 		},
 	});
@@ -221,9 +229,9 @@ const saveSql = async ({ pageName, appName, fileType, fileName, code, source, de
 export const useSaveCode = (props: any = {}) => {
 	const queryClient = useQueryClient();
 	return useMutation(saveSql, {
-		onSettled: () => {
+		onSettled: (_, __, variables: any) => {
 			queryClient.invalidateQueries(TABLE_QUERY_KEY);
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries([TABLE_DATA_QUERY_KEY, variables?.fileName]);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
 			queryClient.invalidateQueries(DATA_FETCHER_QUERY_KEY);

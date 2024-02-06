@@ -90,13 +90,15 @@ export const DeleteFile = ({ name, id, type, ...props }: any) => {
 
 			<Portal>
 				<PopoverContent>
-					<PopoverHeader pt={4} fontWeight="bold" border="0">
+					<PopoverHeader pt={4} fontWeight="bold" fontSize="md" border="0">
 						Delete Function
 					</PopoverHeader>
 					<PopoverArrow />
 					<PopoverCloseButton />
 					<form onSubmit={onSubmit}>
-						<PopoverBody>Are you sure you want to delete {name}?</PopoverBody>
+						<PopoverBody fontSize="md">
+							Are you sure you want to delete {name}?
+						</PopoverBody>
 						<PopoverFooter
 							border="0"
 							display="flex"

@@ -13,7 +13,7 @@ import {
 } from '@choc-ui/chakra-autocomplete';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
-import { tableStateAtom } from '@/features/app-state';
+import { allWidgetsInputAtom, tableColumnTypesAtom, tableStateAtom } from '@/features/app-state';
 
 const OPERATORS = [
 	{
@@ -95,7 +95,11 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 					<AutoCompleteGroupTitle>Tables</AutoCompleteGroupTitle>
 					{tableTargets?.map((xTable: any) => {
 						return (
-							<AutoCompleteItem key={xTable?.value} value={xTable?.value}>
+							<AutoCompleteItem
+								key={xTable?.value}
+								value={xTable?.value}
+								fontSize="sm"
+							>
 								{xTable?.label}
 							</AutoCompleteItem>
 						);
@@ -105,7 +109,11 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 					<AutoCompleteGroupTitle>Widgets</AutoCompleteGroupTitle>
 					{widgetTargets?.map((widgetTarget: any) => {
 						return (
-							<AutoCompleteItem key={widgetTarget.value} value={widgetTarget.value}>
+							<AutoCompleteItem
+								key={widgetTarget.value}
+								value={widgetTarget.value}
+								fontSize="sm"
+							>
 								{widgetTarget.label}
 							</AutoCompleteItem>
 						);
@@ -116,18 +124,30 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 	);
 };
 
+const compilePathName = (category: string, specificCategory: string, target: string) => {
+	return `${category}.${specificCategory}.${target}`;
+};
+
 export const DisplayRulesEditor = ({ name }: any) => {
 	const { widgetName, widgets } = useAtomValue(pageAtom);
+	const widgetsInputs = useAtomValue(allWidgetsInputAtom);
 	const tableState = useAtomValue(tableStateAtom);
-	const currentWidget = widgets?.find((w: any) => w.name === widgetName);
+	const tableColumnTypes = useAtomValue(tableColumnTypesAtom);
 
-	const compilePathName = (category: string, specificCategory: string, target: string) => {
-		return `${category}.${specificCategory}.${target}`;
-	};
+	const currentWidget: { [key: string]: any } =
+		widgetsInputs?.[widgetName as keyof typeof widgetsInputs] || {};
 
 	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
 	const { control } = useFormContext();
 
+	const getColType = (target: string) => {
+		if (!target || target === 'widgets') {
+			return 'text';
+		}
+		const [, specificCategory, targetName] = target.split('.');
+		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
+		return table?.[targetName as keyof typeof table];
+	};
 	const componentsProperties = components
 		.filter(
 			(c: any) =>
@@ -147,9 +167,9 @@ export const DisplayRulesEditor = ({ name }: any) => {
 			.flat();
 	}, [tableState]);
 
-	const widgetTargets = currentWidget?.components.map((c: any) => ({
-		label: `${currentWidget?.name}.${c.name}`,
-		value: compilePathName('widgets', currentWidget?.name, c.name),
+	const widgetTargets = Object.keys(currentWidget)?.map((c: any) => ({
+		label: `${widgetName}.${c}`,
+		value: compilePathName('widgets', widgetName || '', c),
 	}));
 
 	return (
@@ -164,9 +184,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 						<Stack spacing="2.5">
 							{displayRules.map((rule: any, index: any) => {
 								const componentProperty = componentsProperties?.[rule?.name];
-
 								let isNumberInput = false;
-
 								let input: any = {
 									type: 'text',
 								};
@@ -229,59 +247,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 											widgetTargets={widgetTargets}
 											displayRules={displayRules}
 										/>
-										{/* <AutoComplete
-											onSelectOption={({ item }: any) => {
-												onChange(
-													displayRules.map((r: any) => {
-														if (r.id === rule.id) {
-															return {
-																...r,
-																target: item.value,
-															};
-														}
 
-														return r;
-													}),
-												);
-											}}
-										>
-											<FormControl>
-												<FormLabel {...formLabelProps}>Target</FormLabel>
-												<AutoCompleteInput size="sm" value={rule.target} />
-											</FormControl>
-											<AutoCompleteList>
-												<AutoCompleteGroup key="tables" showDivider>
-													<AutoCompleteGroupTitle>
-														Tables
-													</AutoCompleteGroupTitle>
-													{tableTargets?.map((xTable: any) => {
-														return (
-															<AutoCompleteItem
-																key={xTable?.value}
-																value={xTable?.value}
-															>
-																{xTable?.label}
-															</AutoCompleteItem>
-														);
-													})}
-												</AutoCompleteGroup>
-												<AutoCompleteGroup key="widgets" showDivider>
-													<AutoCompleteGroupTitle>
-														Widgets
-													</AutoCompleteGroupTitle>
-													{widgetTargets?.map((widgetTarget: any) => {
-														return (
-															<AutoCompleteItem
-																key={widgetTarget.value}
-																value={widgetTarget.value}
-															>
-																{widgetTarget.label}
-															</AutoCompleteItem>
-														);
-													})}
-												</AutoCompleteGroup>
-											</AutoCompleteList>
-										</AutoComplete> */}
 										<Stack alignItems="end" key={rule.id} direction="row">
 											<FormControl>
 												{index === 0 ? (
@@ -332,6 +298,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														disabled={!rule.target}
 														placeholder="select value"
 														{...input}
+														type={getColType(rule.target)}
 														value={rule.value}
 														onChange={(newValue: any) => {
 															onChange(

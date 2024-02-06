@@ -1,10 +1,11 @@
 import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import useWebSocket from 'react-use-websocket';
 import { Login, Register, ResetPassword, EmailConfirmation } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
 import { App } from '@/features/app';
-import { Users, DeveloperSettings } from '@/features/settings';
+import { Users, DeveloperSettings, Permissions } from '@/features/settings';
 import { Workspaces, useWorkspaces } from '@/features/workspaces';
 import { RequestResetLink } from '@/features/authorization/RequestResetLink';
 import {
@@ -15,12 +16,17 @@ import { useSyncProxyToken } from '@/features/settings/hooks/token';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
 import { Welcome } from '../features/welcome';
 import { isProductionApp } from '../utils';
+import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
 	useSyncProxyToken();
 	useSetWorkerAxiosToken();
 	useSetWorkerAxiosBaseURL();
+	// Initialize websocket
+	useWebSocket(SOCKET_URL, {
+		share: true,
+	});
 
 	if (isLoading) {
 		return (
@@ -83,7 +89,7 @@ export const DashboardRoutes = () => {
 								<Route path="settings/members" element={<Users />} />
 							</>
 						)}
-						{/* <Route path="settings/permissions" element={<Permissions />} /> */}
+						<Route path="settings/permissions" element={<Permissions />} />
 						<Route path="settings/developer" element={<DeveloperSettings />} />
 					</Route>
 

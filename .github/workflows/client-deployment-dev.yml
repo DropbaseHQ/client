@@ -5,13 +5,13 @@ on:
     branches:
       - dev
     paths:
-      - client
+      - client/**
   workflow_dispatch:
 
 env:
   CLOUDFLARE_ACCOUNT_ID: 74c5779b693bd2c6e69632e8a533e618
   CLOUDFLARE_PAGES_PROJECT: dropbase-client-dev
-  CLIENT_URL: "https://dropbase-client-dev.pages.dev"
+  CLIENT_URL: "https://dev.dropbase.io"
   LOOPS_API_KEY: "771ca36f885accd66ab864342acabf6b"
   VITE_API_ENDPOINT: "https://api.dev.dropbase.io/"
   VITE_PYTHON_LSP_SERVER: "wss://api.dev.dropbase.io"

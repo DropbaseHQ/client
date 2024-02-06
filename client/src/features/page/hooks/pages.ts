@@ -22,6 +22,7 @@ export const useGetPage = ({ appName, pageName }: any) => {
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchPage({ appName, pageName }), {
 		enabled: Boolean(appName && pageName),
+		staleTime: Infinity,
 	});
 
 	const data: any = useMemo(() => {
@@ -70,6 +71,7 @@ export const useInitPage = () => {
 					pageName,
 					appName,
 					widgets,
+					modals: [],
 				});
 				ref.current = true;
 			}
@@ -83,6 +85,7 @@ export const useInitPage = () => {
 				pageName: null,
 				appName: null,
 				widgets: null,
+				modals: [],
 			});
 		};
 	}, [setPageContext]);

@@ -17,9 +17,10 @@ import {
 	PopoverContent,
 	PopoverBody,
 	PopoverHeader,
+	Code,
 } from '@chakra-ui/react';
 import { InputRenderer } from '@/components/FormInput';
-import { useConvertSmartTable, useGetTable } from '@/features/app-builder/hooks';
+import { useConvertSmartTable, useGetTable, useResourceFields } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { newPageStateAtom } from '@/features/app-state';
@@ -41,6 +42,9 @@ const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 	const { appName, pageName } = useParams();
 
 	const { properties: pageProperties } = useGetPage({ appName, pageName });
+
+	const { fields } = useResourceFields();
+	const columnFields = fields[tableType === 'sql' ? 'pgcolumn' : 'pycolumn'] || [];
 
 	const updateMutation = useUpdatePageData({
 		onSuccess: () => {
@@ -90,24 +94,28 @@ const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 
 	const hasNoEditKeys = edit_keys?.length === 0;
 
-	const allVisibleProperties = [].filter((property: any) =>
+	const allVisibleProperties = columnFields.filter((property: any) =>
 		DISPLAY_COLUMN_PROPERTIES.includes(property.name),
 	);
 
 	return (
 		<SimpleGrid alignItems="center" gap={3} columns={3}>
-			<Box overflow="hidden">
+			<Box alignSelf="center" overflow="hidden">
 				<Tooltip placement="left-end" label={properties.name}>
-					<Text
+					<Code
+						h="full"
+						bg="transparent"
 						fontSize="sm"
 						whiteSpace="nowrap"
+						display="inline"
 						w="full"
 						overflow="hidden"
+						lineHeight={1}
 						textOverflow="ellipsis"
 						size="sm"
 					>
 						{properties.name}
-					</Text>
+					</Code>
 				</Tooltip>
 			</Box>
 			<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
@@ -130,12 +138,12 @@ const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 			<Stack alignItems="center" justifyContent="space-between" direction="row">
 				<InputRenderer
 					type="boolean"
-					id="visible"
+					id="hidden"
 					isDisabled={updateMutation.isLoading}
-					value={properties.visible}
+					value={properties.hidden}
 					onChange={(newValue: any) => {
 						handleUpdate({
-							visible: newValue,
+							hidden: newValue,
 						});
 					}}
 				/>
@@ -153,7 +161,7 @@ const ColumnProperty = ({ tableType, edit_keys, ...properties }: any) => {
 						</Box>
 					</PopoverTrigger>
 					<PopoverContent>
-						<PopoverHeader fontSize="sm" fontWeight="medium">
+						<PopoverHeader fontSize="md" fontWeight="medium">
 							Config for {properties.name}
 						</PopoverHeader>
 						<PopoverBody>
@@ -240,7 +248,7 @@ export const ColumnsProperties = () => {
 
 	return (
 		<Stack h="full" overflowY="auto">
-			{type === 'sql' ? (
+			{type === 'sql' && !table?.smart ? (
 				<Button
 					leftIcon={<Zap size="14" />}
 					size="sm"
@@ -263,7 +271,7 @@ export const ColumnsProperties = () => {
 				>
 					<Text>Column</Text>
 					<Text>Editable</Text>
-					<Text>Visible</Text>
+					<Text>Hidden</Text>
 				</SimpleGrid>
 				{columns.map((column: any) => (
 					<ColumnProperty tableType={type} key={column.name} {...column} />

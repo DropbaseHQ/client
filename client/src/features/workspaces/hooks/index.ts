@@ -39,8 +39,13 @@ export const useWorkspaces = () => {
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchWorkspaces(), {
 		enabled: !loginRoutes,
 		onSuccess: (data: any) => {
-			if (!currentWorkspace) {
-				updateWorkspace(data?.[0]?.id);
+			const newCurrentWorkspace = data.find(
+				(workspace: Workspace) => workspace.id === currentWorkspace.id,
+			);
+			if (!currentWorkspace?.id) {
+				updateWorkspace({ id: data?.[0] });
+			} else if (newCurrentWorkspace) {
+				updateWorkspace(newCurrentWorkspace);
 			}
 		},
 	});

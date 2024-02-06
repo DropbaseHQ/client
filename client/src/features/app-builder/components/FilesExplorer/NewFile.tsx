@@ -141,7 +141,6 @@ export const NewFile = (props: any) => {
 					icon={<Plus size="14" />}
 					onClick={(e) => {
 						e.stopPropagation();
-
 						onToggle();
 					}}
 					isDisabled={!isConnected}
@@ -156,7 +155,7 @@ export const NewFile = (props: any) => {
 						e.stopPropagation();
 					}}
 				>
-					<PopoverHeader pt={4} fontWeight="bold" fontSize="lg" border="0">
+					<PopoverHeader pt={4} fontWeight="bold" fontSize="md" border="0">
 						Create a new function
 					</PopoverHeader>
 					<PopoverArrow />

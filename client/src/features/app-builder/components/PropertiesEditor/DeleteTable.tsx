@@ -22,12 +22,15 @@ import { useToast } from '@/lib/chakra-ui';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { getErrorMessage } from '@/utils';
 import { useGetPage, useUpdatePageData } from '@/features/page';
+import { useGetTable } from '@/features/app-builder/hooks';
 
 export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
+	const { appName, pageName } = useParams();
+
+	const { smart: isSmartTable = false } = useGetTable(tableId || '') || {};
+
 	const toast = useToast();
 	const setDevTab = useSetAtom(inspectedResourceAtom);
-
-	const { appName, pageName } = useParams();
 
 	const { properties } = useGetPage({ appName, pageName });
 
@@ -88,7 +91,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 					variant="ghost"
 					colorScheme="red"
 					aria-label="Delete table"
-					onClick={onToggle}
+					onClick={isSmartTable ? onToggle : onSubmit}
 					type="button"
 					isLoading={mutation.isLoading}
 					size="sm"
@@ -99,7 +102,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 
 			<Portal>
 				<PopoverContent>
-					<PopoverHeader pt={4} fontWeight="bold" border="0">
+					<PopoverHeader pt={4} fontWeight="bold" border="0" fontSize="md">
 						Delete table
 					</PopoverHeader>
 					<PopoverArrow />

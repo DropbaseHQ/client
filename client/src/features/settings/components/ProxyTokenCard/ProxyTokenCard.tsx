@@ -40,7 +40,7 @@ export const maskedString = (token_str: string) => {
 };
 
 export const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const [selectedToken, setToken] = useAtom(proxyTokenAtom);
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
@@ -185,7 +185,9 @@ export const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
 					>
 						<PopoverArrow />
 						<PopoverCloseButton />
-						<PopoverHeader textAlign="left">Confirm delete token!</PopoverHeader>
+						<PopoverHeader textAlign="left" fontSize="md">
+							Confirm delete token!
+						</PopoverHeader>
 						<PopoverBody textAlign="left">
 							Are you sure you want to delete this token?
 						</PopoverBody>
