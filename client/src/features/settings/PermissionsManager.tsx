@@ -39,6 +39,8 @@ import { workspaceAtom } from '@/features/workspaces';
 import { UserPlus, UserMinus } from 'react-feather';
 import { useAtomValue } from 'jotai';
 import { useGetWorkspaceGroups, GET_WORKSPACE_GROUPS_QUERY_KEY } from './hooks/workspace';
+import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
+
 import { useAddUserToGroup } from './hooks/group';
 import { useQueryClient } from 'react-query';
 import { useGetWorkspaceApps, App } from '../app-list/hooks/useGetWorkspaceApps';
@@ -177,8 +179,9 @@ export const Permissions = () => {
 	const [newGroupName, setNewGroupName] = useState('' as string);
 	const [resourceType, setResourceType] = useState('groups' as string);
 	const [invitedMember, setInviteMember] = useState('' as string);
+	const { user: userInfo } = useGetCurrentUser();
 
-	const { id: workspaceId } = useAtomValue(workspaceAtom);
+	const { id: workspaceId, in_trial: inTrial } = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
 	const {
 		isOpen: createGroupIsOpen,
@@ -232,6 +235,18 @@ export const Permissions = () => {
 		});
 		inviteMemberOnClose();
 	};
+
+	const canUseGranularPermissions = true;
+
+	if (!canUseGranularPermissions) {
+		return (
+			<PageLayout title="Permissions Manager">
+				<Text fontSize="lg" color="gray.500">
+					Granular permissions are not available for your current plan.
+				</Text>
+			</PageLayout>
+		);
+	}
 
 	return (
 		<PageLayout
