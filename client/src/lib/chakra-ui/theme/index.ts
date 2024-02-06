@@ -9,7 +9,7 @@ import * as components from './components';
 
 const customComponents = merge(proTheme.components, components);
 
-const REDUCER = 0.85;
+const REDUCER = window.screen.width > 1440 ? 0.85 : 0.8;
 
 const SIZE_FIELDS = ['fontSizes', 'letterSpacings', 'lineHeights', 'radii', 'sizes', 'space'];
 
