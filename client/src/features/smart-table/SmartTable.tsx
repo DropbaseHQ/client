@@ -95,8 +95,17 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 	const { properties } = useGetPage({ appName, pageName });
 
-	const { isLoading, rows, columnDict, header, refetch, isRefetching, tableError, error } =
-		useCurrentTableData(tableName);
+	const {
+		isLoading,
+		rows,
+		columnDict,
+		header,
+		refetch,
+		isRefetching,
+		tableError,
+		error,
+		remove: removeQuery,
+	} = useCurrentTableData(tableName);
 	const {
 		depends_on: dependsOn,
 		isLoading: isLoadingTable,
@@ -836,7 +845,10 @@ export const SmartTable = ({ tableName, provider }: any) => {
 									icon={<RotateCw size="14" />}
 									variant="outline"
 									isLoading={isRefetching}
-									onClick={() => refetch()}
+									onClick={() => {
+										removeQuery();
+										refetch({ cancelRefetch: true });
+									}}
 								/>
 							</Tooltip>
 
