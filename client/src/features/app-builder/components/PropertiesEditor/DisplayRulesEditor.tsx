@@ -56,7 +56,14 @@ const formLabelProps = {
 	mb: '1',
 };
 
-const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRules }: any) => {
+const TargetSelector = ({
+	rule,
+	onChange,
+	tableTargets,
+	widgetTargets,
+	displayRules,
+	getColType,
+}: any) => {
 	const [editTarget, setEditTarget] = useState<string>(rule.target);
 
 	useEffect(() => {
@@ -72,6 +79,7 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 							return {
 								...r,
 								target: item.value,
+								target_type: getColType(item.value),
 							};
 						}
 
@@ -246,6 +254,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 											tableTargets={tableTargets}
 											widgetTargets={widgetTargets}
 											displayRules={displayRules}
+											getColType={getColType}
 										/>
 
 										<Stack alignItems="end" key={rule.id} direction="row">
