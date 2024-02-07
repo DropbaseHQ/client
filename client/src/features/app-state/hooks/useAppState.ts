@@ -5,7 +5,6 @@ import { workerAxios } from '@/lib/axios';
 
 export const APP_STATE_QUERY_KEY = 'appState';
 
-
 const fetchAppState = async ({ appName, pageName }: { appName: string; pageName: string }) => {
 	const response = await workerAxios.get<any>(`/page/${appName}/${pageName}`);
 	return response.data;

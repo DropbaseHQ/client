@@ -81,10 +81,15 @@ export const isProductionApp = () => {
 	return window.location.href.includes('app.dropbase.io');
 };
 
-export const invalidResourceName = (oldName: string, newName: string, names: any) => {
+export const invalidResourceName = (
+	oldName: string,
+	newName: string,
+	names: any,
+	mustBeLowercase = true,
+) => {
 	const notUnique = names.find((n: string) => n === newName && n !== oldName);
 
-	if (newName !== newName.toLowerCase()) {
+	if (newName !== newName.toLowerCase() && mustBeLowercase) {
 		return 'Must be lowercase';
 	}
 

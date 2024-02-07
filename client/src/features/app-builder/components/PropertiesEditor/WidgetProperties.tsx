@@ -179,7 +179,11 @@ export const WidgetProperties = ({ widgetId }: any) => {
 										<FormInput
 											{...property}
 											id={property.name}
-											type={property.type}
+											type={
+												property.name === 'label'
+													? 'template' // TODO: update backend to have this
+													: property.type
+											}
 											key={property.name}
 											options={(property.enum || property.options || []).map(
 												(o: any) => ({

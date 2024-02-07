@@ -22,6 +22,7 @@ import {
 import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
@@ -37,7 +38,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
 
-	const [name, setAppName] = useState('');
+	const [label, setAppLabel] = useState('');
 
 	const [invalidMessage, setInvalidMessage] = useState<string | boolean>(false);
 
@@ -57,7 +58,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 	useEffect(() => {
 		if (app) {
-			setAppName(app?.name);
+			setAppLabel(app?.label);
 		}
 		if (currentPageIndex !== undefined) {
 			setTabIndex(currentPageIndex);
@@ -69,31 +70,31 @@ export const AppNavbar = ({ isPreview }: any) => {
 		(document.activeElement as HTMLElement)?.blur();
 	};
 
-	const handleChangeAppName = (e: any) => {
-		const newName = e.target.value;
+	const handleChangeAppLabel = (e: any) => {
+		const newLabel = e.target.value;
 
 		setInvalidMessage(
 			invalidResourceName(
-				appName || '',
-				newName,
-				apps.map((a) => a.name),
+				app?.label || '',
+				newLabel,
+				apps.map((a) => a.label),
+				false,
 			),
 		);
 
-		setAppName(newName);
+		setAppLabel(newLabel);
 	};
 
 	const handleReset = () => {
-		if (app) setAppName(app?.name);
+		if (app) setAppLabel(app?.label);
 	};
 
 	const handleUpdate = () => {
 		if (app) {
 			updateMutation.mutate({
 				// FIXME: fix appId
-				// appId,
-				oldName: app.name,
-				newName: name,
+				appId: app.id,
+				newLabel: label,
 			});
 		}
 	};
@@ -132,6 +133,8 @@ export const AppNavbar = ({ isPreview }: any) => {
 		}
 	};
 
+	const methods = useForm();
+
 	return (
 		<Stack
 			alignItems="center"
@@ -153,9 +156,17 @@ export const AppNavbar = ({ isPreview }: any) => {
 				variant="ghost"
 			/>
 			<Stack alignItems="center" direction="row">
-				<Text fontWeight="semibold" fontSize="lg">
-					{app?.name}
-				</Text>
+				<Stack direction="row" alignItems="flex-end">
+					<Text fontWeight="semibold" fontSize="lg">
+						{app?.label}
+					</Text>
+					{!isPreview && (
+						<Text color="gray" fontSize="sm" mb="0.5">
+							{app?.name}
+						</Text>
+					)}
+				</Stack>
+
 				{isPreview ? null : (
 					<Popover onClose={handleReset} placement="bottom-end" closeOnBlur={false}>
 						{({ onClose }) => (
@@ -171,42 +182,46 @@ export const AppNavbar = ({ isPreview }: any) => {
 									/>
 								</PopoverTrigger>
 								<PopoverContent>
-									<PopoverArrow />
-									<PopoverBody>
+									<form onSubmit={methods.handleSubmit(handleUpdate)}>
 										<FormControl isInvalid={Boolean(invalidMessage)}>
-											<FormLabel>Edit App name</FormLabel>
-											<Input
-												size="sm"
-												placeholder="App name"
-												value={name}
-												onChange={handleChangeAppName}
-											/>
+											<PopoverArrow />
+											<PopoverBody>
+												<FormLabel>Edit App Label</FormLabel>
+												<Input
+													size="sm"
+													placeholder="App Label"
+													value={label}
+													onChange={handleChangeAppLabel}
+												/>
 
-											<FormErrorMessage>{invalidMessage}</FormErrorMessage>
+												<FormErrorMessage>
+													{invalidMessage}
+												</FormErrorMessage>
+											</PopoverBody>
+											<PopoverFooter display="flex" alignItems="end">
+												<ButtonGroup ml="auto" size="sm">
+													<Button
+														onClick={onClose}
+														colorScheme="red"
+														variant="outline"
+													>
+														Cancel
+													</Button>
+													<Button
+														isDisabled={
+															app?.label === label ||
+															!label ||
+															Boolean(invalidMessage)
+														}
+														colorScheme="blue"
+														type="submit"
+													>
+														Update
+													</Button>
+												</ButtonGroup>
+											</PopoverFooter>
 										</FormControl>
-									</PopoverBody>
-									<PopoverFooter display="flex" alignItems="end">
-										<ButtonGroup ml="auto" size="sm">
-											<Button
-												onClick={onClose}
-												colorScheme="red"
-												variant="outline"
-											>
-												Cancel
-											</Button>
-											<Button
-												isDisabled={
-													app?.name === name ||
-													!name ||
-													Boolean(invalidMessage)
-												}
-												colorScheme="blue"
-												onClick={handleUpdate}
-											>
-												Update
-											</Button>
-										</ButtonGroup>
-									</PopoverFooter>
+									</form>
 								</PopoverContent>
 							</>
 						)}
