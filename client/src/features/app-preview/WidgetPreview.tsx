@@ -73,9 +73,8 @@ export const WidgetPreview = ({ widgetName }: any) => {
 					type?: string;
 				} = JSON.parse(message?.data);
 				if (messageData?.type === 'auth_error' && retryCounter.current < 3) {
-					const response = await axios.post('/user/refresh');
-					const accessToken = response?.data?.access_token;
-					localStorage.setItem('worker_access_token', accessToken);
+					const accessToken = localStorage.getItem('access_token');
+
 					sendJsonMessage({
 						type: 'auth',
 						access_token: accessToken,
