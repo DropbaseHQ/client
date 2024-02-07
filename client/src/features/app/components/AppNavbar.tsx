@@ -73,8 +73,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const handleChangeAppLabel = (e: any) => {
 		const newLabel = e.target.value;
 
-		console.log(app?.label);
-
 		setInvalidMessage(
 			invalidResourceName(
 				app?.label || '',

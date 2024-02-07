@@ -79,7 +79,6 @@ const FileButton = ({ file }: any) => {
 	};
 
 	const onSubmit = () => {
-		console.log(newFileName);
 		if (nameNotUnique(newFileName)) {
 			toast({
 				status: 'error',
