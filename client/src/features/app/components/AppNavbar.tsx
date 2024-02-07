@@ -18,7 +18,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
 
-	const [name, setAppName] = useState('');
+	const [label, setAppLabel] = useState('');
 
 	const updateMutation = useUpdateApp({
 		onError: (error: any) => {
@@ -36,7 +36,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 	useEffect(() => {
 		if (app) {
-			setAppName(app?.name);
+			setAppLabel(app?.label);
 		}
 		if (currentPageIndex !== undefined) {
 			setTabIndex(currentPageIndex);
@@ -53,7 +53,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 			updateMutation.mutate({
 				// FIXME: fix appId
 				// appId,
-				oldName: app.name,
+				appId: app.id,
 				newName,
 			});
 		}
@@ -114,9 +114,17 @@ export const AppNavbar = ({ isPreview }: any) => {
 				variant="ghost"
 			/>
 			<Stack alignItems="center" direction="row">
-				<Text fontWeight="semibold" fontSize="lg">
-					{app?.name}
-				</Text>
+				<Stack direction="row" alignItems="flex-end">
+					<Text fontWeight="semibold" fontSize="lg">
+						{app?.label}
+					</Text>
+					{!isPreview && (
+						<Text color="gray" fontSize="sm" mb="0.5">
+							{app?.name}
+						</Text>
+					)}
+				</Stack>
+
 				{isPreview ? null : (
 					<NameEditor
 						value={name}

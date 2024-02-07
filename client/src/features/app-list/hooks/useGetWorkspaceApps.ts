@@ -5,6 +5,7 @@ import { workspaceAtom } from '@/features/workspaces';
 
 export type App = {
 	name: string;
+	label: string;
 	workspace_id: string;
 	date: string;
 	id: string;

@@ -33,7 +33,7 @@ export const Navbar = () => {
 	// 	if (!userRole) return false;
 	// 	return roles.includes(userRole);
 	// };
-	const canUseGranularPermissions = inTrial || user?.email?.endsWith('.dropbase.io');
+	const canUseGranularPermissions = inTrial || user?.email?.endsWith('dropbase.io');
 
 	const handleLogout = () => {
 		logout();
