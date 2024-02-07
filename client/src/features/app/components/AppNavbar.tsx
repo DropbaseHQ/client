@@ -22,6 +22,7 @@ import {
 import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
@@ -74,9 +75,10 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 		setInvalidMessage(
 			invalidResourceName(
-				appName || '',
+				app?.label || '',
 				newLabel,
 				apps.map((a) => a.label),
+				false,
 			),
 		);
 
@@ -131,6 +133,8 @@ export const AppNavbar = ({ isPreview }: any) => {
 		}
 	};
 
+	const methods = useForm();
+
 	return (
 		<Stack
 			alignItems="center"
@@ -178,42 +182,46 @@ export const AppNavbar = ({ isPreview }: any) => {
 									/>
 								</PopoverTrigger>
 								<PopoverContent>
-									<PopoverArrow />
-									<PopoverBody>
+									<form onSubmit={methods.handleSubmit(handleUpdate)}>
 										<FormControl isInvalid={Boolean(invalidMessage)}>
-											<FormLabel>Edit App Label</FormLabel>
-											<Input
-												size="sm"
-												placeholder="App Label"
-												value={label}
-												onChange={handleChangeAppLabel}
-											/>
+											<PopoverArrow />
+											<PopoverBody>
+												<FormLabel>Edit App Label</FormLabel>
+												<Input
+													size="sm"
+													placeholder="App Label"
+													value={label}
+													onChange={handleChangeAppLabel}
+												/>
 
-											<FormErrorMessage>{invalidMessage}</FormErrorMessage>
+												<FormErrorMessage>
+													{invalidMessage}
+												</FormErrorMessage>
+											</PopoverBody>
+											<PopoverFooter display="flex" alignItems="end">
+												<ButtonGroup ml="auto" size="sm">
+													<Button
+														onClick={onClose}
+														colorScheme="red"
+														variant="outline"
+													>
+														Cancel
+													</Button>
+													<Button
+														isDisabled={
+															app?.label === label ||
+															!label ||
+															Boolean(invalidMessage)
+														}
+														colorScheme="blue"
+														type="submit"
+													>
+														Update
+													</Button>
+												</ButtonGroup>
+											</PopoverFooter>
 										</FormControl>
-									</PopoverBody>
-									<PopoverFooter display="flex" alignItems="end">
-										<ButtonGroup ml="auto" size="sm">
-											<Button
-												onClick={onClose}
-												colorScheme="red"
-												variant="outline"
-											>
-												Cancel
-											</Button>
-											<Button
-												isDisabled={
-													app?.label === label ||
-													!label ||
-													Boolean(invalidMessage)
-												}
-												colorScheme="blue"
-												onClick={handleUpdate}
-											>
-												Update
-											</Button>
-										</ButtonGroup>
-									</PopoverFooter>
+									</form>
 								</PopoverContent>
 							</>
 						)}
