@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useAtom } from 'jotai';
-import { Box, Center, Skeleton, Stack, Text, useToast } from '@chakra-ui/react';
+import { Box, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 
@@ -13,7 +13,6 @@ import { SQLEditor } from './SQLEditor';
 import { useGetPage } from '@/features/page';
 import { FunctionTerminal } from './FunctionTerminal';
 import { PanelHandle } from '@/components/Panel';
-import { getErrorMessage } from '@/utils';
 
 const componentsMap: any = {
 	function: FunctionEditor,
@@ -22,13 +21,11 @@ const componentsMap: any = {
 
 export const FileContent = () => {
 	const { appName, pageName } = useParams();
-	const { files, isLoading, error } = useGetPage({ appName, pageName });
+	const { files, isLoading } = useGetPage({ appName, pageName });
 
 	const panelRef = useRef<any>(null);
 
 	const isReady = useMonacoLoader();
-
-	const toast = useToast();
 
 	const [devTab, setDevTab] = useAtom(developerTabAtom);
 
@@ -51,15 +48,6 @@ export const FileContent = () => {
 				</Stack>
 			</Stack>
 		);
-	}
-
-	if (error) {
-		toast({
-			status: 'error',
-			title: 'Error fetching app',
-			description: getErrorMessage(error),
-		});
-		return <Box color="red.400">{getErrorMessage(error)}</Box>;
 	}
 
 	const Component = componentsMap[devTab.type];

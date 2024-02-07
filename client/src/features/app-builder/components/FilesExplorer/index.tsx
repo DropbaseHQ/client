@@ -244,8 +244,6 @@ export const FilesExplorer = () => {
 
 	const isReady = useMonacoLoader();
 
-	const toast = useToast();
-
 	if (!isReady || isLoading) {
 		return (
 			<Stack borderBottomWidth="1px" bg="white" p="2">
@@ -256,16 +254,6 @@ export const FilesExplorer = () => {
 				</Stack>
 			</Stack>
 		);
-	}
-
-	if (error) {
-		toast({
-			status: 'error',
-			title: 'Error fetching app',
-			description: getErrorMessage(error),
-		});
-		return <Box color="red.400">{getErrorMessage(error)}</Box>;
-		return null; // use this after testing
 	}
 
 	return (
