@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { Code, Table, Box as BoxIcon, Edit2, Check, X } from 'react-feather';
 import { useParams } from 'react-router-dom';
+import { useState } from 'react';
 
 import { useMonacoLoader } from '@/components/Editor';
 
@@ -21,7 +22,6 @@ import { DeleteFile } from './DeleteFile';
 import { useUpdateFile } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
-import { useState } from 'react';
 
 const FileButton = ({ file }: any) => {
 	const toast = useToast();
@@ -30,11 +30,7 @@ const FileButton = ({ file }: any) => {
 	const { appName, pageName } = useParams();
 	const { files } = useGetPage({ appName, pageName });
 
-	const {
-		isOpen: mouseOver,
-		onClose: triggerMouseLeave,
-		onOpen: triggerMouseHover,
-	} = useDisclosure();
+	const { onClose: triggerMouseLeave, onOpen: triggerMouseHover } = useDisclosure();
 
 	const { isOpen: isEdit, onClose: onEditClose, onOpen: onEditOpen } = useDisclosure();
 
@@ -150,7 +146,6 @@ const FileButton = ({ file }: any) => {
 						variant="outline"
 						autoFocus
 						placeholder="Enter new name"
-						// onBlur={onEditClose}
 						_focus={{
 							bg: 'white',
 						}}
