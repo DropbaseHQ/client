@@ -67,6 +67,12 @@ export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resourc
 									placeholder={`Enter ${resource} name`}
 									value={name}
 									onChange={handleChangeAppName}
+									onKeyDown={(event) => {
+										if (event.key === 'Enter' && invalidMessage === false) {
+											handleUpdate();
+											event.preventDefault();
+										}
+									}}
 								/>
 
 								<FormErrorMessage>{invalidMessage}</FormErrorMessage>
