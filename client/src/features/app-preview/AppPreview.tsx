@@ -5,13 +5,13 @@ import { useAtomValue } from 'jotai';
 import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
-import { useInitializeWidgetState } from '@/features/app-state';
+import { newPageStateAtom, useInitializeWidgetState } from '@/features/app-state';
 import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
 import { appModeAtom } from '@/features/app/atoms';
-import { generateSequentialName } from '@/utils';
+import { extractTemplateString, generateSequentialName } from '@/utils';
 import { NewWidget } from '@/features/app-preview/components/NewWidget';
 import { WidgetSwitcher } from '@/features/app-preview/components/WidgetSwitcher';
 import { WidgetPreview } from '@/features/app-preview/WidgetPreview';
@@ -20,6 +20,8 @@ export const AppPreview = () => {
 	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
 	const { widgetName, widgets, modals } = useAtomValue(pageAtom);
+
+	const pageState = useAtomValue(newPageStateAtom);
 
 	const widgetLabel = widgets?.find((w) => w.name === widgetName)?.label;
 
@@ -118,11 +120,18 @@ export const AppPreview = () => {
 		<Loader isLoading={isLoading}>
 			<Stack position="relative" bg="white" h="full">
 				<Stack px="4" pt="4" pb="2" borderBottomWidth="1px" direction="row">
-					<InspectorContainer flex="1" noPadding type="widget" id={widgetName}>
+					<InspectorContainer
+						flex="1"
+						overflow="hidden"
+						noPadding
+						type="widget"
+						id={widgetName}
+					>
 						<Stack spacing="0">
 							<Stack direction="row" display="flex" alignItems="center">
 								<Text fontSize="lg" fontWeight="semibold">
-									{widgetLabel || widgetName}
+									{/* TODO: create a render template data to do this */}
+									{extractTemplateString(widgetLabel || widgetName, pageState)}
 								</Text>
 								{!isPreview && (
 									<Code fontSize="sm" bg="transparent" color="gray.600" ml="3">
@@ -133,7 +142,7 @@ export const AppPreview = () => {
 
 							{widgetDescription ? (
 								<Text fontSize="sm" color="gray.600">
-									{widgetDescription}
+									{extractTemplateString(widgetDescription, pageState)}
 								</Text>
 							) : null}
 						</Stack>

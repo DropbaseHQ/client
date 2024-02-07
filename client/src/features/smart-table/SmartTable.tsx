@@ -49,7 +49,7 @@ import {
 	tablePageInfoAtom,
 } from './atoms';
 import { TableBar } from './components';
-import { getErrorMessage } from '@/utils';
+import { extractTemplateString, getErrorMessage } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 
@@ -790,7 +790,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					<Stack alignItems="center" direction="row" w="full" overflow="hidden">
 						<Stack spacing="0" px="2" flexShrink="0">
 							<Text fontWeight="semibold" fontSize="lg">
-								{table?.label || tableName}
+								{extractTemplateString(table?.label || tableName, pageState)}
 							</Text>
 
 							{dependantTablesWithNoRowSelection.length > 0 ? (

@@ -15,7 +15,6 @@ import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import useWebSocket from 'react-use-websocket';
-import { axios } from '@/lib/axios';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import { allWidgetStateAtom, nonWidgetContextAtom } from '@/features/app-state';
