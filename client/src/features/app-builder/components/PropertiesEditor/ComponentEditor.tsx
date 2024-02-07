@@ -431,7 +431,7 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 				</Stack>
 			</MenuButton>
 			<MenuList>
-				{['input', 'text', 'select', 'button'].map((c) => (
+				{['input', 'text', 'select', 'button', 'boolean'].map((c) => (
 					<MenuItem
 						onClick={() => {
 							onSubmit({ type: c });
