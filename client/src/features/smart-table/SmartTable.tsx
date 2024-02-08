@@ -665,7 +665,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				...curr,
 				[tableName]: true,
 			}));
-			pageState.state.tables = newSelectedRow;
+
 			sendJsonMessage({
 				type: 'display_rule',
 				state_context: pageState,
