@@ -262,9 +262,11 @@ export const FilesExplorer = () => {
 
 	return (
 		<Stack spacing="0" h="full">
-			{(files || []).map((f: any) => {
-				return <FileButton file={f} key={f.name} />;
-			})}
+			{(files || [])
+				.sort((a: any, b: any) => a.name.localeCompare(b.name))
+				.map((f: any) => {
+					return <FileButton file={f} key={f.name} />;
+				})}
 		</Stack>
 	);
 };

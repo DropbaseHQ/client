@@ -119,7 +119,7 @@ export const AppPreview = () => {
 	return (
 		<Loader isLoading={isLoading}>
 			<Stack position="relative" bg="white" h="full">
-				<Stack px="4" pt="4" pb="2" borderBottomWidth="1px" direction="row">
+				<Stack alignItems="center" px="4" p="2" borderBottomWidth="1px" direction="row">
 					<InspectorContainer
 						flex="1"
 						overflow="hidden"
@@ -129,7 +129,13 @@ export const AppPreview = () => {
 					>
 						<Stack spacing="0">
 							<Stack direction="row" display="flex" alignItems="center">
-								<Text fontSize="lg" fontWeight="semibold">
+								<Text
+									textOverflow="ellipsis"
+									overflow="hidden"
+									whiteSpace="nowrap"
+									fontSize="lg"
+									fontWeight="semibold"
+								>
 									{/* TODO: create a render template data to do this */}
 									{extractTemplateString(widgetLabel || widgetName, pageState)}
 								</Text>
