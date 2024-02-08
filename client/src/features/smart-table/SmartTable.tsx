@@ -666,6 +666,16 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				[tableName]: true,
 			}));
 
+			// We need to pass the most update state to server
+			// If we pass pageState directly, the new selected row info will not be present before the request is sent
+			// So here we just manually update the pageState and send the updated state to server
+			// Open to better suggestions
+
+			pageState.state.tables = {
+				...pageState.state.tables,
+				...newSelectedRow,
+			};
+
 			sendJsonMessage({
 				type: 'display_rule',
 				state_context: pageState,
