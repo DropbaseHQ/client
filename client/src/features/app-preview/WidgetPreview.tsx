@@ -23,7 +23,7 @@ import { useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
-import { appModeAtom } from '@/features/app/atoms';
+import { appModeAtom, websocketStatusAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
 
 // websocket
@@ -38,6 +38,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 	const [{ widgets, modals }, setPageContext] = useAtom(pageAtom);
 
 	const { isPreview } = useAtomValue(appModeAtom);
+	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
 	const isDevMode = !isPreview;
 
 	const widget = widgets?.find((w) => w.name === widgetName);
@@ -58,6 +59,8 @@ export const WidgetPreview = ({ widgetName }: any) => {
 
 	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
 		onOpen: () => {
+			setWebsocketIsAlive(true);
+
 			sendJsonMessage({
 				type: 'auth',
 				access_token: localStorage.getItem('worker_access_token'),
@@ -100,6 +103,9 @@ export const WidgetPreview = ({ widgetName }: any) => {
 			} catch (e) {
 				//
 			}
+		},
+		onClose: () => {
+			setWebsocketIsAlive(false);
 		},
 
 		share: true,
