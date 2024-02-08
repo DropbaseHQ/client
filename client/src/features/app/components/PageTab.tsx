@@ -26,7 +26,7 @@ import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@/lib/chakra-ui';
 import { useDeletePage, useRenamePage } from '@/features/page';
-import { getErrorMessage, invalidResourceName } from '@/utils';
+import { getErrorMessage } from '@/utils';
 
 export const PageTab = (props: any) => {
 	const { isPreview, index, tabIndex, page, pages } = props;
@@ -41,7 +41,7 @@ export const PageTab = (props: any) => {
 	const renamePageMutation = useRenamePage();
 	const deletePageMutation = useDeletePage();
 
-	const [invalidMessage, setInvalidMessage] = useState<string | boolean>(false);
+	const [invalidMessage] = useState<string | boolean>(false);
 
 	const navigate = useNavigate();
 	const pageLink = `/apps/${appName}/${page?.name}`;
@@ -85,7 +85,7 @@ export const PageTab = (props: any) => {
 					newPageLabel: pageNameEdit,
 				},
 				{
-					onSuccess: (_, variables: any) => {
+					onSuccess: () => {
 						toast({
 							status: 'success',
 							title: 'Page renamed',
