@@ -688,6 +688,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						if (t.name === tableName) {
 							return {
 								...t,
+								smart: false,
 								columns: header.map((c: any) => ({
 									...(columnDict?.[c] || {}),
 									...c,
