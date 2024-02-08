@@ -67,13 +67,13 @@ export const PageTab = (props: any) => {
 
 		setPageNameEdit(newName);
 
-		setInvalidMessage(
-			invalidResourceName(
-				pageName || '',
-				newName,
-				pages.map((p: any) => p.name),
-			),
-		);
+		// setInvalidMessage(
+		// 	invalidResourceName(
+		// 		pageName || '',
+		// 		newName,
+		// 		pages.map((p: any) => p.name),
+		// 	),
+		// );
 	};
 
 	const handleRenamePage = () => {
