@@ -19,6 +19,7 @@ import {
 	Tab,
 	Flex,
 	useDisclosure,
+	Code,
 } from '@chakra-ui/react';
 import { MoreVertical } from 'react-feather';
 import { useState } from 'react';
@@ -48,7 +49,7 @@ export const PageTab = (props: any) => {
 	const handleRenameOpen = () => {
 		onDeleteClose();
 		onRenameOpen();
-		setPageNameEdit(page.name);
+		setPageNameEdit(page?.label);
 	};
 
 	const handleDeleteOpen = () => {
@@ -57,7 +58,7 @@ export const PageTab = (props: any) => {
 	};
 
 	const handleResetPage = () => {
-		if (pageName) setPageNameEdit(pageName);
+		if (page?.label) setPageNameEdit(page?.label);
 		onRenameClose();
 	};
 
@@ -65,7 +66,6 @@ export const PageTab = (props: any) => {
 		const newName = e.target.value;
 
 		setPageNameEdit(newName);
-		console.log(pageName);
 
 		// setInvalidMessage(
 		// 	invalidResourceName(
@@ -82,7 +82,7 @@ export const PageTab = (props: any) => {
 				{
 					appName,
 					pageName,
-					newPageName: pageNameEdit,
+					newPageLabel: pageNameEdit,
 				},
 				{
 					onSuccess: (_, variables: any) => {
@@ -90,11 +90,11 @@ export const PageTab = (props: any) => {
 							status: 'success',
 							title: 'Page renamed',
 						});
-						if (isPreview) {
-							navigate(`../${variables.newPageName}`, { relative: 'path' });
-						} else {
-							navigate(`../../${variables.newPageName}/studio`, { relative: 'path' });
-						}
+						// if (isPreview) {
+						// 	navigate(`../${variables.newPageName}`, { relative: 'path' });
+						// } else {
+						// 	navigate(`../../${variables.newPageName}/studio`, { relative: 'path' });
+						// }
 					},
 					onError: (error: any) => {
 						toast({
@@ -157,7 +157,12 @@ export const PageTab = (props: any) => {
 			}}
 		>
 			<Flex align="center" justifyContent="center" h="24px">
-				<Box fontWeight="semibold">{page.name}</Box>
+				<Box fontWeight="semibold">{page?.label}</Box>
+				{!isPreview && (
+					<Code fontSize="xs" bg="transparent" color="gray" ml="3">
+						{page?.name}
+					</Code>
+				)}
 				{!isPreview ? (
 					<Menu
 						closeOnSelect={false}
