@@ -135,9 +135,9 @@ export const useCreatePage = () => {
 	});
 };
 
-const renamePage = async ({ appName, pageName, newPageName }: any) => {
+const renamePage = async ({ appName, pageName, newPageLabel }: any) => {
 	const response = await workerAxios.put(`/page/${appName}/${pageName}`, {
-		new_page_name: newPageName,
+		new_page_label: newPageLabel,
 	});
 	return response.data;
 };
