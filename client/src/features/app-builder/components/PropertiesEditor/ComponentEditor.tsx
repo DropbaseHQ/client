@@ -262,6 +262,19 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												return null;
 											}
 
+											// FIXME: just for testing
+											if (property?.name === 'label') {
+												return (
+													<FormInput
+														{...property}
+														id={property.name}
+														name={property.title}
+														type="template" // TODO: update backend to have this
+														key={property.name}
+													/>
+												);
+											}
+
 											if (
 												property.name === 'display_rules' ||
 												property.type === 'rules'
@@ -269,13 +282,14 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												return <DisplayRulesEditor name={component.name} />;
 											}
 
-											if (property.name === 'on_click') {
+											if (
+												property.name === 'on_click' ||
+												property.name === 'on_change'
+											) {
 												return <EventPropertyEditor id="on_click" />;
 											}
 
-											const showFunctionList =
-												property.type === 'function' ||
-												property.name === 'on_change';
+											const showFunctionList = property.type === 'function';
 
 											return (
 												<FormInput

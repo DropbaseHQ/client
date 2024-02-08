@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Plus, Trash } from 'react-feather';
-import { Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, IconButton, Stack, Text } from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import {
@@ -56,7 +56,15 @@ const formLabelProps = {
 	mb: '1',
 };
 
-const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRules }: any) => {
+const TargetSelector = ({
+	rule,
+	onChange,
+	tableTargets,
+	widgetTargets,
+	displayRules,
+	getColType,
+	isInvalid,
+}: any) => {
 	const [editTarget, setEditTarget] = useState<string>(rule.target);
 
 	useEffect(() => {
@@ -72,6 +80,7 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 							return {
 								...r,
 								target: item.value,
+								target_type: getColType(item.value),
 							};
 						}
 
@@ -80,7 +89,7 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 				);
 			}}
 		>
-			<FormControl>
+			<FormControl isInvalid={isInvalid}>
 				<FormLabel {...formLabelProps}>Target</FormLabel>
 				<AutoCompleteInput
 					size="sm"
@@ -177,9 +186,31 @@ export const DisplayRulesEditor = ({ name }: any) => {
 			<Controller
 				control={control}
 				name="display_rules"
-				render={({ field: { onChange, value } }) => {
+				rules={{
+					validate: (displayRules) => {
+						if (displayRules?.length > 0) {
+							const isValid = displayRules.every((rule: any) => {
+								if (
+									rule?.operator &&
+									OPERATOR_WITH_NO_VALUE.includes(rule?.operator)
+								) {
+									return !!rule.target;
+								}
+								return rule.target && rule.operator && rule.value;
+							});
+							if (!isValid) {
+								return 'All rule fields must be complete';
+							}
+						}
+						return true;
+					},
+				}}
+				render={({
+					field: { onChange, value },
+					fieldState: { error },
+					formState: { isValid, isSubmitted },
+				}) => {
 					const displayRules = value || [];
-
 					return (
 						<Stack spacing="2.5">
 							{displayRules.map((rule: any, index: any) => {
@@ -240,16 +271,23 @@ export const DisplayRulesEditor = ({ name }: any) => {
 												/>
 											</Box>
 										)}
+
 										<TargetSelector
 											rule={rule}
 											onChange={onChange}
 											tableTargets={tableTargets}
 											widgetTargets={widgetTargets}
 											displayRules={displayRules}
+											getColType={getColType}
+											isInvalid={!isValid && isSubmitted && !rule.target}
 										/>
 
 										<Stack alignItems="end" key={rule.id} direction="row">
-											<FormControl>
+											<FormControl
+												isInvalid={
+													!isValid && isSubmitted && !rule.operator
+												}
+											>
 												{index === 0 ? (
 													<FormLabel {...formLabelProps}>
 														Operator
@@ -286,7 +324,11 @@ export const DisplayRulesEditor = ({ name }: any) => {
 											{OPERATOR_WITH_NO_VALUE.includes(
 												rule.operator,
 											) ? null : (
-												<FormControl>
+												<FormControl
+													isInvalid={
+														!isValid && isSubmitted && !rule.value
+													}
+												>
 													{index === 0 ? (
 														<FormLabel {...formLabelProps}>
 															Value
@@ -335,6 +377,11 @@ export const DisplayRulesEditor = ({ name }: any) => {
 									</Stack>
 								);
 							})}
+							{error && (
+								<Text fontSize="sm" color="red">
+									{error?.message}
+								</Text>
+							)}
 
 							<Button
 								size="sm"

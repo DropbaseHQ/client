@@ -31,7 +31,13 @@ import '@glideapps/glide-data-grid/dist/index.css';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
-import { formatDate, formatTime, formatDateTime } from '@/features/smart-table/utils';
+import {
+	formatDate,
+	formatTime,
+	formatDateTime,
+	getEpochFromTimeString,
+	getTimeStringFromEpoch,
+} from '@/features/smart-table/utils';
 import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
 
 import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
@@ -43,7 +49,7 @@ import {
 	tablePageInfoAtom,
 } from './atoms';
 import { TableBar } from './components';
-import { getErrorMessage } from '@/utils';
+import { extractTemplateString, getErrorMessage } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 
@@ -89,8 +95,17 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 	const { properties } = useGetPage({ appName, pageName });
 
-	const { isLoading, rows, columnDict, header, refetch, isRefetching, tableError, error } =
-		useCurrentTableData(tableName);
+	const {
+		isLoading,
+		rows,
+		columnDict,
+		header,
+		refetch,
+		isRefetching,
+		tableError,
+		error,
+		remove: removeQuery,
+	} = useCurrentTableData(tableName);
 	const {
 		depends_on: dependsOn,
 		isLoading: isLoadingTable,
@@ -477,11 +492,16 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 			case 'time': {
 				return {
-					kind: GridCellKind.Text,
-					data: cellValue,
+					kind: GridCellKind.Custom,
 					allowOverlay: canEdit,
-					displayData: formatTime(cellValue),
 					readonly: !canEdit,
+
+					data: {
+						kind: 'date-picker-cell',
+						date: new Date(getEpochFromTimeString(cellValue)),
+						displayDate: formatTime(cellValue),
+						format: 'time',
+					},
 					...themeOverride,
 				};
 			}
@@ -532,12 +552,15 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 		if (editedCell.kind === GridCellKind.Custom) {
 			if (editedCell.data.kind === 'date-picker-cell') {
-				if (editedCell?.data?.format === 'datetime-local') {
+				if (
+					editedCell?.data?.format === 'datetime-local' ||
+					editedCell?.data?.format === 'date'
+				) {
 					newValue = editedCell?.data?.date?.getTime();
+				} else if (editedCell?.data?.format === 'time') {
+					newValue = getTimeStringFromEpoch(editedCell?.data?.date?.getTime());
 				}
 			}
-
-			// TODO: @param can you add logic for date and time pickers
 		} else {
 			newValue = editedCell.data;
 		}
@@ -573,7 +596,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							new_value: newValue === undefined ? null : newValue,
 							value: currentRow[column.name],
 							column_name: column.name,
-
+							column_type: columnDict[column.name].column_type,
 							old_value: currentRow[column.name],
 							rowIndex: row,
 							columnIndex: col,
@@ -642,7 +665,17 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				...curr,
 				[tableName]: true,
 			}));
-			pageState.state.tables = newSelectedRow;
+
+			// We need to pass the most update state to server
+			// If we pass pageState directly, the new selected row info will not be present before the request is sent
+			// So here we just manually update the pageState and send the updated state to server
+			// Open to better suggestions
+
+			pageState.state.tables = {
+				...pageState.state.tables,
+				...newSelectedRow,
+			};
+
 			sendJsonMessage({
 				type: 'display_rule',
 				state_context: pageState,
@@ -665,6 +698,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						if (t.name === tableName) {
 							return {
 								...t,
+								smart: false,
 								columns: header.map((c: any) => ({
 									...(columnDict?.[c] || {}),
 									...c,
@@ -767,7 +801,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					<Stack alignItems="center" direction="row" w="full" overflow="hidden">
 						<Stack spacing="0" px="2" flexShrink="0">
 							<Text fontWeight="semibold" fontSize="lg">
-								{table?.label || tableName}
+								{extractTemplateString(table?.label || tableName, pageState)}
 							</Text>
 
 							{dependantTablesWithNoRowSelection.length > 0 ? (
@@ -789,11 +823,11 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							) : null}
 						</Stack>
 
-						{pageState?.context?.tables?.[tableName].message ? (
+						{pageState?.context?.tables?.[tableName]?.message ? (
 							<Stack ml="auto" overflow="hidden">
 								<Alert
 									status={
-										pageState?.context?.tables?.[tableName].message_type ||
+										pageState?.context?.tables?.[tableName]?.message_type ||
 										'info'
 									}
 									bgColor="transparent"
@@ -801,7 +835,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 								>
 									<AlertIcon boxSize={4} />
 									<AlertDescription fontSize="sm">
-										{pageState?.context?.tables?.[tableName].message}
+										{pageState?.context?.tables?.[tableName]?.message}
 									</AlertDescription>
 								</Alert>
 							</Stack>
@@ -822,7 +856,10 @@ export const SmartTable = ({ tableName, provider }: any) => {
 									icon={<RotateCw size="14" />}
 									variant="outline"
 									isLoading={isRefetching}
-									onClick={() => refetch()}
+									onClick={() => {
+										removeQuery();
+										refetch({ cancelRefetch: true });
+									}}
 								/>
 							</Tooltip>
 

@@ -9,9 +9,12 @@ import { Users, DeveloperSettings, Permissions } from '@/features/settings';
 import { Workspaces, useWorkspaces } from '@/features/workspaces';
 import { RequestResetLink } from '@/features/authorization/RequestResetLink';
 import {
-	useSetWorkerAxiosToken,
+	useSetAxiosToken,
 	useSetWorkerAxiosBaseURL,
 } from '@/features/authorization/hooks/useLogin';
+import { useSetAtom } from 'jotai';
+import { websocketStatusAtom } from '@/features/app/atoms';
+
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
 import { Welcome } from '../features/welcome';
@@ -20,12 +23,21 @@ import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
+
+	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
+
 	useSyncProxyToken();
-	useSetWorkerAxiosToken();
+	useSetAxiosToken();
 	useSetWorkerAxiosBaseURL();
 	// Initialize websocket
 	useWebSocket(SOCKET_URL, {
 		share: true,
+		onOpen: () => {
+			setWebsocketIsAlive(true);
+		},
+		onClose: () => {
+			setWebsocketIsAlive(false);
+		},
 	});
 
 	if (isLoading) {

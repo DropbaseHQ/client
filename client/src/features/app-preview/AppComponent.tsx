@@ -162,6 +162,16 @@ export const AppComponent = (props: any) => {
 		);
 	}
 
+	let inputType = type;
+
+	if (componentType === 'select') {
+		inputType = 'select';
+	}
+
+	if (componentType === 'boolean') {
+		inputType = 'boolean';
+	}
+
 	return (
 		<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
 			{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
@@ -169,7 +179,7 @@ export const AppComponent = (props: any) => {
 				placeholder={placeholder}
 				value={inputValue}
 				name={name}
-				type={componentType === 'select' ? 'select' : dataType || type}
+				type={inputType}
 				onChange={(newValue: any) => {
 					setWidgetComponentValues({
 						[name]: newValue,

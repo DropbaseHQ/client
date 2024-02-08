@@ -8,6 +8,7 @@ import { PAGE_DATA_QUERY_KEY, pageAtom, useUpdatePageData } from '@/features/pag
 import { useToast } from '@/lib/chakra-ui';
 import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
+import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 
 export const WIDGET_QUERY_KEY = 'widget';
 
@@ -65,6 +66,7 @@ export const useCreateWidget = (props: any = {}) => {
 	const queryClient = useQueryClient();
 	const toast = useToast();
 	const updatePageContext = useSetAtom(pageAtom);
+	const updateSelectedResource = useSetAtom(inspectedResourceAtom);
 
 	const mutation = useUpdatePageData({
 		...props,
@@ -73,6 +75,11 @@ export const useCreateWidget = (props: any = {}) => {
 				...old,
 				widgetName: data?.widget?.id,
 			}));
+
+			updateSelectedResource({
+				type: 'widget',
+				id: data?.widget?.id,
+			});
 
 			toast({
 				status: 'success',

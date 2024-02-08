@@ -69,37 +69,39 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
                 detail="Email needs to be verified.",
             )
         access_token = Authorize.create_access_token(
-            subject=user.email, expires_time=ACCESS_TOKEN_EXPIRE_SECONDS
+            subject=user.email,
+            expires_time=ACCESS_TOKEN_EXPIRE_SECONDS,
+            user_claims={"user_id": str(user.id)},
         )
         refresh_token = Authorize.create_refresh_token(
             subject=user.email, expires_time=REFRESH_TOKEN_EXPIRE_SECONDS
         )
 
         # Authorize.set_access_cookies(access_token)
-        response = Authorize._response
+        # response = Authorize._response
         # Set Access Cookie
-        response.set_cookie(
-            Authorize._access_cookie_key,
-            access_token,
-            max_age=Authorize._cookie_max_age,
-            path=Authorize._access_cookie_path,
-            domain=Authorize._cookie_domain,
-            secure=Authorize._cookie_secure,
-            httponly=False,
-            samesite=Authorize._cookie_samesite,
-        )
+        # response.set_cookie(
+        #     Authorize._access_cookie_key,
+        #     access_token,
+        #     max_age=Authorize._cookie_max_age,
+        #     path=Authorize._access_cookie_path,
+        #     domain=Authorize._cookie_domain,
+        #     secure=Authorize._cookie_secure,
+        #     httponly=False,
+        #     samesite=Authorize._cookie_samesite,
+        # )
         # Authorize.set_refresh_cookies(refresh_token)
         # Set Refresh Cookie
-        response.set_cookie(
-            Authorize._refresh_cookie_key,
-            refresh_token,
-            max_age=Authorize._cookie_max_age,
-            path=Authorize._refresh_cookie_path,
-            domain=Authorize._cookie_domain,
-            secure=Authorize._cookie_secure,
-            httponly=False,
-            samesite=Authorize._cookie_samesite,
-        )
+        # response.set_cookie(
+        #     Authorize._refresh_cookie_key,
+        #     refresh_token,
+        #     max_age=Authorize._cookie_max_age,
+        #     path=Authorize._refresh_cookie_path,
+        #     domain=Authorize._cookie_domain,
+        #     secure=Authorize._cookie_secure,
+        #     httponly=False,
+        #     samesite=Authorize._cookie_samesite,
+        # )
         workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
         workspace = (
             ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
@@ -134,8 +136,11 @@ def refresh_token(Authorize: AuthJWT):
     try:
         Authorize.jwt_refresh_token_required()
         current_user = Authorize.get_jwt_subject()
-        new_access_token = Authorize.create_access_token(subject=current_user)
-        Authorize.set_access_cookies(new_access_token)
+        all_claims = Authorize.get_raw_jwt()
+        user_id = all_claims.get("user_id")
+        new_access_token = Authorize.create_access_token(
+            subject=current_user, user_claims={"user_id": user_id}
+        )
         return {"msg": "Successfully refresh token", "access_token": new_access_token}
     except Exception as e:
         print("error", e)
@@ -404,10 +409,12 @@ def delete_user(db: Session, user_id: UUID):
 
 
 def check_permissions(db: Session, user: User, request: CheckPermissionRequest):
-    workspace_id = request.workspace_id
-    app_name = request.app_name
+
+    app_id = request.app_id
+    app = crud.app.get_object_by_id_or_404(db, id=app_id)
+    workspace_id = app.workspace_id
 
     permissions_dict = get_all_action_permissions(
-        db, str(user.id), workspace_id, app_name
+        db, str(user.id), workspace_id, app_id
     )
     return permissions_dict

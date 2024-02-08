@@ -15,6 +15,7 @@ import {
 	FormLabel,
 	FormControl,
 	Code,
+	Button,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ChevronDown, Box as BoxIcon, Layout, Plus } from 'react-feather';
@@ -215,30 +216,48 @@ export const EventPropertyEditor = ({ id }: any) => {
 
 					return (
 						<Menu>
-							<MenuButton
-								as={Stack}
-								disabled={isLoading}
-								direction="row"
-								alignItems="center"
-								borderWidth="1px"
-								p="1.5"
-								borderRadius="sm"
-								type="button"
-								onBlur={onBlur}
-							>
-								<Stack w="full" spacing="0" alignItems="center" direction="row">
-									<Box>
-										{value ? (
-											optionValueRenderer({ option: value, showBadge: true })
-										) : (
-											<Text fontSize="sm">No options present</Text>
-										)}
-									</Box>
-									<Box ml="auto">
-										<ChevronDown size="14" />
-									</Box>
-								</Stack>
-							</MenuButton>
+							<Stack spacing="1">
+								<MenuButton
+									as={Stack}
+									disabled={isLoading}
+									direction="row"
+									alignItems="center"
+									borderWidth="1px"
+									p="1.5"
+									borderRadius="sm"
+									type="button"
+									onBlur={onBlur}
+								>
+									<Stack w="full" spacing="0" alignItems="center" direction="row">
+										<Box>
+											{value ? (
+												optionValueRenderer({
+													option: value,
+													showBadge: true,
+												})
+											) : (
+												<Text fontSize="sm">No options present</Text>
+											)}
+										</Box>
+										<Box ml="auto">
+											<ChevronDown size="14" />
+										</Box>
+									</Stack>
+								</MenuButton>
+								{value ? (
+									<Button
+										onClick={() => {
+											onChange(null);
+										}}
+										colorScheme="gray"
+										alignSelf="start"
+										size="sm"
+										variant="link"
+									>
+										Clear
+									</Button>
+								) : null}
+							</Stack>
 							<Portal>
 								<MenuList
 									zIndex="popover"

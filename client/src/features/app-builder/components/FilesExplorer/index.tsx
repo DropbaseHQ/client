@@ -1,7 +1,17 @@
 import { useAtom } from 'jotai';
-import { Box, Icon, Input, Progress, Skeleton, Stack, useDisclosure } from '@chakra-ui/react';
-import { Code, Table, Box as BoxIcon } from 'react-feather';
+import {
+	Box,
+	Icon,
+	IconButton,
+	Input,
+	Skeleton,
+	Stack,
+	useDisclosure,
+	Spacer,
+} from '@chakra-ui/react';
+import { Code, Table, Box as BoxIcon, Edit2, Check, X } from 'react-feather';
 import { useParams } from 'react-router-dom';
+import { useState } from 'react';
 
 import { useMonacoLoader } from '@/components/Editor';
 
@@ -20,17 +30,15 @@ const FileButton = ({ file }: any) => {
 	const { appName, pageName } = useParams();
 	const { files } = useGetPage({ appName, pageName });
 
-	const {
-		isOpen: mouseOver,
-		onClose: triggerMouseLeave,
-		onOpen: triggerMouseHover,
-	} = useDisclosure();
+	const { onClose: triggerMouseLeave, onOpen: triggerMouseHover } = useDisclosure();
 
 	const { isOpen: isEdit, onClose: onEditClose, onOpen: onEditOpen } = useDisclosure();
 
 	const isSQLFile = file.type === 'sql';
 	const fileName = `${file.name}${isSQLFile ? '.sql' : '.py'}`;
 	const isActive = file.name === devTab.id;
+
+	const [newFileName, setNewFileName] = useState(file.name);
 
 	const colorScheme = isSQLFile ? 'teal' : 'purple';
 
@@ -64,7 +72,21 @@ const FileButton = ({ file }: any) => {
 		},
 	});
 
-	const onSubmit = (newFileName: any) => {
+	const nameNotUnique = (name: any) => {
+		return files.find((f: any) => {
+			return f.name === name && f.name !== file.name;
+		});
+	};
+
+	const onSubmit = () => {
+		if (nameNotUnique(newFileName)) {
+			toast({
+				status: 'error',
+				title: 'File name must be unique',
+			});
+			return;
+		}
+
 		if (newFileName.trim()) {
 			mutation.mutate({
 				pageName,
@@ -80,25 +102,13 @@ const FileButton = ({ file }: any) => {
 			});
 		}
 	};
-	const nameNotUnique = (newFileName: any) => {
-		return files.find((f: any) => {
-			return f.name === newFileName && f.name !== file.name;
-		});
-	};
 
 	const onKeyDown = (e: any) => {
 		if (e.key === 'Escape') {
 			onEditClose();
 		} else if (e.key === 'Enter') {
-			if (nameNotUnique(e.target.value)) {
-				toast({
-					status: 'error',
-					title: 'File name must be unique',
-				});
-				return;
-			}
 			e?.preventDefault();
-			onSubmit(e.target.value);
+			onSubmit();
 		}
 	};
 
@@ -129,37 +139,98 @@ const FileButton = ({ file }: any) => {
 			key={file.name}
 		>
 			{isEdit ? (
-				<Stack spacing="0">
+				<Stack flex="1" direction="row" justify="flex-end" w="full">
 					<Input
+						value={newFileName}
 						variant="outline"
 						autoFocus
 						placeholder="Enter new name"
-						onBlur={onEditClose}
 						_focus={{
 							bg: 'white',
 						}}
 						defaultValue={file.name}
 						onKeyDown={onKeyDown}
+						onChange={(e) => setNewFileName(e.target.value)}
 						size="xs"
 					/>
-					{mutation.isLoading ? <Progress isIndeterminate size="xs" /> : null}
+					<IconButton
+						aria-label="Cancel rename"
+						icon={<X size="sm" />}
+						onClick={onEditClose}
+						boxSize={5}
+						p={1}
+						borderRadius="sm"
+						background="transparent"
+						color="black"
+						_hover={{
+							bg: 'gray.100',
+						}}
+						size="sm"
+						minWidth={0}
+					/>
+					<IconButton
+						aria-label="Rename function"
+						icon={<Check size="sm" />}
+						onClick={onSubmit}
+						isLoading={mutation.isLoading}
+						boxSize={5}
+						p={1}
+						borderRadius="sm"
+						background="transparent"
+						color="black"
+						_hover={{
+							bg: 'green.100',
+						}}
+						size="sm"
+						minWidth={0}
+					/>
 				</Stack>
 			) : (
 				<Stack flex="1" w="full" alignItems="center" direction="row">
 					<Icon color={isActive ? `${colorScheme}.500` : ''} as={icon} boxSize={4} />
 
-					<Box fontWeight={isActive ? 'medium' : 'normal'}>{file.name}</Box>
+					<Box
+						fontWeight={isActive ? 'medium' : 'normal'}
+						overflow="hidden"
+						whiteSpace="nowrap"
+					>
+						{file.name}
+					</Box>
 					<Box fontSize="2xs" px="1" borderRadius="sm" bg={`${colorScheme}.200`}>
 						{isSQLFile ? '.sql' : '.py'}
 					</Box>
-					{mouseOver || isActive ? (
-						<DeleteFile
-							w="fit-content"
-							ml="auto"
-							id={file.name}
-							name={fileName}
-							type={file.type}
-						/>
+
+					<Spacer />
+
+					{isActive ? (
+						<Stack direction="row" justify="flex-end">
+							<IconButton
+								aria-label="Rename function"
+								icon={<Edit2 size="sm" />}
+								onClick={(e) => {
+									e.stopPropagation();
+									onEditOpen();
+								}}
+								isLoading={mutation.isLoading}
+								boxSize={5}
+								p={1}
+								borderRadius="sm"
+								background="transparent"
+								color="black"
+								_hover={{
+									bg: 'gray.100',
+								}}
+								size="sm"
+								minWidth={0}
+							/>
+							<DeleteFile
+								w="fit-content"
+								ml="auto"
+								id={file.name}
+								name={fileName}
+								type={file.type}
+							/>
+						</Stack>
 					) : null}
 				</Stack>
 			)}
@@ -191,9 +262,11 @@ export const FilesExplorer = () => {
 
 	return (
 		<Stack spacing="0" h="full">
-			{(files || []).map((f: any) => {
-				return <FileButton file={f} key={f.name} />;
-			})}
+			{(files || [])
+				.sort((a: any, b: any) => a.name.localeCompare(b.name))
+				.map((f: any) => {
+					return <FileButton file={f} key={f.name} />;
+				})}
 		</Stack>
 	);
 };

@@ -33,6 +33,7 @@ export const Navbar = () => {
 	// 	if (!userRole) return false;
 	// 	return roles.includes(userRole);
 	// };
+	const canUseGranularPermissions = inTrial || user?.email?.endsWith('dropbase.io');
 
 	const handleLogout = () => {
 		logout();
@@ -72,21 +73,20 @@ export const Navbar = () => {
 					</Tooltip>
 				)}
 
-				{inTrial && (
-					<Tooltip label="Members" placement="right">
-						<IconButton
-							variant="ghost"
-							as={Link}
-							// isDisabled
-							to="/settings/members"
-							color={pathname === '/settings/members' ? 'blue.500' : 'body'}
-							colorScheme={pathname === '/settings/members' ? 'blue' : 'gray'}
-							aria-label="Members"
-							icon={<Users size="22" />}
-						/>
-					</Tooltip>
-				)}
-				{inTrial && (
+				<Tooltip label="Members" placement="right">
+					<IconButton
+						variant="ghost"
+						as={Link}
+						// isDisabled
+						to="/settings/members"
+						color={pathname === '/settings/members' ? 'blue.500' : 'body'}
+						colorScheme={pathname === '/settings/members' ? 'blue' : 'gray'}
+						aria-label="Members"
+						icon={<Users size="22" />}
+					/>
+				</Tooltip>
+
+				{canUseGranularPermissions && (
 					<Tooltip label="Permissions" placement="right">
 						<IconButton
 							variant="ghost"
