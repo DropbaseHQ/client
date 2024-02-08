@@ -63,12 +63,16 @@ export const getErrorMessage = (error: any) => {
 		}
 	}
 
+	if (Array.isArray(error?.response?.data?.result)) {
+		return error?.response?.data?.result.join(', ');
+	}
+
 	const errorMessage =
-		error?.message ||
 		error?.response?.data?.error ||
 		error?.response?.data?.message ||
 		error?.response?.data?.result ||
 		error?.response?.data ||
+		error?.message ||
 		'';
 
 	if (typeof errorMessage !== 'string') {
