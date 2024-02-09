@@ -1,8 +1,8 @@
 import { useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-
 import { useAtom } from 'jotai';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useToast } from '@/lib/chakra-ui';
 
 import { workerAxios } from '@/lib/axios';
 import { pageAtom } from '../atoms';
@@ -19,6 +19,8 @@ const fetchPage = async ({ appName, pageName }: any) => {
 
 export const useGetPage = ({ appName, pageName }: any) => {
 	const queryKey = [PAGE_DATA_QUERY_KEY, appName, pageName];
+	const navigate = useNavigate();
+	const toast = useToast();
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchPage({ appName, pageName }), {
 		enabled: Boolean(appName && pageName),
@@ -35,6 +37,19 @@ export const useGetPage = ({ appName, pageName }: any) => {
 			properties: response?.properties || {},
 		};
 	}, [response]);
+
+	if (rest?.error) {
+		const errorStatusCode = rest.error?.response?.status;
+		if (errorStatusCode === 403) {
+			toast.closeAll();
+			toast({
+				title: 'Unauthorized',
+				description: 'You do not have permission to view this page.',
+				status: 'error',
+			});
+			navigate('/apps');
+		}
+	}
 
 	return {
 		...rest,
