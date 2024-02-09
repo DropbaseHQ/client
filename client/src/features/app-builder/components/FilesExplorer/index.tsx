@@ -256,10 +256,6 @@ export const FilesExplorer = () => {
 		);
 	}
 
-	if (error) {
-		return <Box color="red.400">{getErrorMessage(error)}</Box>;
-	}
-
 	return (
 		<Stack spacing="0" h="full">
 			{(files || [])
