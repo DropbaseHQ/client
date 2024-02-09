@@ -63,7 +63,7 @@ export const Register = () => {
 			<Stack spacing="8">
 				<Stack spacing="6">
 					<Stack spacing={{ base: '2', md: '3' }} textAlign="center">
-						<Heading size="sm">Sign up fosr dropbase</Heading>
+						<Heading size="sm">Sign up for dropbase</Heading>
 						<Link to="/login">
 							<Text color="fg.muted" fontSize="sm" textDecoration="underline">
 								Already have an account?
