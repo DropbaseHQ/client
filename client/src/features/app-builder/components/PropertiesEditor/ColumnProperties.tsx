@@ -261,22 +261,25 @@ export const ColumnsProperties = () => {
 					Convert to Smart Table
 				</Button>
 			) : null}
-			<Stack>
-				<SimpleGrid
-					py="2"
-					fontWeight="medium"
-					fontSize="sm"
-					borderBottomWidth="1px"
-					columns={3}
-				>
-					<Text>Column</Text>
-					<Text>Editable</Text>
-					<Text>Hidden</Text>
-				</SimpleGrid>
-				{columns.map((column: any) => (
-					<ColumnProperty tableType={type} key={column.name} {...column} />
-				))}
-			</Stack>
+
+			{columns.length > 0 ? (
+				<Stack>
+					<SimpleGrid
+						py="2"
+						fontWeight="medium"
+						fontSize="sm"
+						borderBottomWidth="1px"
+						columns={3}
+					>
+						<Text>Column</Text>
+						<Text>Editable</Text>
+						<Text>Hidden</Text>
+					</SimpleGrid>
+					{columns.map((column: any) => (
+						<ColumnProperty tableType={type} key={column.name} {...column} />
+					))}
+				</Stack>
+			) : null}
 		</Stack>
 	);
 };
