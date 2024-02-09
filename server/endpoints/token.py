@@ -20,10 +20,8 @@ def create_token(request: CreateToken, db: Session = Depends(get_db)):
 
 
 @router.get("/{workspace_id}/{user_id}")
-def get_user_tokens_in_workspace(
-    workspace_id: UUID, user_id: UUID, db: Session = Depends(get_db)
-):
-    return crud.token.get_user_tokens_in_workspace(db, workspace_id, user_id)
+def get_user_tokens_in_workspace(workspace_id: UUID, user_id: UUID, db: Session = Depends(get_db)):
+    return crud.token.get_user_tokens_in_workspace(db, workspace_id)
     # return [
     #     {
     #         "token": token.token,
@@ -47,12 +45,8 @@ def verify_token(token: str, response: Response, db: Session = Depends(get_db)):
 
 
 @router.put("/{token_id}")
-def update_token(
-    token_id: UUID, request: UpdateTokenInfo, db: Session = Depends(get_db)
-):
-    return crud.token.update_by_pk(
-        db, pk=token_id, obj_in=request.dict(exclude_unset=True)
-    )
+def update_token(token_id: UUID, request: UpdateTokenInfo, db: Session = Depends(get_db)):
+    return crud.token.update_by_pk(db, pk=token_id, obj_in=request.dict(exclude_unset=True))
 
 
 @router.delete("/{token_id}")
