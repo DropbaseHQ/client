@@ -28,7 +28,7 @@ import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceAp
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useToast } from '@/lib/chakra-ui';
 import { useCreatePage } from '@/features/page';
-import { getErrorMessage, generateSequentialName, invalidResourceName } from '@/utils';
+import { getErrorMessage, generateSequentialName } from '@/utils';
 import { PageTab } from './PageTab';
 
 export const AppNavbar = ({ isPreview }: any) => {
@@ -40,7 +40,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 	const [label, setAppLabel] = useState('');
 
-	const [invalidMessage, setInvalidMessage] = useState<string | boolean>(false);
+	const [invalidMessage] = useState<string | boolean>(false);
 
 	const updateMutation = useUpdateApp({
 		onError: (error: any) => {
