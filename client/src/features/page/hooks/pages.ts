@@ -11,8 +11,21 @@ import { APPS_QUERY_KEY } from '@/features/app-list/hooks/useGetWorkspaceApps';
 
 export const PAGE_DATA_QUERY_KEY = 'pageData';
 
+export type FetchPageResponse = {
+	state_context: {
+		state: any;
+		context: any;
+		properties: any;
+	};
+	permissions: {
+		use: boolean;
+		edit: boolean;
+		own: boolean;
+	};
+};
+
 const fetchPage = async ({ appName, pageName }: any) => {
-	const response = await workerAxios.get<any>(`/page/${appName}/${pageName}`);
+	const response = await workerAxios.get<FetchPageResponse>(`/page/${appName}/${pageName}`);
 
 	return response.data;
 };
@@ -29,12 +42,12 @@ export const useGetPage = ({ appName, pageName }: any) => {
 
 	const data: any = useMemo(() => {
 		return {
-			state: response?.state || {},
-			context: response?.context || {},
-			tables: response?.properties?.tables || [],
-			widgets: response?.properties?.widgets || [],
-			files: response?.properties?.files || [],
-			properties: response?.properties || {},
+			state: response?.state_context.state || {},
+			context: response?.state_context.context || {},
+			tables: response?.state_context?.properties?.tables || [],
+			widgets: response?.state_context?.properties?.widgets || [],
+			files: response?.state_context?.properties?.files || [],
+			properties: response?.state_context?.properties || {},
 		};
 	}, [response]);
 
