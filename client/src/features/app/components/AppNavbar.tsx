@@ -73,14 +73,14 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const handleChangeAppLabel = (e: any) => {
 		const newLabel = e.target.value;
 
-		setInvalidMessage(
-			invalidResourceName(
-				app?.label || '',
-				newLabel,
-				apps.map((a) => a.label),
-				false,
-			),
-		);
+		// setInvalidMessage(
+		// 	invalidResourceName(
+		// 		app?.label || '',
+		// 		newLabel,
+		// 		apps.map((a) => a.label),
+		// 		false,
+		// 	),
+		// );
 
 		setAppLabel(newLabel);
 	};
