@@ -1,6 +1,8 @@
 import { useQuery } from 'react-query';
-import { Circle, Link, Stack, Text } from '@chakra-ui/react';
+import { Circle, Link, Stack, Text, Divider } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
 import { workerAxios } from '../lib/axios';
+import { websocketStatusAtom } from '@/features/app/atoms';
 
 export const STATUS_QUERY_KEY = 'allFiles';
 
@@ -26,6 +28,7 @@ export const useStatus = () => {
 
 export const StatusBar = () => {
 	const { status } = useStatus();
+	const websocketIsConnected = useAtomValue(websocketStatusAtom);
 
 	return (
 		<Stack
@@ -39,7 +42,12 @@ export const StatusBar = () => {
 			borderTopWidth="1px"
 		>
 			<Circle size="2" bg={status === 'success' ? 'green' : 'red'} />
-			<Text fontSize="xs">{status === 'success' ? 'Connected' : 'Not connected.'}</Text>
+			<Text fontSize="xs">
+				{status === 'success' ? 'Worker connected' : 'Worker not connected.'}
+			</Text>
+			<Divider orientation="vertical" />
+			<Circle ml="1" size="2" bg={websocketIsConnected ? 'green' : 'red'} />
+			<Text fontSize="xs">{websocketIsConnected ? 'WS connected' : 'WS not connected'}</Text>
 
 			{status === 'error' ? (
 				<Link

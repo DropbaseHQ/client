@@ -347,13 +347,18 @@ export const TableProperties = () => {
 												property.type === 'on_row_change' ||
 												property.name === 'on_row_select';
 
+											const propertyType =
+												property.name === 'label'
+													? 'template'
+													: property.type;
+
 											return (
 												<FormInput
 													{...property}
 													id={property.name}
 													name={property.title}
 													type={
-														showFunctionList ? 'select' : property.type
+														showFunctionList ? 'select' : propertyType
 													}
 													options={(
 														(showFunctionList

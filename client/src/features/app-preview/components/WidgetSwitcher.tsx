@@ -8,44 +8,38 @@ import {
 	MenuItemOption,
 	Tooltip,
 	Text,
+	Code,
+	Stack,
+	Tag,
 } from '@chakra-ui/react';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ChevronDown } from 'react-feather';
 import { pageAtom } from '@/features/page';
-import { allWidgetsInputAtom } from '@/features/app-state';
+
 import { appModeAtom } from '@/features/app/atoms';
+import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 
 export const WidgetSwitcher = () => {
 	const { widgetName, widgets } = useAtomValue(pageAtom);
 	const { isPreview } = useAtomValue(appModeAtom);
 	const setPageAtom = useSetAtom(pageAtom);
-	const widgetsInput = useAtomValue(allWidgetsInputAtom);
-	const setWidgetsInputAtom = useSetAtom(allWidgetsInputAtom);
 
-	const resetWidgetInputs = (targetWidgetName: string) => {
-		const targetWidgetState: { [key: string]: any } | undefined =
-			widgetsInput?.[targetWidgetName as keyof typeof widgetsInput];
-
-		const newWidgetState: { [key: string]: any } = {};
-		Object.keys(targetWidgetState || {}).forEach((key) => {
-			newWidgetState[key] = null;
-		});
-		setWidgetsInputAtom((oldWidgetsInputAtom: any) => {
-			return {
-				...oldWidgetsInputAtom,
-				[targetWidgetName || '']: newWidgetState,
-			};
-		});
-	};
+	const updateSelectedWidget = useSetAtom(inspectedResourceAtom);
 
 	const handleChooseWidget = (newWidgetName: any) => {
 		setPageAtom((oldPageAtom) => ({
 			...oldPageAtom,
 			widgetName: newWidgetName,
 		}));
-		resetWidgetInputs(newWidgetName);
+		updateSelectedWidget({
+			type: 'widget',
+			id: newWidgetName,
+		});
 	};
+
+	const widgetsToDisplay =
+		widgets?.filter((w: any) => (isPreview ? w.type !== 'modal' && w.in_menu : true)) || [];
 
 	return (
 		<Menu placement="bottom-end" closeOnSelect>
@@ -59,25 +53,43 @@ export const WidgetSwitcher = () => {
 					size="xs"
 				/>
 			</Tooltip>
-			<MenuList minWidth="xs">
+			<MenuList minWidth="sm">
 				<MenuOptionGroup
 					value={widgetName || ''}
 					onChange={handleChooseWidget}
 					title="Select widget"
 					type="radio"
 				>
-					{widgets?.map((w: any) => (
-						<MenuItemOption key={w?.name} value={w?.name}>
-							<Box display="flex" alignItems="end">
-								<Text>{w.label}</Text>
-								{!isPreview && (
-									<Text fontSize="md" color="gray.500" ml="auto">
-										{w.name}
-									</Text>
-								)}
-							</Box>
-						</MenuItemOption>
-					))}
+					{widgetsToDisplay?.length > 0 ? (
+						widgetsToDisplay?.map((w: any) => (
+							<MenuItemOption key={w?.name} value={w?.name}>
+								<Box display="flex" alignItems="end">
+									<Stack direction="row">
+										<Text fontSize="md">{w.label}</Text>
+										{w.type === 'modal' ? (
+											<Tag size="sm" colorScheme="yellow">
+												<Code bg="transparent">Modal</Code>
+											</Tag>
+										) : null}
+									</Stack>
+									{!isPreview && (
+										<Code
+											fontSize="sm"
+											bg="transparent"
+											color="gray.600"
+											ml="auto"
+										>
+											{w.name}
+										</Code>
+									)}
+								</Box>
+							</MenuItemOption>
+						))
+					) : (
+						<Text py="0.5" px="4" fontSize="md">
+							No widgets present
+						</Text>
+					)}
 				</MenuOptionGroup>
 			</MenuList>
 		</Menu>

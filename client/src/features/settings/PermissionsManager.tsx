@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { PageLayout } from '@/layout';
 import {
 	Input,
 	Button,
@@ -34,21 +33,29 @@ import {
 	PopoverCloseButton,
 	Select,
 } from '@chakra-ui/react';
-import { useCreateGroup } from './hooks/group';
-import { workspaceAtom } from '@/features/workspaces';
 import { UserPlus, UserMinus } from 'react-feather';
 import { useAtomValue } from 'jotai';
-import { useGetWorkspaceGroups, GET_WORKSPACE_GROUPS_QUERY_KEY } from './hooks/workspace';
-import { useAddUserToGroup } from './hooks/group';
 import { useQueryClient } from 'react-query';
+import { PageLayout } from '@/layout';
+import {
+	useCreateGroup,
+	useAddUserToGroup,
+	useGetGroupUsers,
+	useRemoveUserFromGroup,
+} from './hooks/group';
+import { workspaceAtom } from '@/features/workspaces';
+
+import {
+	useGetWorkspaceGroups,
+	useGetWorkspaceUsers,
+	GET_WORKSPACE_GROUPS_QUERY_KEY,
+} from './hooks/workspace';
+import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { useGetWorkspaceApps, App } from '../app-list/hooks/useGetWorkspaceApps';
 import { UserPolicySelector, GroupPolicySelector } from './components/PolicySelector';
 import { GroupCard } from './Group';
 import { UserCard } from './Users';
 import { PermissionsCard } from './components/EntityCard/EntityCard';
-import { useGetWorkspaceUsers } from './hooks/workspace';
-import { useGetGroupUsers } from './hooks/group';
-import { useRemoveUserFromGroup } from './hooks/group';
 
 const PolicyTable = ({
 	selectedResourceId,
@@ -59,12 +66,12 @@ const PolicyTable = ({
 	apps: App[];
 	resourceType: string;
 }) => {
-	const getSelector = (selectedResourceId: string, appId: string) => {
+	const getSelector = (targetResourceId: string, appId: string) => {
 		if (resourceType === 'users') {
-			return <UserPolicySelector userId={selectedResourceId} appId={appId} />;
+			return <UserPolicySelector userId={targetResourceId} appId={appId} />;
 		}
 
-		return <GroupPolicySelector groupId={selectedResourceId} appId={appId} />;
+		return <GroupPolicySelector groupId={targetResourceId} appId={appId} />;
 	};
 	return (
 		<Box flexGrow="4" ml="8">
@@ -77,12 +84,15 @@ const PolicyTable = ({
 						</Tr>
 					</Thead>
 					<Tbody>
-						{apps.map((app: any) => (
-							<Tr key={app.id}>
-								<Td>{app.name}</Td>
-								<Td>{getSelector(selectedResourceId, app.id)}</Td>
-							</Tr>
-						))}
+						{apps.map((app: any) => {
+							const appIdentifier = app?.id ? app.id : app.name;
+							return (
+								<Tr key={appIdentifier}>
+									<Td>{app.name}</Td>
+									<Td>{getSelector(selectedResourceId, appIdentifier)}</Td>
+								</Tr>
+							);
+						})}
 					</Tbody>
 				</Table>
 			)}
@@ -174,8 +184,9 @@ export const Permissions = () => {
 	const [newGroupName, setNewGroupName] = useState('' as string);
 	const [resourceType, setResourceType] = useState('groups' as string);
 	const [invitedMember, setInviteMember] = useState('' as string);
+	const { user: userInfo } = useGetCurrentUser();
 
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId, in_trial: inTrial } = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
 	const {
 		isOpen: createGroupIsOpen,
@@ -229,6 +240,18 @@ export const Permissions = () => {
 		});
 		inviteMemberOnClose();
 	};
+
+	const canUseGranularPermissions = inTrial || userInfo?.email?.endsWith('dropbase.io');
+
+	if (!canUseGranularPermissions) {
+		return (
+			<PageLayout title="Permissions Manager">
+				<Text fontSize="lg" color="gray.500">
+					Granular permissions are not available for your current plan.
+				</Text>
+			</PageLayout>
+		);
+	}
 
 	return (
 		<PageLayout

@@ -20,7 +20,7 @@ import { useResendConfirmEmail } from './hooks/useResendConfirmationEmail';
 import { useLogin } from './hooks/useLogin';
 import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
-import { workerAxios } from '@/lib/axios';
+import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '../../utils';
 
 type FormValues = {
@@ -56,11 +56,13 @@ export const Login = () => {
 			}
 		},
 		onSuccess: (data: any) => {
-			localStorage.setItem('worker_access_token', data?.access_token);
-			localStorage.setItem('worker_refresh_token', data?.refresh_token);
+			setAxiosToken(data?.access_token);
+			localStorage.setItem('access_token', data?.access_token);
+			localStorage.setItem('refresh_token', data?.refresh_token);
 			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
 
-			updateWorkspace(data?.workspace?.id);
+			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
+			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
 			setDisplayEmailConfirmation(false);
 			navigate('/apps');
 		},
