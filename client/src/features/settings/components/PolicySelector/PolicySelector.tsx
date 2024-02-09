@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Select, Skeleton } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
 import { useGetUserDetails, useUpdateUserPolicy } from '../../hooks/user';
 import { useUpdateGroupPolicy, useGetGroup } from '../../hooks/group';
 import { workspaceAtom } from '@/features/workspaces';
-import { useAtomValue } from 'jotai';
 
 const PolicySelector = ({
 	isLoaded,
@@ -27,7 +27,7 @@ const PolicySelector = ({
 };
 
 export const UserPolicySelector = ({ userId, appId }: { userId: string; appId: string }) => {
-	const workspaceId = useAtomValue<string>(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const [option, setOption] = useState<string>('none');
 	const updateUserPolicyMutation = useUpdateUserPolicy();
 	const { permissions, isLoading: permissionsIsLoading } = useGetUserDetails({
@@ -42,7 +42,7 @@ export const UserPolicySelector = ({ userId, appId }: { userId: string; appId: s
 	const handleSelect = (e: any) => {
 		setOption(e.target.value);
 		updateUserPolicyMutation.mutate({
-			workspaceId,
+			workspaceId: workspaceId || '',
 			userId,
 			resource: appId,
 			action: e.target.value,

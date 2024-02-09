@@ -88,7 +88,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 			<Layout strokeWidth="1.5px" size="40px" />
 			<Stack spacing="0">
 				<Text fontSize="lg" fontWeight="semibold">
-					{app?.name}
+					{app?.label}
 				</Text>
 			</Stack>
 			<Menu>
@@ -116,7 +116,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 							onOpen();
 						}}
 					>
-						<Stack alignItems="center" direction="row">
+						<Stack alignItems="center" direction="row" fontSize="md">
 							<Trash size="14" />
 							<Box>Delete App</Box>
 						</Stack>
@@ -176,7 +176,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 export const AppList = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { workspaces } = useWorkspaces();
 	const { status } = useStatus();
 	const methods = useForm();
@@ -215,6 +215,7 @@ export const AppList = () => {
 	const onSubmit = async ({ name: appName }: any) => {
 		await handleCreateAppFlow({
 			name: appName,
+			workspaceId: workspaceId as string,
 		});
 	};
 

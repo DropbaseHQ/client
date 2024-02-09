@@ -1,5 +1,6 @@
 import * as monacoLib from 'monaco-editor';
 import { PROPERTIES } from './constants';
+import { buildTemplateStringSuggestions } from '@/components/Editor/utils/template-string-suggestions';
 
 const { CompletionItemKind } = monacoLib.languages;
 type CompletionSuggestion = Omit<monacoLib.languages.CompletionItem, 'range'>;
@@ -8,7 +9,25 @@ export interface CompletionData {
 	metadata: Record<string, string>;
 }
 
-const SQL_KEYWORDS = ['select', 'from', 'with', 'as'];
+const SQL_KEYWORDS = [
+	'SELECT',
+	'FROM',
+	'AS',
+	'WHERE',
+	'ORDER BY',
+	'GROUP BY',
+	'JOIN',
+	'LEFT JOIN',
+	'RIGHT JOIN',
+	'ON',
+	'AND',
+	'OR',
+	'NOT',
+	'IN',
+	'BETWEEN',
+	'AS',
+	'WITH',
+];
 
 const countChars = (str: string, char: string) => {
 	return str.split(char).length - 1;
@@ -17,16 +36,22 @@ const countChars = (str: string, char: string) => {
 const completePhrase = (
 	lineUpToCursor: string,
 	databaseSchema: CompletionData,
+	directoryStructure: any,
 ): CompletionSuggestion[] => {
-	// completionData is the real database schema,
-	// databaseSchema also contains metadata about the database
 	const completionData = databaseSchema.schema;
 	const [currentWord, prevWord, prevPrevWord] = lineUpToCursor.split(' ').reverse(); // the last three words of the current line
 	const cleanedCurrentWord = currentWord.replace(/^("|\.)+|("|\.)+$/g, ''); // remove leading/trailing punctuation
 	const [curSchema, curTable] = cleanedCurrentWord.split('.'); // the current schema and table
 
 	const suggestions: CompletionSuggestion[] = [];
-	if (prevWord?.toLowerCase() === 'from') {
+
+	const templateSuggestions = buildTemplateStringSuggestions(lineUpToCursor, directoryStructure);
+
+	if (templateSuggestions.length > 0) {
+		return templateSuggestions;
+	}
+
+	if (prevWord?.toUpperCase() === 'FROM') {
 		// populate all possible tables
 		Object.keys(completionData).forEach((schema) => {
 			Object.keys(completionData[schema]).forEach((table) => {
@@ -55,9 +80,9 @@ const completePhrase = (
 		return suggestions;
 	}
 
-	if (prevWord?.toLowerCase() !== 'as' || !prevPrevWord) {
+	if (prevWord?.toUpperCase() !== 'AS' || !prevPrevWord) {
 		// if not an alias or a select table, only offer keyword completions
-		return SQL_KEYWORDS.filter((word) => word.includes(cleanedCurrentWord.toLowerCase())).map(
+		return SQL_KEYWORDS.filter((word) => word.includes(cleanedCurrentWord.toUpperCase())).map(
 			(keyword) => ({
 				label: keyword,
 				kind: CompletionItemKind.Keyword,
@@ -168,6 +193,7 @@ export const provideCompletionItems = (
 	model: monacoLib.editor.ITextModel,
 	position: monacoLib.Position,
 	databaseSchema: CompletionData,
+	directoryStructure: any,
 ) => {
 	const lineUpToPosition = model.getValueInRange({
 		startLineNumber: position.lineNumber,
@@ -179,6 +205,7 @@ export const provideCompletionItems = (
 		suggestions: completePhrase(
 			lineUpToPosition,
 			databaseSchema,
+			directoryStructure,
 		) as monacoLib.languages.CompletionItem[],
 	};
 };

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { PageLayout } from '@/layout';
 import {
 	Table,
 	Thead,
@@ -31,63 +30,71 @@ import {
 	ButtonGroup,
 	IconButton,
 	HStack,
+	Select,
 } from '@chakra-ui/react';
-import { UserMinus } from 'react-feather';
-import { useGetWorkspaceUsers, GET_WORKSPACE_USERS_QUERY_KEY } from './hooks/workspace';
-import { workspaceAtom } from '@/features/workspaces';
-import { useAtomValue } from 'jotai';
-import { useInviteMember } from './hooks/workspace';
+import { UserMinus, Edit } from 'react-feather';
 import { useQueryClient } from 'react-query';
-import { useRemoveMember } from './hooks/workspace';
+import { useAtomValue } from 'jotai';
+
+import {
+	useUpdateUserRole,
+	useGetWorkspaceUsers,
+	GET_WORKSPACE_USERS_QUERY_KEY,
+	useInviteMember,
+	useRemoveMember,
+} from './hooks/workspace';
+import { workspaceAtom } from '@/features/workspaces';
+import { PageLayout } from '@/layout';
 
 // Will get this from the server later
 const ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
-// const DEV_UUID = '00000000-0000-0000-0000-000000000002';
-// const USER_UUID = '00000000-0000-0000-0000-000000000003';
-// const MEMBER_UUID = '00000000-0000-0000-0000-000000000004';
+const DEV_UUID = '00000000-0000-0000-0000-000000000002';
+const USER_UUID = '00000000-0000-0000-0000-000000000003';
+const MEMBER_UUID = '00000000-0000-0000-0000-000000000004';
 
 const UserRow = (item: any) => {
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { user } = item;
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
 
-	// const [newRole] = useState(item.user.role_id);
+	const [newRole, setNewRole] = useState(user.role_id);
 
 	const { isOpen: isOpenRemove, onOpen: onOpenRemove, onClose: onCloseRemove } = useDisclosure();
-	// const { onClose: onCloseEdit } = useDisclosure();
+	const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
 	const removeMemberMutation = useRemoveMember({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
 			onCloseRemove();
 		},
 	});
-	// const changeUserRoleMutation = useUpdateUserRole({
-	// 	onSuccess: () => {
-	// 		queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
-	// 		onCloseEdit();
-	// 	},
-	// });
+	const changeUserRoleMutation = useUpdateUserRole({
+		onSuccess: () => {
+			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
+			onCloseEdit();
+		},
+	});
 
 	const handleRemoveMember = () => {
 		removeMemberMutation.mutate({
-			userId: item.user.id,
+			userId: user.id,
 			workspaceId,
 		});
 	};
-	// const handleChangeRole = () => {
-	// 	changeUserRoleMutation.mutate({
-	// 		userId: item.user.id,
-	// 		workspaceId,
-	// 		roleId: newRole,
-	// 	});
-	// };
+	const handleChangeRole = () => {
+		changeUserRoleMutation.mutate({
+			userId: user.id,
+			workspaceId,
+			roleId: newRole,
+		});
+	};
 
 	return (
-		<Tr key={item.user.id}>
-			<Td>{item.user.email}</Td>
+		<Tr key={user.id}>
+			<Td>{user.email}</Td>
 			<Td>
 				<HStack spacing="6">
-					<Text>{item.user.role_name}</Text>
-					{/* <Popover
+					<Text>{user.role_name}</Text>
+					<Popover
 						isOpen={isOpenEdit}
 						onClose={onCloseEdit}
 						onOpen={onOpenEdit}
@@ -133,7 +140,7 @@ const UserRow = (item: any) => {
 								</ButtonGroup>
 							</PopoverFooter>
 						</PopoverContent>
-					</Popover> */}
+					</Popover>
 				</HStack>
 			</Td>
 			<Td>
@@ -164,7 +171,7 @@ const UserRow = (item: any) => {
 							<PopoverCloseButton />
 							<PopoverHeader fontSize="md">Confirm member removal</PopoverHeader>
 							<PopoverBody>
-								<Text fontSize="md">{`Are you sure you want to\nremove ${item.user.email}?`}</Text>
+								<Text fontSize="md">{`Are you sure you want to\nremove ${user.email}?`}</Text>
 							</PopoverBody>
 							<PopoverFooter display="flex" justifyContent="flex-end">
 								<ButtonGroup size="sm">
@@ -188,24 +195,26 @@ const UserRow = (item: any) => {
 	);
 };
 export const Users = () => {
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 
 	const [newMemberEmail, setNewMemberEmail] = useState('');
-	const [newMemberRole] = useState(ADMIN_UUID);
+	const [newMemberRole, setNewMemberRole] = useState(MEMBER_UUID);
 
 	const queryClient = useQueryClient();
 	const { users } = useGetWorkspaceUsers();
+
+	const {
+		isOpen: inviteMemberIsOpen,
+		onOpen: inviteMemberOnOpen,
+		onClose: inviteMemberOnClose,
+	} = useDisclosure();
+
 	const inviteMemberMutation = useInviteMember({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
 			inviteMemberOnClose();
 		},
 	});
-	const {
-		isOpen: inviteMemberIsOpen,
-		onOpen: inviteMemberOnOpen,
-		onClose: inviteMemberOnClose,
-	} = useDisclosure();
 
 	const handleInviteMember = () => {
 		inviteMemberMutation.mutate({
@@ -252,7 +261,7 @@ export const Users = () => {
 									setNewMemberEmail(e.target.value);
 								}}
 							/>
-							{/* <Select
+							<Select
 								placeholder="Select role"
 								value={newMemberRole}
 								onChange={(e) => {
@@ -263,7 +272,7 @@ export const Users = () => {
 								<option value={DEV_UUID}>Dev</option>
 								<option value={USER_UUID}>User</option>
 								<option value={MEMBER_UUID}>Member</option>
-							</Select> */}
+							</Select>
 						</VStack>
 					</ModalBody>
 

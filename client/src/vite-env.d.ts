@@ -5,6 +5,7 @@ interface ImportMetaEnv {
 	readonly VITE_PYTHON_LSP_SERVER: string;
 	readonly VITE_WORKER_API_ENDPOINT: string;
 	readonly VITE_WORKER_WS_ENDPOINT: string;
+	readonly VITE_APP_TYPE: string;
 }
 
 interface ImportMeta {

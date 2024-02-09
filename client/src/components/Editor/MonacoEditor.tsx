@@ -6,7 +6,7 @@ export const MonacoEditor = (props: any) => {
 	const monaco = useMonaco();
 	useMonacoTheme(monaco);
 
-	const { onMount, height: defaultHeight, options, ...otherProps } = props;
+	const { onMount, options, ...otherProps } = props;
 
 	const handleEditorMount = useCallback(
 		(editor: any, ...rest: any) => {

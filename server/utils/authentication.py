@@ -13,13 +13,12 @@ from server.utils.connect import get_db
 class Settings(BaseModel):
     authjwt_secret_key: str = "secret"
     # Configure application to store and get JWT from cookies
-    authjwt_token_location: set = {"cookies"}
     # Disable CSRF Protection for this example. default is True
-    authjwt_cookie_csrf_protect: bool = False
-    authjwt_cookie_secure: bool = True
-    authjwt_cookie_samesite: str = "none"
-    authjwt_cookie_max_age: int = 60 * 60 * 24 * 7  # 7 days
-    authjwt_cookie_domain: str = None if ENVIRONMENT == "local" else ".dropbase.io"
+    # authjwt_cookie_csrf_protect: bool = False
+    # authjwt_cookie_secure: bool = True
+    # authjwt_cookie_samesite: str = "none"
+    # authjwt_cookie_max_age: int = 60 * 60 * 24 * 7  # 7 days
+    # authjwt_cookie_domain: str = None if ENVIRONMENT == "local" else ".dropbase.io"
 
 
 @AuthJWT.load_config

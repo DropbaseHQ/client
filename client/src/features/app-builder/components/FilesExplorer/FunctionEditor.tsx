@@ -12,12 +12,13 @@ import {
 	SkeletonCircle,
 	Stack,
 	Text,
+	Tooltip,
 } from '@chakra-ui/react';
 
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, Save } from 'react-feather';
+import { Info, Play, Save } from 'react-feather';
 import { useQueryClient } from 'react-query';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -44,10 +45,10 @@ const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name }: any)
 	const executeRunCommand = useCallback(() => {
 		setPreviewFile({
 			name,
-			code: defaultCode,
+			code,
 			execute: true,
 		});
-	}, [defaultCode, name, setPreviewFile]);
+	}, [code, name, setPreviewFile]);
 
 	const editorRef = usePythonEditor({
 		filepath: filePath,
@@ -143,10 +144,12 @@ export const FunctionEditor = ({ name }: any) => {
 	useEffect(() => {
 		setPreviewFile({
 			name,
-			code,
+			code: updatedCode,
 			execute: false,
 		});
+	}, [updatedCode, name, setPreviewFile]);
 
+	useEffect(() => {
 		return () => {
 			setPreviewFile({
 				name: null,
@@ -217,13 +220,23 @@ export const FunctionEditor = ({ name }: any) => {
 			{file?.type === 'data_fetcher' ? (
 				<Stack p="3" borderBottomWidth="1px" alignItems="start" direction="row">
 					<FormControl>
-						<FormLabel>Depends</FormLabel>
+						<FormLabel>
+							<Stack direction="row" alignItems="center">
+								<Text>Refetch on row change in table…</Text>
+								<Tooltip
+									label="Select table for which a row change triggers this function to refetch"
+									fontSize="sm"
+								>
+									<Info size="10" />
+								</Tooltip>
+							</Stack>
+						</FormLabel>
 						<InputRenderer
 							type="multiselect"
 							id="depends"
-							maxW="sm"
+							maxW="lg"
 							name="Depends on"
-							placeholder="Select the table which it depends on"
+							placeholder="Select table(s)"
 							options={tables.map((t: any) => ({
 								name: t.name,
 								value: t.name,

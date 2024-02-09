@@ -24,10 +24,6 @@ export const WidgetProperties = ({ widgetId }: any) => {
 	const mutation = useUpdatePageData({
 		onSuccess: () => {
 			refetch();
-			setInspectedResource({
-				id: null,
-				type: 'widget',
-			});
 		},
 		onError: (error: any) => {
 			toast({
@@ -183,8 +179,18 @@ export const WidgetProperties = ({ widgetId }: any) => {
 										<FormInput
 											{...property}
 											id={property.name}
-											type={property.type}
+											type={
+												property.name === 'label'
+													? 'template' // TODO: update backend to have this
+													: property.type
+											}
 											key={property.name}
+											options={(property.enum || property.options || []).map(
+												(o: any) => ({
+													name: o,
+													value: o,
+												}),
+											)}
 										/>
 									);
 								})}

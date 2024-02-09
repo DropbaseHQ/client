@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Plus, Trash } from 'react-feather';
-import { Box, Button, FormControl, FormLabel, IconButton, Stack } from '@chakra-ui/react';
+import { Box, Button, FormControl, FormLabel, IconButton, Stack, Text } from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
 import {
@@ -13,7 +13,7 @@ import {
 } from '@choc-ui/chakra-autocomplete';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
-import { allWidgetsInputAtom, tableStateAtom } from '@/features/app-state';
+import { allWidgetsInputAtom, tableColumnTypesAtom, tableStateAtom } from '@/features/app-state';
 
 const OPERATORS = [
 	{
@@ -56,8 +56,27 @@ const formLabelProps = {
 	mb: '1',
 };
 
-const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRules }: any) => {
+const TargetSelector = ({
+	rule,
+	onChange,
+	tableTargets,
+	widgetTargets,
+	displayRules,
+	getColType,
+	isInvalid,
+}: any) => {
 	const [editTarget, setEditTarget] = useState<string>(rule.target);
+
+	const targetExists = () => {
+		if (!rule.target) {
+			return true;
+		}
+		const [category] = rule.target.split('.');
+		if (category === 'tables') {
+			return tableTargets?.some((t: any) => t.value === rule.target);
+		}
+		return widgetTargets?.some((t: any) => t.value === rule.target);
+	};
 
 	useEffect(() => {
 		setEditTarget(rule.target);
@@ -72,6 +91,7 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 							return {
 								...r,
 								target: item.value,
+								target_type: getColType(item.value),
 							};
 						}
 
@@ -80,22 +100,33 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 				);
 			}}
 		>
-			<FormControl>
+			<FormControl isInvalid={isInvalid}>
 				<FormLabel {...formLabelProps}>Target</FormLabel>
 				<AutoCompleteInput
 					size="sm"
 					value={editTarget}
+					borderWidth={!targetExists() ? '2px' : null}
+					borderColor={!targetExists() ? 'orange.300' : null}
 					onChange={(e: any) => {
 						setEditTarget(e.target.value);
 					}}
 				/>
+				{!targetExists() && (
+					<Text mt="1" fontSize="xs" color="orange.500">
+						Target does not exist. This rule will not work.
+					</Text>
+				)}
 			</FormControl>
 			<AutoCompleteList>
 				<AutoCompleteGroup key="tables" showDivider>
 					<AutoCompleteGroupTitle>Tables</AutoCompleteGroupTitle>
 					{tableTargets?.map((xTable: any) => {
 						return (
-							<AutoCompleteItem key={xTable?.value} value={xTable?.value}>
+							<AutoCompleteItem
+								key={xTable?.value}
+								value={xTable?.value}
+								fontSize="sm"
+							>
 								{xTable?.label}
 							</AutoCompleteItem>
 						);
@@ -105,7 +136,11 @@ const TargetSelector = ({ rule, onChange, tableTargets, widgetTargets, displayRu
 					<AutoCompleteGroupTitle>Widgets</AutoCompleteGroupTitle>
 					{widgetTargets?.map((widgetTarget: any) => {
 						return (
-							<AutoCompleteItem key={widgetTarget.value} value={widgetTarget.value}>
+							<AutoCompleteItem
+								key={widgetTarget.value}
+								value={widgetTarget.value}
+								fontSize="sm"
+							>
 								{widgetTarget.label}
 							</AutoCompleteItem>
 						);
@@ -124,6 +159,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 	const { widgetName, widgets } = useAtomValue(pageAtom);
 	const widgetsInputs = useAtomValue(allWidgetsInputAtom);
 	const tableState = useAtomValue(tableStateAtom);
+	const tableColumnTypes = useAtomValue(tableColumnTypesAtom);
 
 	const currentWidget: { [key: string]: any } =
 		widgetsInputs?.[widgetName as keyof typeof widgetsInputs] || {};
@@ -131,6 +167,14 @@ export const DisplayRulesEditor = ({ name }: any) => {
 	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
 	const { control } = useFormContext();
 
+	const getColType = (target: string) => {
+		if (!target || target === 'widgets') {
+			return 'text';
+		}
+		const [, specificCategory, targetName] = target.split('.');
+		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
+		return table?.[targetName as keyof typeof table];
+	};
 	const componentsProperties = components
 		.filter(
 			(c: any) =>
@@ -160,16 +204,36 @@ export const DisplayRulesEditor = ({ name }: any) => {
 			<Controller
 				control={control}
 				name="display_rules"
-				render={({ field: { onChange, value } }) => {
+				rules={{
+					validate: (displayRules) => {
+						if (displayRules?.length > 0) {
+							const isValid = displayRules.every((rule: any) => {
+								if (
+									rule?.operator &&
+									OPERATOR_WITH_NO_VALUE.includes(rule?.operator)
+								) {
+									return !!rule.target;
+								}
+								return rule.target && rule.operator && rule.value;
+							});
+							if (!isValid) {
+								return 'All rule fields must be complete';
+							}
+						}
+						return true;
+					},
+				}}
+				render={({
+					field: { onChange, value },
+					fieldState: { error },
+					formState: { isValid, isSubmitted },
+				}) => {
 					const displayRules = value || [];
-
 					return (
 						<Stack spacing="2.5">
 							{displayRules.map((rule: any, index: any) => {
 								const componentProperty = componentsProperties?.[rule?.name];
-
 								let isNumberInput = false;
-
 								let input: any = {
 									type: 'text',
 								};
@@ -225,16 +289,23 @@ export const DisplayRulesEditor = ({ name }: any) => {
 												/>
 											</Box>
 										)}
+
 										<TargetSelector
 											rule={rule}
 											onChange={onChange}
 											tableTargets={tableTargets}
 											widgetTargets={widgetTargets}
 											displayRules={displayRules}
+											getColType={getColType}
+											isInvalid={!isValid && isSubmitted && !rule.target}
 										/>
 
 										<Stack alignItems="end" key={rule.id} direction="row">
-											<FormControl>
+											<FormControl
+												isInvalid={
+													!isValid && isSubmitted && !rule.operator
+												}
+											>
 												{index === 0 ? (
 													<FormLabel {...formLabelProps}>
 														Operator
@@ -271,7 +342,11 @@ export const DisplayRulesEditor = ({ name }: any) => {
 											{OPERATOR_WITH_NO_VALUE.includes(
 												rule.operator,
 											) ? null : (
-												<FormControl>
+												<FormControl
+													isInvalid={
+														!isValid && isSubmitted && !rule.value
+													}
+												>
 													{index === 0 ? (
 														<FormLabel {...formLabelProps}>
 															Value
@@ -283,6 +358,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														disabled={!rule.target}
 														placeholder="select value"
 														{...input}
+														type={getColType(rule.target)}
 														value={rule.value}
 														onChange={(newValue: any) => {
 															onChange(
@@ -319,6 +395,11 @@ export const DisplayRulesEditor = ({ name }: any) => {
 									</Stack>
 								);
 							})}
+							{error && (
+								<Text fontSize="sm" color="red">
+									{error?.message}
+								</Text>
+							)}
 
 							<Button
 								size="sm"
