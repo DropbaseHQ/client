@@ -5,16 +5,19 @@ import { useMutation } from 'react-query';
 const registerUser = async ({
 	email,
 	password,
-	name,
+	first_name,
+	company,
 }: {
 	email: string;
 	password: string;
-	name: string;
+	first_name: string;
+	company: string;
 }) => {
 	const response = await axios.post<{ user: string }>(`/user/register`, {
 		email,
 		password,
-		name,
+		first_name,
+		company,
 	});
 
 	return response.data;

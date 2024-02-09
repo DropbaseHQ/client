@@ -16,8 +16,9 @@ class BaseUser(BaseModel):
         orm_mode = True
 
 
-class CreateUser(BaseUser):
-    name: str
+class CreateUser(BaseModel):
+    first_name: str
+    company: str
     email: str
     hashed_password: str
     active: bool = False
@@ -48,7 +49,8 @@ class LoginUser(BaseModel):
 
 
 class CreateUserRequest(BaseModel):
-    name: str
+    first_name: str
+    company: str
     email: str
     password: str
 
