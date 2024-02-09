@@ -3,7 +3,16 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { Save, Table } from 'react-feather';
-import { Stack, Text, IconButton, ButtonGroup, Icon, Badge, StackDivider } from '@chakra-ui/react';
+import {
+	Box,
+	Stack,
+	Text,
+	IconButton,
+	ButtonGroup,
+	Icon,
+	Badge,
+	StackDivider,
+} from '@chakra-ui/react';
 import { useGetTable, useResourceFields } from '@/features/app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { InputLoader } from '@/components/Loader';
@@ -13,6 +22,7 @@ import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
+import { ColumnsProperties } from './ColumnProperties';
 
 export const TableProperties = () => {
 	const tableId = useAtomValue(selectedTableIdAtom);
@@ -288,6 +298,14 @@ export const TableProperties = () => {
 															}),
 														)}
 													/>
+												);
+											}
+
+											if (property.name === 'column_props') {
+												return (
+													<Box p="4">
+														<ColumnsProperties />
+													</Box>
 												);
 											}
 

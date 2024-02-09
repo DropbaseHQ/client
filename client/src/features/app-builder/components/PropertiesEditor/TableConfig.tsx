@@ -6,10 +6,6 @@ export const TableConfig = () => {
 	return (
 		<Stack bg="white" h="full" overflowY="auto" divider={<Divider />}>
 			<TableProperties />
-
-			<Box p="4">
-				<ColumnsProperties />
-			</Box>
 		</Stack>
 	);
 };
