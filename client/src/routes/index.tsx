@@ -2,6 +2,7 @@ import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
+import { useSetAtom } from 'jotai';
 import { Login, Register, ResetPassword, EmailConfirmation } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
 import { App } from '@/features/app';
@@ -12,7 +13,6 @@ import {
 	useSetAxiosToken,
 	useSetWorkerAxiosBaseURL,
 } from '@/features/authorization/hooks/useLogin';
-import { useSetAtom } from 'jotai';
 import { websocketStatusAtom } from '@/features/app/atoms';
 
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
@@ -32,6 +32,9 @@ export const DashboardRoutes = () => {
 	// Initialize websocket
 	useWebSocket(SOCKET_URL, {
 		share: true,
+		shouldReconnect: () => true,
+		reconnectAttempts: 3,
+		reconnectInterval: (attemptNumber) => Math.min(2 ** attemptNumber * 1000, 10000),
 		onOpen: () => {
 			setWebsocketIsAlive(true);
 		},

@@ -67,6 +67,17 @@ const TargetSelector = ({
 }: any) => {
 	const [editTarget, setEditTarget] = useState<string>(rule.target);
 
+	const targetExists = () => {
+		if (!rule.target) {
+			return true;
+		}
+		const [category] = rule.target.split('.');
+		if (category === 'tables') {
+			return tableTargets?.some((t: any) => t.value === rule.target);
+		}
+		return widgetTargets?.some((t: any) => t.value === rule.target);
+	};
+
 	useEffect(() => {
 		setEditTarget(rule.target);
 	}, [rule.target]);
@@ -94,10 +105,17 @@ const TargetSelector = ({
 				<AutoCompleteInput
 					size="sm"
 					value={editTarget}
+					borderWidth={!targetExists() ? '2px' : null}
+					borderColor={!targetExists() ? 'orange.300' : null}
 					onChange={(e: any) => {
 						setEditTarget(e.target.value);
 					}}
 				/>
+				{!targetExists() && (
+					<Text mt="1" fontSize="xs" color="orange.500">
+						Target does not exist. This rule will not work.
+					</Text>
+				)}
 			</FormControl>
 			<AutoCompleteList>
 				<AutoCompleteGroup key="tables" showDivider>
