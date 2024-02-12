@@ -88,5 +88,5 @@ class RequestResetPassword(BaseModel):
 
 
 class CheckPermissionRequest(BaseModel):
-    app_id: str
+    app_id: Optional[str] = None
     workspace_id: str

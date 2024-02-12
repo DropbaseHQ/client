@@ -411,8 +411,11 @@ def delete_user(db: Session, user_id: UUID):
 def check_permissions(db: Session, user: User, request: CheckPermissionRequest):
 
     app_id = request.app_id
-    app = crud.app.get_object_by_id_or_404(db, id=app_id)
-    workspace_id = app.workspace_id
+    if app_id:
+        app = crud.app.get_object_by_id_or_404(db, id=app_id)
+        workspace_id = app.workspace_id
+    else:
+        workspace_id = request.workspace_id
 
     permissions_dict = get_all_action_permissions(
         db, str(user.id), workspace_id, app_id
