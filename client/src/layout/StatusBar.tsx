@@ -1,8 +1,8 @@
 import { useQuery } from 'react-query';
-import { Circle, Link, Stack, Text, Divider } from '@chakra-ui/react';
+import { Circle, Link, Stack, Text, Alert, AlertIcon, Divider } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { workerAxios } from '../lib/axios';
-import { websocketStatusAtom } from '@/features/app/atoms';
+import { useWorkerWorkspace, workspaceAtom, websocketStatusAtom } from '@/features/workspaces';
 
 export const STATUS_QUERY_KEY = 'allFiles';
 
@@ -29,6 +29,9 @@ export const useStatus = () => {
 export const StatusBar = () => {
 	const { status } = useStatus();
 	const websocketIsConnected = useAtomValue(websocketStatusAtom);
+	const currentWorkspace = useAtomValue(workspaceAtom);
+	const { workspace: workerWorkspace } = useWorkerWorkspace();
+	const selectedWorkspaceMatchesWorker = currentWorkspace?.id === workerWorkspace?.id;
 
 	return (
 		<Stack
@@ -62,6 +65,21 @@ export const StatusBar = () => {
 					Troubleshoot Worker Connection
 				</Link>
 			) : null}
+
+			{!selectedWorkspaceMatchesWorker && (
+				<Alert
+					status="error"
+					height="min-content"
+					p="0"
+					fontSize="xs"
+					display="flex"
+					alignItems="center"
+					justifyContent="center"
+				>
+					<AlertIcon />
+					The selected workspace does not match the worker workspace.
+				</Alert>
+			)}
 		</Stack>
 	);
 };

@@ -47,3 +47,11 @@ def check_permission(
     workspace: Workspace = Depends(verify_worker_token),
 ):
     return user_controller.check_permissions(db, user, request, workspace)
+
+
+@router.get("/worker_workspace")
+def get_worker_workspace(workspace: Workspace = Depends(verify_worker_token)):
+    return {
+        "id": workspace.id,
+        "name": workspace.name,
+    }
