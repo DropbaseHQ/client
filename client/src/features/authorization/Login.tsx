@@ -56,6 +56,7 @@ export const Login = () => {
 			}
 		},
 		onSuccess: (data: any) => {
+			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 			setAxiosToken(data?.access_token);
 			localStorage.setItem('access_token', data?.access_token);
 			localStorage.setItem('refresh_token', data?.refresh_token);

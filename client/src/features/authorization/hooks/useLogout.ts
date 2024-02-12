@@ -19,6 +19,7 @@ export const useLogout = () => {
 			setAxiosToken(null);
 			localStorage.removeItem('access_token');
 			localStorage.removeItem('refresh_token');
+			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 			navigate('/login');
 		},
 		onError: (err: any) => {
