@@ -174,7 +174,13 @@ def verify_user(db: Session, token: str, user_id: UUID):
         try:
             user.confirmation_token = None
             user.active = True
-            loops_controller.add_user(user_email=user.email, name=user.name, user_id=str(user.id))
+            loops_controller.add_user(
+                user_email=user.email,
+                name=user.name,
+                last_name=user.last_name,
+                company=user.company,
+                user_id=str(user.id),
+            )
             db.commit()
             return {"message": "User successfully confirmed"}
         except Exception as e:
