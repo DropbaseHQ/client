@@ -135,6 +135,7 @@ export const useToast = () => {
 	};
 
 	toastObject.close = toast.close;
+	toastObject.closeAll = toast.closeAll;
 
 	return toastObject;
 };

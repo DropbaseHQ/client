@@ -23,7 +23,7 @@ def create_token(request: CreateToken, db: Session = Depends(get_db)):
 def get_user_tokens_in_workspace(
     workspace_id: UUID, user_id: UUID, db: Session = Depends(get_db)
 ):
-    return crud.token.get_user_tokens_in_workspace(db, workspace_id, user_id)
+    return crud.token.get_user_tokens_in_workspace(db, workspace_id)
     # return [
     #     {
     #         "token": token.token,

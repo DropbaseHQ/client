@@ -240,7 +240,7 @@ const FileButton = ({ file }: any) => {
 
 export const FilesExplorer = () => {
 	const { appName, pageName } = useParams();
-	const { files, isLoading, error } = useGetPage({ appName, pageName });
+	const { files, isLoading } = useGetPage({ appName, pageName });
 
 	const isReady = useMonacoLoader();
 
