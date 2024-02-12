@@ -13,6 +13,7 @@ import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
+import { LabelContainer } from '@/components/LabelContainer';
 
 export const TableProperties = () => {
 	const tableId = useAtomValue(selectedTableIdAtom);
@@ -184,9 +185,10 @@ export const TableProperties = () => {
 						direction="row"
 					>
 						<Stack direction="row" alignItems="center">
-							<Text fontWeight="semibold" fontSize="lg">
-								{tableId}
-							</Text>
+							<LabelContainer>
+								<LabelContainer.Label>{table?.name}</LabelContainer.Label>
+								<LabelContainer.Code>{tableId}</LabelContainer.Code>
+							</LabelContainer>
 							<NameEditor
 								value={tableId}
 								currentNames={(properties?.tables || []).map((t: any) => t.name)}
@@ -347,13 +349,18 @@ export const TableProperties = () => {
 												property.type === 'on_row_change' ||
 												property.name === 'on_row_select';
 
+											const propertyType =
+												property.name === 'label'
+													? 'template'
+													: property.type;
+
 											return (
 												<FormInput
 													{...property}
 													id={property.name}
 													name={property.title}
 													type={
-														showFunctionList ? 'select' : property.type
+														showFunctionList ? 'select' : propertyType
 													}
 													options={(
 														(showFunctionList

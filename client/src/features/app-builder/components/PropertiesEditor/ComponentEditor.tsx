@@ -27,8 +27,7 @@ import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { generateSequentialName, getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
-import { useTemplateCompletion } from '@/components/Editor/hooks/useTemplateCompletion';
-import { newPageStateAtom } from '@/features/app-state';
+import { LabelContainer } from '@/components/LabelContainer';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -39,10 +38,6 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const component = widgets
 		.find((w: any) => w.name === widgetName)
 		?.components?.find((c: any) => c.name === id);
-
-	const pageState = useAtomValue(newPageStateAtom);
-
-	useTemplateCompletion(pageState);
 
 	const { fields } = useResourceFields();
 
@@ -198,9 +193,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 						direction="row"
 					>
 						<Stack direction="row" alignItems="center">
-							<Text fontWeight="semibold" fontSize="lg">
-								{component?.name || id}
-							</Text>
+							<LabelContainer>
+								<LabelContainer.Label>{component?.name}</LabelContainer.Label>
+								<LabelContainer.Code>{id}</LabelContainer.Code>
+							</LabelContainer>
 							<NameEditor
 								value={id}
 								currentNames={(
@@ -275,7 +271,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 														{...property}
 														id={property.name}
 														name={property.title}
-														type="template"
+														type="template" // TODO: update backend to have this
 														key={property.name}
 													/>
 												);
@@ -431,7 +427,7 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 				</Stack>
 			</MenuButton>
 			<MenuList>
-				{['input', 'text', 'select', 'button'].map((c) => (
+				{['input', 'text', 'select', 'button', 'boolean'].map((c) => (
 					<MenuItem
 						onClick={() => {
 							onSubmit({ type: c });

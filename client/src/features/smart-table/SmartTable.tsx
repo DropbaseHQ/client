@@ -49,7 +49,7 @@ import {
 	tablePageInfoAtom,
 } from './atoms';
 import { TableBar } from './components';
-import { getErrorMessage } from '@/utils';
+import { extractTemplateString, getErrorMessage } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 
@@ -59,6 +59,7 @@ import { DEFAULT_PAGE_SIZE } from './constants';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
+import { LabelContainer } from '@/components/LabelContainer';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -665,7 +666,17 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				...curr,
 				[tableName]: true,
 			}));
-			pageState.state.tables = newSelectedRow;
+
+			// We need to pass the most update state to server
+			// If we pass pageState directly, the new selected row info will not be present before the request is sent
+			// So here we just manually update the pageState and send the updated state to server
+			// Open to better suggestions
+
+			pageState.state.tables = {
+				...pageState.state.tables,
+				...newSelectedRow,
+			};
+
 			sendJsonMessage({
 				type: 'display_rule',
 				state_context: pageState,
@@ -688,6 +699,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						if (t.name === tableName) {
 							return {
 								...t,
+								smart: false,
 								columns: header.map((c: any) => ({
 									...(columnDict?.[c] || {}),
 									...c,
@@ -789,9 +801,14 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				<NavLoader isLoading={isLoadingTable}>
 					<Stack alignItems="center" direction="row" w="full" overflow="hidden">
 						<Stack spacing="0" px="2" flexShrink="0">
-							<Text fontWeight="semibold" fontSize="lg">
-								{table?.label || tableName}
-							</Text>
+							<LabelContainer>
+								<LabelContainer.Label>
+									{extractTemplateString(table?.label || tableName, pageState)}
+								</LabelContainer.Label>
+								{isPreview ? null : (
+									<LabelContainer.Code>{tableName}</LabelContainer.Code>
+								)}
+							</LabelContainer>
 
 							{dependantTablesWithNoRowSelection.length > 0 ? (
 								<Stack direction="row" spacing="1" alignItems="center">
@@ -812,11 +829,11 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							) : null}
 						</Stack>
 
-						{pageState?.context?.tables?.[tableName].message ? (
+						{pageState?.context?.tables?.[tableName]?.message ? (
 							<Stack ml="auto" overflow="hidden">
 								<Alert
 									status={
-										pageState?.context?.tables?.[tableName].message_type ||
+										pageState?.context?.tables?.[tableName]?.message_type ||
 										'info'
 									}
 									bgColor="transparent"
@@ -824,7 +841,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 								>
 									<AlertIcon boxSize={4} />
 									<AlertDescription fontSize="sm">
-										{pageState?.context?.tables?.[tableName].message}
+										{pageState?.context?.tables?.[tableName]?.message}
 									</AlertDescription>
 								</Alert>
 							</Stack>

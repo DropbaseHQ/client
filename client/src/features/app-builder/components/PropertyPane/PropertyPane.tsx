@@ -8,6 +8,8 @@ import { TableConfig } from '../PropertiesEditor/TableConfig';
 import { WidgetProperties } from '@/features/app-builder/components/PropertiesEditor/WidgetProperties';
 
 import './monaco-suggestion-styles.css';
+import { newPageStateAtom } from '@/features/app-state';
+import { useTemplateCompletion } from '@/components/Editor/hooks/useTemplateCompletion';
 
 const EmptyPane = () => {
 	return (
@@ -52,6 +54,9 @@ const EmptyPane = () => {
 
 export const PropertyPane = () => {
 	const { id, type } = useAtomValue(inspectedResourceAtom);
+
+	const pageState = useAtomValue(newPageStateAtom);
+	useTemplateCompletion(pageState);
 
 	if (!id || !type) {
 		return <EmptyPane />;

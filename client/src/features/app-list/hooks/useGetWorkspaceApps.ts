@@ -3,12 +3,19 @@ import { useQuery } from 'react-query';
 import { workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
 
+type Page = {
+	name: string;
+	label: string;
+	id: string;
+};
+
 export type App = {
 	name: string;
+	label: string;
 	workspace_id: string;
 	date: string;
 	id: string;
-	pages: any[];
+	pages: Page[];
 	editable: boolean;
 };
 

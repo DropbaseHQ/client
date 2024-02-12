@@ -15,7 +15,6 @@ import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import useWebSocket from 'react-use-websocket';
-import { axios } from '@/lib/axios';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import { allWidgetStateAtom, nonWidgetContextAtom } from '@/features/app-state';
@@ -24,7 +23,7 @@ import { useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
-import { appModeAtom } from '@/features/app/atoms';
+import { appModeAtom, websocketStatusAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
 
 // websocket
@@ -39,6 +38,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 	const [{ widgets, modals }, setPageContext] = useAtom(pageAtom);
 
 	const { isPreview } = useAtomValue(appModeAtom);
+	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
 	const isDevMode = !isPreview;
 
 	const widget = widgets?.find((w) => w.name === widgetName);
@@ -59,6 +59,8 @@ export const WidgetPreview = ({ widgetName }: any) => {
 
 	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
 		onOpen: () => {
+			setWebsocketIsAlive(true);
+
 			sendJsonMessage({
 				type: 'auth',
 				access_token: localStorage.getItem('worker_access_token'),
@@ -73,9 +75,8 @@ export const WidgetPreview = ({ widgetName }: any) => {
 					type?: string;
 				} = JSON.parse(message?.data);
 				if (messageData?.type === 'auth_error' && retryCounter.current < 3) {
-					const response = await axios.post('/user/refresh');
-					const accessToken = response?.data?.access_token;
-					localStorage.setItem('worker_access_token', accessToken);
+					const accessToken = localStorage.getItem('access_token');
+
 					sendJsonMessage({
 						type: 'auth',
 						access_token: accessToken,
@@ -102,6 +103,9 @@ export const WidgetPreview = ({ widgetName }: any) => {
 			} catch (e) {
 				//
 			}
+		},
+		onClose: () => {
+			setWebsocketIsAlive(false);
 		},
 
 		share: true,

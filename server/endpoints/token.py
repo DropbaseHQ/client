@@ -26,10 +26,8 @@ def create_token(request: CreateToken, db: Session = Depends(get_db)):
 def get_user_tokens_in_workspace(
     workspace_id: UUID, user_id: UUID, db: Session = Depends(get_db)
 ):
-    workspace_owner = crud.user_role.get_workspace_owner(db, workspace_id)
-    owner_id = workspace_owner.user_id
-    tokens = crud.token.get_user_tokens_in_workspace(db, workspace_id)
-    return tokens
+    return crud.token.get_user_tokens_in_workspace(db, workspace_id)
+    # return [
     #     {
     #         "token": token.token,
     #         "token_id": token.id,

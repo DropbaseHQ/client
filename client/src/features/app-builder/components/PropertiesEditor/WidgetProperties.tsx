@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Save, Trash } from 'react-feather';
-import { Stack, Text, IconButton, ButtonGroup, StackDivider } from '@chakra-ui/react';
+import { Stack, IconButton, ButtonGroup, StackDivider } from '@chakra-ui/react';
 import { useResourceFields } from '@/features/app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
@@ -10,6 +10,7 @@ import { getErrorMessage } from '@/utils';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
+import { LabelContainer } from '@/components/LabelContainer';
 
 export const WidgetProperties = ({ widgetId }: any) => {
 	const toast = useToast();
@@ -134,9 +135,11 @@ export const WidgetProperties = ({ widgetId }: any) => {
 						direction="row"
 					>
 						<Stack direction="row" alignItems="center">
-							<Text fontWeight="semibold" fontSize="lg">
-								{widgetId}
-							</Text>
+							<LabelContainer>
+								<LabelContainer.Label>{widget?.name}</LabelContainer.Label>
+								<LabelContainer.Code>{widgetId}</LabelContainer.Code>
+							</LabelContainer>
+
 							<NameEditor
 								value={widgetId}
 								currentNames={(properties?.widgets || []).map((w: any) => w.name)}
@@ -179,7 +182,11 @@ export const WidgetProperties = ({ widgetId }: any) => {
 										<FormInput
 											{...property}
 											id={property.name}
-											type={property.type}
+											type={
+												property.name === 'label'
+													? 'template' // TODO: update backend to have this
+													: property.type
+											}
 											key={property.name}
 											options={(property.enum || property.options || []).map(
 												(o: any) => ({
