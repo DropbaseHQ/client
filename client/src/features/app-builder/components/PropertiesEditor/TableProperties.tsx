@@ -303,7 +303,7 @@ export const TableProperties = () => {
 
 											if (property.name === 'column_props') {
 												return (
-													<Box p="4">
+													<Box mb="4">
 														<ColumnsProperties />
 													</Box>
 												);

@@ -262,7 +262,7 @@ export const ColumnsProperties = () => {
 				</Button>
 			) : null}
 
-			{columns.length > 0 ? (
+			{columns?.length > 0 ? (
 				<Stack>
 					<SimpleGrid
 						py="2"
