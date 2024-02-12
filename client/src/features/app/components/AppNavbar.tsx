@@ -22,6 +22,7 @@ import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useAppState } from '@/features/app-state';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
@@ -37,6 +38,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { appName, pageName } = useParams();
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
+	const { permissions } = useAppState(appName || '', pageName || '');
 
 	const [label, setAppLabel] = useState('');
 
@@ -253,21 +255,23 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Flex>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
-					<Button
-						size="sm"
-						variant="secondary"
-						colorScheme="blue"
-						leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
-						aria-label="Preview"
-						ml="auto"
-						mr="4"
-						as={Link}
-						to={isPreview ? 'studio' : '../'}
-					>
-						{isPreview ? 'Edit' : 'Preview'}
-					</Button>
-				</Tooltip>
+				{permissions?.edit && (
+					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
+						<Button
+							size="sm"
+							variant="secondary"
+							colorScheme="blue"
+							leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
+							aria-label="Preview"
+							ml="auto"
+							mr="4"
+							as={Link}
+							to={isPreview ? 'studio' : '../'}
+						>
+							{isPreview ? 'Edit' : 'Preview'}
+						</Button>
+					</Tooltip>
+				)}
 			</Stack>
 		</Stack>
 	);
