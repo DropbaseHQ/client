@@ -17,7 +17,7 @@ class BaseUser(BaseModel):
 
 
 class CreateUser(BaseModel):
-    first_name: str
+    name: str
     company: str
     email: str
     hashed_password: str
@@ -49,7 +49,7 @@ class LoginUser(BaseModel):
 
 
 class CreateUserRequest(BaseModel):
-    first_name: str
+    name: str
     last_name: Optional[str]
     company: str
     email: str

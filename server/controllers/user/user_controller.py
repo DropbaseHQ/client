@@ -134,12 +134,10 @@ def refresh_token(Authorize: AuthJWT):
 def register_user(db: Session, request: CreateUserRequest):
     try:
         hashed_password = get_password_hash(request.password)
-        confirmation_token = get_confirmation_token_hash(
-            request.email + hashed_password + request.first_name
-        )
+        confirmation_token = get_confirmation_token_hash(request.email + hashed_password + request.name)
 
         user_obj = CreateUser(
-            first_name=request.first_name,
+            name=request.name,
             last_name=request.last_name,
             company=request.company,
             email=request.email,

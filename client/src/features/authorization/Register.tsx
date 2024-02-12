@@ -20,7 +20,7 @@ import { getErrorMessage } from '@/utils';
 type FormValues = {
 	email: string;
 	password: string;
-	first_name: string;
+	name: string;
 	last_name: string;
 	company: string;
 	confirm: string;
@@ -75,14 +75,14 @@ export const Register = () => {
 					<form onSubmit={onSubmit}>
 						<Stack spacing="6">
 							<Stack spacing="5">
-								<FormControl isInvalid={!!errors?.first_name}>
-									<FormLabel htmlFor="first_name">First Name</FormLabel>
+								<FormControl isInvalid={!!errors?.name}>
+									<FormLabel htmlFor="name">First Name</FormLabel>
 									<Input
 										placeholder="Please enter your first name"
-										id="first_name"
+										id="name"
 										type="name"
-										{...register('first_name', {
-											required: 'first_name is required',
+										{...register('name', {
+											required: 'name is required',
 										})}
 									/>
 								</FormControl>
