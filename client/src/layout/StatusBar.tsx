@@ -2,7 +2,8 @@ import { useQuery } from 'react-query';
 import { Circle, Link, Stack, Text, Alert, AlertIcon, Divider } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { workerAxios } from '../lib/axios';
-import { useWorkerWorkspace, workspaceAtom, websocketStatusAtom } from '@/features/workspaces';
+import { useWorkerWorkspace, workspaceAtom } from '@/features/workspaces';
+import { websocketStatusAtom } from '@/features/app/atoms';
 
 export const STATUS_QUERY_KEY = 'allFiles';
 
