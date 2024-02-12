@@ -1,6 +1,5 @@
 import {
 	Flex,
-	Text,
 	IconButton,
 	Stack,
 	Tooltip,
@@ -30,6 +29,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { useCreatePage } from '@/features/page';
 import { getErrorMessage, generateSequentialName } from '@/utils';
 import { PageTab } from './PageTab';
+import { LabelContainer } from '@/components/LabelContainer';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const toast = useToast();
@@ -156,16 +156,10 @@ export const AppNavbar = ({ isPreview }: any) => {
 				variant="ghost"
 			/>
 			<Stack alignItems="center" direction="row">
-				<Stack direction="row" alignItems="flex-end">
-					<Text fontWeight="semibold" fontSize="lg">
-						{app?.label}
-					</Text>
-					{!isPreview && (
-						<Text color="gray" fontSize="sm" mb="0.5">
-							{app?.name}
-						</Text>
-					)}
-				</Stack>
+				<LabelContainer>
+					<LabelContainer.Label> {app?.label}</LabelContainer.Label>
+					{isPreview ? null : <LabelContainer.Code>{app?.name}</LabelContainer.Code>}
+				</LabelContainer>
 
 				{isPreview ? null : (
 					<Popover onClose={handleReset} placement="bottom-end" closeOnBlur={false}>
