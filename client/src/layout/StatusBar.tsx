@@ -32,8 +32,8 @@ export const StatusBar = () => {
 	const websocketIsConnected = useAtomValue(websocketStatusAtom);
 	const currentWorkspace = useAtomValue(workspaceAtom);
 	const { workspace: workerWorkspace } = useWorkerWorkspace();
-	const selectedWorkspaceMatchesWorker = currentWorkspace?.id === workerWorkspace?.id;
 
+	const selectedWorkspaceMatchesWorker = currentWorkspace?.id === workerWorkspace?.id;
 	return (
 		<Stack
 			direction="row"
@@ -46,12 +46,14 @@ export const StatusBar = () => {
 			borderTopWidth="1px"
 		>
 			<Circle size="2" bg={status === 'success' ? 'green' : 'red'} />
-			<Text fontSize="xs">
+			<Text fontSize="xs" noOfLines={1}>
 				{status === 'success' ? 'Worker connected' : 'Worker not connected.'}
 			</Text>
 			<Divider orientation="vertical" />
 			<Circle ml="1" size="2" bg={websocketIsConnected ? 'green' : 'red'} />
-			<Text fontSize="xs">{websocketIsConnected ? 'WS connected' : 'WS not connected'}</Text>
+			<Text noOfLines={1} fontSize="xs">
+				{websocketIsConnected ? 'WS connected' : 'WS not connected'}
+			</Text>
 
 			{status === 'error' ? (
 				<Link
