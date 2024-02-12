@@ -18,6 +18,7 @@ class BaseUser(BaseModel):
 
 class CreateUser(BaseModel):
     name: str
+    last_name: str
     company: str
     email: str
     hashed_password: str
