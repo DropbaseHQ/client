@@ -140,6 +140,7 @@ def register_user(db: Session, request: CreateUserRequest):
 
         user_obj = CreateUser(
             first_name=request.first_name,
+            last_name=request.last_name,
             company=request.company,
             email=request.email,
             hashed_password=hashed_password,

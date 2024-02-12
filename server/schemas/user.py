@@ -50,6 +50,7 @@ class LoginUser(BaseModel):
 
 class CreateUserRequest(BaseModel):
     first_name: str
+    last_name: Optional[str]
     company: str
     email: str
     password: str
