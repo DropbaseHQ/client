@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-
+import { useQueryClient } from 'react-query';
 import { useResendConfirmEmail } from './hooks/useResendConfirmationEmail';
 import { useLogin } from './hooks/useLogin';
 import { useToast } from '@/lib/chakra-ui';
@@ -31,6 +31,7 @@ type FormValues = {
 export const Login = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
+	const queryClient = useQueryClient();
 
 	const updateWorkspace = useSetAtom(workspaceAtom);
 
@@ -56,6 +57,7 @@ export const Login = () => {
 			}
 		},
 		onSuccess: (data: any) => {
+			queryClient.clear();
 			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 			setAxiosToken(data?.access_token);
 			localStorage.setItem('access_token', data?.access_token);
