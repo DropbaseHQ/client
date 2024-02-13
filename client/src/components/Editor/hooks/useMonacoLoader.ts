@@ -8,9 +8,7 @@ export const useMonacoLoader = () => {
 		(async () => {
 			setReady(false);
 			try {
-				await initializeLanguageServices(
-					`${import.meta.env.VITE_PYTHON_LSP_SERVER}/lsp`,
-				);
+				await initializeLanguageServices(`${import.meta.env.VITE_PYTHON_LSP_SERVER}/lsp`);
 			} catch (e) {
 				// TODO: add error handling
 			} finally {

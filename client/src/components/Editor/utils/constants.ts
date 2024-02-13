@@ -24,12 +24,7 @@ export const MONARCH_TOKENIZER = {
 
 export const databaseSchema = {
 	schema: {
-	  public: {
-
-	  },
-
+		public: {},
 	},
-	metadata: {
-
-	}
+	metadata: {},
 };

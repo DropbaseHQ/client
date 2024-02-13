@@ -1,10 +1,10 @@
 import { Box, Flex, Stack, Text } from '@chakra-ui/react';
 import { PropsWithChildren } from 'react';
+import { useAtomValue } from 'jotai';
 import { useLocation } from 'react-router-dom';
 import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { Navbar } from './Navbar';
 import { StatusBar } from './StatusBar';
-import { useAtomValue } from 'jotai';
 
 export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const { pathname } = useLocation();
