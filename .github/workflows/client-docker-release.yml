@@ -3,7 +3,7 @@ name: Build client docker image
 on:
   push:
     branches:
-      - dev
+      - main
     paths:
       - client/**
     tags:
