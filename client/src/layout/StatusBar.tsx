@@ -31,7 +31,7 @@ export const StatusBar = () => {
 	const { status } = useStatus();
 	const websocketIsConnected = useAtomValue(websocketStatusAtom);
 	const currentWorkspace = useAtomValue(workspaceAtom);
-	const { workspace: workerWorkspace } = useWorkerWorkspace();
+	const { workspace: workerWorkspace, isLoading } = useWorkerWorkspace();
 
 	const selectedWorkspaceMatchesWorker = currentWorkspace?.id === workerWorkspace?.id;
 	return (
@@ -69,7 +69,7 @@ export const StatusBar = () => {
 				</Link>
 			) : null}
 
-			{!selectedWorkspaceMatchesWorker && (
+			{!selectedWorkspaceMatchesWorker && !isLoading ? (
 				<Alert
 					status="error"
 					height="min-content"
@@ -82,7 +82,7 @@ export const StatusBar = () => {
 					<AlertIcon />
 					The selected workspace does not match the worker workspace.
 				</Alert>
-			)}
+			) : null}
 		</Stack>
 	);
 };
