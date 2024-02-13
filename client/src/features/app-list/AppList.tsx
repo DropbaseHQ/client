@@ -33,6 +33,7 @@ import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { SalesModal } from './AppSalesModal';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
+import { useEffect } from 'react';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
@@ -211,13 +212,28 @@ export const AppList = () => {
 			return a.name === newName;
 		});
 	};
+	const generateAppName = (label: string) => {
+		return label
+			?.toLowerCase()
+			.replace(/[^a-z0-9]/g, '_')
+			.replace(/_{2,}/g, '_')
+			.replace(/^_+|_+$/g, '');
+	};
 
-	const onSubmit = async ({ name: appName }: any) => {
+	const onSubmit = async ({ name: appName, label: appLabel }: any) => {
 		await handleCreateAppFlow({
 			name: appName,
+			label: appLabel,
 			workspaceId: workspaceId as string,
 		});
 	};
+	const appLabel = methods.watch('label');
+
+	useEffect(() => {
+		if (!methods.formState.dirtyFields.name) {
+			methods.setValue('name', generateAppName(appLabel));
+		}
+	}, [methods, appLabel]);
 
 	const workerIsConnected = status === 'success';
 	const workspaceHasWorkspaceURL = !!currentWorkspace?.workspaceUrl;
@@ -267,29 +283,35 @@ export const AppList = () => {
 							</ModalHeader>
 							<ModalCloseButton />
 							<ModalBody py="6">
-								<FormInput
-									name="App name"
-									id="name"
-									placeholder="Enter app name"
-									validation={{
-										validate: (value: any) => {
-											if (value.includes(' ')) {
-												return 'Name cannot have spaces';
-											}
-											if (!value) {
-												return 'Name required';
-											}
-											if (nameNotUnique(value)) {
-												return 'Name already exists';
-											}
-											if (!value.match(/^[A-Za-z0-9_.]+$/g)) {
-												return 'Name contains invalid characters';
-											}
+								<Stack spacing="2">
+									<FormInput
+										name="App label"
+										id="label"
+										placeholder="Enter app label"
+									/>
+									<FormInput
+										name="App name"
+										id="name"
+										validation={{
+											validate: (value: any) => {
+												if (value.includes(' ')) {
+													return 'Name cannot have spaces';
+												}
+												if (!value) {
+													return 'Name required';
+												}
+												if (nameNotUnique(value)) {
+													return 'Name already exists';
+												}
+												if (!value.match(/^[A-Za-z0-9_.]+$/g)) {
+													return 'Name contains invalid characters';
+												}
 
-											return true;
-										},
-									}}
-								/>
+												return true;
+											},
+										}}
+									/>
+								</Stack>
 							</ModalBody>
 							<ModalFooter borderTopWidth="1px">
 								<Button
