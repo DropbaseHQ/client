@@ -27,6 +27,7 @@ import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { generateSequentialName, getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
+import { LabelContainer } from '@/components/LabelContainer';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -192,9 +193,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 						direction="row"
 					>
 						<Stack direction="row" alignItems="center">
-							<Text fontWeight="semibold" fontSize="lg">
-								{component?.name || id}
-							</Text>
+							<LabelContainer>
+								<LabelContainer.Label>{component?.name}</LabelContainer.Label>
+								<LabelContainer.Code>{id}</LabelContainer.Code>
+							</LabelContainer>
 							<NameEditor
 								value={id}
 								currentNames={(
@@ -286,7 +288,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												property.name === 'on_click' ||
 												property.name === 'on_change'
 											) {
-												return <EventPropertyEditor id="on_click" />;
+												return <EventPropertyEditor id={property.name} />;
 											}
 
 											const showFunctionList = property.type === 'function';
@@ -425,7 +427,7 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 				</Stack>
 			</MenuButton>
 			<MenuList>
-				{['input', 'text', 'select', 'button'].map((c) => (
+				{['input', 'text', 'select', 'button', 'boolean'].map((c) => (
 					<MenuItem
 						onClick={() => {
 							onSubmit({ type: c });

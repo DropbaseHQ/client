@@ -1,7 +1,7 @@
-import { axios } from '@/lib/axios';
 import { useQuery, useMutation } from 'react-query';
-import { workspaceAtom } from '@/features/workspaces';
 import { useAtomValue } from 'jotai';
+import { axios } from '@/lib/axios';
+import { workspaceAtom } from '@/features/workspaces';
 
 export type Group = {
 	id: string;

@@ -1,6 +1,5 @@
 import {
 	Flex,
-	Text,
 	IconButton,
 	Stack,
 	Tooltip,
@@ -23,13 +22,15 @@ import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useAppState } from '@/features/app-state';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useToast } from '@/lib/chakra-ui';
 import { useCreatePage } from '@/features/page';
-import { getErrorMessage, generateSequentialName, invalidResourceName } from '@/utils';
+import { getErrorMessage, generateSequentialName } from '@/utils';
 import { PageTab } from './PageTab';
+import { LabelContainer } from '@/components/LabelContainer';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const toast = useToast();
@@ -37,10 +38,11 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { appName, pageName } = useParams();
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
+	const { permissions } = useAppState(appName || '', pageName || '');
 
 	const [label, setAppLabel] = useState('');
 
-	const [invalidMessage, setInvalidMessage] = useState<string | boolean>(false);
+	const [invalidMessage] = useState<string | boolean>(false);
 
 	const updateMutation = useUpdateApp({
 		onError: (error: any) => {
@@ -73,14 +75,14 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const handleChangeAppLabel = (e: any) => {
 		const newLabel = e.target.value;
 
-		setInvalidMessage(
-			invalidResourceName(
-				app?.label || '',
-				newLabel,
-				apps.map((a) => a.label),
-				false,
-			),
-		);
+		// setInvalidMessage(
+		// 	invalidResourceName(
+		// 		app?.label || '',
+		// 		newLabel,
+		// 		apps.map((a) => a.label),
+		// 		false,
+		// 	),
+		// );
 
 		setAppLabel(newLabel);
 	};
@@ -156,16 +158,10 @@ export const AppNavbar = ({ isPreview }: any) => {
 				variant="ghost"
 			/>
 			<Stack alignItems="center" direction="row">
-				<Stack direction="row" alignItems="flex-end">
-					<Text fontWeight="semibold" fontSize="lg">
-						{app?.label}
-					</Text>
-					{!isPreview && (
-						<Text color="gray" fontSize="sm" mb="0.5">
-							{app?.name}
-						</Text>
-					)}
-				</Stack>
+				<LabelContainer>
+					<LabelContainer.Label> {app?.label}</LabelContainer.Label>
+					{isPreview ? null : <LabelContainer.Code>{app?.name}</LabelContainer.Code>}
+				</LabelContainer>
 
 				{isPreview ? null : (
 					<Popover onClose={handleReset} placement="bottom-end" closeOnBlur={false}>
@@ -259,21 +255,23 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Flex>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
-					<Button
-						size="sm"
-						variant="secondary"
-						colorScheme="blue"
-						leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
-						aria-label="Preview"
-						ml="auto"
-						mr="4"
-						as={Link}
-						to={isPreview ? 'studio' : '../'}
-					>
-						{isPreview ? 'Edit' : 'Preview'}
-					</Button>
-				</Tooltip>
+				{permissions?.edit && (
+					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
+						<Button
+							size="sm"
+							variant="secondary"
+							colorScheme="blue"
+							leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
+							aria-label="Preview"
+							ml="auto"
+							mr="4"
+							as={Link}
+							to={isPreview ? 'studio' : '../'}
+						>
+							{isPreview ? 'Edit' : 'Preview'}
+						</Button>
+					</Tooltip>
+				)}
 			</Stack>
 		</Stack>
 	);

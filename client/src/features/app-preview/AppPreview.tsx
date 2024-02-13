@@ -1,4 +1,4 @@
-import { Box, Button, Code, Skeleton, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { ChevronDown } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
@@ -15,6 +15,7 @@ import { extractTemplateString, generateSequentialName } from '@/utils';
 import { NewWidget } from '@/features/app-preview/components/NewWidget';
 import { WidgetSwitcher } from '@/features/app-preview/components/WidgetSwitcher';
 import { WidgetPreview } from '@/features/app-preview/WidgetPreview';
+import { LabelContainer } from '@/components/LabelContainer';
 
 export const AppPreview = () => {
 	const { appName, pageName } = useParams();
@@ -120,30 +121,25 @@ export const AppPreview = () => {
 		<Loader isLoading={isLoading}>
 			<Stack position="relative" bg="white" h="full">
 				<Stack alignItems="center" px="4" p="2" borderBottomWidth="1px" direction="row">
-					<InspectorContainer
-						flex="1"
-						overflow="hidden"
-						noPadding
-						type="widget"
-						id={widgetName}
-					>
-						<Stack spacing="0">
+					<InspectorContainer flex="1" type="widget" id={widgetName}>
+						<Stack overflow="hidden" spacing="0">
 							<Stack direction="row" display="flex" alignItems="center">
-								<Text
-									textOverflow="ellipsis"
-									overflow="hidden"
-									whiteSpace="nowrap"
-									fontSize="lg"
-									fontWeight="semibold"
-								>
-									{/* TODO: create a render template data to do this */}
-									{extractTemplateString(widgetLabel || widgetName, pageState)}
-								</Text>
-								{!isPreview && (
-									<Code fontSize="sm" bg="transparent" color="gray.600" ml="3">
-										{widgetName}
-									</Code>
-								)}
+								<LabelContainer>
+									<LabelContainer.Label
+										textOverflow="ellipsis"
+										overflow="hidden"
+										whiteSpace="nowrap"
+									>
+										{/* TODO: create a render template data to do this */}
+										{extractTemplateString(
+											widgetLabel || widgetName,
+											pageState,
+										)}
+									</LabelContainer.Label>
+									{!isPreview && (
+										<LabelContainer.Code>{widgetName}</LabelContainer.Code>
+									)}
+								</LabelContainer>
 							</Stack>
 
 							{widgetDescription ? (
