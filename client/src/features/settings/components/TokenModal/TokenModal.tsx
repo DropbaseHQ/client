@@ -39,8 +39,7 @@ export const TokenModal = () => {
 
 	const handleCreateToken = async () => {
 		createMutation.mutate({
-			workspaceId,
-			userId: user.id,
+			workspaceId: workspaceId || '',
 		});
 	};
 

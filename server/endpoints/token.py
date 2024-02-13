@@ -16,6 +16,9 @@ router = APIRouter(prefix="/token", tags=["token"])
 @router.post("/")
 def create_token(request: CreateToken, db: Session = Depends(get_db)):
     request.token = secrets.token_urlsafe(32)
+    if request.name is None:
+        tokens = crud.token.get_user_tokens_in_workspace(db, request.workspace_id)
+        request.name = f"Token {len(tokens) + 1}"
     return crud.token.create(db, obj_in=request)
 
 

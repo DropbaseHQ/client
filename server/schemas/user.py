@@ -93,4 +93,3 @@ class RequestResetPassword(BaseModel):
 
 class CheckPermissionRequest(BaseModel):
     app_id: str
-    workspace_id: str
