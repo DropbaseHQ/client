@@ -21,9 +21,7 @@ class WorkspaceCreator:
             name=workspace_name,
             active=True,
         )
-        workspace = crud.workspace.create(
-            db=self.db, obj_in=workspace_obj, auto_commit=False
-        )
+        workspace = crud.workspace.create(db=self.db, obj_in=workspace_obj, auto_commit=False)
         self.db.flush()
         self.workspace_id = workspace.id
         return workspace
@@ -34,9 +32,7 @@ class WorkspaceCreator:
             workspace_id=self.workspace_id,
             role_id=self.admin_role_id,
         )
-        default_admin_role = crud.user_role.create(
-            self.db, obj_in=role_obj, auto_commit=False
-        )
+        default_admin_role = crud.user_role.create(self.db, obj_in=role_obj, auto_commit=False)
         self.db.flush()
 
         return default_admin_role
@@ -104,7 +100,7 @@ class WorkspaceCreator:
             obj_in={
                 "token": token,
                 "name": "default",
-                "user_id": self.user_id,
+                # "user_id": self.user_id, TODO: ADD BACK when user_id is added to the Token class
                 "workspace_id": self.workspace_id,
             },
             auto_commit=False,
@@ -113,20 +109,16 @@ class WorkspaceCreator:
         return new_token
 
     def _update_workspace_token(self, token: Token):
-        crud.token.reset_workspace_selected_token(
-            self.db, workspace_id=self.workspace_id
-        )
-        crud.token.update_by_pk(
-            self.db, pk=token.id, obj_in={"is_selected": True}, auto_commit=False
-        )
+        crud.token.reset_workspace_selected_token(self.db, workspace_id=self.workspace_id)
+        crud.token.update_by_pk(self.db, pk=token.id, obj_in={"is_selected": True}, auto_commit=False)
 
     def create(self, workspace_name: str = None, auto_commit: bool = False):
         try:
             workspace = self._create_workspace()
             admin_role = self._create_user_role()
             self._create_default_user_policies(admin_role_id=admin_role.role_id)
-            token = self._create_token()
-            self._update_workspace_token(token=token)
+            # token = self._create_token()
+            # self._update_workspace_token(token=token) TODO: ADD BACK when is_selected is added to the Token class
             if auto_commit:
                 self.db.commit()
             return workspace
