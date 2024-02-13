@@ -8,7 +8,8 @@
 		"dev": "vite --port 3030",
 		"build": "tsc && vite build",
 		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"@chakra-ui/cli": "^2.4.1",
@@ -77,6 +78,7 @@
 		"eslint-plugin-react": "^7.33.1",
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"eslint-plugin-react-refresh": "^0.4.3",
+		"husky": "^9.0.10",
 		"path": "^0.12.7",
 		"prettier": "^3.0.1",
 		"typescript": "^5.0.2",
