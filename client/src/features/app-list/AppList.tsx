@@ -23,6 +23,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Layout, MoreVertical, Trash } from 'react-feather';
 import { useAtomValue } from 'jotai';
+import { useEffect } from 'react';
 import { useStatus } from '@/layout/StatusBar';
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
 import { useCreateAppFlow } from './hooks/useCreateApp';
@@ -33,7 +34,7 @@ import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { SalesModal } from './AppSalesModal';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
-import { useEffect } from 'react';
+import { format } from 'path';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
@@ -213,11 +214,16 @@ export const AppList = () => {
 		});
 	};
 	const generateAppName = (label: string) => {
-		return label
+		let formattedLabel = label
 			?.toLowerCase()
 			.replace(/[^a-z0-9]/g, '_')
 			.replace(/_{2,}/g, '_')
 			.replace(/^_+|_+$/g, '');
+
+		if (formattedLabel?.match(/^\d/)) {
+			formattedLabel = `_${formattedLabel}`;
+		}
+		return formattedLabel;
 	};
 
 	const onSubmit = async ({ name: appName, label: appLabel }: any) => {
