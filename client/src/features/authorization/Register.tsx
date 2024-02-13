@@ -120,7 +120,7 @@ export const Register = () => {
 									/>
 									<FormErrorMessage>{errors?.email?.message}</FormErrorMessage>
 								</FormControl>
-							
+
 								<FormControl isInvalid={!!errors?.password}>
 									<FormLabel htmlFor="password">Password</FormLabel>
 									<Input
