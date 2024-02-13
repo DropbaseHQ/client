@@ -42,8 +42,8 @@ export const useGetPage = ({ appName, pageName }: any) => {
 
 	const data: any = useMemo(() => {
 		return {
-			state: response?.state_context.state || {},
-			context: response?.state_context.context || {},
+			state: response?.state_context?.state || {},
+			context: response?.state_context?.context || {},
 			tables: response?.state_context?.properties?.tables || [],
 			widgets: response?.state_context?.properties?.widgets || [],
 			files: response?.state_context?.properties?.files || [],
@@ -52,7 +52,7 @@ export const useGetPage = ({ appName, pageName }: any) => {
 	}, [response]);
 
 	if (rest?.error) {
-		const errorStatusCode = rest.error?.response?.status;
+		const errorStatusCode = (rest.error as any)?.response?.status;
 		if (errorStatusCode === 403) {
 			toast.closeAll();
 			toast({
