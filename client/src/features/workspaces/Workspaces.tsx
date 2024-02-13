@@ -1,7 +1,6 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { SimpleGrid, Skeleton, Box, Text } from '@chakra-ui/react';
 import { useEffect } from 'react';
-
 import { PageLayout } from '@/layout';
 import { useWorkerWorkspace, useWorkspaces, workspaceAtom } from '@/features/workspaces';
 

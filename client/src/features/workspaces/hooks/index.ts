@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
-import { useAtom } from 'jotai';
 import { useLocation } from 'react-router-dom';
+import { useAtom } from 'jotai';
 import { axios, workerAxios } from '@/lib/axios';
-import { workspaceAtom, useWorkerWorkspace } from '@/features/workspaces';
+import { workspaceAtom } from '@/features/workspaces';
 
 export const WORKSPACE_QUERY = 'workspaces';
 

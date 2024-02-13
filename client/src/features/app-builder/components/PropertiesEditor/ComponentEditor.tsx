@@ -288,7 +288,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												property.name === 'on_click' ||
 												property.name === 'on_change'
 											) {
-												return <EventPropertyEditor id="on_click" />;
+												return <EventPropertyEditor id={property.name} />;
 											}
 
 											const showFunctionList = property.type === 'function';

@@ -26,7 +26,7 @@ export const useAppState = (appName: string, pageName: string) => {
 		},
 	);
 	if (rest?.error) {
-		const errorStatusCode = rest.error?.response?.status;
+		const errorStatusCode = (rest.error as any)?.response?.status;
 		if (errorStatusCode === 403) {
 			toast.closeAll();
 			toast({

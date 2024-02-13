@@ -18,7 +18,6 @@ const executeAction = async ({ pageName, appName, pageState, functionName }: any
 
 	console.error('No associated job id found');
 	throw new Error('Failed to run python function');
-
 };
 
 export const useExecuteAction = (props: any = {}) => {

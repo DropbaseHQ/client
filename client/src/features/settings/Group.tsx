@@ -15,9 +15,9 @@ import {
 	PopoverCloseButton,
 	ButtonGroup,
 } from '@chakra-ui/react';
+import { useQueryClient } from 'react-query';
 
 import { GET_WORKSPACE_GROUPS_QUERY_KEY } from './hooks/workspace';
-import { useQueryClient } from 'react-query';
 
 import { useDeleteGroup } from './hooks/group';
 

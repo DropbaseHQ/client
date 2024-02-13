@@ -1,6 +1,6 @@
+import { useMutation } from 'react-query';
 import { axios } from '@/lib/axios';
 import { MutationConfig } from '@/lib/react-query';
-import { useMutation } from 'react-query';
 
 const registerUser = async ({
 	email,

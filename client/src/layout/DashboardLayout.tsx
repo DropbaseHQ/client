@@ -1,5 +1,6 @@
 import { Box, Flex, Stack, Text } from '@chakra-ui/react';
 import { PropsWithChildren } from 'react';
+import { useAtomValue } from 'jotai';
 import { useLocation } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { useWorkerWorkspace, useWorkspaces, workspaceAtom } from '@/features/workspaces';
