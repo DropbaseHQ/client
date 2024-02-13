@@ -34,7 +34,6 @@ import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { SalesModal } from './AppSalesModal';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
-import { format } from 'path';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
