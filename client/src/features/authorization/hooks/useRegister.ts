@@ -6,15 +6,21 @@ const registerUser = async ({
 	email,
 	password,
 	name,
+	last_name,
+	company,
 }: {
 	email: string;
 	password: string;
 	name: string;
+	last_name: string;
+	company: string;
 }) => {
 	const response = await axios.post<{ user: string }>(`/user/register`, {
 		email,
 		password,
 		name,
+		last_name,
+		company,
 	});
 
 	return response.data;

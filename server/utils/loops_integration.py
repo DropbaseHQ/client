@@ -31,13 +31,14 @@ class LoopsController:
     def __init__(self):
         self.loops_session = LoopsSession()
 
-    def add_user(self, user_email: str, name: str, user_id: str):
+    def add_user(self, user_email: str, name: str, last_name: str, company: str, user_id: str):
         url = "/contacts/create"
         payload = {
             "email": user_email,
             "firstName": name,
-            # "lastName": name,
-            "userGroup": "HN Launch",
+            "lastName": last_name,
+            "company": company,
+            # "userGroup": "HN Launch",
             "source": "Signup from app registration",
             # "source": "testing",
             "createdAt": get_current_time(),

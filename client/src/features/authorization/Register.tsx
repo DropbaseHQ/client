@@ -21,6 +21,8 @@ type FormValues = {
 	email: string;
 	password: string;
 	name: string;
+	last_name: string;
+	company: string;
 	confirm: string;
 };
 
@@ -74,17 +76,37 @@ export const Register = () => {
 						<Stack spacing="6">
 							<Stack spacing="5">
 								<FormControl isInvalid={!!errors?.name}>
-									<FormLabel htmlFor="name">Name</FormLabel>
+									<FormLabel htmlFor="name">First Name</FormLabel>
 									<Input
-										placeholder="Please enter your name"
+										placeholder="Please enter your first name"
 										id="name"
 										type="name"
 										{...register('name', {
 											required: 'name is required',
 										})}
 									/>
-
-									<FormErrorMessage>{errors?.email?.message}</FormErrorMessage>
+								</FormControl>
+								<FormControl isInvalid={!!errors?.last_name}>
+									<FormLabel htmlFor="last_name">Last Name</FormLabel>
+									<Input
+										placeholder="Please enter your last name"
+										id="last_name"
+										type="name"
+										{...register('last_name', {
+											required: 'last_name is required',
+										})}
+									/>
+								</FormControl>
+								<FormControl isInvalid={!!errors?.company}>
+									<FormLabel htmlFor="company">Company</FormLabel>
+									<Input
+										placeholder="Please enter your company"
+										id="company"
+										type="name"
+										{...register('company', {
+											required: 'Company is required',
+										})}
+									/>
 								</FormControl>
 								<FormControl isInvalid={!!errors?.email}>
 									<FormLabel htmlFor="email">Email</FormLabel>
@@ -96,9 +118,9 @@ export const Register = () => {
 											required: 'Email is required',
 										})}
 									/>
-
 									<FormErrorMessage>{errors?.email?.message}</FormErrorMessage>
 								</FormControl>
+							
 								<FormControl isInvalid={!!errors?.password}>
 									<FormLabel htmlFor="password">Password</FormLabel>
 									<Input
