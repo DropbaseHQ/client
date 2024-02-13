@@ -26,6 +26,8 @@ import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { generateSequentialName, getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
+import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
+import { LabelContainer } from '@/components/LabelContainer';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -191,13 +193,16 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 						direction="row"
 					>
 						<Stack direction="row" alignItems="center">
-							<Text fontWeight="semibold" fontSize="lg">
-								{component?.name || id}
-							</Text>
+							<LabelContainer>
+								<LabelContainer.Label>{component?.name}</LabelContainer.Label>
+								<LabelContainer.Code>{id}</LabelContainer.Code>
+							</LabelContainer>
 							<NameEditor
 								value={id}
 								currentNames={(
-									properties?.widgets?.[widgetName || '']?.components || []
+									properties?.widgets.find(
+										(w: any) => w.name === (widgetName || ''),
+									)?.components || []
 								).map((c: any) => c.name)}
 								onUpdate={handleUpdateName}
 								resource="component"
@@ -259,6 +264,19 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												return null;
 											}
 
+											// FIXME: just for testing
+											if (property?.name === 'label') {
+												return (
+													<FormInput
+														{...property}
+														id={property.name}
+														name={property.title}
+														type="template" // TODO: update backend to have this
+														key={property.name}
+													/>
+												);
+											}
+
 											if (
 												property.name === 'display_rules' ||
 												property.type === 'rules'
@@ -266,10 +284,14 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												return <DisplayRulesEditor name={component.name} />;
 											}
 
-											const showFunctionList =
-												property.type === 'function' ||
+											if (
 												property.name === 'on_click' ||
-												property.name === 'on_change';
+												property.name === 'on_change'
+											) {
+												return <EventPropertyEditor id="on_click" />;
+											}
+
+											const showFunctionList = property.type === 'function';
 
 											return (
 												<FormInput
@@ -302,10 +324,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	);
 };
 
-export const NewComponent = (props: any) => {
+export const NewComponent = ({ widgetName, ...props }: any) => {
 	const toast = useToast();
 	const { isConnected } = useStatus();
-	const { widgetName, appName, pageName } = useAtomValue(pageAtom);
+	const { appName, pageName } = useAtomValue(pageAtom);
 	const { properties } = useGetPage({ appName, pageName });
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 
@@ -405,7 +427,7 @@ export const NewComponent = (props: any) => {
 				</Stack>
 			</MenuButton>
 			<MenuList>
-				{['input', 'text', 'select', 'button'].map((c) => (
+				{['input', 'text', 'select', 'button', 'boolean'].map((c) => (
 					<MenuItem
 						onClick={() => {
 							onSubmit({ type: c });

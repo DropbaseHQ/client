@@ -8,3 +8,5 @@ from .user_group.crud_user_group import user_group
 from .user_role.crud_user_role import user_role
 from .worker_status.crud_worker_status import worker_status
 from .workspace.crud_workspace import workspace
+from .app.crud_app import app
+from .page.crud_page import page

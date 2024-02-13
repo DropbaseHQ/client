@@ -19,6 +19,7 @@ import {
 	Tab,
 	Flex,
 	useDisclosure,
+	Code,
 } from '@chakra-ui/react';
 import { MoreVertical } from 'react-feather';
 import { useState } from 'react';
@@ -40,13 +41,15 @@ export const PageTab = (props: any) => {
 	const renamePageMutation = useRenamePage();
 	const deletePageMutation = useDeletePage();
 
+	const [invalidMessage] = useState<string | boolean>(false);
+
 	const navigate = useNavigate();
 	const pageLink = `/apps/${appName}/${page?.name}`;
 
 	const handleRenameOpen = () => {
 		onDeleteClose();
 		onRenameOpen();
-		setPageNameEdit(page.name);
+		setPageNameEdit(page?.label);
 	};
 
 	const handleDeleteOpen = () => {
@@ -55,18 +58,22 @@ export const PageTab = (props: any) => {
 	};
 
 	const handleResetPage = () => {
-		if (pageName) setPageNameEdit(pageName);
+		if (page?.label) setPageNameEdit(page?.label);
 		onRenameClose();
 	};
-	const pageNameNotUnique = (newName: any) => {
-		return pages
-			.filter((xPage: any) => xPage.name !== pageName)
-			.find((a: any) => {
-				return a.name === newName;
-			});
-	};
+
 	const handleChangePageName = (e: any) => {
-		setPageNameEdit(e.target.value);
+		const newName = e.target.value;
+
+		setPageNameEdit(newName);
+
+		// setInvalidMessage(
+		// 	invalidResourceName(
+		// 		pageName || '',
+		// 		newName,
+		// 		pages.map((p: any) => p.name),
+		// 	),
+		// );
 	};
 
 	const handleRenamePage = () => {
@@ -75,19 +82,19 @@ export const PageTab = (props: any) => {
 				{
 					appName,
 					pageName,
-					newPageName: pageNameEdit,
+					newPageLabel: pageNameEdit,
 				},
 				{
-					onSuccess: (_, variables: any) => {
+					onSuccess: () => {
 						toast({
 							status: 'success',
 							title: 'Page renamed',
 						});
-						if (isPreview) {
-							navigate(`../${variables.newPageName}`, { relative: 'path' });
-						} else {
-							navigate(`../../${variables.newPageName}/studio`, { relative: 'path' });
-						}
+						// if (isPreview) {
+						// 	navigate(`../${variables.newPageName}`, { relative: 'path' });
+						// } else {
+						// 	navigate(`../../${variables.newPageName}/studio`, { relative: 'path' });
+						// }
 					},
 					onError: (error: any) => {
 						toast({
@@ -150,7 +157,12 @@ export const PageTab = (props: any) => {
 			}}
 		>
 			<Flex align="center" justifyContent="center" h="24px">
-				<Box fontWeight="semibold">{page.name}</Box>
+				<Box fontWeight="semibold">{page?.label}</Box>
+				{!isPreview && (
+					<Code fontSize="xs" bg="transparent" color="gray" ml="3">
+						{page?.name}
+					</Code>
+				)}
 				{!isPreview ? (
 					<Menu
 						closeOnSelect={false}
@@ -198,7 +210,7 @@ export const PageTab = (props: any) => {
 								>
 									<PopoverArrow />
 									<PopoverBody>
-										<FormControl isInvalid={pageNameNotUnique(pageNameEdit)}>
+										<FormControl isInvalid={Boolean(invalidMessage)}>
 											<FormLabel>Edit Page name</FormLabel>
 											<Input
 												size="sm"
@@ -212,9 +224,7 @@ export const PageTab = (props: any) => {
 												}}
 											/>
 
-											<FormErrorMessage>
-												A page with this name already exists.
-											</FormErrorMessage>
+											<FormErrorMessage>{invalidMessage}</FormErrorMessage>
 										</FormControl>
 									</PopoverBody>
 									<PopoverFooter display="flex" alignItems="end">
@@ -231,7 +241,7 @@ export const PageTab = (props: any) => {
 												isDisabled={
 													pageNameEdit === page.name ||
 													!page.name ||
-													pageNameNotUnique(pageNameEdit)
+													Boolean(invalidMessage)
 												}
 												colorScheme="blue"
 												onClick={handleRenamePage}

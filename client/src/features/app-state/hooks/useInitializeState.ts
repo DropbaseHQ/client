@@ -74,12 +74,6 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 	return rest;
 };
 
-export const useInitializeWidgetState = ({ widgetName, appName, pageName }: any) => {
+export const useInitializeWidgetState = ({ appName, pageName }: any) => {
 	useInitializePageState(appName, pageName);
-
-	const setWidgetState = useSetAtom(allWidgetStateAtom);
-
-	useEffect(() => {
-		setWidgetState((s) => ({ ...s, selected: widgetName }));
-	}, [widgetName, setWidgetState]);
 };

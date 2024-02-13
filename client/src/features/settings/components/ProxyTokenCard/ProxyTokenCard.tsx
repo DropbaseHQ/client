@@ -40,7 +40,7 @@ export const maskedString = (token_str: string) => {
 };
 
 export const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const [selectedToken, setToken] = useAtom(proxyTokenAtom);
 
 	const { isOpen, onOpen, onClose } = useDisclosure();

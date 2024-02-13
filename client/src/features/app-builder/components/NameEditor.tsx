@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { Edit } from 'react-feather';
+import { invalidResourceName } from '@/utils';
 
 export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resource }: any) => {
 	const [name, setName] = useState(value);
@@ -31,28 +32,11 @@ export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resourc
 		setInvalidMessage(false);
 	}, [value]);
 
-	const nameNotUnique = (newName: any) => {
-		return currentNames
-			.filter((n: any) => n !== value)
-			.find((n: any) => {
-				return n === newName;
-			});
-	};
-
 	const handleChangeAppName = (e: any) => {
-		const {
-			target: { value: newName },
-		} = e;
+		const newName = e.target.value;
 
+		setInvalidMessage(invalidResourceName(value, newName, currentNames));
 		setName(newName);
-
-		if (newName !== newName.toLowerCase()) {
-			setInvalidMessage('Must be lowercase');
-		} else if (nameNotUnique(e.target.value)) {
-			setInvalidMessage(`An ${resource} with this name already exists.`);
-		} else {
-			setInvalidMessage(false);
-		}
 	};
 
 	const handleUpdate = () => {
@@ -83,11 +67,15 @@ export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resourc
 									placeholder={`Enter ${resource} name`}
 									value={name}
 									onChange={handleChangeAppName}
+									onKeyDown={(event) => {
+										if (event.key === 'Enter' && invalidMessage === false) {
+											handleUpdate();
+											event.preventDefault();
+										}
+									}}
 								/>
 
-								{invalidMessage ? (
-									<FormErrorMessage>{invalidMessage}</FormErrorMessage>
-								) : null}
+								<FormErrorMessage>{invalidMessage}</FormErrorMessage>
 							</FormControl>
 						</PopoverBody>
 						<PopoverFooter display="flex" alignItems="end">

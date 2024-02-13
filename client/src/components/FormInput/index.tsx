@@ -24,12 +24,40 @@ import {
 	Center,
 	Portal,
 } from '@chakra-ui/react';
-import { forwardRef } from 'react';
+import { forwardRef, useState } from 'react';
 import { ChevronDown, Plus, Trash } from 'react-feather';
 import { ErrorMessage } from '@hookform/error-message';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { MonacoEditor } from '@/components/Editor';
+
+const TemplateEditor = (props: any) => {
+	const [codeHeight, setCodeHeight] = useState(30);
+
+	const handleCodeMount = (editor: any) => {
+		editor.onDidContentSizeChange((event: any) => {
+			const editorHeight = event.contentHeight;
+			setCodeHeight(editorHeight); // Dynamically adjust height based on content
+			editor.layout();
+		});
+	};
+
+	return (
+		<MonacoEditor
+			{...props}
+			options={{
+				lineNumbers: 'off',
+				glyphMargin: false,
+				folding: false,
+				// Undocumented see https://github.com/Microsoft/vscode/issues/30795#issuecomment-410998882
+				lineDecorationsWidth: 0,
+				lineNumbersMinChars: 0,
+			}}
+			height={codeHeight}
+			onMount={handleCodeMount}
+		/>
+	);
+};
 
 export const InputRenderer = forwardRef((props: any, ref: any) => {
 	const {
@@ -100,25 +128,40 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 
 		return (
 			<Menu>
-				<MenuButton
-					as={Stack}
-					direction="row"
-					alignItems="center"
-					borderWidth="1px"
-					p="1.5"
-					borderRadius="sm"
-					type="button"
-					onBlur={onBlur}
-					cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
-					{...inputProps}
-				>
-					<Stack w="full" spacing="0" alignItems="center" direction="row">
-						<Box>{children}</Box>
-						<Box ml="auto">
-							<ChevronDown size="14" />
-						</Box>
-					</Stack>
-				</MenuButton>
+				<Stack spacing="0.5">
+					<MenuButton
+						as={Stack}
+						direction="row"
+						alignItems="center"
+						borderWidth="1px"
+						p="1.5"
+						borderRadius="sm"
+						type="button"
+						onBlur={onBlur}
+						cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
+						{...inputProps}
+					>
+						<Stack w="full" spacing="0" alignItems="center" direction="row">
+							<Box>{children}</Box>
+							<Box ml="auto">
+								<ChevronDown size="14" />
+							</Box>
+						</Stack>
+					</MenuButton>
+					{value ? (
+						<Button
+							onClick={() => {
+								onChange(null);
+							}}
+							colorScheme="gray"
+							alignSelf="start"
+							size="sm"
+							variant="link"
+						>
+							Clear
+						</Button>
+					) : null}
+				</Stack>
 				<Portal>
 					<MenuList
 						zIndex="popover"
@@ -277,24 +320,39 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 
 		return (
 			<Menu>
-				<MenuButton
-					as={Stack}
-					type="button"
-					direction="row"
-					alignItems="center"
-					borderWidth="1px"
-					borderRadius="sm"
-					p="2"
-					cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
-					{...inputProps}
-				>
-					<Stack w="full" spacing="0" alignItems="center" direction="row">
-						<Box>{children}</Box>
-						<Box ml="auto">
-							<ChevronDown size="14" />
-						</Box>
-					</Stack>
-				</MenuButton>
+				<Stack>
+					<MenuButton
+						as={Stack}
+						type="button"
+						direction="row"
+						alignItems="center"
+						borderWidth="1px"
+						borderRadius="sm"
+						p="2"
+						cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
+						{...inputProps}
+					>
+						<Stack w="full" spacing="0" alignItems="center" direction="row">
+							<Box>{children}</Box>
+							<Box ml="auto">
+								<ChevronDown size="14" />
+							</Box>
+						</Stack>
+					</MenuButton>
+					{value ? (
+						<Button
+							onClick={() => {
+								onChange(null);
+							}}
+							colorScheme="gray"
+							alignSelf="start"
+							size="sm"
+							variant="link"
+						>
+							Clear
+						</Button>
+					) : null}
+				</Stack>
 				<MenuList
 					pointerEvents={inputProps?.isDisabled ? 'none' : 'initial'}
 					maxH="sm"
@@ -342,6 +400,19 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		);
 	}
 
+	if (type === 'template') {
+		return (
+			<Box w="full" borderWidth="1px" p="1.5" borderRadius="sm">
+				<TemplateEditor
+					language="plaintext"
+					{...inputProps}
+					value={value}
+					onChange={onChange}
+				/>
+			</Box>
+		);
+	}
+
 	if (type === 'boolean') {
 		return (
 			<Switch
@@ -364,6 +435,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 			value={value || ''}
 			size="sm"
 			ref={ref}
+			type={type === 'datetime' ? 'datetime-local' : type}
 			{...inputProps}
 		/>
 	);

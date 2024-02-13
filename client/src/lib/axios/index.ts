@@ -2,19 +2,28 @@ import Axios from 'axios';
 
 export const axios = Axios.create({
 	baseURL: import.meta.env.VITE_API_ENDPOINT,
-	withCredentials: true,
 });
+if (localStorage.getItem('access_token')) {
+	axios.defaults.headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
+}
 
 export const workerAxios = Axios.create({
 	baseURL: `${import.meta.env.VITE_WORKER_API_ENDPOINT}`,
 	withCredentials: true,
 });
 
+export const setAxiosToken = (token: string | null) => {
+	axios.defaults.headers.Authorization = token ? `Bearer ${token}` : null;
+};
+
 export const setWorkerAxiosToken = (token: string | null) => {
 	workerAxios.defaults.headers['access-token'] = token;
 };
 export const setWorkerAxiosBaseURL = (url: string) => {
 	workerAxios.defaults.baseURL = url;
+};
+export const setWorkerAxiosWorkspaceIdHeader = (workspaceId: string) => {
+	workerAxios.defaults.headers['workspace-id'] = workspaceId;
 };
 
 axios.interceptors.response.use(
@@ -31,11 +40,23 @@ axios.interceptors.response.use(
 			err.response
 		) {
 			// Access Token was expired
-			if (err.response.status === 401 && !apiConfig.retry) {
+			if (
+				err.response.status === 401 &&
+				!apiConfig.retry &&
+				localStorage.getItem('refresh_token')
+			) {
 				apiConfig.retry = true;
 
 				try {
-					await axios.post('/user/refresh');
+					const refreshResponse = await axios.post('/user/refresh', undefined, {
+						headers: {
+							Authorization: `Bearer ${localStorage.getItem('refresh_token')}`,
+						},
+					});
+					const accessToken = refreshResponse?.data?.access_token;
+					localStorage.setItem('access_token', accessToken);
+					setAxiosToken(accessToken);
+					setWorkerAxiosToken(accessToken);
 
 					return await axios(apiConfig);
 				} catch (_error) {
@@ -57,6 +78,21 @@ axios.interceptors.response.use(
 			// }
 		}
 
+		return Promise.reject(err);
+	},
+);
+
+workerAxios.interceptors.response.use(
+	(res) => {
+		return res;
+	},
+	async (err) => {
+		const apiConfig = err.config;
+		if (err.response.status === 401 && !apiConfig.retry) {
+			apiConfig.retry = true;
+
+			return axios(apiConfig);
+		}
 		return Promise.reject(err);
 	},
 );

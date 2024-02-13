@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from server.controllers.tables.convert import call_gpt, fill_smart_cols_data
 from server.utils.authorization import get_current_user
 from server.utils.connect import get_db
+from server.models import User
 
 router = APIRouter()
 
@@ -31,5 +32,5 @@ def get_smart_cols(req: ConvertTable, db: Session = Depends(get_db)):
     "/verify_token",
     dependencies=[Depends(get_current_user)],
 )
-def verify_token():
-    return {"success": True}
+def verify_token(user: User = Depends(get_current_user)):
+    return {"user_id": user.id}
