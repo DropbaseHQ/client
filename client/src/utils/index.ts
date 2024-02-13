@@ -71,6 +71,9 @@ export const getErrorMessage = (error: any) => {
 		error?.response?.data?.error ||
 		error?.response?.data?.message ||
 		error?.response?.data?.result ||
+		error?.response?.data?.detail?.message ||
+		error?.response?.data?.detail?.error ||
+		error?.response?.data?.detail ||
 		error?.response?.data ||
 		error?.message ||
 		'';
