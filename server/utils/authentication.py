@@ -69,7 +69,6 @@ def authenticate_user(db: Session, email: str, password: str):
 
 def verify_worker_token(request: Request, db: Session = Depends(get_db)):
     worker_token = request.headers.get("dropbase-token")
-    print("worker token", worker_token)
     if worker_token is None:
         logger.info("Worker token is missing")
         raise HTTPException(
