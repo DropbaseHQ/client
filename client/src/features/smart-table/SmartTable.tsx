@@ -59,6 +59,7 @@ import { DEFAULT_PAGE_SIZE } from './constants';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
+import { LabelContainer } from '@/components/LabelContainer';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -800,9 +801,14 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				<NavLoader isLoading={isLoadingTable}>
 					<Stack alignItems="center" direction="row" w="full" overflow="hidden">
 						<Stack spacing="0" px="2" flexShrink="0">
-							<Text fontWeight="semibold" fontSize="lg">
-								{extractTemplateString(table?.label || tableName, pageState)}
-							</Text>
+							<LabelContainer>
+								<LabelContainer.Label>
+									{extractTemplateString(table?.label || tableName, pageState)}
+								</LabelContainer.Label>
+								{isPreview ? null : (
+									<LabelContainer.Code>{tableName}</LabelContainer.Code>
+								)}
+							</LabelContainer>
 
 							{dependantTablesWithNoRowSelection.length > 0 ? (
 								<Stack direction="row" spacing="1" alignItems="center">
