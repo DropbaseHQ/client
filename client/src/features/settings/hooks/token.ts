@@ -11,7 +11,7 @@ export const PROXY_TOKENS_QUERY_KEY = 'proxyTokens';
 
 export type ProxyToken = {
 	token: string;
-	token_id: string;
+	id: string;
 	is_selected: boolean;
 	owner_selected: boolean;
 	name?: string;
@@ -84,7 +84,7 @@ export const useSyncProxyToken = () => {
 		} else if (isFetched && tokens.length <= 0) {
 			setToken(null);
 		}
-	}, [tokens, workspaceId]);
+	}, [tokens, workspaceId, isFetched, setToken]);
 
 	useEffect(() => {
 		workerAxios.defaults.headers['dropbase-proxy-token'] = token;
