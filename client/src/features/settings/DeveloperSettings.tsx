@@ -6,9 +6,6 @@ import {
 	Text,
 	SimpleGrid,
 	Input,
-	Alert,
-	AlertIcon,
-	AlertTitle,
 	Flex,
 	FormControl,
 	FormLabel,
@@ -16,12 +13,11 @@ import {
 	InputRightElement,
 	InputLeftAddon,
 } from '@chakra-ui/react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { PageLayout } from '@/layout';
 import { useUpdateWorkspaceWorkerURL, useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { useCreateProxyToken, useProxyTokens, ProxyToken } from '@/features/settings/hooks/token';
-import { proxyTokenAtom } from '@/features/settings/atoms';
 import { WorkerTokenCard } from './components/ProxyTokenCard';
 import { TokenModal } from './components/TokenModal/TokenModal';
 
@@ -30,7 +26,6 @@ export const DeveloperSettings = () => {
 	const { user } = useGetCurrentUser();
 	const [workerUrl, setWorkerUrl] = useState('');
 	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
-	const [selectedToken] = useAtom(proxyTokenAtom);
 	const { workspaces } = useWorkspaces();
 	const createMutation = useCreateProxyToken();
 	const updateWorkspaceMutation = useUpdateWorkspaceWorkerURL();
