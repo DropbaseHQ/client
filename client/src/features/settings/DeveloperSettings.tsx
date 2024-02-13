@@ -95,7 +95,7 @@ export const DeveloperSettings = () => {
 					<FormControl>
 						<FormLabel>Worker URL</FormLabel>
 						<InputGroup size="md">
-							<InputLeftAddon children="http://" />
+							<InputLeftAddon>http://</InputLeftAddon>
 							<Input
 								placeholder="localhost:9000"
 								value={workerUrl}

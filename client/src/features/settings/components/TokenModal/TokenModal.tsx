@@ -48,7 +48,7 @@ export const TokenModal = () => {
 		if (!workspaceHasTokens) {
 			onOpen();
 		}
-	}, [workspaceHasTokens]);
+	}, [workspaceHasTokens, onOpen]);
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size="xl">
@@ -109,7 +109,7 @@ export const TokenModal = () => {
 						</Flex>
 					)}
 				</ModalBody>
-				<ModalFooter></ModalFooter>
+				<ModalFooter />
 			</ModalContent>
 		</Modal>
 	);

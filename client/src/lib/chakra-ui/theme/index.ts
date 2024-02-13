@@ -27,7 +27,6 @@ const REDUCER = getReducer();
 
 const SIZE_FIELDS = ['fontSizes', 'letterSpacings', 'lineHeights', 'radii', 'sizes', 'space'];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const reducedSizeFields = SIZE_FIELDS.reduce((agg: any, field: any) => {
 	const mergedValues = {
 		...(baseTheme as any)[field as any],
