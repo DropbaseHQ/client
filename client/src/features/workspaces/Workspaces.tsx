@@ -1,8 +1,9 @@
-import { PageLayout } from '@/layout';
-import { useWorkspaces } from '.';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { workspaceAtom } from '.';
 import { SimpleGrid, Skeleton, Box, Text } from '@chakra-ui/react';
+import { PageLayout } from '@/layout';
+
+import { useWorkspaces } from './hooks';
+import { workspaceAtom } from '@/features/workspaces';
 
 export const Workspaces = () => {
 	const { workspaces, isLoading } = useWorkspaces();

@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAtom } from 'jotai';
 import { axios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
-import { useLocation } from 'react-router-dom';
 
 export const WORKSPACE_QUERY = 'workspaces';
 
@@ -72,7 +72,7 @@ const updateWorkspaceWorkerURL = async ({ workspaceId, workerURL }: any) => {
 export const useUpdateWorkspaceWorkerURL = () => {
 	const queryClient = useQueryClient();
 	return useMutation(updateWorkspaceWorkerURL, {
-		onSuccess: (_: any) => {
+		onSuccess: () => {
 			queryClient.refetchQueries(WORKSPACE_QUERY);
 		},
 	});

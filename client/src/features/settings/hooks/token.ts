@@ -87,7 +87,7 @@ export const useSyncProxyToken = () => {
 		} else if (isFetched && tokens.length <= 0) {
 			setToken(null);
 		}
-	}, [tokens, workspaceId]);
+	}, [tokens, workspaceId, isFetched, setToken]);
 
 	useEffect(() => {
 		workerAxios.defaults.headers['dropbase-proxy-token'] = token;
