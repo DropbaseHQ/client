@@ -112,6 +112,25 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		);
 	}
 
+	if (type === 'boolean-select') {
+		return (
+			<Select
+				onBlur={onBlur}
+				onChange={(e) => {
+					onChange?.(e.target.value);
+				}}
+				ref={ref}
+				size="sm"
+				{...inputProps}
+				value={value}
+				placeholder="Select option"
+			>
+				<option value="true">True</option>
+				<option value="false">False</option>
+			</Select>
+		);
+	}
+
 	if (type === 'custom-select') {
 		const selectedValue = selectOptions.find((option: any) => option.value === value);
 
