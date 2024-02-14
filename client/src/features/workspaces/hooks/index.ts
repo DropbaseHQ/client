@@ -100,7 +100,7 @@ export const useWorkerWorkspace = () => {
 		pathname.startsWith('/forgot');
 
 	const { data: response, ...rest } = useQuery('workerWorkspace', getWorkerWorkspace, {
-		enabled: !loginRoutes,
+		enabled: !loginRoutes && !!workerAxios.defaults.headers['access-token'],
 	});
 
 	return {
