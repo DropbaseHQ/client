@@ -23,6 +23,26 @@ const fetchWorkspaces = async () => {
 	return response.data;
 };
 
+type WorkerWorkspace = {
+	id: string;
+	name: string;
+	description: string;
+};
+
+const getWorkerWorkspace = async () => {
+	const response = await workerAxios.get<WorkerWorkspace>(`/worker_workspace/`);
+	return response.data;
+};
+
+export const useWorkerWorkspace = () => {
+	const { data: response, ...rest } = useQuery('workerWorkspace', getWorkerWorkspace);
+
+	return {
+		...rest,
+		workspace: response,
+	};
+};
+
 export const useWorkspaces = () => {
 	const { pathname } = useLocation();
 
@@ -77,24 +97,4 @@ export const useUpdateWorkspaceWorkerURL = () => {
 			queryClient.refetchQueries(WORKSPACE_QUERY);
 		},
 	});
-};
-
-type WorkerWorkspace = {
-	id: string;
-	name: string;
-	description: string;
-};
-
-const getWorkerWorkspace = async () => {
-	const response = await workerAxios.get<WorkerWorkspace>(`/worker_workspace/`);
-	return response.data;
-};
-
-export const useWorkerWorkspace = () => {
-	const { data: response, ...rest } = useQuery('workerWorkspace', getWorkerWorkspace);
-
-	return {
-		...rest,
-		workspace: response,
-	};
 };

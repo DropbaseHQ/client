@@ -310,6 +310,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		let icon = col?.display_type ? GridColumnIcon.HeaderString : undefined;
 
 		switch (col?.display_type) {
+			case 'currency':
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -435,6 +436,20 @@ export const SmartTable = ({ tableName, provider }: any) => {
 			  };
 
 		switch (column?.display_type) {
+			case 'currency': {
+				return {
+					kind: GridCellKind.Number,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData:
+						unParsedValue === null
+							? ''
+							: `${column?.configurations?.symbol}${cellValue}`,
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
 			case 'float':
 			case 'integer': {
 				return {
