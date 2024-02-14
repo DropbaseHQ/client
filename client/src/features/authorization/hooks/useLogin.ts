@@ -1,5 +1,5 @@
 import { useMutation } from 'react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { MutationConfig } from '@/lib/react-query';
@@ -36,9 +36,18 @@ export const useLogin = (mutationConfig: MutationConfig<typeof loginUser>) => {
 export const useSetAxiosToken = () => {
 	const navigate = useNavigate();
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
+	const { pathname } = useLocation();
+	const loginRoutes =
+		pathname.startsWith('/login') ||
+		pathname.startsWith('/register') ||
+		pathname.startsWith('/reset') ||
+		pathname.startsWith('/email-confirmation') ||
+		pathname.startsWith('/forgot');
 
 	useEffect(() => {
 		const fetchData = async () => {
+			if (loginRoutes) return;
+
 			if (localStorage.getItem('access_token')) {
 				const savedAccessToken = localStorage.getItem('access_token');
 				setWorkerAxiosToken(savedAccessToken);
@@ -58,7 +67,7 @@ export const useSetAxiosToken = () => {
 
 		fetchData();
 		setWorkerAxiosWorkspaceIdHeader(workspaceId || '');
-	}, [navigate, workspaceId]);
+	}, [navigate, workspaceId, loginRoutes]);
 };
 export const useSetWorkerAxiosBaseURL = () => {
 	const [workspace] = useAtom(workspaceAtom);

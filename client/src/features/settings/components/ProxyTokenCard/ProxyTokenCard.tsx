@@ -25,7 +25,6 @@ import copy from 'copy-to-clipboard';
 import { workspaceAtom } from '@/features/workspaces';
 import {
 	ProxyToken,
-	useUpdateWorkspaceProxyToken,
 	useDeleteProxyToken,
 	useUpdateTokenInfo,
 } from '@/features/settings/hooks/token';
@@ -39,9 +38,9 @@ export const maskedString = (token_str: string) => {
 	return '*'.repeat(token_str.length - 4) + token_str.slice(-4);
 };
 
-export const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
+export const WorkerTokenCard = ({ token }: { token: ProxyToken }) => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
-	const [selectedToken, setToken] = useAtom(proxyTokenAtom);
+	const [selectedToken] = useAtom(proxyTokenAtom);
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const { hasCopied, onCopy } = useClipboard('test');
@@ -56,20 +55,13 @@ export const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
 
 	const isSelected = selectedToken === token.token;
 
-	const updateWorkspaceTokenMutation = useUpdateWorkspaceProxyToken({
-		onSuccess: () => {
-			toast({
-				title: 'Token updated',
-				status: 'info',
-			});
-		},
-	});
 	const deleteTokenMutation = useDeleteProxyToken({
 		onSuccess: () => {
 			toast({
 				title: 'Token deleted',
 				status: 'info',
 			});
+			onClose();
 		},
 	});
 	const updateTokenInfoMutation = useUpdateTokenInfo({
@@ -81,24 +73,17 @@ export const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
 		},
 	});
 
-	const handleChooseToken = () => {
-		updateWorkspaceTokenMutation.mutate({
-			workspaceId,
-			tokenId: token.token_id,
-		});
-		setToken(token.token);
-	};
 	const handleDeleteToken = () => {
 		deleteTokenMutation.mutate({
 			workspaceId,
-			tokenId: token.token_id,
+			tokenId: token.id,
 		});
 	};
 	const handleUpdateTokenName = (event: any) => {
 		if (event.key === 'Enter') {
 			updateTokenInfoMutation.mutate({
 				workspaceId,
-				tokenId: token.token_id,
+				tokenId: token.id,
 				name: event.currentTarget.value,
 			});
 			setNameIsEditing(false);
@@ -108,7 +93,7 @@ export const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
 		if (event.key === 'Enter') {
 			updateTokenInfoMutation.mutate({
 				workspaceId,
-				tokenId: token.token_id,
+				tokenId: token.id,
 				region: event.currentTarget.value,
 			});
 			setRegionIsEditing(false);
@@ -132,7 +117,7 @@ export const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
 	return (
 		<Flex
 			direction="column"
-			key={token.token_id}
+			key={token.id}
 			cursor="pointer"
 			overflow="hidden"
 			borderWidth="1px"
@@ -143,7 +128,6 @@ export const ProxyTokenCard = ({ token }: { token: ProxyToken }) => {
 			p="2"
 			width="full"
 			as="button"
-			onClick={handleChooseToken}
 			_hover={{
 				shadow: 'sm',
 			}}

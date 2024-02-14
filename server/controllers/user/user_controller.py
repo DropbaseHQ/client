@@ -12,7 +12,7 @@ from server.constants import ACCESS_TOKEN_EXPIRE_SECONDS, CLIENT_URL, REFRESH_TO
 from server.controllers.policy import PolicyUpdater, format_permissions_for_highest_action
 from server.controllers.user.workspace_creator import WorkspaceCreator
 from server.emails.emailer import send_email
-from server.models import Policy, User
+from server.models import Policy, User, Workspace
 from server.schemas.user import (
     AddPolicyRequest,
     CheckPermissionRequest,
@@ -382,11 +382,17 @@ def delete_user(db: Session, user_id: UUID):
     return {"message": "User successfully deleted"}
 
 
-def check_permissions(db: Session, user: User, request: CheckPermissionRequest):
-
+def check_permissions(
+    db: Session, user: User, request: CheckPermissionRequest, workspace: Workspace
+):
+    workspace_id = None
     app_id = request.app_id
     app = crud.app.get_object_by_id_or_404(db, id=app_id)
-    workspace_id = app.workspace_id
+    if app.workspace_id:
+        workspace_id = app.workspace_id
+    else:
+        # Workspace_from_token
+        workspace_id = workspace.id
 
     permissions_dict = get_all_action_permissions(db, str(user.id), workspace_id, app_id)
     return permissions_dict

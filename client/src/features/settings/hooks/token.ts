@@ -11,7 +11,7 @@ export const PROXY_TOKENS_QUERY_KEY = 'proxyTokens';
 
 export type ProxyToken = {
 	token: string;
-	token_id: string;
+	id: string;
 	is_selected: boolean;
 	owner_selected: boolean;
 	name?: string;
@@ -47,13 +47,10 @@ export const useProxyTokens = ({ workspaceId, userId }: any) => {
 	};
 };
 
-const createProxyToken = async ({ userId, workspaceId, name, region }: any) => {
+const createProxyToken = async ({ workspaceId, name }: { workspaceId: string; name?: string }) => {
 	const response = await axios.post(`/token/`, {
-		token: '',
-		user_id: userId,
 		workspace_id: workspaceId,
 		name,
-		region,
 	});
 	return response.data;
 };

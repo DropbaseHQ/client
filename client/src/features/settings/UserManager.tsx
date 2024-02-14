@@ -33,15 +33,14 @@ import {
 	Select,
 } from '@chakra-ui/react';
 import { UserMinus, Edit } from 'react-feather';
-import { useQueryClient } from 'react-query';
 import { useAtomValue } from 'jotai';
-
+import { useQueryClient } from 'react-query';
 import {
-	useUpdateUserRole,
 	useGetWorkspaceUsers,
 	GET_WORKSPACE_USERS_QUERY_KEY,
 	useInviteMember,
 	useRemoveMember,
+	useUpdateUserRole,
 } from './hooks/workspace';
 import { workspaceAtom } from '@/features/workspaces';
 import { PageLayout } from '@/layout';
@@ -146,7 +145,7 @@ const UserRow = (item: any) => {
 			<Td>
 				<Flex justifyContent="space-between">
 					{/* <Flex>
-						{item.user?.groups?.map((obj: any) => (
+						{user?.groups?.map((obj: any) => (
 							<Tag size="sm" key={obj?.id}>
 								{obj.name}
 							</Tag>
@@ -215,7 +214,6 @@ export const Users = () => {
 			inviteMemberOnClose();
 		},
 	});
-
 	const handleInviteMember = () => {
 		inviteMemberMutation.mutate({
 			workspaceId: workspaceId || '',
