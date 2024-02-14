@@ -25,7 +25,10 @@ export const AppBuilder = () => {
 	const toast = useToast();
 	const { isLoading } = useInitPage();
 	const setInspectedItem = useSetAtom(inspectedResourceAtom);
-	const { permissions } = useAppState(appName || '', pageName || '');
+	const { permissions, isLoading: appStateIsLoading } = useAppState(
+		appName || '',
+		pageName || '',
+	);
 
 	useEffect(() => {
 		return () => {
@@ -36,7 +39,7 @@ export const AppBuilder = () => {
 		};
 	}, [setInspectedItem]);
 
-	if (!permissions?.edit) {
+	if (!appStateIsLoading && !permissions?.edit) {
 		toast({
 			title: 'Unauthorized',
 			description: 'You do not have permission to edit this page.',
