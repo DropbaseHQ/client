@@ -50,8 +50,6 @@ const runPythonFunction = async ({ fileCode, testCode, pageState }: any) => {
 		const jobResponse = await fetchJobStatus(response.data.job_id);
 		return jobResponse;
 	}
-
-	console.error('No associated job id found');
 	throw new Error('Failed to run python function');
 };
 
