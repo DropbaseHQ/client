@@ -18,5 +18,4 @@ ENVIRONMENT = os.environ.get("ENVIRONMENT")
 
 OPENAI_ORG_ID = os.getenv("OPENAI_ORG_ID")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
 LOOPS_API_KEY = os.getenv("LOOPS_API_KEY")
