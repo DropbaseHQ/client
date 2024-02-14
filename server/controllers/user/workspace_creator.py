@@ -104,7 +104,6 @@ class WorkspaceCreator:
             obj_in={
                 "token": token,
                 "name": "default",
-                "user_id": self.user_id,
                 "workspace_id": self.workspace_id,
             },
             auto_commit=False,
