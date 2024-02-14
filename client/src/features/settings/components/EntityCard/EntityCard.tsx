@@ -25,7 +25,7 @@ export const PermissionsCard = ({
 	children,
 	...props
 }: {
-	isSelected?: boolean;
+	isSelected: boolean;
 	entity: any;
 	children: React.ReactNode;
 }) => {
