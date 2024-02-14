@@ -165,10 +165,22 @@ export const DisplayRulesEditor = ({ name }: any) => {
 		widgetsInputs?.[widgetName as keyof typeof widgetsInputs] || {};
 
 	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
+
 	const { control } = useFormContext();
 
 	const getColType = (target: string) => {
-		if (!target || target === 'widgets') {
+		if (!target) {
+			return 'text';
+		}
+		if (target.includes('widgets')) {
+			const targetWidget = components.find((c: any) => c.name === target.split('.')[2]);
+
+			if (targetWidget?.data_type) {
+				if (targetWidget?.data_type === 'boolean') {
+					return 'boolean-select';
+				}
+				return targetWidget?.data_type;
+			}
 			return 'text';
 		}
 		const [, specificCategory, targetName] = target.split('.');
