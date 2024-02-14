@@ -124,8 +124,7 @@ class WorkspaceCreator:
             workspace = self._create_workspace()
             admin_role = self._create_user_role()
             self._create_default_user_policies(admin_role_id=admin_role.role_id)
-            token = self._create_token()
-            self._update_workspace_token(token=token)
+            self._create_token()
             if auto_commit:
                 self.db.commit()
             return workspace
