@@ -20,14 +20,14 @@ import { GET_WORKSPACE_GROUPS_QUERY_KEY } from '../../hooks/workspace';
 import { useDeleteGroup } from '../../hooks/group';
 
 export const PermissionsCard = ({
-	isSelected = false,
 	entity,
 	children,
+	isSelected = false,
 	...props
 }: {
-	isSelected: boolean;
 	entity: any;
 	children: React.ReactNode;
+	isSelected: boolean;
 }) => {
 	return (
 		<Box
