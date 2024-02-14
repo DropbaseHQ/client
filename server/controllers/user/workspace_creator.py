@@ -104,7 +104,6 @@ class WorkspaceCreator:
             obj_in={
                 "token": token,
                 "name": "default",
-                "user_id": self.user_id,
                 "workspace_id": self.workspace_id,
             },
             auto_commit=False,
@@ -112,21 +111,12 @@ class WorkspaceCreator:
         self.db.flush()
         return new_token
 
-    def _update_workspace_token(self, token: Token):
-        crud.token.reset_workspace_selected_token(
-            self.db, workspace_id=self.workspace_id
-        )
-        crud.token.update_by_pk(
-            self.db, pk=token.id, obj_in={"is_selected": True}, auto_commit=False
-        )
-
     def create(self, workspace_name: str = None, auto_commit: bool = False):
         try:
             workspace = self._create_workspace()
             admin_role = self._create_user_role()
             self._create_default_user_policies(admin_role_id=admin_role.role_id)
-            token = self._create_token()
-            self._update_workspace_token(token=token)
+            self._create_token()
             if auto_commit:
                 self.db.commit()
             return workspace

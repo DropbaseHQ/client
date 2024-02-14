@@ -114,7 +114,10 @@ export const Setup = () => {
 			<ListItem>
 				<Stack>
 					<Text>In your terminal, run the docker compose command at the root</Text>
-					<CodeSnippet code="docker-compose up" />
+					<CodeSnippet
+						code="chmod +x start.sh
+./start.sh"
+					/>
 				</Stack>
 			</ListItem>
 			<ListItem>

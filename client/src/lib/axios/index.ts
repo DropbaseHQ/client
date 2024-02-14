@@ -3,15 +3,15 @@ import Axios from 'axios';
 export const axios = Axios.create({
 	baseURL: import.meta.env.VITE_API_ENDPOINT,
 });
-if (localStorage.getItem('access_token')) {
-	axios.defaults.headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
-}
 
 export const workerAxios = Axios.create({
 	baseURL: `${import.meta.env.VITE_WORKER_API_ENDPOINT}`,
 	withCredentials: true,
 });
-
+if (localStorage.getItem('access_token')) {
+	axios.defaults.headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
+	workerAxios.defaults.headers['access-token'] = localStorage.getItem('access_token');
+}
 export const setAxiosToken = (token: string | null) => {
 	axios.defaults.headers.Authorization = token ? `Bearer ${token}` : null;
 };

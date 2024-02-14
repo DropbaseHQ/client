@@ -15,9 +15,9 @@ import {
 	PopoverCloseButton,
 	ButtonGroup,
 } from '@chakra-ui/react';
+import { useQueryClient } from 'react-query';
 import { GET_WORKSPACE_GROUPS_QUERY_KEY } from '../../hooks/workspace';
 import { useDeleteGroup } from '../../hooks/group';
-import { useQueryClient } from 'react-query';
 
 export const PermissionsCard = ({
 	isSelected = false,
@@ -47,14 +47,7 @@ export const PermissionsCard = ({
 	);
 };
 
-export const UserCard = ({
-	isSelected,
-	user,
-}: {
-	isSelected: boolean;
-	user: any;
-	children: React.ReactNode;
-}) => {
+export const UserCard = ({ isSelected, user }: { isSelected: boolean; user: any }) => {
 	return (
 		<PermissionsCard isSelected={isSelected} entity={user}>
 			<Text>{user.email}</Text>
@@ -62,14 +55,7 @@ export const UserCard = ({
 	);
 };
 
-export const GroupCard = ({
-	isSelected,
-	group,
-}: {
-	isSelected: boolean;
-	group: any;
-	children: React.ReactNode;
-}) => {
+export const GroupCard = ({ isSelected, group }: { isSelected: boolean; group: any }) => {
 	const [isDeletePopoverOpen, setDeletePopoverOpen] = useState(false);
 	const queryClient = useQueryClient();
 	const deleteGroupMutation = useDeleteGroup({

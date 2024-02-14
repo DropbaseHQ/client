@@ -13,13 +13,16 @@ export const useCreateApp = (mutationConfig?: any) => {
 };
 
 const createWorkerApp = async ({
+	appLabel,
 	appName,
 	workspaceId,
 }: {
+	appLabel: string;
 	appName: string;
 	workspaceId: string;
 }) => {
 	const response = await workerAxios.post('/app/', {
+		app_label: appLabel,
 		app_name: appName,
 		workspace_id: workspaceId,
 	});
@@ -31,13 +34,16 @@ export const useCreateAppFlow = (mutationConfig?: any) => {
 
 	const handleCreateApp = async ({
 		name,
+		label,
 		workspaceId,
 	}: {
+		label: string;
 		name: string;
 		workspaceId: string;
 	}) => {
 		const { data: workerData } = await useCreateWorkerAppMutation.mutateAsync({
 			appName: name,
+			appLabel: label,
 			workspaceId,
 		});
 

@@ -1,5 +1,5 @@
-import { axios } from '@/lib/axios';
 import { useMutation, useQuery } from 'react-query';
+import { axios } from '@/lib/axios';
 
 export type GroupResponse = {
 	group: {

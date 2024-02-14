@@ -19,16 +19,16 @@ from server.controllers.policy import (
 )
 from server.controllers.user.workspace_creator import WorkspaceCreator
 from server.emails.emailer import send_email
-from server.models import Policy, User
+from server.models import Policy, User, Workspace
 from server.schemas.user import (
     AddPolicyRequest,
+    CheckPermissionRequest,
     CreateUser,
     CreateUserRequest,
     LoginUser,
     ReadUser,
     ResetPasswordRequest,
     UpdateUserPolicyRequest,
-    CheckPermissionRequest,
 )
 from server.schemas.workspace import ReadWorkspace
 from server.utils.authentication import (
@@ -40,8 +40,8 @@ from server.utils.hash import get_confirmation_token_hash
 from server.utils.helper import raise_http_exception
 from server.utils.loops_integration import loops_controller
 from server.utils.permissions.casbin_utils import (
-    get_contexted_enforcer,
     get_all_action_permissions,
+    get_contexted_enforcer,
 )
 from server.utils.slack import slack_sign_up
 
@@ -156,6 +156,8 @@ def register_user(db: Session, request: CreateUserRequest):
 
         user_obj = CreateUser(
             name=request.name,
+            last_name=request.last_name,
+            company=request.company,
             email=request.email,
             hashed_password=hashed_password,
             trial_eligible=True,
@@ -193,7 +195,11 @@ def verify_user(db: Session, token: str, user_id: UUID):
             user.confirmation_token = None
             user.active = True
             loops_controller.add_user(
-                user_email=user.email, name=user.name, user_id=str(user.id)
+                user_email=user.email,
+                name=user.name,
+                last_name=user.last_name,
+                company=user.company,
+                user_id=str(user.id),
             )
             db.commit()
             return {"message": "User successfully confirmed"}
@@ -408,14 +414,17 @@ def delete_user(db: Session, user_id: UUID):
     return {"message": "User successfully deleted"}
 
 
-def check_permissions(db: Session, user: User, request: CheckPermissionRequest):
-
+def check_permissions(
+    db: Session, user: User, request: CheckPermissionRequest, workspace: Workspace
+):
+    workspace_id = None
     app_id = request.app_id
-    if app_id:
-        app = crud.app.get_object_by_id_or_404(db, id=app_id)
+    app = crud.app.get_object_by_id_or_404(db, id=app_id)
+    if app.workspace_id:
         workspace_id = app.workspace_id
     else:
-        workspace_id = request.workspace_id
+        # Workspace_from_token
+        workspace_id = workspace.id
 
     permissions_dict = get_all_action_permissions(
         db, str(user.id), workspace_id, app_id
