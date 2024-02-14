@@ -87,11 +87,9 @@ const AppCard = ({ app }: { app: AppType }) => {
 			onClick={handleClick}
 		>
 			<Layout strokeWidth="1.5px" size="40px" />
-			<Stack spacing="0">
-				<Text fontSize="lg" fontWeight="semibold">
-					{app?.label}
-				</Text>
-			</Stack>
+			<Text fontSize="lg" fontWeight="semibold" isTruncated flex="1">
+				{app?.label}
+			</Text>
 			<Menu>
 				<MenuButton
 					flexShrink="0"
