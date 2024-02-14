@@ -5,14 +5,17 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 
 import { theme } from '@/lib/chakra-ui';
 import { queryClient } from '@/lib/react-query';
-import { DashboardRoutes } from '@/routes';
+import { DashboardRoutes, ProdDashboardRoutes } from '@/routes';
+import { isProductionApp } from './utils';
 
 export const Dashboard = () => {
+	const isProductionURL = isProductionApp();
+
 	return (
 		<BrowserRouter>
 			<ChakraProvider theme={theme}>
 				<QueryClientProvider client={queryClient}>
-					<DashboardRoutes />
+					{isProductionURL ? <ProdDashboardRoutes /> : <DashboardRoutes />}
 					<ReactQueryDevtools position="bottom-right" />
 				</QueryClientProvider>
 			</ChakraProvider>

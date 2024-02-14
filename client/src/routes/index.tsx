@@ -18,7 +18,6 @@ import { websocketStatusAtom } from '@/features/app/atoms';
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
 import { Welcome } from '../features/welcome';
-import { isProductionApp } from '../utils';
 import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 
 export const DashboardRoutes = () => {
@@ -58,7 +57,90 @@ export const DashboardRoutes = () => {
 		);
 	}
 
-	const isProductionURL = isProductionApp();
+	return (
+		<Suspense
+			fallback={
+				<Center w="full" h="full">
+					<Spinner
+						thickness="2px"
+						speed="0.5s"
+						emptyColor="gray.200"
+						color="blue.500"
+						size="lg"
+					/>
+				</Center>
+			}
+		>
+			<Routes>
+				<Route
+					path="/"
+					element={
+						<DashboardLayout>
+							<Outlet />
+						</DashboardLayout>
+					}
+				>
+					<Route index element={<Navigate to="/apps" />} />
+					<Route path="login" element={<Login />} />
+					<Route path="register" element={<Register />} />
+					<Route path="forgot" element={<RequestResetLink />} />
+					<Route path="reset" element={<ResetPassword />} />
+					<Route path="welcome" element={<Welcome />} />
+					<Route
+						path="email-confirmation/:token/:userId"
+						element={<EmailConfirmation />}
+					/>
+					<Route element={<ProtectedRoutes />}>
+						<Route path="workspaces" element={<Workspaces />} />
+						<Route path="apps/*" element={<App />} />
+						<Route path="settings/members" element={<Users />} />
+						<Route path="settings/permissions" element={<Permissions />} />
+						<Route path="settings/developer" element={<DeveloperSettings />} />
+					</Route>
+
+					<Route path="*" element={<Navigate to="/apps" />} />
+				</Route>
+			</Routes>
+		</Suspense>
+	);
+};
+
+export const ProdDashboardRoutes = () => {
+	const { isLoading } = useWorkspaces();
+
+	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
+
+	useSyncProxyToken();
+	useSetAxiosToken();
+	useSetWorkerAxiosBaseURL();
+	// Initialize websocket
+	useWebSocket(SOCKET_URL, {
+		share: true,
+		shouldReconnect: () => true,
+		reconnectAttempts: 3,
+		reconnectInterval: (attemptNumber) => Math.min(2 ** attemptNumber * 1000, 10000),
+		onOpen: () => {
+			setWebsocketIsAlive(true);
+		},
+		onClose: () => {
+			setWebsocketIsAlive(false);
+		},
+	});
+
+	if (isLoading) {
+		return (
+			<DashboardLayout>
+				<Center as={Stack} spacing="6" w="full" h="full">
+					<Stack alignItems="center" spacing="0">
+						<Text color="heading" fontSize="lg" fontWeight="medium">
+							Checking user...
+						</Text>
+					</Stack>
+					<Progress minW="sm" size="xs" isIndeterminate />
+				</Center>
+			</DashboardLayout>
+		);
+	}
 
 	return (
 		<Suspense
@@ -83,10 +165,7 @@ export const DashboardRoutes = () => {
 						</DashboardLayout>
 					}
 				>
-					<Route
-						index
-						element={<Navigate to={isProductionURL ? '/welcome' : '/apps'} />}
-					/>
+					<Route index element={<Navigate to="/welcome" />} />
 					<Route path="login" element={<Login />} />
 					<Route path="register" element={<Register />} />
 					<Route path="forgot" element={<RequestResetLink />} />
@@ -97,21 +176,11 @@ export const DashboardRoutes = () => {
 						element={<EmailConfirmation />}
 					/>
 					<Route element={<ProtectedRoutes />}>
-						{isProductionURL ? null : (
-							<>
-								<Route path="workspaces" element={<Workspaces />} />
-								<Route path="apps/*" element={<App />} />
-								<Route path="settings/members" element={<Users />} />
-							</>
-						)}
 						<Route path="settings/permissions" element={<Permissions />} />
 						<Route path="settings/developer" element={<DeveloperSettings />} />
 					</Route>
 
-					<Route
-						path="*"
-						element={<Navigate to={isProductionURL ? '/welcome' : '/apps'} />}
-					/>
+					<Route path="*" element={<Navigate to="/welcome" />} />
 				</Route>
 			</Routes>
 		</Suspense>
