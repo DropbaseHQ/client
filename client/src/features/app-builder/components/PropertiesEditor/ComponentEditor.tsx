@@ -286,7 +286,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 											if (
 												property.name === 'on_click' ||
-												property.name === 'on_change'
+												property.name === 'on_change' ||
+												property.name === 'on_toggle'
 											) {
 												return <EventPropertyEditor id={property.name} />;
 											}
