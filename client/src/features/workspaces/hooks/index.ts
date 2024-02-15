@@ -35,7 +35,17 @@ const getWorkerWorkspace = async () => {
 };
 
 export const useWorkerWorkspace = () => {
-	const { data: response, ...rest } = useQuery('workerWorkspace', getWorkerWorkspace);
+	const { pathname } = useLocation();
+	const loginRoutes =
+		pathname.startsWith('/login') ||
+		pathname.startsWith('/register') ||
+		pathname.startsWith('/reset') ||
+		pathname.startsWith('/email-confirmation') ||
+		pathname.startsWith('/forgot');
+
+	const { data: response, ...rest } = useQuery('workerWorkspace', getWorkerWorkspace, {
+		enabled: !loginRoutes && !!workerAxios.defaults.headers['access-token'],
+	});
 
 	return {
 		...rest,
