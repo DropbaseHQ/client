@@ -17,7 +17,8 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
 import { useResendConfirmEmail } from './hooks/useResendConfirmationEmail';
-import { useLogin } from './hooks/useLogin';
+import { useLogin, useGoogleLogin } from './hooks/useLogin';
+import { GoogleLogin } from '@react-oauth/google';
 import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
 import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
@@ -44,6 +45,32 @@ export const Login = () => {
 	} = useForm<FormValues>();
 
 	const email = watch('email');
+
+	const { mutate: googleMutate, isLoading: googleIsLoading } = useGoogleLogin({
+		onError: (error: any) => {
+			toast({
+				title: 'Login Failed',
+				status: 'error',
+				description: getErrorMessage(error),
+			});
+			if (error.response?.status === 403) {
+				setDisplayEmailConfirmation(true);
+			}
+		},
+		onSuccess: (data: any) => {
+			queryClient.clear();
+			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+			setAxiosToken(data?.access_token);
+			localStorage.setItem('access_token', data?.access_token);
+			localStorage.setItem('refresh_token', data?.refresh_token);
+			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
+
+			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
+			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
+			setDisplayEmailConfirmation(false);
+			navigate('/apps');
+		},
+	});
 
 	const { mutate, isLoading } = useLogin({
 		onError: (error: any) => {
@@ -82,6 +109,18 @@ export const Login = () => {
 
 	const onResendConfirmEmail = () => {
 		resendConfirmEmail({ email });
+	};
+
+	const onGoogleSuccess = (response) => {
+		googleMutate(response);
+	};
+
+	const onGoogleError = () => {
+		toast({
+			title: 'Login Failed',
+			status: 'error',
+			description: 'Unable to log in with google',
+		});
 	};
 
 	return (
@@ -139,6 +178,7 @@ export const Login = () => {
 								</Link>
 							</Stack>
 						</Stack>
+						<GoogleLogin onSuccess={onGoogleSuccess} onError={onGoogleError} />
 					</form>
 					{displayEmailConfirmation && (
 						<Flex mt="6" direction="column">

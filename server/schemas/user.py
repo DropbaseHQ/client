@@ -49,6 +49,10 @@ class LoginUser(BaseModel):
     password: str
 
 
+class LoginGoogleUser(BaseModel):
+    credential: str
+
+
 class CreateUserRequest(BaseModel):
     name: str
     last_name: Optional[str]

@@ -1,7 +1,11 @@
+import os
 import secrets
 from datetime import datetime, timedelta
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 from uuid import UUID
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
 
 from fastapi import HTTPException, Response, status
 from fastapi_jwt_auth import AuthJWT
@@ -25,6 +29,7 @@ from server.schemas.user import (
     CheckPermissionRequest,
     CreateUser,
     CreateUserRequest,
+    LoginGoogleUser,
     LoginUser,
     ReadUser,
     ResetPasswordRequest,
@@ -120,6 +125,63 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
         raise_http_exception(status_code=500, message="Internal server error")
 
 
+def login_google_user(db: Session, Authorize: AuthJWT, request: LoginGoogleUser):
+    try:
+        token = request.credential
+
+        CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+
+        if CLIENT_ID is None:
+            raise ValueError("GOOGLE_CLIENT_ID environment variable not set")
+
+        idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+
+        if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+            raise ValueError('Wrong issuer')
+
+        user = crud.user.get_user_by_email(db, email=idinfo["email"])
+
+        if not user:
+            register_google_user(db, idinfo)
+            # raise HTTPException(
+            #     status_code=status.HTTP_401_UNAUTHORIZED,
+            #     detail="User does not exist",
+            #     headers={"WWW-Authenticate": "Bearer"},
+            # )
+            return {"message": "User successfully registered"}
+        if not user.active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Email needs to be verified.",
+            )
+        access_token = Authorize.create_access_token(
+            subject=user.email,
+            expires_time=ACCESS_TOKEN_EXPIRE_SECONDS,
+            user_claims={"user_id": str(user.id)},
+        )
+        refresh_token = Authorize.create_refresh_token(
+            subject=user.email, expires_time=REFRESH_TOKEN_EXPIRE_SECONDS
+        )
+
+        workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
+        workspace = (
+            ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
+        )
+        return {
+            "user": ReadUser.from_orm(user),
+            "workspace": workspace,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+
+    except HTTPException as e:
+        raise_http_exception(status_code=e.status_code, message=e.detail)
+    except Exception as e:
+        print("error", e)
+        raise_http_exception(status_code=500, message="Internal server error")
+
+
+
 def logout_user(response: Response, Authorize: AuthJWT):
     try:
         Authorize.jwt_required()
@@ -186,6 +248,59 @@ def register_user(db: Session, request: CreateUserRequest):
         db.rollback()
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")
+
+
+def register_google_user(db: Session, idinfo):
+    try:
+        name = idinfo.get("name")
+        last = idinfo.get("family_name")
+        domain = idinfo.get("hd", None)
+        email = idinfo.get("email")
+
+        print(name)
+
+        company = domain if domain is not None else "Personal"
+
+        print(domain)
+        print(company)
+
+        confirmation_token = get_confirmation_token_hash(
+            email + name
+        )
+
+        user_obj = CreateUser(
+            name=name,
+            last_name=last,
+            company=company,
+            email=email,
+            hashed_password="",
+            trial_eligible=True,
+            active=False,
+            confirmation_token=confirmation_token,
+        )
+        user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
+        db.flush()
+        workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
+        workspace_creator.create()
+
+        confirmation_link = (
+            f"{CLIENT_URL}/email-confirmation/{confirmation_token}/{user.id}"
+        )
+        send_email(
+            email_name="verifyEmail",
+            email_params={
+                "email": email,
+                "url": confirmation_link,
+            },
+        )
+        slack_sign_up(name=name, email=email)
+        db.commit()
+        return {"message": "User successfully registered"}
+    except Exception as e:
+        db.rollback()
+        print("error", e)
+        raise_http_exception(status_code=500, message="Internal server error")
+
 
 
 def verify_user(db: Session, token: str, user_id: UUID):
