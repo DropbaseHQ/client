@@ -262,7 +262,7 @@ const ColumnProperty = ({
 												onSelect={resetConfig}
 											/>
 
-											<SimpleGrid gap={4} columns={2}>
+											<SimpleGrid py="2" gap={4} columns={2}>
 												{Object.keys(configProperties).map((key: any) => {
 													const property = configProperties?.[key];
 													const isRequired =

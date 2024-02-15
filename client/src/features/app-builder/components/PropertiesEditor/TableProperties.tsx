@@ -186,7 +186,6 @@ export const TableProperties = () => {
 					>
 						<Stack direction="row" alignItems="center">
 							<LabelContainer>
-								<LabelContainer.Label>{table?.name}</LabelContainer.Label>
 								<LabelContainer.Code>{tableId}</LabelContainer.Code>
 							</LabelContainer>
 							<NameEditor

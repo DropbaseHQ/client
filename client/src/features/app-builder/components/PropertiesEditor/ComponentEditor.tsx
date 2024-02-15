@@ -194,7 +194,6 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 					>
 						<Stack direction="row" alignItems="center">
 							<LabelContainer>
-								<LabelContainer.Label>{component?.name}</LabelContainer.Label>
 								<LabelContainer.Code>{id}</LabelContainer.Code>
 							</LabelContainer>
 							<NameEditor

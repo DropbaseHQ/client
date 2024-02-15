@@ -5,6 +5,7 @@ import {
 	Button,
 	FormControl,
 	FormLabel,
+	Stack,
 	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -21,6 +22,7 @@ import {
 import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
+import { LabelContainer } from '@/components/LabelContainer';
 
 const sizeMap: any = {
 	small: 'sm',
@@ -126,38 +128,45 @@ export const AppComponent = (props: any) => {
 
 	if (componentType === 'button') {
 		return (
-			<Button
-				my="1.5"
-				size="sm"
-				isLoading={actionMutation.isLoading}
-				bgColor={grayOutComponent ? 'gray.100' : ''}
-				colorScheme={color || 'blue'}
-				onClick={() => {
-					if (onClick) {
-						handleClick(onClick);
-					}
-					sendJsonMessage({
-						type: 'display_rule',
-						state_context: pageState,
-						app_name: appName,
-						page_name: pageName,
-					});
-				}}
-			>
-				{label}
-			</Button>
+			<Stack spacing="0.5" w="fit-content">
+				<Button
+					my="1.5"
+					size="sm"
+					isLoading={actionMutation.isLoading}
+					bgColor={grayOutComponent ? 'gray.100' : ''}
+					colorScheme={color || 'blue'}
+					onClick={() => {
+						if (onClick) {
+							handleClick(onClick);
+						}
+						sendJsonMessage({
+							type: 'display_rule',
+							state_context: pageState,
+							app_name: appName,
+							page_name: pageName,
+						});
+					}}
+				>
+					{label}
+				</Button>
+				{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+			</Stack>
 		);
 	}
 
 	if (componentType === 'text') {
 		return (
-			<Text
-				fontSize={sizeMap[component.size]}
-				color={component.color || `${component.color}.500`}
-				bgColor={grayOutComponent ? 'gray.100' : ''}
-			>
-				{text}
-			</Text>
+			<Stack spacing="0.5">
+				<Text
+					fontSize={sizeMap[component.size]}
+					color={component.color || `${component.color}.500`}
+					bgColor={grayOutComponent ? 'gray.100' : ''}
+				>
+					{text}
+				</Text>
+
+				{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+			</Stack>
 		);
 	}
 
@@ -172,44 +181,48 @@ export const AppComponent = (props: any) => {
 	}
 
 	return (
-		<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
-			{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
-			<InputRenderer
-				placeholder={placeholder}
-				value={inputValue}
-				name={name}
-				type={inputType}
-				onChange={(newValue: any) => {
-					setWidgetComponentValues({
-						[name]: newValue,
-					});
+		<Stack spacing="0.5">
+			<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
+				{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
+				<InputRenderer
+					placeholder={placeholder}
+					value={inputValue}
+					name={name}
+					type={inputType}
+					onChange={(newValue: any) => {
+						setWidgetComponentValues({
+							[name]: newValue,
+						});
 
-					if (component.on_change) {
-						handleAction(component.on_change);
-					}
-					sendJsonMessage({
-						type: 'display_rule',
-						state_context: pageState,
-						app_name: appName,
-						page_name: pageName,
-					});
-				}}
-				options={inputState.options || component.options}
-			/>
+						if (component.on_change) {
+							handleAction(component.on_change);
+						}
+						sendJsonMessage({
+							type: 'display_rule',
+							state_context: pageState,
+							app_name: appName,
+							page_name: pageName,
+						});
+					}}
+					options={inputState.options || component.options}
+				/>
 
-			{inputState?.message ? (
-				<div>
-					<Alert
-						bgColor="transparent"
-						status={inputState?.message_type || 'info'}
-						pl={0}
-						pt={1}
-					>
-						<AlertIcon boxSize={4} mr={2} />
-						<AlertDescription fontSize="sm">{inputState?.message}</AlertDescription>
-					</Alert>
-				</div>
-			) : null}
-		</FormControl>
+				{inputState?.message ? (
+					<div>
+						<Alert
+							bgColor="transparent"
+							status={inputState?.message_type || 'info'}
+							pl={0}
+							pt={1}
+						>
+							<AlertIcon boxSize={4} mr={2} />
+							<AlertDescription fontSize="sm">{inputState?.message}</AlertDescription>
+						</Alert>
+					</div>
+				) : null}
+			</FormControl>
+
+			{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+		</Stack>
 	);
 };
