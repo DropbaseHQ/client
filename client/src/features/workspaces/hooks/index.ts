@@ -23,6 +23,36 @@ const fetchWorkspaces = async () => {
 	return response.data;
 };
 
+type WorkerWorkspace = {
+	id: string;
+	name: string;
+	description: string;
+};
+
+const getWorkerWorkspace = async () => {
+	const response = await workerAxios.get<WorkerWorkspace>(`/worker_workspace/`);
+	return response.data;
+};
+
+export const useWorkerWorkspace = () => {
+	const { pathname } = useLocation();
+	const loginRoutes =
+		pathname.startsWith('/login') ||
+		pathname.startsWith('/register') ||
+		pathname.startsWith('/reset') ||
+		pathname.startsWith('/email-confirmation') ||
+		pathname.startsWith('/forgot');
+
+	const { data: response, ...rest } = useQuery('workerWorkspace', getWorkerWorkspace, {
+		enabled: !loginRoutes && !!workerAxios.defaults.headers['access-token'],
+	});
+
+	return {
+		...rest,
+		workspace: response,
+	};
+};
+
 export const useWorkspaces = () => {
 	const { pathname } = useLocation();
 
@@ -77,24 +107,4 @@ export const useUpdateWorkspaceWorkerURL = () => {
 			queryClient.refetchQueries(WORKSPACE_QUERY);
 		},
 	});
-};
-
-type WorkerWorkspace = {
-	id: string;
-	name: string;
-	description: string;
-};
-
-const getWorkerWorkspace = async () => {
-	const response = await workerAxios.get<WorkerWorkspace>(`/worker_workspace/`);
-	return response.data;
-};
-
-export const useWorkerWorkspace = () => {
-	const { data: response, ...rest } = useQuery('workerWorkspace', getWorkerWorkspace);
-
-	return {
-		...rest,
-		workspace: response,
-	};
 };
