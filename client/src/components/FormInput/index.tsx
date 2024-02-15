@@ -67,6 +67,8 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		type,
 		onSelect,
 		options: selectOptions,
+		keys,
+		hideClearOption,
 		...inputProps
 	} = props;
 
@@ -148,7 +150,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							</Box>
 						</Stack>
 					</MenuButton>
-					{value ? (
+					{value && !hideClearOption ? (
 						<Button
 							onClick={() => {
 								onChange(null);
@@ -178,7 +180,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							</Center>
 						) : (
 							<MenuOptionGroup
-								defaultValue={value}
+								value={value}
 								onChange={(newValue) => {
 									onChange(newValue);
 									onSelect?.(newValue);
@@ -207,57 +209,45 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 
 	if (type === 'array') {
 		const optionsToRender = value || [];
+		const keysToRender = keys || ['name', 'value'];
 
 		return (
 			<Stack spacing="2">
 				<Stack fontSize="xs" fontWeight="medium" letterSpacing="wide" direction="row">
-					<Box flex="1">Name</Box>
-					<Box flex="1">Value</Box>
+					{keysToRender.map((key: any) => (
+						<Box key={key} flex="1">
+							{key}
+						</Box>
+					))}
 					<Box minW="8" />
 				</Stack>
 
 				{optionsToRender.map((option: any) => {
 					return (
 						<Stack alignItems="center" key={option.id} direction="row">
-							<Input
-								size="sm"
-								flex="1"
-								placeholder="name"
-								value={option.name}
-								onChange={(e) => {
-									onChange(
-										optionsToRender.map((o: any) => {
-											if (o.id === option.id) {
-												return {
-													...o,
-													name: e.target.value,
-													value: e.target.value,
-												};
-											}
-											return o;
-										}),
-									);
-								}}
-							/>
-							<Input
-								size="sm"
-								flex="1"
-								placeholder="value"
-								value={option.value}
-								onChange={(e) => {
-									onChange(
-										optionsToRender.map((o: any) => {
-											if (o.id === option.id) {
-												return {
-													...o,
-													value: e.target.value,
-												};
-											}
-											return o;
-										}),
-									);
-								}}
-							/>
+							{keysToRender.map((key: any) => (
+								<Input
+									size="sm"
+									flex="1"
+									key={key}
+									placeholder={key}
+									value={option?.[key]}
+									onChange={(e) => {
+										onChange(
+											optionsToRender.map((o: any) => {
+												if (o.id === option.id) {
+													return {
+														...o,
+														[key]: e.target.value,
+													};
+												}
+												return o;
+											}),
+										);
+									}}
+								/>
+							))}
+
 							<IconButton
 								aria-label="Delete"
 								icon={<Trash size="14" />}
@@ -282,11 +272,15 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					onClick={() => {
 						onChange([
 							...optionsToRender,
-							{
-								name: `option${optionsToRender.length + 1}`,
-								value: `value${optionsToRender.length + 1}`,
-								id: crypto.randomUUID(),
-							},
+							keysToRender.reduce(
+								(agg: any, key: any) => ({
+									...agg,
+									[key]: `${key}${optionsToRender.length + 1}`,
+								}),
+								{
+									id: crypto.randomUUID(),
+								},
+							),
 						]);
 					}}
 				>

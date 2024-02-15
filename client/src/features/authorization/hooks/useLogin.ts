@@ -48,6 +48,7 @@ export const useSetAxiosToken = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			if (loginRoutes) return;
+
 			if (localStorage.getItem('access_token')) {
 				const savedAccessToken = localStorage.getItem('access_token');
 				setWorkerAxiosToken(savedAccessToken);

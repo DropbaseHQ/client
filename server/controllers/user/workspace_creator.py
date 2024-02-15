@@ -111,14 +111,6 @@ class WorkspaceCreator:
         self.db.flush()
         return new_token
 
-    def _update_workspace_token(self, token: Token):
-        crud.token.reset_workspace_selected_token(
-            self.db, workspace_id=self.workspace_id
-        )
-        crud.token.update_by_pk(
-            self.db, pk=token.id, obj_in={"is_selected": True}, auto_commit=False
-        )
-
     def create(self, workspace_name: str = None, auto_commit: bool = False):
         try:
             workspace = self._create_workspace()

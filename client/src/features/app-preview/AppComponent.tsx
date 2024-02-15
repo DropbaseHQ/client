@@ -5,6 +5,7 @@ import {
 	Button,
 	FormControl,
 	FormLabel,
+	Stack,
 	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -21,6 +22,7 @@ import {
 import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
+import { LabelContainer } from '@/components/LabelContainer';
 
 const sizeMap: any = {
 	small: 'sm',
@@ -37,8 +39,7 @@ export const AppComponent = (props: any) => {
 	const [{ pageName, appName, widgetName, widgets }, setPageContext] = useAtom(pageAtom);
 	const {
 		component_type: componentType,
-		type,
-		data_type: dataType,
+		data_type: type,
 		name,
 		display_rules: displayRules,
 		color,
@@ -86,18 +87,18 @@ export const AppComponent = (props: any) => {
 		});
 	};
 
-	const handleClick = (clickEvent: any) => {
-		if (clickEvent.type === 'widget') {
-			const widget = widgets?.find((w: any) => w.name === clickEvent.value);
+	const handleEvent = (event: any) => {
+		if (event.type === 'widget') {
+			const widget = widgets?.find((w: any) => w.name === event.value);
 
 			if (widget?.type === 'modal') {
 				setPageContext((oldPage: any) => ({
 					...oldPage,
-					widgetName: clickEvent.value,
+					widgetName: event.value,
 					modals: [
 						...oldPage.modals,
 						{
-							name: clickEvent.value,
+							name: event.value,
 							caller: widgetName,
 						},
 					],
@@ -105,11 +106,11 @@ export const AppComponent = (props: any) => {
 			} else {
 				setPageContext((oldPage: any) => ({
 					...oldPage,
-					widgetName: clickEvent.value,
+					widgetName: event.value,
 				}));
 			}
-		} else if (clickEvent.type === 'function') {
-			handleAction(clickEvent.value);
+		} else if (event.type === 'function') {
+			handleAction(event.value);
 		}
 	};
 
@@ -127,38 +128,45 @@ export const AppComponent = (props: any) => {
 
 	if (componentType === 'button') {
 		return (
-			<Button
-				my="1.5"
-				size="sm"
-				isLoading={actionMutation.isLoading}
-				bgColor={grayOutComponent ? 'gray.100' : ''}
-				colorScheme={color || 'blue'}
-				onClick={() => {
-					if (onClick) {
-						handleClick(onClick);
-					}
-					sendJsonMessage({
-						type: 'display_rule',
-						state_context: pageState,
-						app_name: appName,
-						page_name: pageName,
-					});
-				}}
-			>
-				{label}
-			</Button>
+			<Stack spacing="0.5" w="fit-content">
+				<Button
+					my="1.5"
+					size="sm"
+					isLoading={actionMutation.isLoading}
+					bgColor={grayOutComponent ? 'gray.100' : ''}
+					colorScheme={color || 'blue'}
+					onClick={() => {
+						if (onClick) {
+							handleEvent(onClick);
+						}
+						sendJsonMessage({
+							type: 'display_rule',
+							state_context: pageState,
+							app_name: appName,
+							page_name: pageName,
+						});
+					}}
+				>
+					{label}
+				</Button>
+				{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+			</Stack>
 		);
 	}
 
 	if (componentType === 'text') {
 		return (
-			<Text
-				fontSize={sizeMap[component.size]}
-				color={component.color || `${component.color}.500`}
-				bgColor={grayOutComponent ? 'gray.100' : ''}
-			>
-				{text}
-			</Text>
+			<Stack spacing="0.5">
+				<Text
+					fontSize={sizeMap[component.size]}
+					color={component.color || `${component.color}.500`}
+					bgColor={grayOutComponent ? 'gray.100' : ''}
+				>
+					{text}
+				</Text>
+
+				{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+			</Stack>
 		);
 	}
 
@@ -173,44 +181,53 @@ export const AppComponent = (props: any) => {
 	}
 
 	return (
-		<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
-			{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
-			<InputRenderer
-				placeholder={placeholder}
-				value={inputValue}
-				name={name}
-				type={inputType}
-				onChange={(newValue: any) => {
-					setWidgetComponentValues({
-						[name]: newValue,
-					});
+		<Stack spacing="0.5">
+			<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
+				{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
+				<InputRenderer
+					placeholder={placeholder}
+					value={inputValue}
+					name={name}
+					type={inputType}
+					onChange={(newValue: any) => {
+						setWidgetComponentValues({
+							[name]: newValue,
+						});
 
-					if (component.on_change) {
-						handleAction(component.on_change);
-					}
-					sendJsonMessage({
-						type: 'display_rule',
-						state_context: pageState,
-						app_name: appName,
-						page_name: pageName,
-					});
-				}}
-				options={inputState.options || component.options}
-			/>
+						if (component.on_change) {
+							handleEvent(component.on_change);
+						}
 
-			{inputState?.message ? (
-				<div>
-					<Alert
-						bgColor="transparent"
-						status={inputState?.message_type || 'info'}
-						pl={0}
-						pt={1}
-					>
-						<AlertIcon boxSize={4} mr={2} />
-						<AlertDescription fontSize="sm">{inputState?.message}</AlertDescription>
-					</Alert>
-				</div>
-			) : null}
-		</FormControl>
+						if (component.on_toggle) {
+							handleEvent(component.on_toggle);
+						}
+
+						sendJsonMessage({
+							type: 'display_rule',
+							state_context: pageState,
+							app_name: appName,
+							page_name: pageName,
+						});
+					}}
+					options={inputState.options || component.options}
+				/>
+
+				{inputState?.message ? (
+					<div>
+						<Alert
+							bgColor="transparent"
+							status={inputState?.message_type || 'info'}
+							pl={0}
+							pt={1}
+						>
+							<AlertIcon boxSize={4} mr={2} />
+							<AlertDescription fontSize="sm">{inputState?.message}</AlertDescription>
+						</Alert>
+					</div>
+				) : null}
+			</FormControl>
+
+			{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+		</Stack>
 	);
 };

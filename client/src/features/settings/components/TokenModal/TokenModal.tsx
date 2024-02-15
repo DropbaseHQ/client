@@ -2,6 +2,7 @@ import {
 	Button,
 	Text,
 	Flex,
+	Stack,
 	Link as ChakraLink,
 	Modal,
 	ModalOverlay,
@@ -39,8 +40,7 @@ export const TokenModal = () => {
 
 	const handleCreateToken = async () => {
 		createMutation.mutate({
-			workspaceId,
-			userId: user.id,
+			workspaceId: workspaceId || '',
 		});
 	};
 
@@ -48,10 +48,10 @@ export const TokenModal = () => {
 		if (!workspaceHasTokens) {
 			onOpen();
 		}
-	}, [workspaceHasTokens]);
+	}, [workspaceHasTokens, onOpen]);
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} size="xl">
+		<Modal isOpen={isOpen} onClose={onClose} size="2xl" isCentered>
 			<ModalOverlay />
 			<ModalContent>
 				<ModalHeader>
@@ -71,12 +71,12 @@ export const TokenModal = () => {
 							</Button>
 						</Flex>
 					) : (
-						<Flex justifyContent="center" direction="column">
+						<Stack justifyContent="center" direction="column" w="max-content" p="2">
 							<Flex alignItems="center">
 								<Text as="b" mr="1">
 									Token:
 								</Text>
-								<Text>{firstToken.token}</Text>
+								<Text noOfLines={1}>{firstToken.token}</Text>
 								<IconButton
 									flexShrink="0"
 									variant="ghost"
@@ -106,10 +106,10 @@ export const TokenModal = () => {
 									our docs.
 								</ChakraLink>
 							</Flex>
-						</Flex>
+						</Stack>
 					)}
 				</ModalBody>
-				<ModalFooter></ModalFooter>
+				<ModalFooter />
 			</ModalContent>
 		</Modal>
 	);

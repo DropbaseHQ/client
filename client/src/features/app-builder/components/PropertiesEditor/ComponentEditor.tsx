@@ -194,7 +194,6 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 					>
 						<Stack direction="row" alignItems="center">
 							<LabelContainer>
-								<LabelContainer.Label>{component?.name}</LabelContainer.Label>
 								<LabelContainer.Code>{id}</LabelContainer.Code>
 							</LabelContainer>
 							<NameEditor
@@ -286,9 +285,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 											if (
 												property.name === 'on_click' ||
-												property.name === 'on_change'
+												property.name === 'on_change' ||
+												property.name === 'on_toggle'
 											) {
-												return <EventPropertyEditor id="on_click" />;
+												return <EventPropertyEditor id={property.name} />;
 											}
 
 											const showFunctionList = property.type === 'function';

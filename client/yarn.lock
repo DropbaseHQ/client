@@ -1708,21 +1708,21 @@
   resolved "https://registry.npmjs.org/@fontsource-variable/inter/-/inter-5.0.8.tgz"
   integrity sha512-WkYfFNccmEIeL2fNg0mYeLWqOoB7xD8MFxFRc4IwbSP2o8ZaBt36v5aW4by4MyrgGRMNk7uNi5LbvYKq6clPjw==
 
-"@glideapps/glide-data-grid-cells@^6.0.0":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@glideapps/glide-data-grid-cells/-/glide-data-grid-cells-6.0.1.tgz#96982d3b7f2fc24c04665826c2b4c16cce360a3b"
-  integrity sha512-G9wlpZmWYqMSP2kreeFGAKTAaZydCq5lqTHIQLfBkHoMbfbb3LCDUz8/nUIOkmkete6KZLLQ8kkNO3JsjPs09g==
+"@glideapps/glide-data-grid-cells@6.0.3":
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/@glideapps/glide-data-grid-cells/-/glide-data-grid-cells-6.0.3.tgz#0d291e25e73db30caf3db90c5db1cc7e0f2fce2c"
+  integrity sha512-SOZ+zlXAqSEACyZ26w41O2y0tr5qhJnxYOu9W327L23+Z2Sz0xpyiP8FQOZx1mzdyXLO9eBqQIv9ByDTftLIIA==
   dependencies:
-    "@glideapps/glide-data-grid" "6.0.1"
+    "@glideapps/glide-data-grid" "6.0.3"
     "@linaria/react" "^4.5.3"
     "@toast-ui/editor" "3.1.10"
     "@toast-ui/react-editor" "3.1.10"
-    react-select "^5.2.2"
+    react-select "^5.8.0"
 
-"@glideapps/glide-data-grid@6.0.1", "@glideapps/glide-data-grid@^6.0.0":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@glideapps/glide-data-grid/-/glide-data-grid-6.0.1.tgz#072dc8c025c0a35aa455f5ff24faf52bcaf55fef"
-  integrity sha512-iaLwjge3/2jEuBufEf6loppeLrLbIlAP4TEIqICJ9ielXB7tl3rCNEGzH5hpr8MFBLafYd3HhHT4NtC+quLq1w==
+"@glideapps/glide-data-grid@6.0.3":
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/@glideapps/glide-data-grid/-/glide-data-grid-6.0.3.tgz#dfb5b82e690f999a62b825fb52c9fce891946524"
+  integrity sha512-YXKggiNOaEemf0jP0jORq2EQKz+zXms+6mGzZc+q0mLMjmgzzoGLOQC1uYcynXSj1R61bd27JcPFsoH+Gj37Vg==
   dependencies:
     "@linaria/react" "^4.5.3"
     canvas-hypertxt "^1.0.3"
@@ -3581,6 +3581,11 @@ human-signals@^4.3.0:
   resolved "https://registry.npmjs.org/human-signals/-/human-signals-4.3.1.tgz"
   integrity sha512-nZXjEF2nbo7lIw3mgYjItAfgQXog3OjJogSbKa2CQIIvSGWcKgeJnQlNXip6NglNzYH45nSRiEVimMvYL8DDqQ==
 
+husky@^9.0.10:
+  version "9.0.10"
+  resolved "https://registry.yarnpkg.com/husky/-/husky-9.0.10.tgz#ddca8908deb5f244e9286865ebc80b54387672c2"
+  integrity sha512-TQGNknoiy6bURzIO77pPRu+XHi6zI7T93rX+QnJsoYFf3xdjKOur+IlfqzJGMHIK/wXrLg+GsvMs8Op7vI2jVA==
+
 ignore@^5.2.0, ignore@^5.2.4:
   version "5.2.4"
   resolved "https://registry.npmjs.org/ignore/-/ignore-5.2.4.tgz"
@@ -4678,10 +4683,10 @@ react-router@6.15.0:
   dependencies:
     "@remix-run/router" "1.8.0"
 
-react-select@^5.2.2:
-  version "5.7.4"
-  resolved "https://registry.npmjs.org/react-select/-/react-select-5.7.4.tgz"
-  integrity sha512-NhuE56X+p9QDFh4BgeygHFIvJJszO1i1KSkg/JPcIJrbovyRtI+GuOEa4XzFCEpZRAEoEI8u/cAHK+jG/PgUzQ==
+react-select@^5.8.0:
+  version "5.8.0"
+  resolved "https://registry.yarnpkg.com/react-select/-/react-select-5.8.0.tgz#bd5c467a4df223f079dd720be9498076a3f085b5"
+  integrity sha512-TfjLDo58XrhP6VG5M/Mi56Us0Yt8X7xD6cDybC7yoRMUNm7BGO7qk8J0TLQOua/prb8vUOtsfnXZwfm30HGsAA==
   dependencies:
     "@babel/runtime" "^7.12.0"
     "@emotion/cache" "^11.4.0"

@@ -1,5 +1,5 @@
-import { axios } from '@/lib/axios';
 import { useQuery } from 'react-query';
+import { axios } from '@/lib/axios';
 
 const confirmEmail = async ({ userId, token }: { userId: string; token: string }) => {
 	const response = await axios.post<{ user: string }>(
