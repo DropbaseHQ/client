@@ -19,16 +19,16 @@ from server.controllers.policy import (
 )
 from server.controllers.user.workspace_creator import WorkspaceCreator
 from server.emails.emailer import send_email
-from server.models import Policy, User
+from server.models import Policy, User, Workspace
 from server.schemas.user import (
     AddPolicyRequest,
+    CheckPermissionRequest,
     CreateUser,
     CreateUserRequest,
     LoginUser,
     ReadUser,
     ResetPasswordRequest,
     UpdateUserPolicyRequest,
-    CheckPermissionRequest,
 )
 from server.schemas.workspace import ReadWorkspace
 from server.utils.authentication import (
@@ -40,8 +40,8 @@ from server.utils.hash import get_confirmation_token_hash
 from server.utils.helper import raise_http_exception
 from server.utils.loops_integration import loops_controller
 from server.utils.permissions.casbin_utils import (
-    get_contexted_enforcer,
     get_all_action_permissions,
+    get_contexted_enforcer,
 )
 from server.utils.slack import slack_sign_up
 
@@ -69,37 +69,39 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
                 detail="Email needs to be verified.",
             )
         access_token = Authorize.create_access_token(
-            subject=user.email, expires_time=ACCESS_TOKEN_EXPIRE_SECONDS
+            subject=user.email,
+            expires_time=ACCESS_TOKEN_EXPIRE_SECONDS,
+            user_claims={"user_id": str(user.id)},
         )
         refresh_token = Authorize.create_refresh_token(
             subject=user.email, expires_time=REFRESH_TOKEN_EXPIRE_SECONDS
         )
 
         # Authorize.set_access_cookies(access_token)
-        response = Authorize._response
+        # response = Authorize._response
         # Set Access Cookie
-        response.set_cookie(
-            Authorize._access_cookie_key,
-            access_token,
-            max_age=Authorize._cookie_max_age,
-            path=Authorize._access_cookie_path,
-            domain=Authorize._cookie_domain,
-            secure=Authorize._cookie_secure,
-            httponly=False,
-            samesite=Authorize._cookie_samesite,
-        )
+        # response.set_cookie(
+        #     Authorize._access_cookie_key,
+        #     access_token,
+        #     max_age=Authorize._cookie_max_age,
+        #     path=Authorize._access_cookie_path,
+        #     domain=Authorize._cookie_domain,
+        #     secure=Authorize._cookie_secure,
+        #     httponly=False,
+        #     samesite=Authorize._cookie_samesite,
+        # )
         # Authorize.set_refresh_cookies(refresh_token)
         # Set Refresh Cookie
-        response.set_cookie(
-            Authorize._refresh_cookie_key,
-            refresh_token,
-            max_age=Authorize._cookie_max_age,
-            path=Authorize._refresh_cookie_path,
-            domain=Authorize._cookie_domain,
-            secure=Authorize._cookie_secure,
-            httponly=False,
-            samesite=Authorize._cookie_samesite,
-        )
+        # response.set_cookie(
+        #     Authorize._refresh_cookie_key,
+        #     refresh_token,
+        #     max_age=Authorize._cookie_max_age,
+        #     path=Authorize._refresh_cookie_path,
+        #     domain=Authorize._cookie_domain,
+        #     secure=Authorize._cookie_secure,
+        #     httponly=False,
+        #     samesite=Authorize._cookie_samesite,
+        # )
         workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
         workspace = (
             ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
@@ -134,8 +136,11 @@ def refresh_token(Authorize: AuthJWT):
     try:
         Authorize.jwt_refresh_token_required()
         current_user = Authorize.get_jwt_subject()
-        new_access_token = Authorize.create_access_token(subject=current_user)
-        Authorize.set_access_cookies(new_access_token)
+        all_claims = Authorize.get_raw_jwt()
+        user_id = all_claims.get("user_id")
+        new_access_token = Authorize.create_access_token(
+            subject=current_user, user_claims={"user_id": user_id}
+        )
         return {"msg": "Successfully refresh token", "access_token": new_access_token}
     except Exception as e:
         print("error", e)
@@ -151,6 +156,8 @@ def register_user(db: Session, request: CreateUserRequest):
 
         user_obj = CreateUser(
             name=request.name,
+            last_name=request.last_name,
+            company=request.company,
             email=request.email,
             hashed_password=hashed_password,
             trial_eligible=True,
@@ -188,7 +195,11 @@ def verify_user(db: Session, token: str, user_id: UUID):
             user.confirmation_token = None
             user.active = True
             loops_controller.add_user(
-                user_email=user.email, name=user.name, user_id=str(user.id)
+                user_email=user.email,
+                name=user.name,
+                last_name=user.last_name,
+                company=user.company,
+                user_id=str(user.id),
             )
             db.commit()
             return {"message": "User successfully confirmed"}
@@ -286,6 +297,8 @@ def get_user_workspaces(db: Session, user_id: UUID):
                 "name": workspace.name,
                 "oldest_user": workspace_oldest_user,
                 "worker_url": workspace.worker_url,
+                "in_trial": workspace.in_trial,
+                "trial_end_date": workspace.trial_end_date,
             }
         )
 
@@ -401,11 +414,19 @@ def delete_user(db: Session, user_id: UUID):
     return {"message": "User successfully deleted"}
 
 
-def check_permissions(db: Session, user: User, request: CheckPermissionRequest):
-    workspace_id = request.workspace_id
-    app_name = request.app_name
+def check_permissions(
+    db: Session, user: User, request: CheckPermissionRequest, workspace: Workspace
+):
+    workspace_id = None
+    app_id = request.app_id
+    app = crud.app.get_object_by_id_or_404(db, id=app_id)
+    if app.workspace_id:
+        workspace_id = app.workspace_id
+    else:
+        # Workspace_from_token
+        workspace_id = workspace.id
 
     permissions_dict = get_all_action_permissions(
-        db, str(user.id), workspace_id, app_name
+        db, str(user.id), workspace_id, app_id
     )
     return permissions_dict

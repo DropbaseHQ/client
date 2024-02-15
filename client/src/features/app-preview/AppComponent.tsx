@@ -5,10 +5,11 @@ import {
 	Button,
 	FormControl,
 	FormLabel,
+	Stack,
 	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
-import { getErrorMessage } from '@/utils';
+import { extractTemplateString, getErrorMessage } from '@/utils';
 
 import { useExecuteAction } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
@@ -21,6 +22,7 @@ import {
 import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
+import { LabelContainer } from '@/components/LabelContainer';
 
 const sizeMap: any = {
 	small: 'sm',
@@ -28,19 +30,19 @@ const sizeMap: any = {
 	large: 'lg',
 };
 
+const potentialTemplatesField = ['label', 'text', 'placeholder'];
+
 export const AppComponent = (props: any) => {
 	const { sendJsonMessage } = props;
 
 	const toast = useToast();
-	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
+	const [{ pageName, appName, widgetName, widgets }, setPageContext] = useAtom(pageAtom);
 	const {
 		component_type: componentType,
-		type,
-		data_type: dataType,
+		data_type: type,
 		name,
 		display_rules: displayRules,
 		color,
-		label,
 		on_click: onClick,
 		...component
 	} = props;
@@ -85,86 +87,147 @@ export const AppComponent = (props: any) => {
 		});
 	};
 
+	const handleEvent = (event: any) => {
+		if (event.type === 'widget') {
+			const widget = widgets?.find((w: any) => w.name === event.value);
+
+			if (widget?.type === 'modal') {
+				setPageContext((oldPage: any) => ({
+					...oldPage,
+					widgetName: event.value,
+					modals: [
+						...oldPage.modals,
+						{
+							name: event.value,
+							caller: widgetName,
+						},
+					],
+				}));
+			} else {
+				setPageContext((oldPage: any) => ({
+					...oldPage,
+					widgetName: event.value,
+				}));
+			}
+		} else if (event.type === 'function') {
+			handleAction(event.value);
+		}
+	};
+
 	if (!shouldDisplay && !isEditorMode) {
 		return null;
 	}
 
+	const { label, text, placeholder } = potentialTemplatesField.reduce(
+		(agg: any, field: any) => ({
+			...agg,
+			[field]: extractTemplateString(component?.[field], pageState) || '',
+		}),
+		{},
+	);
+
 	if (componentType === 'button') {
 		return (
-			<Button
-				my="1.5"
-				size="sm"
-				isLoading={actionMutation.isLoading}
-				bgColor={grayOutComponent ? 'gray.100' : ''}
-				colorScheme={color || 'blue'}
-				onClick={() => {
-					if (onClick) {
-						handleAction(onClick);
-					}
-					sendJsonMessage({
-						type: 'display_rule',
-						state_context: pageState,
-						app_name: appName,
-						page_name: pageName,
-					});
-				}}
-			>
-				{label}
-			</Button>
+			<Stack spacing="0.5" w="fit-content">
+				<Button
+					my="1.5"
+					size="sm"
+					isLoading={actionMutation.isLoading}
+					bgColor={grayOutComponent ? 'gray.100' : ''}
+					colorScheme={color || 'blue'}
+					onClick={() => {
+						if (onClick) {
+							handleEvent(onClick);
+						}
+						sendJsonMessage({
+							type: 'display_rule',
+							state_context: pageState,
+							app_name: appName,
+							page_name: pageName,
+						});
+					}}
+				>
+					{label}
+				</Button>
+				{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+			</Stack>
 		);
 	}
 
 	if (componentType === 'text') {
 		return (
-			<Text
-				fontSize={sizeMap[component.size]}
-				color={component.color || `${component.color}.500`}
-				bgColor={grayOutComponent ? 'gray.100' : ''}
-			>
-				{component.text}
-			</Text>
+			<Stack spacing="0.5">
+				<Text
+					fontSize={sizeMap[component.size]}
+					color={component.color || `${component.color}.500`}
+					bgColor={grayOutComponent ? 'gray.100' : ''}
+				>
+					{text}
+				</Text>
+
+				{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+			</Stack>
 		);
 	}
 
+	let inputType = type;
+
+	if (componentType === 'select') {
+		inputType = 'select';
+	}
+
+	if (componentType === 'boolean') {
+		inputType = 'boolean';
+	}
+
 	return (
-		<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
-			{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
-			<InputRenderer
-				placeholder={component?.placeholder}
-				value={inputValue}
-				name={name}
-				type={componentType === 'select' ? 'select' : dataType || type}
-				onChange={(newValue: any) => {
-					setWidgetComponentValues({
-						[name]: newValue,
-					});
+		<Stack spacing="0.5">
+			<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
+				{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
+				<InputRenderer
+					placeholder={placeholder}
+					value={inputValue}
+					name={name}
+					type={inputType}
+					onChange={(newValue: any) => {
+						setWidgetComponentValues({
+							[name]: newValue,
+						});
 
-					if (component.on_change) {
-						handleAction(component.on_change);
-					}
-					sendJsonMessage({
-						type: 'display_rule',
-						state_context: pageState,
-						app_name: appName,
-						page_name: pageName,
-					});
-				}}
-				options={inputState.options || component.options}
-			/>
+						if (component.on_change) {
+							handleEvent(component.on_change);
+						}
 
-			{inputState?.message ? (
-				<div>
-					<Alert
-						bgColor="transparent"
-						status={inputState?.message_type || 'info'}
-						pl={0}
-						pt={1}
-					>
-						<AlertIcon boxSize={4} mr={2} />
-						<AlertDescription fontSize="sm">{inputState?.message}</AlertDescription>
-					</Alert>
-				</div>
-			) : null}
-		</FormControl>
+						if (component.on_toggle) {
+							handleEvent(component.on_toggle);
+						}
+
+						sendJsonMessage({
+							type: 'display_rule',
+							state_context: pageState,
+							app_name: appName,
+							page_name: pageName,
+						});
+					}}
+					options={inputState.options || component.options}
+				/>
+
+				{inputState?.message ? (
+					<div>
+						<Alert
+							bgColor="transparent"
+							status={inputState?.message_type || 'info'}
+							pl={0}
+							pt={1}
+						>
+							<AlertIcon boxSize={4} mr={2} />
+							<AlertDescription fontSize="sm">{inputState?.message}</AlertDescription>
+						</Alert>
+					</div>
+				) : null}
+			</FormControl>
+
+			{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+		</Stack>
 	);
 };

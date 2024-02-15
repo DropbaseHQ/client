@@ -1,6 +1,5 @@
 import {
 	Flex,
-	Text,
 	IconButton,
 	Stack,
 	Tooltip,
@@ -22,13 +21,16 @@ import {
 import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { useAppState } from '@/features/app-state';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useToast } from '@/lib/chakra-ui';
 import { useCreatePage } from '@/features/page';
-import { getErrorMessage, generateSequentialName, invalidResourceName } from '@/utils';
+import { getErrorMessage, generateSequentialName } from '@/utils';
 import { PageTab } from './PageTab';
+import { LabelContainer } from '@/components/LabelContainer';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const toast = useToast();
@@ -36,10 +38,11 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { appName, pageName } = useParams();
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
+	const { permissions } = useAppState(appName || '', pageName || '');
 
-	const [name, setAppName] = useState('');
+	const [label, setAppLabel] = useState('');
 
-	const [invalidMessage, setInvalidMessage] = useState<string | boolean>(false);
+	const [invalidMessage] = useState<string | boolean>(false);
 
 	const updateMutation = useUpdateApp({
 		onError: (error: any) => {
@@ -57,7 +60,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 	useEffect(() => {
 		if (app) {
-			setAppName(app?.name);
+			setAppLabel(app?.label);
 		}
 		if (currentPageIndex !== undefined) {
 			setTabIndex(currentPageIndex);
@@ -69,31 +72,31 @@ export const AppNavbar = ({ isPreview }: any) => {
 		(document.activeElement as HTMLElement)?.blur();
 	};
 
-	const handleChangeAppName = (e: any) => {
-		const newName = e.target.value;
+	const handleChangeAppLabel = (e: any) => {
+		const newLabel = e.target.value;
 
-		setInvalidMessage(
-			invalidResourceName(
-				appName || '',
-				newName,
-				apps.map((a) => a.name),
-			),
-		);
+		// setInvalidMessage(
+		// 	invalidResourceName(
+		// 		app?.label || '',
+		// 		newLabel,
+		// 		apps.map((a) => a.label),
+		// 		false,
+		// 	),
+		// );
 
-		setAppName(newName);
+		setAppLabel(newLabel);
 	};
 
 	const handleReset = () => {
-		if (app) setAppName(app?.name);
+		if (app) setAppLabel(app?.label);
 	};
 
 	const handleUpdate = () => {
 		if (app) {
 			updateMutation.mutate({
 				// FIXME: fix appId
-				// appId,
-				oldName: app.name,
-				newName: name,
+				appId: app.id,
+				newLabel: label,
 			});
 		}
 	};
@@ -132,6 +135,8 @@ export const AppNavbar = ({ isPreview }: any) => {
 		}
 	};
 
+	const methods = useForm();
+
 	return (
 		<Stack
 			alignItems="center"
@@ -153,9 +158,11 @@ export const AppNavbar = ({ isPreview }: any) => {
 				variant="ghost"
 			/>
 			<Stack alignItems="center" direction="row">
-				<Text fontWeight="semibold" fontSize="lg">
-					{app?.name}
-				</Text>
+				<LabelContainer>
+					<LabelContainer.Label> {app?.label}</LabelContainer.Label>
+					{isPreview ? null : <LabelContainer.Code>{app?.name}</LabelContainer.Code>}
+				</LabelContainer>
+
 				{isPreview ? null : (
 					<Popover onClose={handleReset} placement="bottom-end" closeOnBlur={false}>
 						{({ onClose }) => (
@@ -171,42 +178,46 @@ export const AppNavbar = ({ isPreview }: any) => {
 									/>
 								</PopoverTrigger>
 								<PopoverContent>
-									<PopoverArrow />
-									<PopoverBody>
+									<form onSubmit={methods.handleSubmit(handleUpdate)}>
 										<FormControl isInvalid={Boolean(invalidMessage)}>
-											<FormLabel>Edit App name</FormLabel>
-											<Input
-												size="sm"
-												placeholder="App name"
-												value={name}
-												onChange={handleChangeAppName}
-											/>
+											<PopoverArrow />
+											<PopoverBody>
+												<FormLabel>Edit App Label</FormLabel>
+												<Input
+													size="sm"
+													placeholder="App Label"
+													value={label}
+													onChange={handleChangeAppLabel}
+												/>
 
-											<FormErrorMessage>{invalidMessage}</FormErrorMessage>
+												<FormErrorMessage>
+													{invalidMessage}
+												</FormErrorMessage>
+											</PopoverBody>
+											<PopoverFooter display="flex" alignItems="end">
+												<ButtonGroup ml="auto" size="sm">
+													<Button
+														onClick={onClose}
+														colorScheme="red"
+														variant="outline"
+													>
+														Cancel
+													</Button>
+													<Button
+														isDisabled={
+															app?.label === label ||
+															!label ||
+															Boolean(invalidMessage)
+														}
+														colorScheme="blue"
+														type="submit"
+													>
+														Update
+													</Button>
+												</ButtonGroup>
+											</PopoverFooter>
 										</FormControl>
-									</PopoverBody>
-									<PopoverFooter display="flex" alignItems="end">
-										<ButtonGroup ml="auto" size="sm">
-											<Button
-												onClick={onClose}
-												colorScheme="red"
-												variant="outline"
-											>
-												Cancel
-											</Button>
-											<Button
-												isDisabled={
-													app?.name === name ||
-													!name ||
-													Boolean(invalidMessage)
-												}
-												colorScheme="blue"
-												onClick={handleUpdate}
-											>
-												Update
-											</Button>
-										</ButtonGroup>
-									</PopoverFooter>
+									</form>
 								</PopoverContent>
 							</>
 						)}
@@ -244,22 +255,24 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Flex>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
-					<Button
-						size="sm"
-						variant="secondary"
-						colorScheme="blue"
-						leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
-						aria-label="Preview"
-						ml="auto"
-						mr="4"
-						data-cy="preview-toggle"
-						as={Link}
-						to={isPreview ? 'studio' : '../'}
-					>
-						{isPreview ? 'Edit' : 'Preview'}
-					</Button>
-				</Tooltip>
+				{permissions?.edit && (
+					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
+						<Button
+							size="sm"
+							variant="secondary"
+							colorScheme="blue"
+							leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
+							aria-label="Preview"
+							ml="auto"
+							mr="4"
+							as={Link}
+							data-cy="preview-toggle"
+							to={isPreview ? 'studio' : '../'}
+						>
+							{isPreview ? 'Edit' : 'Preview'}
+						</Button>
+					</Tooltip>
+				)}
 			</Stack>
 		</Stack>
 	);

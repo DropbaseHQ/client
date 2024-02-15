@@ -257,27 +257,29 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 			<Stack
 				borderBottomWidth="1px"
 				bg="white"
-				p="2"
+				pb="3"
 				spacing="0"
 				alignItems="start"
 				direction="row"
 				mb={0}
 			>
 				<IconButton
-					icon={<Play size="14" />}
-					variant="outline"
-					size="xs"
+					icon={<Play size="12" />}
+					mx="1"
+					aria-label="Run function"
+					size="2xs"
+					mt="2"
+					flexShrink="0"
 					colorScheme="gray"
-					aria-label="Run code"
-					borderRadius="full"
+					variant="outline"
+					borderRadius="md"
 					isLoading={isLoading}
 					onClick={file?.type === 'sql' ? handleRunSQLQuery : handleRunPythonFunction}
 					isDisabled={file?.type === 'sql' ? !(code && source) : !testCode}
-					flexShrink="0"
 				/>
 
 				{file?.type === 'sql' ? (
-					<Text py="1" px="4" color="gray.700" fontSize="sm">
+					<Text py="1" px="4" color="gray.700" fontSize="sm" mt="2">
 						Click play to see query results
 					</Text>
 				) : (

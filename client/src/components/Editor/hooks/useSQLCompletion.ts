@@ -26,5 +26,5 @@ export const useSQLCompletion = (databaseSchema: CompletionData, directoryStruct
 		});
 
 		return dispose;
-	}, [monaco, databaseSchema]);
+	}, [monaco, databaseSchema, directoryStructure]);
 };

@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
-import { useAtom } from 'jotai';
-import { axios } from '@/lib/axios';
-import { workspaceAtom } from '@/features/workspaces';
 import { useLocation } from 'react-router-dom';
+import { useAtom } from 'jotai';
+import { axios, workerAxios } from '@/lib/axios';
+import { workspaceAtom } from '@/features/workspaces';
 
 export const WORKSPACE_QUERY = 'workspaces';
 
@@ -23,10 +23,41 @@ const fetchWorkspaces = async () => {
 	return response.data;
 };
 
+type WorkerWorkspace = {
+	id: string;
+	name: string;
+	description: string;
+};
+
+const getWorkerWorkspace = async () => {
+	const response = await workerAxios.get<WorkerWorkspace>(`/worker_workspace/`);
+	return response.data;
+};
+
+export const useWorkerWorkspace = () => {
+	const { pathname } = useLocation();
+	const loginRoutes =
+		pathname.startsWith('/login') ||
+		pathname.startsWith('/register') ||
+		pathname.startsWith('/reset') ||
+		pathname.startsWith('/email-confirmation') ||
+		pathname.startsWith('/forgot');
+
+	const { data: response, ...rest } = useQuery('workerWorkspace', getWorkerWorkspace, {
+		enabled: !loginRoutes && !!workerAxios.defaults.headers['access-token'],
+	});
+
+	return {
+		...rest,
+		workspace: response,
+	};
+};
+
 export const useWorkspaces = () => {
 	const { pathname } = useLocation();
 
-	const [currentWorkspace, updateWorkspace] = useAtom(workspaceAtom);
+	const [, updateWorkspace] = useAtom(workspaceAtom);
+	const { workspace: workerWorkspaceInfo } = useWorkerWorkspace();
 
 	const queryKey = [WORKSPACE_QUERY];
 	const loginRoutes =
@@ -39,8 +70,13 @@ export const useWorkspaces = () => {
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchWorkspaces(), {
 		enabled: !loginRoutes,
 		onSuccess: (data: any) => {
-			if (!currentWorkspace) {
-				updateWorkspace(data?.[0]?.id);
+			const workerWorkspace = data?.find(
+				(workspace: Workspace) => workspace.id === workerWorkspaceInfo?.id,
+			);
+			if (workerWorkspace) {
+				updateWorkspace(workerWorkspace);
+			} else {
+				updateWorkspace(data?.[0]);
 			}
 		},
 	});
@@ -67,7 +103,7 @@ const updateWorkspaceWorkerURL = async ({ workspaceId, workerURL }: any) => {
 export const useUpdateWorkspaceWorkerURL = () => {
 	const queryClient = useQueryClient();
 	return useMutation(updateWorkspaceWorkerURL, {
-		onSuccess: (_: any) => {
+		onSuccess: () => {
 			queryClient.refetchQueries(WORKSPACE_QUERY);
 		},
 	});

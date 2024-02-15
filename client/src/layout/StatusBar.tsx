@@ -1,6 +1,9 @@
 import { useQuery } from 'react-query';
-import { Circle, Link, Stack, Text } from '@chakra-ui/react';
+import { Circle, Link, Stack, Text, Alert, AlertIcon, Divider } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
 import { workerAxios } from '../lib/axios';
+import { useWorkerWorkspace, workspaceAtom } from '@/features/workspaces';
+import { websocketStatusAtom } from '@/features/app/atoms';
 
 export const STATUS_QUERY_KEY = 'allFiles';
 
@@ -26,7 +29,11 @@ export const useStatus = () => {
 
 export const StatusBar = () => {
 	const { status } = useStatus();
+	const websocketIsConnected = useAtomValue(websocketStatusAtom);
+	const currentWorkspace = useAtomValue(workspaceAtom);
+	const { workspace: workerWorkspace, isLoading } = useWorkerWorkspace();
 
+	const selectedWorkspaceMatchesWorker = currentWorkspace?.id === workerWorkspace?.id;
 	return (
 		<Stack
 			direction="row"
@@ -39,7 +46,14 @@ export const StatusBar = () => {
 			borderTopWidth="1px"
 		>
 			<Circle size="2" bg={status === 'success' ? 'green' : 'red'} />
-			<Text fontSize="xs">{status === 'success' ? 'Connected' : 'Not connected.'}</Text>
+			<Text fontSize="xs" noOfLines={1}>
+				{status === 'success' ? 'Worker connected' : 'Worker not connected.'}
+			</Text>
+			<Divider orientation="vertical" />
+			<Circle ml="1" size="2" bg={websocketIsConnected ? 'green' : 'red'} />
+			<Text noOfLines={1} fontSize="xs">
+				{websocketIsConnected ? 'WS connected' : 'WS not connected'}
+			</Text>
 
 			{status === 'error' ? (
 				<Link
@@ -53,6 +67,21 @@ export const StatusBar = () => {
 				>
 					Troubleshoot Worker Connection
 				</Link>
+			) : null}
+
+			{!selectedWorkspaceMatchesWorker && !isLoading ? (
+				<Alert
+					status="error"
+					height="min-content"
+					p="0"
+					fontSize="xs"
+					display="flex"
+					alignItems="center"
+					justifyContent="center"
+				>
+					<AlertIcon />
+					The selected workspace does not match the worker workspace.
+				</Alert>
 			) : null}
 		</Stack>
 	);

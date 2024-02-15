@@ -6,9 +6,6 @@ import {
 	Text,
 	SimpleGrid,
 	Input,
-	Alert,
-	AlertIcon,
-	AlertTitle,
 	Flex,
 	FormControl,
 	FormLabel,
@@ -16,29 +13,26 @@ import {
 	InputRightElement,
 	InputLeftAddon,
 } from '@chakra-ui/react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { PageLayout } from '@/layout';
 import { useUpdateWorkspaceWorkerURL, useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { useCreateProxyToken, useProxyTokens, ProxyToken } from '@/features/settings/hooks/token';
-import { proxyTokenAtom } from '@/features/settings/atoms';
-import { ProxyTokenCard } from './components/ProxyTokenCard';
+import { WorkerTokenCard } from './components/ProxyTokenCard';
 import { TokenModal } from './components/TokenModal/TokenModal';
 
 export const DeveloperSettings = () => {
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { user } = useGetCurrentUser();
 	const [workerUrl, setWorkerUrl] = useState('');
 	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
-	const [selectedToken] = useAtom(proxyTokenAtom);
 	const { workspaces } = useWorkspaces();
 	const createMutation = useCreateProxyToken();
 	const updateWorkspaceMutation = useUpdateWorkspaceWorkerURL();
 	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
 	const handleButtonClick = async () => {
 		createMutation.mutate({
-			workspaceId,
-			userId: user.id,
+			workspaceId: workspaceId || '',
 		});
 	};
 	const workerURLHasChanged = currentWorkspace?.worker_url !== workerUrl;
@@ -65,7 +59,7 @@ export const DeveloperSettings = () => {
 			<Stack>
 				<Flex direction="row" justifyContent="space-between" alignItems="center" mb="4">
 					<Text fontSize="lg" fontWeight="bold">
-						Proxy Tokens
+						Worker Tokens
 					</Text>
 					<Button
 						size="sm"
@@ -77,25 +71,29 @@ export const DeveloperSettings = () => {
 					</Button>
 				</Flex>
 
-				{selectedToken ? null : (
+				{/* {selectedToken ? null : (
 					<Alert status="error">
 						<AlertIcon />
 						<AlertTitle>Please select a token to continue!</AlertTitle>
 					</Alert>
-				)}
+				)} */}
 				<SimpleGrid columns={3} spacing={4}>
 					{tokens.map((token: ProxyToken) => {
-						return <ProxyTokenCard token={token} />;
+						return <WorkerTokenCard token={token} />;
 					})}
 				</SimpleGrid>
 				<Text fontSize="lg" fontWeight="bold" mb="4">
 					Worker Settings
 				</Text>
-				<Flex>
+				<Flex direction="column">
 					<FormControl>
+						<FormLabel>Workspace ID</FormLabel>
+						<Input value={workspaceId ? String(workspaceId) : ''} isReadOnly />
+					</FormControl>
+					<FormControl mt="4">
 						<FormLabel>Worker URL</FormLabel>
 						<InputGroup size="md">
-							<InputLeftAddon children="http://" />
+							<InputLeftAddon>https://</InputLeftAddon>
 							<Input
 								placeholder="localhost:9000"
 								value={workerUrl}

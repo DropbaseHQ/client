@@ -70,24 +70,28 @@ def enforce_action(
     db, user_id, workspace_id, resource, action, resource_crud, resource_id=None
 ):
     enforcer = get_contexted_enforcer(db, workspace_id)
-
+    workspace = crud.workspace.get(db, id=workspace_id)
+    workspace_owner = crud.workspace.get_oldest_user(db, workspace_id)
+    can_use_granular_permissions = workspace.in_trial or workspace_owner.email.endswith(
+        "@dropbase.io"
+    )
     try:
         if resource_id:
             # Check if user has permission to perform action on specific resource
-            if enforcer.enforce(str(user_id), resource_id, action):
-                return True
-            # Check if user has permission to perform action parent app
-            if hasattr(resource_crud, "get_app_id"):
-                app_id = resource_crud.get_app_id(db, resource_id)
-                if enforcer.enforce(str(user_id), str(app_id), action):
+            if can_use_granular_permissions:
+                if enforcer.enforce(str(user_id), resource_id, action):
                     return True
+                # Check if user has permission to perform action parent app
+                if hasattr(resource_crud, "get_app_id"):
+                    app_id = resource_crud.get_app_id(db, resource_id)
+                    if enforcer.enforce(str(user_id), str(app_id), action):
+                        return True
 
         # Check if user themselves has permission to perform action on resource
+
         if enforcer.enforce(str(user_id), resource, action):
             return True
 
-        # role = crud.user_role.get_user_role(db, user_id, workspace_id)
-        # return enforcer.enforce(role.name, resource, action)
         return False
     except Exception as e:
         print("Permission enforcement error", e)
@@ -163,19 +167,25 @@ def unload_policy_line(line, model):
 
 
 def get_all_action_permissions(
-    db: Session, user_id: str, workspace_id: str, app_name: str
+    db: Session, user_id: str, workspace_id: str, app_id: str = None
 ):
     enforcer = get_contexted_enforcer(db, workspace_id)
+    workspace = crud.workspace.get_object_by_id_or_404(db, id=workspace_id)
+    workspace_owner = crud.workspace.get_oldest_user(db, workspace_id)
+    can_use_granular_permissions = workspace.in_trial or workspace_owner.email.endswith(
+        "@dropbase.io"
+    )
 
-    permissions_dict = {}
+    permissions_dict = {"workspace_permissions": {}, "app_permissions": {}}
     # Go through allowed actions and check if user has permission to perform action on resource
     for action in ALLOWED_ACTIONS:
-        if app_name not in permissions_dict:
-            permissions_dict[action] = False
-
-        if enforcer.enforce(str(user_id), app_name, action):
-            permissions_dict[action] = True
+        if enforcer.enforce(str(user_id), "workspace", action):
+            permissions_dict["workspace_permissions"][action] = True
+        if app_id not in permissions_dict["app_permissions"]:
+            permissions_dict["app_permissions"][action] = False
+        if can_use_granular_permissions:
+            if enforcer.enforce(str(user_id), app_id, action):
+                permissions_dict["app_permissions"][action] = True
         if enforcer.enforce(str(user_id), "app", action):
-            permissions_dict[action] = True
-
+            permissions_dict["app_permissions"][action] = True
     return permissions_dict

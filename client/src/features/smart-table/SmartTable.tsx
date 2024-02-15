@@ -25,15 +25,22 @@ import DataEditor, {
 	GridCellKind,
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
-import { DatePickerCell } from '@glideapps/glide-data-grid-cells';
+import { DatePickerCell, MultiSelectCell } from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
-import { formatDate, formatTime, formatDateTime } from '@/features/smart-table/utils';
+import {
+	formatDate,
+	formatTime,
+	formatDateTime,
+	getEpochFromTimeString,
+	getTimeStringFromEpoch,
+} from '@/features/smart-table/utils';
 import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
-import { SOCKET_URL } from '../app-preview';
+
+import dropdownCellRenderer from './components/cells/SingleSelect';
 
 import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
 
@@ -44,7 +51,7 @@ import {
 	tablePageInfoAtom,
 } from './atoms';
 import { TableBar } from './components';
-import { getErrorMessage } from '@/utils';
+import { extractTemplateString, getErrorMessage } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 
@@ -53,6 +60,8 @@ import { Pagination } from './components/Pagination';
 import { DEFAULT_PAGE_SIZE } from './constants';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
+import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
+import { LabelContainer } from '@/components/LabelContainer';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -60,7 +69,7 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-const ALL_CELLS = [DatePickerCell];
+const ALL_CELLS = [DatePickerCell, dropdownCellRenderer, MultiSelectCell];
 
 export const SmartTable = ({ tableName, provider }: any) => {
 	const toast = useToast();
@@ -89,8 +98,17 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 	const { properties } = useGetPage({ appName, pageName });
 
-	const { isLoading, rows, columnDict, header, refetch, isRefetching, tableError, error } =
-		useCurrentTableData(tableName);
+	const {
+		isLoading,
+		rows,
+		columnDict,
+		header,
+		refetch,
+		isRefetching,
+		tableError,
+		error,
+		remove: removeQuery,
+	} = useCurrentTableData(tableName);
 	const {
 		depends_on: dependsOn,
 		isLoading: isLoadingTable,
@@ -294,6 +312,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		let icon = col?.display_type ? GridColumnIcon.HeaderString : undefined;
 
 		switch (col?.display_type) {
+			case 'currency':
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -419,6 +438,74 @@ export const SmartTable = ({ tableName, provider }: any) => {
 			  };
 
 		switch (column?.display_type) {
+			case 'currency': {
+				return {
+					kind: GridCellKind.Number,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData:
+						unParsedValue === null
+							? ''
+							: `${column?.configurations?.symbol}${cellValue}`,
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'select': {
+				if (column?.configurations?.multiple) {
+					const allOptions = [
+						...new Set([
+							...(column?.configurations?.options || []),
+							...cellValue.split(',').map((o: any) => ({
+								label: o,
+								value: o,
+							})),
+						]),
+					];
+
+					return {
+						kind: GridCellKind.Custom,
+						allowOverlay: canEdit,
+						data: {
+							kind: 'multi-select-cell',
+							values: cellValue?.split(','),
+							options: allOptions.map((option: any) => ({
+								...option,
+								color: theme.colors.gray['100'],
+							})),
+
+							allowDuplicates: false,
+							allowCreation: false,
+						},
+						readonly: !canEdit,
+						...themeOverride,
+					};
+				}
+
+				const allOptions = [
+					...new Set([
+						...(column?.configurations?.options || []),
+						{ label: cellValue, value: cellValue },
+					]),
+				];
+
+				return {
+					kind: GridCellKind.Custom,
+					allowOverlay: canEdit,
+					data: {
+						kind: 'dropdown-cell',
+						allowedValues: allOptions.map((option: any) => ({
+							...option,
+							color: theme.colors.gray['100'],
+						})),
+						value: cellValue,
+					},
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
 			case 'float':
 			case 'integer': {
 				return {
@@ -477,11 +564,16 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 			case 'time': {
 				return {
-					kind: GridCellKind.Text,
-					data: cellValue,
+					kind: GridCellKind.Custom,
 					allowOverlay: canEdit,
-					displayData: formatTime(cellValue),
 					readonly: !canEdit,
+
+					data: {
+						kind: 'date-picker-cell',
+						date: new Date(getEpochFromTimeString(cellValue)),
+						displayDate: formatTime(cellValue),
+						format: 'time',
+					},
 					...themeOverride,
 				};
 			}
@@ -531,13 +623,28 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		let newValue: any = null;
 
 		if (editedCell.kind === GridCellKind.Custom) {
-			if (editedCell.data.kind === 'date-picker-cell') {
-				if (editedCell?.data?.format === 'datetime-local') {
-					newValue = editedCell?.data?.date?.getTime();
+			switch (editedCell.data.kind) {
+				case 'date-picker-cell': {
+					if (
+						editedCell?.data?.format === 'datetime-local' ||
+						editedCell?.data?.format === 'date'
+					) {
+						newValue = editedCell?.data?.date?.getTime();
+					} else if (editedCell?.data?.format === 'time') {
+						newValue = getTimeStringFromEpoch(editedCell?.data?.date?.getTime());
+					}
+					break;
 				}
+				case 'dropdown-cell': {
+					newValue = editedCell?.data?.value;
+					break;
+				}
+				case 'multi-select-cell': {
+					newValue = editedCell?.data?.values?.join(',');
+					break;
+				}
+				default:
 			}
-
-			// TODO: @param can you add logic for date and time pickers
 		} else {
 			newValue = editedCell.data;
 		}
@@ -573,7 +680,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							new_value: newValue === undefined ? null : newValue,
 							value: currentRow[column.name],
 							column_name: column.name,
-
+							data_type: columnDict[column.name].data_type,
 							old_value: currentRow[column.name],
 							rowIndex: row,
 							columnIndex: col,
@@ -642,7 +749,17 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				...curr,
 				[tableName]: true,
 			}));
-			pageState.state.tables = newSelectedRow;
+
+			// We need to pass the most update state to server
+			// If we pass pageState directly, the new selected row info will not be present before the request is sent
+			// So here we just manually update the pageState and send the updated state to server
+			// Open to better suggestions
+
+			pageState.state.tables = {
+				...pageState.state.tables,
+				...newSelectedRow,
+			};
+
 			sendJsonMessage({
 				type: 'display_rule',
 				state_context: pageState,
@@ -665,6 +782,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						if (t.name === tableName) {
 							return {
 								...t,
+								smart: false,
 								columns: header.map((c: any) => ({
 									...(columnDict?.[c] || {}),
 									...c,
@@ -766,9 +884,14 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				<NavLoader isLoading={isLoadingTable}>
 					<Stack alignItems="center" direction="row" w="full" overflow="hidden">
 						<Stack spacing="0" px="2" flexShrink="0">
-							<Text fontWeight="semibold" fontSize="lg">
-								{table?.label || tableName}
-							</Text>
+							<LabelContainer>
+								<LabelContainer.Label>
+									{extractTemplateString(table?.label || tableName, pageState)}
+								</LabelContainer.Label>
+								{isPreview ? null : (
+									<LabelContainer.Code>{tableName}</LabelContainer.Code>
+								)}
+							</LabelContainer>
 
 							{dependantTablesWithNoRowSelection.length > 0 ? (
 								<Stack direction="row" spacing="1" alignItems="center">
@@ -789,11 +912,11 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							) : null}
 						</Stack>
 
-						{pageState?.context?.tables?.[tableName].message ? (
+						{pageState?.context?.tables?.[tableName]?.message ? (
 							<Stack ml="auto" overflow="hidden">
 								<Alert
 									status={
-										pageState?.context?.tables?.[tableName].message_type ||
+										pageState?.context?.tables?.[tableName]?.message_type ||
 										'info'
 									}
 									bgColor="transparent"
@@ -801,7 +924,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 								>
 									<AlertIcon boxSize={4} />
 									<AlertDescription fontSize="sm">
-										{pageState?.context?.tables?.[tableName].message}
+										{pageState?.context?.tables?.[tableName]?.message}
 									</AlertDescription>
 								</Alert>
 							</Stack>
@@ -822,7 +945,10 @@ export const SmartTable = ({ tableName, provider }: any) => {
 									icon={<RotateCw size="14" />}
 									variant="outline"
 									isLoading={isRefetching}
-									onClick={() => refetch()}
+									onClick={() => {
+										removeQuery();
+										refetch({ cancelRefetch: true });
+									}}
 								/>
 							</Tooltip>
 

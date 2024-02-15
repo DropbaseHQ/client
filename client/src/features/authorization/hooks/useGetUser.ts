@@ -1,4 +1,5 @@
 import { useQuery } from 'react-query';
+import { useLocation } from 'react-router-dom';
 import { axios } from '@/lib/axios';
 
 const fetchCurrentUser = async () => {
@@ -7,8 +8,18 @@ const fetchCurrentUser = async () => {
 };
 
 export const useGetCurrentUser = () => {
+	const { pathname } = useLocation();
+	const loginRoutes =
+		pathname.startsWith('/login') ||
+		pathname.startsWith('/register') ||
+		pathname.startsWith('/reset') ||
+		pathname.startsWith('/email-confirmation') ||
+		pathname.startsWith('/forgot');
+
 	const queryKey = ['currentUser'];
-	const { data: response, ...rest } = useQuery(queryKey, () => fetchCurrentUser());
+	const { data: response, ...rest } = useQuery(queryKey, () => fetchCurrentUser(), {
+		enabled: !loginRoutes,
+	});
 	return {
 		user: response || {},
 		...rest,

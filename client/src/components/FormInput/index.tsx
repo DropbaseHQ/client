@@ -24,12 +24,40 @@ import {
 	Center,
 	Portal,
 } from '@chakra-ui/react';
-import { forwardRef } from 'react';
+import { forwardRef, useState } from 'react';
 import { ChevronDown, Plus, Trash } from 'react-feather';
 import { ErrorMessage } from '@hookform/error-message';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { MonacoEditor } from '@/components/Editor';
+
+const TemplateEditor = (props: any) => {
+	const [codeHeight, setCodeHeight] = useState(30);
+
+	const handleCodeMount = (editor: any) => {
+		editor.onDidContentSizeChange((event: any) => {
+			const editorHeight = event.contentHeight;
+			setCodeHeight(editorHeight); // Dynamically adjust height based on content
+			editor.layout();
+		});
+	};
+
+	return (
+		<MonacoEditor
+			{...props}
+			options={{
+				lineNumbers: 'off',
+				glyphMargin: false,
+				folding: false,
+				// Undocumented see https://github.com/Microsoft/vscode/issues/30795#issuecomment-410998882
+				lineDecorationsWidth: 0,
+				lineNumbersMinChars: 0,
+			}}
+			height={codeHeight}
+			onMount={handleCodeMount}
+		/>
+	);
+};
 
 export const InputRenderer = forwardRef((props: any, ref: any) => {
 	const {
@@ -39,6 +67,8 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		type,
 		onSelect,
 		options: selectOptions,
+		keys,
+		hideClearOption,
 		...inputProps
 	} = props;
 
@@ -100,25 +130,40 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 
 		return (
 			<Menu>
-				<MenuButton
-					as={Stack}
-					direction="row"
-					alignItems="center"
-					borderWidth="1px"
-					p="1.5"
-					borderRadius="sm"
-					type="button"
-					onBlur={onBlur}
-					cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
-					{...inputProps}
-				>
-					<Stack w="full" spacing="0" alignItems="center" direction="row">
-						<Box>{children}</Box>
-						<Box ml="auto">
-							<ChevronDown size="14" />
-						</Box>
-					</Stack>
-				</MenuButton>
+				<Stack spacing="0.5">
+					<MenuButton
+						as={Stack}
+						direction="row"
+						alignItems="center"
+						borderWidth="1px"
+						p="1.5"
+						borderRadius="sm"
+						type="button"
+						onBlur={onBlur}
+						cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
+						{...inputProps}
+					>
+						<Stack w="full" spacing="0" alignItems="center" direction="row">
+							<Box>{children}</Box>
+							<Box ml="auto">
+								<ChevronDown size="14" />
+							</Box>
+						</Stack>
+					</MenuButton>
+					{value && !hideClearOption ? (
+						<Button
+							onClick={() => {
+								onChange(null);
+							}}
+							colorScheme="gray"
+							alignSelf="start"
+							size="sm"
+							variant="link"
+						>
+							Clear
+						</Button>
+					) : null}
+				</Stack>
 				<Portal>
 					<MenuList
 						zIndex="popover"
@@ -135,7 +180,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							</Center>
 						) : (
 							<MenuOptionGroup
-								defaultValue={value}
+								value={value}
 								onChange={(newValue) => {
 									onChange(newValue);
 									onSelect?.(newValue);
@@ -165,57 +210,45 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 
 	if (type === 'array') {
 		const optionsToRender = value || [];
+		const keysToRender = keys || ['name', 'value'];
 
 		return (
 			<Stack spacing="2">
 				<Stack fontSize="xs" fontWeight="medium" letterSpacing="wide" direction="row">
-					<Box flex="1">Name</Box>
-					<Box flex="1">Value</Box>
+					{keysToRender.map((key: any) => (
+						<Box key={key} flex="1">
+							{key}
+						</Box>
+					))}
 					<Box minW="8" />
 				</Stack>
 
 				{optionsToRender.map((option: any) => {
 					return (
 						<Stack alignItems="center" key={option.id} direction="row">
-							<Input
-								size="sm"
-								flex="1"
-								placeholder="name"
-								value={option.name}
-								onChange={(e) => {
-									onChange(
-										optionsToRender.map((o: any) => {
-											if (o.id === option.id) {
-												return {
-													...o,
-													name: e.target.value,
-													value: e.target.value,
-												};
-											}
-											return o;
-										}),
-									);
-								}}
-							/>
-							<Input
-								size="sm"
-								flex="1"
-								placeholder="value"
-								value={option.value}
-								onChange={(e) => {
-									onChange(
-										optionsToRender.map((o: any) => {
-											if (o.id === option.id) {
-												return {
-													...o,
-													value: e.target.value,
-												};
-											}
-											return o;
-										}),
-									);
-								}}
-							/>
+							{keysToRender.map((key: any) => (
+								<Input
+									size="sm"
+									flex="1"
+									key={key}
+									placeholder={key}
+									value={option?.[key]}
+									onChange={(e) => {
+										onChange(
+											optionsToRender.map((o: any) => {
+												if (o.id === option.id) {
+													return {
+														...o,
+														[key]: e.target.value,
+													};
+												}
+												return o;
+											}),
+										);
+									}}
+								/>
+							))}
+
 							<IconButton
 								aria-label="Delete"
 								icon={<Trash size="14" />}
@@ -240,11 +273,15 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					onClick={() => {
 						onChange([
 							...optionsToRender,
-							{
-								name: `option${optionsToRender.length + 1}`,
-								value: `value${optionsToRender.length + 1}`,
-								id: crypto.randomUUID(),
-							},
+							keysToRender.reduce(
+								(agg: any, key: any) => ({
+									...agg,
+									[key]: `${key}${optionsToRender.length + 1}`,
+								}),
+								{
+									id: crypto.randomUUID(),
+								},
+							),
 						]);
 					}}
 				>
@@ -278,24 +315,39 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 
 		return (
 			<Menu>
-				<MenuButton
-					as={Stack}
-					type="button"
-					direction="row"
-					alignItems="center"
-					borderWidth="1px"
-					borderRadius="sm"
-					p="2"
-					cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
-					{...inputProps}
-				>
-					<Stack w="full" spacing="0" alignItems="center" direction="row">
-						<Box>{children}</Box>
-						<Box ml="auto">
-							<ChevronDown size="14" />
-						</Box>
-					</Stack>
-				</MenuButton>
+				<Stack>
+					<MenuButton
+						as={Stack}
+						type="button"
+						direction="row"
+						alignItems="center"
+						borderWidth="1px"
+						borderRadius="sm"
+						p="2"
+						cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
+						{...inputProps}
+					>
+						<Stack w="full" spacing="0" alignItems="center" direction="row">
+							<Box>{children}</Box>
+							<Box ml="auto">
+								<ChevronDown size="14" />
+							</Box>
+						</Stack>
+					</MenuButton>
+					{value ? (
+						<Button
+							onClick={() => {
+								onChange(null);
+							}}
+							colorScheme="gray"
+							alignSelf="start"
+							size="sm"
+							variant="link"
+						>
+							Clear
+						</Button>
+					) : null}
+				</Stack>
 				<MenuList
 					pointerEvents={inputProps?.isDisabled ? 'none' : 'initial'}
 					maxH="sm"
@@ -343,6 +395,19 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		);
 	}
 
+	if (type === 'template') {
+		return (
+			<Box w="full" borderWidth="1px" p="1.5" borderRadius="sm">
+				<TemplateEditor
+					language="plaintext"
+					{...inputProps}
+					value={value}
+					onChange={onChange}
+				/>
+			</Box>
+		);
+	}
+
 	if (type === 'boolean') {
 		return (
 			<Switch
@@ -365,6 +430,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 			value={value || ''}
 			size="sm"
 			ref={ref}
+			type={type === 'datetime' ? 'datetime-local' : type}
 			{...inputProps}
 		/>
 	);

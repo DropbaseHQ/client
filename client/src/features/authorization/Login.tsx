@@ -15,12 +15,12 @@ import { useState } from 'react';
 import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-
+import { useQueryClient } from 'react-query';
 import { useResendConfirmEmail } from './hooks/useResendConfirmationEmail';
 import { useLogin } from './hooks/useLogin';
 import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
-import { workerAxios, setWorkerAxiosWorkspaceIdHeader } from '@/lib/axios';
+import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '../../utils';
 
 type FormValues = {
@@ -31,6 +31,7 @@ type FormValues = {
 export const Login = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
+	const queryClient = useQueryClient();
 
 	const updateWorkspace = useSetAtom(workspaceAtom);
 
@@ -56,11 +57,14 @@ export const Login = () => {
 			}
 		},
 		onSuccess: (data: any) => {
-			localStorage.setItem('worker_access_token', data?.access_token);
-			localStorage.setItem('worker_refresh_token', data?.refresh_token);
+			queryClient.clear();
+			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+			setAxiosToken(data?.access_token);
+			localStorage.setItem('access_token', data?.access_token);
+			localStorage.setItem('refresh_token', data?.refresh_token);
 			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
 
-			updateWorkspace(data?.workspace?.id);
+			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
 			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
 			setDisplayEmailConfirmation(false);
 			navigate('/apps');

@@ -190,15 +190,11 @@ const runSQLQuery = async ({ appName, pageName, state, source, fileContent }: an
 		file_content: fileContent,
 	});
 
-	if (response.data?.job_id){
+	if (response.data?.job_id) {
 		const jobResponse = await fetchJobStatus(response.data.job_id);
 		return jobResponse;
 	}
-	else {
-		console.error("No associated job id found")
-		throw new Error('Failed to run python function');
-	}
-
+	throw new Error('Failed to run python function');
 };
 
 export const useRunSQLQuery = (props: any = {}) => {

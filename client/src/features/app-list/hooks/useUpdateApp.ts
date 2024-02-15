@@ -3,10 +3,10 @@ import { workerAxios } from '@/lib/axios';
 import { APPS_QUERY_KEY } from './useGetWorkspaceApps';
 import { PAGE_DATA_QUERY_KEY } from '@/features/page';
 
-const updateApp = async ({ oldName, newName }: any) => {
+const updateApp = async ({ appId, newLabel }: any) => {
 	const response = await workerAxios.put(`/app/`, {
-		old_name: oldName,
-		new_name: newName,
+		app_id: appId,
+		new_label: newLabel,
 	});
 	return response.data;
 };

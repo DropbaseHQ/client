@@ -1,6 +1,5 @@
 import { useForm } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
-import { workspaceAtom } from '@/features/workspaces';
 import {
 	Modal,
 	ModalOverlay,
@@ -18,8 +17,10 @@ import {
 	FormControl,
 	FormLabel,
 } from '@chakra-ui/react';
-import { useSendCloudRequest } from './hooks/useSendCloudRequest';
 import { integer } from 'vscode-languageclient';
+
+import { useSendCloudRequest } from './hooks/useSendCloudRequest';
+import { workspaceAtom } from '@/features/workspaces';
 
 interface FormInput {
 	userNum: integer;
@@ -27,7 +28,7 @@ interface FormInput {
 }
 export const SalesModal = ({ isOpen, setIsOpen }: any) => {
 	const methods = useForm<FormInput>();
-	const workspace = useAtomValue(workspaceAtom);
+	const { id: workspace } = useAtomValue(workspaceAtom);
 	const upgradeMutation = useSendCloudRequest();
 
 	const onSubmit = (data: FormInput) => {
@@ -51,7 +52,7 @@ export const SalesModal = ({ isOpen, setIsOpen }: any) => {
 				<ModalCloseButton />
 				<ModalBody>
 					<p>
-						Fill out this form and we'll get back to you with a quote for your team
+						Fill out this form and we{`'`}ll get back to you with a quote for your team
 						size. Or contact us at{' '}
 						<Link href="mailto:support@dropbase.io" target="_blank">
 							support@dropbase.io.
@@ -68,7 +69,7 @@ export const SalesModal = ({ isOpen, setIsOpen }: any) => {
 						<FormControl>
 							<FormLabel>Worker URL</FormLabel>
 							<InputGroup>
-								<InputLeftAddon children="http://" />
+								<InputLeftAddon>http://</InputLeftAddon>
 								<Input {...methods.register('workerURL')} borderRadius="md" />
 							</InputGroup>
 						</FormControl>

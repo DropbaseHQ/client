@@ -13,7 +13,6 @@ import { SQLEditor } from './SQLEditor';
 import { useGetPage } from '@/features/page';
 import { FunctionTerminal } from './FunctionTerminal';
 import { PanelHandle } from '@/components/Panel';
-import { getErrorMessage } from '@/utils';
 
 const componentsMap: any = {
 	function: FunctionEditor,
@@ -22,7 +21,7 @@ const componentsMap: any = {
 
 export const FileContent = () => {
 	const { appName, pageName } = useParams();
-	const { files, isLoading, error } = useGetPage({ appName, pageName });
+	const { files, isLoading } = useGetPage({ appName, pageName });
 
 	const panelRef = useRef<any>(null);
 
@@ -49,10 +48,6 @@ export const FileContent = () => {
 				</Stack>
 			</Stack>
 		);
-	}
-
-	if (error) {
-		return <Box color="red.400">{getErrorMessage(error)}</Box>;
 	}
 
 	const Component = componentsMap[devTab.type];

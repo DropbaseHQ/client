@@ -2,6 +2,7 @@ import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
+import { useSetAtom } from 'jotai';
 import { Login, Register, ResetPassword, EmailConfirmation } from '@/features/authorization';
 import { DashboardLayout } from '@/layout';
 import { App } from '@/features/app';
@@ -10,23 +11,37 @@ import { Workspaces, useWorkspaces } from '@/features/workspaces';
 
 import { RequestResetLink } from '@/features/authorization/RequestResetLink';
 import {
-	useSetWorkerAxiosToken,
+	useSetAxiosToken,
 	useSetWorkerAxiosBaseURL,
 } from '@/features/authorization/hooks/useLogin';
+import { websocketStatusAtom } from '@/features/app/atoms';
+
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
 import { Welcome } from '../features/welcome';
 import { isProductionApp } from '../utils';
-import { SOCKET_URL } from '@/features/app-preview';
+import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 
 export const DashboardRoutes = () => {
 	const { isLoading } = useWorkspaces();
+
+	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
+
 	useSyncProxyToken();
-	useSetWorkerAxiosToken();
+	useSetAxiosToken();
 	useSetWorkerAxiosBaseURL();
 	// Initialize websocket
 	useWebSocket(SOCKET_URL, {
 		share: true,
+		shouldReconnect: () => true,
+		reconnectAttempts: 3,
+		reconnectInterval: (attemptNumber) => Math.min(2 ** attemptNumber * 1000, 10000),
+		onOpen: () => {
+			setWebsocketIsAlive(true);
+		},
+		onClose: () => {
+			setWebsocketIsAlive(false);
+		},
 	});
 
 	if (isLoading) {

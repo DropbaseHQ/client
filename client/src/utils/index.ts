@@ -1,3 +1,5 @@
+import get from 'lodash/get';
+
 export const PG_COLUMN_BASE_TYPE: any = {
 	TEXT: 'text',
 	VARCHAR: 'text',
@@ -61,9 +63,17 @@ export const getErrorMessage = (error: any) => {
 		}
 	}
 
+	if (Array.isArray(error?.response?.data?.result)) {
+		return error?.response?.data?.result.join(', ');
+	}
+
 	const errorMessage =
 		error?.response?.data?.error ||
 		error?.response?.data?.message ||
+		error?.response?.data?.result ||
+		error?.response?.data?.detail?.message ||
+		error?.response?.data?.detail?.error ||
+		error?.response?.data?.detail ||
 		error?.response?.data ||
 		error?.message ||
 		'';
@@ -79,10 +89,15 @@ export const isProductionApp = () => {
 	return window.location.href.includes('app.dropbase.io');
 };
 
-export const invalidResourceName = (oldName: string, newName: string, names) => {
+export const invalidResourceName = (
+	oldName: string,
+	newName: string,
+	names: any,
+	mustBeLowercase = true,
+) => {
 	const notUnique = names.find((n: string) => n === newName && n !== oldName);
 
-	if (newName !== newName.toLowerCase()) {
+	if (newName !== newName.toLowerCase() && mustBeLowercase) {
 		return 'Must be lowercase';
 	}
 
@@ -103,4 +118,23 @@ export const invalidResourceName = (oldName: string, newName: string, names) => 
 	}
 
 	return false;
+};
+
+export const extractTemplateString = (value: any, state: any) => {
+	try {
+		const regex = /\{{(.*?)\}}/g;
+		const matches = value?.matchAll(regex);
+
+		let newInputString = value;
+
+		[...matches].forEach((element) => {
+			const [mainStr, underlyingValue] = element;
+
+			newInputString = newInputString.replace(mainStr, get(state, underlyingValue, ''));
+		});
+
+		return newInputString;
+	} catch (e) {
+		return value;
+	}
 };
