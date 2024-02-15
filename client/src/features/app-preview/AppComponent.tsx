@@ -197,6 +197,11 @@ export const AppComponent = (props: any) => {
 						if (component.on_change) {
 							handleEvent(component.on_change);
 						}
+
+						if (component.on_toggle) {
+							handleEvent(component.on_toggle);
+						}
+
 						sendJsonMessage({
 							type: 'display_rule',
 							state_context: pageState,
