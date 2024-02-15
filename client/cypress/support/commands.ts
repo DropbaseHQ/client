@@ -73,6 +73,7 @@ Cypress.Commands.add('createSQLFunction', (functionName?: string) => {
 });
 
 Cypress.Commands.add('deleteApp', (appName: string) => {
+	appName = appName.toLowerCase();
 	cy.get(`[data-cy="app-menu-${appName}"]`).click();
 	cy.get(`[data-cy="delete-app-${appName}"]`).click();
 
