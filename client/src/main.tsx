@@ -1,4 +1,9 @@
 import ReactDOM from 'react-dom/client';
-import { Dashboard } from './Dashboard';
+import { DashboardContainer } from './DashboardContainer';
+import { WorkerDashboardRoutes } from './routes/WorkerDashboardRoutes';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(<Dashboard />);
+ReactDOM.createRoot(document.getElementById('root')!).render(
+	<DashboardContainer>
+		<WorkerDashboardRoutes />
+	</DashboardContainer>,
+);
