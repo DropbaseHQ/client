@@ -461,7 +461,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 					return {
 						kind: GridCellKind.Custom,
-						allowOverlay: true,
+						allowOverlay: canEdit,
 						data: {
 							kind: 'multi-select-cell',
 							values: cellValue?.split(','),
@@ -474,7 +474,8 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							allowDuplicates: false,
 							allowCreation: false,
 						},
-						readOnly: false,
+						readonly: !canEdit,
+						...themeOverride,
 					};
 				}
 
@@ -487,13 +488,13 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 				return {
 					kind: GridCellKind.Custom,
-					allowOverlay: true,
+					allowOverlay: canEdit,
 					data: {
 						kind: 'dropdown-cell',
 						allowedValues: allOptions,
 						value: cellValue,
 					},
-					readonly: false,
+					readonly: !canEdit,
 					...themeOverride,
 				};
 			}
