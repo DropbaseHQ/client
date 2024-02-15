@@ -25,7 +25,7 @@ import DataEditor, {
 	GridCellKind,
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
-import { DatePickerCell } from '@glideapps/glide-data-grid-cells';
+import { DatePickerCell, DropdownCell, MultiSelectCell } from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import { useParams } from 'react-router-dom';
@@ -67,7 +67,7 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-const ALL_CELLS = [DatePickerCell];
+const ALL_CELLS = [DatePickerCell, DropdownCell, MultiSelectCell];
 
 export const SmartTable = ({ tableName, provider }: any) => {
 	const toast = useToast();
@@ -450,6 +450,54 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				};
 			}
 
+			case 'select': {
+				if (column?.configurations?.multiple) {
+					const allOptions = [
+						...new Set([
+							...(column?.configurations?.options.map((o: any) => o.value) || []),
+							...cellValue.split(','),
+						]),
+					];
+
+					return {
+						kind: GridCellKind.Custom,
+						allowOverlay: true,
+						data: {
+							kind: 'multi-select-cell',
+							values: cellValue?.split(','),
+							options: allOptions.map((option: any) => ({
+								value: option,
+								label: option,
+								color: theme.colors.gray['100'],
+							})),
+
+							allowDuplicates: false,
+							allowCreation: false,
+						},
+						readOnly: false,
+					};
+				}
+
+				const allOptions = [
+					...new Set([
+						...(column?.configurations?.options.map((o: any) => o.value) || []),
+						...cellValue,
+					]),
+				];
+
+				return {
+					kind: GridCellKind.Custom,
+					allowOverlay: true,
+					data: {
+						kind: 'dropdown-cell',
+						allowedValues: allOptions,
+						value: cellValue,
+					},
+					readonly: false,
+					...themeOverride,
+				};
+			}
+
 			case 'float':
 			case 'integer': {
 				return {
@@ -567,15 +615,27 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		let newValue: any = null;
 
 		if (editedCell.kind === GridCellKind.Custom) {
-			if (editedCell.data.kind === 'date-picker-cell') {
-				if (
-					editedCell?.data?.format === 'datetime-local' ||
-					editedCell?.data?.format === 'date'
-				) {
-					newValue = editedCell?.data?.date?.getTime();
-				} else if (editedCell?.data?.format === 'time') {
-					newValue = getTimeStringFromEpoch(editedCell?.data?.date?.getTime());
+			switch (editedCell.data.kind) {
+				case 'date-picker-cell': {
+					if (
+						editedCell?.data?.format === 'datetime-local' ||
+						editedCell?.data?.format === 'date'
+					) {
+						newValue = editedCell?.data?.date?.getTime();
+					} else if (editedCell?.data?.format === 'time') {
+						newValue = getTimeStringFromEpoch(editedCell?.data?.date?.getTime());
+					}
+					break;
 				}
+				case 'dropdown-cell': {
+					newValue = editedCell?.data?.value;
+					break;
+				}
+				case 'multi-select-cell': {
+					newValue = editedCell?.data?.values?.join(',');
+					break;
+				}
+				default:
 			}
 		} else {
 			newValue = editedCell.data;

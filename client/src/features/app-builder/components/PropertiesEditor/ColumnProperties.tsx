@@ -265,13 +265,38 @@ const ColumnProperty = ({
 											<SimpleGrid gap={4} columns={2}>
 												{Object.keys(configProperties).map((key: any) => {
 													const property = configProperties?.[key];
+													const isRequired =
+														displayConfiguration?.required?.includes(
+															key,
+														);
 													return (
-														<FormInput
-															key={key}
-															type={property?.type}
-															id={`configurations.${key}`}
-															name={key}
-														/>
+														<Box
+															gridColumn={
+																property.type === 'array'
+																	? '1 / -1'
+																	: ''
+															}
+														>
+															<FormInput
+																key={key}
+																type={property?.type}
+																id={`configurations.${key}`}
+																name={key}
+																keys={
+																	key === 'options'
+																		? ['value']
+																		: null
+																}
+																required={isRequired}
+																validation={
+																	isRequired
+																		? {
+																				required: `${key} is required`,
+																		  }
+																		: {}
+																}
+															/>
+														</Box>
 													);
 												})}
 											</SimpleGrid>
