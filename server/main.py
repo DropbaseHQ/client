@@ -15,11 +15,13 @@ load_dotenv()
 
 app = FastAPI()
 worker_app = FastAPI()
-worker_app.router.dependencies = [Depends(verify_worker_token)]
-worker_app.include_router(worker_routers.misc_router)
+
+require_token_routes = APIRouter(dependencies=[Depends(verify_worker_token)])
+require_token_routes.include_router(worker_routers.misc_router)
+require_token_routes.include_router(worker_routers.app_router)
+require_token_routes.include_router(worker_routers.page_router)
 worker_app.include_router(worker_routers.worker_status_router)
-worker_app.include_router(worker_routers.app_router)
-worker_app.include_router(worker_routers.page_router)
+worker_app.include_router(require_token_routes)
 
 app.mount("/worker", worker_app)
 
