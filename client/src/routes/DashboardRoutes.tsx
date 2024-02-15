@@ -8,7 +8,7 @@ import { RequestResetLink } from '@/features/authorization/RequestResetLink';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
 import { Welcome } from '../features/welcome';
 
-export const DashboardRoutes = ({ homeRoute, children }) => {
+export const DashboardRoutes = ({ homeRoute, children }: any) => {
 	const { isLoading } = useWorkspaces();
 
 	if (isLoading) {

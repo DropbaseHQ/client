@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 import { theme } from '@/lib/chakra-ui';
 import { queryClient } from '@/lib/react-query';
 
-export const DashboardContainer = ({ children }) => {
+export const DashboardContainer = ({ children }: any) => {
 	return (
 		<BrowserRouter>
 			<ChakraProvider theme={theme}>
