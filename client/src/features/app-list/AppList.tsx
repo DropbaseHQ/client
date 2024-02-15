@@ -134,13 +134,13 @@ const AppCard = ({ app }: { app: AppType }) => {
 							<ModalCloseButton />
 							<ModalBody py="6">
 								<FormInput
-									name={`Write ${app.name} to delete the app`}
+									name={`Write ${app.label} to delete the app`}
 									autoFocus
 									id="name"
-									placeholder={app.name}
+									placeholder={app.label}
 									validation={{
 										validate: (value: any) =>
-											value === app.name || 'App name did not match',
+											value === app.label || 'App name did not match',
 									}}
 								/>
 							</ModalBody>
