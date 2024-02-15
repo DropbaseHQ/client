@@ -176,9 +176,6 @@ export const DisplayRulesEditor = ({ name }: any) => {
 			const targetWidget = components.find((c: any) => c.name === target.split('.')[2]);
 
 			if (targetWidget?.data_type) {
-				if (targetWidget?.data_type === 'boolean') {
-					return 'boolean-select';
-				}
 				return targetWidget?.data_type;
 			}
 			return 'text';
@@ -186,6 +183,13 @@ export const DisplayRulesEditor = ({ name }: any) => {
 		const [, specificCategory, targetName] = target.split('.');
 		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
 		return table?.[targetName as keyof typeof table];
+	};
+
+	const processColType = (colType: string) => {
+		if (colType === 'boolean') {
+			return 'select';
+		}
+		return colType;
 	};
 	const componentsProperties = components
 		.filter(
@@ -370,8 +374,24 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														disabled={!rule.target}
 														placeholder="select value"
 														{...input}
-														type={getColType(rule.target)}
+														type={processColType(
+															getColType(rule.target),
+														)}
 														value={rule.value}
+														options={
+															getColType(rule.target) === 'boolean'
+																? [
+																		{
+																			name: 'True',
+																			value: true,
+																		},
+																		{
+																			name: 'False',
+																			value: false,
+																		},
+																  ]
+																: null
+														}
 														onChange={(newValue: any) => {
 															onChange(
 																displayRules.map((r: any) => {
