@@ -24,7 +24,7 @@ import { useDeleteFile } from '@/features/app-builder/hooks';
 import { pageAtom } from '@/features/page';
 import { getErrorMessage } from '@/utils';
 
-export const DeleteFile = ({ name, id, type, ...props }: any) => {
+export const DeleteFile = ({ name, id, type, displayName, ...props }: any) => {
 	const toast = useToast();
 	const { appName, pageName } = useAtomValue(pageAtom);
 
@@ -97,7 +97,7 @@ export const DeleteFile = ({ name, id, type, ...props }: any) => {
 					<PopoverCloseButton />
 					<form onSubmit={onSubmit}>
 						<PopoverBody fontSize="md">
-							Are you sure you want to delete {name}?
+							Are you sure you want to delete {displayName}?
 						</PopoverBody>
 						<PopoverFooter
 							border="0"

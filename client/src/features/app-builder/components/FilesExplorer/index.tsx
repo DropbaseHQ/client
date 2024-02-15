@@ -227,8 +227,9 @@ const FileButton = ({ file }: any) => {
 								w="fit-content"
 								ml="auto"
 								id={file.name}
-								name={fileName}
+								name={file.name}
 								type={file.type}
+								displayName={fileName}
 							/>
 						</Stack>
 					) : null}
