@@ -37,8 +37,7 @@ export const AppComponent = (props: any) => {
 	const [{ pageName, appName, widgetName, widgets }, setPageContext] = useAtom(pageAtom);
 	const {
 		component_type: componentType,
-		type,
-		data_type: dataType,
+		data_type: type,
 		name,
 		display_rules: displayRules,
 		color,
