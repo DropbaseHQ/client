@@ -105,7 +105,7 @@ export const TableBar = () => {
 					row: rows[edit.rowIndex],
 					column_name: edit.column_name,
 					columns,
-					column_type: edit.column_type,
+					data_type: edit.data_type,
 					old_value: edit.old_value,
 					new_value: edit.new_value,
 				})),

@@ -25,7 +25,7 @@ import DataEditor, {
 	GridCellKind,
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
-import { DatePickerCell } from '@glideapps/glide-data-grid-cells';
+import { DatePickerCell, DropdownCell, MultiSelectCell } from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import { useParams } from 'react-router-dom';
@@ -67,7 +67,7 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-const ALL_CELLS = [DatePickerCell];
+const ALL_CELLS = [DatePickerCell, DropdownCell, MultiSelectCell];
 
 export const SmartTable = ({ tableName, provider }: any) => {
 	const toast = useToast();
@@ -310,6 +310,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		let icon = col?.display_type ? GridColumnIcon.HeaderString : undefined;
 
 		switch (col?.display_type) {
+			case 'currency':
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -435,6 +436,69 @@ export const SmartTable = ({ tableName, provider }: any) => {
 			  };
 
 		switch (column?.display_type) {
+			case 'currency': {
+				return {
+					kind: GridCellKind.Number,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData:
+						unParsedValue === null
+							? ''
+							: `${column?.configurations?.symbol}${cellValue}`,
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'select': {
+				if (column?.configurations?.multiple) {
+					const allOptions = [
+						...new Set([
+							...(column?.configurations?.options.map((o: any) => o.value) || []),
+							...cellValue.split(','),
+						]),
+					];
+
+					return {
+						kind: GridCellKind.Custom,
+						allowOverlay: canEdit,
+						data: {
+							kind: 'multi-select-cell',
+							values: cellValue?.split(','),
+							options: allOptions.map((option: any) => ({
+								value: option,
+								label: option,
+								color: theme.colors.gray['100'],
+							})),
+
+							allowDuplicates: false,
+							allowCreation: false,
+						},
+						readonly: !canEdit,
+						...themeOverride,
+					};
+				}
+
+				const allOptions = [
+					...new Set([
+						...(column?.configurations?.options.map((o: any) => o.value) || []),
+						...cellValue,
+					]),
+				];
+
+				return {
+					kind: GridCellKind.Custom,
+					allowOverlay: canEdit,
+					data: {
+						kind: 'dropdown-cell',
+						allowedValues: allOptions,
+						value: cellValue,
+					},
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
 			case 'float':
 			case 'integer': {
 				return {
@@ -552,15 +616,27 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		let newValue: any = null;
 
 		if (editedCell.kind === GridCellKind.Custom) {
-			if (editedCell.data.kind === 'date-picker-cell') {
-				if (
-					editedCell?.data?.format === 'datetime-local' ||
-					editedCell?.data?.format === 'date'
-				) {
-					newValue = editedCell?.data?.date?.getTime();
-				} else if (editedCell?.data?.format === 'time') {
-					newValue = getTimeStringFromEpoch(editedCell?.data?.date?.getTime());
+			switch (editedCell.data.kind) {
+				case 'date-picker-cell': {
+					if (
+						editedCell?.data?.format === 'datetime-local' ||
+						editedCell?.data?.format === 'date'
+					) {
+						newValue = editedCell?.data?.date?.getTime();
+					} else if (editedCell?.data?.format === 'time') {
+						newValue = getTimeStringFromEpoch(editedCell?.data?.date?.getTime());
+					}
+					break;
 				}
+				case 'dropdown-cell': {
+					newValue = editedCell?.data?.value;
+					break;
+				}
+				case 'multi-select-cell': {
+					newValue = editedCell?.data?.values?.join(',');
+					break;
+				}
+				default:
 			}
 		} else {
 			newValue = editedCell.data;
@@ -597,7 +673,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							new_value: newValue === undefined ? null : newValue,
 							value: currentRow[column.name],
 							column_name: column.name,
-							column_type: columnDict[column.name].column_type,
+							data_type: columnDict[column.name].data_type,
 							old_value: currentRow[column.name],
 							rowIndex: row,
 							columnIndex: col,

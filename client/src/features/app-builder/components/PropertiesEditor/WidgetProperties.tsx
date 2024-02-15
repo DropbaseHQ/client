@@ -136,7 +136,6 @@ export const WidgetProperties = ({ widgetId }: any) => {
 					>
 						<Stack direction="row" alignItems="center">
 							<LabelContainer>
-								<LabelContainer.Label>{widget?.name}</LabelContainer.Label>
 								<LabelContainer.Code>{widgetId}</LabelContainer.Code>
 							</LabelContainer>
 
