@@ -5,8 +5,6 @@ import { Login, Register, ResetPassword, EmailConfirmation } from '@/features/au
 import { DashboardLayout } from '@/layout';
 import { useWorkspaces } from '@/features/workspaces';
 import { RequestResetLink } from '@/features/authorization/RequestResetLink';
-import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
-import { Welcome } from '../features/welcome';
 
 export const DashboardRoutes = ({ homeRoute, children }: any) => {
 	const { isLoading } = useWorkspaces();
@@ -54,13 +52,11 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 					<Route path="register" element={<Register />} />
 					<Route path="forgot" element={<RequestResetLink />} />
 					<Route path="reset" element={<ResetPassword />} />
-					<Route path="welcome" element={<Welcome />} />
 					<Route
 						path="email-confirmation/:token/:userId"
 						element={<EmailConfirmation />}
 					/>
-					<Route element={<ProtectedRoutes />}>{children}</Route>
-
+					{children}
 					<Route path="*" element={<Navigate to={homeRoute} />} />
 				</Route>
 			</Routes>
