@@ -1,3 +1,4 @@
+import logging
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +13,19 @@ from server.utils.authentication import get_current_user, verify_worker_token
 
 load_dotenv()
 
+spam_urls = ["/health/", "/health"]
+
+
+class LogSpamFilter(logging.Filter):
+    def filter(self, record):
+        for url in spam_urls:
+            if url in record.args:
+                return False
+        return True
+
+
+logger = logging.getLogger("uvicorn.access")
+logger.addFilter(LogSpamFilter())
 
 app = FastAPI()
 worker_app = FastAPI()
