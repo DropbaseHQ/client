@@ -90,7 +90,7 @@ export const Login = () => {
 				<Stack spacing="6">
 					<Stack spacing={{ base: '2', md: '3' }} textAlign="center">
 						<Heading size="sm">Log in to your account</Heading>
-						<Link to="/register">
+						<Link to="/register" data-cy="link-to-register">
 							<Text color="fg.muted" fontSize="sm" textDecoration="underline">
 								Don&apos;t have an account?
 							</Text>

@@ -81,6 +81,7 @@ export const Register = () => {
 										placeholder="Please enter your first name"
 										id="name"
 										type="name"
+										data-cy="first-name"
 										{...register('name', {
 											required: 'name is required',
 										})}
@@ -92,6 +93,7 @@ export const Register = () => {
 										placeholder="Please enter your last name"
 										id="last_name"
 										type="name"
+										data-cy="last-name"
 										{...register('last_name', {
 											required: 'last_name is required',
 										})}
@@ -103,6 +105,7 @@ export const Register = () => {
 										placeholder="Please enter your company"
 										id="company"
 										type="name"
+										data-cy="company"
 										{...register('company', {
 											required: 'Company is required',
 										})}
@@ -114,6 +117,7 @@ export const Register = () => {
 										placeholder="Please enter your email"
 										id="email"
 										type="email"
+										data-cy="email"
 										{...register('email', {
 											required: 'Email is required',
 										})}
@@ -127,6 +131,7 @@ export const Register = () => {
 										placeholder="Please enter your password"
 										id="password"
 										type="password"
+										data-cy="password"
 										{...register('password', {
 											required: 'Password is required',
 											validate: (value) => {
@@ -155,6 +160,7 @@ export const Register = () => {
 										placeholder="Please confirm your password"
 										id="confirm"
 										type="password"
+										data-cy="confirm-password"
 										{...register('confirm', {
 											required: 'Password is required',
 											validate: (value, formValues) => {
@@ -171,7 +177,12 @@ export const Register = () => {
 								</FormControl>
 							</Stack>
 							<Stack spacing="6">
-								<Button isLoading={isLoading} type="submit" colorScheme="blue">
+								<Button
+									isLoading={isLoading}
+									type="submit"
+									colorScheme="blue"
+									data-cy="sign-up-button"
+								>
 									Sign up
 								</Button>
 							</Stack>

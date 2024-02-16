@@ -208,7 +208,7 @@ describe('Verifies that roles and specific permissions are granted edit access c
 		cy.deleteApp(testAppName);
 	});
 
-	it.only('Tests that member cannot invite members', () => {
+	it('Tests that member cannot invite members', () => {
 		cy.login(MEMBER_EMAIL, TEST_PASSWORD);
 		cy.chooseWorkspace(ADMIN_EMAIL);
 		cy.visit('http://localhost:3030/settings/members');
