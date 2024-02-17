@@ -21,5 +21,37 @@ describe('Sign up flow', () => {
 		cy.get("[data-cy='password']").type(NEW_USER_INFO.password);
 		cy.get("[data-cy='confirm-password']").type(NEW_USER_INFO.confirmPassword);
 		cy.get("[data-cy='sign-up-button']").click();
+		cy.wait(5000);
+		cy.task('gmail:checkRecent', {
+			from: 'support@dropbase.io',
+			to: NEW_USER_EMAIL,
+			subject: 'Verify your Dropbase email address',
+			// Query emails from the last 10 seconds
+			after: new Date(Date.now() - 10 * 1000).toISOString(),
+		}).then((emails: any[]) => {
+			expect(emails).to.exist;
+			assert.isAtLeast(
+				emails.length,
+				1,
+				'Expected to find at least one email, but none were found!',
+			);
+			const body = emails[0].body.html;
+			console.log('body', body);
+			assert.isTrue(body.indexOf('/email-confirmation/') >= 0, 'Found reset link!');
+			// Get the confirmation link
+			const confirmationLink = body.match(
+				/\bhttps?:\/\/[^\/]+\/email-confirmation\/[^\/]+\/[^\/"]+\b/,
+			);
+
+			// Visit the confirmation link
+			cy.visit(confirmationLink[0]);
+			cy.url().should('include', '/email-confirmation');
+			cy.contains('Email Confirmation Success!', {
+				timeout: 5000,
+			}).should('exist');
+
+			// Confirm the email
+		});
+		cy.login(NEW_USER_INFO.email, NEW_USER_INFO.password);
 	});
 });
