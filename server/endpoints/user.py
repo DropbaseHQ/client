@@ -42,6 +42,12 @@ def register_user(request: CreateUserRequest, db: Session = Depends(get_db)):
     return user_controller.register_user(db, request)
 
 
+@router.post("/registerGoogle")
+def register_google_user(request: CreateUserRequest, db: Session = Depends(get_db)):
+    return user_controller.register_google_user(db, request)
+
+
+
 @router.post("/verify")
 def verify_user(token: str, user_id: UUID, db: Session = Depends(get_db)):
     return user_controller.verify_user(db, token, user_id)

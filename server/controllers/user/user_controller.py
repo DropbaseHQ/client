@@ -149,11 +149,7 @@ def login_google_user(db: Session, Authorize: AuthJWT, request: LoginGoogleUser)
             #     headers={"WWW-Authenticate": "Bearer"},
             # )
             return {"message": "User successfully registered"}
-        if not user.active:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Email needs to be verified.",
-            )
+
         access_token = Authorize.create_access_token(
             subject=user.email,
             expires_time=ACCESS_TOKEN_EXPIRE_SECONDS,
@@ -234,13 +230,13 @@ def register_user(db: Session, request: CreateUserRequest):
         confirmation_link = (
             f"{CLIENT_URL}/email-confirmation/{confirmation_token}/{user.id}"
         )
-        send_email(
-            email_name="verifyEmail",
-            email_params={
-                "email": user.email,
-                "url": confirmation_link,
-            },
-        )
+        # send_email(
+        #     email_name="verifyEmail",
+        #     email_params={
+        #         "email": user.email,
+        #         "url": confirmation_link,
+        #     },
+        # )
         slack_sign_up(name=user.name, email=user.email)
         db.commit()
         return {"message": "User successfully registered"}
@@ -286,21 +282,20 @@ def register_google_user(db: Session, idinfo):
         confirmation_link = (
             f"{CLIENT_URL}/email-confirmation/{confirmation_token}/{user.id}"
         )
-        send_email(
-            email_name="verifyEmail",
-            email_params={
-                "email": email,
-                "url": confirmation_link,
-            },
-        )
-        slack_sign_up(name=name, email=email)
+        # send_email(
+        #     email_name="verifyEmail",
+        #     email_params={
+        #         "email": email,
+        #         "url": confirmation_link,
+        #     },
+        # )
+        # slack_sign_up(name=name, email=email)
         db.commit()
         return {"message": "User successfully registered"}
     except Exception as e:
         db.rollback()
         print("error", e)
         raise_http_exception(status_code=500, message="Internal server error")
-
 
 
 def verify_user(db: Session, token: str, user_id: UUID):

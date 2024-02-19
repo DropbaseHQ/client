@@ -15,6 +15,10 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { useRegister } from './hooks/useRegister';
 import { useToast } from '@/lib/chakra-ui';
+import { useGoogleLogin } from './hooks/useLogin';
+import { GoogleLogin } from '@react-oauth/google';
+import { useQueryClient } from 'react-query';
+
 import { getErrorMessage } from '@/utils';
 
 type FormValues = {
@@ -33,8 +37,32 @@ export const Register = () => {
 		handleSubmit,
 	} = useForm<FormValues>();
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 
 	const toast = useToast();
+
+	const { mutate: googleMutate, isLoading: googleIsLoading } = useGoogleLogin({
+		onError: (error: any) => {
+			toast({
+				title: 'Signup Failed',
+				status: 'error',
+				description: getErrorMessage(error),
+			});
+		},
+		onSuccess: (data: any) => {
+			queryClient.clear();
+			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+			setAxiosToken(data?.access_token);
+			localStorage.setItem('access_token', data?.access_token);
+			localStorage.setItem('refresh_token', data?.refresh_token);
+			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
+
+			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
+			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
+			setDisplayEmailConfirmation(false);
+			navigate('/apps');
+		},
+	});
 
 	const { mutate, isLoading } = useRegister({
 		onError: (error: any) => {
@@ -175,6 +203,7 @@ export const Register = () => {
 									Sign up
 								</Button>
 							</Stack>
+							<GoogleLogin onSuccess={onGoogleSuccess} onError={onGoogleError} />
 						</Stack>
 					</form>
 				</Box>

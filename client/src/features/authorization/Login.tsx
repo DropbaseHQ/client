@@ -171,6 +171,14 @@ export const Login = () => {
 								<Button isLoading={isLoading} type="submit" colorScheme="blue">
 									Sign in
 								</Button>
+								<Stack flex="1" justifyContent="center" alignItems="center">
+									<GoogleLogin
+										style={{ width: '100%', backgroundColor: 'red' }}
+										onSuccess={onGoogleSuccess}
+										onError={onGoogleError}
+									/>
+								</Stack>
+
 								<Link to="/forgot">
 									<Text color="fg.muted" fontSize="sm" textDecoration="underline">
 										Forgot Password?
