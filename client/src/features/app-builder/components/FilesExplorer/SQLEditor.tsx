@@ -8,9 +8,10 @@ import {
 	SkeletonCircle,
 	Stack,
 	Text,
+	Tooltip,
 } from '@chakra-ui/react';
-import { Play, Save } from 'react-feather';
-import { useSetAtom } from 'jotai';
+import { Play, Save, Info } from 'react-feather';
+import { useSetAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
@@ -21,6 +22,11 @@ import { InputRenderer } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { previewCodeAtom } from '../../atoms';
+
+import { useSQLCompletion } from '@/components/Editor/hooks/useSQLCompletion';
+import { newPageStateAtom } from '@/features/app-state';
+
+import { databaseSchema } from '@/components/Editor/utils/constants';
 
 export const SQLEditor = ({ name }: any) => {
 	const toast = useToast();
@@ -112,6 +118,10 @@ export const SQLEditor = ({ name }: any) => {
 		});
 	};
 
+	const newPage = useAtomValue(newPageStateAtom);
+
+	useSQLCompletion(databaseSchema, newPage);
+
 	if (isLoading || isLoadingSources) {
 		return (
 			<Stack p="3" spacing="2">
@@ -145,7 +155,11 @@ export const SQLEditor = ({ name }: any) => {
 						variant="outline"
 						colorScheme="gray"
 						size="sm"
-						isDisabled={code === defaultCode && file?.source === selectedSource}
+						isDisabled={
+							!selectedSource ||
+							!code ||
+							(code === defaultCode && file?.source === selectedSource)
+						}
 						leftIcon={<Save size="14" />}
 					>
 						Update
@@ -154,10 +168,13 @@ export const SQLEditor = ({ name }: any) => {
 				<Stack direction="row" px="3" pb="3" borderBottomWidth="1px" alignItems="start">
 					<FormControl>
 						<FormLabel>
-							Source
-							<Box as="span" color="red.500">
-								*
-							</Box>
+							<Stack direction="row" alignItems="center">
+								<Text>Source</Text>
+
+								<Box as="span" color="red.500">
+									*
+								</Box>
+							</Stack>
 						</FormLabel>
 						<InputRenderer
 							size="sm"
@@ -173,13 +190,23 @@ export const SQLEditor = ({ name }: any) => {
 					</FormControl>
 
 					<FormControl>
-						<FormLabel> Refetch on row change in table…</FormLabel>
+						<FormLabel>
+							<Stack direction="row" alignItems="center">
+								<Text>Refetch on row change in table…</Text>
+								<Tooltip
+									label="Select table for which a row change triggers this function to refetch"
+									fontSize="sm"
+								>
+									<Info size="10" />
+								</Tooltip>
+							</Stack>
+						</FormLabel>
 						<InputRenderer
 							type="multiselect"
 							id="depends"
 							maxW="lg"
 							name="Depends on"
-							placeholder="Select table for which a row change triggers this function to refetch"
+							placeholder="Select table(s)"
 							options={tables.map((t: any) => ({
 								name: t.name,
 								value: t.name,

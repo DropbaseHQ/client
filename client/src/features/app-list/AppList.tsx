@@ -23,6 +23,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Layout, MoreVertical, Trash } from 'react-feather';
 import { useAtomValue } from 'jotai';
+import { useEffect } from 'react';
 import { useStatus } from '@/layout/StatusBar';
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
 import { useCreateAppFlow } from './hooks/useCreateApp';
@@ -86,11 +87,9 @@ const AppCard = ({ app }: { app: AppType }) => {
 			onClick={handleClick}
 		>
 			<Layout strokeWidth="1.5px" size="40px" />
-			<Stack spacing="0">
-				<Text fontSize="lg" fontWeight="semibold">
-					{app?.name}
-				</Text>
-			</Stack>
+			<Text fontSize="lg" fontWeight="semibold" isTruncated flex="1">
+				{app?.label}
+			</Text>
 			<Menu>
 				<MenuButton
 					flexShrink="0"
@@ -116,7 +115,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 							onOpen();
 						}}
 					>
-						<Stack alignItems="center" direction="row">
+						<Stack alignItems="center" direction="row" fontSize="md">
 							<Trash size="14" />
 							<Box>Delete App</Box>
 						</Stack>
@@ -176,7 +175,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 export const AppList = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
-	const workspaceId = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { workspaces } = useWorkspaces();
 	const { status } = useStatus();
 	const methods = useForm();
@@ -211,12 +210,33 @@ export const AppList = () => {
 			return a.name === newName;
 		});
 	};
+	const generateAppName = (label: string) => {
+		let formattedLabel = label
+			?.toLowerCase()
+			.replace(/[^a-z0-9]/g, '_')
+			.replace(/_{2,}/g, '_')
+			.replace(/^_+|_+$/g, '');
 
-	const onSubmit = async ({ name: appName }: any) => {
+		if (formattedLabel?.match(/^\d/)) {
+			formattedLabel = `_${formattedLabel}`;
+		}
+		return formattedLabel;
+	};
+
+	const onSubmit = async ({ name: appName, label: appLabel }: any) => {
 		await handleCreateAppFlow({
 			name: appName,
+			label: appLabel,
+			workspaceId: workspaceId as string,
 		});
 	};
+	const appLabel = methods.watch('label');
+
+	useEffect(() => {
+		if (!methods.formState.dirtyFields.name) {
+			methods.setValue('name', generateAppName(appLabel));
+		}
+	}, [methods, appLabel]);
 
 	const workerIsConnected = status === 'success';
 	const workspaceHasWorkspaceURL = !!currentWorkspace?.workspaceUrl;
@@ -266,29 +286,35 @@ export const AppList = () => {
 							</ModalHeader>
 							<ModalCloseButton />
 							<ModalBody py="6">
-								<FormInput
-									name="App name"
-									id="name"
-									placeholder="Enter app name"
-									validation={{
-										validate: (value: any) => {
-											if (value.includes(' ')) {
-												return 'Name cannot have spaces';
-											}
-											if (!value) {
-												return 'Name required';
-											}
-											if (nameNotUnique(value)) {
-												return 'Name already exists';
-											}
-											if (!value.match(/^[A-Za-z0-9_.]+$/g)) {
-												return 'Name contains invalid characters';
-											}
+								<Stack spacing="2">
+									<FormInput
+										name="App label"
+										id="label"
+										placeholder="Enter app label"
+									/>
+									<FormInput
+										name="App name"
+										id="name"
+										validation={{
+											validate: (value: any) => {
+												if (value.includes(' ')) {
+													return 'Name cannot have spaces';
+												}
+												if (!value) {
+													return 'Name required';
+												}
+												if (nameNotUnique(value)) {
+													return 'Name already exists';
+												}
+												if (!value.match(/^[A-Za-z0-9_.]+$/g)) {
+													return 'Name contains invalid characters';
+												}
 
-											return true;
-										},
-									}}
-								/>
+												return true;
+											},
+										}}
+									/>
+								</Stack>
 							</ModalBody>
 							<ModalFooter borderTopWidth="1px">
 								<Button

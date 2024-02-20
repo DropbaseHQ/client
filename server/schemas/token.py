@@ -17,10 +17,12 @@ class ReadToken(BaseToken):
     date: datetime
 
 
-class CreateToken(BaseToken):
-    name: Optional[str]
-    region: Optional[str]
-    comment: Optional[str]
+class CreateToken(BaseModel):
+    name: Optional[str] = None
+    workspace_id: str
+    is_active: Optional[bool]
+    type: Optional[str]
+    token: Optional[str] = None
 
 
 class UpdateTokenInfo(BaseModel):

@@ -1,14 +1,17 @@
 {
 	"name": "dropbase-client",
 	"private": true,
-	"version": "0.0.1",
+	"version": "0.0.4",
 	"type": "module",
 	"scripts": {
 		"start": "vite",
 		"dev": "vite --port 3030",
 		"build": "tsc && vite build",
-		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-		"preview": "vite preview"
+		"lint": "eslint . --ext ts,tsx",
+		"preview": "vite preview",
+		"postinstall": "cd .. && husky client/.husky",
+		"prepack": "pinst --disable",
+		"postpack": "pinst --enable"
 	},
 	"dependencies": {
 		"@chakra-ui/cli": "^2.4.1",
@@ -20,8 +23,8 @@
 		"@emotion/react": "^11.11.1",
 		"@emotion/styled": "^11.11.0",
 		"@fontsource-variable/inter": "^5.0.8",
-		"@glideapps/glide-data-grid": "^6.0.0",
-		"@glideapps/glide-data-grid-cells": "^6.0.0",
+		"@glideapps/glide-data-grid": "6.0.3",
+		"@glideapps/glide-data-grid-cells": "6.0.3",
 		"@hookform/error-message": "^2.0.1",
 		"@monaco-editor/react": "^4.5.1",
 		"@types/react-beautiful-dnd": "^13.1.7",
@@ -77,6 +80,7 @@
 		"eslint-plugin-react": "^7.33.1",
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"eslint-plugin-react-refresh": "^0.4.3",
+		"husky": "^9.0.10",
 		"path": "^0.12.7",
 		"prettier": "^3.0.1",
 		"typescript": "^5.0.2",

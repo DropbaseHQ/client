@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue } from 'jotai';
 import { useDebounce } from 'use-debounce';
@@ -6,15 +6,11 @@ import { useDebounce } from 'use-debounce';
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
-import {
-	APP_STATE_QUERY_KEY,
-	newPageStateAtom,
-	useAppState,
-	useSyncState,
-} from '@/features/app-state';
+import { APP_STATE_QUERY_KEY, newPageStateAtom, useAppState } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
+import { fetchJobStatus } from '@/utils/worker-job';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 
@@ -44,7 +40,12 @@ const fetchTableData = async ({
 		},
 	});
 
-	return response.data;
+	if (response.data?.job_id) {
+		const jobResponse = await fetchJobStatus(response.data.job_id);
+		return jobResponse;
+	}
+
+	throw new Error('Failed to fetch table data');
 };
 
 export const useTableData = ({
@@ -61,8 +62,6 @@ export const useTableData = ({
 	const [debouncedFilters] = useDebounce(filters, 1000);
 
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
-
-	const syncState = useSyncState();
 
 	const pageState: any = useAtomValue(newPageStateAtom);
 	const pageStateRef = useRef(pageState);
@@ -126,27 +125,12 @@ export const useTableData = ({
 		},
 	);
 
-	useEffect(() => {
-		if (response?.result?.context) {
-			response.succcess = true;
-
-			syncState(response);
-		}
-	}, [response, syncState]);
-
 	const parsedData: any = useMemo(() => {
 		if (response) {
-			let dataframe;
-			if (response?.result && 'dataframe' in response.result) {
-				dataframe = response.result.dataframe;
-			} else {
-				dataframe = response.result;
-			}
-
-			const header = dataframe?.columns || [];
+			const header = response?.columns || [];
 
 			const rows: any =
-				dataframe?.data?.map((r: any) => {
+				response?.data?.map((r: any) => {
 					return r.reduce((agg: any, item: any, index: any) => {
 						return {
 							...agg,
@@ -159,7 +143,7 @@ export const useTableData = ({
 				rows,
 				header,
 				tableName: response.table_name,
-				tableError: dataframe?.error,
+				tableError: response?.error,
 			};
 		}
 

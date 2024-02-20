@@ -1,6 +1,5 @@
 import {
 	Flex,
-	Text,
 	IconButton,
 	Stack,
 	Tooltip,
@@ -22,6 +21,8 @@ import {
 import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { useAppState } from '@/features/app-state';
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
@@ -29,6 +30,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { useCreatePage } from '@/features/page';
 import { getErrorMessage, generateSequentialName } from '@/utils';
 import { PageTab } from './PageTab';
+import { LabelContainer } from '@/components/LabelContainer';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const toast = useToast();
@@ -36,9 +38,12 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { appName, pageName } = useParams();
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
+	const { permissions } = useAppState(appName || '', pageName || '');
 
-	const [name, setAppName] = useState('');
-	const [isValid, setIsValid] = useState(true);
+	const [label, setAppLabel] = useState('');
+
+	const [invalidMessage] = useState<string | boolean>(false);
+
 	const updateMutation = useUpdateApp({
 		onError: (error: any) => {
 			toast({
@@ -55,7 +60,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 	useEffect(() => {
 		if (app) {
-			setAppName(app?.name);
+			setAppLabel(app?.label);
 		}
 		if (currentPageIndex !== undefined) {
 			setTabIndex(currentPageIndex);
@@ -67,32 +72,21 @@ export const AppNavbar = ({ isPreview }: any) => {
 		(document.activeElement as HTMLElement)?.blur();
 	};
 
-	const nameNotUnique = (newName: any) => {
-		return apps.find((a) => {
-			return a.name === newName;
-		});
-	};
-
-	const handleChangeAppName = (e: any) => {
-		setAppName(e.target.value);
-		if (nameNotUnique(e.target.value)) {
-			setIsValid(false);
-		} else {
-			setIsValid(true);
-		}
+	const handleChangeAppLabel = (e: any) => {
+		const newLabel = e.target.value;
+		setAppLabel(newLabel);
 	};
 
 	const handleReset = () => {
-		if (app) setAppName(app?.name);
+		if (app) setAppLabel(app?.label);
 	};
 
 	const handleUpdate = () => {
 		if (app) {
 			updateMutation.mutate({
 				// FIXME: fix appId
-				// appId,
-				oldName: app.name,
-				newName: name,
+				appId: app.id,
+				newLabel: label,
 			});
 		}
 	};
@@ -131,15 +125,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 		}
 	};
 
-	const pageSorter = (a: any, b: any) => {
-		if (a.name < b.name) {
-			return -1;
-		}
-		if (a.name > b.name) {
-			return 1;
-		}
-		return 0;
-	};
+	const methods = useForm();
 
 	return (
 		<Stack
@@ -162,9 +148,11 @@ export const AppNavbar = ({ isPreview }: any) => {
 				variant="ghost"
 			/>
 			<Stack alignItems="center" direction="row">
-				<Text fontWeight="semibold" fontSize="lg">
-					{app?.name}
-				</Text>
+				<LabelContainer>
+					<LabelContainer.Label> {app?.label}</LabelContainer.Label>
+					{isPreview ? null : <LabelContainer.Code>{app?.name}</LabelContainer.Code>}
+				</LabelContainer>
+
 				{isPreview ? null : (
 					<Popover onClose={handleReset} placement="bottom-end" closeOnBlur={false}>
 						{({ onClose }) => (
@@ -180,40 +168,46 @@ export const AppNavbar = ({ isPreview }: any) => {
 									/>
 								</PopoverTrigger>
 								<PopoverContent>
-									<PopoverArrow />
-									<PopoverBody>
-										<FormControl isInvalid={!isValid}>
-											<FormLabel>Edit App name</FormLabel>
-											<Input
-												size="sm"
-												placeholder="App name"
-												value={name}
-												onChange={handleChangeAppName}
-											/>
+									<form onSubmit={methods.handleSubmit(handleUpdate)}>
+										<FormControl isInvalid={Boolean(invalidMessage)}>
+											<PopoverArrow />
+											<PopoverBody>
+												<FormLabel>Edit App Label</FormLabel>
+												<Input
+													size="sm"
+													placeholder="App Label"
+													value={label}
+													onChange={handleChangeAppLabel}
+												/>
 
-											<FormErrorMessage>
-												An app with this name already exists.
-											</FormErrorMessage>
+												<FormErrorMessage>
+													{invalidMessage}
+												</FormErrorMessage>
+											</PopoverBody>
+											<PopoverFooter display="flex" alignItems="end">
+												<ButtonGroup ml="auto" size="sm">
+													<Button
+														onClick={onClose}
+														colorScheme="red"
+														variant="outline"
+													>
+														Cancel
+													</Button>
+													<Button
+														isDisabled={
+															app?.label === label ||
+															!label ||
+															Boolean(invalidMessage)
+														}
+														colorScheme="blue"
+														type="submit"
+													>
+														Update
+													</Button>
+												</ButtonGroup>
+											</PopoverFooter>
 										</FormControl>
-									</PopoverBody>
-									<PopoverFooter display="flex" alignItems="end">
-										<ButtonGroup ml="auto" size="sm">
-											<Button
-												onClick={onClose}
-												colorScheme="red"
-												variant="outline"
-											>
-												Cancel
-											</Button>
-											<Button
-												isDisabled={app?.name === name || !name || !isValid}
-												colorScheme="blue"
-												onClick={handleUpdate}
-											>
-												Update
-											</Button>
-										</ButtonGroup>
-									</PopoverFooter>
+									</form>
 								</PopoverContent>
 							</>
 						)}
@@ -229,7 +223,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 					onChange={handleTabsChange}
 				>
 					<TabList display="flex" alignItems="center">
-						{app?.pages.sort(pageSorter).map((page: any, index: number) => {
+						{app?.pages.map((page: any, index: number) => {
 							return (
 								<PageTab
 									key={page.name}
@@ -251,21 +245,23 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Flex>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
-					<Button
-						size="sm"
-						variant="secondary"
-						colorScheme="blue"
-						leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
-						aria-label="Preview"
-						ml="auto"
-						mr="4"
-						as={Link}
-						to={isPreview ? 'studio' : '../'}
-					>
-						{isPreview ? 'Edit' : 'Preview'}
-					</Button>
-				</Tooltip>
+				{permissions?.edit && (
+					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
+						<Button
+							size="sm"
+							variant="secondary"
+							colorScheme="blue"
+							leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
+							aria-label="Preview"
+							ml="auto"
+							mr="4"
+							as={Link}
+							to={isPreview ? 'studio' : '../'}
+						>
+							{isPreview ? 'Edit' : 'Preview'}
+						</Button>
+					</Tooltip>
+				)}
 			</Stack>
 		</Stack>
 	);

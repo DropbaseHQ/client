@@ -9,11 +9,24 @@ import * as components from './components';
 
 const customComponents = merge(proTheme.components, components);
 
-const REDUCER = 0.85;
+const getReducer = () => {
+	const { width } = window.screen;
+
+	if (width < 1024) {
+		return 0.75;
+	}
+
+	if (width <= 1440) {
+		return 0.8;
+	}
+
+	return 0.85;
+};
+
+const REDUCER = getReducer();
 
 const SIZE_FIELDS = ['fontSizes', 'letterSpacings', 'lineHeights', 'radii', 'sizes', 'space'];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const reducedSizeFields = SIZE_FIELDS.reduce((agg: any, field: any) => {
 	const mergedValues = {
 		...(baseTheme as any)[field as any],

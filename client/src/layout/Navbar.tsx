@@ -9,28 +9,24 @@ import {
 	Box,
 } from '@chakra-ui/react';
 
-import { Settings, LogOut, Grid, Repeat, Key } from 'react-feather';
+import { Settings, LogOut, Grid, Repeat, Key, Users, Lock } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
 // import { useGetWorkspaceUsers } from '@/features/settings/hooks/workspace';
 
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { isProductionApp } from '../utils';
+import { workspaceAtom } from '@/features/workspaces';
 
 export const Navbar = () => {
 	const { pathname } = useLocation();
 	const { mutate: logout } = useLogout();
 	const { user } = useGetCurrentUser();
+	const { in_trial: inTrial } = useAtomValue(workspaceAtom);
 
-	// const { users } = useGetWorkspaceUsers();
-	// const userRole = users?.find((u: any) => u.id === user?.id)?.role_name;
-
-	// const { colorMode, toggleColorMode } = useColorMode();;
-	// const userHasRole = (roles: string[]) => {
-	// 	if (!userRole) return false;
-	// 	return roles.includes(userRole);
-	// };
+	const canUseGranularPermissions = inTrial || user?.email?.endsWith('dropbase.io');
 
 	const handleLogout = () => {
 		logout();
@@ -70,18 +66,31 @@ export const Navbar = () => {
 					</Tooltip>
 				)}
 
-				{/* <Tooltip label="Members (Coming soon)" placement="right">
+				<Tooltip label="Members" placement="right">
 					<IconButton
 						variant="ghost"
-						// as={Link}
-						isDisabled
-						// to="/settings/members"
+						as={Link}
+						to="/settings/members"
 						color={pathname === '/settings/members' ? 'blue.500' : 'body'}
 						colorScheme={pathname === '/settings/members' ? 'blue' : 'gray'}
 						aria-label="Members"
 						icon={<Users size="22" />}
 					/>
-				</Tooltip> */}
+				</Tooltip>
+
+				{canUseGranularPermissions && (
+					<Tooltip label="Permissions" placement="right">
+						<IconButton
+							variant="ghost"
+							as={Link}
+							to="/settings/permissions"
+							color={pathname === '/settings/permissions' ? 'blue.500' : 'body'}
+							colorScheme={pathname === '/settings/permissions' ? 'blue' : 'gray'}
+							aria-label="permissions"
+							icon={<Lock size="22" />}
+						/>
+					</Tooltip>
+				)}
 
 				<Stack mt="auto" alignItems="center">
 					<Menu>

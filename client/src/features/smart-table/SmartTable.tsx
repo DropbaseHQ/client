@@ -5,9 +5,7 @@ import {
 	AlertIcon,
 	Box,
 	Button,
-	Card,
 	Center,
-	Flex,
 	IconButton,
 	Spinner,
 	Stack,
@@ -27,15 +25,22 @@ import DataEditor, {
 	GridCellKind,
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
-import { DatePickerCell } from '@glideapps/glide-data-grid-cells';
+import { DatePickerCell, MultiSelectCell } from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
 
-import { formatDate, formatTime, formatDateTime } from '@/features/smart-table/utils';
+import {
+	formatDate,
+	formatTime,
+	formatDateTime,
+	getEpochFromTimeString,
+	getTimeStringFromEpoch,
+} from '@/features/smart-table/utils';
 import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
-import { SOCKET_URL } from '../app-preview';
+
+import dropdownCellRenderer from './components/cells/SingleSelect';
 
 import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
 
@@ -46,7 +51,7 @@ import {
 	tablePageInfoAtom,
 } from './atoms';
 import { TableBar } from './components';
-import { getErrorMessage } from '@/utils';
+import { extractTemplateString, getErrorMessage } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 
@@ -55,6 +60,8 @@ import { Pagination } from './components/Pagination';
 import { DEFAULT_PAGE_SIZE } from './constants';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
+import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
+import { LabelContainer } from '@/components/LabelContainer';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -62,9 +69,9 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-const ALL_CELLS = [DatePickerCell];
+const ALL_CELLS = [DatePickerCell, dropdownCellRenderer, MultiSelectCell];
 
-export const SmartTable = ({ tableName }: any) => {
+export const SmartTable = ({ tableName, provider }: any) => {
 	const toast = useToast();
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
@@ -91,8 +98,17 @@ export const SmartTable = ({ tableName }: any) => {
 
 	const { properties } = useGetPage({ appName, pageName });
 
-	const { isLoading, rows, columnDict, header, refetch, isRefetching, tableError, error } =
-		useCurrentTableData(tableName);
+	const {
+		isLoading,
+		rows,
+		columnDict,
+		header,
+		refetch,
+		isRefetching,
+		tableError,
+		error,
+		remove: removeQuery,
+	} = useCurrentTableData(tableName);
 	const {
 		depends_on: dependsOn,
 		isLoading: isLoadingTable,
@@ -296,6 +312,7 @@ export const SmartTable = ({ tableName }: any) => {
 		let icon = col?.display_type ? GridColumnIcon.HeaderString : undefined;
 
 		switch (col?.display_type) {
+			case 'currency':
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -326,14 +343,37 @@ export const SmartTable = ({ tableName }: any) => {
 			}
 		}
 
-		const message = pageState?.context?.tables?.[tableName]?.columns?.[column.name]?.message;
+		const messageType =
+			pageState?.context?.tables?.[tableName]?.columns?.[column.name]?.message_type;
+
+		let color = '';
+
+		switch (messageType) {
+			case 'error': {
+				color = '#C53030'; // red.600
+				break;
+			}
+			case 'warning': {
+				color = '#C05621'; // orange.600
+				break;
+			}
+			case 'info': {
+				color = '#2B6CB0'; // blue.600
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+
+		const themeOverride = color !== '' ? { textHeader: color, bgIconHeader: color } : {};
 
 		const gridColumn = {
 			id: column.name,
 			title: column.name,
 			width: columnWidth[column.name] || String(column.name).length * 10 + 35 + 30,
 			icon,
-			hasMenu: message !== '' && message !== null && message !== undefined,
+			themeOverride,
 		};
 
 		if (column.editable) {
@@ -398,11 +438,79 @@ export const SmartTable = ({ tableName }: any) => {
 			  };
 
 		switch (column?.display_type) {
+			case 'currency': {
+				return {
+					kind: GridCellKind.Number,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData:
+						unParsedValue === null
+							? ''
+							: `${column?.configurations?.symbol}${cellValue}`,
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'select': {
+				if (column?.configurations?.multiple) {
+					const allOptions = [
+						...new Set([
+							...(column?.configurations?.options || []),
+							...cellValue.split(',').map((o: any) => ({
+								label: o,
+								value: o,
+							})),
+						]),
+					];
+
+					return {
+						kind: GridCellKind.Custom,
+						allowOverlay: canEdit,
+						data: {
+							kind: 'multi-select-cell',
+							values: cellValue?.split(','),
+							options: allOptions.map((option: any) => ({
+								...option,
+								color: theme.colors.gray['100'],
+							})),
+
+							allowDuplicates: false,
+							allowCreation: false,
+						},
+						readonly: !canEdit,
+						...themeOverride,
+					};
+				}
+
+				const allOptions = [
+					...new Set([
+						...(column?.configurations?.options || []),
+						{ label: cellValue, value: cellValue },
+					]),
+				];
+
+				return {
+					kind: GridCellKind.Custom,
+					allowOverlay: canEdit,
+					data: {
+						kind: 'dropdown-cell',
+						allowedValues: allOptions.map((option: any) => ({
+							...option,
+							color: theme.colors.gray['100'],
+						})),
+						value: cellValue,
+					},
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
 			case 'float':
 			case 'integer': {
 				return {
 					kind: GridCellKind.Number,
-					data: +cellValue,
+					data: cellValue,
 					allowOverlay: canEdit,
 					displayData: unParsedValue === null ? '' : cellValue,
 					readonly: !canEdit,
@@ -446,7 +554,7 @@ export const SmartTable = ({ tableName }: any) => {
 
 					data: {
 						kind: 'date-picker-cell',
-						date: new Date(cellValue),
+						date: new Date(+cellValue),
 						displayDate: formatDate(cellValue),
 						format: 'date',
 					},
@@ -456,11 +564,16 @@ export const SmartTable = ({ tableName }: any) => {
 
 			case 'time': {
 				return {
-					kind: GridCellKind.Text,
-					data: cellValue,
+					kind: GridCellKind.Custom,
 					allowOverlay: canEdit,
-					displayData: formatTime(cellValue),
 					readonly: !canEdit,
+
+					data: {
+						kind: 'date-picker-cell',
+						date: new Date(getEpochFromTimeString(cellValue)),
+						displayDate: formatTime(cellValue),
+						format: 'time',
+					},
 					...themeOverride,
 				};
 			}
@@ -501,15 +614,36 @@ export const SmartTable = ({ tableName }: any) => {
 		const [col, row] = cell;
 		const currentRow = rows[row];
 
+		if (editedCell.readonly) {
+			return;
+		}
+
 		const column = columnDict[visibleColumns[col]?.name];
 
 		let newValue: any = null;
 
 		if (editedCell.kind === GridCellKind.Custom) {
-			if (editedCell.data.kind === 'date-picker-cell') {
-				if (editedCell?.data?.format === 'datetime-local') {
-					newValue = editedCell?.data?.date?.getTime();
+			switch (editedCell.data.kind) {
+				case 'date-picker-cell': {
+					if (
+						editedCell?.data?.format === 'datetime-local' ||
+						editedCell?.data?.format === 'date'
+					) {
+						newValue = editedCell?.data?.date?.getTime();
+					} else if (editedCell?.data?.format === 'time') {
+						newValue = getTimeStringFromEpoch(editedCell?.data?.date?.getTime());
+					}
+					break;
 				}
+				case 'dropdown-cell': {
+					newValue = editedCell?.data?.value;
+					break;
+				}
+				case 'multi-select-cell': {
+					newValue = editedCell?.data?.values?.join(',');
+					break;
+				}
+				default:
 			}
 		} else {
 			newValue = editedCell.data;
@@ -546,7 +680,7 @@ export const SmartTable = ({ tableName }: any) => {
 							new_value: newValue === undefined ? null : newValue,
 							value: currentRow[column.name],
 							column_name: column.name,
-
+							data_type: columnDict[column.name].data_type,
 							old_value: currentRow[column.name],
 							rowIndex: row,
 							columnIndex: col,
@@ -615,7 +749,17 @@ export const SmartTable = ({ tableName }: any) => {
 				...curr,
 				[tableName]: true,
 			}));
-			pageState.state.tables = newSelectedRow;
+
+			// We need to pass the most update state to server
+			// If we pass pageState directly, the new selected row info will not be present before the request is sent
+			// So here we just manually update the pageState and send the updated state to server
+			// Open to better suggestions
+
+			pageState.state.tables = {
+				...pageState.state.tables,
+				...newSelectedRow,
+			};
+
 			sendJsonMessage({
 				type: 'display_rule',
 				state_context: pageState,
@@ -638,6 +782,7 @@ export const SmartTable = ({ tableName }: any) => {
 						if (t.name === tableName) {
 							return {
 								...t,
+								smart: false,
 								columns: header.map((c: any) => ({
 									...(columnDict?.[c] || {}),
 									...c,
@@ -673,18 +818,10 @@ export const SmartTable = ({ tableName }: any) => {
 		(name: any) => !tablesRowSelected[name],
 	);
 
-	const handleHeaderMenuClick = (col: number, bounds: any) => {
-		if (columnMessage.col === col && columnMessage.message !== '') {
-			setColumnMessage({
-				message: '',
-				icon: <></>,
-				col,
-				...bounds,
-			});
-		} else {
-			const messageInfo =
-				pageState?.context?.tables?.[tableName]?.columns?.[header[col].name];
-
+	const drawHeader = (args: any, draw: any) => {
+		// setColumnMessage if header is hovered and columnMessage is not already set
+		if (args.isHovered && columnMessage.col !== args.columnIndex) {
+			const messageInfo = pageState?.context?.tables?.[tableName]?.columns?.[args.column.id];
 			const message = messageInfo?.message;
 			const messageType = messageInfo?.message_type;
 
@@ -692,27 +829,27 @@ export const SmartTable = ({ tableName }: any) => {
 
 			switch (messageType) {
 				case 'info': {
-					icon = <InfoIcon pr={1} color="blue.500" />;
+					icon = <InfoIcon pr={0} color="blue.500" />;
 					break;
 				}
 
 				case 'warning': {
-					icon = <WarningIcon pr={1} color="orange.500" />;
+					icon = <WarningIcon pr={0} color="orange.500" />;
 					break;
 				}
 
 				case 'success': {
-					icon = <CheckCircleIcon pr={1} color="green.500" />;
+					icon = <CheckCircleIcon pr={0} color="green.500" />;
 					break;
 				}
 
 				case 'error': {
-					icon = <WarningIcon pr={1} color="red.500" />;
+					icon = <WarningIcon pr={0} color="red.500" />;
 					break;
 				}
 
 				case 'loading': {
-					icon = <SpinnerIcon pr={1} />;
+					icon = <SpinnerIcon pr={0} />;
 					break;
 				}
 				default: {
@@ -724,21 +861,38 @@ export const SmartTable = ({ tableName }: any) => {
 			setColumnMessage({
 				message,
 				icon,
-				col,
-				...bounds,
+				col: args.columnIndex,
+				...args.rect,
+				height: args.menuBounds.height,
 			});
+		} else if (
+			!args.isHovered &&
+			args.columnIndex === columnMessage.col &&
+			columnMessage.col !== -1
+		) {
+			// clear column message if it is set and isHovered is false
+			setColumnMessage({ message: '', icon: null, col: -1, ...args.rect });
 		}
+
+		draw();
+		return false;
 	};
 
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="1">
 				<NavLoader isLoading={isLoadingTable}>
-					<Flex justifyContent="space-between">
+					<Stack alignItems="center" direction="row" w="full" overflow="hidden">
 						<Stack spacing="0" px="2" flexShrink="0">
-							<Text fontWeight="semibold" fontSize="lg">
-								{table?.label || tableName}
-							</Text>
+							<LabelContainer>
+								<LabelContainer.Label>
+									{extractTemplateString(table?.label || tableName, pageState)}
+								</LabelContainer.Label>
+								{isPreview ? null : (
+									<LabelContainer.Code>{tableName}</LabelContainer.Code>
+								)}
+							</LabelContainer>
+
 							{dependantTablesWithNoRowSelection.length > 0 ? (
 								<Stack direction="row" spacing="1" alignItems="center">
 									<Box color="orange.500">
@@ -758,7 +912,31 @@ export const SmartTable = ({ tableName }: any) => {
 							) : null}
 						</Stack>
 
-						<Stack alignItems="center" direction="row" spacing="2">
+						{pageState?.context?.tables?.[tableName]?.message ? (
+							<Stack ml="auto" overflow="hidden">
+								<Alert
+									status={
+										pageState?.context?.tables?.[tableName]?.message_type ||
+										'info'
+									}
+									bgColor="transparent"
+									p={0}
+								>
+									<AlertIcon boxSize={4} />
+									<AlertDescription fontSize="sm">
+										{pageState?.context?.tables?.[tableName]?.message}
+									</AlertDescription>
+								</Alert>
+							</Stack>
+						) : null}
+
+						<Stack
+							ml="auto"
+							alignItems="center"
+							direction="row"
+							spacing="2"
+							flexShrink="0"
+						>
 							<Tooltip label="Refresh data">
 								<IconButton
 									aria-label="Refresh Data"
@@ -767,7 +945,10 @@ export const SmartTable = ({ tableName }: any) => {
 									icon={<RotateCw size="14" />}
 									variant="outline"
 									isLoading={isRefetching}
-									onClick={() => refetch()}
+									onClick={() => {
+										removeQuery();
+										refetch({ cancelRefetch: true });
+									}}
 								/>
 							</Tooltip>
 
@@ -786,16 +967,25 @@ export const SmartTable = ({ tableName }: any) => {
 								</Tooltip>
 							) : null}
 						</Stack>
-					</Flex>
+					</Stack>
 				</NavLoader>
 
 				<Stack spacing="2">
 					<TableBar />
 					<Box
+						// https://linear.app/dropbase/issue/DBA-561/cant-resize-table-columns-whole-table-moves
+						// https://github.com/atlassian/react-beautiful-dnd/issues/1810#issuecomment-1077952496
+						data-rbd-drag-handle-context-id={
+							provider?.dragHandleProps?.['data-rbd-drag-handle-context-id']
+						}
+						data-rbd-drag-handle-draggable-id="gibberish"
+						style={{
+							// When you set the data-rbd-drag-handle-context-id, RBD applies cursor: grab, so we need to revert that
+							cursor: 'auto',
+						}}
 						minH={heightMap[height] || '3xs'}
 						borderWidth="1px"
 						borderRadius="sm"
-						contentEditable
 					>
 						{isLoading ? (
 							<Center h="full" as={Stack}>
@@ -809,14 +999,31 @@ export const SmartTable = ({ tableName }: any) => {
 										<Text color="red.500" fontWeight="medium" fontSize="lg">
 											Failed to load data
 										</Text>
-										<Text fontSize="md">
-											{typeof errorMessage === 'object'
-												? JSON.stringify(errorMessage)
-												: errorMessage}
-										</Text>
+										<Text fontSize="md">{getErrorMessage(errorMessage)}</Text>
 									</Center>
 								) : (
 									<>
+										{columnMessage.message ? (
+											<Stack
+												direction="row"
+												fontSize={12}
+												alignItems="center"
+												borderRadius="md"
+												shadow="xs"
+												borderWidth="1px"
+												bg="white"
+												style={{
+													position: 'absolute',
+													transform: `translate(-50%, -${columnMessage.height}px)`,
+													left: columnMessage.x + columnMessage.width / 2,
+													padding: '5px 10px',
+													zIndex: 1,
+												}}
+											>
+												{columnMessage.icon}
+												<Text>{columnMessage.message}</Text>
+											</Stack>
+										) : null}
 										<DataEditor
 											columns={gridColumns}
 											rows={Math.min(
@@ -841,27 +1048,8 @@ export const SmartTable = ({ tableName }: any) => {
 											keybindings={{ search: true }}
 											onColumnResize={onColumnResize}
 											rowHeight={30}
-											onHeaderMenuClick={handleHeaderMenuClick}
+											drawHeader={drawHeader}
 										/>
-
-										{columnMessage.message !== '' && (
-											<Card
-												style={{
-													position: 'fixed',
-													top: columnMessage.y - 36,
-													left: columnMessage.x + columnMessage.width / 2,
-													transform: 'translateX(-50%)',
-													padding: '5px 10px',
-													zIndex: 1,
-												}}
-												contentEditable={false}
-											>
-												<Flex alignItems="center" fontSize={12}>
-													{columnMessage.icon}
-													{columnMessage.message}
-												</Flex>
-											</Card>
-										)}
 									</>
 								)}
 							</>
@@ -870,21 +1058,6 @@ export const SmartTable = ({ tableName }: any) => {
 
 					<Pagination />
 				</Stack>
-
-				{pageState?.context?.tables?.[tableName].message ? (
-					<div>
-						<Alert
-							variant="left-accent"
-							status={pageState?.context?.tables?.[tableName].message_type || 'info'}
-							height="30px"
-						>
-							<AlertIcon boxSize={4} />
-							<AlertDescription fontSize={14}>
-								{pageState?.context?.tables?.[tableName].message}
-							</AlertDescription>
-						</Alert>
-					</div>
-				) : null}
 			</Stack>
 		</CurrentTableContext.Provider>
 	);

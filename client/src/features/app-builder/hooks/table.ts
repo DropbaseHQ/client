@@ -11,6 +11,7 @@ import {
 import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
 import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
+import { fetchJobStatus } from '@/utils/worker-job';
 
 export const TABLE_QUERY_KEY = 'table';
 
@@ -189,7 +190,11 @@ const runSQLQuery = async ({ appName, pageName, state, source, fileContent }: an
 		file_content: fileContent,
 	});
 
-	return response.data;
+	if (response.data?.job_id) {
+		const jobResponse = await fetchJobStatus(response.data.job_id);
+		return jobResponse;
+	}
+	throw new Error('Failed to run python function');
 };
 
 export const useRunSQLQuery = (props: any = {}) => {
@@ -198,7 +203,6 @@ export const useRunSQLQuery = (props: any = {}) => {
 	return useMutation(runSQLQuery, {
 		...props,
 		onSettled: () => {
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
 		},
 	});
