@@ -85,6 +85,12 @@ export const Login = () => {
 		},
 		onSuccess: (data: any) => {
 			queryClient.clear();
+			if (localStorage.getItem('access_token')) {
+				localStorage.removeItem('access_token');
+			}
+			if (localStorage.getItem('refresh_token')) {
+				localStorage.removeItem('refresh_token');
+			}
 			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 			setAxiosToken(data?.access_token);
 			localStorage.setItem('access_token', data?.access_token);
