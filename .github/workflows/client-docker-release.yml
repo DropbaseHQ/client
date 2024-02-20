@@ -6,12 +6,29 @@ on:
       - main
       - dev
 
+env:
+  VITE_API_ENDPOINT: "https://api.dropbase.io/"
+  VITE_WORKER_API_ENDPOINT: "http://localhost:9090"
+  VITE_WORKER_WS_ENDPOINT: "ws://localhost:9090"
+  VITE_PYTHON_LSP_SERVER: "ws://localhost:9095"
+
 jobs:
   build-client-docker-image:
     name: Build client docker image
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: cd client && yarn install
+
+      - name: Build assets
+        run: cd client && yarn run build
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
