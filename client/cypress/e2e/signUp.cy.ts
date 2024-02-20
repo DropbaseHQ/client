@@ -53,5 +53,7 @@ describe('Sign up flow', () => {
 			// Confirm the email
 		});
 		cy.login(NEW_USER_INFO.email, NEW_USER_INFO.password);
+
+		cy.url().should('include', '/apps');
 	});
 });
