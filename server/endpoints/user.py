@@ -10,6 +10,7 @@ from server.controllers.user import get_user_permissions, user_controller
 from server.models import User
 from server.schemas.user import (
     AddPolicyRequest,
+    CreateGoogleUserRequest,
     CreateUser,
     CreateUserRequest,
     LoginGoogleUser,
@@ -43,7 +44,7 @@ def register_user(request: CreateUserRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/registerGoogle")
-def register_google_user(request: CreateUserRequest, db: Session = Depends(get_db)):
+def register_google_user(request: CreateGoogleUserRequest, db: Session = Depends(get_db)):
     return user_controller.register_google_user(db, request)
 
 
