@@ -40,8 +40,8 @@ def get_contexted_enforcer(db, workspace_id):
     model = casbin.Model()
     model.load_model_from_text(casbin_config)
     enforcer = casbin.Enforcer(model, adapter, True)
-    # logging.getLogger("casbin.enforcer").setLevel(logging.CRITICAL)
-    # logging.getLogger("casbin.role").setLevel(logging.CRITICAL)
+    logging.getLogger("casbin.enforcer").setLevel(logging.CRITICAL)
+    logging.getLogger("casbin.role").setLevel(logging.CRITICAL)
     enforcer.auto_build_role_links = True
 
     # Refreshes policy. Allows dynamic policy changes while deployed.
