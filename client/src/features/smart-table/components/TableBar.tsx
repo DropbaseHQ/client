@@ -10,6 +10,7 @@ import {
 	PopoverFooter,
 	PopoverHeader,
 	PopoverTrigger,
+	Spinner,
 	Stack,
 	Tooltip,
 	useDisclosure,
@@ -176,6 +177,11 @@ export const TableBar = () => {
 				) : null}
 
 				<Stack direction="row">
+					{convertMutation.isLoading ? (
+						<Tooltip label="Converting to Smart Table">
+							<Spinner mr="2" emptyColor="gray.200" color="yellow.500" size="sm" />
+						</Tooltip>
+					) : null}
 					{cellEdits.length > 0 ? (
 						<Tooltip label="Update">
 							<IconButton
