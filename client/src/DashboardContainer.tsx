@@ -5,14 +5,13 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 
 import { theme } from '@/lib/chakra-ui';
 import { queryClient } from '@/lib/react-query';
-import { DashboardRoutes } from '@/routes';
 
-export const Dashboard = () => {
+export const DashboardContainer = ({ children }: any) => {
 	return (
 		<BrowserRouter>
 			<ChakraProvider theme={theme}>
 				<QueryClientProvider client={queryClient}>
-					<DashboardRoutes />
+					{children}
 					<ReactQueryDevtools position="bottom-right" />
 				</QueryClientProvider>
 			</ChakraProvider>

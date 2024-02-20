@@ -66,14 +66,6 @@ export const PageTab = (props: any) => {
 		const newName = e.target.value;
 
 		setPageNameEdit(newName);
-
-		// setInvalidMessage(
-		// 	invalidResourceName(
-		// 		pageName || '',
-		// 		newName,
-		// 		pages.map((p: any) => p.name),
-		// 	),
-		// );
 	};
 
 	const handleRenamePage = () => {
@@ -90,11 +82,6 @@ export const PageTab = (props: any) => {
 							status: 'success',
 							title: 'Page renamed',
 						});
-						// if (isPreview) {
-						// 	navigate(`../${variables.newPageName}`, { relative: 'path' });
-						// } else {
-						// 	navigate(`../../${variables.newPageName}/studio`, { relative: 'path' });
-						// }
 					},
 					onError: (error: any) => {
 						toast({

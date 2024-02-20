@@ -18,7 +18,10 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 		pathname.startsWith('/email-confirmation') ||
 		pathname.startsWith('/forgot');
 
-	const shouldNotShowStatusBar = loginRoutes || import.meta.env.VITE_APP_TYPE === 'app';
+	const welcomePage = pathname.startsWith('/welcome');
+
+	const shouldNotShowStatusBar =
+		loginRoutes || welcomePage || import.meta.env.VITE_APP_TYPE === 'app';
 
 	const shouldNotDisplayNavbar = pathname.startsWith('/apps/') || loginRoutes || !isSuccess;
 
