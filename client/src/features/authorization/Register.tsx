@@ -10,16 +10,17 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
+import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-
-import { useRegister } from './hooks/useRegister';
-import { useToast } from '@/lib/chakra-ui';
-import { useGoogleLogin } from './hooks/useLogin';
-import { GoogleLogin } from '@react-oauth/google';
 import { useQueryClient } from 'react-query';
 
+import { useGoogleRegister, useRegister } from './hooks/useRegister';
+import { useToast } from '@/lib/chakra-ui';
+import { GoogleLogin } from '@react-oauth/google';
+import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '@/utils';
+import { workspaceAtom } from '@/features/workspaces';
 
 type FormValues = {
 	email: string;
@@ -40,8 +41,9 @@ export const Register = () => {
 	const queryClient = useQueryClient();
 
 	const toast = useToast();
+	const updateWorkspace = useSetAtom(workspaceAtom);
 
-	const { mutate: googleMutate, isLoading: googleIsLoading } = useGoogleLogin({
+	const { mutate: googleMutate } = useGoogleRegister({
 		onError: (error: any) => {
 			toast({
 				title: 'Signup Failed',
@@ -59,7 +61,6 @@ export const Register = () => {
 
 			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
 			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
-			setDisplayEmailConfirmation(false);
 			navigate('/apps');
 		},
 	});
@@ -85,6 +86,18 @@ export const Register = () => {
 	const onSubmit = handleSubmit((data) => {
 		mutate(data);
 	});
+
+	const onGoogleSuccess = (response: any) => {
+		googleMutate(response);
+	};
+
+	const onGoogleError = () => {
+		toast({
+			title: 'Signup Failed',
+			status: 'error',
+			description: 'Unable to sign up with google',
+		});
+	};
 
 	return (
 		<Container display="flex" alignItems="center" h="100vh" maxW="lg">

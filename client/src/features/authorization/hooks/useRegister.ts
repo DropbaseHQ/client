@@ -26,8 +26,22 @@ const registerUser = async ({
 	return response.data;
 };
 
+const registerGoogleUser = async ({ credential }: { credential: string }) => {
+	const response = await axios.post<{ user: string }>(`/user/registerGoogle`, {
+		credential,
+	});
+
+	return response.data;
+};
+
 export const useRegister = (mutationConfig: MutationConfig<typeof registerUser>) => {
 	return useMutation(registerUser, {
+		...(mutationConfig || {}),
+	});
+};
+
+export const useGoogleRegister = (mutationConfig: MutationConfig<typeof registerGoogleUser>) => {
+	return useMutation(registerGoogleUser, {
 		...(mutationConfig || {}),
 	});
 };
