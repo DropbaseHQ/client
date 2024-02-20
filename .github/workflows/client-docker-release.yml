@@ -1,14 +1,10 @@
-name: Build client docker image
+name: Debug - Build client docker image
 
 on:
-  push:
+  pull_request:
     branches:
       - main
-    paths:
-      - client/**
-    tags:
-      - "*"
-  workflow_dispatch:
+      - dev
 
 jobs:
   build-client-docker-image:
@@ -16,46 +12,6 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-
-      - name: Prepare image tags
-        id: image-tags
-        run: |
-          base=dropbase/client
-
-          ## Set git tag as image tag
-          ##
-          if [[ '${{ github.ref }}' == *"refs/tags/"* ]]; then
-            github_tag="${GITHUB_REF#refs/*/}"
-
-            SEMVER_REGEX="^v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(\\-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
-            if [[ "$github_tag" =~ $SEMVER_REGEX ]]; then
-              github_tag=$(echo "${github_tag}" | sed 's/^v//')
-            fi
-
-            container_images=$(cat <<END_HEREDOC
-          ${base}:${github_tag}
-          END_HEREDOC
-          )
-          
-          ## Set 'latest' image tag if 'main' or 'master'
-          ## branch is pushed
-          ##
-          elif [[ '${{ github.ref }}' == 'refs/heads/master' || '${{ github.ref }}' == 'refs/heads/main' ]]; then
-            container_images=$(cat <<END_HEREDOC
-          ${base}:latest
-          END_HEREDOC
-            )
-          fi
-
-          ## Print tags for debugging purpose
-          ##
-          echo "[INFO] container_images: ${container_images}"
-          
-          ## Set container_images output
-          ##
-          echo "container_images<<EOF" >> $GITHUB_OUTPUT
-          echo "$container_images" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -72,9 +28,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          push: true
+          push: false
           context: client
           platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.image-tags.outputs.container_images }}
+          tags: dropbase/client:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
