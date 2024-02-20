@@ -237,6 +237,12 @@ export const DisplayRulesEditor = ({ name }: any) => {
 								let input: any = {
 									type: 'text',
 								};
+								if (getColType(rule.target) === 'number') {
+									input = {
+										type: 'number',
+									};
+									isNumberInput = true;
+								}
 
 								if (componentProperty?.type === 'input') {
 									if (componentProperty?.property?.type === 'number') {
