@@ -25,7 +25,7 @@ import DataEditor, {
 	GridCellKind,
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
-import { DatePickerCell, DropdownCell, MultiSelectCell } from '@glideapps/glide-data-grid-cells';
+import { DatePickerCell, MultiSelectCell } from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import { useParams } from 'react-router-dom';
@@ -39,6 +39,8 @@ import {
 	getTimeStringFromEpoch,
 } from '@/features/smart-table/utils';
 import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
+
+import dropdownCellRenderer from './components/cells/SingleSelect';
 
 import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
 
@@ -67,7 +69,7 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-const ALL_CELLS = [DatePickerCell, DropdownCell, MultiSelectCell];
+const ALL_CELLS = [DatePickerCell, dropdownCellRenderer, MultiSelectCell];
 
 export const SmartTable = ({ tableName, provider }: any) => {
 	const toast = useToast();
@@ -454,8 +456,11 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				if (column?.configurations?.multiple) {
 					const allOptions = [
 						...new Set([
-							...(column?.configurations?.options.map((o: any) => o.value) || []),
-							...cellValue.split(','),
+							...(column?.configurations?.options || []),
+							...cellValue.split(',').map((o: any) => ({
+								label: o,
+								value: o,
+							})),
 						]),
 					];
 
@@ -466,8 +471,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							kind: 'multi-select-cell',
 							values: cellValue?.split(','),
 							options: allOptions.map((option: any) => ({
-								value: option,
-								label: option,
+								...option,
 								color: theme.colors.gray['100'],
 							})),
 
@@ -481,8 +485,8 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 				const allOptions = [
 					...new Set([
-						...(column?.configurations?.options.map((o: any) => o.value) || []),
-						...cellValue,
+						...(column?.configurations?.options || []),
+						{ label: cellValue, value: cellValue },
 					]),
 				];
 
@@ -491,7 +495,10 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					allowOverlay: canEdit,
 					data: {
 						kind: 'dropdown-cell',
-						allowedValues: allOptions,
+						allowedValues: allOptions.map((option: any) => ({
+							...option,
+							color: theme.colors.gray['100'],
+						})),
 						value: cellValue,
 					},
 					readonly: !canEdit,

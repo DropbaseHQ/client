@@ -105,6 +105,7 @@ class WorkspaceCreator:
                 "token": token,
                 "name": "default",
                 "workspace_id": self.workspace_id,
+                "is_active": True,
             },
             auto_commit=False,
         )

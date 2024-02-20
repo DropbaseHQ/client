@@ -16,6 +16,7 @@ import {
 	Collapse,
 	Text,
 	IconButton,
+	FormLabel,
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { FormInput, InputRenderer } from '@/components/FormInput';
@@ -25,6 +26,33 @@ import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { newPageStateAtom } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
 import { useGetPage, useUpdatePageData } from '@/features/page';
+
+const DISPLAY_TYPE_ENUM: any = {
+	text: ['text', 'select'],
+	integer: ['integer', 'currency'],
+	float: ['float', 'currency'],
+	currency: ['integer', 'float', 'currency'],
+	select: ['text', 'select'],
+};
+
+const VISIBLE_FIELDS = [
+	'schema_name',
+	'table_name',
+	'primary_key',
+	'foreign_key',
+	'default',
+	'column_type',
+	'nullable',
+	'unique',
+];
+
+const resolveDisplayTypeOptions = (displayType: any) => {
+	if (DISPLAY_TYPE_ENUM[displayType]) {
+		return DISPLAY_TYPE_ENUM[displayType];
+	}
+
+	return [displayType];
+};
 
 const ColumnProperty = ({
 	tableType,
@@ -150,6 +178,9 @@ const ColumnProperty = ({
 
 	const hasNoEditKeys = edit_keys?.length === 0;
 
+	const displayTypeField = columnFields.find((f: any) => f.name === 'display_type');
+	const allVisibleFields = columnFields.filter((f: any) => VISIBLE_FIELDS.includes(f.name)) || [];
+
 	return (
 		<form onSubmit={methods.handleSubmit(onSubmit)}>
 			<FormProvider {...methods}>
@@ -246,66 +277,77 @@ const ColumnProperty = ({
 					</SimpleGrid>
 					<Collapse in={isOpen}>
 						<Stack p="3">
-							{columnFields.map((field: any) => {
-								if (field.name === 'display_type') {
-									return (
-										<>
-											<FormInput
-												type="custom-select"
-												id={field.name}
-												name={field.title}
-												w="50%"
-												options={field.enum.map((option: any) => ({
-													name: option,
-													value: option,
-												}))}
-												onSelect={resetConfig}
+							{displayTypeField ? (
+								<FormInput
+									type="custom-select"
+									id={displayTypeField.name}
+									name={displayTypeField.title}
+									w="50%"
+									hideClearOption
+									options={resolveDisplayTypeOptions(displayType).map(
+										(option: any) => ({
+											name: option,
+											value: option,
+										}),
+									)}
+									onSelect={resetConfig}
+								/>
+							) : null}
+
+							{Object.keys(configProperties).length > 0 ? (
+								<SimpleGrid py="2" gap={4} columns={2}>
+									{Object.keys(configProperties).map((key: any) => {
+										const property = configProperties?.[key];
+										const isRequired =
+											displayConfiguration?.required?.includes(key);
+										return (
+											<Box
+												gridColumn={
+													property.type === 'array' ? '1 / -1' : ''
+												}
+											>
+												<FormInput
+													key={key}
+													type={property?.type}
+													id={`configurations.${key}`}
+													name={key}
+													keys={
+														key === 'options'
+															? ['label', 'value']
+															: null
+													}
+													required={isRequired}
+													validation={
+														isRequired
+															? {
+																	required: `${key} is required`,
+															  }
+															: {}
+													}
+												/>
+											</Box>
+										);
+									})}
+								</SimpleGrid>
+							) : null}
+
+							<SimpleGrid mt="2" alignItems="center" gap={4} columns={2}>
+								{allVisibleFields.map((property: any) => (
+									<Stack spacing="0.5" key={property.name}>
+										<FormLabel>{property.name}</FormLabel>
+										{property.type === 'boolean' ? (
+											<InputRenderer
+												{...property}
+												value={properties[property.name]}
 											/>
-
-											<SimpleGrid py="2" gap={4} columns={2}>
-												{Object.keys(configProperties).map((key: any) => {
-													const property = configProperties?.[key];
-													const isRequired =
-														displayConfiguration?.required?.includes(
-															key,
-														);
-													return (
-														<Box
-															gridColumn={
-																property.type === 'array'
-																	? '1 / -1'
-																	: ''
-															}
-														>
-															<FormInput
-																key={key}
-																type={property?.type}
-																id={`configurations.${key}`}
-																name={key}
-																keys={
-																	key === 'options'
-																		? ['value']
-																		: null
-																}
-																required={isRequired}
-																validation={
-																	isRequired
-																		? {
-																				required: `${key} is required`,
-																		  }
-																		: {}
-																}
-															/>
-														</Box>
-													);
-												})}
-											</SimpleGrid>
-										</>
-									);
-								}
-
-								return null;
-							})}
+										) : (
+											<Code bg="transparent" fontSize="sm">
+												{properties[property.name] || '-'}
+											</Code>
+										)}
+									</Stack>
+								))}
+							</SimpleGrid>
 						</Stack>
 					</Collapse>
 				</Stack>
@@ -390,6 +432,18 @@ export const ColumnsProperties = () => {
 				</Button>
 			) : null}
 			<Stack spacing="0" borderTopWidth="1px">
+				<SimpleGrid
+					p="2"
+					fontWeight="medium"
+					fontSize="sm"
+					bg="gray.50"
+					borderBottomWidth="1px"
+					columns={3}
+				>
+					<Text>Column</Text>
+					<Text>Editable</Text>
+					<Text>Hidden</Text>
+				</SimpleGrid>
 				{columns.map((column: any) => (
 					<ColumnProperty tableType={type} key={column.name} {...column} />
 				))}

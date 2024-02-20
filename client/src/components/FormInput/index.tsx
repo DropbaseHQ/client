@@ -68,6 +68,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		onSelect,
 		options: selectOptions,
 		keys,
+		hideClearOption,
 		...inputProps
 	} = props;
 
@@ -149,7 +150,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							</Box>
 						</Stack>
 					</MenuButton>
-					{value ? (
+					{value && !hideClearOption ? (
 						<Button
 							onClick={() => {
 								onChange(null);
@@ -179,7 +180,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							</Center>
 						) : (
 							<MenuOptionGroup
-								defaultValue={value}
+								value={value}
 								onChange={(newValue) => {
 									onChange(newValue);
 									onSelect?.(newValue);
