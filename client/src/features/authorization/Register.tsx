@@ -50,7 +50,7 @@ export const Register = () => {
 				status: 'success',
 				// description: 'Please check your mail for the confirmation link.',
 			});
-			navigate('/login');
+			navigate('/login?confirm');
 		},
 	});
 

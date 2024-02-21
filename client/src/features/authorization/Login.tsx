@@ -35,7 +35,9 @@ export const Login = () => {
 
 	const updateWorkspace = useSetAtom(workspaceAtom);
 
-	const [displayEmailConfirmation, setDisplayEmailConfirmation] = useState(false);
+	const [displayEmailConfirmation, setDisplayEmailConfirmation] = useState(
+		window.location.href.includes('confirm'),
+	);
 	const {
 		register,
 		formState: { errors },
@@ -148,8 +150,11 @@ export const Login = () => {
 					</form>
 					{displayEmailConfirmation && (
 						<Flex mt="6" direction="column">
-							<Text color="orange" fontSize="sm">
-								You must first confirm your email before logging in.
+							<Text color="orange.500" fontSize="md" align="center">
+								Please confirm your email before logging in.
+							</Text>
+							<Text color="gray.500" fontSize="md" align="center">
+								Make sure to check your spam folder.
 							</Text>
 							<Button
 								marginTop="4"
