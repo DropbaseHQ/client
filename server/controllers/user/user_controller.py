@@ -38,7 +38,6 @@ from server.schemas.user import (
 )
 from server.schemas.workspace import ReadWorkspace
 from server.utils.authentication import (
-    authenticate_user,
     get_password_hash,
     verify_password,
 )
@@ -62,17 +61,23 @@ def get_user(db: Session, user_email: str):
 
 def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
     try:
-        user = authenticate_user(db, request.email, request.password)
+        user = crud.user.get_user_by_email(db, email=request.email)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect username or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        if user.social_login != "":
+        if user.social_login is not None and user.social_login != "":
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Account not registered with email",
+            )
+        if not verify_password(request.password, user.hashed_password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect username or password",
+                headers={"WWW-Authenticate": "Bearer"},
             )
         if not user.active:
             raise HTTPException(
