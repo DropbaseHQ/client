@@ -23,31 +23,6 @@ import { previewCodeAtom } from '../../atoms';
 import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 
-// {
-//     "stdout": "",
-//     "traceback": "",
-//     "message": "Job has been completed",
-//     "type": "table",
-//     "data": [
-//         [
-//             1
-//         ],
-//         [
-//             2
-//         ],
-//         [
-//             3
-//         ]
-//     ],
-//     "columns": [
-//         {
-//             "name": "a",
-//             "column_type": "int64",
-//             "display_type": "integer"
-//         }
-//     ]
-// }
-
 export const FunctionTerminal = ({ panelRef }: any) => {
 	const [{ code, name, source, execute }, setPreviewCode] = useAtom(previewCodeAtom);
 
