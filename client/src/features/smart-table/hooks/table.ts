@@ -127,7 +127,11 @@ export const useTableData = ({
 
 	const parsedData: any = useMemo(() => {
 		if (response) {
-			const header = response?.columns || [];
+			const customColumns = table?.columns?.filter(
+				(c: any) => c.column_type === 'button_column',
+			);
+
+			const header = [...(response?.columns || []), ...(customColumns || [])];
 
 			const rows: any =
 				response?.data?.map((r: any) => {
@@ -152,7 +156,7 @@ export const useTableData = ({
 			header: [],
 			tableError: null,
 		};
-	}, [response]);
+	}, [response, table]);
 
 	return {
 		...rest,
