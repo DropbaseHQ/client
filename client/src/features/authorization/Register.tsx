@@ -178,7 +178,9 @@ export const Register = () => {
 								<Button
 									as={Link}
 									bgColor="black"
-									to="https://github.com/login/oauth/authorize?scope=user:email&client_id=0cc0b4d0157e439493fc"
+									to={`https://github.com/login/oauth/authorize?scope=user:email&client_id=${
+										import.meta.env.VITE_GITHUB_CLIENT_ID
+									}`}
 								>
 									<GitHub size="14" />
 									<Text ml="2">Sign up with Github</Text>
