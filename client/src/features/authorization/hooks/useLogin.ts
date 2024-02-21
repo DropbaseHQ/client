@@ -43,7 +43,8 @@ export const useSetAxiosToken = () => {
 		pathname.startsWith('/register') ||
 		pathname.startsWith('/reset') ||
 		pathname.startsWith('/email-confirmation') ||
-		pathname.startsWith('/forgot');
+		pathname.startsWith('/forgot') ||
+		pathname.startsWith('/github_auth');
 
 	useEffect(() => {
 		const fetchData = async () => {
