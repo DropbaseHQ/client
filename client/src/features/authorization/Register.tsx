@@ -11,6 +11,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
+import { GitHub } from 'react-feather';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useRegister } from './hooks/useRegister';
@@ -173,6 +174,14 @@ export const Register = () => {
 							<Stack spacing="6">
 								<Button isLoading={isLoading} type="submit" colorScheme="blue">
 									Sign up
+								</Button>
+								<Button
+									as={Link}
+									bgColor="black"
+									to="https://github.com/login/oauth/authorize?scope=user:email&client_id=0cc0b4d0157e439493fc"
+								>
+									<GitHub size="14" />
+									<Text ml="2">Sign up with Github</Text>
 								</Button>
 							</Stack>
 						</Stack>
