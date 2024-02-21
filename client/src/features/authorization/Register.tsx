@@ -2,6 +2,7 @@ import {
 	Box,
 	Button,
 	Container,
+	Divider,
 	FormControl,
 	FormErrorMessage,
 	FormLabel,
@@ -220,6 +221,7 @@ export const Register = () => {
 									Sign up
 								</Button>
 							</Stack>
+							<Divider />
 							<GoogleLogin
 								onSuccess={onGoogleSuccess}
 								onError={onGoogleError}

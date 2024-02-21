@@ -10,6 +10,7 @@ import {
 	Input,
 	Stack,
 	Text,
+	Divider,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useSetAtom } from 'jotai';
@@ -185,21 +186,19 @@ export const Login = () => {
 								<Button isLoading={isLoading} type="submit" colorScheme="blue">
 									Sign in
 								</Button>
-								<Stack flex="1" justifyContent="center" alignItems="center">
-									<GoogleLogin
-										size="large"
-										type="icon"
-										onSuccess={onGoogleSuccess}
-										onError={onGoogleError}
-									/>
-									{/* GitHub, etc logins go here */}
-								</Stack>
 
 								<Link to="/forgot">
 									<Text color="fg.muted" fontSize="sm" textDecoration="underline">
 										Forgot Password?
 									</Text>
 								</Link>
+								<Divider />
+								<GoogleLogin
+									onSuccess={onGoogleSuccess}
+									onError={onGoogleError}
+									size="medium"
+									width={300}
+								/>
 							</Stack>
 						</Stack>
 					</form>
