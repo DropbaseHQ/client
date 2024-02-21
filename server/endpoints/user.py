@@ -1,7 +1,7 @@
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
@@ -140,3 +140,10 @@ def check_permission(
     user: User = Depends(get_current_user),
 ):
     return user_controller.check_permissions(db, user, request)
+
+
+@router.get("/github_auth/{code}")
+def github_auth(
+    code: str, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()
+):
+    return user_controller.github_login(db, Authorize, code)

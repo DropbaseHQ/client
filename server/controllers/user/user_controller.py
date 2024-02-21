@@ -1,9 +1,10 @@
 import secrets
+import requests
 from datetime import datetime, timedelta
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 from uuid import UUID
 
-from fastapi import HTTPException, Response, status
+from fastapi import HTTPException, Response, status, Request
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
@@ -44,6 +45,7 @@ from server.utils.permissions.casbin_utils import (
     get_contexted_enforcer,
 )
 from server.utils.slack import slack_sign_up
+from server.credentials import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
 
 
 def get_user(db: Session, user_email: str):
@@ -430,3 +432,77 @@ def check_permissions(
         db, str(user.id), workspace_id, app_id
     )
     return permissions_dict
+
+
+def github_login(db: Session, Authorize: AuthJWT, code: str):
+    # Authenticate with github
+    response = requests.post(
+        "https://github.com/login/oauth/access_token",
+        {
+            "client_id": GITHUB_CLIENT_ID,
+            "client_secret": GITHUB_CLIENT_SECRET,
+            "code": code,
+            "accept": "json",
+        },
+    )
+
+    # Make sure we have what we need from the payload
+    access_token = parse_qs(response.text).get("access_token")[0]
+    scopes = parse_qs(response.text).get("scope")
+    if not access_token:
+        raise_http_exception(400, "Invalid access token")
+    if "user:email" not in scopes:
+        raise_http_exception(400, "User email not found")
+
+    # Get user information from github
+    user_result = requests.get(
+        "https://api.github.com/user",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    user_result_payload = user_result.json()
+    email = user_result_payload.get("email")
+    if not email:
+        response = requests.get(
+            "https://api.github.com/user/emails",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        email_response_payload = response.json()
+        for email_object in email_response_payload:
+            if email_object.get("primary"):
+                email = email_object.get("email")
+                break
+
+    if not email:
+        raise_http_exception(400, "User email not found")
+
+    user = crud.user.get_user_by_email(db, email=email)
+    name = user_result_payload.get("name")
+    if not name:
+        name = user_result_payload.get("login")
+    # If user does not exist, create user and workspace
+    if not user:
+        user_obj = CreateUser(
+            name=name,
+            email=email,
+            company=user_result_payload.get("company"),
+            trial_eligible=True,
+            active=False,
+        )
+        user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
+        db.flush()
+        workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
+        workspace_creator.create()
+        slack_sign_up(name=user.name, email=user.email)
+        db.commit()
+        return {"message": "User successfully registered"}
+
+    # If user exists, create a JWT token
+    access_token = Authorize.create_access_token(
+        subject=str(user.email), user_claims={"github_access_token": access_token}
+    )
+    refresh_token = Authorize.create_refresh_token(
+        subject=str(user.email), user_claims={"github_access_token": access_token}
+    )
+    return {"access_token": access_token, "refresh_token": refresh_token}
+
+    # Authorize.create_access_token(subject=access_token)

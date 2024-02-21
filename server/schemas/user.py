@@ -19,9 +19,9 @@ class BaseUser(BaseModel):
 class CreateUser(BaseModel):
     name: str
     last_name: Optional[str]
-    company: str
+    company: Optional[str]
     email: str
-    hashed_password: str
+    hashed_password: Optional[str]
     active: bool = False
     trial_eligible: bool = True
     confirmation_token: Optional[str]
