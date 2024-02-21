@@ -918,6 +918,25 @@ export const SmartTable = ({ tableName, provider }: any) => {
 								{isPreview ? null : (
 									<LabelContainer.Code>{tableName}</LabelContainer.Code>
 								)}
+
+								{table?.smart && !isPreview ? (
+									<Box
+										fontSize="xs"
+										px="2"
+										my="1"
+										py="1"
+										borderRadius="sm"
+										borderWidth="1px"
+										borderColor="yellow.400"
+										bg="yellow.50"
+										color="yellow.700"
+										fontWeight="medium"
+										h="fit-content"
+										w="fit-content"
+									>
+										Smart Table
+									</Box>
+								) : null}
 							</LabelContainer>
 
 							{dependantTablesWithNoRowSelection.length > 0 ? (
