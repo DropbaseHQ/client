@@ -261,7 +261,7 @@ def register_user(db: Session, request: CreateUserRequest):
         raise_http_exception(status_code=500, message="Internal server error")
 
 
-def register_google_user(db: Session, request: CreateGoogleUserRequest):
+def register_google_user(db: Session, Authorize: AuthJWT, request: CreateGoogleUserRequest):
     try:
         token = request.credential
 
@@ -308,7 +308,26 @@ def register_google_user(db: Session, request: CreateGoogleUserRequest):
 
         slack_sign_up(name=name, email=email)
         db.commit()
-        return {"message": "User successfully registered"}
+
+        access_token = Authorize.create_access_token(
+            subject=user.email,
+            expires_time=ACCESS_TOKEN_EXPIRE_SECONDS,
+            user_claims={"user_id": str(user.id)},
+        )
+        refresh_token = Authorize.create_refresh_token(
+            subject=user.email, expires_time=REFRESH_TOKEN_EXPIRE_SECONDS
+        )
+
+        workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
+        workspace = (
+            ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
+        )
+        return {
+            "user": ReadUser.from_orm(user),
+            "workspace": workspace,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
 
     except HTTPException as e:
         raise_http_exception(status_code=e.status_code, message=e.detail)

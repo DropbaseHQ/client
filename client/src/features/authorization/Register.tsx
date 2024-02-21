@@ -61,6 +61,10 @@ export const Register = () => {
 
 			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
 			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
+			toast({
+				title: 'Registered successfully',
+				status: 'success',
+			});
 			navigate('/apps');
 		},
 	});

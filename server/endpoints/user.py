@@ -44,8 +44,8 @@ def register_user(request: CreateUserRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/registerGoogle")
-def register_google_user(request: CreateGoogleUserRequest, db: Session = Depends(get_db)):
-    return user_controller.register_google_user(db, request)
+def register_google_user(request: CreateGoogleUserRequest, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
+    return user_controller.register_google_user(db, Authorize, request)
 
 
 
