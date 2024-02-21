@@ -137,11 +137,11 @@ export const useUpdatePageData = (props: any = {}) => {
 
 			props?.onSettled?.();
 		},
-		onSuccess: (data: any) => {
+		onSuccess: (data: any, variables: any) => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 
-			props?.onSuccess?.(data);
+			props?.onSuccess?.(data, variables);
 		},
 	});
 };

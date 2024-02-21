@@ -84,9 +84,14 @@ const ColumnProperty = ({
 		watch,
 		setValue,
 		formState: { isDirty },
+		reset,
 	} = methods;
 
 	const { properties: pageProperties } = useGetPage({ appName, pageName });
+
+	const tableId = useAtomValue(selectedTableIdAtom);
+
+	const { columns } = useGetTable(tableId || '');
 
 	const { isOpen, onToggle } = useDisclosure();
 	const { isOpen: isConfigurationOpen, onToggle: onToggleConfigurations } = useDisclosure();
@@ -167,34 +172,42 @@ const ColumnProperty = ({
 		},
 	});
 
-	const handleUpdate = (partialValues: any) => {
-		updateMutation.mutate({
-			app_name: appName,
-			page_name: pageName,
-			properties: {
-				...(pageProperties || {}),
-				tables: (pageProperties?.tables || []).map((t: any) => {
-					if (t.name === tableName) {
-						return {
-							...t,
-							columns: (t?.columns || []).map((c: any) => {
-								if (c.name === defaultName) {
-									return {
-										...c,
-										...properties,
-										...partialValues,
-									};
-								}
+	const handleUpdate = async (partialValues: any) => {
+		try {
+			await updateMutation.mutateAsync({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(pageProperties || {}),
+					tables: (pageProperties?.tables || []).map((t: any) => {
+						if (t.name === tableName) {
+							return {
+								...t,
+								columns: (t?.columns || []).map((c: any) => {
+									if (c.name === defaultName) {
+										return {
+											...c,
+											...properties,
+											...partialValues,
+										};
+									}
 
-								return c;
-							}),
-						};
-					}
+									return c;
+								}),
+							};
+						}
 
-					return t;
-				}),
-			},
-		});
+						return t;
+					}),
+				},
+			});
+			reset(partialValues, {
+				keepDirty: false,
+				keepDirtyValues: false,
+			});
+		} catch (e) {
+			//
+		}
 	};
 
 	const resetConfig = () => {
@@ -202,33 +215,7 @@ const ColumnProperty = ({
 	};
 
 	const onSubmit = (formValues: any) => {
-		updateMutation.mutate({
-			app_name: appName,
-			page_name: pageName,
-			properties: {
-				...(pageProperties || {}),
-				tables: (pageProperties?.tables || []).map((t: any) => {
-					if (t.name === tableName) {
-						return {
-							...t,
-							columns: (t?.columns || []).map((c: any) => {
-								if (c.name === defaultName) {
-									return {
-										...c,
-										...properties,
-										...formValues,
-									};
-								}
-
-								return c;
-							}),
-						};
-					}
-
-					return t;
-				}),
-			},
-		});
+		handleUpdate(formValues);
 	};
 
 	const hasNoEditKeys = edit_keys?.length === 0;
@@ -352,6 +339,32 @@ const ColumnProperty = ({
 
 									if (f?.category === 'Events') {
 										return <EventPropertyEditor id={f.name} />;
+									}
+
+									if (f.name === 'name') {
+										return (
+											<FormInput
+												{...f}
+												id={f.name}
+												name={f.title}
+												validation={{
+													required: 'Cannot  be empty',
+													validate: {
+														unique: (value: any) => {
+															if (
+																columns.find(
+																	(c: any) => c.name === value,
+																)
+															) {
+																return 'Name must be unique';
+															}
+
+															return true;
+														},
+													},
+												}}
+											/>
+										);
 									}
 
 									return (

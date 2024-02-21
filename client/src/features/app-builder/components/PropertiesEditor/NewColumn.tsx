@@ -21,7 +21,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 
 import { useStatus } from '@/layout/StatusBar';
-import { useResourceFields } from '@/features/app-builder/hooks';
+import { useGetTable, useResourceFields } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
 import { getErrorMessage } from '@/utils';
@@ -41,6 +41,8 @@ export const NewColumn = (props: any) => {
 	const { isConnected } = useStatus();
 
 	const { properties: pageProperties } = useGetPage({ appName, pageName });
+
+	const { columns } = useGetTable(tableName || '');
 
 	const { isOpen, onClose, onToggle } = useDisclosure({
 		onClose: () => {
@@ -134,6 +136,34 @@ export const NewColumn = (props: any) => {
 															name={property.title}
 															type="template"
 															key={property.name}
+														/>
+													);
+												}
+
+												if (property?.name === 'name') {
+													return (
+														<FormInput
+															{...property}
+															id={property.name}
+															name={property.title}
+															validation={{
+																required: 'Cannot  be empty',
+																validate: {
+																	unique: (value: any) => {
+																		if (
+																			columns.find(
+																				(c: any) =>
+																					c.name ===
+																					value,
+																			)
+																		) {
+																			return 'Name must be unique';
+																		}
+
+																		return true;
+																	},
+																},
+															}}
 														/>
 													);
 												}
