@@ -5,6 +5,7 @@ import { Login, Register, ResetPassword, EmailConfirmation } from '@/features/au
 import { DashboardLayout } from '@/layout';
 import { useWorkspaces } from '@/features/workspaces';
 import { RequestResetLink } from '@/features/authorization/RequestResetLink';
+import { GithubAuth } from '@/features/authorization/GithubAuth';
 
 export const DashboardRoutes = ({ homeRoute, children }: any) => {
 	const { isLoading } = useWorkspaces();
@@ -56,6 +57,7 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 						path="email-confirmation/:token/:userId"
 						element={<EmailConfirmation />}
 					/>
+					<Route path="github_auth" element={<GithubAuth />} />
 					{children}
 					<Route path="*" element={<Navigate to={homeRoute} />} />
 				</Route>
