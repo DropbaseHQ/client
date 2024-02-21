@@ -10,12 +10,13 @@ class User(Base):
 
     name = Column(String, nullable=False)
     last_name = Column(String, nullable=True)
-    company = Column(String, nullable=False)
+    company = Column(String)
     email = Column(String, nullable=False, unique=True)
     hashed_password = Column(String)
     active = Column(Boolean, default=False)
     trial_eligible = Column(Boolean, default=True)
     confirmation_token = Column(String)
+    social_login = Column(String)
 
     date = Column(TIMESTAMP, server_default=func.now())
 
