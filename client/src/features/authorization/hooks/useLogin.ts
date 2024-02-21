@@ -37,6 +37,7 @@ export const useSetAxiosToken = () => {
 	const navigate = useNavigate();
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { pathname } = useLocation();
+
 	const loginRoutes =
 		pathname.startsWith('/login') ||
 		pathname.startsWith('/register') ||

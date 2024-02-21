@@ -7,7 +7,7 @@ environment_variables:
   ENVIRONMENT: development
   AWS_REGION: us-east-1
   OPENAI_ORG_ID: org-1OgmJLbPOnqo0ek9HpUMA8cN
-  OPENAI_API_KEY: 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
+  OPENAI_API_KEY: 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
   ENCRYPT_SECRET: dropbase
   WORKER_API: https://proxy.dev.dropbase.io
   LSP_SERVER: wss://proxy.dev.dropbase.io

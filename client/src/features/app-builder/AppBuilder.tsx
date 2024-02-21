@@ -94,7 +94,7 @@ export const AppBuilder = () => {
 						</PanelGroup>
 					</Panel>
 					<PanelHandle direction="vertical" />
-					<Panel defaultSize={20} maxSize={20} minSize={20}>
+					<Panel defaultSize={15} maxSize={15} minSize={15}>
 						<PropertyPane />
 					</Panel>
 				</PanelGroup>
