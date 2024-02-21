@@ -16,9 +16,10 @@ import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
+import { GoogleLogin } from '@react-oauth/google';
 import { useResendConfirmEmail } from './hooks/useResendConfirmationEmail';
 import { useLogin, useGoogleLogin } from './hooks/useLogin';
-import { GoogleLogin } from '@react-oauth/google';
+
 import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
 import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
@@ -46,7 +47,7 @@ export const Login = () => {
 
 	const email = watch('email');
 
-	const { mutate: googleMutate, isLoading: googleIsLoading } = useGoogleLogin({
+	const { mutate: googleMutate } = useGoogleLogin({
 		onError: (error: any) => {
 			toast({
 				title: 'Login Failed',
@@ -142,7 +143,14 @@ export const Login = () => {
 						</Link>
 					</Stack>
 				</Stack>
-				<Box minW="md" p="12" boxShadow="sm" bg="white" borderRadius="md" borderWidth="1px">
+				<Box
+					width="md"
+					p="12"
+					boxShadow="sm"
+					bg="white"
+					borderRadius="md"
+					borderWidth="1px"
+				>
 					<form onSubmit={onSubmit}>
 						<Stack spacing="6">
 							<Stack spacing="5">
@@ -179,10 +187,12 @@ export const Login = () => {
 								</Button>
 								<Stack flex="1" justifyContent="center" alignItems="center">
 									<GoogleLogin
-										style={{ width: '100%', backgroundColor: 'red' }}
+										size="large"
+										type="icon"
 										onSuccess={onGoogleSuccess}
 										onError={onGoogleError}
 									/>
+									{/* GitHub, etc logins go here */}
 								</Stack>
 
 								<Link to="/forgot">
@@ -192,7 +202,6 @@ export const Login = () => {
 								</Link>
 							</Stack>
 						</Stack>
-						<GoogleLogin onSuccess={onGoogleSuccess} onError={onGoogleError} />
 					</form>
 					{displayEmailConfirmation && (
 						<Flex mt="6" direction="column">

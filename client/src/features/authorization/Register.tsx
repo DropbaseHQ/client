@@ -14,10 +14,10 @@ import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
+import { GoogleLogin } from '@react-oauth/google';
 
 import { useGoogleRegister, useRegister } from './hooks/useRegister';
 import { useToast } from '@/lib/chakra-ui';
-import { GoogleLogin } from '@react-oauth/google';
 import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '@/utils';
 import { workspaceAtom } from '@/features/workspaces';
@@ -216,7 +216,14 @@ export const Register = () => {
 									Sign up
 								</Button>
 							</Stack>
-							<GoogleLogin onSuccess={onGoogleSuccess} onError={onGoogleError} />
+							<GoogleLogin
+								onSuccess={onGoogleSuccess}
+								onError={onGoogleError}
+								size="medium"
+								text="signup_with"
+								width={300}
+								logo_alignment="center"
+							/>
 						</Stack>
 					</form>
 				</Box>
