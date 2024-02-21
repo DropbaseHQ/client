@@ -11,6 +11,7 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
+import { GitHub } from 'react-feather';
 import { useState } from 'react';
 import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
@@ -143,6 +144,17 @@ export const Login = () => {
 										Forgot Password?
 									</Text>
 								</Link>
+
+								<Button
+									as={Link}
+									bgColor="black"
+									to={`https://github.com/login/oauth/authorize?scope=user:email&client_id=${
+										import.meta.env.VITE_GITHUB_CLIENT_ID
+									}`}
+								>
+									<GitHub size="14" />
+									<Text ml="2">Log in with Github</Text>
+								</Button>
 							</Stack>
 						</Stack>
 					</form>
