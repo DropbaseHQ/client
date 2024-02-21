@@ -1,5 +1,7 @@
 import json
 from typing import Any, Dict
+from fastapi import HTTPException
+import logging
 
 import openai
 from pydantic import BaseModel
@@ -12,6 +14,8 @@ from .gpt_template import get_gpt_input
 
 openai.organization = OPENAI_ORG_ID
 openai.api_key = OPENAI_API_KEY
+
+logger = logging.getLogger(__name__)
 
 
 class ColumnInfo(BaseModel):
@@ -30,19 +34,22 @@ FullDBSchema = dict[str, dict[str, dict[str, dict[str, Any]]]]
 def fill_smart_cols_data(
     smart_col_paths: dict, db_schema: FullDBSchema
 ) -> dict[str, PgSmartColumnProperty]:
-    smart_cols_data = {}
-    for name, col_path in smart_col_paths.items():
-        try:
-            schema = col_path["schema_name"]
-            table = col_path["table_name"]
-            column = col_path["column_name"]
-            col_schema_data = db_schema[schema][table][column]
-        except KeyError:
-            # Skip ChatGPT "hallucinated" columns
-            continue
-        print(col_schema_data)
-        smart_cols_data[name] = PgSmartColumnProperty(name=name, **col_schema_data)
-    return smart_cols_data
+    try:
+        smart_cols_data = {}
+        for name, col_path in smart_col_paths.items():
+            try:
+                schema = col_path["schema_name"]
+                table = col_path["table_name"]
+                column = col_path["column_name"]
+                col_schema_data = db_schema[schema][table][column]
+            except KeyError:
+                # Skip ChatGPT "hallucinated" columns
+                continue
+            smart_cols_data[name] = PgSmartColumnProperty(name=name, **col_schema_data)
+        return {"columns": smart_cols_data}
+    except Exception as e:
+        logger.info(str(e))
+        raise HTTPException(status_code=500, detail="API call failed. Please try again.")
 
 
 def call_gpt(user_sql: str, column_names: list, db_schema: dict) -> OutputSchema:
@@ -64,5 +71,5 @@ def call_gpt(user_sql: str, column_names: list, db_schema: dict) -> OutputSchema
         OutputSchema(output=output)
         return output
     except Exception as e:
-        print(e)
-        return {}
+        logger.info(str(e))
+        raise HTTPException(status_code=500, detail="API call failed. Please try again.")

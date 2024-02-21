@@ -226,15 +226,17 @@ const ColumnProperty = ({
 		<form onSubmit={methods.handleSubmit(onSubmit)}>
 			<FormProvider {...methods}>
 				<Stack spacing="0" borderBottomWidth="1px">
-					<SimpleGrid
-						p="2"
+					<Stack
+						py="2"
+						px="3"
+						direction="row"
 						borderBottomWidth={isOpen ? '1px' : '0'}
 						alignItems="center"
 						gap={3}
 						bg={isOpen ? 'gray.50' : ''}
-						columns={3}
+						// columns={3}
 					>
-						<Box alignSelf="center" overflow="hidden">
+						<Box alignSelf="center" overflow="hidden" width="40%">
 							<Tooltip placement="left-end" label={defaultName}>
 								<Code
 									h="full"
@@ -253,7 +255,7 @@ const ColumnProperty = ({
 							</Tooltip>
 						</Box>
 						<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
-							<Box>
+							<Box width="30%">
 								<InputRenderer
 									type="boolean"
 									isDisabled={
@@ -271,7 +273,12 @@ const ColumnProperty = ({
 								/>
 							</Box>
 						</Tooltip>
-						<Stack alignItems="center" justifyContent="space-between" direction="row">
+						<Stack
+							alignItems="center"
+							justifyContent="space-between"
+							direction="row"
+							width="30%"
+						>
 							<InputRenderer
 								type="boolean"
 								id="hidden"
@@ -312,7 +319,7 @@ const ColumnProperty = ({
 								</Box>
 							</Stack>
 						</Stack>
-					</SimpleGrid>
+					</Stack>
 					<Collapse in={isOpen}>
 						<Stack p="3">
 							{columnFields
@@ -420,23 +427,23 @@ const ColumnProperty = ({
 
 							{allVisibleFields.length > 0 ? (
 								<Button
-									variant="outline"
-									colorScheme="gray"
+									variant="link"
+									color="gray.500"
 									size="xs"
 									w="fit-content"
+									fontWeight="normal"
 									onClick={onToggleConfigurations}
 								>
-									Show {isConfigurationOpen ? 'Less' : 'More'} Info
+									{isConfigurationOpen ? 'Hide' : 'Show'} medatada
 								</Button>
 							) : null}
 
 							<Collapse in={isConfigurationOpen}>
-								<SimpleGrid mt="2" alignItems="center" gap={4} columns={2}>
+								<SimpleGrid mt="2" alignItems="center" gap={2}>
 									{allVisibleFields.map((property: any) => (
-										<Stack spacing="0.5" key={property.name}>
-											<FormLabel>{property.name}</FormLabel>
-
-											<Code bg="transparent" fontSize="sm">
+										<Stack spacing="0.5" key={property.name} direction="row">
+											<FormLabel width="50%">{property.name}</FormLabel>
+											<Code background="transparent" fontSize="sm">
 												{property.type === 'boolean'
 													? JSON.stringify(properties[property.name])
 													: properties[property.name] || '-'}
@@ -531,18 +538,18 @@ export const ColumnsProperties = () => {
 				</Button>
 			) : null}
 			<Stack spacing="0" borderTopWidth="1px">
-				<SimpleGrid
-					p="2"
+				<Stack
+					p="3"
+					direction="row"
 					fontWeight="medium"
 					fontSize="sm"
 					bg="gray.50"
 					borderBottomWidth="1px"
-					columns={3}
 				>
-					<Text>Column</Text>
-					<Text>Editable</Text>
-					<Text>Hidden</Text>
-				</SimpleGrid>
+					<Text width="40%">Column</Text>
+					<Text width="30%">Editable</Text>
+					<Text width="30%">Hidden</Text>
+				</Stack>
 				{columns.map((column: any) => (
 					<ColumnProperty tableType={type} key={column.name} {...column} />
 				))}
