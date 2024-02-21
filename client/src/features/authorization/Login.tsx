@@ -119,7 +119,7 @@ export const Login = () => {
 		resendConfirmEmail({ email });
 	};
 
-	const onGoogleSuccess = (response) => {
+	const onGoogleSuccess = (response: any) => {
 		googleMutate(response);
 	};
 
