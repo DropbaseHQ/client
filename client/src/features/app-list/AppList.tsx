@@ -18,6 +18,7 @@ import {
 	Box,
 	MenuItem,
 	IconButton,
+	Code,
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -129,18 +130,24 @@ const AppCard = ({ app }: { app: AppType }) => {
 					<FormProvider {...methods}>
 						<form onSubmit={methods.handleSubmit(onSubmit)}>
 							<ModalHeader fontSize="md" borderBottomWidth="1px">
-								Confirm app deletion
+								Confirm deletion of {app.label}
 							</ModalHeader>
 							<ModalCloseButton />
 							<ModalBody py="6">
+								<Text fontSize="sm" mb="2">
+									Write
+									<Code bg="transparent" color="gray.600">
+										{app.name}
+									</Code>
+									to delete the app
+								</Text>
 								<FormInput
-									name={`Write ${app.label} to delete the app`}
 									autoFocus
 									id="name"
-									placeholder={app.label}
+									placeholder={app.name}
 									validation={{
 										validate: (value: any) =>
-											value === app.label || 'App name did not match',
+											value === app.name || 'App name did not match',
 									}}
 								/>
 							</ModalBody>
