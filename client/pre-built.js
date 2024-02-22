@@ -1,4 +1,7 @@
-<!doctype html>
+import fs from 'fs';
+import 'dotenv/config';
+
+let data = `<!doctype html>
 <html lang="en">
 	<head>
 		<!-- Primary Meta Tags -->
@@ -65,6 +68,16 @@
 		<div id="root"></div>
 		<div id="portal" style="position: fixed; left: 0; top: 0; z-index: 9999" />
 
-		<script type="module" src="./src/main-app.tsx"></script>
+		<script type="module" src="./src/main${
+			process.env.VITE_APP_TYPE === 'app' ? '-app' : ''
+		}.tsx"></script>
 	</body>
 </html>
+`;
+
+fs.writeFile('index.html', data, (err) => {
+	if (err) console.log(err);
+	else {
+		console.log('index.html file generated successfully\n');
+	}
+});

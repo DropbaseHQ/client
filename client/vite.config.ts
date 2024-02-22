@@ -9,9 +9,6 @@ const VISUALIZER = false;
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
-		VitePluginHtmlEnv({
-			compiler: true,
-		}),
 		react(),
 		splitVendorChunkPlugin(),
 
@@ -22,39 +19,6 @@ export default defineConfig({
 				filename: 'chunks-report.html',
 			}),
 	],
-	// build: {
-	// 	rollupOptions: {
-	// 		output: {
-	// 			manualChunks(id: string) {
-	// 				// creating a chunk to @open-ish deps. Reducing the vendor chunk size
-	// 				if (id.includes('monaco')) {
-	// 					return '@monaco';
-	// 				}
-
-	// 				if (id.includes('vscode')) {
-	// 					return '@vscode';
-	// 				}
-
-	// 				if (id.includes('chakra')) {
-	// 					return '@chakra';
-	// 				}
-
-	// 				if (id.includes('glideapps')) {
-	// 					return '@glideapps';
-	// 				}
-
-	// 				// creating a chunk to react routes deps. Reducing the vendor chunk size
-	// 				if (
-	// 					id.includes('react-router-dom') ||
-	// 					id.includes('@remix-run') ||
-	// 					id.includes('react-router')
-	// 				) {
-	// 					return '@react-router';
-	// 				}
-	// 			},
-	// 		},
-	// 	},
-	// },
 	server: {
 		port: 3030,
 		open: '/',
