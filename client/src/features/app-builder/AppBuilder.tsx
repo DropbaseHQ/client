@@ -93,7 +93,10 @@ export const AppBuilder = () => {
 							</Panel>
 						</PanelGroup>
 					</Panel>
-					<PanelHandle direction="vertical" />
+					<PanelHandle
+						style={{ cursor: 'auto', pointerEvents: 'none' }}
+						direction="vertical"
+					/>
 					<Panel defaultSize={15} maxSize={15} minSize={15}>
 						<PropertyPane />
 					</Panel>
