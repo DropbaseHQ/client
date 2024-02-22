@@ -254,25 +254,29 @@ const ColumnProperty = ({
 								</Code>
 							</Tooltip>
 						</Box>
-						<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
-							<Box width="30%">
-								<InputRenderer
-									type="boolean"
-									isDisabled={
-										tableType !== 'sql' ||
-										hasNoEditKeys ||
-										updateMutation.isLoading
-									}
-									id="editable"
-									value={properties.editable}
-									onChange={(newValue: any) => {
-										handleUpdate({
-											editable: newValue,
-										});
-									}}
-								/>
-							</Box>
-						</Tooltip>
+						{columnField === 'button_column' ? (
+							<Box width="30%" />
+						) : (
+							<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
+								<Box width="30%">
+									<InputRenderer
+										type="boolean"
+										isDisabled={
+											tableType !== 'sql' ||
+											hasNoEditKeys ||
+											updateMutation.isLoading
+										}
+										id="editable"
+										value={properties.editable}
+										onChange={(newValue: any) => {
+											handleUpdate({
+												editable: newValue,
+											});
+										}}
+									/>
+								</Box>
+							</Tooltip>
+						)}
 						<Stack
 							alignItems="center"
 							justifyContent="space-between"
