@@ -28,19 +28,19 @@ export default defineConfig({
 				manualChunks(id: string) {
 					// creating a chunk to @open-ish deps. Reducing the vendor chunk size
 					if (id.includes('monaco')) {
-						return '@monaco';
+						return id;
 					}
 
 					if (id.includes('vscode')) {
-						return '@vscode';
+						return id;
 					}
 
 					if (id.includes('chakra')) {
-						return '@chakra';
+						return id;
 					}
 
 					if (id.includes('glideapps')) {
-						return '@glide-grid';
+						return id;
 					}
 
 					// creating a chunk to react routes deps. Reducing the vendor chunk size
