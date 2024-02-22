@@ -146,10 +146,11 @@ export const useUpdatePageData = (props: any = {}) => {
 	});
 };
 
-const createPage = async ({ appName, pageName }: any) => {
+const createPage = async ({ appName, pageName, pageLabel }: any) => {
 	const response = await workerAxios.post(`/page/`, {
 		app_name: appName,
 		page_name: pageName,
+		page_label: pageLabel,
 	});
 	return response.data;
 };

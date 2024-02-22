@@ -93,13 +93,16 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 	const handleCreatePage = () => {
 		if (appName) {
+			const { name: newPageName, label: newPageLabel } = generateSequentialName({
+				currentNames: app?.pages.map((p: any) => p.name) || [],
+				prefix: 'page',
+			});
+
 			createPageMutation.mutate(
 				{
 					appName,
-					pageName: generateSequentialName({
-						currentNames: app?.pages.map((p: any) => p.name) || [],
-						prefix: 'page',
-					})?.name,
+					pageName: newPageName,
+					pageLabel: newPageLabel,
 				},
 				{
 					onSuccess: (_, variables: any) => {
