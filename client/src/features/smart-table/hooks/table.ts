@@ -128,7 +128,7 @@ export const useTableData = ({
 	const parsedData: any = useMemo(() => {
 		if (response) {
 			const customColumns = table?.columns?.filter(
-				(c: any) => c.column_type === 'button_column',
+				(c: any) => c.column_type === 'button_column' && !c?.hidden,
 			);
 
 			const header = [...(response?.columns || []), ...(customColumns || [])];
