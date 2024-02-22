@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ChevronDown, ChevronRight, Save, Zap } from 'react-feather';
+import { ChevronDown, ChevronRight, Save, Trash, Zap } from 'react-feather';
 
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
@@ -120,6 +120,8 @@ const ColumnProperty = ({
 
 	const editableFields = VISIBLE_EDITABLE_FIELDS?.[columnField];
 
+	const isCustomColumn = columnField === 'button_column';
+
 	// FIXME: check why useEffect loop with properties
 	useEffect(() => {
 		setValue('configurations', defaultConfigurations, {
@@ -210,6 +212,32 @@ const ColumnProperty = ({
 		}
 	};
 
+	const handleDelete = async (columnId: any) => {
+		try {
+			await updateMutation.mutateAsync({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(pageProperties || {}),
+					tables: (pageProperties?.tables || []).map((t: any) => {
+						if (t.name === tableName) {
+							return {
+								...t,
+								columns: (t?.columns || []).filter((c: any) => {
+									return c.name !== columnId;
+								}),
+							};
+						}
+
+						return t;
+					}),
+				},
+			});
+		} catch (e) {
+			//
+		}
+	};
+
 	const resetConfig = () => {
 		setValue('configurations', null);
 	};
@@ -254,7 +282,7 @@ const ColumnProperty = ({
 								</Code>
 							</Tooltip>
 						</Box>
-						{columnField === 'button_column' ? (
+						{isCustomColumn ? (
 							<Box width="30%" />
 						) : (
 							<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
@@ -429,18 +457,37 @@ const ColumnProperty = ({
 								</SimpleGrid>
 							) : null}
 
-							{allVisibleFields.length > 0 ? (
-								<Button
-									variant="link"
-									color="gray.500"
-									size="xs"
-									w="fit-content"
-									fontWeight="normal"
-									onClick={onToggleConfigurations}
-								>
-									{isConfigurationOpen ? 'Hide' : 'Show'} medatada
-								</Button>
-							) : null}
+							<Stack direction="row" alignItems="center">
+								{allVisibleFields.length > 0 ? (
+									<Button
+										variant="link"
+										color="gray.500"
+										size="xs"
+										w="fit-content"
+										fontWeight="normal"
+										onClick={onToggleConfigurations}
+									>
+										{isConfigurationOpen ? 'Hide' : 'Show'} medatada
+									</Button>
+								) : null}
+
+								{isCustomColumn ? (
+									<Tooltip label="Delete Column">
+										<IconButton
+											aria-label="Delete component"
+											variant="outline"
+											size="xs"
+											ml="auto"
+											colorScheme="red"
+											isLoading={updateMutation.isLoading}
+											onClick={() => {
+												handleDelete(defaultName);
+											}}
+											icon={<Trash size="14" />}
+										/>
+									</Tooltip>
+								) : null}
+							</Stack>
 
 							<Collapse in={isConfigurationOpen}>
 								<SimpleGrid mt="2" alignItems="center" gap={2}>
