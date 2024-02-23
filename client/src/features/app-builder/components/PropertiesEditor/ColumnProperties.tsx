@@ -391,9 +391,15 @@ const ColumnProperty = ({
 													validate: {
 														unique: (value: any) => {
 															if (
-																columns.find(
-																	(c: any) => c.name === value,
-																)
+																columns
+																	.filter(
+																		(c: any) =>
+																			c.name !== defaultName,
+																	)
+																	.find(
+																		(c: any) =>
+																			c.name === value,
+																	)
 															) {
 																return 'Name must be unique';
 															}
