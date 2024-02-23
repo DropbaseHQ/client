@@ -1,6 +1,9 @@
 import * as monacoLib from 'monaco-editor';
+import { useAtomValue } from 'jotai';
 import { PROPERTIES } from './constants';
 import { buildTemplateStringSuggestions } from '@/components/Editor/utils/template-string-suggestions';
+
+import { sourceAtom } from '@/features/app-builder/atoms';
 
 const { CompletionItemKind } = monacoLib.languages;
 type CompletionSuggestion = Omit<monacoLib.languages.CompletionItem, 'range'>;
@@ -9,7 +12,28 @@ export interface CompletionData {
 	metadata: Record<string, string>;
 }
 
-const SQL_KEYWORDS = [
+const POSTGRES_SQL_KEYWORDS = [
+	'SELECT',
+	'FROM',
+	'AS',
+	'WHERE',
+	'ORDER BY',
+	'GROUP BY',
+	'JOIN',
+	'LEFT JOIN',
+	'RIGHT JOIN',
+	'ON',
+	'AND',
+	'OR',
+	'NOT',
+	'IN',
+	'BETWEEN',
+	'AS',
+	'WITH',
+	'RETURNING',
+];
+
+const MYSQL_SQL_KEYWORDS = [
 	'SELECT',
 	'FROM',
 	'AS',
@@ -81,6 +105,28 @@ const completePhrase = (
 	}
 
 	if (prevWord?.toUpperCase() !== 'AS' || !prevPrevWord) {
+		let SQL_KEYWORDS = [];
+		const { dbType } = useAtomValue(sourceAtom); Fix this
+
+		switch (
+			dbType // make a function for this
+		) {
+			case 'postgres':
+				SQL_KEYWORDS = POSTGRES_SQL_KEYWORDS;
+				break;
+
+			case 'pg':
+				SQL_KEYWORDS = POSTGRES_SQL_KEYWORDS;
+				break;
+
+			case 'mysql':
+				SQL_KEYWORDS = MYSQL_SQL_KEYWORDS;
+				break; // add snowflake, sqlite, etc
+
+			default:
+				SQL_KEYWORDS = MYSQL_SQL_KEYWORDS;
+				break;
+		}
 		// if not an alias or a select table, only offer keyword completions
 		return SQL_KEYWORDS.filter((word) => word.includes(cleanedCurrentWord.toUpperCase())).map(
 			(keyword) => ({

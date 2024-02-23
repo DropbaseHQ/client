@@ -1,6 +1,28 @@
 export const PROPERTIES = ['_protected', '_key', '_gte'];
 
-export const MONARCH_TOKENIZER = {
+export const POSTGRES_MONARCH_TOKENIZER = {
+	tokenizer: {
+		root: [
+			// SQL keywords
+			[
+				/(SELECT|select|FROM|from|WHERE|where|ORDER BY|order by|GROUP BY|group by|JOIN|join|LEFT JOIN|left join|RIGHT JOIN|right join|ON|on|AND|and|OR|or|NOT|not|IN|in|BETWEEN|between|AS|as|WITH|with|returning|RETURNING)\b/i,
+				'keyword',
+			],
+			// SQL strings
+			[/'[^']*'/, 'string'],
+			[/`[^`]*`/, 'string'],
+			[/"/, 'string', '@string_double'],
+			// comments
+			[/--.*/, 'comment'],
+		],
+		string_double: [
+			[/[^\\"]+/, 'string'],
+			[/"/, 'string', '@pop'],
+		],
+	},
+};
+
+export const MYSQL_MONARCH_TOKENIZER = {
 	tokenizer: {
 		root: [
 			// SQL keywords

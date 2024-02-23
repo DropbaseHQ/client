@@ -21,12 +21,13 @@ import { useGetPage } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
-import { previewCodeAtom } from '../../atoms';
+import { previewCodeAtom, sourceAtom } from '../../atoms';
 
 import { useSQLCompletion } from '@/components/Editor/hooks/useSQLCompletion';
 import { newPageStateAtom } from '@/features/app-state';
 
 import { databaseSchema } from '@/components/Editor/utils/constants';
+import { workerAxios } from '@/lib/axios';
 
 export const SQLEditor = ({ name }: any) => {
 	const toast = useToast();
@@ -50,13 +51,31 @@ export const SQLEditor = ({ name }: any) => {
 	});
 
 	const setPreviewFile = useSetAtom(previewCodeAtom);
+	const setSourceAtom = useSetAtom(sourceAtom);
 
 	const [code, setCode] = useState('');
 
 	const { sources, isLoading: isLoadingSources } = useSources();
 
+	const fetchDatabaseType = async (source: string) => {
+		const response = await workerAxios.post(`/tables/get_database_type`, {
+			source,
+		});
+
+		const dbType = response.data;
+
+		setSourceAtom({
+			source: file?.source,
+			dbType,
+		});
+
+		return response.data;
+	};
+
 	useEffect(() => {
 		setSource(file?.source);
+
+		fetchDatabaseType(file?.source);
 	}, [setSource, file]);
 
 	useEffect(() => {

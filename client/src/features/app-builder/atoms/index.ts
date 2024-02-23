@@ -20,3 +20,8 @@ export const previewCodeAtom = atom<any>({
 	name: null,
 	code: null,
 });
+
+export const sourceAtom = atom<any>({
+	source: null,
+	db_type: null,
+});
