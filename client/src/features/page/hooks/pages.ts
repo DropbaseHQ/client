@@ -137,19 +137,20 @@ export const useUpdatePageData = (props: any = {}) => {
 
 			props?.onSettled?.();
 		},
-		onSuccess: (data: any) => {
+		onSuccess: (data: any, variables: any) => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 
-			props?.onSuccess?.(data);
+			props?.onSuccess?.(data, variables);
 		},
 	});
 };
 
-const createPage = async ({ appName, pageName }: any) => {
+const createPage = async ({ appName, pageName, pageLabel }: any) => {
 	const response = await workerAxios.post(`/page/`, {
 		app_name: appName,
 		page_name: pageName,
+		page_label: pageLabel,
 	});
 	return response.data;
 };

@@ -305,7 +305,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							key={v}
 							size="sm"
 						>
-							{v}
+							{allOptions.find((o: any) => o.value === v)?.name || v}
 						</Badge>
 					))}
 				</Stack>
@@ -373,7 +373,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							{allOptions.map((option: any) => (
 								<MenuItemOption
 									fontSize="sm"
-									key={option.name}
+									key={option.value}
 									value={option.value}
 								>
 									{option.name}

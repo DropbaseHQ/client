@@ -13,6 +13,7 @@ env:
   VITE_API_ENDPOINT: "https://api.dev.dropbase.io/"
   VITE_PYTHON_LSP_SERVER: "wss://api.dev.dropbase.io"
   VITE_WORKER_API_ENDPOINT: "https://api.dev.dropbase.io"
+  VITE_GOOGLE_CLIENT_ID: "29567616605-al7naomojd9n3hhtt7gdtkmm7vggsb0m.apps.googleusercontent.com"
 
 jobs:
   test-build:

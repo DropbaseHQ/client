@@ -51,7 +51,7 @@ export const generateSequentialName = ({ currentNames, prefix }: any) => {
 	}
 
 	const newName = `${prefix}${nameIndex}`;
-	const newLabel = `${prefix.charAt(0).toUpperCase() + prefix.slice(1)} ${nameIndex}`;
+	const newLabel = `${prefix.charAt(0).toUpperCase() + prefix.slice(1)}${nameIndex}`;
 
 	return { name: newName, label: newLabel };
 };

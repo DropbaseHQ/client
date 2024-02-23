@@ -31,7 +31,7 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 
 	return (
 		<Stack spacing="0" w="100vw" height="100vh" overflow="hidden" position="relative">
-			{shouldDisplayTrialBanner && (
+			{shouldDisplayTrialBanner ? (
 				<Box
 					w="full"
 					py="1"
@@ -48,7 +48,7 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 						})}`}
 					</Text>
 				</Box>
-			)}
+			) : null}
 			<Flex maxH="calc(100vh - 20px)" flex="1">
 				{shouldNotDisplayNavbar ? null : <Navbar />}
 				<Box overflowY="auto" flex="1" p="0">
