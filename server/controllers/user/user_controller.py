@@ -306,8 +306,17 @@ def register_google_user(db: Session, Authorize: AuthJWT, request: CreateGoogleU
         workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
         workspace_creator.create()
 
-        slack_sign_up(name=name, email=email)
         db.commit()
+
+        slack_sign_up(name=name, email=email)
+
+        loops_controller.add_user(
+            user_email=email,
+            name=name,
+            last_name=last,
+            company=company,
+            user_id=str(user.id),
+        )
 
         access_token = Authorize.create_access_token(
             subject=user.email,
