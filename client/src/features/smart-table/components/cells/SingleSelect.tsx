@@ -43,7 +43,7 @@ export default {
 				rows === 1
 					? drawArea.y + (drawArea.height - BUBBLE_HEIGHT) / 2
 					: drawArea.y +
-					  (drawArea.height - rows * BUBBLE_HEIGHT - (rows - 1) * BUBBLE_PADDING) / 2;
+						(drawArea.height - rows * BUBBLE_HEIGHT - (rows - 1) * BUBBLE_PADDING) / 2;
 
 			const matchedOption = foundOption;
 			const color = matchedOption?.color ?? theme.bgBubble;

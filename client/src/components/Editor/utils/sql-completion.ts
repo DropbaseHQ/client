@@ -106,7 +106,7 @@ const completePhrase = (
 
 	if (prevWord?.toUpperCase() !== 'AS' || !prevPrevWord) {
 		let SQL_KEYWORDS = [];
-		const { dbType } = useAtomValue(sourceAtom); Fix this
+		const { dbType } = useAtomValue(sourceAtom); // fix this
 
 		switch (
 			dbType // make a function for this

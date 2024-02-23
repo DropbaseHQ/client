@@ -191,10 +191,10 @@ export const WidgetPreview = ({ widgetName }: any) => {
 				top: '10px',
 				left: '10px',
 				zIndex: 3,
-		  }
+			}
 		: {
 				h: 'full',
-		  };
+			};
 
 	return (
 		<Loader isLoading={isLoading}>

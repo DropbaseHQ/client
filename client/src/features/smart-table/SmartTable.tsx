@@ -285,7 +285,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					textBubble: theme.colors.gray['600'],
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.2)(theme),
 					baseFontStyle: '12px',
-			  }
+				}
 			: {
 					accentColor: theme.colors.blue['500'], // main blue
 					accentLight: transparentize(theme.colors.blue['500'], 0.1)(theme), // cell selection highliths
@@ -302,7 +302,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					bgBubble: theme.colors.gray['100'],
 					bgSearchResult: transparentize(theme.colors.yellow['500'], 0.3)(theme),
 					baseFontStyle: '12px',
-			  };
+				};
 
 	const visibleColumns = header.filter(
 		(column: any) => !columnDict?.[column?.name] || !columnDict[column?.name]?.hidden,
@@ -409,8 +409,9 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 		const currentValue = currentRow?.[column?.name];
 
-		const editedValue = cellEdits.find((e: any) => e.columnIndex === col && e.rowIndex === row)
-			?.new_value;
+		const editedValue = cellEdits.find(
+			(e: any) => e.columnIndex === col && e.rowIndex === row,
+		)?.new_value;
 
 		const defaultValue =
 			currentValue === null || currentValue === undefined ? '' : currentValue;
@@ -442,7 +443,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					themeOverride: {
 						bgCell: theme.colors.gray['50'],
 					},
-			  };
+				};
 
 		if (column?.column_type === 'button_column') {
 			const columnColor = theme.colors?.[column?.color || 'gray'];

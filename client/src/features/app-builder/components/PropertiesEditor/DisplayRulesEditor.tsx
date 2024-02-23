@@ -424,7 +424,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														andor: 'and',
 														id: crypto.randomUUID(),
 													},
-											  ]
+												]
 											: [
 													{
 														target: null,
@@ -432,7 +432,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														operator: null,
 														id: crypto.randomUUID(),
 													},
-											  ],
+												],
 									);
 								}}
 							>
