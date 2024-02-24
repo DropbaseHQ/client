@@ -72,7 +72,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		...inputProps
 	} = props;
 
-	if (type === 'number' || type === 'integer') {
+	if (type === 'number' || type === 'integer' || type === 'float') {
 		return (
 			<NumberInput
 				onChange={(_, valueAsNumber) => {
@@ -81,7 +81,8 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				size="sm"
 				onBlur={onBlur}
 				value={value === null ? '' : value}
-				{...inputProps}
+				precision={2}
+				step={type === 'integer' ? 1 : 0.01}
 			>
 				<NumberInputField ref={ref} h="9" />
 				<NumberInputStepper>
