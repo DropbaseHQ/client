@@ -241,17 +241,12 @@ export const DisplayRulesEditor = ({ name }: any) => {
 								let input: any = {
 									type: 'text',
 								};
-								if (getColType(rule.target) === 'number') {
-									input = {
-										type: 'number',
-									};
-									isNumberInput = true;
-								}
 
-								if (getColType(rule.target) === 'number') {
-									input = {
-										type: 'number',
-									};
+								if (
+									NUMBER_TYPES.includes(
+										getColType(rule.target, componentProperty),
+									)
+								) {
 									usesComparatorOps = true;
 								}
 
