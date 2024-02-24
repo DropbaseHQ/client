@@ -25,14 +25,7 @@ export const Navbar = () => {
 	const { mutate: logout } = useLogout();
 	const { user } = useGetCurrentUser();
 	const { in_trial: inTrial } = useAtomValue(workspaceAtom);
-	// const { users } = useGetWorkspaceUsers();
-	// const userRole = users?.find((u: any) => u.id === user?.id)?.role_name;
 
-	// const { colorMode, toggleColorMode } = useColorMode();;
-	// const userHasRole = (roles: string[]) => {
-	// 	if (!userRole) return false;
-	// 	return roles.includes(userRole);
-	// };
 	const canUseGranularPermissions = inTrial || user?.email?.endsWith('dropbase.io');
 
 	const handleLogout = () => {
@@ -77,7 +70,6 @@ export const Navbar = () => {
 					<IconButton
 						variant="ghost"
 						as={Link}
-						// isDisabled
 						to="/settings/members"
 						color={pathname === '/settings/members' ? 'blue.500' : 'body'}
 						colorScheme={pathname === '/settings/members' ? 'blue' : 'gray'}
@@ -91,7 +83,6 @@ export const Navbar = () => {
 						<IconButton
 							variant="ghost"
 							as={Link}
-							// isDisabled
 							to="/settings/permissions"
 							color={pathname === '/settings/permissions' ? 'blue.500' : 'body'}
 							colorScheme={pathname === '/settings/permissions' ? 'blue' : 'gray'}

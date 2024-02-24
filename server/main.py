@@ -1,3 +1,4 @@
+import logging
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,10 +9,21 @@ from server import endpoints
 from server.endpoints import worker as worker_routers
 from server.utils.authentication import get_current_user, verify_worker_token
 
-# from server.utils.exception_handlers import catch_exceptions_middleware
-
 load_dotenv()
 
+spam_urls = ["/health/", "/health"]
+
+
+class LogSpamFilter(logging.Filter):
+    def filter(self, record):
+        for url in spam_urls:
+            if url in record.args:
+                return False
+        return True
+
+
+logger = logging.getLogger("uvicorn.access")
+logger.addFilter(LogSpamFilter())
 
 app = FastAPI()
 worker_app = FastAPI()
@@ -25,18 +37,7 @@ worker_app.include_router(require_token_routes)
 
 app.mount("/worker", worker_app)
 
-
-# app.middleware("http")(catch_exceptions_middleware)
-
-# origins = ["https://dropbase.io"]
 origins = ["*"]
-# origins = [
-#     "http://127.0.0.1:3030",
-#     "https://dev.dropbase.io",
-#     "https://www.dev.dropbase.io",
-#     "http://localhost:3030",
-#     "http://www.localhost:3030",
-# ]
 
 app.add_middleware(
     CORSMiddleware,

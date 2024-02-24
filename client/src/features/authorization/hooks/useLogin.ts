@@ -27,8 +27,22 @@ const loginUser = async ({ email, password }: { email: string; password: string 
 	return response.data;
 };
 
+const loginGoogleUser = async ({ credential }: { credential: string }) => {
+	const response = await axios.post<LoginResponse>(`/user/loginGoogle`, {
+		credential,
+	});
+
+	return response.data;
+};
+
 export const useLogin = (mutationConfig: MutationConfig<typeof loginUser>) => {
 	return useMutation(loginUser, {
+		...(mutationConfig || {}),
+	});
+};
+
+export const useGoogleLogin = (mutationConfig: MutationConfig<typeof loginGoogleUser>) => {
+	return useMutation(loginGoogleUser, {
 		...(mutationConfig || {}),
 	});
 };
@@ -37,6 +51,7 @@ export const useSetAxiosToken = () => {
 	const navigate = useNavigate();
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { pathname } = useLocation();
+
 	const loginRoutes =
 		pathname.startsWith('/login') ||
 		pathname.startsWith('/register') ||

@@ -15,6 +15,8 @@ import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { allWidgetsInputAtom, tableColumnTypesAtom, tableStateAtom } from '@/features/app-state';
 
+const NUMBER_TYPES = ['number', 'integer', 'float'];
+const DATETIME_TYPES = ['datetime', 'date', 'time'];
 const OPERATORS = [
 	{
 		name: 'Equal to',
@@ -168,18 +170,11 @@ export const DisplayRulesEditor = ({ name }: any) => {
 
 	const { control } = useFormContext();
 
-	const getColType = (target: string) => {
-		if (!target) {
-			return 'text';
-		}
-		if (target.includes('widgets')) {
-			const targetWidget = components.find((c: any) => c.name === target.split('.')[2]);
+	const getColType = (target: string, componentProperty?: any) => {
+		if (!target) return 'text';
 
-			if (targetWidget?.data_type) {
-				return targetWidget?.data_type;
-			}
-			return 'text';
-		}
+		if (target.includes('widgets')) return componentProperty?.data_type;
+
 		const [, specificCategory, targetName] = target.split('.');
 		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
 		return table?.[targetName as keyof typeof table];
@@ -248,24 +243,35 @@ export const DisplayRulesEditor = ({ name }: any) => {
 					return (
 						<Stack spacing="2.5">
 							{displayRules.map((rule: any, index: any) => {
-								const componentProperty = componentsProperties?.[rule?.name];
-								let isNumberInput = false;
+								const ruleName = rule?.target?.split('.')?.[2];
+								const componentProperty = componentsProperties?.[ruleName];
+								let usesComparatorOps = false;
 								let input: any = {
 									type: 'text',
 								};
 
-								if (componentProperty?.type === 'input') {
-									if (componentProperty?.property?.type === 'number') {
+								if (getColType(rule.target) === 'number') {
+									input = {
+										type: 'number',
+									};
+									usesComparatorOps = true;
+								}
+
+								if (
+									NUMBER_TYPES.includes(componentProperty?.data_type) ||
+									DATETIME_TYPES.includes(componentProperty?.data_type)
+								) {
+									usesComparatorOps = true;
+									if (componentProperty?.component_type === 'input') {
 										input = {
 											type: 'number',
 										};
-										isNumberInput = true;
+									} else if (componentProperty?.component_type === 'select') {
+										input = {
+											type: 'select',
+											options: componentProperty?.property?.options || [],
+										};
 									}
-								} else if (componentProperty?.type === 'select') {
-									input = {
-										type: 'select',
-										options: componentProperty?.property?.options || [],
-									};
 								}
 
 								return (
@@ -335,7 +341,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 													value={rule.operator}
 													options={[
 														...OPERATORS,
-														...(isNumberInput
+														...(usesComparatorOps
 															? COMPERATOR_OPERATORS
 															: []),
 													]}
@@ -375,7 +381,10 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														placeholder="select value"
 														{...input}
 														type={processColType(
-															getColType(rule.target),
+															getColType(
+																rule.target,
+																componentProperty,
+															),
 														)}
 														value={rule.value}
 														options={

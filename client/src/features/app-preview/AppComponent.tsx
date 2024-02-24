@@ -87,18 +87,18 @@ export const AppComponent = (props: any) => {
 		});
 	};
 
-	const handleClick = (clickEvent: any) => {
-		if (clickEvent.type === 'widget') {
-			const widget = widgets?.find((w: any) => w.name === clickEvent.value);
+	const handleEvent = (event: any) => {
+		if (event.type === 'widget') {
+			const widget = widgets?.find((w: any) => w.name === event.value);
 
 			if (widget?.type === 'modal') {
 				setPageContext((oldPage: any) => ({
 					...oldPage,
-					widgetName: clickEvent.value,
+					widgetName: event.value,
 					modals: [
 						...oldPage.modals,
 						{
-							name: clickEvent.value,
+							name: event.value,
 							caller: widgetName,
 						},
 					],
@@ -106,11 +106,11 @@ export const AppComponent = (props: any) => {
 			} else {
 				setPageContext((oldPage: any) => ({
 					...oldPage,
-					widgetName: clickEvent.value,
+					widgetName: event.value,
 				}));
 			}
-		} else if (clickEvent.type === 'function') {
-			handleAction(clickEvent.value);
+		} else if (event.type === 'function') {
+			handleAction(event.value);
 		}
 	};
 
@@ -137,7 +137,7 @@ export const AppComponent = (props: any) => {
 					colorScheme={color || 'blue'}
 					onClick={() => {
 						if (onClick) {
-							handleClick(onClick);
+							handleEvent(onClick);
 						}
 						sendJsonMessage({
 							type: 'display_rule',
@@ -174,6 +174,10 @@ export const AppComponent = (props: any) => {
 
 	if (componentType === 'select') {
 		inputType = 'select';
+
+		if (component?.multiple) {
+			inputType = 'multiselect';
+		}
 	}
 
 	if (componentType === 'boolean') {
@@ -195,8 +199,13 @@ export const AppComponent = (props: any) => {
 						});
 
 						if (component.on_change) {
-							handleAction(component.on_change);
+							handleEvent(component.on_change);
 						}
+
+						if (component.on_toggle) {
+							handleEvent(component.on_toggle);
+						}
+
 						sendJsonMessage({
 							type: 'display_rule',
 							state_context: pageState,
