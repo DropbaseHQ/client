@@ -9,8 +9,6 @@ from server import endpoints
 from server.endpoints import worker as worker_routers
 from server.utils.authentication import get_current_user, verify_worker_token
 
-# from server.utils.exception_handlers import catch_exceptions_middleware
-
 load_dotenv()
 
 spam_urls = ["/health/", "/health"]
@@ -39,16 +37,7 @@ worker_app.include_router(require_token_routes)
 
 app.mount("/worker", worker_app)
 
-
-# app.middleware("http")(catch_exceptions_middleware)
-
 origins = ["*"]
-# origins = [
-#     "https://www.app.dropbase.io",
-#     "https://app.dropbase.io",
-#     "http://localhost:3030",
-#     "http://www.localhost:3030",
-# ]
 
 app.add_middleware(
     CORSMiddleware,

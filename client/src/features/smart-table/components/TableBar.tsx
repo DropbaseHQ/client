@@ -10,6 +10,7 @@ import {
 	PopoverFooter,
 	PopoverHeader,
 	PopoverTrigger,
+	Spinner,
 	Stack,
 	Tooltip,
 	useDisclosure,
@@ -104,7 +105,7 @@ export const TableBar = () => {
 				edits: cellEdits.map((edit: any) => ({
 					row: rows[edit.rowIndex],
 					column_name: edit.column_name,
-					columns,
+					columns: columns.filter((c: any) => c?.column_type !== 'button_column'),
 					data_type: edit.data_type,
 					old_value: edit.old_value,
 					new_value: edit.new_value,
@@ -176,6 +177,11 @@ export const TableBar = () => {
 				) : null}
 
 				<Stack direction="row">
+					{convertMutation.isLoading ? (
+						<Tooltip label="Converting to Smart Table">
+							<Spinner mr="2" emptyColor="gray.200" color="yellow.500" size="sm" />
+						</Tooltip>
+					) : null}
 					{cellEdits.length > 0 ? (
 						<Tooltip label="Update">
 							<IconButton

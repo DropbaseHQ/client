@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query';
-import { Circle, Link, Stack, Text, Alert, AlertIcon, Divider } from '@chakra-ui/react';
+import { Circle, Link, Stack, Text, Divider } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { workerAxios } from '../lib/axios';
 import { useWorkerWorkspace, workspaceAtom } from '@/features/workspaces';
@@ -50,6 +50,7 @@ export const StatusBar = () => {
 				{status === 'success' ? 'Worker connected' : 'Worker not connected.'}
 			</Text>
 			<Divider orientation="vertical" />
+
 			<Circle ml="1" size="2" bg={websocketIsConnected ? 'green' : 'red'} />
 			<Text noOfLines={1} fontSize="xs">
 				{websocketIsConnected ? 'WS connected' : 'WS not connected'}
@@ -70,18 +71,13 @@ export const StatusBar = () => {
 			) : null}
 
 			{!selectedWorkspaceMatchesWorker && !isLoading ? (
-				<Alert
-					status="error"
-					height="min-content"
-					p="0"
-					fontSize="xs"
-					display="flex"
-					alignItems="center"
-					justifyContent="center"
-				>
-					<AlertIcon />
-					The selected workspace does not match the worker workspace.
-				</Alert>
+				<>
+					<Divider orientation="vertical" />
+					<Circle ml="1" size="2" bg={websocketIsConnected ? 'green' : 'red'} />
+					<Text noOfLines={1} fontSize="xs">
+						The selected workspace does not match the worker workspace.
+					</Text>
+				</>
 			) : null}
 		</Stack>
 	);

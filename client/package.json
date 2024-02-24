@@ -5,10 +5,12 @@
 	"type": "module",
 	"scripts": {
 		"start": "vite",
+		"prestart": "node pre-built.js",
 		"dev": "vite --port 3030",
 		"build": "tsc && vite build",
 		"lint": "eslint . --ext ts,tsx",
 		"preview": "vite preview",
+		"prebuild": "node pre-built.js",
 		"postinstall": "cd .. && husky client/.husky",
 		"prepack": "pinst --disable",
 		"postpack": "pinst --enable"
@@ -27,6 +29,7 @@
 		"@glideapps/glide-data-grid-cells": "6.0.3",
 		"@hookform/error-message": "^2.0.1",
 		"@monaco-editor/react": "^4.5.1",
+		"@react-oauth/google": "^0.12.1",
 		"@types/react-beautiful-dnd": "^13.1.7",
 		"axios": "^1.4.0",
 		"copy-to-clipboard": "^3.3.3",
@@ -70,6 +73,7 @@
 		"@typescript-eslint/eslint-plugin": "^6.0.0",
 		"@typescript-eslint/parser": "^6.0.0",
 		"@vitejs/plugin-react": "^4.0.3",
+		"dotenv": "^16.4.5",
 		"eslint": "^8.45.0",
 		"eslint-config-airbnb": "^19.0.4",
 		"eslint-config-airbnb-typescript": "^17.1.0",
@@ -83,6 +87,7 @@
 		"husky": "^9.0.10",
 		"path": "^0.12.7",
 		"prettier": "^3.0.1",
+		"rollup-plugin-visualizer": "^5.12.0",
 		"typescript": "^5.0.2",
 		"vite": "^4.4.5",
 		"vite-plugin-html-env": "^1.2.8"

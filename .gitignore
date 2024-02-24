@@ -11,6 +11,8 @@
 # client
 client/.DS_Store
 client/node_modules/
+client/index.html
+client/chunks-report.html
 
 .venv
 .venvlsp
