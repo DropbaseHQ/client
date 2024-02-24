@@ -88,7 +88,7 @@ const PolicyTable = ({
 							const appIdentifier = app?.id ? app.id : app.name;
 							return (
 								<Tr key={appIdentifier}>
-									<Td>{app.name}</Td>
+									<Td>{app.label}</Td>
 									<Td>{getSelector(selectedResourceId, appIdentifier)}</Td>
 								</Tr>
 							);
