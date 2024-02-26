@@ -27,7 +27,6 @@ import { useSQLCompletion } from '@/components/Editor/hooks/useSQLCompletion';
 import { newPageStateAtom } from '@/features/app-state';
 
 import { databaseSchema } from '@/components/Editor/utils/constants';
-import { workerAxios } from '@/lib/axios';
 
 export const SQLEditor = ({ name }: any) => {
 	const toast = useToast();
@@ -57,25 +56,19 @@ export const SQLEditor = ({ name }: any) => {
 
 	const { sources, isLoading: isLoadingSources } = useSources();
 
-	const fetchDatabaseType = async (source: string) => {
-		const response = await workerAxios.post(`/tables/get_database_type`, {
-			source,
-		});
-
-		const dbType = response.data;
+	const getDatabaseType = async (sourceName: string) => {
+		const source = sources.find((s) => s.name === sourceName);
 
 		setSourceAtom({
-			source: file?.source,
-			dbType,
+			source: source?.name,
+			dbType: source?.type,
 		});
-
-		return response.data;
 	};
 
 	useEffect(() => {
 		setSource(file?.source);
 
-		fetchDatabaseType(file?.source);
+		getDatabaseType(file?.source);
 	}, [setSource, file]);
 
 	useEffect(() => {
@@ -201,7 +194,10 @@ export const SQLEditor = ({ name }: any) => {
 							type="select"
 							placeholder="Sources"
 							value={selectedSource}
-							options={sources.map((s) => ({ name: s, value: s }))}
+							options={sources.map((source) => ({
+								name: source.name,
+								value: source.name,
+							}))}
 							onChange={(newSelectedSource: any) => {
 								setSource(newSelectedSource);
 							}}

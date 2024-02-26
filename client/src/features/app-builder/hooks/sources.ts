@@ -4,8 +4,13 @@ import { workerAxios } from '@/lib/axios';
 
 export const ALL_SOURCES_QUERY_KEY = 'sources';
 
+interface Source {
+	name: string;
+	type: string;
+}
+
 const fetchAllSources = async () => {
-	const response = await workerAxios.get<{ sources: string[] }>(`/sources/`);
+	const response = await workerAxios.get<{ sources: Source[] }>(`/sources/`);
 
 	return response.data;
 };
