@@ -253,10 +253,10 @@ export const DisplayRulesEditor = ({ name }: any) => {
 									type: 'text',
 								};
 
-								if (getColType(rule.target) === 'number') {
-									input = {
-										type: 'number',
-									};
+								if (
+									getColType(rule.target) === 'number' ||
+									getColType(rule.target) === 'float'
+								) {
 									usesComparatorOps = true;
 								}
 
