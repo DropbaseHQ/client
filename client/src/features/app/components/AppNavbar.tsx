@@ -259,6 +259,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 							ml="auto"
 							mr="4"
 							as={Link}
+							data-cy="preview-toggle"
 							to={isPreview ? 'studio' : '../'}
 						>
 							{isPreview ? 'Edit' : 'Preview'}

@@ -87,6 +87,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 				borderColor: 'gray.300',
 			}}
 			onClick={handleClick}
+			data-cy={`app-card-${app.name}`}
 		>
 			<Layout strokeWidth="1.5px" size="40px" />
 			<Text fontSize="lg" fontWeight="semibold" isTruncated flex="1">
@@ -104,6 +105,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 					minH="none"
 					icon={<MoreVertical size="14" />}
 					ml="auto"
+					data-cy={`app-menu-${app.name}`}
 					onClick={(e) => {
 						e.stopPropagation();
 					}}
@@ -111,6 +113,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 
 				<MenuList>
 					<MenuItem
+						data-cy={`delete-app-${app.name}`}
 						color="red"
 						onClick={(e) => {
 							e.stopPropagation();
@@ -139,6 +142,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 									name={`Write ${app.name} to delete the app`}
 									autoFocus
 									id="name"
+									data-cy={`confirm-delete-app-input-${app.name}`}
 									placeholder={app.name}
 									validation={{
 										validate: (value: any) =>
@@ -162,6 +166,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 									type="submit"
 									size="sm"
 									colorScheme="red"
+									data-cy={`confirm-delete-app-${app.name}`}
 								>
 									Delete
 								</Button>
@@ -252,7 +257,13 @@ export const AppList = () => {
 		<PageLayout
 			title="Your apps"
 			action={
-				<Button size="sm" ml="auto" onClick={onOpen} isDisabled={!workerIsConnected}>
+				<Button
+					size="sm"
+					ml="auto"
+					onClick={onOpen}
+					isDisabled={!workerIsConnected}
+					data-cy="create-app-button"
+				>
 					Create app
 				</Button>
 			}
@@ -294,6 +305,7 @@ export const AppList = () => {
 										name="App label"
 										id="label"
 										placeholder="Enter app label"
+										data-cy="app-name"
 									/>
 									<FormInput
 										name="App name"
@@ -335,6 +347,7 @@ export const AppList = () => {
 									isLoading={createAppIsLoading}
 									type="submit"
 									size="sm"
+									data-cy="confirm-create-app"
 								>
 									Create
 								</Button>

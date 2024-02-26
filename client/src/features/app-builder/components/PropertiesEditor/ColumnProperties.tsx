@@ -176,34 +176,41 @@ const ColumnProperty = ({
 
 	const handleUpdate = async (partialValues: any) => {
 		try {
+			const newProperties = {
+				...(pageProperties || {}),
+				tables: (pageProperties?.tables || []).map((t: any) => {
+					if (t.name === tableName) {
+						return {
+							...t,
+							columns: (t?.columns || []).map((c: any) => {
+								if (c.name === defaultName) {
+									return {
+										...c,
+										...properties,
+										...partialValues,
+									};
+								}
+
+								return c;
+							}),
+						};
+					}
+
+					return t;
+				}),
+			};
 			await updateMutation.mutateAsync({
 				app_name: appName,
 				page_name: pageName,
-				properties: {
-					...(pageProperties || {}),
-					tables: (pageProperties?.tables || []).map((t: any) => {
-						if (t.name === tableName) {
-							return {
-								...t,
-								columns: (t?.columns || []).map((c: any) => {
-									if (c.name === defaultName) {
-										return {
-											...c,
-											...properties,
-											...partialValues,
-										};
-									}
-
-									return c;
-								}),
-							};
-						}
-
-						return t;
-					}),
-				},
+				properties: newProperties,
 			});
-			reset(partialValues, {
+
+			const currentColumn =
+				(pageProperties?.tables || [])
+					.find((t: any) => t.name === tableName)
+					?.columns?.find((c: any) => c.name === defaultName) || {};
+
+			reset(currentColumn, {
 				keepDirty: false,
 				keepDirtyValues: false,
 			});

@@ -52,6 +52,7 @@ export const Workspaces = () => {
 							boxShadow="md"
 							_hover={{ cursor: 'pointer' }}
 							p={3}
+							data-cy={`workspace-${workspace?.oldest_user?.email}`}
 							onClick={() => handleSwitchWorkspace(workspace.id)}
 						>
 							<Text>Name: {workspace.name}</Text>

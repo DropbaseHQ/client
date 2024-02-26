@@ -162,6 +162,7 @@ const UserRow = (item: any) => {
 								aria-label="Remove Member"
 								size="xs"
 								colorScheme="red"
+								data-cy={`remove-member-${user.email}`}
 								icon={<UserMinus size="18" />}
 							/>
 						</PopoverTrigger>
@@ -225,7 +226,13 @@ export const Users = () => {
 		<PageLayout
 			title="Workspace Members"
 			action={
-				<Button colorScheme="blue" size="sm" ml="auto" onClick={inviteMemberOnOpen}>
+				<Button
+					colorScheme="blue"
+					size="sm"
+					ml="auto"
+					data-cy="add-member"
+					onClick={inviteMemberOnOpen}
+				>
 					Add Member
 				</Button>
 			}
@@ -255,6 +262,7 @@ export const Users = () => {
 							<Input
 								placeholder="Member Email"
 								value={newMemberEmail}
+								data-cy="new-member-email"
 								onChange={(e) => {
 									setNewMemberEmail(e.target.value);
 								}}
@@ -262,6 +270,7 @@ export const Users = () => {
 							<Select
 								placeholder="Select role"
 								value={newMemberRole}
+								data-cy="new-member-role"
 								onChange={(e) => {
 									setNewMemberRole(e.target.value);
 								}}
@@ -278,6 +287,7 @@ export const Users = () => {
 						<Button
 							colorScheme="blue"
 							mr={3}
+							data-cy="invite-member"
 							onClick={handleInviteMember}
 							isLoading={inviteMemberMutation.isLoading}
 						>
