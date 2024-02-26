@@ -176,15 +176,16 @@ export const DisplayRulesEditor = ({ name }: any) => {
 		}
 		return colType;
 	};
+
 	const componentsProperties = components
 		.filter(
 			(c: any) =>
 				c.name !== name &&
-				(c.component_type === 'select' || c.component_type === 'input',
-				c.component_type === 'boolean'),
+				(c.component_type === 'select' ||
+					c.component_type === 'input' ||
+					c.component_type === 'boolean'),
 		)
 		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
-
 	const getColType = (target: string) => {
 		if (!target) return 'text';
 
