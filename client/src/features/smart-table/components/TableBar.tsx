@@ -105,7 +105,7 @@ export const TableBar = () => {
 				edits: cellEdits.map((edit: any) => ({
 					row: rows[edit.rowIndex],
 					column_name: edit.column_name,
-					columns,
+					columns: columns.filter((c: any) => c?.column_type !== 'button_column'),
 					data_type: edit.data_type,
 					old_value: edit.old_value,
 					new_value: edit.new_value,

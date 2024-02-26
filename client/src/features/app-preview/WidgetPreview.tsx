@@ -235,6 +235,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 								pt="2"
 								h="full"
 								overflow="auto"
+								data-cy="components-list"
 								spacing="3"
 								{...provided.droppableProps}
 							>

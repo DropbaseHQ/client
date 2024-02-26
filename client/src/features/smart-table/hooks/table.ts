@@ -1,12 +1,17 @@
 import { useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useDebounce } from 'use-debounce';
 
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
-import { APP_STATE_QUERY_KEY, newPageStateAtom, useAppState } from '@/features/app-state';
+import {
+	APP_STATE_QUERY_KEY,
+	newPageStateAtom,
+	selectedRowAtom,
+	useAppState,
+} from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
@@ -63,6 +68,8 @@ export const useTableData = ({
 
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
 
+	const selectRow = useSetAtom(selectedRowAtom);
+
 	const pageState: any = useAtomValue(newPageStateAtom);
 	const pageStateRef = useRef(pageState);
 	pageStateRef.current = pageState;
@@ -70,6 +77,14 @@ export const useTableData = ({
 	const table = tables.find((t: any) => t.name === tableName);
 
 	const hasSelectedRows = useAtomValue(hasSelectedRowAtom);
+
+	const filesWithCurrentTableAsDependency = (files || [])
+		.filter((f: any) => f?.depends_on?.includes(tableName))
+		.map((f: any) => f.name);
+
+	const tablesWhichDependsOnCurrent = tables
+		?.filter((t: any) => filesWithCurrentTableAsDependency?.includes(t?.fetcher))
+		?.map((t: any) => t?.name);
 
 	const depends = files.find((f: any) => f.name === table?.fetcher)?.depends_on || [];
 	const tablesWithNoSelection = depends.filter((name: any) => !hasSelectedRows[name]);
@@ -122,12 +137,46 @@ export const useTableData = ({
 				tablesWithNoSelection.length === 0
 			),
 			staleTime: Infinity,
+			onError: () => {
+				/**
+				 * Reset selected row of the current table, and all the tables
+				 * which depends on the current table.
+				 */
+				if (tablesWhichDependsOnCurrent?.length > 0) {
+					selectRow((old: any) => {
+						const baseStateForSelectedRow = [
+							...tablesWhichDependsOnCurrent,
+							tableName,
+						].reduce((agg: any, tName: any) => {
+							return {
+								...agg,
+								[tName]: Object.keys(old?.[tName] || {}).reduce(
+									(acc: { [col: string]: string | null }, curr: string) => ({
+										...acc,
+										[curr]: null,
+									}),
+									{},
+								),
+							};
+						}, {});
+
+						return {
+							...old,
+							...baseStateForSelectedRow,
+						};
+					});
+				}
+			},
 		},
 	);
 
 	const parsedData: any = useMemo(() => {
 		if (response) {
-			const header = response?.columns || [];
+			const customColumns = table?.columns?.filter(
+				(c: any) => c.column_type === 'button_column' && !c?.hidden,
+			);
+
+			const header = [...(response?.columns || []), ...(customColumns || [])];
 
 			const rows: any =
 				response?.data?.map((r: any) => {
@@ -152,7 +201,7 @@ export const useTableData = ({
 			header: [],
 			tableError: null,
 		};
-	}, [response]);
+	}, [response, table]);
 
 	return {
 		...rest,

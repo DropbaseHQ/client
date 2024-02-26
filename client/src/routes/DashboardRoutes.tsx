@@ -1,11 +1,24 @@
 import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
-import { Login, Register, ResetPassword, EmailConfirmation } from '@/features/authorization';
-import { DashboardLayout } from '@/layout';
+
+import { lazyImport } from '@/utils/lazy-import';
+
 import { useWorkspaces } from '@/features/workspaces';
-import { RequestResetLink } from '@/features/authorization/RequestResetLink';
 import { GithubAuth } from '@/features/authorization/GithubAuth';
+import { DashboardLayout } from '@/layout';
+
+const { Login } = lazyImport(() => import('@/features/authorization'), 'Login');
+const { Register } = lazyImport(() => import('@/features/authorization'), 'Register');
+const { ResetPassword } = lazyImport(() => import('@/features/authorization'), 'ResetPassword');
+const { EmailConfirmation } = lazyImport(
+	() => import('@/features/authorization'),
+	'EmailConfirmation',
+);
+const { RequestResetLink } = lazyImport(
+	() => import('@/features/authorization/RequestResetLink'),
+	'RequestResetLink',
+);
 
 export const DashboardRoutes = ({ homeRoute, children }: any) => {
 	const { isLoading } = useWorkspaces();

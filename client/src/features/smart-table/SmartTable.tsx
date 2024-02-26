@@ -25,7 +25,7 @@ import DataEditor, {
 	GridCellKind,
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
-import { DatePickerCell, MultiSelectCell } from '@glideapps/glide-data-grid-cells';
+import { DatePickerCell, MultiSelectCell, ButtonCell } from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import { useParams } from 'react-router-dom';
@@ -62,6 +62,7 @@ import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 import { LabelContainer } from '@/components/LabelContainer';
+import { useEvent } from '@/features/app-preview/hooks';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -69,7 +70,7 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-const ALL_CELLS = [DatePickerCell, dropdownCellRenderer, MultiSelectCell];
+const ALL_CELLS = [DatePickerCell, dropdownCellRenderer, MultiSelectCell, ButtonCell];
 
 export const SmartTable = ({ tableName, provider }: any) => {
 	const toast = useToast();
@@ -117,6 +118,8 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		table,
 	} = useGetTable(tableName || '');
 	const tableIsUnsynced = useTableSyncStatus(tableName);
+
+	const handleEvent = useEvent();
 
 	const mutation = useUpdatePageData({
 		onSuccess: () => {
@@ -311,6 +314,10 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		// ⚠️ only by passing undefined we can hide column icon
 		let icon = col?.display_type ? GridColumnIcon.HeaderString : undefined;
 
+		if (col?.column_type === 'button_column') {
+			icon = GridColumnIcon.HeaderCode;
+		}
+
 		switch (col?.display_type) {
 			case 'currency':
 			case 'integer': {
@@ -436,6 +443,26 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						bgCell: theme.colors.gray['50'],
 					},
 			  };
+
+		if (column?.column_type === 'button_column') {
+			const columnColor = theme.colors?.[column?.color || 'gray'];
+
+			return {
+				kind: GridCellKind.Custom,
+				allowOverlay: false,
+				readonly: true,
+				data: {
+					kind: 'button-cell',
+					backgroundColor: ['transparent', columnColor?.[100]],
+					color: columnColor?.[500],
+					borderColor: columnColor?.[500],
+					borderRadius: 2,
+					title: column.label,
+					onClick: () => handleEvent(column?.on_click),
+				},
+				...themeOverride,
+			};
+		}
 
 		switch (column?.display_type) {
 			case 'currency': {
@@ -891,6 +918,25 @@ export const SmartTable = ({ tableName, provider }: any) => {
 								{isPreview ? null : (
 									<LabelContainer.Code>{tableName}</LabelContainer.Code>
 								)}
+
+								{table?.smart && !isPreview ? (
+									<Box
+										fontSize="xs"
+										px="2"
+										my="1"
+										py="1"
+										borderRadius="sm"
+										borderWidth="1px"
+										borderColor="yellow.400"
+										bg="yellow.50"
+										color="yellow.700"
+										fontWeight="medium"
+										h="fit-content"
+										w="fit-content"
+									>
+										Smart Table
+									</Box>
+								) : null}
 							</LabelContainer>
 
 							{dependantTablesWithNoRowSelection.length > 0 ? (

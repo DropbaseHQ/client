@@ -2,6 +2,7 @@ import {
 	Box,
 	Button,
 	Container,
+	Divider,
 	FormControl,
 	FormErrorMessage,
 	FormLabel,
@@ -10,13 +11,18 @@ import {
 	Stack,
 	Text,
 } from '@chakra-ui/react';
+import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { GitHub } from 'react-feather';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQueryClient } from 'react-query';
+import { GoogleLogin } from '@react-oauth/google';
 
-import { useRegister } from './hooks/useRegister';
+import { useGoogleRegister, useRegister } from './hooks/useRegister';
 import { useToast } from '@/lib/chakra-ui';
+import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '@/utils';
+import { workspaceAtom } from '@/features/workspaces';
 
 type FormValues = {
 	email: string;
@@ -34,8 +40,36 @@ export const Register = () => {
 		handleSubmit,
 	} = useForm<FormValues>();
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 
 	const toast = useToast();
+	const updateWorkspace = useSetAtom(workspaceAtom);
+
+	const { mutate: googleMutate } = useGoogleRegister({
+		onError: (error: any) => {
+			toast({
+				title: 'Signup Failed',
+				status: 'error',
+				description: getErrorMessage(error),
+			});
+		},
+		onSuccess: (data: any) => {
+			queryClient.clear();
+			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+			setAxiosToken(data?.access_token);
+			localStorage.setItem('access_token', data?.access_token);
+			localStorage.setItem('refresh_token', data?.refresh_token);
+			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
+
+			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
+			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
+			toast({
+				title: 'Registered successfully',
+				status: 'success',
+			});
+			navigate('/apps');
+		},
+	});
 
 	const { mutate, isLoading } = useRegister({
 		onError: (error: any) => {
@@ -58,6 +92,18 @@ export const Register = () => {
 	const onSubmit = handleSubmit((data) => {
 		mutate(data);
 	});
+
+	const onGoogleSuccess = (response: any) => {
+		googleMutate(response);
+	};
+
+	const onGoogleError = () => {
+		toast({
+			title: 'Signup Failed',
+			status: 'error',
+			description: 'Unable to sign up with google',
+		});
+	};
 
 	return (
 		<Container display="flex" alignItems="center" h="100vh" maxW="lg">
@@ -82,6 +128,7 @@ export const Register = () => {
 										placeholder="Please enter your first name"
 										id="name"
 										type="name"
+										data-cy="first-name"
 										{...register('name', {
 											required: 'name is required',
 										})}
@@ -93,6 +140,7 @@ export const Register = () => {
 										placeholder="Please enter your last name"
 										id="last_name"
 										type="name"
+										data-cy="last-name"
 										{...register('last_name', {
 											required: 'last_name is required',
 										})}
@@ -104,6 +152,7 @@ export const Register = () => {
 										placeholder="Please enter your company"
 										id="company"
 										type="name"
+										data-cy="company"
 										{...register('company', {
 											required: 'Company is required',
 										})}
@@ -115,6 +164,7 @@ export const Register = () => {
 										placeholder="Please enter your email"
 										id="email"
 										type="email"
+										data-cy="email"
 										{...register('email', {
 											required: 'Email is required',
 										})}
@@ -128,6 +178,7 @@ export const Register = () => {
 										placeholder="Please enter your password"
 										id="password"
 										type="password"
+										data-cy="password"
 										{...register('password', {
 											required: 'Password is required',
 											validate: (value) => {
@@ -156,6 +207,7 @@ export const Register = () => {
 										placeholder="Please confirm your password"
 										id="confirm"
 										type="password"
+										data-cy="confirm-password"
 										{...register('confirm', {
 											required: 'Password is required',
 											validate: (value, formValues) => {
@@ -172,7 +224,12 @@ export const Register = () => {
 								</FormControl>
 							</Stack>
 							<Stack spacing="6">
-								<Button isLoading={isLoading} type="submit" colorScheme="blue">
+								<Button
+									isLoading={isLoading}
+									type="submit"
+									colorScheme="blue"
+									data-cy="sign-up-button"
+								>
 									Sign up
 								</Button>
 								<Button
@@ -186,6 +243,15 @@ export const Register = () => {
 									<Text ml="2">Sign up with Github</Text>
 								</Button>
 							</Stack>
+							<Divider />
+							<GoogleLogin
+								onSuccess={onGoogleSuccess}
+								onError={onGoogleError}
+								size="medium"
+								text="signup_with"
+								width={300}
+								logo_alignment="center"
+							/>
 						</Stack>
 					</form>
 				</Box>

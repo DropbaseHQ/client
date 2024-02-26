@@ -10,6 +10,7 @@ import {
 	Input,
 	Stack,
 	Text,
+	Divider,
 } from '@chakra-ui/react';
 import { GitHub } from 'react-feather';
 import { useState } from 'react';
@@ -17,8 +18,10 @@ import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
+import { GoogleLogin } from '@react-oauth/google';
 import { useResendConfirmEmail } from './hooks/useResendConfirmationEmail';
-import { useLogin } from './hooks/useLogin';
+import { useLogin, useGoogleLogin } from './hooks/useLogin';
+
 import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
 import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
@@ -45,6 +48,32 @@ export const Login = () => {
 	} = useForm<FormValues>();
 
 	const email = watch('email');
+
+	const { mutate: googleMutate } = useGoogleLogin({
+		onError: (error: any) => {
+			toast({
+				title: 'Login Failed',
+				status: 'error',
+				description: getErrorMessage(error),
+			});
+			if (error.response?.status === 403) {
+				setDisplayEmailConfirmation(true);
+			}
+		},
+		onSuccess: (data: any) => {
+			queryClient.clear();
+			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+			setAxiosToken(data?.access_token);
+			localStorage.setItem('access_token', data?.access_token);
+			localStorage.setItem('refresh_token', data?.refresh_token);
+			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
+
+			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
+			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
+			setDisplayEmailConfirmation(false);
+			navigate('/apps');
+		},
+	});
 
 	const { mutate, isLoading } = useLogin({
 		onError: (error: any) => {
@@ -91,20 +120,39 @@ export const Login = () => {
 		resendConfirmEmail({ email });
 	};
 
+	const onGoogleSuccess = (response: any) => {
+		googleMutate(response);
+	};
+
+	const onGoogleError = () => {
+		toast({
+			title: 'Login Failed',
+			status: 'error',
+			description: 'Unable to log in with google',
+		});
+	};
+
 	return (
 		<Container display="flex" alignItems="center" h="100vh" maxW="lg">
 			<Stack spacing="8">
 				<Stack spacing="6">
 					<Stack spacing={{ base: '2', md: '3' }} textAlign="center">
 						<Heading size="sm">Log in to your account</Heading>
-						<Link to="/register">
+						<Link to="/register" data-cy="link-to-register">
 							<Text color="fg.muted" fontSize="sm" textDecoration="underline">
 								Don&apos;t have an account?
 							</Text>
 						</Link>
 					</Stack>
 				</Stack>
-				<Box minW="md" p="12" boxShadow="sm" bg="white" borderRadius="md" borderWidth="1px">
+				<Box
+					width="md"
+					p="12"
+					boxShadow="sm"
+					bg="white"
+					borderRadius="md"
+					borderWidth="1px"
+				>
 					<form onSubmit={onSubmit}>
 						<Stack spacing="6">
 							<Stack spacing="5">
@@ -114,6 +162,7 @@ export const Login = () => {
 										placeholder="Please enter your email"
 										id="email"
 										type="email"
+										data-cy="email"
 										{...register('email', {
 											required: 'Email is required',
 										})}
@@ -127,6 +176,7 @@ export const Login = () => {
 										placeholder="Please enter your password"
 										id="password"
 										type="password"
+										data-cy="password"
 										{...register('password', {
 											required: 'Password is required',
 										})}
@@ -136,15 +186,27 @@ export const Login = () => {
 								</FormControl>
 							</Stack>
 							<Stack spacing="6">
-								<Button isLoading={isLoading} type="submit" colorScheme="blue">
+								<Button
+									isLoading={isLoading}
+									type="submit"
+									colorScheme="blue"
+									data-cy="sign-in"
+								>
 									Sign in
 								</Button>
+
 								<Link to="/forgot">
 									<Text color="fg.muted" fontSize="sm" textDecoration="underline">
 										Forgot Password?
 									</Text>
 								</Link>
-
+								<Divider />
+								<GoogleLogin
+									onSuccess={onGoogleSuccess}
+									onError={onGoogleError}
+									size="medium"
+									width={300}
+								/>
 								<Button
 									as={Link}
 									bgColor="black"

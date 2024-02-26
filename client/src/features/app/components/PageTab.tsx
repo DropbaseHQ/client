@@ -203,8 +203,10 @@ export const PageTab = (props: any) => {
 												size="sm"
 												placeholder="Page name"
 												value={pageNameEdit}
+												autoFocus
 												onChange={handleChangePageName}
 												onKeyDown={(e) => {
+													e.stopPropagation();
 													if (e.key === 'Enter') {
 														handleRenamePage();
 													}

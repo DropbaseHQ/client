@@ -87,7 +87,7 @@ const PolicyTable = ({
 						{apps.map((app: any) => {
 							const appIdentifier = app?.id ? app.id : app.name;
 							return (
-								<Tr key={appIdentifier}>
+								<Tr key={appIdentifier} data-cy={`permission-row-${app.name}`}>
 									<Td>{app.name}</Td>
 									<Td>{getSelector(selectedResourceId, appIdentifier)}</Td>
 								</Tr>
@@ -275,6 +275,7 @@ export const Permissions = () => {
 						<Button
 							flexGrow="1"
 							variant={resourceType === 'users' ? 'solid' : 'outline'}
+							data-cy="user-permissions"
 							onClick={setResourceTypeToUsers}
 						>
 							Users

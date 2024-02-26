@@ -25,6 +25,7 @@ class CreateUser(BaseModel):
     active: bool = False
     trial_eligible: bool = True
     confirmation_token: Optional[str]
+    social_login: Optional[str]
 
 
 class ReadUser(BaseModel):
@@ -47,6 +48,14 @@ class UpdateUser(BaseModel):
 class LoginUser(BaseModel):
     email: str
     password: str
+
+
+class LoginGoogleUser(BaseModel):
+    credential: str
+
+
+class CreateGoogleUserRequest(BaseModel):
+    credential: str
 
 
 class CreateUserRequest(BaseModel):

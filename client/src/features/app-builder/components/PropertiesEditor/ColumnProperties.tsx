@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ChevronDown, ChevronRight, Save, Zap } from 'react-feather';
+import { ChevronDown, ChevronRight, Save, Trash, Zap } from 'react-feather';
 
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
@@ -26,6 +26,8 @@ import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 import { newPageStateAtom } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
 import { useGetPage, useUpdatePageData } from '@/features/page';
+import { NewColumn } from '@/features/app-builder/components/PropertiesEditor/NewColumn';
+import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 
 const DISPLAY_TYPE_ENUM: any = {
 	text: ['text', 'select'],
@@ -46,6 +48,12 @@ const VISIBLE_FIELDS = [
 	'unique',
 ];
 
+const VISIBLE_EDITABLE_FIELDS: any = {
+	pgcolumn: ['display_type'],
+	button_column: ['on_click', 'label', 'name', 'display_type', 'color'],
+	pycolumn: ['display_type'],
+};
+
 const resolveDisplayTypeOptions = (displayType: any) => {
 	if (DISPLAY_TYPE_ENUM[displayType]) {
 		return DISPLAY_TYPE_ENUM[displayType];
@@ -59,6 +67,12 @@ const ColumnProperty = ({
 	edit_keys,
 	configurations: defaultConfigurations,
 	display_type: defaultDisplayType,
+
+	on_click: defaultOnClick,
+	label: defaultLabel,
+	name: defaultName,
+	color: defaultColor,
+
 	...properties
 }: any) => {
 	const toast = useToast();
@@ -66,25 +80,49 @@ const ColumnProperty = ({
 	const { appName, pageName } = useParams();
 
 	const methods = useForm();
-	const { watch, setValue } = methods;
+	const {
+		watch,
+		setValue,
+		formState: { isDirty },
+		reset,
+	} = methods;
 
 	const { properties: pageProperties } = useGetPage({ appName, pageName });
 
+	const tableId = useAtomValue(selectedTableIdAtom);
+
+	const { columns } = useGetTable(tableId || '');
+
 	const { isOpen, onToggle } = useDisclosure();
+	const { isOpen: isConfigurationOpen, onToggle: onToggleConfigurations } = useDisclosure();
 
 	const { fields: resourceFields } = useResourceFields();
-	const columnFields = resourceFields[tableType === 'sql' ? 'pgcolumn' : 'pycolumn'] || [];
+	let columnField = '';
+
+	if (properties?.column_type === 'postgres') {
+		columnField = 'pgcolumn';
+	} else if (properties?.column_type === 'python') {
+		columnField = 'pycolumn';
+	} else if (properties?.column_type === 'button_column') {
+		columnField = 'button_column';
+	}
+
+	const columnFields = resourceFields?.[columnField] || [];
 
 	// const allFieldsName = columnFields.map((field: any) => field.name);
 
 	const displayType = watch('display_type');
-	const configurations = watch('configurations');
 
 	const allDisplayConfigurations = resourceFields.display_type_configurations;
 	const displayConfiguration =
 		allDisplayConfigurations?.find((d: any) => d.name === displayType) || [];
 	const configProperties = displayConfiguration?.properties || {};
 
+	const editableFields = VISIBLE_EDITABLE_FIELDS?.[columnField];
+
+	const isCustomColumn = columnField === 'button_column';
+
+	// FIXME: check why useEffect loop with properties
 	useEffect(() => {
 		setValue('configurations', defaultConfigurations, {
 			shouldDirty: false,
@@ -94,7 +132,31 @@ const ColumnProperty = ({
 			shouldTouch: false,
 			shouldDirty: false,
 		});
-	}, [defaultDisplayType, defaultConfigurations, setValue]);
+		setValue('color', defaultColor, {
+			shouldDirty: false,
+			shouldTouch: false,
+		});
+		setValue('on_click', defaultOnClick, {
+			shouldTouch: false,
+			shouldDirty: false,
+		});
+		setValue('label', defaultLabel, {
+			shouldDirty: false,
+			shouldTouch: false,
+		});
+		setValue('name', defaultName, {
+			shouldTouch: false,
+			shouldDirty: false,
+		});
+	}, [
+		defaultDisplayType,
+		defaultConfigurations,
+		defaultOnClick,
+		defaultLabel,
+		defaultName,
+		defaultColor,
+		setValue,
+	]);
 
 	const updateMutation = useUpdatePageData({
 		onSuccess: () => {
@@ -112,18 +174,16 @@ const ColumnProperty = ({
 		},
 	});
 
-	const handleUpdate = (partialValues: any) => {
-		updateMutation.mutate({
-			app_name: appName,
-			page_name: pageName,
-			properties: {
+	const handleUpdate = async (partialValues: any) => {
+		try {
+			const newProperties = {
 				...(pageProperties || {}),
 				tables: (pageProperties?.tables || []).map((t: any) => {
 					if (t.name === tableName) {
 						return {
 							...t,
 							columns: (t?.columns || []).map((c: any) => {
-								if (c.name === properties.name) {
+								if (c.name === defaultName) {
 									return {
 										...c,
 										...properties,
@@ -138,8 +198,51 @@ const ColumnProperty = ({
 
 					return t;
 				}),
-			},
-		});
+			};
+			await updateMutation.mutateAsync({
+				app_name: appName,
+				page_name: pageName,
+				properties: newProperties,
+			});
+
+			const currentColumn =
+				(pageProperties?.tables || [])
+					.find((t: any) => t.name === tableName)
+					?.columns?.find((c: any) => c.name === defaultName) || {};
+
+			reset(currentColumn, {
+				keepDirty: false,
+				keepDirtyValues: false,
+			});
+		} catch (e) {
+			//
+		}
+	};
+
+	const handleDelete = async (columnId: any) => {
+		try {
+			await updateMutation.mutateAsync({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(pageProperties || {}),
+					tables: (pageProperties?.tables || []).map((t: any) => {
+						if (t.name === tableName) {
+							return {
+								...t,
+								columns: (t?.columns || []).filter((c: any) => {
+									return c.name !== columnId;
+								}),
+							};
+						}
+
+						return t;
+					}),
+				},
+			});
+		} catch (e) {
+			//
+		}
 	};
 
 	const resetConfig = () => {
@@ -147,54 +250,29 @@ const ColumnProperty = ({
 	};
 
 	const onSubmit = (formValues: any) => {
-		updateMutation.mutate({
-			app_name: appName,
-			page_name: pageName,
-			properties: {
-				...(pageProperties || {}),
-				tables: (pageProperties?.tables || []).map((t: any) => {
-					if (t.name === tableName) {
-						return {
-							...t,
-							columns: (t?.columns || []).map((c: any) => {
-								if (c.name === properties.name) {
-									return {
-										...c,
-										...properties,
-										...formValues,
-									};
-								}
-
-								return c;
-							}),
-						};
-					}
-
-					return t;
-				}),
-			},
-		});
+		handleUpdate(formValues);
 	};
 
 	const hasNoEditKeys = edit_keys?.length === 0;
 
-	const displayTypeField = columnFields.find((f: any) => f.name === 'display_type');
 	const allVisibleFields = columnFields.filter((f: any) => VISIBLE_FIELDS.includes(f.name)) || [];
 
 	return (
 		<form onSubmit={methods.handleSubmit(onSubmit)}>
 			<FormProvider {...methods}>
 				<Stack spacing="0" borderBottomWidth="1px">
-					<SimpleGrid
-						p="2"
+					<Stack
+						py="2"
+						px="3"
+						direction="row"
 						borderBottomWidth={isOpen ? '1px' : '0'}
 						alignItems="center"
 						gap={3}
 						bg={isOpen ? 'gray.50' : ''}
-						columns={3}
+						// columns={3}
 					>
-						<Box alignSelf="center" overflow="hidden">
-							<Tooltip placement="left-end" label={properties.name}>
+						<Box alignSelf="center" overflow="hidden" width="40%">
+							<Tooltip placement="left-end" label={defaultName}>
 								<Code
 									h="full"
 									as={Text}
@@ -207,30 +285,39 @@ const ColumnProperty = ({
 									lineHeight={1}
 									textOverflow="ellipsis"
 								>
-									{properties.name}
+									{defaultName}
 								</Code>
 							</Tooltip>
 						</Box>
-						<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
-							<Box>
-								<InputRenderer
-									type="boolean"
-									isDisabled={
-										tableType !== 'sql' ||
-										hasNoEditKeys ||
-										updateMutation.isLoading
-									}
-									id="editable"
-									value={properties.editable}
-									onChange={(newValue: any) => {
-										handleUpdate({
-											editable: newValue,
-										});
-									}}
-								/>
-							</Box>
-						</Tooltip>
-						<Stack alignItems="center" justifyContent="space-between" direction="row">
+						{isCustomColumn ? (
+							<Box width="30%" />
+						) : (
+							<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
+								<Box width="30%">
+									<InputRenderer
+										type="boolean"
+										isDisabled={
+											tableType !== 'sql' ||
+											hasNoEditKeys ||
+											updateMutation.isLoading
+										}
+										id="editable"
+										value={properties.editable}
+										onChange={(newValue: any) => {
+											handleUpdate({
+												editable: newValue,
+											});
+										}}
+									/>
+								</Box>
+							</Tooltip>
+						)}
+						<Stack
+							alignItems="center"
+							justifyContent="space-between"
+							direction="row"
+							width="30%"
+						>
 							<InputRenderer
 								type="boolean"
 								id="hidden"
@@ -244,10 +331,7 @@ const ColumnProperty = ({
 							/>
 
 							<Stack direction="row" alignItems="center">
-								{JSON.stringify(configurations) !==
-									JSON.stringify(defaultConfigurations) ||
-								JSON.stringify(defaultDisplayType) !==
-									JSON.stringify(displayType) ? (
+								{isDirty ? (
 									<IconButton
 										aria-label="Update column"
 										type="submit"
@@ -274,25 +358,80 @@ const ColumnProperty = ({
 								</Box>
 							</Stack>
 						</Stack>
-					</SimpleGrid>
+					</Stack>
 					<Collapse in={isOpen}>
 						<Stack p="3">
-							{displayTypeField ? (
-								<FormInput
-									type="custom-select"
-									id={displayTypeField.name}
-									name={displayTypeField.title}
-									w="50%"
-									hideClearOption
-									options={resolveDisplayTypeOptions(displayType).map(
-										(option: any) => ({
-											name: option,
-											value: option,
-										}),
-									)}
-									onSelect={resetConfig}
-								/>
-							) : null}
+							{columnFields
+								.filter((f: any) => editableFields?.includes(f?.name))
+								.map((f: any) => {
+									if (f.name === 'display_type') {
+										return (
+											<FormInput
+												type="custom-select"
+												id={f.name}
+												name={f.title}
+												w="50%"
+												hideClearOption
+												options={resolveDisplayTypeOptions(displayType).map(
+													(option: any) => ({
+														name: option,
+														value: option,
+													}),
+												)}
+												onSelect={resetConfig}
+											/>
+										);
+									}
+
+									if (f?.category === 'Events') {
+										return <EventPropertyEditor id={f.name} />;
+									}
+
+									if (f.name === 'name') {
+										return (
+											<FormInput
+												{...f}
+												id={f.name}
+												name={f.title}
+												validation={{
+													required: 'Cannot  be empty',
+													validate: {
+														unique: (value: any) => {
+															if (
+																columns
+																	.filter(
+																		(c: any) =>
+																			c.name !== defaultName,
+																	)
+																	.find(
+																		(c: any) =>
+																			c.name === value,
+																	)
+															) {
+																return 'Name must be unique';
+															}
+
+															return true;
+														},
+													},
+												}}
+											/>
+										);
+									}
+
+									return (
+										<FormInput
+											{...f}
+											id={f.name}
+											name={f.title}
+											options={(f.enum || f.options || []).map((o: any) => ({
+												name: o,
+												value: o,
+											}))}
+											key={f.name}
+										/>
+									);
+								})}
 
 							{Object.keys(configProperties).length > 0 ? (
 								<SimpleGrid py="2" gap={4} columns={2}>
@@ -331,23 +470,52 @@ const ColumnProperty = ({
 								</SimpleGrid>
 							) : null}
 
-							<SimpleGrid mt="2" alignItems="center" gap={4} columns={2}>
-								{allVisibleFields.map((property: any) => (
-									<Stack spacing="0.5" key={property.name}>
-										<FormLabel>{property.name}</FormLabel>
-										{property.type === 'boolean' ? (
-											<InputRenderer
-												{...property}
-												value={properties[property.name]}
-											/>
-										) : (
-											<Code bg="transparent" fontSize="sm">
-												{properties[property.name] || '-'}
+							<Stack direction="row" alignItems="center">
+								{allVisibleFields.length > 0 ? (
+									<Button
+										variant="link"
+										color="gray.500"
+										size="xs"
+										w="fit-content"
+										fontWeight="normal"
+										onClick={onToggleConfigurations}
+									>
+										{isConfigurationOpen ? 'Hide' : 'Show'} medatada
+									</Button>
+								) : null}
+
+								{isCustomColumn ? (
+									<Tooltip label="Delete Column">
+										<IconButton
+											aria-label="Delete component"
+											variant="outline"
+											size="xs"
+											ml="auto"
+											colorScheme="red"
+											isLoading={updateMutation.isLoading}
+											onClick={() => {
+												handleDelete(defaultName);
+											}}
+											icon={<Trash size="14" />}
+										/>
+									</Tooltip>
+								) : null}
+							</Stack>
+
+							<Collapse in={isConfigurationOpen}>
+								<SimpleGrid mt="2" alignItems="center" gap={2}>
+									{allVisibleFields.map((property: any) => (
+										<Stack spacing="0.5" key={property.name} direction="row">
+											<FormLabel width="50%">{property.name}</FormLabel>
+											<Code background="transparent" fontSize="sm">
+												{property.type === 'boolean'
+													? JSON.stringify(properties[property.name])
+													: properties[property.name] || '-'}
 											</Code>
-										)}
-									</Stack>
-								))}
-							</SimpleGrid>
+										</Stack>
+									))}
+								</SimpleGrid>
+							</Collapse>
 						</Stack>
 					</Collapse>
 				</Stack>
@@ -414,9 +582,11 @@ export const ColumnsProperties = () => {
 
 	return (
 		<Stack spacing="3" h="full" overflowY="auto">
-			<Text fontSize="md" pt="3" px="3" fontWeight="semibold">
-				Columns
-			</Text>
+			<Stack direction="row" pb="2" px="3" alignItems="center">
+				<Text fontSize="md" fontWeight="semibold">
+					Columns
+				</Text>
+			</Stack>
 			{type === 'sql' && !table?.smart ? (
 				<Button
 					leftIcon={<Zap size="14" />}
@@ -432,22 +602,23 @@ export const ColumnsProperties = () => {
 				</Button>
 			) : null}
 			<Stack spacing="0" borderTopWidth="1px">
-				<SimpleGrid
-					p="2"
+				<Stack
+					p="3"
+					direction="row"
 					fontWeight="medium"
 					fontSize="sm"
 					bg="gray.50"
 					borderBottomWidth="1px"
-					columns={3}
 				>
-					<Text>Column</Text>
-					<Text>Editable</Text>
-					<Text>Hidden</Text>
-				</SimpleGrid>
+					<Text width="40%">Column</Text>
+					<Text width="30%">Editable</Text>
+					<Text width="30%">Hidden</Text>
+				</Stack>
 				{columns.map((column: any) => (
 					<ColumnProperty tableType={type} key={column.name} {...column} />
 				))}
 			</Stack>
+			<NewColumn variant="outline" ml="3" colorScheme="gray" />
 		</Stack>
 	);
 };
