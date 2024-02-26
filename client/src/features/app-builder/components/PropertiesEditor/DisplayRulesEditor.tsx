@@ -167,24 +167,35 @@ export const DisplayRulesEditor = ({ name }: any) => {
 		widgetsInputs?.[widgetName as keyof typeof widgetsInputs] || {};
 
 	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
+
 	const { control } = useFormContext();
 
-	const getColType = (target: string, componentProperty?: any) => {
+	const processColType = (colType: string) => {
+		if (colType === 'boolean') {
+			return 'select';
+		}
+		return colType;
+	};
+
+	const componentsProperties = components
+		.filter(
+			(c: any) =>
+				c.name !== name &&
+				(c.component_type === 'select' ||
+					c.component_type === 'input' ||
+					c.component_type === 'boolean'),
+		)
+		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
+	const getColType = (target: string) => {
 		if (!target) return 'text';
 
+		const componentProperty = componentsProperties?.[target.split('.')[2]];
 		if (target.includes('widgets')) return componentProperty?.data_type;
 
 		const [, specificCategory, targetName] = target.split('.');
 		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
 		return table?.[targetName as keyof typeof table];
 	};
-	const componentsProperties = components
-		.filter(
-			(c: any) =>
-				c.name !== name && (c.component_type === 'select' || c.component_type === 'input'),
-		)
-		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
-
 	const tableTargets = useMemo(() => {
 		return Object.keys(tableState)
 			.map((tableName: any) => {
@@ -242,10 +253,10 @@ export const DisplayRulesEditor = ({ name }: any) => {
 									type: 'text',
 								};
 
-								if (getColType(rule.target) === 'number') {
-									input = {
-										type: 'number',
-									};
+								if (
+									getColType(rule.target) === 'number' ||
+									getColType(rule.target) === 'float'
+								) {
 									usesComparatorOps = true;
 								}
 
@@ -372,11 +383,24 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														disabled={!rule.target}
 														placeholder="select value"
 														{...input}
-														type={getColType(
-															rule.target,
-															componentProperty,
+														type={processColType(
+															getColType(rule.target),
 														)}
 														value={rule.value}
+														options={
+															getColType(rule.target) === 'boolean'
+																? [
+																		{
+																			name: 'True',
+																			value: true,
+																		},
+																		{
+																			name: 'False',
+																			value: false,
+																		},
+																  ]
+																: null
+														}
 														onChange={(newValue: any) => {
 															onChange(
 																displayRules.map((r: any) => {
