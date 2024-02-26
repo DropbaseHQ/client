@@ -5,6 +5,7 @@ import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { lazyImport } from '@/utils/lazy-import';
 
 import { useWorkspaces } from '@/features/workspaces';
+import { GithubAuth } from '@/features/authorization/GithubAuth';
 import { DashboardLayout } from '@/layout';
 
 const { Login } = lazyImport(() => import('@/features/authorization'), 'Login');
@@ -69,6 +70,7 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 						path="email-confirmation/:token/:userId"
 						element={<EmailConfirmation />}
 					/>
+					<Route path="github_auth" element={<GithubAuth />} />
 					{children}
 					<Route path="*" element={<Navigate to={homeRoute} />} />
 				</Route>

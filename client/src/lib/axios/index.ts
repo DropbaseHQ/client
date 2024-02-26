@@ -66,7 +66,8 @@ axios.interceptors.response.use(
 							window.location.pathname.includes('/register') ||
 							window.location.pathname.includes('/email-confirmation') ||
 							window.location.pathname.includes('/forgot') ||
-							window.location.pathname.includes('/reset')
+							window.location.pathname.includes('/reset') ||
+							window.location.pathname.includes('/github_auth')
 						)
 					) {
 						window.location.href = '/login';

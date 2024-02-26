@@ -1,7 +1,7 @@
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
@@ -44,9 +44,12 @@ def register_user(request: CreateUserRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/registerGoogle")
-def register_google_user(request: CreateGoogleUserRequest, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()):
+def register_google_user(
+    request: CreateGoogleUserRequest,
+    db: Session = Depends(get_db),
+    Authorize: AuthJWT = Depends(),
+):
     return user_controller.register_google_user(db, Authorize, request)
-
 
 
 @router.post("/verify")
@@ -70,7 +73,9 @@ def login_user(
 
 @router.post("/loginGoogle")
 def login_google_user(
-    request: LoginGoogleUser, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()
+    request: LoginGoogleUser,
+    db: Session = Depends(get_db),
+    Authorize: AuthJWT = Depends(),
 ):
     return user_controller.login_google_user(db, Authorize, request)
 
@@ -155,3 +160,10 @@ def check_permission(
     user: User = Depends(get_current_user),
 ):
     return user_controller.check_permissions(db, user, request)
+
+
+@router.get("/github_auth/{code}")
+def github_auth(
+    code: str, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()
+):
+    return user_controller.github_auth(db, Authorize, code)

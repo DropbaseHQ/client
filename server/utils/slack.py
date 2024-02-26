@@ -1,7 +1,10 @@
 import requests
+from server.credentials import ENVIRONMENT
 
 
 def slack_sign_up(name: str, email: str):
+    if ENVIRONMENT == "local" or ENVIRONMENT == "dev":
+        return
     try:
         webhook_url = "https://hooks.slack.com/services/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"
         slack_data = {
