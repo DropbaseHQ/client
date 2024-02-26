@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 from uuid import UUID
 from google.oauth2 import id_token
-from google.auth.transport import requests
-
+from google.auth.transport import requests as google_requests
+from server.controllers.user.github_social_controller import GithubController
 
 from fastapi import HTTPException, Response, status, Request
 from fastapi_jwt_auth import AuthJWT
@@ -50,7 +50,6 @@ from server.utils.permissions.casbin_utils import (
     get_contexted_enforcer,
 )
 from server.utils.slack import slack_sign_up
-from server.credentials import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
 
 
 def get_user(db: Session, user_email: str):
@@ -147,10 +146,12 @@ def login_google_user(db: Session, Authorize: AuthJWT, request: LoginGoogleUser)
         if CLIENT_ID is None:
             raise ValueError("GOOGLE_CLIENT_ID environment variable not set")
 
-        idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+        idinfo = id_token.verify_oauth2_token(
+            token, google_requests.Request(), CLIENT_ID
+        )
 
-        if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
-            raise ValueError('Wrong issuer')
+        if idinfo["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
+            raise ValueError("Wrong issuer")
 
         user = crud.user.get_user_by_email(db, email=idinfo["email"])
 
@@ -160,7 +161,7 @@ def login_google_user(db: Session, Authorize: AuthJWT, request: LoginGoogleUser)
                 detail="User does not exist",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        
+
         if user.social_login != "google":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -263,7 +264,9 @@ def register_user(db: Session, request: CreateUserRequest):
         raise_http_exception(status_code=500, message="Internal server error")
 
 
-def register_google_user(db: Session, Authorize: AuthJWT, request: CreateGoogleUserRequest):
+def register_google_user(
+    db: Session, Authorize: AuthJWT, request: CreateGoogleUserRequest
+):
     try:
         token = request.credential
 
@@ -272,10 +275,12 @@ def register_google_user(db: Session, Authorize: AuthJWT, request: CreateGoogleU
         if CLIENT_ID is None:
             raise ValueError("GOOGLE_CLIENT_ID environment variable not set")
 
-        idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+        idinfo = id_token.verify_oauth2_token(
+            token, google_requests.Request(), CLIENT_ID
+        )
 
-        if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
-            raise ValueError('Wrong issuer')
+        if idinfo["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
+            raise ValueError("Wrong issuer")
 
         user = crud.user.get_user_by_email(db, email=idinfo.get("email"))
 
@@ -301,7 +306,7 @@ def register_google_user(db: Session, Authorize: AuthJWT, request: CreateGoogleU
             hashed_password="",
             trial_eligible=True,
             active=False,
-            social_login="google"
+            social_login="google",
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
@@ -592,67 +597,48 @@ def check_permissions(
     return permissions_dict
 
 
-def github_login(db: Session, Authorize: AuthJWT, code: str):
-    # Authenticate with github
-    response = requests.post(
-        "https://github.com/login/oauth/access_token",
-        {
-            "client_id": GITHUB_CLIENT_ID,
-            "client_secret": GITHUB_CLIENT_SECRET,
-            "code": code,
-            "accept": "json",
-        },
-    )
-
-    # Make sure we have what we need from the payload
-    access_token = parse_qs(response.text).get("access_token")[0]
-    scopes = parse_qs(response.text).get("scope")
-    if not access_token:
-        raise_http_exception(400, "Invalid access token")
-    if "user:email" not in scopes:
-        raise_http_exception(400, "User email not found")
+def github_auth(db: Session, Authorize: AuthJWT, code: str):
+    github_controller = GithubController()
+    access_token = github_controller.verify_github_auth_code(code)
 
     # Get user information from github
-    user_result = requests.get(
-        "https://api.github.com/user",
-        headers={"Authorization": f"Bearer {access_token}"},
-    )
-    user_result_payload = user_result.json()
-    email = user_result_payload.get("email")
+    user_info = github_controller.get_user_info(access_token)
+    email = user_info.get("email")
     if not email:
-        response = requests.get(
-            "https://api.github.com/user/emails",
-            headers={"Authorization": f"Bearer {access_token}"},
-        )
-        email_response_payload = response.json()
-        for email_object in email_response_payload:
-            if email_object.get("primary"):
-                email = email_object.get("email")
-                break
+        email = github_controller.get_user_primary_email(access_token)
 
     if not email:
         raise_http_exception(400, "User email not found")
 
     user = crud.user.get_user_by_email(db, email=email)
-    name = user_result_payload.get("name")
+    name = user_info.get("name")
     if not name:
-        name = user_result_payload.get("login")
+        name = user_info.get("login")
     # If user does not exist, create user and workspace
     if not user:
         user_obj = CreateUser(
             name=name,
             email=email,
-            company=user_result_payload.get("company"),
+            company=user_info.get("company"),
             trial_eligible=True,
             active=False,
+            social_login="github",
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
         workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
         workspace_creator.create()
         slack_sign_up(name=user.name, email=user.email)
+        loops_controller.add_user(
+            user_email=email,
+            name=user.name,
+            last_name=user.last_name,
+            company=user.company,
+            user_id=str(user.id),
+        )
         db.commit()
-        return {"message": "User successfully registered"}
+    if user.social_login != "github":
+        raise_http_exception(400, "Email is already registered with another provider")
 
     # If user exists, create a JWT token
     access_token = Authorize.create_access_token(
@@ -662,5 +648,3 @@ def github_login(db: Session, Authorize: AuthJWT, code: str):
         subject=str(user.email), user_claims={"github_access_token": access_token}
     )
     return {"access_token": access_token, "refresh_token": refresh_token}
-
-    # Authorize.create_access_token(subject=access_token)
