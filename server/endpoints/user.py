@@ -15,6 +15,7 @@ from server.schemas.user import (
     CreateUserRequest,
     LoginGoogleUser,
     LoginUser,
+    OnboardUser,
     RequestResetPassword,
     ResendConfirmationEmailRequest,
     ResetPasswordRequest,
@@ -95,6 +96,11 @@ def request_reset_password(
 @router.post("/reset_password")
 def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
     return user_controller.reset_password(db, request)
+
+
+@router.post("/onboard")
+def onboard_user(request: OnboardUser, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    return user_controller.onboard_user(db, request, user.id)
 
 
 @router.get("/{user_id}/details/{workspace_id}")

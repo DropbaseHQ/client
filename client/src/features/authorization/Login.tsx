@@ -23,6 +23,7 @@ import { useLogin, useGoogleLogin } from './hooks/useLogin';
 
 import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
+import { onboardingAtom } from '@/features/authorization';
 import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '../../utils';
 
@@ -37,6 +38,7 @@ export const Login = () => {
 	const queryClient = useQueryClient();
 
 	const updateWorkspace = useSetAtom(workspaceAtom);
+	const updateOnboardingStatus = useSetAtom(onboardingAtom);
 
 	const [displayEmailConfirmation, setDisplayEmailConfirmation] = useState(false);
 	const {
@@ -70,6 +72,7 @@ export const Login = () => {
 			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
 			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
 			setDisplayEmailConfirmation(false);
+			updateOnboardingStatus(data?.onboarding || false);
 			navigate('/apps');
 		},
 	});
@@ -102,6 +105,7 @@ export const Login = () => {
 			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
 			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
 			setDisplayEmailConfirmation(false);
+			updateOnboardingStatus(data?.onboarding || false);
 			navigate('/apps');
 		},
 	});

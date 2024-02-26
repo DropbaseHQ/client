@@ -100,5 +100,9 @@ class RequestResetPassword(BaseModel):
     email: str
 
 
+class OnboardUser(BaseModel):
+    company: str
+
+
 class CheckPermissionRequest(BaseModel):
     app_id: str

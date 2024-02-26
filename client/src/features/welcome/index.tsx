@@ -15,9 +15,13 @@ import { VideoList } from './components/VideoList';
 import { PageLayout } from '@/layout';
 import { Setup } from './components/Setup';
 import { SalesModal } from '../app-list/AppSalesModal';
+import { onboardingAtom } from '../authorization';
+import { useAtomValue } from 'jotai';
+import { OnboardingForm } from '../authorization/OnboardingForm';
 
 export const Welcome = () => {
 	const [modalIsOpen, setModalIsOpen] = useState(false);
+	const onboardingState = useAtomValue(onboardingAtom);
 	return (
 		<PageLayout
 			title="Welcome to Dropbase!"
@@ -105,6 +109,8 @@ export const Welcome = () => {
 					</Box>
 				</Flex>
 			</Stack>
+
+			{onboardingState ? <OnboardingForm /> : null}
 		</PageLayout>
 	);
 };

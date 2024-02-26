@@ -32,6 +32,7 @@ from server.schemas.user import (
     CreateUserRequest,
     LoginGoogleUser,
     LoginUser,
+    OnboardUser,
     ReadUser,
     ResetPasswordRequest,
     UpdateUserPolicyRequest,
@@ -184,6 +185,7 @@ def login_google_user(db: Session, Authorize: AuthJWT, request: LoginGoogleUser)
             "workspace": workspace,
             "access_token": access_token,
             "refresh_token": refresh_token,
+            "onboarding": not user.active,
         }
 
     except HTTPException as e:
@@ -310,14 +312,6 @@ def register_google_user(db: Session, Authorize: AuthJWT, request: CreateGoogleU
 
         slack_sign_up(name=name, email=email)
 
-        loops_controller.add_user(
-            user_email=email,
-            name=name,
-            last_name=last,
-            company=company,
-            user_id=str(user.id),
-        )
-
         access_token = Authorize.create_access_token(
             subject=user.email,
             expires_time=ACCESS_TOKEN_EXPIRE_SECONDS,
@@ -336,6 +330,7 @@ def register_google_user(db: Session, Authorize: AuthJWT, request: CreateGoogleU
             "workspace": workspace,
             "access_token": access_token,
             "refresh_token": refresh_token,
+            "onboarding": True,
         }
 
     except HTTPException as e:
@@ -366,6 +361,29 @@ def verify_user(db: Session, token: str, user_id: UUID):
             print("error", e)
             raise_http_exception(status_code=500, message="Internal server error")
     raise_http_exception(status_code=404, message="User not found")
+
+
+def onboard_user(db: Session, request: OnboardUser, user_id: UUID):
+    user = crud.user.get_object_by_id_or_404(db, id=user_id)
+
+    try:
+        user.active = True
+        user.company = request.company
+        db.commit()
+
+        loops_controller.add_user(
+            user_email=user.email,
+            name=user.name,
+            last_name=user.last_name,
+            company=user.company,
+            user_id=str(user.id),
+        )
+    except Exception as e:
+        db.rollback()
+        print("error", e)
+        raise_http_exception(status_code=500, message="Internal server error")
+
+    return {"message": "User successfully onboarded"}
 
 
 def add_policy(db: Session, user_id: UUID, request: AddPolicyRequest):

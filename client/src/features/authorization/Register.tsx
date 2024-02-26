@@ -21,6 +21,7 @@ import { useGoogleRegister, useRegister } from './hooks/useRegister';
 import { useToast } from '@/lib/chakra-ui';
 import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '@/utils';
+import { onboardingAtom } from '@/features/authorization';
 import { workspaceAtom } from '@/features/workspaces';
 
 type FormValues = {
@@ -43,6 +44,7 @@ export const Register = () => {
 
 	const toast = useToast();
 	const updateWorkspace = useSetAtom(workspaceAtom);
+	const updateOnboardingStatus = useSetAtom(onboardingAtom);
 
 	const { mutate: googleMutate } = useGoogleRegister({
 		onError: (error: any) => {
@@ -66,6 +68,7 @@ export const Register = () => {
 				title: 'Registered successfully',
 				status: 'success',
 			});
+			updateOnboardingStatus(data?.onboarding || false);
 			navigate('/apps');
 		},
 	});

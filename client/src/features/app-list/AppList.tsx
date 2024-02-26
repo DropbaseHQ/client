@@ -34,6 +34,8 @@ import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { SalesModal } from './AppSalesModal';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
+import { onboardingAtom } from '../authorization';
+import { OnboardingForm } from '../authorization/OnboardingForm';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
@@ -180,6 +182,7 @@ export const AppList = () => {
 	const { status } = useStatus();
 	const methods = useForm();
 	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
+	const onboardingState = useAtomValue(onboardingAtom);
 
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
 	const { isOpen, onOpen, onClose } = useDisclosure({
@@ -340,6 +343,7 @@ export const AppList = () => {
 					</FormProvider>
 				</ModalContent>
 			</Modal>
+			{onboardingState ? <OnboardingForm /> : null}
 		</PageLayout>
 	);
 };
