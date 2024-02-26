@@ -1,9 +1,6 @@
 import * as monacoLib from 'monaco-editor';
-import { useAtomValue } from 'jotai';
 import { PROPERTIES } from './constants';
 import { buildTemplateStringSuggestions } from '@/components/Editor/utils/template-string-suggestions';
-
-import { sourceAtom } from '@/features/app-builder/atoms';
 
 const { CompletionItemKind } = monacoLib.languages;
 type CompletionSuggestion = Omit<monacoLib.languages.CompletionItem, 'range'>;
@@ -61,6 +58,7 @@ const completePhrase = (
 	lineUpToCursor: string,
 	databaseSchema: CompletionData,
 	directoryStructure: any,
+	dbType: string,
 ): CompletionSuggestion[] => {
 	const completionData = databaseSchema.schema;
 	const [currentWord, prevWord, prevPrevWord] = lineUpToCursor.split(' ').reverse(); // the last three words of the current line
@@ -106,7 +104,6 @@ const completePhrase = (
 
 	if (prevWord?.toUpperCase() !== 'AS' || !prevPrevWord) {
 		let SQL_KEYWORDS = [];
-		const { dbType } = useAtomValue(sourceAtom); // fix this
 
 		switch (
 			dbType // make a function for this
@@ -240,6 +237,7 @@ export const provideCompletionItems = (
 	position: monacoLib.Position,
 	databaseSchema: CompletionData,
 	directoryStructure: any,
+	dbType: string,
 ) => {
 	const lineUpToPosition = model.getValueInRange({
 		startLineNumber: position.lineNumber,
@@ -252,6 +250,7 @@ export const provideCompletionItems = (
 			lineUpToPosition,
 			databaseSchema,
 			directoryStructure,
+			dbType,
 		) as monacoLib.languages.CompletionItem[],
 	};
 };

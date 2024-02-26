@@ -23,5 +23,5 @@ export const previewCodeAtom = atom<any>({
 
 export const sourceAtom = atom<any>({
 	source: null,
-	db_type: null,
+	dbType: null,
 });

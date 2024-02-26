@@ -43,7 +43,7 @@ export const useSQLCompletion = (databaseSchema: CompletionData, directoryStruct
 		const { dispose } = monaco.languages.registerCompletionItemProvider('sql', {
 			triggerCharacters: ['.', '"'],
 			provideCompletionItems: (model, position) =>
-				provideCompletionItems(model, position, databaseSchema, directoryStructure),
+				provideCompletionItems(model, position, databaseSchema, directoryStructure, dbType),
 		});
 
 		return dispose;
