@@ -167,6 +167,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 		widgetsInputs?.[widgetName as keyof typeof widgetsInputs] || {};
 
 	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
+
 	const { control } = useFormContext();
 
 	const getColType = (target: string, componentProperty?: any) => {
@@ -177,6 +178,13 @@ export const DisplayRulesEditor = ({ name }: any) => {
 		const [, specificCategory, targetName] = target.split('.');
 		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
 		return table?.[targetName as keyof typeof table];
+	};
+
+	const processColType = (colType: string) => {
+		if (colType === 'boolean') {
+			return 'select';
+		}
+		return colType;
 	};
 	const componentsProperties = components
 		.filter(
@@ -372,11 +380,27 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														disabled={!rule.target}
 														placeholder="select value"
 														{...input}
-														type={getColType(
-															rule.target,
-															componentProperty,
+														type={processColType(
+															getColType(
+																rule.target,
+																componentProperty,
+															),
 														)}
 														value={rule.value}
+														options={
+															getColType(rule.target) === 'boolean'
+																? [
+																		{
+																			name: 'True',
+																			value: true,
+																		},
+																		{
+																			name: 'False',
+																			value: false,
+																		},
+																  ]
+																: null
+														}
 														onChange={(newValue: any) => {
 															onChange(
 																displayRules.map((r: any) => {
