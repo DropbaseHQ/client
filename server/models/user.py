@@ -17,6 +17,7 @@ class User(Base):
     trial_eligible = Column(Boolean, default=True)
     confirmation_token = Column(String)
     social_login = Column(String)
+    onboarded = Column(Boolean, default=False)
 
     date = Column(TIMESTAMP, server_default=func.now())
 

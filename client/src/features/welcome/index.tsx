@@ -11,12 +11,12 @@ import {
 	Link,
 	Flex,
 } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
 import { VideoList } from './components/VideoList';
 import { PageLayout } from '@/layout';
 import { Setup } from './components/Setup';
 import { SalesModal } from '../app-list/AppSalesModal';
 import { onboardingAtom } from '../authorization';
-import { useAtomValue } from 'jotai';
 import { OnboardingForm } from '../authorization/OnboardingForm';
 
 export const Welcome = () => {

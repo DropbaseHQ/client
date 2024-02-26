@@ -128,6 +128,7 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
             "workspace": workspace,
             "access_token": access_token,
             "refresh_token": refresh_token,
+            "onboarding": not user.onboarded,
         }
 
     except HTTPException as e:
@@ -159,7 +160,7 @@ def login_google_user(db: Session, Authorize: AuthJWT, request: LoginGoogleUser)
                 detail="User does not exist",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        
+
         if user.social_login != "google":
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -180,12 +181,16 @@ def login_google_user(db: Session, Authorize: AuthJWT, request: LoginGoogleUser)
         workspace = (
             ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
         )
+
         return {
             "user": ReadUser.from_orm(user),
             "workspace": workspace,
             "access_token": access_token,
             "refresh_token": refresh_token,
-            "onboarding": not user.active,
+            "onboarding": False if user.onboarded else {
+                "name": idinfo.get("given_name", user.name),
+                "last_name": idinfo.get("last_name", user.last_name),
+            },
         }
 
     except HTTPException as e:
@@ -226,18 +231,19 @@ def register_user(db: Session, request: CreateUserRequest):
     try:
         hashed_password = get_password_hash(request.password)
         confirmation_token = get_confirmation_token_hash(
-            request.email + hashed_password + request.name
+            request.email + hashed_password
         )
 
         user_obj = CreateUser(
-            name=request.name,
-            last_name=request.last_name,
-            company=request.company,
+            name="",
+            last_name="",
+            company="",
             email=request.email,
             hashed_password=hashed_password,
             trial_eligible=True,
             active=False,
             confirmation_token=confirmation_token,
+            onboarded=False
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
@@ -286,7 +292,7 @@ def register_google_user(db: Session, Authorize: AuthJWT, request: CreateGoogleU
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        name = idinfo.get("name")
+        name = idinfo.get("given_name") or idinfo.get("name")
         last = idinfo.get("family_name")
         domain = idinfo.get("hd", None)
         email = idinfo.get("email")
@@ -300,8 +306,9 @@ def register_google_user(db: Session, Authorize: AuthJWT, request: CreateGoogleU
             email=email,
             hashed_password="",
             trial_eligible=True,
-            active=False,
-            social_login="google"
+            active=True,
+            social_login="google",
+            onboarded=False
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
@@ -330,7 +337,10 @@ def register_google_user(db: Session, Authorize: AuthJWT, request: CreateGoogleU
             "workspace": workspace,
             "access_token": access_token,
             "refresh_token": refresh_token,
-            "onboarding": True,
+            "onboarding": {
+                "name": name,
+                "last_name": last,
+            },
         }
 
     except HTTPException as e:
@@ -347,13 +357,6 @@ def verify_user(db: Session, token: str, user_id: UUID):
         try:
             user.confirmation_token = None
             user.active = True
-            loops_controller.add_user(
-                user_email=user.email,
-                name=user.name,
-                last_name=user.last_name,
-                company=user.company,
-                user_id=str(user.id),
-            )
             db.commit()
             return {"message": "User successfully confirmed"}
         except Exception as e:
@@ -368,6 +371,9 @@ def onboard_user(db: Session, request: OnboardUser, user_id: UUID):
 
     try:
         user.active = True
+        user.onboarded = True
+        user.name = request.name
+        user.last_name = request.last_name
         user.company = request.company
         db.commit()
 

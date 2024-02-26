@@ -7,7 +7,6 @@ import {
 	ModalHeader,
 	ModalFooter,
 	ModalBody,
-	ModalCloseButton,
 	useDisclosure,
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -23,11 +22,23 @@ import { useOnboard } from './hooks/useOnboard';
 
 export const OnboardingForm = () => {
 	const toast = useToast();
-	const methods = useForm();
+
 	const onboardingState = useAtomValue(onboardingAtom);
 
+	const defaultValues =
+		typeof onboardingState !== 'boolean'
+			? {
+					name: onboardingState.name,
+					last_name: onboardingState.last_name,
+				}
+			: {};
+
+	const methods = useForm({
+		defaultValues,
+	});
+
 	const { isOpen, onClose } = useDisclosure({
-		defaultIsOpen: onboardingState,
+		defaultIsOpen: !!onboardingState,
 	});
 
 	const { mutate: onboard, isLoading: onboardLoading } = useOnboard({
@@ -40,16 +51,23 @@ export const OnboardingForm = () => {
 				title: 'Error while onboarding',
 				description: getErrorMessage(error),
 			});
-			onClose();
 		},
 	});
 
-	const onSubmit = async ({ company }: any) => {
-		onboard({ company });
+	const onSubmit = (data: any) => {
+		let { name, lastName } = data;
+		const { company } = data;
+
+		if (typeof onboardingState !== 'boolean') {
+			name = onboardingState.name;
+			lastName = onboardingState.last_name;
+		}
+
+		onboard({ name, last_name: lastName, company });
 	};
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose}>
+		<Modal isOpen={isOpen} onClose={() => null}>
 			<ModalOverlay />
 			<ModalContent>
 				<FormProvider {...methods}>
@@ -57,10 +75,43 @@ export const OnboardingForm = () => {
 						<ModalHeader fontSize="md" borderBottomWidth="1px">
 							Welcome to Dropbase!
 						</ModalHeader>
-						<ModalCloseButton />
 						<ModalBody py="6">
-							<Stack spacing="2">
-								<FormInput name="Company" id="company" placeholder="Company name" />
+							<Stack spacing="3">
+								{typeof onboardingState === 'boolean' ? (
+									<FormInput
+										name="First Name"
+										id="name"
+										placeholder="Please enter your first name"
+									/>
+								) : (
+									<FormInput
+										name="First Name"
+										id="name"
+										value={onboardingState?.name}
+										readOnly
+									/>
+								)}
+
+								{typeof onboardingState === 'boolean' ? (
+									<FormInput
+										name="Last Name"
+										id="last_name"
+										placeholder="Please enter your last name"
+									/>
+								) : (
+									<FormInput
+										name="Last Name"
+										id="last_name"
+										value={onboardingState?.last_name}
+										readOnly
+									/>
+								)}
+
+								<FormInput
+									name="Company"
+									id="company"
+									placeholder="Please enter your company"
+								/>
 							</Stack>
 						</ModalBody>
 						<ModalFooter borderTopWidth="1px">
