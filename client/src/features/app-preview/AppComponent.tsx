@@ -174,6 +174,10 @@ export const AppComponent = (props: any) => {
 
 	if (componentType === 'select') {
 		inputType = 'select';
+
+		if (component?.multiple) {
+			inputType = 'multiselect';
+		}
 	}
 
 	if (componentType === 'boolean') {

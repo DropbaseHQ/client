@@ -39,5 +39,5 @@ Column names:
 {column_names}
 ```
 
-Output no prose, no explanations, just JSON. Exclude calculated columns from the JSON output.
+Output no prose, no explanations, just JSON. Exclude calculated columns from the JSON output. Don't format output. Ensure that the output is one JSON object not multiple. Furthermore label the output column the actual column name don't just call it "output column"
 """
