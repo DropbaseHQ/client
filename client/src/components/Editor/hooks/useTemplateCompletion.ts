@@ -1,7 +1,7 @@
 import { useMonaco } from '@monaco-editor/react';
 import { useEffect } from 'react';
 
-import { POSTGRES_MONARCH_TOKENIZER } from '../utils/constants';
+import { MONARCH_TOKENIZER } from '../utils/constants';
 import { useMonacoTheme } from './useMonacoTheme';
 
 import { provideTemplateItems } from '@/components/Editor/utils/template-string-suggestions';
@@ -17,7 +17,7 @@ export const useTemplateCompletion = (pageState: any) => {
 		}
 
 		monaco.languages.register({ id: 'plaintext' });
-		monaco.languages.setMonarchTokensProvider('plaintext', POSTGRES_MONARCH_TOKENIZER as any);
+		monaco.languages.setMonarchTokensProvider('plaintext', MONARCH_TOKENIZER as any);
 
 		const { dispose } = monaco.languages.registerCompletionItemProvider('plaintext', {
 			triggerCharacters: ['.', '"'],

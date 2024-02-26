@@ -2,7 +2,7 @@ import { useMonaco } from '@monaco-editor/react';
 import { useEffect } from 'react';
 
 import { useAtomValue } from 'jotai';
-import { POSTGRES_MONARCH_TOKENIZER, MYSQL_MONARCH_TOKENIZER } from '../utils/constants';
+import { MONARCH_TOKENIZER } from '../utils/constants';
 import { useMonacoTheme } from './useMonacoTheme';
 
 import { CompletionData, provideCompletionItems } from '../utils/sql-completion';
@@ -21,24 +21,7 @@ export const useSQLCompletion = (databaseSchema: CompletionData, directoryStruct
 		}
 
 		monaco.languages.register({ id: 'sql' });
-
-		switch (dbType) {
-			case 'postgres':
-				monaco.languages.setMonarchTokensProvider('sql', POSTGRES_MONARCH_TOKENIZER as any);
-				break;
-
-			case 'pg':
-				monaco.languages.setMonarchTokensProvider('sql', POSTGRES_MONARCH_TOKENIZER as any);
-				break;
-
-			case 'mysql':
-				monaco.languages.setMonarchTokensProvider('sql', MYSQL_MONARCH_TOKENIZER as any);
-				break; // add snowflake, sqlite, etc
-
-			default:
-				monaco.languages.setMonarchTokensProvider('sql', POSTGRES_MONARCH_TOKENIZER as any);
-				break;
-		}
+		monaco.languages.setMonarchTokensProvider('sql', MONARCH_TOKENIZER as any);
 
 		const { dispose } = monaco.languages.registerCompletionItemProvider('sql', {
 			triggerCharacters: ['.', '"'],
