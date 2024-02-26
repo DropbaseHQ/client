@@ -22,6 +22,47 @@ export const MONARCH_TOKENIZER = {
 	},
 };
 
+export const POSTGRES_SQL_KEYWORDS = [
+	'SELECT',
+	'FROM',
+	'AS',
+	'WHERE',
+	'ORDER BY',
+	'GROUP BY',
+	'JOIN',
+	'LEFT JOIN',
+	'RIGHT JOIN',
+	'ON',
+	'AND',
+	'OR',
+	'NOT',
+	'IN',
+	'BETWEEN',
+	'AS',
+	'WITH',
+	'RETURNING',
+];
+
+export const MYSQL_SQL_KEYWORDS = [
+	'SELECT',
+	'FROM',
+	'AS',
+	'WHERE',
+	'ORDER BY',
+	'GROUP BY',
+	'JOIN',
+	'LEFT JOIN',
+	'RIGHT JOIN',
+	'ON',
+	'AND',
+	'OR',
+	'NOT',
+	'IN',
+	'BETWEEN',
+	'AS',
+	'WITH',
+];
+
 export const databaseSchema = {
 	schema: {
 		public: {},

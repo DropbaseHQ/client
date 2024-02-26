@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { Play, Save, Info } from 'react-feather';
 import { useSetAtom, useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { MonacoEditor } from '@/components/Editor';
@@ -56,20 +56,23 @@ export const SQLEditor = ({ name }: any) => {
 
 	const { sources, isLoading: isLoadingSources } = useSources();
 
-	const getDatabaseType = async (sourceName: string) => {
-		const source = sources.find((s) => s.name === sourceName);
+	const getDatabaseType = useCallback(
+		async (sourceName: string) => {
+			const source = sources.find((s) => s.name === sourceName);
 
-		setSourceAtom({
-			source: source?.name,
-			dbType: source?.type,
-		});
-	};
+			setSourceAtom({
+				source: source?.name,
+				dbType: source?.type,
+			});
+		},
+		[sources, setSourceAtom],
+	);
 
 	useEffect(() => {
 		setSource(file?.source);
 
 		getDatabaseType(file?.source);
-	}, [setSource, file]);
+	}, [setSource, file, getDatabaseType]);
 
 	useEffect(() => {
 		setCode(defaultCode);

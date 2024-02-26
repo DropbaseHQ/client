@@ -1,5 +1,5 @@
 import * as monacoLib from 'monaco-editor';
-import { PROPERTIES } from './constants';
+import { PROPERTIES, POSTGRES_SQL_KEYWORDS, MYSQL_SQL_KEYWORDS } from './constants';
 import { buildTemplateStringSuggestions } from '@/components/Editor/utils/template-string-suggestions';
 
 const { CompletionItemKind } = monacoLib.languages;
@@ -9,49 +9,22 @@ export interface CompletionData {
 	metadata: Record<string, string>;
 }
 
-const POSTGRES_SQL_KEYWORDS = [
-	'SELECT',
-	'FROM',
-	'AS',
-	'WHERE',
-	'ORDER BY',
-	'GROUP BY',
-	'JOIN',
-	'LEFT JOIN',
-	'RIGHT JOIN',
-	'ON',
-	'AND',
-	'OR',
-	'NOT',
-	'IN',
-	'BETWEEN',
-	'AS',
-	'WITH',
-	'RETURNING',
-];
-
-const MYSQL_SQL_KEYWORDS = [
-	'SELECT',
-	'FROM',
-	'AS',
-	'WHERE',
-	'ORDER BY',
-	'GROUP BY',
-	'JOIN',
-	'LEFT JOIN',
-	'RIGHT JOIN',
-	'ON',
-	'AND',
-	'OR',
-	'NOT',
-	'IN',
-	'BETWEEN',
-	'AS',
-	'WITH',
-];
-
 const countChars = (str: string, char: string) => {
 	return str.split(char).length - 1;
+};
+
+const getSqlKeywords = (dbType: string) => {
+	switch (dbType) {
+		case 'postgres':
+		case 'pg':
+			return POSTGRES_SQL_KEYWORDS;
+
+		case 'mysql':
+			return MYSQL_SQL_KEYWORDS;
+
+		default:
+			return MYSQL_SQL_KEYWORDS; // Default to MYSQL keywords or choose a sensible default
+	}
 };
 
 const completePhrase = (
@@ -103,27 +76,8 @@ const completePhrase = (
 	}
 
 	if (prevWord?.toUpperCase() !== 'AS' || !prevPrevWord) {
-		let SQL_KEYWORDS = [];
+		const SQL_KEYWORDS = getSqlKeywords(dbType);
 
-		switch (
-			dbType // make a function for this
-		) {
-			case 'postgres':
-				SQL_KEYWORDS = POSTGRES_SQL_KEYWORDS;
-				break;
-
-			case 'pg':
-				SQL_KEYWORDS = POSTGRES_SQL_KEYWORDS;
-				break;
-
-			case 'mysql':
-				SQL_KEYWORDS = MYSQL_SQL_KEYWORDS;
-				break; // add snowflake, sqlite, etc
-
-			default:
-				SQL_KEYWORDS = MYSQL_SQL_KEYWORDS;
-				break;
-		}
 		// if not an alias or a select table, only offer keyword completions
 		return SQL_KEYWORDS.filter((word) => word.includes(cleanedCurrentWord.toUpperCase())).map(
 			(keyword) => ({
