@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
+import { GitHub } from 'react-feather';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
 import { GoogleLogin } from '@react-oauth/google';
@@ -197,14 +198,29 @@ export const Register = () => {
 								</Button>
 							</Stack>
 							<Divider />
-							<GoogleLogin
-								onSuccess={onGoogleSuccess}
-								onError={onGoogleError}
-								size="medium"
-								text="signup_with"
-								width={300}
-								logo_alignment="center"
-							/>
+							<Stack>
+								<GoogleLogin
+									onSuccess={onGoogleSuccess}
+									onError={onGoogleError}
+									size="medium"
+									text="signup_with"
+									width={300}
+									logo_alignment="center"
+								/>
+								<Button
+									as={Link}
+									variant="outline"
+									colorScheme="gray"
+									to={`https://github.com/login/oauth/authorize?scope=user:email&client_id=${
+										import.meta.env.VITE_GITHUB_CLIENT_ID
+									}`}
+								>
+									<GitHub size="14" />
+									<Text ml="2" fontSize="md" fontWeight="medium">
+										Sign up with Github
+									</Text>
+								</Button>
+							</Stack>
 						</Stack>
 					</form>
 				</Box>

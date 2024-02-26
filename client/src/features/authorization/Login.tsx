@@ -12,6 +12,7 @@ import {
 	Text,
 	Divider,
 } from '@chakra-ui/react';
+import { GitHub } from 'react-feather';
 import { useState } from 'react';
 import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
@@ -204,12 +205,30 @@ export const Login = () => {
 									</Text>
 								</Link>
 								<Divider />
-								<GoogleLogin
-									onSuccess={onGoogleSuccess}
-									onError={onGoogleError}
-									size="medium"
-									width={300}
-								/>
+								<Stack>
+									<GoogleLogin
+										onSuccess={onGoogleSuccess}
+										onError={onGoogleError}
+										size="medium"
+										width={300}
+										logo_alignment="center"
+									/>
+									<Button
+										as={Link}
+										rounded="md"
+										variant="outline"
+										colorScheme="gray"
+										to={`https://github.com/login/oauth/authorize?scope=user:email&client_id=${
+											import.meta.env.VITE_GITHUB_CLIENT_ID
+										}`}
+										w={300}
+									>
+										<GitHub size="14" />
+										<Text ml="2" fontSize="md" fontWeight="medium">
+											Sign in with Github
+										</Text>
+									</Button>
+								</Stack>
 							</Stack>
 						</Stack>
 					</form>

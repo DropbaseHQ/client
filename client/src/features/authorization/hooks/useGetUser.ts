@@ -14,7 +14,8 @@ export const useGetCurrentUser = () => {
 		pathname.startsWith('/register') ||
 		pathname.startsWith('/reset') ||
 		pathname.startsWith('/email-confirmation') ||
-		pathname.startsWith('/forgot');
+		pathname.startsWith('/forgot') ||
+		pathname.startsWith('/github_auth');
 
 	const queryKey = ['currentUser'];
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchCurrentUser(), {
