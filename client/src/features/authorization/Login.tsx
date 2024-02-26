@@ -137,7 +137,7 @@ export const Login = () => {
 				<Stack spacing="6">
 					<Stack spacing={{ base: '2', md: '3' }} textAlign="center">
 						<Heading size="sm">Log in to your account</Heading>
-						<Link to="/register">
+						<Link to="/register" data-cy="link-to-register">
 							<Text color="fg.muted" fontSize="sm" textDecoration="underline">
 								Don&apos;t have an account?
 							</Text>
@@ -161,6 +161,7 @@ export const Login = () => {
 										placeholder="Please enter your email"
 										id="email"
 										type="email"
+										data-cy="email"
 										{...register('email', {
 											required: 'Email is required',
 										})}
@@ -174,6 +175,7 @@ export const Login = () => {
 										placeholder="Please enter your password"
 										id="password"
 										type="password"
+										data-cy="password"
 										{...register('password', {
 											required: 'Password is required',
 										})}
@@ -183,7 +185,12 @@ export const Login = () => {
 								</FormControl>
 							</Stack>
 							<Stack spacing="6">
-								<Button isLoading={isLoading} type="submit" colorScheme="blue">
+								<Button
+									isLoading={isLoading}
+									type="submit"
+									colorScheme="blue"
+									data-cy="sign-in"
+								>
 									Sign in
 								</Button>
 

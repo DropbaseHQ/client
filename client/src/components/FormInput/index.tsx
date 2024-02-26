@@ -188,12 +188,13 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 								}}
 								type="radio"
 							>
-								{allOptions.map((option: any) => (
+								{allOptions.map((option: any, index: number) => (
 									<MenuItemOption
 										icon={option?.icon}
 										fontSize="sm"
 										key={option.name}
 										value={option.value}
+										data-cy={`select-option-${index}`}
 									>
 										{option?.render
 											? option?.render(option?.value === value)
