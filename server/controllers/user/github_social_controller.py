@@ -20,10 +20,12 @@ class GithubController:
                 "accept": "json",
             },
         )
-        access_token = parse_qs(response.text).get("access_token")[0]
+        print("Respons", response.text)
+        access_token_body = parse_qs(response.text).get("access_token")
+        access_token = access_token_body[0] if access_token_body else None
         scopes = parse_qs(response.text).get("scope")
         if not access_token:
-            raise_http_exception(400, "Invalid access token")
+            raise_http_exception(400, "No access token found")
         if "user:email" not in scopes:
             raise_http_exception(400, "User email not found")
 
