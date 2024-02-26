@@ -38,9 +38,20 @@ export const POSTGRES_SQL_KEYWORDS = [
 	'NOT',
 	'IN',
 	'BETWEEN',
-	'AS',
 	'WITH',
 	'RETURNING',
+	'LIMIT',
+	'OFFSET',
+	'ILIKE',
+	'CTE',
+	'UPSERT',
+	'ON CONFLICT',
+	'UNION',
+	'UNION ALL',
+	'CASE',
+	'INSERT',
+	'UPDATE',
+	'DELETE',
 ];
 
 export const MYSQL_SQL_KEYWORDS = [
@@ -59,8 +70,16 @@ export const MYSQL_SQL_KEYWORDS = [
 	'NOT',
 	'IN',
 	'BETWEEN',
-	'AS',
 	'WITH',
+	'LIMIT',
+	'OFFSET',
+	'HAVING',
+	'UNION',
+	'UNION ALL',
+	'CASE',
+	'INSERT',
+	'UPDATE',
+	'DELETE',
 ];
 
 export const databaseSchema = {
