@@ -18,6 +18,7 @@ import {
 	Box,
 	MenuItem,
 	IconButton,
+	Code,
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -133,8 +134,10 @@ const AppCard = ({ app }: { app: AppType }) => {
 							</ModalHeader>
 							<ModalCloseButton />
 							<ModalBody py="6">
+								<Text fontSize="sm" mb="2">
+									Write <Code>{app.name}</Code> to delete the app
+								</Text>
 								<FormInput
-									name={`Write ${app.name} to delete the app`}
 									autoFocus
 									id="name"
 									placeholder={app.name}
