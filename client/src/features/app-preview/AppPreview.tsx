@@ -102,6 +102,7 @@ export const AppPreview = () => {
 						w="fit-content"
 						colorScheme="blue"
 						size="sm"
+						data-cy="build-widget"
 						isLoading={createMutation.isLoading}
 						isDisabled={!isConnected}
 						onClick={handleCreateWidget}

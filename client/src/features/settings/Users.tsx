@@ -59,6 +59,7 @@ export const UserCard = ({
 			onClick={() => setSelectedUser(user.id)}
 			display="flex"
 			justifyContent="space-between"
+			data-cy={`user-${user.email}`}
 		>
 			<Text fontSize="xl" fontWeight="bold">
 				{user.email}

@@ -138,6 +138,7 @@ export const NewFile = (props: any) => {
 			<PopoverTrigger>
 				<IconButton
 					aria-label="Add function"
+					data-cy="create-file-button"
 					icon={<Plus size="14" />}
 					onClick={(e) => {
 						e.stopPropagation();
@@ -229,6 +230,7 @@ export const NewFile = (props: any) => {
 											validation={{ required: 'Cannot  be empty' }}
 											name="type"
 											id="type"
+											data-cy="file-type"
 										/>
 
 										<FormControl>
@@ -257,13 +259,19 @@ export const NewFile = (props: any) => {
 								pb={4}
 							>
 								<ButtonGroup size="sm">
-									<Button onClick={onClose} colorScheme="red" variant="outline">
+									<Button
+										onClick={onClose}
+										colorScheme="red"
+										variant="outline"
+										data-cy="cancel-create-file"
+									>
 										Cancel
 									</Button>
 									<Button
 										colorScheme="blue"
 										type="submit"
 										isLoading={mutation.isLoading}
+										data-cy="confirm-create-file"
 									>
 										Create
 									</Button>
