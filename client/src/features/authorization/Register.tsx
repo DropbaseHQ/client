@@ -232,26 +232,31 @@ export const Register = () => {
 								>
 									Sign up
 								</Button>
+							</Stack>
+							<Divider />
+							<Stack>
+								<GoogleLogin
+									onSuccess={onGoogleSuccess}
+									onError={onGoogleError}
+									size="medium"
+									text="signup_with"
+									width={300}
+									logo_alignment="center"
+								/>
 								<Button
 									as={Link}
-									bgColor="black"
+									variant="outline"
+									colorScheme="gray"
 									to={`https://github.com/login/oauth/authorize?scope=user:email&client_id=${
 										import.meta.env.VITE_GITHUB_CLIENT_ID
 									}`}
 								>
 									<GitHub size="14" />
-									<Text ml="2">Sign up with Github</Text>
+									<Text ml="2" fontSize="md" fontWeight="medium">
+										Sign up with Github
+									</Text>
 								</Button>
 							</Stack>
-							<Divider />
-							<GoogleLogin
-								onSuccess={onGoogleSuccess}
-								onError={onGoogleError}
-								size="medium"
-								text="signup_with"
-								width={300}
-								logo_alignment="center"
-							/>
 						</Stack>
 					</form>
 				</Box>

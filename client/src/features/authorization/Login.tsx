@@ -201,22 +201,30 @@ export const Login = () => {
 									</Text>
 								</Link>
 								<Divider />
-								<GoogleLogin
-									onSuccess={onGoogleSuccess}
-									onError={onGoogleError}
-									size="medium"
-									width={300}
-								/>
-								<Button
-									as={Link}
-									bgColor="black"
-									to={`https://github.com/login/oauth/authorize?scope=user:email&client_id=${
-										import.meta.env.VITE_GITHUB_CLIENT_ID
-									}`}
-								>
-									<GitHub size="14" />
-									<Text ml="2">Log in with Github</Text>
-								</Button>
+								<Stack>
+									<GoogleLogin
+										onSuccess={onGoogleSuccess}
+										onError={onGoogleError}
+										size="medium"
+										width={300}
+										logo_alignment="center"
+									/>
+									<Button
+										as={Link}
+										rounded="md"
+										variant="outline"
+										colorScheme="gray"
+										to={`https://github.com/login/oauth/authorize?scope=user:email&client_id=${
+											import.meta.env.VITE_GITHUB_CLIENT_ID
+										}`}
+										w={300}
+									>
+										<GitHub size="14" />
+										<Text ml="2" fontSize="md" fontWeight="medium">
+											Sign in with Github
+										</Text>
+									</Button>
+								</Stack>
 							</Stack>
 						</Stack>
 					</form>
