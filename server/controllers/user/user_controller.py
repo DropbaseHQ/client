@@ -46,6 +46,7 @@ from server.utils.authentication import (
 from server.utils.hash import get_confirmation_token_hash
 from server.utils.helper import raise_http_exception
 from server.utils.loops_integration import loops_controller
+from server.utils.applemarket_integration import applemarket_controller
 from server.utils.permissions.casbin_utils import (
     get_all_action_permissions,
     get_contexted_enforcer,
@@ -391,6 +392,13 @@ def onboard_user(db: Session, request: OnboardUser, user_id: UUID):
             company=user.company,
             user_id=str(user.id),
         )
+        applemarket_controller.add_lead(
+            email=user.email,
+            first=user.name,
+            last=user.last_name,
+            company=user.company
+        )
+
     except Exception as e:
         db.rollback()
         print("error", e)
@@ -653,13 +661,6 @@ def github_auth(db: Session, Authorize: AuthJWT, code: str):
         workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
         workspace_creator.create()
         slack_sign_up(name=user.name, email=user.email)
-        loops_controller.add_user(
-            user_email=email,
-            name=user.name,
-            last_name=user.last_name,
-            company=user.company,
-            user_id=str(user.id),
-        )
         db.commit()
     if user.social_login != "github":
         raise_http_exception(400, "Email is already registered with another provider")
