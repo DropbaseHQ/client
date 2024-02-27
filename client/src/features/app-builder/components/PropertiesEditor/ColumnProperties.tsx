@@ -37,8 +37,18 @@ const DISPLAY_TYPE_ENUM: any = {
 	select: ['text', 'select'],
 };
 
-const VISIBLE_FIELDS = [
+const VISIBLE_FIELDS_WITH_SCHEMA = [
 	'schema_name',
+	'table_name',
+	'primary_key',
+	'foreign_key',
+	'default',
+	'column_type',
+	'nullable',
+	'unique',
+];
+
+const VISIBLE_FIELDS_WITHOUT_SCHEMA = [
 	'table_name',
 	'primary_key',
 	'foreign_key',
@@ -253,7 +263,14 @@ const ColumnProperty = ({
 
 	const hasNoEditKeys = edit_keys?.length === 0;
 
-	const allVisibleFields = columnFields.filter((f: any) => VISIBLE_FIELDS.includes(f.name)) || [];
+	let allVisibleFields;
+	if (properties?.column_type === 'postgres') {
+		allVisibleFields =
+			columnFields.filter((f: any) => VISIBLE_FIELDS_WITH_SCHEMA.includes(f.name)) || [];
+	} else {
+		allVisibleFields =
+			columnFields.filter((f: any) => VISIBLE_FIELDS_WITHOUT_SCHEMA.includes(f.name)) || [];
+	}
 
 	return (
 		<form onSubmit={methods.handleSubmit(onSubmit)}>
@@ -458,7 +475,7 @@ const ColumnProperty = ({
 														isRequired
 															? {
 																	required: `${key} is required`,
-															  }
+																}
 															: {}
 													}
 												/>
@@ -478,7 +495,7 @@ const ColumnProperty = ({
 										fontWeight="normal"
 										onClick={onToggleConfigurations}
 									>
-										{isConfigurationOpen ? 'Hide' : 'Show'} medatada
+										{isConfigurationOpen ? 'Hide' : 'Show'} metadata
 									</Button>
 								) : null}
 

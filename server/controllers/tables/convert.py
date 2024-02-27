@@ -1,9 +1,10 @@
 import json
-from typing import Any, Dict
+from typing import Any, Dict, Union
 from fastapi import HTTPException
 import logging
 
 import openai
+from typing import Optional
 from pydantic import BaseModel
 
 from server.constants import GPT_MODEL, GPT_TEMPERATURE
@@ -19,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 class ColumnInfo(BaseModel):
-    schema_name: str
+    schema_name: Optional[str]
+    database_name: Optional[str]
     table_name: str
     column_name: str
 
@@ -33,15 +35,20 @@ FullDBSchema = dict[str, dict[str, dict[str, dict[str, Any]]]]
 
 def fill_smart_cols_data(
     smart_col_paths: dict, db_schema: FullDBSchema
-) -> dict[str, PgSmartColumnProperty]:
+) -> dict[str, Union[PgSmartColumnProperty]]: # If we want to add more
     try:
         smart_cols_data = {}
         for name, col_path in smart_col_paths.items():
             try:
-                schema = col_path["schema_name"]
                 table = col_path["table_name"]
                 column = col_path["column_name"]
-                col_schema_data = db_schema[schema][table][column]
+                if "schema_name" in col_path:
+                    schema = col_path["schema_name"]
+                    col_schema_data = db_schema[schema][table][column] # this part schema does not exist
+                elif "database_name" in col_path:
+                    database = col_path["database_name"]
+                    table = col_path["table_name"]
+                    col_schema_data = db_schema[database][table][column]
             except KeyError:
                 # Skip ChatGPT "hallucinated" columns
                 continue
