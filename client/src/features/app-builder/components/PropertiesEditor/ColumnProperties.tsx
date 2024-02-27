@@ -99,12 +99,10 @@ const ColumnProperty = ({
 	const { fields: resourceFields } = useResourceFields();
 	let columnField = '';
 
-	if (properties?.column_type === 'postgres') {
-		columnField = 'pgcolumn';
-	} else if (properties?.column_type === 'python') {
-		columnField = 'pycolumn';
-	} else if (properties?.column_type === 'button_column') {
+	if (properties?.column_type === 'button_column') {
 		columnField = 'button_column';
+	} else {
+		columnField = 'pgcolumn';
 	}
 
 	const columnFields = resourceFields?.[columnField] || [];
