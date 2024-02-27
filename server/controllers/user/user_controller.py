@@ -671,4 +671,4 @@ def github_auth(db: Session, Authorize: AuthJWT, code: str):
     refresh_token = Authorize.create_refresh_token(
         subject=str(user.email), user_claims={"github_access_token": access_token}
     )
-    return {"access_token": access_token, "refresh_token": refresh_token}
+    return {"access_token": access_token, "refresh_token": refresh_token, "onboarding": not user.onboarded}

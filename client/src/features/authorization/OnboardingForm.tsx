@@ -55,7 +55,7 @@ export const OnboardingForm = () => {
 	});
 
 	const onSubmit = (data: any) => {
-		let { name, lastName } = data;
+		let { name, last_name: lastName } = data;
 		const { company } = data;
 
 		if (typeof onboardingState !== 'boolean') {
