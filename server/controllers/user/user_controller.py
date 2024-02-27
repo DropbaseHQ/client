@@ -46,7 +46,7 @@ from server.utils.authentication import (
 from server.utils.hash import get_confirmation_token_hash
 from server.utils.helper import raise_http_exception
 from server.utils.loops_integration import loops_controller
-from server.utils.applemarket_integration import applemarket_controller
+from server.utils.amplemarket_integration import amplemarket_controller
 from server.utils.permissions.casbin_utils import (
     get_all_action_permissions,
     get_contexted_enforcer,
@@ -392,7 +392,7 @@ def onboard_user(db: Session, request: OnboardUser, user_id: UUID):
             company=user.company,
             user_id=str(user.id),
         )
-        applemarket_controller.add_lead(
+        amplemarket_controller.add_lead(
             email=user.email,
             first=user.name,
             last=user.last_name,

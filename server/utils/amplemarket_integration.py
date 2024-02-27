@@ -1,28 +1,29 @@
 from requests import Session
 
 
-APPLEMARKET_BASE_URL = "https://app.amplemarket.com/api/v1/inbound_smart_action_webhooks/018de6f1-35c8-7f04-b97a-018a08216ede/"
+AMPLEMARKET_BASE_URL = "https://app.amplemarket.com/api/v1/inbound_smart_action_webhooks/018de6f1-35c8-7f04-b97a-018a08216ede/"
 
 
-class ApplemarketSession(Session):
+class AmplemarketSession(Session):
     base_url = None
 
     def __init__(self):
         super().__init__()
-        self.base_url = APPLEMARKET_BASE_URL
+        self.base_url = AMPLEMARKET_BASE_URL
 
     def request(self, method, url, *args, **kwargs):
         url = self.base_url + url
         return super().request(method, url, *args, **kwargs)
 
 
-class ApplemarketController:
-    applemarket_session: ApplemarketSession = None
+class AmplemarketController:
+    amplemarket_session: AmplemarketSession = None
 
     def __init__(self):
-        self.applemarket_session = ApplemarketSession()
+        self.amplemarket_session = AmplemarketSession()
 
     def add_lead(self, email: str, first: str, last: str, company: str):
+        print("HERE")
         url = "add_lead"
         payload = {
             "email": email,
@@ -31,7 +32,7 @@ class ApplemarketController:
             "company_name": company,
         }
 
-        return self.applemarket_session.post(url, json=payload)
+        return self.amplemarket_session.post(url, json=payload)
 
 
-applemarket_controller = ApplemarketController()
+amplemarket_controller = AmplemarketController()
