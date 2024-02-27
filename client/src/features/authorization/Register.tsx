@@ -12,10 +12,12 @@ import {
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
+import { useSetAtom } from 'jotai';
 
 import { useRegister } from './hooks/useRegister';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
+import { showConfirmationAtom } from '.';
 
 type FormValues = {
 	email: string;
@@ -33,6 +35,7 @@ export const Register = () => {
 		handleSubmit,
 	} = useForm<FormValues>();
 	const navigate = useNavigate();
+	const setConfirmation = useSetAtom(showConfirmationAtom);
 
 	const toast = useToast();
 
@@ -50,7 +53,8 @@ export const Register = () => {
 				status: 'success',
 				// description: 'Please check your mail for the confirmation link.',
 			});
-			navigate('/login?confirm');
+			setConfirmation(true);
+			navigate('/login');
 		},
 	});
 

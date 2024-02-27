@@ -12,7 +12,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
@@ -22,6 +22,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
 import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '../../utils';
+import { showConfirmationAtom } from '.';
 
 type FormValues = {
 	email: string;
@@ -34,10 +35,9 @@ export const Login = () => {
 	const queryClient = useQueryClient();
 
 	const updateWorkspace = useSetAtom(workspaceAtom);
+	const showConfirmation = useAtomValue(showConfirmationAtom);
 
-	const [displayEmailConfirmation, setDisplayEmailConfirmation] = useState(
-		window.location.href.includes('confirm'),
-	);
+	const [displayEmailConfirmation, setDisplayEmailConfirmation] = useState(showConfirmation);
 	const {
 		register,
 		formState: { errors },
