@@ -58,15 +58,6 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def authenticate_user(db: Session, email: str, password: str):
-    user = crud.user.get_user_by_email(db, email=email)
-    if not user:
-        return False
-    if not verify_password(password, user.hashed_password):
-        return False
-    return user
-
-
 def verify_worker_token(request: Request, db: Session = Depends(get_db)):
     worker_token = request.headers.get("dropbase-token")
     if worker_token is None:

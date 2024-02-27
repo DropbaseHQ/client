@@ -11,6 +11,7 @@ from server.models import Policy
 from server.utils.connect import SQLALCHEMY_DATABASE_URL
 from server.utils.permissions.casbin_sqlalchemy_adaptor import Adapter
 
+# from server.utils.authorization import RESOURCES
 from server.constants import ALLOWED_ACTIONS
 
 adapter = Adapter(SQLALCHEMY_DATABASE_URL, db_class=Policy)

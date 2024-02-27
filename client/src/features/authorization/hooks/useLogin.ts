@@ -27,8 +27,22 @@ const loginUser = async ({ email, password }: { email: string; password: string 
 	return response.data;
 };
 
+const loginGoogleUser = async ({ credential }: { credential: string }) => {
+	const response = await axios.post<LoginResponse>(`/user/loginGoogle`, {
+		credential,
+	});
+
+	return response.data;
+};
+
 export const useLogin = (mutationConfig: MutationConfig<typeof loginUser>) => {
 	return useMutation(loginUser, {
+		...(mutationConfig || {}),
+	});
+};
+
+export const useGoogleLogin = (mutationConfig: MutationConfig<typeof loginGoogleUser>) => {
+	return useMutation(loginGoogleUser, {
 		...(mutationConfig || {}),
 	});
 };
@@ -43,7 +57,8 @@ export const useSetAxiosToken = () => {
 		pathname.startsWith('/register') ||
 		pathname.startsWith('/reset') ||
 		pathname.startsWith('/email-confirmation') ||
-		pathname.startsWith('/forgot');
+		pathname.startsWith('/forgot') ||
+		pathname.startsWith('/github_auth');
 
 	useEffect(() => {
 		const fetchData = async () => {

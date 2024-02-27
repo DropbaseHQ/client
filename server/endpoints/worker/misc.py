@@ -26,9 +26,7 @@ def get_smart_cols(req: ConvertTable, db: Session = Depends(get_db)):
 
     # Fill smart col data before validation to get
     # primary keys along with other column metadata
-    smart_cols = fill_smart_cols_data(smart_col_paths, req.db_schema)
-
-    return {"columns": smart_cols}
+    return fill_smart_cols_data(smart_col_paths, req.db_schema)
 
 
 @router.post(

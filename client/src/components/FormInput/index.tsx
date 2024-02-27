@@ -72,7 +72,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		...inputProps
 	} = props;
 
-	if (type === 'number' || type === 'integer') {
+	if (type === 'number' || type === 'integer' || type === 'float') {
 		return (
 			<NumberInput
 				onChange={(_, valueAsNumber) => {
@@ -81,7 +81,8 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				size="sm"
 				onBlur={onBlur}
 				value={value === null ? '' : value}
-				{...inputProps}
+				precision={2}
+				step={type === 'integer' ? 1 : 0.01}
 			>
 				<NumberInputField ref={ref} h="9" />
 				<NumberInputStepper>
@@ -187,12 +188,13 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 								}}
 								type="radio"
 							>
-								{allOptions.map((option: any) => (
+								{allOptions.map((option: any, index: number) => (
 									<MenuItemOption
 										icon={option?.icon}
 										fontSize="sm"
 										key={option.name}
 										value={option.value}
+										data-cy={`select-option-${index}`}
 									>
 										{option?.render
 											? option?.render(option?.value === value)
@@ -305,7 +307,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							key={v}
 							size="sm"
 						>
-							{v}
+							{allOptions.find((o: any) => o.value === v)?.name || v}
 						</Badge>
 					))}
 				</Stack>
@@ -373,7 +375,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							{allOptions.map((option: any) => (
 								<MenuItemOption
 									fontSize="sm"
-									key={option.name}
+									key={option.value}
 									value={option.value}
 								>
 									{option.name}

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ChevronDown, ChevronRight, Save, Zap } from 'react-feather';
+import { ChevronDown, ChevronRight, Save, Trash, Zap } from 'react-feather';
 
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
@@ -120,6 +120,8 @@ const ColumnProperty = ({
 
 	const editableFields = VISIBLE_EDITABLE_FIELDS?.[columnField];
 
+	const isCustomColumn = columnField === 'button_column';
+
 	// FIXME: check why useEffect loop with properties
 	useEffect(() => {
 		setValue('configurations', defaultConfigurations, {
@@ -174,6 +176,51 @@ const ColumnProperty = ({
 
 	const handleUpdate = async (partialValues: any) => {
 		try {
+			const newProperties = {
+				...(pageProperties || {}),
+				tables: (pageProperties?.tables || []).map((t: any) => {
+					if (t.name === tableName) {
+						return {
+							...t,
+							columns: (t?.columns || []).map((c: any) => {
+								if (c.name === defaultName) {
+									return {
+										...c,
+										...properties,
+										...partialValues,
+									};
+								}
+
+								return c;
+							}),
+						};
+					}
+
+					return t;
+				}),
+			};
+			await updateMutation.mutateAsync({
+				app_name: appName,
+				page_name: pageName,
+				properties: newProperties,
+			});
+
+			const currentColumn =
+				(pageProperties?.tables || [])
+					.find((t: any) => t.name === tableName)
+					?.columns?.find((c: any) => c.name === defaultName) || {};
+
+			reset(currentColumn, {
+				keepDirty: false,
+				keepDirtyValues: false,
+			});
+		} catch (e) {
+			//
+		}
+	};
+
+	const handleDelete = async (columnId: any) => {
+		try {
 			await updateMutation.mutateAsync({
 				app_name: appName,
 				page_name: pageName,
@@ -183,16 +230,8 @@ const ColumnProperty = ({
 						if (t.name === tableName) {
 							return {
 								...t,
-								columns: (t?.columns || []).map((c: any) => {
-									if (c.name === defaultName) {
-										return {
-											...c,
-											...properties,
-											...partialValues,
-										};
-									}
-
-									return c;
+								columns: (t?.columns || []).filter((c: any) => {
+									return c.name !== columnId;
 								}),
 							};
 						}
@@ -200,10 +239,6 @@ const ColumnProperty = ({
 						return t;
 					}),
 				},
-			});
-			reset(partialValues, {
-				keepDirty: false,
-				keepDirtyValues: false,
 			});
 		} catch (e) {
 			//
@@ -226,15 +261,17 @@ const ColumnProperty = ({
 		<form onSubmit={methods.handleSubmit(onSubmit)}>
 			<FormProvider {...methods}>
 				<Stack spacing="0" borderBottomWidth="1px">
-					<SimpleGrid
-						p="2"
+					<Stack
+						py="2"
+						px="3"
+						direction="row"
 						borderBottomWidth={isOpen ? '1px' : '0'}
 						alignItems="center"
 						gap={3}
 						bg={isOpen ? 'gray.50' : ''}
-						columns={3}
+						// columns={3}
 					>
-						<Box alignSelf="center" overflow="hidden">
+						<Box alignSelf="center" overflow="hidden" width="40%">
 							<Tooltip placement="left-end" label={defaultName}>
 								<Code
 									h="full"
@@ -252,26 +289,35 @@ const ColumnProperty = ({
 								</Code>
 							</Tooltip>
 						</Box>
-						<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
-							<Box>
-								<InputRenderer
-									type="boolean"
-									isDisabled={
-										tableType !== 'sql' ||
-										hasNoEditKeys ||
-										updateMutation.isLoading
-									}
-									id="editable"
-									value={properties.editable}
-									onChange={(newValue: any) => {
-										handleUpdate({
-											editable: newValue,
-										});
-									}}
-								/>
-							</Box>
-						</Tooltip>
-						<Stack alignItems="center" justifyContent="space-between" direction="row">
+						{isCustomColumn ? (
+							<Box width="30%" />
+						) : (
+							<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
+								<Box width="30%">
+									<InputRenderer
+										type="boolean"
+										isDisabled={
+											tableType !== 'sql' ||
+											hasNoEditKeys ||
+											updateMutation.isLoading
+										}
+										id="editable"
+										value={properties.editable}
+										onChange={(newValue: any) => {
+											handleUpdate({
+												editable: newValue,
+											});
+										}}
+									/>
+								</Box>
+							</Tooltip>
+						)}
+						<Stack
+							alignItems="center"
+							justifyContent="space-between"
+							direction="row"
+							width="30%"
+						>
 							<InputRenderer
 								type="boolean"
 								id="hidden"
@@ -312,7 +358,7 @@ const ColumnProperty = ({
 								</Box>
 							</Stack>
 						</Stack>
-					</SimpleGrid>
+					</Stack>
 					<Collapse in={isOpen}>
 						<Stack p="3">
 							{columnFields
@@ -352,9 +398,15 @@ const ColumnProperty = ({
 													validate: {
 														unique: (value: any) => {
 															if (
-																columns.find(
-																	(c: any) => c.name === value,
-																)
+																columns
+																	.filter(
+																		(c: any) =>
+																			c.name !== defaultName,
+																	)
+																	.find(
+																		(c: any) =>
+																			c.name === value,
+																	)
 															) {
 																return 'Name must be unique';
 															}
@@ -418,25 +470,44 @@ const ColumnProperty = ({
 								</SimpleGrid>
 							) : null}
 
-							{allVisibleFields.length > 0 ? (
-								<Button
-									variant="outline"
-									colorScheme="gray"
-									size="xs"
-									w="fit-content"
-									onClick={onToggleConfigurations}
-								>
-									Show {isConfigurationOpen ? 'Less' : 'More'} Info
-								</Button>
-							) : null}
+							<Stack direction="row" alignItems="center">
+								{allVisibleFields.length > 0 ? (
+									<Button
+										variant="link"
+										color="gray.500"
+										size="xs"
+										w="fit-content"
+										fontWeight="normal"
+										onClick={onToggleConfigurations}
+									>
+										{isConfigurationOpen ? 'Hide' : 'Show'} medatada
+									</Button>
+								) : null}
+
+								{isCustomColumn ? (
+									<Tooltip label="Delete Column">
+										<IconButton
+											aria-label="Delete component"
+											variant="outline"
+											size="xs"
+											ml="auto"
+											colorScheme="red"
+											isLoading={updateMutation.isLoading}
+											onClick={() => {
+												handleDelete(defaultName);
+											}}
+											icon={<Trash size="14" />}
+										/>
+									</Tooltip>
+								) : null}
+							</Stack>
 
 							<Collapse in={isConfigurationOpen}>
-								<SimpleGrid mt="2" alignItems="center" gap={4} columns={2}>
+								<SimpleGrid mt="2" alignItems="center" gap={2}>
 									{allVisibleFields.map((property: any) => (
-										<Stack spacing="0.5" key={property.name}>
-											<FormLabel>{property.name}</FormLabel>
-
-											<Code bg="transparent" fontSize="sm">
+										<Stack spacing="0.5" key={property.name} direction="row">
+											<FormLabel width="50%">{property.name}</FormLabel>
+											<Code background="transparent" fontSize="sm">
 												{property.type === 'boolean'
 													? JSON.stringify(properties[property.name])
 													: properties[property.name] || '-'}
@@ -531,18 +602,18 @@ export const ColumnsProperties = () => {
 				</Button>
 			) : null}
 			<Stack spacing="0" borderTopWidth="1px">
-				<SimpleGrid
-					p="2"
+				<Stack
+					p="3"
+					direction="row"
 					fontWeight="medium"
 					fontSize="sm"
 					bg="gray.50"
 					borderBottomWidth="1px"
-					columns={3}
 				>
-					<Text>Column</Text>
-					<Text>Editable</Text>
-					<Text>Hidden</Text>
-				</SimpleGrid>
+					<Text width="40%">Column</Text>
+					<Text width="30%">Editable</Text>
+					<Text width="30%">Hidden</Text>
+				</Stack>
 				{columns.map((column: any) => (
 					<ColumnProperty tableType={type} key={column.name} {...column} />
 				))}

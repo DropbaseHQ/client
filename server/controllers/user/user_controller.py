@@ -1,9 +1,14 @@
+import os
 import secrets
+import requests
 from datetime import datetime, timedelta
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 from uuid import UUID
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+from server.controllers.user.github_social_controller import GithubController
 
-from fastapi import HTTPException, Response, status
+from fastapi import HTTPException, Response, status, Request
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
@@ -23,8 +28,10 @@ from server.models import Policy, User, Workspace
 from server.schemas.user import (
     AddPolicyRequest,
     CheckPermissionRequest,
+    CreateGoogleUserRequest,
     CreateUser,
     CreateUserRequest,
+    LoginGoogleUser,
     LoginUser,
     ReadUser,
     ResetPasswordRequest,
@@ -32,7 +39,6 @@ from server.schemas.user import (
 )
 from server.schemas.workspace import ReadWorkspace
 from server.utils.authentication import (
-    authenticate_user,
     get_password_hash,
     verify_password,
 )
@@ -56,8 +62,19 @@ def get_user(db: Session, user_email: str):
 
 def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
     try:
-        user = authenticate_user(db, request.email, request.password)
+        user = crud.user.get_user_by_email(db, email=request.email)
         if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect username or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        if user.social_login is not None and user.social_login != "":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Account not registered with email",
+            )
+        if not verify_password(request.password, user.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect username or password",
@@ -102,6 +119,65 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
         #     httponly=False,
         #     samesite=Authorize._cookie_samesite,
         # )
+        workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
+        workspace = (
+            ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
+        )
+        return {
+            "user": ReadUser.from_orm(user),
+            "workspace": workspace,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+
+    except HTTPException as e:
+        raise_http_exception(status_code=e.status_code, message=e.detail)
+    except Exception as e:
+        print("error", e)
+        raise_http_exception(status_code=500, message="Internal server error")
+
+
+def login_google_user(db: Session, Authorize: AuthJWT, request: LoginGoogleUser):
+    try:
+        token = request.credential
+
+        CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+
+        if CLIENT_ID is None:
+            raise ValueError("GOOGLE_CLIENT_ID environment variable not set")
+
+        idinfo = id_token.verify_oauth2_token(
+            token, google_requests.Request(), CLIENT_ID
+        )
+
+        if idinfo["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
+            raise ValueError("Wrong issuer")
+
+        user = crud.user.get_user_by_email(db, email=idinfo["email"])
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User does not exist",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        if user.social_login != "google":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Account not registered with Google",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        access_token = Authorize.create_access_token(
+            subject=user.email,
+            expires_time=ACCESS_TOKEN_EXPIRE_SECONDS,
+            user_claims={"user_id": str(user.id)},
+        )
+        refresh_token = Authorize.create_refresh_token(
+            subject=user.email, expires_time=REFRESH_TOKEN_EXPIRE_SECONDS
+        )
+
         workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
         workspace = (
             ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
@@ -182,6 +258,95 @@ def register_user(db: Session, request: CreateUserRequest):
         slack_sign_up(name=user.name, email=user.email)
         db.commit()
         return {"message": "User successfully registered"}
+    except Exception as e:
+        db.rollback()
+        print("error", e)
+        raise_http_exception(status_code=500, message="Internal server error")
+
+
+def register_google_user(
+    db: Session, Authorize: AuthJWT, request: CreateGoogleUserRequest
+):
+    try:
+        token = request.credential
+
+        CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+
+        if CLIENT_ID is None:
+            raise ValueError("GOOGLE_CLIENT_ID environment variable not set")
+
+        idinfo = id_token.verify_oauth2_token(
+            token, google_requests.Request(), CLIENT_ID
+        )
+
+        if idinfo["iss"] not in ["accounts.google.com", "https://accounts.google.com"]:
+            raise ValueError("Wrong issuer")
+
+        user = crud.user.get_user_by_email(db, email=idinfo.get("email"))
+
+        if user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="An account with this email already exists",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        name = idinfo.get("name")
+        last = idinfo.get("family_name")
+        domain = idinfo.get("hd", None)
+        email = idinfo.get("email")
+
+        company = domain if domain is not None else "Personal"
+
+        user_obj = CreateUser(
+            name=name,
+            last_name=last,
+            company=company,
+            email=email,
+            hashed_password="",
+            trial_eligible=True,
+            active=False,
+            social_login="google",
+        )
+        user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
+        db.flush()
+        workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
+        workspace_creator.create()
+
+        db.commit()
+
+        slack_sign_up(name=name, email=email)
+
+        loops_controller.add_user(
+            user_email=email,
+            name=name,
+            last_name=last,
+            company=company,
+            user_id=str(user.id),
+        )
+
+        access_token = Authorize.create_access_token(
+            subject=user.email,
+            expires_time=ACCESS_TOKEN_EXPIRE_SECONDS,
+            user_claims={"user_id": str(user.id)},
+        )
+        refresh_token = Authorize.create_refresh_token(
+            subject=user.email, expires_time=REFRESH_TOKEN_EXPIRE_SECONDS
+        )
+
+        workspaces = crud.workspace.get_user_workspaces(db, user_id=user.id)
+        workspace = (
+            ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
+        )
+        return {
+            "user": ReadUser.from_orm(user),
+            "workspace": workspace,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+
+    except HTTPException as e:
+        raise_http_exception(status_code=e.status_code, message=e.detail)
     except Exception as e:
         db.rollback()
         print("error", e)
@@ -430,3 +595,56 @@ def check_permissions(
         db, str(user.id), workspace_id, app_id
     )
     return permissions_dict
+
+
+def github_auth(db: Session, Authorize: AuthJWT, code: str):
+    github_controller = GithubController()
+    access_token = github_controller.verify_github_auth_code(code)
+
+    # Get user information from github
+    user_info = github_controller.get_user_info(access_token)
+    email = user_info.get("email")
+    if not email:
+        email = github_controller.get_user_primary_email(access_token)
+
+    if not email:
+        raise_http_exception(400, "User email not found")
+
+    user = crud.user.get_user_by_email(db, email=email)
+    name = user_info.get("name")
+    if not name:
+        name = user_info.get("login")
+    # If user does not exist, create user and workspace
+    if not user:
+        user_obj = CreateUser(
+            name=name,
+            email=email,
+            company=user_info.get("company"),
+            trial_eligible=True,
+            active=False,
+            social_login="github",
+        )
+        user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
+        db.flush()
+        workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
+        workspace_creator.create()
+        slack_sign_up(name=user.name, email=user.email)
+        loops_controller.add_user(
+            user_email=email,
+            name=user.name,
+            last_name=user.last_name,
+            company=user.company,
+            user_id=str(user.id),
+        )
+        db.commit()
+    if user.social_login != "github":
+        raise_http_exception(400, "Email is already registered with another provider")
+
+    # If user exists, create a JWT token
+    access_token = Authorize.create_access_token(
+        subject=str(user.email), user_claims={"github_access_token": access_token}
+    )
+    refresh_token = Authorize.create_refresh_token(
+        subject=str(user.email), user_claims={"github_access_token": access_token}
+    )
+    return {"access_token": access_token, "refresh_token": refresh_token}

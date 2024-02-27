@@ -19,12 +19,13 @@ class BaseUser(BaseModel):
 class CreateUser(BaseModel):
     name: str
     last_name: Optional[str]
-    company: str
+    company: Optional[str]
     email: str
-    hashed_password: str
+    hashed_password: Optional[str]
     active: bool = False
     trial_eligible: bool = True
     confirmation_token: Optional[str]
+    social_login: Optional[str]
 
 
 class ReadUser(BaseModel):
@@ -47,6 +48,14 @@ class UpdateUser(BaseModel):
 class LoginUser(BaseModel):
     email: str
     password: str
+
+
+class LoginGoogleUser(BaseModel):
+    credential: str
+
+
+class CreateGoogleUserRequest(BaseModel):
+    credential: str
 
 
 class CreateUserRequest(BaseModel):
