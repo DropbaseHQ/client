@@ -247,35 +247,15 @@ export const DisplayRulesEditor = ({ name }: any) => {
 					return (
 						<Stack spacing="2.5">
 							{displayRules.map((rule: any, index: any) => {
-								const ruleName = rule?.target?.split('.')?.[2];
-								const componentProperty = componentsProperties?.[ruleName];
 								let usesComparatorOps = false;
-								let input: any = {
-									type: 'text',
-								};
+
+								const targetType = getColType(rule.target);
 
 								if (
-									getColType(rule.target) === 'number' ||
-									getColType(rule.target) === 'float'
+									NUMBER_TYPES.includes(targetType) ||
+									DATETIME_TYPES.includes(targetType)
 								) {
 									usesComparatorOps = true;
-								}
-
-								if (
-									NUMBER_TYPES.includes(componentProperty?.data_type) ||
-									DATETIME_TYPES.includes(componentProperty?.data_type)
-								) {
-									usesComparatorOps = true;
-									if (componentProperty?.component_type === 'input') {
-										input = {
-											type: 'number',
-										};
-									} else if (componentProperty?.component_type === 'select') {
-										input = {
-											type: 'select',
-											options: componentProperty?.property?.options || [],
-										};
-									}
 								}
 
 								return (
@@ -384,7 +364,6 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														flex="1"
 														disabled={!rule.target}
 														placeholder="select value"
-														{...input}
 														type={processColType(
 															getColType(rule.target),
 														)}
