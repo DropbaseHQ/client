@@ -73,7 +73,16 @@ const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name }: any)
 				icon={<Play size={12} />}
 				onClick={executeRunCommand}
 			/>
-			<Box ref={editorRef} pt="2" borderLeftWidth="1px" flex="1" h="full" as="div" w="full" />
+			<Box
+				data-cy={`code-editor-${name}`}
+				ref={editorRef}
+				pt="2"
+				borderLeftWidth="1px"
+				flex="1"
+				h="full"
+				as="div"
+				w="full"
+			/>
 		</Stack>
 	);
 };

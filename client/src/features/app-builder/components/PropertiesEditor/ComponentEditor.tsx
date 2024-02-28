@@ -220,6 +220,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 									aria-label="Update component"
 									isLoading={updateMutation.isLoading}
 									type="submit"
+									data-cy="update-component"
 									onClick={(e) => {
 										e.stopPropagation();
 									}}

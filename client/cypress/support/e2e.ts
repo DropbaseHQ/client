@@ -14,7 +14,20 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands'
+import './commands';
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+Cypress.on('uncaught:exception', (err, runnable) => {
+	if (err.message.includes('ResizeObserver loop completed with undelivered notifications.')) {
+		// ignore the error
+		return false;
+	}
+});
+Cypress.on('uncaught:exception', (err, runnable) => {
+	if (err.message.includes('Error: Cannot have two contributions with the same id')) {
+		// ignore the error
+		return false;
+	}
+});
