@@ -10,12 +10,10 @@ export const App = () => {
 		return <Navigate to="/settings/developer" />;
 	}
 	return (
-		<>
-			<Routes>
-				<Route index element={<AppList />} />
-				<Route path=":appName/:pageName/*" element={<AppRoutes />} />
-				<Route path="*" element={<Navigate to="." />} />
-			</Routes>
-		</>
+		<Routes>
+			<Route index element={<AppList />} />
+			<Route path=":appName/:pageName/*" element={<AppRoutes />} />
+			<Route path="*" element={<Navigate to="." />} />
+		</Routes>
 	);
 };
