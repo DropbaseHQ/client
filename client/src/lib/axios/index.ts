@@ -1,11 +1,12 @@
 import Axios from 'axios';
+import { getWorkerURL } from '@/utils/url';
 
 export const axios = Axios.create({
 	baseURL: import.meta.env.VITE_API_ENDPOINT,
 });
 
 export const workerAxios = Axios.create({
-	baseURL: `${import.meta.env.VITE_WORKER_API_ENDPOINT}`,
+	baseURL: getWorkerURL(),
 	withCredentials: true,
 });
 if (localStorage.getItem('access_token')) {

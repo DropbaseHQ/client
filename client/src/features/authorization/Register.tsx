@@ -22,7 +22,7 @@ import { useGoogleRegister, useRegister } from './hooks/useRegister';
 import { useToast } from '@/lib/chakra-ui';
 import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '@/utils';
-import { showConfirmationAtom } from '.';
+import { showConfirmationAtom } from './atoms';
 import { workspaceAtom } from '@/features/workspaces';
 
 type FormValues = {

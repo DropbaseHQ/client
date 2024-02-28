@@ -11,6 +11,7 @@ import {
 	setWorkerAxiosBaseURL,
 	setAxiosToken,
 } from '@/lib/axios';
+import { getWorkerURL } from '@/utils/url';
 
 export type LoginResponse = {
 	user: any;
@@ -94,7 +95,7 @@ export const useSetWorkerAxiosBaseURL = () => {
 		if (currentWorkspace?.worker_url) {
 			setWorkerAxiosBaseURL(`http://${currentWorkspace.worker_url}`);
 		} else {
-			setWorkerAxiosBaseURL(import.meta.env.VITE_WORKER_API_ENDPOINT);
+			setWorkerAxiosBaseURL(getWorkerURL());
 		}
 	}, [workspaces, workspaceId, currentWorkspace]);
 };

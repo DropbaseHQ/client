@@ -25,9 +25,10 @@ import { InspectorContainer } from '@/features/app-builder';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
 import { appModeAtom, websocketStatusAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
+import { getWorkerURL } from '@/utils/url';
 
 // websocket
-export const SOCKET_URL = `${import.meta.env.VITE_WORKER_WS_ENDPOINT}/ws`;
+export const SOCKET_URL = `${getWorkerURL()}/ws`;
 
 export const WidgetPreview = ({ widgetName }: any) => {
 	const { appName, pageName } = useParams();
