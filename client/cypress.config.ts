@@ -38,7 +38,4 @@ export default defineConfig({
 			TEST_PASSWORD: 'Password1',
 		},
 	},
-	// viewportHeight: 1080,
-	// viewportWidth: 1920,
-	experimentalMemoryManagement: true,
 });
