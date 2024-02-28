@@ -7,5 +7,5 @@ export const getWebSocketURL = () => {
 };
 
 export const getLSPURL = () => {
-	return `${window.location.protocol}//${window.location.hostname}:9095/lsp`;
+	return `ws://${window.location.hostname}:9095/lsp`;
 };
