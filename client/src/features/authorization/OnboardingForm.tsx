@@ -43,6 +43,10 @@ export const OnboardingForm = () => {
 
 	const { mutate: onboard, isLoading: onboardLoading } = useOnboard({
 		onSuccess: () => {
+			toast({
+				status: 'success',
+				title: 'Onboarding complete',
+			});
 			onClose();
 		},
 		onError: (error: any) => {
