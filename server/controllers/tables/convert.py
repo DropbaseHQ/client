@@ -1,4 +1,5 @@
 import json
+import yaml
 from typing import Any, Dict
 from fastapi import HTTPException
 import logging
@@ -63,10 +64,10 @@ def call_gpt(user_sql: str, column_names: list, db_schema: dict) -> OutputSchema
             )
         )
 
-        output_dict = json.loads(gpt_output).get("choices", [{"message": {"content": "{}"}}])[0][
+        output_dict = yaml.safe_load(json.loads(gpt_output).get("choices", [{"message": {"content": "{}"}}])[0][
             "message"
-        ]["content"]
-        output = json.loads(output_dict)
+        ]["content"])
+        output = {column: columnData for data in output_dict for column, columnData in data.items()}
         # validate output
         OutputSchema(output=output)
         return output
