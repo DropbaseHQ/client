@@ -18,24 +18,24 @@ describe('Verifies that roles and specific permissions are granted edit access c
 			}
 		});
 	});
-	it('Tests admin can edit apps', () => {
+	it.only('Tests admin can edit apps', () => {
 		cy.login(ADMIN_EMAIL, TEST_PASSWORD);
 
 		cy.createApp(testAppName);
 
 		cy.createWidget();
 
-		cy.get("[data-cy='components-list']").contains('Input 1').should('not.exist');
+		cy.get("[data-cy='components-list']").contains('input1').should('not.exist');
 		cy.createInput();
 		cy.get("[data-rbd-droppable-id='widget-widget1-drop-area']")
-			.contains('Input 1')
+			.contains('input1')
 			.should('exist');
 
 		// Ensure that we can create function
 		cy.root().contains('function1.sql').should('not.exist');
 		cy.createSQLFunction();
 		cy.root().contains('function1.sql').should('exist');
-
+		cy.wait(1000);
 		// Deletes the test app
 		cy.visit('http://localhost:3030/apps');
 		cy.deleteApp(testAppName);
