@@ -107,6 +107,7 @@ const TargetSelector = ({
 				<AutoCompleteInput
 					size="sm"
 					value={editTarget}
+					data-cy="display-rule-target"
 					borderWidth={!targetExists() ? '2px' : null}
 					borderColor={!targetExists() ? 'orange.300' : null}
 					onChange={(e: any) => {
@@ -348,6 +349,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 															? COMPERATOR_OPERATORS
 															: []),
 													]}
+													data-cy="display-rule-operator"
 													onChange={(newValue: any) => {
 														onChange(
 															displayRules.map((r: any) => {
@@ -401,6 +403,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 																  ]
 																: null
 														}
+														data-cy="display-rule-value"
 														onChange={(newValue: any) => {
 															onChange(
 																displayRules.map((r: any) => {
@@ -447,6 +450,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 								leftIcon={<Plus size="14" />}
 								variant="outline"
 								colorScheme="gray"
+								data-cy="add-display-rule"
 								onClick={() => {
 									onChange(
 										displayRules?.length > 0

@@ -248,6 +248,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 													key={c.name}
 													id={c.name}
 													type="component"
+													data-cy={`component-${c.name}-inspector`}
 													{...p.draggableProps}
 													{...p.dragHandleProps}
 												>

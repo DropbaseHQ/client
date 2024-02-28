@@ -192,6 +192,7 @@ export const AppComponent = (props: any) => {
 					placeholder={placeholder}
 					value={inputValue}
 					name={name}
+					data-cy={`input-${name}`}
 					type={inputType}
 					onChange={(newValue: any) => {
 						setWidgetComponentValues({
