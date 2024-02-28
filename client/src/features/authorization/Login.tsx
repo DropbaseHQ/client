@@ -27,7 +27,7 @@ import { workspaceAtom } from '@/features/workspaces';
 import { onboardingAtom } from '@/features/authorization';
 import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '../../utils';
-import { showConfirmationAtom } from '.';
+import { showConfirmationAtom } from './atoms';
 
 type FormValues = {
 	email: string;

@@ -30,7 +30,7 @@ export const OnboardingForm = () => {
 			? {
 					name: onboardingState.name,
 					last_name: onboardingState.last_name,
-				}
+			  }
 			: {};
 
 	const methods = useForm({
