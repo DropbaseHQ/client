@@ -11,17 +11,14 @@ import {
 	Link,
 	Flex,
 } from '@chakra-ui/react';
-import { useAtomValue } from 'jotai';
 import { VideoList } from './components/VideoList';
 import { PageLayout } from '@/layout';
 import { Setup } from './components/Setup';
 import { SalesModal } from '../app-list/AppSalesModal';
-import { onboardingAtom } from '../authorization';
 import { OnboardingForm } from '../authorization/OnboardingForm';
 
 export const Welcome = () => {
 	const [modalIsOpen, setModalIsOpen] = useState(false);
-	const onboardingState = useAtomValue(onboardingAtom);
 	return (
 		<PageLayout
 			title="Welcome to Dropbase!"
@@ -110,7 +107,7 @@ export const Welcome = () => {
 				</Flex>
 			</Stack>
 
-			{onboardingState ? <OnboardingForm /> : null}
+			<OnboardingForm />
 		</PageLayout>
 	);
 };
