@@ -34,7 +34,6 @@ import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { SalesModal } from './AppSalesModal';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
-import { OnboardingForm } from '../authorization/OnboardingForm';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
@@ -354,7 +353,6 @@ export const AppList = () => {
 					</FormProvider>
 				</ModalContent>
 			</Modal>
-			<OnboardingForm />
 		</PageLayout>
 	);
 };

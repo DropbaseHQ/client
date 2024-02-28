@@ -15,7 +15,6 @@ import { VideoList } from './components/VideoList';
 import { PageLayout } from '@/layout';
 import { Setup } from './components/Setup';
 import { SalesModal } from '../app-list/AppSalesModal';
-import { OnboardingForm } from '../authorization/OnboardingForm';
 
 export const Welcome = () => {
 	const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -106,8 +105,6 @@ export const Welcome = () => {
 					</Box>
 				</Flex>
 			</Stack>
-
-			<OnboardingForm />
 		</PageLayout>
 	);
 };
