@@ -18,7 +18,7 @@ import {
 	useDisclosure,
 	VStack,
 } from '@chakra-ui/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Filter as FilterIcon, Plus, Star, Trash } from 'react-feather';
 import { useAtom, useAtomValue } from 'jotai';
@@ -118,6 +118,7 @@ export const FilterButton = () => {
 	const toast = useToast();
 	const tableId = useCurrentTableName();
 	const { isOpen, onToggle, onClose } = useDisclosure();
+	const filtersRef = useRef(false);
 
 	const { appName, pageName } = useParams();
 
@@ -148,10 +149,13 @@ export const FilterButton = () => {
 	const { filters: pinnedFilters } = useGetTable(tableId || '');
 
 	useEffect(() => {
-		setFilters((old: any) => ({
-			...old,
-			[tableId]: pinnedFilters,
-		}));
+		if (!filtersRef.current) {
+			setFilters((old: any) => ({
+				...old,
+				[tableId]: pinnedFilters,
+			}));
+			filtersRef.current = true;
+		}
 	}, [tableId, pinnedFilters, setFilters]);
 
 	const haveFiltersApplied =
