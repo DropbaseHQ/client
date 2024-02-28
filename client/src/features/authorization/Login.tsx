@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { GitHub } from 'react-feather';
 import { useState } from 'react';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
@@ -27,6 +27,7 @@ import { workspaceAtom } from '@/features/workspaces';
 import { onboardingAtom } from '@/features/authorization';
 import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '../../utils';
+import { showConfirmationAtom } from '.';
 
 type FormValues = {
 	email: string;
@@ -40,8 +41,9 @@ export const Login = () => {
 
 	const updateWorkspace = useSetAtom(workspaceAtom);
 	const updateOnboardingStatus = useSetAtom(onboardingAtom);
+	const showConfirmation = useAtomValue(showConfirmationAtom);
 
-	const [displayEmailConfirmation, setDisplayEmailConfirmation] = useState(false);
+	const [displayEmailConfirmation, setDisplayEmailConfirmation] = useState(showConfirmation);
 	const {
 		register,
 		formState: { errors },
@@ -234,8 +236,11 @@ export const Login = () => {
 					</form>
 					{displayEmailConfirmation && (
 						<Flex mt="6" direction="column">
-							<Text color="orange" fontSize="sm">
-								You must first confirm your email before logging in.
+							<Text color="orange.500" fontSize="md" align="center">
+								Please confirm your email before logging in.
+							</Text>
+							<Text color="gray.500" fontSize="md" align="center">
+								Make sure to check your spam folder.
 							</Text>
 							<Button
 								marginTop="4"

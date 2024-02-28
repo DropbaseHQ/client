@@ -23,6 +23,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '@/utils';
 import { onboardingAtom } from '@/features/authorization';
+import { showConfirmationAtom } from '.';
 import { workspaceAtom } from '@/features/workspaces';
 
 type FormValues = {
@@ -38,6 +39,7 @@ export const Register = () => {
 		handleSubmit,
 	} = useForm<FormValues>();
 	const navigate = useNavigate();
+	const setConfirmation = useSetAtom(showConfirmationAtom);
 	const queryClient = useQueryClient();
 
 	const toast = useToast();
@@ -85,6 +87,7 @@ export const Register = () => {
 				status: 'success',
 				// description: 'Please check your mail for the confirmation link.',
 			});
+			setConfirmation(true);
 			navigate('/login');
 		},
 	});
