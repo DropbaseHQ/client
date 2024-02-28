@@ -27,7 +27,7 @@ import { appModeAtom, websocketStatusAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
 
 // websocket
-export const SOCKET_URL = `${import.meta.env.VITE_WORKER_WS_ENDPOINT}/ws`;
+export const SOCKET_URL = `ws://${window.location.hostname}:9090/ws`;
 
 export const WidgetPreview = ({ widgetName }: any) => {
 	const { appName, pageName } = useParams();

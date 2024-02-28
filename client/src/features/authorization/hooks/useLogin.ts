@@ -94,7 +94,7 @@ export const useSetWorkerAxiosBaseURL = () => {
 		if (currentWorkspace?.worker_url) {
 			setWorkerAxiosBaseURL(`http://${currentWorkspace.worker_url}`);
 		} else {
-			setWorkerAxiosBaseURL(import.meta.env.VITE_WORKER_API_ENDPOINT);
+			setWorkerAxiosBaseURL(`http://${window.location.hostname}:9090`);
 		}
 	}, [workspaces, workspaceId, currentWorkspace]);
 };

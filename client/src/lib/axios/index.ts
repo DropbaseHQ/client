@@ -5,7 +5,7 @@ export const axios = Axios.create({
 });
 
 export const workerAxios = Axios.create({
-	baseURL: `${import.meta.env.VITE_WORKER_API_ENDPOINT}`,
+	baseURL: `http://${window.location.hostname}:9090`,
 	withCredentials: true,
 });
 if (localStorage.getItem('access_token')) {
