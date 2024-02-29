@@ -8,7 +8,7 @@ module.exports = {
 		'plugin:@typescript-eslint/recommended',
 		'prettier',
 	],
-	ignorePatterns: ['dist', '.eslintrc.cjs', 'vite.config.ts'],
+	ignorePatterns: ['dist', '.eslintrc.cjs', 'vite.config.ts', 'cypress/*', 'cypress.config.ts'],
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
 		project: './tsconfig.json',
@@ -25,7 +25,7 @@ module.exports = {
 		'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
 		'prettier/prettier': ['error'],
 
-		'@typescript-eslint/no-explicit-any': 'warn',
+		'@typescript-eslint/no-explicit-any': 'off',
 		'import/prefer-default-export': 'off',
 
 		'arrow-body-style': 'off',

@@ -18,11 +18,13 @@ import {
 	Box,
 	MenuItem,
 	IconButton,
+	Code,
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { Layout, MoreVertical, Trash } from 'react-feather';
 import { useAtomValue } from 'jotai';
+import { useEffect } from 'react';
 import { useStatus } from '@/layout/StatusBar';
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
 import { useCreateAppFlow } from './hooks/useCreateApp';
@@ -84,13 +86,12 @@ const AppCard = ({ app }: { app: AppType }) => {
 				borderColor: 'gray.300',
 			}}
 			onClick={handleClick}
+			data-cy={`app-card-${app.name}`}
 		>
 			<Layout strokeWidth="1.5px" size="40px" />
-			<Stack spacing="0">
-				<Text fontSize="lg" fontWeight="semibold">
-					{app?.label}
-				</Text>
-			</Stack>
+			<Text fontSize="lg" fontWeight="semibold" isTruncated flex="1">
+				{app?.label}
+			</Text>
 			<Menu>
 				<MenuButton
 					flexShrink="0"
@@ -103,6 +104,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 					minH="none"
 					icon={<MoreVertical size="14" />}
 					ml="auto"
+					data-cy={`app-menu-${app.name}`}
 					onClick={(e) => {
 						e.stopPropagation();
 					}}
@@ -110,6 +112,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 
 				<MenuList>
 					<MenuItem
+						data-cy={`delete-app-${app.name}`}
 						color="red"
 						onClick={(e) => {
 							e.stopPropagation();
@@ -130,14 +133,21 @@ const AppCard = ({ app }: { app: AppType }) => {
 					<FormProvider {...methods}>
 						<form onSubmit={methods.handleSubmit(onSubmit)}>
 							<ModalHeader fontSize="md" borderBottomWidth="1px">
-								Confirm app deletion
+								Confirm deletion of {app.label}
 							</ModalHeader>
 							<ModalCloseButton />
 							<ModalBody py="6">
+								<Text fontSize="sm" mb="2">
+									Write
+									<Code bg="transparent" color="gray.600">
+										{app.name}
+									</Code>
+									to delete the app
+								</Text>
 								<FormInput
-									name={`Write ${app.name} to delete the app`}
 									autoFocus
 									id="name"
+									data-cy={`confirm-delete-app-input-${app.name}`}
 									placeholder={app.name}
 									validation={{
 										validate: (value: any) =>
@@ -161,6 +171,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 									type="submit"
 									size="sm"
 									colorScheme="red"
+									data-cy={`confirm-delete-app-${app.name}`}
 								>
 									Delete
 								</Button>
@@ -211,13 +222,33 @@ export const AppList = () => {
 			return a.name === newName;
 		});
 	};
+	const generateAppName = (label: string) => {
+		let formattedLabel = label
+			?.toLowerCase()
+			.replace(/[^a-z0-9]/g, '_')
+			.replace(/_{2,}/g, '_')
+			.replace(/^_+|_+$/g, '');
 
-	const onSubmit = async ({ name: appName }: any) => {
+		if (formattedLabel?.match(/^\d/)) {
+			formattedLabel = `_${formattedLabel}`;
+		}
+		return formattedLabel;
+	};
+
+	const onSubmit = async ({ name: appName, label: appLabel }: any) => {
 		await handleCreateAppFlow({
 			name: appName,
+			label: appLabel,
 			workspaceId: workspaceId as string,
 		});
 	};
+	const appLabel = methods.watch('label');
+
+	useEffect(() => {
+		if (!methods.formState.dirtyFields.name) {
+			methods.setValue('name', generateAppName(appLabel));
+		}
+	}, [methods, appLabel]);
 
 	const workerIsConnected = status === 'success';
 	const workspaceHasWorkspaceURL = !!currentWorkspace?.workspaceUrl;
@@ -230,7 +261,13 @@ export const AppList = () => {
 		<PageLayout
 			title="Your apps"
 			action={
-				<Button size="sm" ml="auto" onClick={onOpen} isDisabled={!workerIsConnected}>
+				<Button
+					size="sm"
+					ml="auto"
+					onClick={onOpen}
+					isDisabled={!workerIsConnected}
+					data-cy="create-app-button"
+				>
 					Create app
 				</Button>
 			}
@@ -267,29 +304,36 @@ export const AppList = () => {
 							</ModalHeader>
 							<ModalCloseButton />
 							<ModalBody py="6">
-								<FormInput
-									name="App name"
-									id="name"
-									placeholder="Enter app name"
-									validation={{
-										validate: (value: any) => {
-											if (value.includes(' ')) {
-												return 'Name cannot have spaces';
-											}
-											if (!value) {
-												return 'Name required';
-											}
-											if (nameNotUnique(value)) {
-												return 'Name already exists';
-											}
-											if (!value.match(/^[A-Za-z0-9_.]+$/g)) {
-												return 'Name contains invalid characters';
-											}
+								<Stack spacing="2">
+									<FormInput
+										name="App label"
+										id="label"
+										placeholder="Enter app label"
+										data-cy="app-name"
+									/>
+									<FormInput
+										name="App name"
+										id="name"
+										validation={{
+											validate: (value: any) => {
+												if (value.includes(' ')) {
+													return 'Name cannot have spaces';
+												}
+												if (!value) {
+													return 'Name required';
+												}
+												if (nameNotUnique(value)) {
+													return 'Name already exists';
+												}
+												if (!value.match(/^[A-Za-z0-9_.]+$/g)) {
+													return 'Name contains invalid characters';
+												}
 
-											return true;
-										},
-									}}
-								/>
+												return true;
+											},
+										}}
+									/>
+								</Stack>
 							</ModalBody>
 							<ModalFooter borderTopWidth="1px">
 								<Button
@@ -307,6 +351,7 @@ export const AppList = () => {
 									isLoading={createAppIsLoading}
 									type="submit"
 									size="sm"
+									data-cy="confirm-create-app"
 								>
 									Create
 								</Button>

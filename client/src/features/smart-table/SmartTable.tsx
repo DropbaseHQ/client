@@ -7,6 +7,8 @@ import {
 	Button,
 	Center,
 	IconButton,
+	Popover,
+	PopoverTrigger,
 	Spinner,
 	Stack,
 	Text,
@@ -25,7 +27,7 @@ import DataEditor, {
 	GridCellKind,
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
-import { DatePickerCell } from '@glideapps/glide-data-grid-cells';
+import { DatePickerCell, MultiSelectCell, ButtonCell } from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import { useParams } from 'react-router-dom';
@@ -39,6 +41,8 @@ import {
 	getTimeStringFromEpoch,
 } from '@/features/smart-table/utils';
 import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
+
+import dropdownCellRenderer from './components/cells/SingleSelect';
 
 import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
 
@@ -60,6 +64,8 @@ import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 import { LabelContainer } from '@/components/LabelContainer';
+import { useEvent } from '@/features/app-preview/hooks';
+import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -67,7 +73,7 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-const ALL_CELLS = [DatePickerCell];
+const ALL_CELLS = [DatePickerCell, dropdownCellRenderer, MultiSelectCell, ButtonCell];
 
 export const SmartTable = ({ tableName, provider }: any) => {
 	const toast = useToast();
@@ -97,6 +103,13 @@ export const SmartTable = ({ tableName, provider }: any) => {
 	const { properties } = useGetPage({ appName, pageName });
 
 	const {
+		renderPopoverContent,
+		onOpen: openConvertPopover,
+		onClose: closeConvertPopover,
+		isOpen: convertPopoverOpen,
+	} = useConvertPopover(tableName);
+
+	const {
 		isLoading,
 		rows,
 		columnDict,
@@ -115,6 +128,8 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		table,
 	} = useGetTable(tableName || '');
 	const tableIsUnsynced = useTableSyncStatus(tableName);
+
+	const handleEvent = useEvent();
 
 	const mutation = useUpdatePageData({
 		onSuccess: () => {
@@ -309,7 +324,12 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		// ⚠️ only by passing undefined we can hide column icon
 		let icon = col?.display_type ? GridColumnIcon.HeaderString : undefined;
 
+		if (col?.column_type === 'button_column') {
+			icon = GridColumnIcon.HeaderCode;
+		}
+
 		switch (col?.display_type) {
+			case 'currency':
 			case 'integer': {
 				icon = GridColumnIcon.HeaderNumber;
 				break;
@@ -434,7 +454,95 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					},
 			  };
 
+		if (column?.column_type === 'button_column') {
+			const columnColor = theme.colors?.[column?.color || 'gray'];
+
+			return {
+				kind: GridCellKind.Custom,
+				allowOverlay: false,
+				readonly: true,
+				data: {
+					kind: 'button-cell',
+					backgroundColor: ['transparent', columnColor?.[100]],
+					color: columnColor?.[500],
+					borderColor: columnColor?.[500],
+					borderRadius: 2,
+					title: column.label,
+					onClick: () => handleEvent(column?.on_click),
+				},
+				...themeOverride,
+			};
+		}
+
 		switch (column?.display_type) {
+			case 'currency': {
+				return {
+					kind: GridCellKind.Number,
+					data: cellValue,
+					allowOverlay: canEdit,
+					displayData:
+						unParsedValue === null
+							? ''
+							: `${column?.configurations?.symbol}${cellValue}`,
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'select': {
+				if (column?.configurations?.multiple) {
+					const allOptions = [
+						...new Set([
+							...(column?.configurations?.options || []),
+							...cellValue.split(',').map((o: any) => ({
+								label: o,
+								value: o,
+							})),
+						]),
+					];
+
+					return {
+						kind: GridCellKind.Custom,
+						allowOverlay: canEdit,
+						data: {
+							kind: 'multi-select-cell',
+							values: cellValue?.split(','),
+							options: allOptions.map((option: any) => ({
+								...option,
+								color: '#cdcdcd',
+							})),
+
+							allowDuplicates: false,
+							allowCreation: false,
+						},
+						readonly: !canEdit,
+						...themeOverride,
+					};
+				}
+
+				const allOptions = [
+					...new Set([
+						...(column?.configurations?.options || []),
+						{ label: cellValue, value: cellValue },
+					]),
+				];
+
+				return {
+					kind: GridCellKind.Custom,
+					allowOverlay: canEdit,
+					data: {
+						kind: 'dropdown-cell',
+						allowedValues: allOptions.map((option: any) => ({
+							...option,
+							color: '#cdcdcd',
+						})),
+						value: cellValue,
+					},
+					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
 			case 'float':
 			case 'integer': {
 				return {
@@ -552,15 +660,27 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		let newValue: any = null;
 
 		if (editedCell.kind === GridCellKind.Custom) {
-			if (editedCell.data.kind === 'date-picker-cell') {
-				if (
-					editedCell?.data?.format === 'datetime-local' ||
-					editedCell?.data?.format === 'date'
-				) {
-					newValue = editedCell?.data?.date?.getTime();
-				} else if (editedCell?.data?.format === 'time') {
-					newValue = getTimeStringFromEpoch(editedCell?.data?.date?.getTime());
+			switch (editedCell.data.kind) {
+				case 'date-picker-cell': {
+					if (
+						editedCell?.data?.format === 'datetime-local' ||
+						editedCell?.data?.format === 'date'
+					) {
+						newValue = editedCell?.data?.date?.getTime();
+					} else if (editedCell?.data?.format === 'time') {
+						newValue = getTimeStringFromEpoch(editedCell?.data?.date?.getTime());
+					}
+					break;
 				}
+				case 'dropdown-cell': {
+					newValue = editedCell?.data?.value;
+					break;
+				}
+				case 'multi-select-cell': {
+					newValue = editedCell?.data?.values?.join(',');
+					break;
+				}
+				default:
 			}
 		} else {
 			newValue = editedCell.data;
@@ -597,7 +717,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							new_value: newValue === undefined ? null : newValue,
 							value: currentRow[column.name],
 							column_name: column.name,
-							column_type: columnDict[column.name].column_type,
+							data_type: columnDict[column.name].data_type,
 							old_value: currentRow[column.name],
 							rowIndex: row,
 							columnIndex: col,
@@ -716,7 +836,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 	const highlights: any = cellEdits.map((edit: any) => {
 		return {
-			color: '#eaeaea',
+			color: '#e5e5e5',
 			range: {
 				x: edit.columnIndex,
 				y: edit.rowIndex,
@@ -808,6 +928,25 @@ export const SmartTable = ({ tableName, provider }: any) => {
 								{isPreview ? null : (
 									<LabelContainer.Code>{tableName}</LabelContainer.Code>
 								)}
+
+								{table?.smart && !isPreview ? (
+									<Box
+										fontSize="xs"
+										px="2"
+										my="1"
+										py="1"
+										borderRadius="sm"
+										borderWidth="1px"
+										borderColor="yellow.400"
+										bg="yellow.50"
+										color="yellow.700"
+										fontWeight="medium"
+										h="fit-content"
+										w="fit-content"
+									>
+										Smart Table
+									</Box>
+								) : null}
 							</LabelContainer>
 
 							{dependantTablesWithNoRowSelection.length > 0 ? (
@@ -888,7 +1027,20 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				</NavLoader>
 
 				<Stack spacing="2">
+					<Popover
+						returnFocusOnClose={false}
+						isOpen={!isPreview && !table?.smart && table?.fetcher && convertPopoverOpen}
+						onClose={closeConvertPopover}
+						placement="top-end"
+						closeOnBlur={false}
+					>
+						<PopoverTrigger>
+							<Box />
+						</PopoverTrigger>
+						{renderPopoverContent()}
+					</Popover>
 					<TableBar />
+
 					<Box
 						// https://linear.app/dropbase/issue/DBA-561/cant-resize-table-columns-whole-table-moves
 						// https://github.com/atlassian/react-beautiful-dnd/issues/1810#issuecomment-1077952496
@@ -903,6 +1055,11 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						minH={heightMap[height] || '3xs'}
 						borderWidth="1px"
 						borderRadius="sm"
+						onDoubleClick={() => {
+							if (!table?.smart && table?.type === 'sql') {
+								openConvertPopover();
+							}
+						}}
 					>
 						{isLoading ? (
 							<Center h="full" as={Stack}>

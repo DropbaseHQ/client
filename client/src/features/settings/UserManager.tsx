@@ -33,15 +33,14 @@ import {
 	Select,
 } from '@chakra-ui/react';
 import { UserMinus, Edit } from 'react-feather';
-import { useQueryClient } from 'react-query';
 import { useAtomValue } from 'jotai';
-
+import { useQueryClient } from 'react-query';
 import {
-	useUpdateUserRole,
 	useGetWorkspaceUsers,
 	GET_WORKSPACE_USERS_QUERY_KEY,
 	useInviteMember,
 	useRemoveMember,
+	useUpdateUserRole,
 } from './hooks/workspace';
 import { workspaceAtom } from '@/features/workspaces';
 import { PageLayout } from '@/layout';
@@ -146,7 +145,7 @@ const UserRow = (item: any) => {
 			<Td>
 				<Flex justifyContent="space-between">
 					{/* <Flex>
-						{item.user?.groups?.map((obj: any) => (
+						{user?.groups?.map((obj: any) => (
 							<Tag size="sm" key={obj?.id}>
 								{obj.name}
 							</Tag>
@@ -163,6 +162,7 @@ const UserRow = (item: any) => {
 								aria-label="Remove Member"
 								size="xs"
 								colorScheme="red"
+								data-cy={`remove-member-${user.email}`}
 								icon={<UserMinus size="18" />}
 							/>
 						</PopoverTrigger>
@@ -215,7 +215,6 @@ export const Users = () => {
 			inviteMemberOnClose();
 		},
 	});
-
 	const handleInviteMember = () => {
 		inviteMemberMutation.mutate({
 			workspaceId: workspaceId || '',
@@ -227,7 +226,13 @@ export const Users = () => {
 		<PageLayout
 			title="Workspace Members"
 			action={
-				<Button colorScheme="blue" size="sm" ml="auto" onClick={inviteMemberOnOpen}>
+				<Button
+					colorScheme="blue"
+					size="sm"
+					ml="auto"
+					data-cy="add-member"
+					onClick={inviteMemberOnOpen}
+				>
 					Add Member
 				</Button>
 			}
@@ -257,6 +262,7 @@ export const Users = () => {
 							<Input
 								placeholder="Member Email"
 								value={newMemberEmail}
+								data-cy="new-member-email"
 								onChange={(e) => {
 									setNewMemberEmail(e.target.value);
 								}}
@@ -264,6 +270,7 @@ export const Users = () => {
 							<Select
 								placeholder="Select role"
 								value={newMemberRole}
+								data-cy="new-member-role"
 								onChange={(e) => {
 									setNewMemberRole(e.target.value);
 								}}
@@ -280,6 +287,7 @@ export const Users = () => {
 						<Button
 							colorScheme="blue"
 							mr={3}
+							data-cy="invite-member"
 							onClick={handleInviteMember}
 							isLoading={inviteMemberMutation.isLoading}
 						>

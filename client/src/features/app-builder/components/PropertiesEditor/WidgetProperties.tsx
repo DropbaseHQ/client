@@ -135,8 +135,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 						direction="row"
 					>
 						<Stack direction="row" alignItems="center">
-							<LabelContainer>
-								<LabelContainer.Label>{widget?.name}</LabelContainer.Label>
+							<LabelContainer data-cy="widget-pane-name">
 								<LabelContainer.Code>{widgetId}</LabelContainer.Code>
 							</LabelContainer>
 
@@ -154,6 +153,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 									aria-label="Update widget"
 									isLoading={mutation.isLoading}
 									type="submit"
+									data-cy="update-widget"
 									onClick={(e) => {
 										e.stopPropagation();
 									}}

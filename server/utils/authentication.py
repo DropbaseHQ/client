@@ -1,4 +1,5 @@
-from fastapi import Depends, HTTPException, status
+import logging
+from fastapi import Depends, HTTPException, status, Request
 from fastapi_jwt_auth import AuthJWT
 from fastapi_jwt_auth.exceptions import JWTDecodeError
 from passlib.context import CryptContext
@@ -7,7 +8,10 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.credentials import ENVIRONMENT
+from server.models import Workspace
 from server.utils.connect import get_db
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseModel):
@@ -54,10 +58,34 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def authenticate_user(db: Session, email: str, password: str):
-    user = crud.user.get_user_by_email(db, email=email)
-    if not user:
-        return False
-    if not verify_password(password, user.hashed_password):
-        return False
-    return user
+def verify_worker_token(request: Request, db: Session = Depends(get_db)):
+    worker_token = request.headers.get("dropbase-token")
+    if worker_token is None:
+        logger.info("Worker token is missing")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Worker token is missing",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    target_token = crud.token.get_token_by_value(db, token=worker_token)
+    if not target_token:
+        logger.info("Invalid worker token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid worker token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if not target_token.is_active:
+        logger.info("Worker token is inactive")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Worker token is inactive",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    workspace: Workspace = crud.workspace.get(db, target_token.workspace_id)
+    return workspace
+
+
+# Path: server/utils/connect.py

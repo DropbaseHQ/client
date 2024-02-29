@@ -11,6 +11,7 @@ from server.models import Policy
 from server.utils.connect import SQLALCHEMY_DATABASE_URL
 from server.utils.permissions.casbin_sqlalchemy_adaptor import Adapter
 
+# from server.utils.authorization import RESOURCES
 from server.constants import ALLOWED_ACTIONS
 
 adapter = Adapter(SQLALCHEMY_DATABASE_URL, db_class=Policy)
@@ -166,7 +167,7 @@ def unload_policy_line(line, model):
 
 
 def get_all_action_permissions(
-    db: Session, user_id: str, workspace_id: str, app_id: str
+    db: Session, user_id: str, workspace_id: str, app_id: str = None
 ):
     enforcer = get_contexted_enforcer(db, workspace_id)
     workspace = crud.workspace.get_object_by_id_or_404(db, id=workspace_id)
@@ -175,14 +176,16 @@ def get_all_action_permissions(
         "@dropbase.io"
     )
 
-    permissions_dict = {}
+    permissions_dict = {"workspace_permissions": {}, "app_permissions": {}}
     # Go through allowed actions and check if user has permission to perform action on resource
     for action in ALLOWED_ACTIONS:
-        if app_id not in permissions_dict:
-            permissions_dict[action] = False
+        if enforcer.enforce(str(user_id), "workspace", action):
+            permissions_dict["workspace_permissions"][action] = True
+        if app_id not in permissions_dict["app_permissions"]:
+            permissions_dict["app_permissions"][action] = False
         if can_use_granular_permissions:
             if enforcer.enforce(str(user_id), app_id, action):
-                permissions_dict[action] = True
+                permissions_dict["app_permissions"][action] = True
         if enforcer.enforce(str(user_id), "app", action):
-            permissions_dict[action] = True
+            permissions_dict["app_permissions"][action] = True
     return permissions_dict

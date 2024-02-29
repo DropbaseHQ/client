@@ -74,16 +74,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 	const handleChangeAppLabel = (e: any) => {
 		const newLabel = e.target.value;
-
-		// setInvalidMessage(
-		// 	invalidResourceName(
-		// 		app?.label || '',
-		// 		newLabel,
-		// 		apps.map((a) => a.label),
-		// 		false,
-		// 	),
-		// );
-
 		setAppLabel(newLabel);
 	};
 
@@ -103,13 +93,16 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 	const handleCreatePage = () => {
 		if (appName) {
+			const { name: newPageName, label: newPageLabel } = generateSequentialName({
+				currentNames: app?.pages.map((p: any) => p.name) || [],
+				prefix: 'page',
+			});
+
 			createPageMutation.mutate(
 				{
 					appName,
-					pageName: generateSequentialName({
-						currentNames: app?.pages.map((p: any) => p.name) || [],
-						prefix: 'page',
-					})?.name,
+					pageName: newPageName,
+					pageLabel: newPageLabel,
 				},
 				{
 					onSuccess: (_, variables: any) => {
@@ -266,6 +259,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 							ml="auto"
 							mr="4"
 							as={Link}
+							data-cy="preview-toggle"
 							to={isPreview ? 'studio' : '../'}
 						>
 							{isPreview ? 'Edit' : 'Preview'}

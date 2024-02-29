@@ -1,17 +1,18 @@
 import Axios from 'axios';
+import { getWorkerURL } from '@/utils/url';
 
 export const axios = Axios.create({
 	baseURL: import.meta.env.VITE_API_ENDPOINT,
 });
-if (localStorage.getItem('access_token')) {
-	axios.defaults.headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
-}
 
 export const workerAxios = Axios.create({
-	baseURL: `${import.meta.env.VITE_WORKER_API_ENDPOINT}`,
+	baseURL: getWorkerURL(),
 	withCredentials: true,
 });
-
+if (localStorage.getItem('access_token')) {
+	axios.defaults.headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
+	workerAxios.defaults.headers['access-token'] = localStorage.getItem('access_token');
+}
 export const setAxiosToken = (token: string | null) => {
 	axios.defaults.headers.Authorization = token ? `Bearer ${token}` : null;
 };
@@ -66,7 +67,8 @@ axios.interceptors.response.use(
 							window.location.pathname.includes('/register') ||
 							window.location.pathname.includes('/email-confirmation') ||
 							window.location.pathname.includes('/forgot') ||
-							window.location.pathname.includes('/reset')
+							window.location.pathname.includes('/reset') ||
+							window.location.pathname.includes('/github_auth')
 						)
 					) {
 						window.location.href = '/login';

@@ -15,6 +15,8 @@ import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { allWidgetsInputAtom, tableColumnTypesAtom, tableStateAtom } from '@/features/app-state';
 
+const NUMBER_TYPES = ['number', 'integer', 'float'];
+const DATETIME_TYPES = ['datetime', 'date', 'time'];
 const OPERATORS = [
 	{
 		name: 'Equal to',
@@ -105,6 +107,7 @@ const TargetSelector = ({
 				<AutoCompleteInput
 					size="sm"
 					value={editTarget}
+					data-cy="display-rule-target"
 					borderWidth={!targetExists() ? '2px' : null}
 					borderColor={!targetExists() ? 'orange.300' : null}
 					onChange={(e: any) => {
@@ -165,23 +168,35 @@ export const DisplayRulesEditor = ({ name }: any) => {
 		widgetsInputs?.[widgetName as keyof typeof widgetsInputs] || {};
 
 	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
+
 	const { control } = useFormContext();
 
-	const getColType = (target: string) => {
-		if (!target || target === 'widgets') {
-			return 'text';
+	const processColType = (colType: string) => {
+		if (colType === 'boolean') {
+			return 'select';
 		}
+		return colType;
+	};
+
+	const componentsProperties = components
+		.filter(
+			(c: any) =>
+				c.name !== name &&
+				(c.component_type === 'select' ||
+					c.component_type === 'input' ||
+					c.component_type === 'boolean'),
+		)
+		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
+	const getColType = (target: string) => {
+		if (!target) return 'text';
+
+		const componentProperty = componentsProperties?.[target.split('.')[2]];
+		if (target.includes('widgets')) return componentProperty?.data_type;
+
 		const [, specificCategory, targetName] = target.split('.');
 		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
 		return table?.[targetName as keyof typeof table];
 	};
-	const componentsProperties = components
-		.filter(
-			(c: any) =>
-				c.name !== name && (c.component_type === 'select' || c.component_type === 'input'),
-		)
-		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
-
 	const tableTargets = useMemo(() => {
 		return Object.keys(tableState)
 			.map((tableName: any) => {
@@ -232,24 +247,15 @@ export const DisplayRulesEditor = ({ name }: any) => {
 					return (
 						<Stack spacing="2.5">
 							{displayRules.map((rule: any, index: any) => {
-								const componentProperty = componentsProperties?.[rule?.name];
-								let isNumberInput = false;
-								let input: any = {
-									type: 'text',
-								};
+								let usesComparatorOps = false;
 
-								if (componentProperty?.type === 'input') {
-									if (componentProperty?.property?.type === 'number') {
-										input = {
-											type: 'number',
-										};
-										isNumberInput = true;
-									}
-								} else if (componentProperty?.type === 'select') {
-									input = {
-										type: 'select',
-										options: componentProperty?.property?.options || [],
-									};
+								const targetType = getColType(rule.target);
+
+								if (
+									NUMBER_TYPES.includes(targetType) ||
+									DATETIME_TYPES.includes(targetType)
+								) {
+									usesComparatorOps = true;
 								}
 
 								return (
@@ -319,10 +325,11 @@ export const DisplayRulesEditor = ({ name }: any) => {
 													value={rule.operator}
 													options={[
 														...OPERATORS,
-														...(isNumberInput
+														...(usesComparatorOps
 															? COMPERATOR_OPERATORS
 															: []),
 													]}
+													data-cy="display-rule-operator"
 													onChange={(newValue: any) => {
 														onChange(
 															displayRules.map((r: any) => {
@@ -357,9 +364,25 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														flex="1"
 														disabled={!rule.target}
 														placeholder="select value"
-														{...input}
-														type={getColType(rule.target)}
+														type={processColType(
+															getColType(rule.target),
+														)}
 														value={rule.value}
+														options={
+															getColType(rule.target) === 'boolean'
+																? [
+																		{
+																			name: 'True',
+																			value: true,
+																		},
+																		{
+																			name: 'False',
+																			value: false,
+																		},
+																  ]
+																: null
+														}
+														data-cy="display-rule-value"
 														onChange={(newValue: any) => {
 															onChange(
 																displayRules.map((r: any) => {
@@ -406,6 +429,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 								leftIcon={<Plus size="14" />}
 								variant="outline"
 								colorScheme="gray"
+								data-cy="add-display-rule"
 								onClick={() => {
 									onChange(
 										displayRules?.length > 0

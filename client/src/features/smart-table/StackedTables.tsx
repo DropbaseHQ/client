@@ -60,7 +60,8 @@ export const StackedTables = () => {
 						ref={provided.innerRef}
 						bg="white"
 						spacing="8"
-						p="4"
+						px="4"
+						py="2"
 						h="full"
 						overflow="auto"
 						{...provided.droppableProps}

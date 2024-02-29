@@ -16,13 +16,16 @@ class BaseUser(BaseModel):
         orm_mode = True
 
 
-class CreateUser(BaseUser):
+class CreateUser(BaseModel):
     name: str
+    last_name: Optional[str]
+    company: Optional[str]
     email: str
-    hashed_password: str
+    hashed_password: Optional[str]
     active: bool = False
     trial_eligible: bool = True
     confirmation_token: Optional[str]
+    social_login: Optional[str]
 
 
 class ReadUser(BaseModel):
@@ -47,8 +50,18 @@ class LoginUser(BaseModel):
     password: str
 
 
+class LoginGoogleUser(BaseModel):
+    credential: str
+
+
+class CreateGoogleUserRequest(BaseModel):
+    credential: str
+
+
 class CreateUserRequest(BaseModel):
     name: str
+    last_name: Optional[str]
+    company: str
     email: str
     password: str
 
@@ -89,4 +102,3 @@ class RequestResetPassword(BaseModel):
 
 class CheckPermissionRequest(BaseModel):
     app_id: str
-    workspace_id: str

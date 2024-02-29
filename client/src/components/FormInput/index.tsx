@@ -67,10 +67,12 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		type,
 		onSelect,
 		options: selectOptions,
+		keys,
+		hideClearOption,
 		...inputProps
 	} = props;
 
-	if (type === 'number' || type === 'integer') {
+	if (type === 'number' || type === 'integer' || type === 'float') {
 		return (
 			<NumberInput
 				onChange={(_, valueAsNumber) => {
@@ -79,6 +81,8 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				size="sm"
 				onBlur={onBlur}
 				value={value === null ? '' : value}
+				precision={2}
+				step={type === 'integer' ? 1 : 0.01}
 				{...inputProps}
 			>
 				<NumberInputField ref={ref} h="9" />
@@ -148,7 +152,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							</Box>
 						</Stack>
 					</MenuButton>
-					{value ? (
+					{value && !hideClearOption ? (
 						<Button
 							onClick={() => {
 								onChange(null);
@@ -178,19 +182,20 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							</Center>
 						) : (
 							<MenuOptionGroup
-								defaultValue={value}
+								value={value}
 								onChange={(newValue) => {
 									onChange(newValue);
 									onSelect?.(newValue);
 								}}
 								type="radio"
 							>
-								{allOptions.map((option: any) => (
+								{allOptions.map((option: any, index: number) => (
 									<MenuItemOption
 										icon={option?.icon}
 										fontSize="sm"
 										key={option.name}
 										value={option.value}
+										data-cy={`select-option-${index}`}
 									>
 										{option?.render
 											? option?.render(option?.value === value)
@@ -207,57 +212,45 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 
 	if (type === 'array') {
 		const optionsToRender = value || [];
+		const keysToRender = keys || ['name', 'value'];
 
 		return (
 			<Stack spacing="2">
 				<Stack fontSize="xs" fontWeight="medium" letterSpacing="wide" direction="row">
-					<Box flex="1">Name</Box>
-					<Box flex="1">Value</Box>
+					{keysToRender.map((key: any) => (
+						<Box key={key} flex="1">
+							{key}
+						</Box>
+					))}
 					<Box minW="8" />
 				</Stack>
 
 				{optionsToRender.map((option: any) => {
 					return (
 						<Stack alignItems="center" key={option.id} direction="row">
-							<Input
-								size="sm"
-								flex="1"
-								placeholder="name"
-								value={option.name}
-								onChange={(e) => {
-									onChange(
-										optionsToRender.map((o: any) => {
-											if (o.id === option.id) {
-												return {
-													...o,
-													name: e.target.value,
-													value: e.target.value,
-												};
-											}
-											return o;
-										}),
-									);
-								}}
-							/>
-							<Input
-								size="sm"
-								flex="1"
-								placeholder="value"
-								value={option.value}
-								onChange={(e) => {
-									onChange(
-										optionsToRender.map((o: any) => {
-											if (o.id === option.id) {
-												return {
-													...o,
-													value: e.target.value,
-												};
-											}
-											return o;
-										}),
-									);
-								}}
-							/>
+							{keysToRender.map((key: any) => (
+								<Input
+									size="sm"
+									flex="1"
+									key={key}
+									placeholder={key}
+									value={option?.[key]}
+									onChange={(e) => {
+										onChange(
+											optionsToRender.map((o: any) => {
+												if (o.id === option.id) {
+													return {
+														...o,
+														[key]: e.target.value,
+													};
+												}
+												return o;
+											}),
+										);
+									}}
+								/>
+							))}
+
 							<IconButton
 								aria-label="Delete"
 								icon={<Trash size="14" />}
@@ -282,11 +275,15 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					onClick={() => {
 						onChange([
 							...optionsToRender,
-							{
-								name: `option${optionsToRender.length + 1}`,
-								value: `value${optionsToRender.length + 1}`,
-								id: crypto.randomUUID(),
-							},
+							keysToRender.reduce(
+								(agg: any, key: any) => ({
+									...agg,
+									[key]: `${key}${optionsToRender.length + 1}`,
+								}),
+								{
+									id: crypto.randomUUID(),
+								},
+							),
 						]);
 					}}
 				>
@@ -311,7 +308,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							key={v}
 							size="sm"
 						>
-							{v}
+							{allOptions.find((o: any) => o.value === v)?.name || v}
 						</Badge>
 					))}
 				</Stack>
@@ -379,7 +376,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							{allOptions.map((option: any) => (
 								<MenuItemOption
 									fontSize="sm"
-									key={option.name}
+									key={option.value}
 									value={option.value}
 								>
 									{option.name}
@@ -503,6 +500,7 @@ export const FormInput = ({
 				type={type}
 				options={selectOptions}
 				validation={validation}
+				data-cy={`property-${name}`}
 				{...inputProps}
 			/>
 			<ErrorMessage

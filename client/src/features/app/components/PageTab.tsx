@@ -66,14 +66,6 @@ export const PageTab = (props: any) => {
 		const newName = e.target.value;
 
 		setPageNameEdit(newName);
-
-		// setInvalidMessage(
-		// 	invalidResourceName(
-		// 		pageName || '',
-		// 		newName,
-		// 		pages.map((p: any) => p.name),
-		// 	),
-		// );
 	};
 
 	const handleRenamePage = () => {
@@ -90,11 +82,6 @@ export const PageTab = (props: any) => {
 							status: 'success',
 							title: 'Page renamed',
 						});
-						// if (isPreview) {
-						// 	navigate(`../${variables.newPageName}`, { relative: 'path' });
-						// } else {
-						// 	navigate(`../../${variables.newPageName}/studio`, { relative: 'path' });
-						// }
 					},
 					onError: (error: any) => {
 						toast({
@@ -159,7 +146,7 @@ export const PageTab = (props: any) => {
 			<Flex align="center" justifyContent="center" h="24px">
 				<Box fontWeight="semibold">{page?.label}</Box>
 				{!isPreview && (
-					<Code fontSize="xs" bg="transparent" color="gray" ml="3">
+					<Code fontSize="xs" bg="transparent" ml="3">
 						{page?.name}
 					</Code>
 				)}
@@ -216,8 +203,10 @@ export const PageTab = (props: any) => {
 												size="sm"
 												placeholder="Page name"
 												value={pageNameEdit}
+												autoFocus
 												onChange={handleChangePageName}
 												onKeyDown={(e) => {
+													e.stopPropagation();
 													if (e.key === 'Enter') {
 														handleRenamePage();
 													}

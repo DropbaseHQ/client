@@ -25,9 +25,10 @@ import { InspectorContainer } from '@/features/app-builder';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
 import { appModeAtom, websocketStatusAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
+import { getWebSocketURL } from '@/utils/url';
 
 // websocket
-export const SOCKET_URL = `${import.meta.env.VITE_WORKER_WS_ENDPOINT}/ws`;
+export const SOCKET_URL = getWebSocketURL();
 
 export const WidgetPreview = ({ widgetName }: any) => {
 	const { appName, pageName } = useParams();
@@ -235,6 +236,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 								pt="2"
 								h="full"
 								overflow="auto"
+								data-cy="components-list"
 								spacing="3"
 								{...provided.droppableProps}
 							>
@@ -247,6 +249,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 													key={c.name}
 													id={c.name}
 													type="component"
+													data-cy={`component-${c.name}-inspector`}
 													{...p.draggableProps}
 													{...p.dragHandleProps}
 												>

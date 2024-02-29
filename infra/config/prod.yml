@@ -7,7 +7,7 @@ environment_variables:
   ENVIRONMENT: production
   AWS_REGION: us-east-1
   OPENAI_ORG_ID: org-1OgmJLbPOnqo0ek9HpUMA8cN
-  OPENAI_API_KEY: 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
+  OPENAI_API_KEY: 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
   ENCRYPT_SECRET: dropbase
   CLIENT_URL: https://app.dropbase.io
   LOOPS_API_KEY: 771ca36f885accd66ab864342acabf6b

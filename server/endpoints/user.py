@@ -1,7 +1,7 @@
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 
@@ -10,8 +10,10 @@ from server.controllers.user import get_user_permissions, user_controller
 from server.models import User
 from server.schemas.user import (
     AddPolicyRequest,
+    CreateGoogleUserRequest,
     CreateUser,
     CreateUserRequest,
+    LoginGoogleUser,
     LoginUser,
     RequestResetPassword,
     ResendConfirmationEmailRequest,
@@ -41,6 +43,15 @@ def register_user(request: CreateUserRequest, db: Session = Depends(get_db)):
     return user_controller.register_user(db, request)
 
 
+@router.post("/registerGoogle")
+def register_google_user(
+    request: CreateGoogleUserRequest,
+    db: Session = Depends(get_db),
+    Authorize: AuthJWT = Depends(),
+):
+    return user_controller.register_google_user(db, Authorize, request)
+
+
 @router.post("/verify")
 def verify_user(token: str, user_id: UUID, db: Session = Depends(get_db)):
     return user_controller.verify_user(db, token, user_id)
@@ -58,6 +69,15 @@ def login_user(
     request: LoginUser, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()
 ):
     return user_controller.login_user(db, Authorize, request)
+
+
+@router.post("/loginGoogle")
+def login_google_user(
+    request: LoginGoogleUser,
+    db: Session = Depends(get_db),
+    Authorize: AuthJWT = Depends(),
+):
+    return user_controller.login_google_user(db, Authorize, request)
 
 
 @router.delete("/logout")
@@ -140,3 +160,10 @@ def check_permission(
     user: User = Depends(get_current_user),
 ):
     return user_controller.check_permissions(db, user, request)
+
+
+@router.get("/github_auth/{code}")
+def github_auth(
+    code: str, db: Session = Depends(get_db), Authorize: AuthJWT = Depends()
+):
+    return user_controller.github_auth(db, Authorize, code)

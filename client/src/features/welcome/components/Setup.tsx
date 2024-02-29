@@ -74,7 +74,7 @@ export const Setup = () => {
 	const { user } = useGetCurrentUser();
 
 	const { tokens } = useProxyTokens({ userId: user.id, workspaceId });
-	const selectedToken = tokens?.find((t: any) => t.is_selected);
+	const firstToken = tokens[0] || { token: '' };
 	return (
 		<OrderedList spacing={6}>
 			<ListItem>
@@ -107,14 +107,17 @@ export const Setup = () => {
 					</Text>
 					<CodeSnippet
 						file=".env"
-						code={`DROPBASE_TOKEN='${selectedToken?.token}'\nDROPBASE_API_URL='https://api.dropbase.io'`}
+						code={`DROPBASE_TOKEN='${firstToken?.token}'\nDROPBASE_API_URL='https://api.dropbase.io'`}
 					/>
 				</Stack>
 			</ListItem>
 			<ListItem>
 				<Stack>
 					<Text>In your terminal, run the docker compose command at the root</Text>
-					<CodeSnippet code="docker-compose up" />
+					<CodeSnippet
+						code="chmod +x start.sh
+./start.sh"
+					/>
 				</Stack>
 			</ListItem>
 			<ListItem>

@@ -1,22 +1,17 @@
 import {
 	Box,
-	Button,
-	ButtonGroup,
 	IconButton,
 	Popover,
-	PopoverBody,
-	PopoverCloseButton,
-	PopoverContent,
-	PopoverFooter,
-	PopoverHeader,
 	PopoverTrigger,
+	Spinner,
 	Stack,
 	Tooltip,
-	useDisclosure,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 
-import { Save, Zap } from 'react-feather';
+import { useIsMutating } from 'react-query';
+
+import { Save } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useCurrentTableData, useCurrentTableName, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
@@ -26,20 +21,23 @@ import { getErrorMessage } from '@/utils';
 import { FilterButton } from './Filters';
 import { SortButton } from './Sorts';
 import { PinnedFilters } from './PinnedFilters';
-import { useConvertSmartTable, useGetTable } from '@/features/app-builder/hooks';
+import { CONVERT_MUTATION, useGetTable } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
-import { newPageStateAtom } from '@/features/app-state';
+
 import { appModeAtom } from '@/features/app/atoms';
+import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
 
 export const TableBar = () => {
 	const toast = useToast();
 
 	const tableName = useCurrentTableName();
 
-	const { isOpen, onOpen, onClose } = useDisclosure();
+	const { onOpen, onClose, isOpen, renderPopoverContent } = useConvertPopover(tableName);
 
 	const { isPreview } = useAtomValue(appModeAtom);
-	const { fetcher, type: tableType, smart: isSmartTable, table } = useGetTable(tableName || '');
+	const { fetcher, type: tableType, smart: isSmartTable } = useGetTable(tableName || '');
+
+	const isConvertingTable = useIsMutating({ mutationKey: `${CONVERT_MUTATION}-${tableName}` });
 
 	const { appName, pageName } = useParams();
 	const { files } = useGetPage({ appName, pageName });
@@ -49,33 +47,6 @@ export const TableBar = () => {
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
 	const cellEdits = allCellEdits[tableName] || [];
-
-	const pageState = useAtomValue(newPageStateAtom);
-
-	const convertMutation = useConvertSmartTable({
-		onSuccess: () => {
-			toast({
-				status: 'success',
-				title: 'SmartTable converted',
-			});
-		},
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to convert table',
-				description: getErrorMessage(error),
-			});
-		},
-	});
-
-	const handleConvert = () => {
-		convertMutation.mutate({
-			table,
-			state: pageState.state,
-			appName,
-			pageName,
-		});
-	};
 
 	const saveEditsMutation = useSaveEdits({
 		onSuccess: () => {
@@ -104,8 +75,8 @@ export const TableBar = () => {
 				edits: cellEdits.map((edit: any) => ({
 					row: rows[edit.rowIndex],
 					column_name: edit.column_name,
-					columns,
-					column_type: edit.column_type,
+					columns: columns.filter((c: any) => c?.column_type !== 'button_column'),
+					data_type: edit.data_type,
 					old_value: edit.old_value,
 					new_value: edit.new_value,
 				})),
@@ -144,30 +115,7 @@ export const TableBar = () => {
 										<SortButton />
 									</Stack>
 								</PopoverTrigger>
-								<PopoverContent zIndex="popover" mt="-2">
-									<PopoverHeader fontWeight="semibold" fontSize="md">
-										Convert to Smart Table
-									</PopoverHeader>
-
-									<PopoverCloseButton size="xs" />
-									<PopoverBody fontSize="sm">
-										Convert to smart table to enable filter, sorts and editing
-										cells
-									</PopoverBody>
-									<PopoverFooter display="flex" justifyContent="flex-end">
-										<ButtonGroup size="sm">
-											<Button
-												isLoading={convertMutation.isLoading}
-												onClick={handleConvert}
-												colorScheme="gray"
-												variant="outline"
-												leftIcon={<Zap size="14" />}
-											>
-												Convert to Smart Table
-											</Button>
-										</ButtonGroup>
-									</PopoverFooter>
-								</PopoverContent>
+								{renderPopoverContent()}
 							</Popover>
 						</Box>
 
@@ -176,6 +124,11 @@ export const TableBar = () => {
 				) : null}
 
 				<Stack direction="row">
+					{isConvertingTable ? (
+						<Tooltip label="Converting to Smart Table">
+							<Spinner mr="2" emptyColor="gray.200" color="yellow.500" size="sm" />
+						</Tooltip>
+					) : null}
 					{cellEdits.length > 0 ? (
 						<Tooltip label="Update">
 							<IconButton
