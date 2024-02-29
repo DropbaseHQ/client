@@ -16,6 +16,16 @@ Sample JSON object value
 }}
 ```
 
+However, if "Database schema" has a field called "database" rather than "schema", than do not output the "schema_name" field, instead replace it with the "database_name" field
+```json
+{{
+        "name": "output column",
+        "database_name": "public",
+        "table_name": "customer",
+        "column_name": "name"
+}}
+```
+
 In the sample JSON, "output column" is the column name as it would be output when executing the SQL statement.
 You will be provided a list of column names that will be returned by the query. Your job is to, for each column name, determine its schema_name, table_name, and column_name based on the SQL query. You may only return information on the columns specified in Column names. You must return information on each of the columns specified in Column names.
 "table" is the table name and "column" is the column name, both are inferred from the SQL query.
@@ -39,5 +49,5 @@ Column names:
 {column_names}
 ```
 
-Output no prose, no explanations, just JSON. Exclude calculated columns from the JSON output. Don't format output. Ensure that the output is one JSON object not multiple. Furthermore label the output column the actual column name don't just call it "output column"
+Output no prose, no explanations, just JSON. Exclude calculated columns from the JSON output. Don't format output. Ensure that the output is one JSON object not multiple. Furthermore label the output column the actual column name don't just call it "output column". 
 """
