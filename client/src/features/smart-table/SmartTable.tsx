@@ -509,7 +509,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							values: cellValue?.split(','),
 							options: allOptions.map((option: any) => ({
 								...option,
-								color: theme.colors.gray['100'],
+								color: '#cdcdcd',
 							})),
 
 							allowDuplicates: false,
@@ -534,7 +534,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						kind: 'dropdown-cell',
 						allowedValues: allOptions.map((option: any) => ({
 							...option,
-							color: theme.colors.gray['100'],
+							color: '#cdcdcd',
 						})),
 						value: cellValue,
 					},
@@ -836,7 +836,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 	const highlights: any = cellEdits.map((edit: any) => {
 		return {
-			color: '#eaeaea',
+			color: '#e5e5e5',
 			range: {
 				x: edit.columnIndex,
 				y: edit.rowIndex,
