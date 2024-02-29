@@ -25,10 +25,10 @@ import { InspectorContainer } from '@/features/app-builder';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
 import { appModeAtom, websocketStatusAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
-import { getWorkerURL } from '@/utils/url';
+import { getWebSocketURL } from '@/utils/url';
 
 // websocket
-export const SOCKET_URL = `${getWorkerURL()}/ws`;
+export const SOCKET_URL = getWebSocketURL();
 
 export const WidgetPreview = ({ widgetName }: any) => {
 	const { appName, pageName } = useParams();
@@ -249,6 +249,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 													key={c.name}
 													id={c.name}
 													type="component"
+													data-cy={`component-${c.name}-inspector`}
 													{...p.draggableProps}
 													{...p.dragHandleProps}
 												>

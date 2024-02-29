@@ -50,6 +50,12 @@ Cypress.Commands.add('chooseWorkspace', (workspaceOwner: string) => {
 	cy.get(`[data-cy='workspace-${workspaceOwner}']`).contains(workspaceOwner).click();
 });
 
+Cypress.Commands.add('loginAndChooseWorkspace', (email: string, password: string) => {
+	cy.login(email, password);
+	cy.chooseWorkspace(email);
+	cy.visit('http://localhost:3030/apps');
+});
+
 Cypress.Commands.add('createApp', (appName: string) => {
 	cy.get("[data-cy='create-app-button']").click();
 	cy.get("[data-cy='app-name']").type(appName);
@@ -69,6 +75,15 @@ Cypress.Commands.add('createSQLFunction', (functionName?: string) => {
 	cy.get("[data-cy='file-type']").click();
 	cy.wait(200);
 	cy.get("[data-cy='select-option-0']").click({ force: true });
+	cy.get("[data-cy='confirm-create-file']").click();
+});
+Cypress.Commands.add('createPythonFunction', (functionName?: string) => {
+	cy.get("[data-cy='create-file-button']").click();
+	cy.get("[data-cy='file-type']").click();
+	cy.wait(200);
+	cy.get("[data-cy='select-option-1']").click({ force: true });
+	cy.wait(200);
+
 	cy.get("[data-cy='confirm-create-file']").click();
 });
 

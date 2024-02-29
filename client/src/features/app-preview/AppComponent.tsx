@@ -9,6 +9,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
+import { useEffect } from 'react';
 import { extractTemplateString, getErrorMessage } from '@/utils';
 
 import { useExecuteAction } from '@/features/app-preview/hooks';
@@ -44,6 +45,7 @@ export const AppComponent = (props: any) => {
 		display_rules: displayRules,
 		color,
 		on_click: onClick,
+		default: defaultValue,
 		...component
 	} = props;
 
@@ -55,6 +57,21 @@ export const AppComponent = (props: any) => {
 
 	const inputValues: any = useAtomValue(allWidgetsInputAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
+
+	useEffect(() => {
+		/**
+		 * Set default values to component
+		 */
+		if (defaultValue !== null && defaultValue !== undefined && name) {
+			const timeoutId = setTimeout(() => {
+				setWidgetComponentValues({
+					[name]: defaultValue,
+				});
+
+				clearTimeout(timeoutId);
+			}, 100);
+		}
+	}, [defaultValue, name, setWidgetComponentValues]);
 
 	const syncState = useSyncState();
 
@@ -192,6 +209,7 @@ export const AppComponent = (props: any) => {
 					placeholder={placeholder}
 					value={inputValue}
 					name={name}
+					data-cy={`input-${name}`}
 					type={inputType}
 					onChange={(newValue: any) => {
 						setWidgetComponentValues({

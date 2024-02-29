@@ -55,7 +55,13 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const {
 		formState: { isDirty },
 		reset,
+		watch,
 	} = methods;
+
+	const dataType = watch('data_type');
+	const componentType = watch('component_type');
+	const multiple = watch('multiple');
+	const options = watch('options');
 
 	const updateMutation = useUpdatePageData({
 		onSuccess: () => {
@@ -214,6 +220,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 									aria-label="Update component"
 									isLoading={updateMutation.isLoading}
 									type="submit"
+									data-cy="update-component"
 									onClick={(e) => {
 										e.stopPropagation();
 									}}
@@ -263,15 +270,24 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												return null;
 											}
 
-											// FIXME: just for testing
-											if (property?.name === 'label') {
+											if (property.name === 'default') {
+												let inputType = dataType;
+
+												if (componentType === 'select') {
+													inputType = 'select';
+
+													if (multiple) {
+														inputType = 'multiselect';
+													}
+												}
+
 												return (
 													<FormInput
 														{...property}
 														id={property.name}
 														name={property.title}
-														type="template" // TODO: update backend to have this
-														key={property.name}
+														type={inputType}
+														options={options}
 													/>
 												);
 											}
