@@ -127,11 +127,15 @@ const convertToSmartTable = async ({ table, state, appName, pageName }: any) => 
 	return response.data;
 };
 
-export const useConvertSmartTable = (props: any = {}) => {
+export const CONVERT_MUTATION = 'convertMutation';
+
+export const useConvertSmartTable = (allProps: any = {}) => {
 	const queryClient = useQueryClient();
+	const { table, ...props } = allProps;
 
 	return useMutation(convertToSmartTable, {
 		...props,
+		mutationKey: `${CONVERT_MUTATION}-${table}`,
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);

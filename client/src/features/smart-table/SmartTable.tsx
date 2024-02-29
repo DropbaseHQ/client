@@ -7,6 +7,8 @@ import {
 	Button,
 	Center,
 	IconButton,
+	Popover,
+	PopoverTrigger,
 	Spinner,
 	Stack,
 	Text,
@@ -63,6 +65,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 import { LabelContainer } from '@/components/LabelContainer';
 import { useEvent } from '@/features/app-preview/hooks';
+import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -98,6 +101,13 @@ export const SmartTable = ({ tableName, provider }: any) => {
 	const tableColumnWidth = allTableColumnWidth?.[tableName];
 
 	const { properties } = useGetPage({ appName, pageName });
+
+	const {
+		renderPopoverContent,
+		onOpen: openConvertPopover,
+		onClose: closeConvertPopover,
+		isOpen: convertPopoverOpen,
+	} = useConvertPopover(tableName);
 
 	const {
 		isLoading,
@@ -1017,7 +1027,20 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				</NavLoader>
 
 				<Stack spacing="2">
+					<Popover
+						returnFocusOnClose={false}
+						isOpen={!isPreview && !table?.smart && table?.fetcher && convertPopoverOpen}
+						onClose={closeConvertPopover}
+						placement="top-end"
+						closeOnBlur={false}
+					>
+						<PopoverTrigger>
+							<Box />
+						</PopoverTrigger>
+						{renderPopoverContent()}
+					</Popover>
 					<TableBar />
+
 					<Box
 						// https://linear.app/dropbase/issue/DBA-561/cant-resize-table-columns-whole-table-moves
 						// https://github.com/atlassian/react-beautiful-dnd/issues/1810#issuecomment-1077952496
@@ -1032,6 +1055,11 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						minH={heightMap[height] || '3xs'}
 						borderWidth="1px"
 						borderRadius="sm"
+						onDoubleClick={() => {
+							if (!table?.smart && table?.type === 'sql') {
+								openConvertPopover();
+							}
+						}}
 					>
 						{isLoading ? (
 							<Center h="full" as={Stack}>
