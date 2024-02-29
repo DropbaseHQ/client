@@ -6,7 +6,9 @@ import {
 	Tr,
 	Th,
 	Td,
+	Tag,
 	Button,
+	Box,
 	Modal,
 	ModalOverlay,
 	ModalContent,
@@ -31,8 +33,9 @@ import {
 	IconButton,
 	HStack,
 	Select,
+	Stack,
 } from '@chakra-ui/react';
-import { UserMinus, Edit } from 'react-feather';
+import { UserMinus } from 'react-feather';
 import { useAtomValue } from 'jotai';
 import { useQueryClient } from 'react-query';
 import {
@@ -44,7 +47,6 @@ import {
 } from './hooks/workspace';
 import { workspaceAtom } from '@/features/workspaces';
 import { PageLayout } from '@/layout';
-
 // Will get this from the server later
 const ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
 const DEV_UUID = '00000000-0000-0000-0000-000000000002';
@@ -59,7 +61,6 @@ const UserRow = (item: any) => {
 	const [newRole, setNewRole] = useState(user.role_id);
 
 	const { isOpen: isOpenRemove, onOpen: onOpenRemove, onClose: onCloseRemove } = useDisclosure();
-	const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
 	const removeMemberMutation = useRemoveMember({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
@@ -79,78 +80,45 @@ const UserRow = (item: any) => {
 			workspaceId,
 		});
 	};
-	const handleChangeRole = () => {
+	const handleChangeRole = (newValue: string) => {
+		setNewRole(newValue);
 		changeUserRoleMutation.mutate({
 			userId: user.id,
 			workspaceId,
-			roleId: newRole,
+			roleId: newValue,
 		});
 	};
 
 	return (
 		<Tr key={user.id}>
-			<Td>{user.email}</Td>
-			<Td>
+			<Td border="1px" borderColor="gray.200" w="min-content">
+				{user.email}
+			</Td>
+			<Td border="1px" borderColor="gray.200">
 				<HStack spacing="6">
-					<Text>{user.role_name}</Text>
-					<Popover
-						isOpen={isOpenEdit}
-						onClose={onCloseEdit}
-						onOpen={onOpenEdit}
-						placement="right"
+					<Select
+						size="sm"
+						value={newRole}
+						onChange={(e) => handleChangeRole(e.target.value)}
 					>
-						<PopoverTrigger>
-							<IconButton
-								aria-label="Edit Role"
-								size="xs"
-								p="0"
-								variant="outline"
-								icon={<Edit size="14" />}
-							/>
-						</PopoverTrigger>
-						<PopoverContent>
-							<PopoverArrow />
-							<PopoverCloseButton />
-							<PopoverHeader>Change member role</PopoverHeader>
-							<PopoverBody>
-								<Select
-									size="sm"
-									value={newRole}
-									onChange={(e) => setNewRole(e.target.value)}
-								>
-									<option value={ADMIN_UUID}>Admin</option>
-									<option value={DEV_UUID}>Dev</option>
-									<option value={USER_UUID}>User</option>
-									<option value={MEMBER_UUID}>Member</option>
-								</Select>
-							</PopoverBody>
-							<PopoverFooter display="flex" justifyContent="flex-end">
-								<ButtonGroup size="sm">
-									<Button
-										colorScheme="blue"
-										onClick={handleChangeRole}
-										isLoading={changeUserRoleMutation.isLoading}
-									>
-										Change
-									</Button>
-									<Button variant="outline" onClick={onCloseEdit}>
-										Cancel
-									</Button>
-								</ButtonGroup>
-							</PopoverFooter>
-						</PopoverContent>
-					</Popover>
+						<option value={ADMIN_UUID}>Admin</option>
+						<option value={DEV_UUID}>Dev</option>
+						<option value={USER_UUID}>User</option>
+						<option value={MEMBER_UUID}>Member</option>
+					</Select>
 				</HStack>
 			</Td>
-			<Td>
+			<Td border="1px" borderColor="gray.200">
+				<Flex>
+					{user?.groups?.map((obj: any) => (
+						<Tag size="sm" key={obj?.id}>
+							{obj.name}
+						</Tag>
+					))}
+				</Flex>
+			</Td>
+			<Td border="1px" borderColor="gray.200">
 				<Flex justifyContent="space-between">
-					{/* <Flex>
-						{user?.groups?.map((obj: any) => (
-							<Tag size="sm" key={obj?.id}>
-								{obj.name}
-							</Tag>
-						))}
-					</Flex> */}
 					<Popover
 						isOpen={isOpenRemove}
 						onClose={onCloseRemove}
@@ -194,11 +162,47 @@ const UserRow = (item: any) => {
 		</Tr>
 	);
 };
+
+const MemberFilter = ({
+	name,
+	operator,
+	value,
+	onChange,
+}: {
+	name: string;
+	operator: string;
+	value: string;
+	onChange: (e: any) => void;
+}) => {
+	return (
+		<Flex fontSize="sm" borderWidth="1px" borderRadius="sm" justifyContent="center">
+			<Box h="full" py="1" px="3" display="flex" alignItems="center" borderRightWidth="1px">
+				{name}
+			</Box>
+			<Box h="full" py="1" px="3" display="flex" alignItems="center" borderRightWidth="1px">
+				{operator}
+			</Box>
+			<Input
+				value={value}
+				onChange={(e) => onChange(e.target.value)}
+				placeholder="Search"
+				size="sm"
+				colorScheme="blue"
+				borderWidth="0"
+			/>
+		</Flex>
+	);
+};
+
 export const Users = () => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 
 	const [newMemberEmail, setNewMemberEmail] = useState('');
 	const [newMemberRole, setNewMemberRole] = useState(MEMBER_UUID);
+
+	const [emailFilter, setEmailFilter] = useState('');
+	const [roleFilter, setRoleFilter] = useState('');
+	const [groupFilter, setGroupFilter] = useState('');
 
 	const queryClient = useQueryClient();
 	const { users } = useGetWorkspaceUsers();
@@ -222,6 +226,24 @@ export const Users = () => {
 			roleId: newMemberRole,
 		});
 	};
+
+	const filteredUsers = users.filter((user: any) => {
+		// If empty emailMatch will be true
+		const emailMatch = emailFilter
+			? user.email.toLowerCase().includes(emailFilter.toLowerCase())
+			: true;
+
+		const roleMatch = roleFilter
+			? user.role_name.toLowerCase().includes(roleFilter.toLowerCase())
+			: true;
+		const groupMatch = groupFilter
+			? user.groups?.some((group: any) =>
+					group.name.toLowerCase().includes(groupFilter.toLowerCase()),
+			  )
+			: true;
+		return emailMatch && roleMatch && groupMatch;
+	});
+
 	return (
 		<PageLayout
 			title="Workspace Members"
@@ -237,17 +259,62 @@ export const Users = () => {
 				</Button>
 			}
 		>
-			<Table variant="simple">
-				<Thead>
+			<Stack
+				bg="white"
+				borderWidth="1px"
+				borderRadius="sm"
+				direction="row"
+				p="1.5"
+				alignItems="center"
+				w="full"
+			>
+				<Stack
+					direction="row"
+					borderRadius="sm"
+					px="2"
+					spacing="6"
+					flex="1"
+					overflow="auto"
+					w="full"
+				>
+					<MemberFilter
+						name="Email"
+						operator="="
+						value={emailFilter}
+						onChange={setEmailFilter}
+					/>
+					<MemberFilter
+						name="Role"
+						operator="="
+						value={roleFilter}
+						onChange={setRoleFilter}
+					/>
+					<MemberFilter
+						name="Group"
+						operator="="
+						value={groupFilter}
+						onChange={setGroupFilter}
+					/>
+				</Stack>
+			</Stack>
+
+			<Table variant="unstyled" layout="fixed">
+				<Thead border="1px" borderColor="gray.200">
 					<Tr>
-						<Th>Email</Th>
-						<Th>Role</Th>
-						{/* <Th>Groups</Th> */}
-						<Th>Actions</Th>
+						<Th border="1px" borderColor="gray.200" w="15rem">
+							Email
+						</Th>
+						<Th border="1px" borderColor="gray.200">
+							Workspace Role
+						</Th>
+						<Th>Groups</Th>
+						<Th border="1px" borderColor="gray.200">
+							Actions
+						</Th>
 					</Tr>
 				</Thead>
-				<Tbody>
-					{users.map((item: any) => (
+				<Tbody border="1px" borderColor="gray.200">
+					{filteredUsers.map((item: any) => (
 						<UserRow user={item} key={item.id} />
 					))}
 				</Tbody>
