@@ -37,8 +37,7 @@ const DISPLAY_TYPE_ENUM: any = {
 	select: ['text', 'select'],
 };
 
-const VISIBLE_FIELDS = [
-	'schema_name',
+const VISIBLE_FIELDS_SCHEMA = [
 	'table_name',
 	'primary_key',
 	'foreign_key',
@@ -50,6 +49,9 @@ const VISIBLE_FIELDS = [
 
 const VISIBLE_EDITABLE_FIELDS: any = {
 	pgcolumn: ['display_type'],
+	snowflakecolumn: ['display_type'],
+	mysqlcolumn: ['display_type'],
+	sqlitecolumn: ['display_type'],
 	button_column: ['on_click', 'label', 'name', 'display_type', 'color'],
 	pycolumn: ['display_type'],
 };
@@ -99,12 +101,16 @@ const ColumnProperty = ({
 	const { fields: resourceFields } = useResourceFields();
 	let columnField = '';
 
-	if (properties?.column_type === 'postgres') {
-		columnField = 'pgcolumn';
-	} else if (properties?.column_type === 'python') {
-		columnField = 'pycolumn';
-	} else if (properties?.column_type === 'button_column') {
+	if (properties?.column_type === 'button_column') {
 		columnField = 'button_column';
+	} else if (properties?.column_type === 'postgres') {
+		columnField = 'pgcolumn';
+	} else if (properties?.column_type === 'snowflake') {
+		columnField = 'snowflakecolumn';
+	} else if (properties?.column_type === 'mysql') {
+		columnField = 'mysqlcolumn';
+	} else if (properties?.column_type === 'sqlite') {
+		columnField = 'sqlitecolumn';
 	}
 
 	const columnFields = resourceFields?.[columnField] || [];
@@ -255,7 +261,16 @@ const ColumnProperty = ({
 
 	const hasNoEditKeys = edit_keys?.length === 0;
 
-	const allVisibleFields = columnFields.filter((f: any) => VISIBLE_FIELDS.includes(f.name)) || [];
+	let allVisibleFields;
+	if (properties?.column_type === 'postgres' || properties?.column_type === 'snowflake') {
+		allVisibleFields =
+			columnFields.filter((f: any) =>
+				['schema_name', ...VISIBLE_FIELDS_SCHEMA].includes(f.name),
+			) || [];
+	} else {
+		allVisibleFields =
+			columnFields.filter((f: any) => VISIBLE_FIELDS_SCHEMA.includes(f.name)) || [];
+	}
 
 	return (
 		<form onSubmit={methods.handleSubmit(onSubmit)}>
@@ -460,7 +475,7 @@ const ColumnProperty = ({
 														isRequired
 															? {
 																	required: `${key} is required`,
-															  }
+																}
 															: {}
 													}
 												/>
@@ -480,7 +495,7 @@ const ColumnProperty = ({
 										fontWeight="normal"
 										onClick={onToggleConfigurations}
 									>
-										{isConfigurationOpen ? 'Hide' : 'Show'} medatada
+										{isConfigurationOpen ? 'Hide' : 'Show'} metadata
 									</Button>
 								) : null}
 
