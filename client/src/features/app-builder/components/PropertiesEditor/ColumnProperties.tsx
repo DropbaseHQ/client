@@ -548,6 +548,7 @@ export const ColumnsProperties = () => {
 				description: getErrorMessage(error),
 			});
 		},
+		table: tableId,
 	});
 
 	const handleConvert = () => {
