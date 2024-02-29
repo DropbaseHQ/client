@@ -3,11 +3,11 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class PgSmartColumnProperty(BaseModel): # This is now compatible with all types of db's
+class SqlSmartColumnProperty(BaseModel): # This is now compatible with all types of db's
 
     name: str
     type: Optional[str]
-
+ 
     schema_name: Optional[str]
     database_name: Optional[str]
     table_name: str = None

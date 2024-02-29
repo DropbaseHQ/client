@@ -37,18 +37,7 @@ const DISPLAY_TYPE_ENUM: any = {
 	select: ['text', 'select'],
 };
 
-const VISIBLE_FIELDS_WITH_SCHEMA = [
-	'schema_name',
-	'table_name',
-	'primary_key',
-	'foreign_key',
-	'default',
-	'column_type',
-	'nullable',
-	'unique',
-];
-
-const VISIBLE_FIELDS_WITHOUT_SCHEMA = [
+const VISIBLE_FIELDS_SCHEMA = [
 	'table_name',
 	'primary_key',
 	'foreign_key',
@@ -60,6 +49,9 @@ const VISIBLE_FIELDS_WITHOUT_SCHEMA = [
 
 const VISIBLE_EDITABLE_FIELDS: any = {
 	pgcolumn: ['display_type'],
+	snowflakecolumn: ['display_type'],
+	mysqlcolumn: ['display_type'],
+	sqlitecolumn: ['display_type'],
 	button_column: ['on_click', 'label', 'name', 'display_type', 'color'],
 	pycolumn: ['display_type'],
 };
@@ -111,8 +103,14 @@ const ColumnProperty = ({
 
 	if (properties?.column_type === 'button_column') {
 		columnField = 'button_column';
-	} else {
+	} else if (properties?.column_type === 'postgres') {
 		columnField = 'pgcolumn';
+	} else if (properties?.column_type === 'snowflake') {
+		columnField = 'snowflakecolumn';
+	} else if (properties?.column_type === 'mysql') {
+		columnField = 'mysqlcolumn';
+	} else if (properties?.column_type === 'sqlite') {
+		columnField = 'sqlitecolumn';
 	}
 
 	const columnFields = resourceFields?.[columnField] || [];
@@ -265,11 +263,14 @@ const ColumnProperty = ({
 
 	let allVisibleFields;
 	if (properties?.column_type === 'postgres') {
+		// TODO: add back || properties?.column_type === 'snowflake'
 		allVisibleFields =
-			columnFields.filter((f: any) => VISIBLE_FIELDS_WITH_SCHEMA.includes(f.name)) || [];
+			columnFields.filter((f: any) =>
+				['schema_name', ...VISIBLE_FIELDS_SCHEMA].includes(f.name),
+			) || [];
 	} else {
 		allVisibleFields =
-			columnFields.filter((f: any) => VISIBLE_FIELDS_WITHOUT_SCHEMA.includes(f.name)) || [];
+			columnFields.filter((f: any) => VISIBLE_FIELDS_SCHEMA.includes(f.name)) || [];
 	}
 
 	return (

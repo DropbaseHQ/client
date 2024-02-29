@@ -8,7 +8,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from server.constants import GPT_MODEL, GPT_TEMPERATURE
-from server.controllers.tables.pg_column import PgSmartColumnProperty
+from server.controllers.tables.pg_column import SqlSmartColumnProperty
 from server.credentials import OPENAI_API_KEY, OPENAI_ORG_ID
 
 from .gpt_template import get_gpt_input
@@ -35,7 +35,7 @@ FullDBSchema = dict[str, dict[str, dict[str, dict[str, Any]]]]
 
 def fill_smart_cols_data(
     smart_col_paths: dict, db_schema: FullDBSchema
-) -> dict[str, Union[PgSmartColumnProperty]]: # If we want to add more
+) -> dict[str, Union[SqlSmartColumnProperty]]: # If we want to add more
     try:
         smart_cols_data = {}
         for name, col_path in smart_col_paths.items():
@@ -52,7 +52,7 @@ def fill_smart_cols_data(
             except KeyError:
                 # Skip ChatGPT "hallucinated" columns
                 continue
-            smart_cols_data[name] = PgSmartColumnProperty(name=name, **col_schema_data)
+            smart_cols_data[name] = SqlSmartColumnProperty(name=name, **col_schema_data)
         return {"columns": smart_cols_data}
     except Exception as e:
         logger.info(str(e))
