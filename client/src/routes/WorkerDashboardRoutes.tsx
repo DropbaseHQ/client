@@ -15,8 +15,27 @@ import { Workspaces } from '@/features/workspaces';
 import { App } from '@/features/app';
 import { Users, DeveloperSettings, Permissions } from '@/features/settings';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
+import { useEffect } from 'react';
 
 export const WorkerDashboardRoutes = () => {
+	useEffect(() => {
+		let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
+		if (!link) {
+			link = document.createElement('link') as HTMLLinkElement;
+			link.rel = 'shortcut icon';
+			document.getElementsByTagName('head')[0].appendChild(link);
+		}
+		link.type = 'image/x-icon';
+		if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+			link.href = '/favicon-dark.ico';
+		} else {
+			link.href = '/favicon-light.ico';
+		}
+		if (window.location.hostname === 'localhost') {
+			link.href = '/favicon-dev.ico';
+		}
+	}, []);
+
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
 
 	useSyncProxyToken();
