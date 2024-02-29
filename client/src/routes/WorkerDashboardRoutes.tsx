@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import useWebSocket from 'react-use-websocket';
 import { useSetAtom } from 'jotai';
 import { Route } from 'react-router-dom';
@@ -15,7 +16,6 @@ import { Workspaces } from '@/features/workspaces';
 import { App } from '@/features/app';
 import { Users, DeveloperSettings, Permissions } from '@/features/settings';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
-import { useEffect } from 'react';
 
 export const WorkerDashboardRoutes = () => {
 	useEffect(() => {
