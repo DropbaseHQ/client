@@ -262,8 +262,7 @@ const ColumnProperty = ({
 	const hasNoEditKeys = edit_keys?.length === 0;
 
 	let allVisibleFields;
-	if (properties?.column_type === 'postgres') {
-		// TODO: add back || properties?.column_type === 'snowflake'
+	if (properties?.column_type === 'postgres' || properties?.column_type === 'snowflake') {
 		allVisibleFields =
 			columnFields.filter((f: any) =>
 				['schema_name', ...VISIBLE_FIELDS_SCHEMA].includes(f.name),
