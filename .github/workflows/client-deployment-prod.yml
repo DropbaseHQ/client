@@ -16,6 +16,7 @@ env:
   VITE_API_ENDPOINT: "https://api.dropbase.io/"
   VITE_PYTHON_LSP_SERVER: "wss://api.dropbase.io"
   VITE_WORKER_API_ENDPOINT: "https://api.dropbase.io"
+  VITE_APP_TYPE: "app"
 
 jobs:
   build-and-deploy:
