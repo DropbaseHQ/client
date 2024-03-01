@@ -7,6 +7,7 @@ import { lazyImport } from '@/utils/lazy-import';
 import { useWorkspaces } from '@/features/workspaces';
 import { GithubAuth } from '@/features/authorization/GithubAuth';
 import { DashboardLayout } from '@/layout';
+import { OnboardingForm } from '@/features/authorization/OnboardingForm';
 
 const { Login } = lazyImport(() => import('@/features/authorization'), 'Login');
 const { Register } = lazyImport(() => import('@/features/authorization'), 'Register');
@@ -58,6 +59,7 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 					element={
 						<DashboardLayout>
 							<Outlet />
+							<OnboardingForm />
 						</DashboardLayout>
 					}
 				>
