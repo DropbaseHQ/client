@@ -90,11 +90,16 @@ const UserRow = (item: any) => {
 	};
 
 	return (
-		<Tr key={user.id}>
-			<Td border="1px" borderColor="gray.200" w="min-content">
+		<Tr
+			key={user.id}
+			_hover={{
+				bg: 'gray.100',
+			}}
+		>
+			<Td border="1px 0px" borderColor="gray.200" w="min-content">
 				{user.email}
 			</Td>
-			<Td border="1px" borderColor="gray.200">
+			<Td border="1px 0px" borderColor="gray.200">
 				<HStack spacing="6">
 					<Select
 						size="sm"
@@ -108,7 +113,7 @@ const UserRow = (item: any) => {
 					</Select>
 				</HStack>
 			</Td>
-			<Td border="1px" borderColor="gray.200">
+			<Td border="1px 0px" borderColor="gray.200">
 				<Flex>
 					{user?.groups?.map((obj: any) => (
 						<Tag size="sm" key={obj?.id}>
@@ -117,7 +122,7 @@ const UserRow = (item: any) => {
 					))}
 				</Flex>
 			</Td>
-			<Td border="1px" borderColor="gray.200">
+			<Td border="1px 0px" borderColor="gray.200">
 				<Flex justifyContent="space-between">
 					<Popover
 						isOpen={isOpenRemove}
@@ -163,7 +168,7 @@ const UserRow = (item: any) => {
 	);
 };
 
-const MemberFilter = ({
+export const MemberFilter = ({
 	name,
 	operator,
 	value,
@@ -228,7 +233,6 @@ export const Users = () => {
 	};
 
 	const filteredUsers = users.filter((user: any) => {
-		// If empty emailMatch will be true
 		const emailMatch = emailFilter
 			? user.email.toLowerCase().includes(emailFilter.toLowerCase())
 			: true;
@@ -301,14 +305,14 @@ export const Users = () => {
 			<Table variant="unstyled" layout="fixed">
 				<Thead border="1px" borderColor="gray.200">
 					<Tr>
-						<Th border="1px" borderColor="gray.200" w="15rem">
+						<Th border="1px 0px" borderColor="gray.200" w="15rem">
 							Email
 						</Th>
-						<Th border="1px" borderColor="gray.200">
+						<Th border="1px 0px" borderColor="gray.200">
 							Workspace Role
 						</Th>
 						<Th>Groups</Th>
-						<Th border="1px" borderColor="gray.200">
+						<Th border="1px 0px" borderColor="gray.200">
 							Actions
 						</Th>
 					</Tr>
