@@ -59,9 +59,9 @@ def fill_smart_cols_data(
         raise HTTPException(status_code=500, detail="API call failed. Please try again.")
 
 
-def call_gpt(user_sql: str, column_names: list, db_schema: dict) -> OutputSchema:
+def call_gpt(user_sql: str, column_names: list, db_schema: dict, db_type: str) -> OutputSchema:
     try:
-        gpt_input = get_gpt_input(db_schema, user_sql, column_names)
+        gpt_input = get_gpt_input(db_schema, user_sql, column_names, db_type)
         gpt_output = str(
             openai.ChatCompletion.create(
                 model=GPT_MODEL,
@@ -73,6 +73,7 @@ def call_gpt(user_sql: str, column_names: list, db_schema: dict) -> OutputSchema
         output_dict = json.loads(gpt_output).get("choices", [{"message": {"content": "{}"}}])[0][
             "message"
         ]["content"]
+        
         output = json.loads(output_dict)
         # validate output
         OutputSchema(output=output)

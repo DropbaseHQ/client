@@ -18,11 +18,12 @@ class ConvertTable(BaseModel):
     column_names: list
     gpt_schema: dict
     db_schema: dict
+    db_type: str
 
 
 @router.post("/get_smart_cols/")
 def get_smart_cols(req: ConvertTable, db: Session = Depends(get_db)):
-    smart_col_paths = call_gpt(req.user_sql, req.column_names, req.gpt_schema)
+    smart_col_paths = call_gpt(req.user_sql, req.column_names, req.gpt_schema, req.db_type)
 
     # Fill smart col data before validation to get
     # primary keys along with other column metadata
