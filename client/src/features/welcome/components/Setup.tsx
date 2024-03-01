@@ -123,7 +123,7 @@ export const Setup = () => {
 			<ListItem>
 				<Stack>
 					<Text>
-						In your browser go to <Code>locahost:3030</Code> and login
+						In your browser go to <Code>http://localhost:3030</Code> and login
 					</Text>
 					<Button
 						size="xs"
