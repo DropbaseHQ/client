@@ -40,54 +40,74 @@ const MemberTableRow = ({ name, userId, appId }: any) => {
 	);
 };
 
-export const MemberPermissions = () => {
+const UsersList = ({
+	selectedUser,
+	setSelectedUser,
+}: {
+	selectedUser: string;
+	setSelectedUser: (value: string) => void;
+}) => {
 	const { users } = useGetWorkspaceUsers();
+
+	return users?.map((user: any) => (
+		<PermissionsSubjectRow
+			key={user.id}
+			name={user.name}
+			id={user.id}
+			isSelected={selectedUser === user.id}
+			onClick={setSelectedUser}
+		/>
+	));
+};
+
+const MemberTableRowsList = ({
+	selectedUser,
+	appFilter,
+}: {
+	selectedUser: string;
+	appFilter: string;
+}) => {
 	const { apps } = useGetWorkspaceApps();
-	const [selectedUser, setSelectedUser] = useState('');
-	const [appFilter, setAppFilter] = useState('');
 
 	const filteredApps = apps?.filter((app) => app.name.includes(appFilter));
 
-	const selectedUserInfo = users?.find((user: any) => user.id === selectedUser);
+	return filteredApps?.map((app: any) => (
+		<MemberTableRow key={app.id} name={app.name} userId={selectedUser} appId={app.id} />
+	));
+};
 
-	const UsersList = () => {
-		return users?.map((user: any) => (
-			<PermissionsSubjectRow
-				key={user.id}
-				name={user.name}
-				id={user.id}
-				isSelected={selectedUser === user.id}
-				onClick={setSelectedUser}
+const MemberTable = ({ selectedUser }: { selectedUser: string }) => {
+	const [appFilter, setAppFilter] = useState('');
+	return (
+		<>
+			<PermissionsFilterRow>
+				<PermissionsFilter
+					name="App"
+					operator="="
+					value={appFilter}
+					onChange={setAppFilter}
+				/>
+			</PermissionsFilterRow>
+			<PermissionsTable
+				subjectName="Users"
+				tableRows={
+					<MemberTableRowsList selectedUser={selectedUser} appFilter={appFilter} />
+				}
 			/>
-		));
-	};
+		</>
+	);
+};
 
-	const MemberTableRowsList = () => {
-		return filteredApps?.map((app: any) => (
-			<MemberTableRow key={app.id} name={app.name} groupId={selectedUser} appId={app.id} />
-		));
-	};
+export const MemberPermissions = () => {
+	const { users } = useGetWorkspaceUsers();
+	const [selectedUser, setSelectedUser] = useState('');
 
-	const MemberTable = () => {
-		return (
-			<>
-				<PermissionsFilterRow>
-					<PermissionsFilter
-						name="App"
-						operator="="
-						value={appFilter}
-						onChange={setAppFilter}
-					/>
-				</PermissionsFilterRow>
-				<PermissionsTable subjectName="Users" tableRows={<MemberTableRowsList />} />
-			</>
-		);
-	};
+	const selectedUserInfo = users?.find((user: any) => user.id === selectedUser);
 
 	return (
 		<PermissionsSubLayout
-			list={<UsersList />}
-			table={<MemberTable />}
+			list={<UsersList selectedUser={selectedUser} setSelectedUser={setSelectedUser} />}
+			table={<MemberTable selectedUser={selectedUser} />}
 			selectedName={selectedUserInfo?.name}
 		/>
 	);
