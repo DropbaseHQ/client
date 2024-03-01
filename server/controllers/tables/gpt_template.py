@@ -14,4 +14,4 @@ def get_gpt_input(db_schema: dict, user_sql: str, column_names: list, db_type: s
         case "sqlite":
                 return get_sqlite_gpt_input(db_schema, user_sql, column_names)
         case _:
-                  return get_postgres_gpt_input(db_schema, user_sql, column_names)
+                return get_postgres_gpt_input(db_schema, user_sql, column_names)
