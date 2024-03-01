@@ -35,7 +35,7 @@ export const PermissionsSubjectRow = ({
 			w="full"
 			borderRadius="sm"
 			bgColor={isSelected ? 'gray.100' : ''}
-			px="3"
+			px="5"
 			py="2"
 			_hover={{ bgColor: 'gray.100', cursor: 'pointer' }}
 			display="flex"
@@ -49,7 +49,7 @@ export const PermissionsSubjectRow = ({
 export const PermissionsSubLayout = ({ list, table, selectedName }: any) => {
 	return (
 		<Flex w="full" h="100%">
-			<VStack flexGrow="1" py="4" spacing="0" borderRight="1px" borderColor="gray.100">
+			<VStack py="4" spacing="0" borderRight="1px" w="15vw" borderColor="gray.100">
 				{list}
 			</VStack>
 			<Flex flexGrow="6" p="6" direction="column" h="100%" overflow="auto">

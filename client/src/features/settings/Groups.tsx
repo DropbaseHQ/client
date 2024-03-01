@@ -39,7 +39,7 @@ import { useAtomValue } from 'jotai';
 import { useQueryClient } from 'react-query';
 import { workspaceAtom } from '@/features/workspaces';
 import { PageLayout } from '@/layout';
-import { MemberFilter } from '@/components/MemberFilter';
+import { MemberFilter } from '@/features/settings/UserManager';
 import { GroupCard } from './Group';
 import {
 	useGetWorkspaceGroups,
