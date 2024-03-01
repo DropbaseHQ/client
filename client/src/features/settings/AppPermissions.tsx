@@ -67,12 +67,35 @@ const GroupTableRow = ({ name, subjectId, appId }: any) => {
 	);
 };
 
-export const AppPermissions = () => {
+const AppList = ({
+	selectedApp,
+	setSelectedApp,
+}: {
+	selectedApp: string;
+	setSelectedApp: (value: string) => void;
+}) => {
+	const { apps } = useGetWorkspaceApps();
+
+	return apps?.map((app) => (
+		<PermissionsSubjectRow
+			key={app.id}
+			name={app.name}
+			id={app.id}
+			isSelected={selectedApp === app.id}
+			onClick={setSelectedApp}
+		/>
+	));
+};
+
+const AppTableRowsList = ({
+	selectedApp,
+	subjectFilter,
+}: {
+	selectedApp: string;
+	subjectFilter: string;
+}) => {
 	const { users } = useGetWorkspaceUsers();
 	const { groups } = useGetWorkspaceGroups();
-	const { apps } = useGetWorkspaceApps();
-	const [selectedApp, setSelectedApp] = useState('');
-	const [appFilter, setAppFilter] = useState('');
 
 	const formattedGroups = groups.map((group: any) => ({
 		name: group.name,
@@ -86,66 +109,68 @@ export const AppPermissions = () => {
 	}));
 
 	const combinedList = formattedGroups.concat(formattedUsers);
+	const filteredCombinedList = combinedList.filter((subject) =>
+		subject.name.includes(subjectFilter),
+	);
+
+	return filteredCombinedList.map((subject) => {
+		if (subject.type === 'user') {
+			return (
+				<UserTableRow
+					key={subject.id}
+					name={subject.name}
+					subjectId={subject.id}
+					appId={selectedApp}
+				/>
+			);
+		}
+		if (subject.type === 'group') {
+			return (
+				<GroupTableRow
+					key={subject.id}
+					name={subject.name}
+					subjectId={subject.id}
+					appId={selectedApp}
+				/>
+			);
+		}
+		return null;
+	});
+};
+
+const AppTable = ({ selectedApp }: { selectedApp: string }) => {
+	const [subjectFilter, setSubjectFilter] = useState('');
+
+	return (
+		<>
+			<PermissionsFilterRow>
+				<PermissionsFilter
+					name="Subject"
+					operator="="
+					value={subjectFilter}
+					onChange={setSubjectFilter}
+				/>
+			</PermissionsFilterRow>
+			<PermissionsTable
+				subjectName="Subject"
+				tableRows={
+					<AppTableRowsList selectedApp={selectedApp} subjectFilter={subjectFilter} />
+				}
+			/>
+		</>
+	);
+};
+
+export const AppPermissions = () => {
+	const { apps } = useGetWorkspaceApps();
+	const [selectedApp, setSelectedApp] = useState('');
 
 	const selectedAppInfo = apps?.find((app: any) => app.id === selectedApp);
 
-	const AppList = () => {
-		return apps?.map((app) => (
-			<PermissionsSubjectRow
-				key={app.id}
-				name={app.name}
-				id={app.id}
-				isSelected={selectedApp === app.id}
-				onClick={setSelectedApp}
-			/>
-		));
-	};
-	const AppTableRowsList = () => {
-		return combinedList.map((subject) => {
-			if (subject.type === 'user') {
-				return (
-					<UserTableRow
-						key={subject.id}
-						name={subject.name}
-						subjectId={subject.id}
-						appId={selectedApp}
-					/>
-				);
-			}
-			if (subject.type === 'group') {
-				return (
-					<GroupTableRow
-						key={subject.id}
-						name={subject.name}
-						subjectId={subject.id}
-						appId={selectedApp}
-					/>
-				);
-			}
-			return null;
-		});
-	};
-
-	const AppTable = () => {
-		return (
-			<>
-				<PermissionsFilterRow>
-					<PermissionsFilter
-						name="Subject"
-						operator=""
-						value={appFilter}
-						onChange={(e) => setAppFilter(e.target.value)}
-					/>
-				</PermissionsFilterRow>
-				<PermissionsTable subjectName="Subject" tableRows={<AppTableRowsList />} />
-			</>
-		);
-	};
-
 	return (
 		<PermissionsSubLayout
-			list={<AppList />}
-			table={<AppTable />}
+			list={<AppList selectedApp={selectedApp} setSelectedApp={setSelectedApp} />}
+			table={<AppTable selectedApp={selectedApp} />}
 			selectedName={selectedAppInfo?.name}
 		/>
 	);
