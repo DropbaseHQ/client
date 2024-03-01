@@ -475,7 +475,7 @@ const ColumnProperty = ({
 														isRequired
 															? {
 																	required: `${key} is required`,
-																}
+															  }
 															: {}
 													}
 												/>
