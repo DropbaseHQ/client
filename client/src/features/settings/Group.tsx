@@ -56,18 +56,18 @@ export const GroupCard = ({
 		<Box
 			key={group.id}
 			p={3}
-			borderWidth="2px"
 			borderRadius="lg"
-			boxShadow={selectedGroup === group.id ? 'sm' : 'md'}
-			_hover={{ cursor: 'pointer' }}
+			// boxShadow={selectedGroup === group.id ? 'sm' : 'md'}
+			bgColor={selectedGroup === group.id ? 'blue.100' : null}
+			_hover={{ cursor: 'pointer', bg: 'gray.100' }}
 			borderColor={selectedGroup === group.id ? 'blue.500' : 'gray.200'}
 			onClick={() => setSelectedGroup(group.id)}
 			display="flex"
+			alignItems="center"
+			w="full"
 			justifyContent="space-between"
 		>
-			<Text fontSize="xl" fontWeight="bold">
-				{group.name}
-			</Text>
+			<Text fontSize="xl">{group.name}</Text>
 			<Popover
 				returnFocusOnClose={false}
 				isOpen={isDeletePopoverOpen}
