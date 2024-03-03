@@ -47,6 +47,7 @@ import {
 } from './hooks/workspace';
 import { workspaceAtom } from '@/features/workspaces';
 import { PageLayout } from '@/layout';
+import { useToast } from '@/lib/chakra-ui';
 // Will get this from the server later
 const ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
 const DEV_UUID = '00000000-0000-0000-0000-000000000002';
@@ -54,6 +55,7 @@ const USER_UUID = '00000000-0000-0000-0000-000000000003';
 const MEMBER_UUID = '00000000-0000-0000-0000-000000000004';
 
 const UserRow = (item: any) => {
+	const toast = useToast();
 	const { user } = item;
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
@@ -64,13 +66,35 @@ const UserRow = (item: any) => {
 	const removeMemberMutation = useRemoveMember({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
+			toast({
+				title: 'Member removed',
+				status: 'success',
+			});
+
 			onCloseRemove();
+		},
+		onError: (error: any) => {
+			toast({
+				title: 'Error removing member',
+				description: error.message,
+				status: 'error',
+			});
 		},
 	});
 	const changeUserRoleMutation = useUpdateUserRole({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
-			onCloseEdit();
+			toast({
+				title: 'Role updated',
+				status: 'success',
+			});
+		},
+		onError: (error: any) => {
+			toast({
+				title: 'Error updating role',
+				description: error.message,
+				status: 'error',
+			});
 		},
 	});
 
