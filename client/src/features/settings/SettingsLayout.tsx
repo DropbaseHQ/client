@@ -4,6 +4,7 @@ import { Link as ReactRouterLink } from 'react-router-dom';
 import { PageLayout } from '@/layout';
 
 const SettingsOption = ({ children, link }: any) => {
+	const isSelected = window.location.pathname.includes(link);
 	return (
 		<Box
 			w="full"
@@ -11,6 +12,7 @@ const SettingsOption = ({ children, link }: any) => {
 				bg: 'gray.100',
 				cursor: 'pointer',
 			}}
+			color={isSelected ? 'blue.500' : 'body'}
 			p="1"
 			as={ReactRouterLink}
 			to={`/settings/${link}`}
