@@ -52,7 +52,7 @@ export const PermissionsSubLayout = ({ list, table, selectedName }: any) => {
 			<VStack py="4" spacing="0" borderRight="1px" w="15vw" borderColor="gray.100">
 				{list}
 			</VStack>
-			<Flex flexGrow="6" p="6" direction="column" h="100%" overflow="auto">
+			<Flex flexGrow="6" p="6" direction="column">
 				{selectedName ? (
 					<>
 						<Text fontSize="2xl" fontWeight="semibold" mb="2">
@@ -90,20 +90,18 @@ export const PermissionsTableRow = ({
 				bg: 'gray.100',
 			}}
 		>
-			<Td border="1px 0px" borderColor="gray.200">
-				{name}
+			<Td borderColor="gray.200">{name}</Td>
+			<Td borderColor="gray.200">
+				<Radio {...getRadioProps({ value: 'none' })} position="relative" />
 			</Td>
-			<Td border="1px 0px" borderColor="gray.200">
-				<Radio {...getRadioProps({ value: 'none' })} />
+			<Td borderColor="gray.200">
+				<Radio {...getRadioProps({ value: 'use' })} position="relative" />
 			</Td>
-			<Td border="1px 0px" borderColor="gray.200">
-				<Radio {...getRadioProps({ value: 'use' })} />
+			<Td borderColor="gray.200">
+				<Radio {...getRadioProps({ value: 'edit' })} position="relative" />
 			</Td>
-			<Td border="1px 0px" borderColor="gray.200">
-				<Radio {...getRadioProps({ value: 'edit' })} />
-			</Td>
-			<Td border="1px 0px" borderColor="gray.200">
-				<Radio {...getRadioProps({ value: 'own' })} />
+			<Td borderColor="gray.200">
+				<Radio {...getRadioProps({ value: 'own' })} position="relative" />
 			</Td>
 		</Tr>
 	);
@@ -168,34 +166,21 @@ export const PermissionsFilterRow = ({ children }: any) => {
 
 export const PermissionsTable = ({ subjectName, tableRows }: any) => {
 	return (
-		<Table
-			mt="2"
-			variant="unstyled"
-			w="40vw"
-			h="min-content"
-			maxHeight="500px"
-			overflowY="scroll"
-		>
-			<Thead border="1px" borderColor="gray.200">
-				<Tr>
-					<Th border="1px 0px" borderColor="gray.200">
-						{subjectName}
-					</Th>
-					<Th border="1px 0px" borderColor="gray.200">
-						None
-					</Th>
-					<Th>Use</Th>
-					<Th border="1px 0px" borderColor="gray.200">
-						Edit
-					</Th>
-					<Th border="1px 0px" borderColor="gray.200">
-						Own
-					</Th>
-				</Tr>
-			</Thead>
-			<Tbody border="1px" borderColor="gray.200" maxHeight="50vh" overflow="auto">
-				{tableRows}
-			</Tbody>
-		</Table>
+		<Box mt="2" border="1px" overflowY="auto" w="40vw" maxHeight="65vh" borderColor="gray.200">
+			<Table variant="unstyled">
+				<Thead position="sticky" bgColor="white" top="-1" zIndex="1000">
+					<Tr>
+						<Th>{subjectName}</Th>
+						<Th>None</Th>
+						<Th>Use</Th>
+						<Th>Edit</Th>
+						<Th>Own</Th>
+					</Tr>
+				</Thead>
+				<Tbody maxHeight="70vh" w="full" overflowY="auto" insetBlockEnd={0}>
+					{tableRows}
+				</Tbody>
+			</Table>
+		</Box>
 	);
 };
