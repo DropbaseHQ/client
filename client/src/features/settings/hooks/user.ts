@@ -2,6 +2,7 @@ import { useQuery, useMutation } from 'react-query';
 import { useAtomValue } from 'jotai';
 import { axios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
+import { useToast } from '@/lib/chakra-ui';
 
 export type UserResponse = {
 	user: {
@@ -63,7 +64,20 @@ const updateUserPolicy = async ({
 };
 
 export const useUpdateUserPolicy = (mutationConfig?: any) => {
+	const toast = useToast();
 	return useMutation(updateUserPolicy, {
 		...(mutationConfig || {}),
+		onSuccess: () => {
+			toast({
+				title: 'Permissions updated',
+				status: 'success',
+			});
+		},
+		onError: () => {
+			toast({
+				title: 'Error updating permissions',
+				status: 'error',
+			});
+		},
 	});
 };
