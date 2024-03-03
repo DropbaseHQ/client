@@ -49,9 +49,12 @@ export const PermissionsSubjectRow = ({
 export const PermissionsSubLayout = ({ list, table, selectedName }: any) => {
 	return (
 		<Flex w="full" h="100%">
-			<VStack py="4" spacing="0" borderRight="1px" w="15vw" borderColor="gray.100">
-				{list}
-			</VStack>
+			<Box w="15vw" borderRight="1px" borderColor="gray.100" overflow="auto" h="100%">
+				<VStack py="4" spacing="0" maxH="82vh">
+					{list}
+				</VStack>
+			</Box>
+
 			<Flex flexGrow="6" p="6" direction="column">
 				{selectedName ? (
 					<>
@@ -166,7 +169,7 @@ export const PermissionsFilterRow = ({ children }: any) => {
 
 export const PermissionsTable = ({ subjectName, tableRows }: any) => {
 	return (
-		<Box mt="2" border="1px" overflowY="auto" w="40vw" maxHeight="65vh" borderColor="gray.200">
+		<Box mt="2" border="1px" overflowY="auto" w="40vw" borderColor="gray.200" maxHeight="65vh">
 			<Table variant="unstyled">
 				<Thead position="sticky" bgColor="white" top="-1" zIndex="1000">
 					<Tr>
@@ -177,7 +180,7 @@ export const PermissionsTable = ({ subjectName, tableRows }: any) => {
 						<Th>Own</Th>
 					</Tr>
 				</Thead>
-				<Tbody maxHeight="70vh" w="full" overflowY="auto" insetBlockEnd={0}>
+				<Tbody w="full" overflowY="auto" insetBlockEnd={0}>
 					{tableRows}
 				</Tbody>
 			</Table>
