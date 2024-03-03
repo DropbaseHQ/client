@@ -138,7 +138,7 @@ export const Groups = () => {
 	});
 
 	return (
-		<PageLayout title="Workspace Groups">
+		<PageLayout title="Workspace Groups" pageProps={{ pb: '0' }}>
 			<Flex w="full" h="full">
 				<Box w="15vw" h="100%" pr="2">
 					<Flex alignItems="center">
@@ -148,7 +148,7 @@ export const Groups = () => {
 						</Button>
 					</Flex>
 
-					<VStack mt="4">
+					<VStack mt="4" spacing="0">
 						{groups.map((group) => {
 							return (
 								<GroupCard
@@ -161,7 +161,7 @@ export const Groups = () => {
 						})}
 					</VStack>
 				</Box>
-				<Divider mx="4" orientation="vertical" />
+				<Divider mx="4" orientation="vertical" h="100%" />
 				{selectedGroup ? (
 					<Flex h="100%" w="40vw" flexDir="column">
 						<Flex alignItems="center" justifyContent="space-between">
