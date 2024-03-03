@@ -116,7 +116,7 @@ const UserRow = (item: any) => {
 			<Td border="1px 0px" borderColor="gray.200">
 				<Flex>
 					{user?.groups?.map((obj: any) => (
-						<Tag size="sm" key={obj?.id}>
+						<Tag m="1" size="sm" key={obj?.id}>
 							{obj.name}
 						</Tag>
 					))}
