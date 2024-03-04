@@ -84,11 +84,8 @@ const TargetSelector = ({
 	const componentProperty = getComponentProperty(rule.target);
 
 	const getTargetType = () => {
-		console.log('rule.target', rule.target);
-		console.log('componentProperty', componentProperty);
 		if (!rule.target) return 'text';
 		if (componentProperty?.component_type === 'select' && componentProperty?.multiple) {
-			console.log('in here');
 			return 'string_array';
 		}
 		return getColType(rule.target);
