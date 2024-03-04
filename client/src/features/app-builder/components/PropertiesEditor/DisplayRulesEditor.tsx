@@ -66,6 +66,7 @@ const TargetSelector = ({
 	displayRules,
 	getColType,
 	isInvalid,
+	getComponentProperty,
 }: any) => {
 	const [editTarget, setEditTarget] = useState<string>(rule.target);
 
@@ -78,6 +79,19 @@ const TargetSelector = ({
 			return tableTargets?.some((t: any) => t.value === rule.target);
 		}
 		return widgetTargets?.some((t: any) => t.value === rule.target);
+	};
+
+	const componentProperty = getComponentProperty(rule.target);
+
+	const getTargetType = () => {
+		console.log('rule.target', rule.target);
+		console.log('componentProperty', componentProperty);
+		if (!rule.target) return 'text';
+		if (componentProperty?.component_type === 'select' && componentProperty?.multiple) {
+			console.log('in here');
+			return 'string_array';
+		}
+		return getColType(rule.target);
 	};
 
 	useEffect(() => {
@@ -93,7 +107,7 @@ const TargetSelector = ({
 							return {
 								...r,
 								target: item.value,
-								target_type: getColType(item.value),
+								target_type: getTargetType(),
 							};
 						}
 
@@ -187,16 +201,23 @@ export const DisplayRulesEditor = ({ name }: any) => {
 					c.component_type === 'boolean'),
 		)
 		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
+
+	const getComponentProperty = (target: string) => {
+		if (!target) return null;
+		return componentsProperties?.[target.split('.')[2]];
+	};
+
 	const getColType = (target: string) => {
 		if (!target) return 'text';
 
-		const componentProperty = componentsProperties?.[target.split('.')[2]];
+		const componentProperty = getComponentProperty(target);
 		if (target.includes('widgets')) return componentProperty?.data_type;
 
 		const [, specificCategory, targetName] = target.split('.');
 		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
 		return table?.[targetName as keyof typeof table];
 	};
+
 	const tableTargets = useMemo(() => {
 		return Object.keys(tableState)
 			.map((tableName: any) => {
@@ -304,6 +325,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 											displayRules={displayRules}
 											getColType={getColType}
 											isInvalid={!isValid && isSubmitted && !rule.target}
+											getComponentProperty={getComponentProperty}
 										/>
 
 										<Stack alignItems="end" key={rule.id} direction="row">
