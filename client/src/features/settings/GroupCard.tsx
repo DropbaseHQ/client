@@ -57,7 +57,7 @@ export const GroupCard = ({
 			px="2"
 			py="1"
 			// boxShadow={selectedGroup === group.id ? 'sm' : 'md'}
-			bgColor={selectedGroup === group.id ? 'gray.100' : null}
+			bgColor={selectedGroup === group.id ? 'gray.100' : ''}
 			_hover={{ cursor: 'pointer', bg: 'gray.100' }}
 			borderColor={selectedGroup === group.id ? 'blue.500' : 'gray.200'}
 			onClick={() => setSelectedGroup(group.id)}
