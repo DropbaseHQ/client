@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Flex, Box, Text, HStack } from '@chakra-ui/react';
-import { GroupPermissions } from './GroupPermissions';
-import { MemberPermissions } from './MemberPermissions';
-import { AppPermissions } from './AppPermissions';
+import { GroupPermissions } from './components/Permissions/GroupPermissions';
+import { MemberPermissions } from './components/Permissions/MemberPermissions';
+import { AppPermissions } from './components/Permissions/AppPermissions';
 
 const PermissionsTab = ({ name, value, onClick, isSelected }: any) => {
 	return (

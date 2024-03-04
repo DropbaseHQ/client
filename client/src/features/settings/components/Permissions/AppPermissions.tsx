@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useAtomValue } from 'jotai';
-import { useGetWorkspaceApps } from '../app-list/hooks/useGetWorkspaceApps';
+import { useGetWorkspaceApps } from '../../../app-list/hooks/useGetWorkspaceApps';
 import { workspaceAtom } from '@/features/workspaces';
-import { useGetWorkspaceGroups, useGetWorkspaceUsers } from './hooks/workspace';
-import { useGetUserDetails, useUpdateUserPolicy } from './hooks/user';
+import { useGetWorkspaceGroups, useGetWorkspaceUsers } from '../../hooks/workspace';
+import { useGetUserDetails, useUpdateUserPolicy } from '../../hooks/user';
 import {
 	PermissionsFilterRow,
 	PermissionsFilter,
@@ -13,7 +13,7 @@ import {
 	PermissionsTableRow,
 } from './PermissionsComponents';
 
-import { useUpdateGroupPolicy, useGetGroup } from './hooks/group';
+import { useUpdateGroupPolicy, useGetGroup } from '../../hooks/group';
 
 const UserTableRow = ({ name, subjectId, appId }: any) => {
 	const { permissions } = useGetUserDetails({ userId: subjectId });

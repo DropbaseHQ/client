@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useAtomValue } from 'jotai';
-import { useGetWorkspaceApps } from '../app-list/hooks/useGetWorkspaceApps';
+import { useGetWorkspaceApps } from '../../../app-list/hooks/useGetWorkspaceApps';
 import { workspaceAtom } from '@/features/workspaces';
-import { useGetWorkspaceUsers } from './hooks/workspace';
-import { useGetUserDetails, useUpdateUserPolicy } from './hooks/user';
+import { useGetWorkspaceUsers } from '../../hooks/workspace';
+import { useGetUserDetails, useUpdateUserPolicy } from '../../hooks/user';
 import {
 	PermissionsFilterRow,
 	PermissionsFilter,

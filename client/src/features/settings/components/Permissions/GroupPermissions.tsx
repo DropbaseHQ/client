@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useGetWorkspaceApps } from '../app-list/hooks/useGetWorkspaceApps';
+import { useGetWorkspaceApps } from '../../../app-list/hooks/useGetWorkspaceApps';
 import {
 	PermissionsFilterRow,
 	PermissionsFilter,
@@ -8,8 +8,8 @@ import {
 	PermissionsTable,
 	PermissionsTableRow,
 } from './PermissionsComponents';
-import { useGetWorkspaceGroups } from './hooks/workspace';
-import { useGetGroup, useUpdateGroupPolicy } from './hooks/group';
+import { useGetWorkspaceGroups } from '../../hooks/workspace';
+import { useGetGroup, useUpdateGroupPolicy } from '../../hooks/group';
 
 const GroupTableRow = ({ name, groupId, appId }: any) => {
 	const { permissions } = useGetGroup({ groupId });
