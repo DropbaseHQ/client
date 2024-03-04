@@ -192,12 +192,13 @@ export const DisplayRulesEditor = ({ name }: any) => {
 		return table?.[targetName as keyof typeof table];
 	};
 
-	const getInputType = (colType: string, target?: string) => {
+	const getInputType = (target?: string) => {
 		if (!target) return 'text';
 		const componentProperty = componentsProperties?.[target.split('.')[2]];
 		if (target.includes('widgets') && componentProperty?.component_type === 'select') {
 			return 'select';
 		}
+		const colType = getColType(target);
 		if (colType === 'boolean') {
 			return 'select';
 		}
@@ -392,10 +393,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														flex="1"
 														disabled={!rule.target}
 														placeholder="select value"
-														type={getInputType(
-															getColType(rule.target),
-															rule.target,
-														)}
+														type={getInputType(rule.target)}
 														value={rule.value}
 														options={getOptions(rule.target)}
 														data-cy="display-rule-value"
