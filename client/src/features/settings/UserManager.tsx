@@ -8,7 +8,6 @@ import {
 	Td,
 	Tag,
 	Button,
-	Box,
 	Modal,
 	ModalOverlay,
 	ModalContent,
@@ -48,6 +47,8 @@ import {
 import { workspaceAtom } from '@/features/workspaces';
 import { PageLayout } from '@/layout';
 import { useToast } from '@/lib/chakra-ui';
+import { PermissionsFilter } from './components/Permissions/PermissionsComponents';
+
 // Will get this from the server later
 const ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
 const DEV_UUID = '00000000-0000-0000-0000-000000000002';
@@ -192,37 +193,6 @@ const UserRow = (item: any) => {
 	);
 };
 
-export const MemberFilter = ({
-	name,
-	operator,
-	value,
-	onChange,
-}: {
-	name: string;
-	operator: string;
-	value: string;
-	onChange: (e: any) => void;
-}) => {
-	return (
-		<Flex fontSize="sm" borderWidth="1px" borderRadius="sm" justifyContent="center">
-			<Box h="full" py="1" px="3" display="flex" alignItems="center" borderRightWidth="1px">
-				{name}
-			</Box>
-			<Box h="full" py="1" px="3" display="flex" alignItems="center" borderRightWidth="1px">
-				{operator}
-			</Box>
-			<Input
-				value={value}
-				onChange={(e) => onChange(e.target.value)}
-				placeholder="Search"
-				size="sm"
-				colorScheme="blue"
-				borderWidth="0"
-			/>
-		</Flex>
-	);
-};
-
 export const Users = () => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 
@@ -305,19 +275,19 @@ export const Users = () => {
 					overflow="auto"
 					w="full"
 				>
-					<MemberFilter
+					<PermissionsFilter
 						name="Email"
 						operator="="
 						value={emailFilter}
 						onChange={setEmailFilter}
 					/>
-					<MemberFilter
+					<PermissionsFilter
 						name="Role"
 						operator="="
 						value={roleFilter}
 						onChange={setRoleFilter}
 					/>
-					<MemberFilter
+					<PermissionsFilter
 						name="Group"
 						operator="="
 						value={groupFilter}

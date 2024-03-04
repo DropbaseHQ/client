@@ -39,7 +39,7 @@ import { useAtomValue } from 'jotai';
 import { useQueryClient } from 'react-query';
 import { workspaceAtom } from '@/features/workspaces';
 import { PageLayout } from '@/layout';
-import { MemberFilter } from '@/features/settings/UserManager';
+import { PermissionsFilter } from './components/Permissions/PermissionsComponents';
 import { GroupCard } from './Group';
 import {
 	useGetWorkspaceGroups,
@@ -238,7 +238,7 @@ export const Groups = () => {
 								flex="1"
 								overflow="auto"
 							>
-								<MemberFilter
+								<PermissionsFilter
 									name="Email"
 									operator="="
 									value={emailFilter}
