@@ -18,9 +18,6 @@ env:
   PROD_ECR_REPO: 442766812249.dkr.ecr.us-east-1.amazonaws.com
   PROD_API_DOMAIN: api.dropbase.io
   DEPLOY_USER: dropbase
-  CLIENT_URL: https://dev.dropbase.io
-  LOOPS_API_KEY: "771ca36f885accd66ab864342acabf6b"
-  GOOGLE_CLIENT_ID: "29567616605-al7naomojd9n3hhtt7gdtkmm7vggsb0m.apps.googleusercontent.com"
 
 jobs:
   build-api-dev:
