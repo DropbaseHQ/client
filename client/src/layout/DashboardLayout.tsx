@@ -49,7 +49,7 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 					</Text>
 				</Box>
 			) : null}
-			<Flex maxH="calc(100vh - 20px)" flex="1">
+			<Flex maxH={shouldNotShowStatusBar ? '100vh' : 'calc(100vh - 20px)'} flex="1">
 				{shouldNotDisplayNavbar ? null : <Navbar />}
 				<Box overflowY="auto" flex="1" p="0">
 					{children}
