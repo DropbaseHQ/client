@@ -1,3 +1,4 @@
+import { Users } from 'react-feather';
 import { useState, useCallback } from 'react';
 import { useGetWorkspaceApps } from '../../../app-list/hooks/useGetWorkspaceApps';
 import {
@@ -48,6 +49,7 @@ const GroupList = ({
 	return groups?.map((group) => (
 		<PermissionsSubjectRow
 			key={group.id}
+			Icon={Users}
 			name={group.name}
 			id={group?.id}
 			isSelected={selectedGroup === group.id}

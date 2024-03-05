@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useAtomValue } from 'jotai';
+import { Layout } from 'react-feather';
 import { useGetWorkspaceApps } from '../../../app-list/hooks/useGetWorkspaceApps';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetWorkspaceGroups, useGetWorkspaceUsers } from '../../hooks/workspace';
@@ -80,6 +81,7 @@ const AppList = ({
 		<PermissionsSubjectRow
 			key={app.id}
 			name={app.name}
+			Icon={Layout}
 			id={app.id}
 			isSelected={selectedApp === app.id}
 			onClick={setSelectedApp}

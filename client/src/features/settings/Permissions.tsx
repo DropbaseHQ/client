@@ -1,10 +1,23 @@
 import { useState } from 'react';
 import { Flex, Box, Text, HStack } from '@chakra-ui/react';
+import { User, Users, Layout, Icon as ReactFeatherIcon } from 'react-feather';
 import { GroupPermissions } from './components/Permissions/GroupPermissions';
 import { MemberPermissions } from './components/Permissions/MemberPermissions';
 import { AppPermissions } from './components/Permissions/AppPermissions';
 
-const PermissionsTab = ({ name, value, onClick, isSelected }: any) => {
+const PermissionsTab = ({
+	name,
+	value,
+	onClick,
+	isSelected,
+	Icon,
+}: {
+	name: string;
+	value: string;
+	onClick: (value: string) => void;
+	isSelected: boolean;
+	Icon?: ReactFeatherIcon;
+}) => {
 	return (
 		<Box
 			_hover={{
@@ -13,8 +26,11 @@ const PermissionsTab = ({ name, value, onClick, isSelected }: any) => {
 			}}
 			bgColor={isSelected ? 'gray.100' : ''}
 			p="3"
+			display="flex"
+			alignItems="center"
 			onClick={() => onClick(value)}
 		>
+			<Box mr="3">{Icon ? <Icon size="16" color="gray" /> : null}</Box>
 			{name}
 		</Box>
 	);
@@ -45,18 +61,21 @@ export const Permissions = () => {
 					<PermissionsTab
 						name="Groups"
 						value="groups"
+						Icon={Users}
 						onClick={setMode}
 						isSelected={mode === 'groups'}
 					/>
 					<PermissionsTab
 						name="Members"
 						value="members"
+						Icon={User}
 						onClick={setMode}
 						isSelected={mode === 'members'}
 					/>
 					<PermissionsTab
 						name="Apps"
 						value="apps"
+						Icon={Layout}
 						onClick={setMode}
 						isSelected={mode === 'apps'}
 					/>

@@ -1,3 +1,4 @@
+import { User } from 'react-feather';
 import { useState, useCallback } from 'react';
 import { useAtomValue } from 'jotai';
 import { useGetWorkspaceApps } from '../../../app-list/hooks/useGetWorkspaceApps';
@@ -53,6 +54,7 @@ const UsersList = ({
 		<PermissionsSubjectRow
 			key={user.id}
 			name={user.name}
+			Icon={User}
 			id={user.id}
 			isSelected={selectedUser === user.id}
 			onClick={setSelectedUser}

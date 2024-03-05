@@ -14,17 +14,20 @@ import {
 	Input,
 	Stack,
 } from '@chakra-ui/react';
+import { Icon as ReactFeatherIcon } from 'react-feather';
 import { useEffect } from 'react';
 
 export const PermissionsSubjectRow = ({
 	name,
 	id,
 	isSelected,
+	Icon,
 	onClick,
 }: {
 	name: string;
 	id: string;
 	isSelected: boolean;
+	Icon: ReactFeatherIcon;
 	onClick: (id: string) => void;
 }) => {
 	const handleClick = () => {
@@ -42,6 +45,9 @@ export const PermissionsSubjectRow = ({
 			alignItems="center"
 			onClick={handleClick}
 		>
+			<Box mr="2">
+				<Icon size="16" color="gray" />
+			</Box>
 			{name}
 		</Box>
 	);
