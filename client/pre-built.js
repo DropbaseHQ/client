@@ -13,18 +13,6 @@ let data = `<!doctype html>
 		/>
 		<title>Dropbase | Build internal apps with SQL and Python in minutes</title>
 
-		<link
-			rel="icon"
-			media="(prefers-color-scheme:dark)"
-			href="/favicon-dark.ico"
-			type="image/x-icon"
-		/>
-		<link
-			rel="icon"
-			media="(prefers-color-scheme:light)"
-			href="/favicon-light.ico"
-			type="image/x-icon"
-		/>
 		<!-- Open Graph / Facebook -->
 		<meta
 			content="Dropbase | Build internal apps with SQL and Python in minutes"
