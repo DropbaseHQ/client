@@ -156,7 +156,7 @@ export const PermissionsFilterRow = ({ children }: any) => {
 			direction="row"
 			p="1.5"
 			alignItems="center"
-			w="40vw"
+			w="25vw"
 		>
 			<Stack
 				direction="row"
@@ -175,7 +175,7 @@ export const PermissionsFilterRow = ({ children }: any) => {
 
 export const PermissionsTable = ({ subjectName, tableRows }: any) => {
 	return (
-		<Box mt="2" border="1px" overflowY="auto" w="40vw" borderColor="gray.200" maxHeight="65vh">
+		<Box mt="2" border="1px" overflowY="auto" w="25vw" borderColor="gray.200" maxHeight="65vh">
 			<Table variant="unstyled">
 				<Thead position="sticky" bgColor="white" top="-1" zIndex="1000">
 					<Tr>
