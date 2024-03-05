@@ -52,10 +52,15 @@ const options = [
 		isGranular: true,
 	},
 	{
-		name: 'Billing',
-		link: 'billing',
+		name: 'Developer',
+		link: 'developer',
 		isGranular: false,
 	},
+	// {
+	// 	name: 'Billing',
+	// 	link: 'billing',
+	// 	isGranular: false,
+	// },
 ];
 
 export const SettingsLayout = ({ children }: PropsWithChildren<any>) => {

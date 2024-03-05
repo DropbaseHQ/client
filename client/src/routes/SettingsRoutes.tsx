@@ -1,5 +1,5 @@
 import { Routes, Route, Outlet } from 'react-router-dom';
-import { SettingsLayout, Users, Permissions, Groups } from '@/features/settings';
+import { SettingsLayout, Users, Permissions, Groups, DeveloperSettings } from '@/features/settings';
 
 export const SettingsRoutes = () => {
 	return (
@@ -17,6 +17,7 @@ export const SettingsRoutes = () => {
 				<Route path="members" element={<Users />} />
 				<Route path="permissions" element={<Permissions />} />
 				<Route path="groups" element={<Groups />} />
+				<Route path="developer" element={<DeveloperSettings />} />
 
 				{/* <Route path="*" element={<Navigate to="." />} /> */}
 			</Route>
