@@ -59,9 +59,6 @@ class CreateGoogleUserRequest(BaseModel):
 
 
 class CreateUserRequest(BaseModel):
-    name: str
-    last_name: Optional[str]
-    company: str
     email: str
     password: str
 
@@ -98,6 +95,12 @@ class ResendConfirmationEmailRequest(BaseModel):
 
 class RequestResetPassword(BaseModel):
     email: str
+
+
+class OnboardUser(BaseModel):
+    name: str
+    last_name: Optional[str]
+    company: str
 
 
 class CheckPermissionRequest(BaseModel):

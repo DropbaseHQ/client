@@ -1,44 +1,15 @@
-import yaml
-from yaml import load, dump
-from yaml import CLoader as Loader, CDumper as Dumper
+from server.controllers.tables import gpt_templates as templates
 
 
-def get_gpt_input(db_schema: dict, user_sql: str, column_names: list) -> str:
-    return f"""Given a database schema and a SQL query, output YAML that contains each column referenced in the SQL query.
-
-
-Sample YAML output
-```yaml
-- [output column]:
-    name: [output column]
-    schema_name: public
-    table_name: customer
-    column_name: name
-
-```
-
-In the sample YAML, [output column] is the column name as it would be output when executing the SQL statement.
-You will be provided a list of column names that will be returned by the query. Your job is to, for each column name, determine its schema_name, table_name, and column_name based on the SQL query. You may only return information on the columns specified in Column names. You must return information on each of the columns specified in Column names.
-"table" is the table name and "column" is the column name, both are inferred from the SQL query.
-"schema" is the schema, this can be found by referencing the Database schema.
-If not otherwise specified, use the default schema specified in the Database schema metadata.
-
-Make sure you include each and every column referenced in the SQL statement. Do not miss any columns. When in doubt, make a guess about which column is part of which table based on your understanding of the world and web application building to make sure all columns are covered.
-
-Database schema
-```yaml
-{dump(db_schema, Dumper=Dumper)}
-```
-
-SQL query:
-```sql
-{user_sql}
-```
-
-Column names:
-```
-{', '.join(column_names)}
-```
-
-Output no prose, no explanations, just YAML. Exclude calculated columns from the YAML output. Don't format output. Ensure that the output is one YAML object not multiple. Furthermore label the output column the actual column name don't just call it "output column"
-"""
+def get_gpt_input(db_schema: dict, user_sql: str, column_names: list, db_type: str) -> str:
+    match db_type:
+        case "postgres":
+            return templates.get_postgres_gpt_input(db_schema, user_sql, column_names)
+        case "mysql":
+            return templates.get_mysql_gpt_input(db_schema, user_sql, column_names)
+        case "snowflake":
+            return templates.get_snowflake_gpt_input(db_schema, user_sql, column_names)
+        case "sqlite":
+            return templates.get_sqlite_gpt_input(db_schema, user_sql, column_names)
+        case _:
+            return templates.get_postgres_gpt_input(db_schema, user_sql, column_names)

@@ -1,14 +1,15 @@
 import json
 import yaml
-from typing import Any, Dict
+from typing import Any, Dict, Union
 from fastapi import HTTPException
 import logging
 
 import openai
+from typing import Optional
 from pydantic import BaseModel
 
 from server.constants import GPT_MODEL, GPT_TEMPERATURE
-from server.controllers.tables.pg_column import PgSmartColumnProperty
+from server.controllers.tables.pg_column import SqlSmartColumnProperty
 from server.credentials import OPENAI_API_KEY, OPENAI_ORG_ID
 
 from .gpt_template import get_gpt_input
@@ -20,7 +21,8 @@ logger = logging.getLogger(__name__)
 
 
 class ColumnInfo(BaseModel):
-    schema_name: str
+    schema_name: Optional[str]
+    database_name: Optional[str]
     table_name: str
     column_name: str
 
@@ -34,28 +36,33 @@ FullDBSchema = dict[str, dict[str, dict[str, dict[str, Any]]]]
 
 def fill_smart_cols_data(
     smart_col_paths: dict, db_schema: FullDBSchema
-) -> dict[str, PgSmartColumnProperty]:
+) -> dict[str, Union[SqlSmartColumnProperty]]: # If we want to add more
     try:
         smart_cols_data = {}
         for name, col_path in smart_col_paths.items():
             try:
-                schema = col_path["schema_name"]
                 table = col_path["table_name"]
                 column = col_path["column_name"]
-                col_schema_data = db_schema[schema][table][column]
+                if "schema_name" in col_path:
+                    schema = col_path["schema_name"]
+                    col_schema_data = db_schema[schema][table][column] # this part schema does not exist
+                elif "database_name" in col_path:
+                    database = col_path["database_name"]
+                    table = col_path["table_name"]
+                    col_schema_data = db_schema[database][table][column]
             except KeyError:
                 # Skip ChatGPT "hallucinated" columns
                 continue
-            smart_cols_data[name] = PgSmartColumnProperty(name=name, **col_schema_data)
+            smart_cols_data[name] = SqlSmartColumnProperty(name=name, **col_schema_data)
         return {"columns": smart_cols_data}
     except Exception as e:
         logger.info(str(e))
         raise HTTPException(status_code=500, detail="API call failed. Please try again.")
 
 
-def call_gpt(user_sql: str, column_names: list, db_schema: dict) -> OutputSchema:
+def call_gpt(user_sql: str, column_names: list, db_schema: dict, db_type: str) -> OutputSchema:
     try:
-        gpt_input = get_gpt_input(db_schema, user_sql, column_names)
+        gpt_input = get_gpt_input(db_schema, user_sql, column_names, db_type)
         gpt_output = str(
             openai.ChatCompletion.create(
                 model=GPT_MODEL,
