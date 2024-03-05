@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue } from 'jotai';
 import { Box, Flex, Stack, Text } from '@chakra-ui/react';
-import { Lock } from 'react-feather';
+import { Lock, User, Users, Code, Icon as ReactFeatherIcon } from 'react-feather';
 import { PropsWithChildren, useEffect } from 'react';
 import { Link as ReactRouterLink } from 'react-router-dom';
 import { PageLayout } from '@/layout';
@@ -11,10 +11,12 @@ import { canUseGranularPermissionsAtom } from './atoms';
 const SettingsOption = ({
 	children,
 	link,
+	Icon,
 	available,
 }: {
 	children: any;
 	link: string;
+	Icon: ReactFeatherIcon;
 	available: boolean;
 }) => {
 	const isSelected = window.location.pathname.includes(link);
@@ -27,11 +29,16 @@ const SettingsOption = ({
 			as={ReactRouterLink}
 			to={`/settings/${link}`}
 			display="flex"
-			justifyContent="space-between"
+			alignItems="center"
 			pointerEvents={available ? 'auto' : 'none'}
 		>
+			{Icon ? (
+				<Box mr="3">
+					<Icon size="16" />
+				</Box>
+			) : null}
 			{children}
-			{available ? null : <Lock size="16" color="gray" />}
+			{available ? null : <Lock size="12" color="gray" />}
 		</Box>
 	);
 };
@@ -39,21 +46,25 @@ const options = [
 	{
 		name: 'Members',
 		link: 'members',
+		icon: User,
 		isGranular: false,
 	},
 	{
 		name: 'Groups',
 		link: 'groups',
+		icon: Users,
 		isGranular: true,
 	},
 	{
 		name: 'Permissions',
 		link: 'permissions',
+		icon: Lock,
 		isGranular: true,
 	},
 	{
 		name: 'Developer',
 		link: 'developer',
+		icon: Code,
 		isGranular: false,
 	},
 	// {
@@ -80,9 +91,10 @@ export const SettingsLayout = ({ children }: PropsWithChildren<any>) => {
 							<SettingsOption
 								key={option.name}
 								link={option.link}
+								Icon={option.icon}
 								available={option.isGranular ? canUse : true}
 							>
-								<Text>{option.name}</Text>
+								<Text fontSize="xl">{option.name}</Text>
 							</SettingsOption>
 						))}
 					</Stack>
