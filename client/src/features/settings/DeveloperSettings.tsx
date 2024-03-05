@@ -1,45 +1,25 @@
 import { useState, useEffect } from 'react';
-import {
-	Button,
-	Stack,
-	Skeleton,
-	Text,
-	SimpleGrid,
-	Input,
-	Flex,
-	FormControl,
-	FormLabel,
-	InputGroup,
-	InputRightElement,
-	InputLeftAddon,
-} from '@chakra-ui/react';
+import { Button, Stack, Skeleton, Text, Flex, Table, Thead, Tr, Th, Tbody } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { PageLayout } from '@/layout';
-import { useUpdateWorkspaceWorkerURL, useWorkspaces, workspaceAtom } from '@/features/workspaces';
+import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { useCreateProxyToken, useProxyTokens, ProxyToken } from '@/features/settings/hooks/token';
-import { WorkerTokenCard } from './components/ProxyTokenCard';
+
 import { TokenModal } from './components/TokenModal/TokenModal';
+import { WorkerTokenRow } from '@/features/settings/components/WorkerTokenRow';
 
 export const DeveloperSettings = () => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { user } = useGetCurrentUser();
-	const [workerUrl, setWorkerUrl] = useState('');
+	const [, setWorkerUrl] = useState('');
 	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
 	const { workspaces } = useWorkspaces();
 	const createMutation = useCreateProxyToken();
-	const updateWorkspaceMutation = useUpdateWorkspaceWorkerURL();
 	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
 	const handleButtonClick = async () => {
 		createMutation.mutate({
 			workspaceId: workspaceId || '',
-		});
-	};
-	const workerURLHasChanged = currentWorkspace?.worker_url !== workerUrl;
-	const handleSaveWorkerUrl = () => {
-		updateWorkspaceMutation.mutate({
-			workspaceId,
-			workerURL: workerUrl,
 		});
 	};
 
@@ -57,13 +37,19 @@ export const DeveloperSettings = () => {
 		<PageLayout title="Developer Settings">
 			<TokenModal />
 			<Stack>
-				<Flex direction="row" justifyContent="space-between" alignItems="center" mb="4">
-					<Text fontSize="lg" fontWeight="bold">
-						Worker Tokens
-					</Text>
+				<Flex direction="row" justifyContent="space-between" alignItems="center">
+					<Stack spacing="0.5">
+						<Text fontSize="lg" fontWeight="bold">
+							Worker Tokens
+						</Text>
+
+						<Text fontSize="md" fontWeight="medium">
+							Generate workspace token for your worker
+						</Text>
+					</Stack>
 					<Button
-						size="sm"
 						w="fit-content"
+						variant="outline"
 						isLoading={createMutation.isLoading}
 						onClick={handleButtonClick}
 					>
@@ -71,51 +57,25 @@ export const DeveloperSettings = () => {
 					</Button>
 				</Flex>
 
-				{/* {selectedToken ? null : (
-					<Alert status="error">
-						<AlertIcon />
-						<AlertTitle>Please select a token to continue!</AlertTitle>
-					</Alert>
-				)} */}
-				<SimpleGrid columns={3} spacing={4}>
-					{tokens.map((token: ProxyToken) => {
-						return <WorkerTokenCard token={token} />;
-					})}
-				</SimpleGrid>
-				<Text fontSize="lg" fontWeight="bold" mb="4">
-					Worker Settings
-				</Text>
-				<Flex direction="column">
-					<FormControl>
-						<FormLabel>Workspace ID</FormLabel>
-						<Input value={workspaceId ? String(workspaceId) : ''} isReadOnly />
-					</FormControl>
-					<FormControl mt="4">
-						<FormLabel>Worker URL</FormLabel>
-						<InputGroup size="md">
-							<InputLeftAddon>https://</InputLeftAddon>
-							<Input
-								placeholder="localhost:9000"
-								value={workerUrl}
-								onChange={(e) => {
-									setWorkerUrl(e.target.value);
-								}}
-							/>
-							{workerURLHasChanged && (
-								<InputRightElement>
-									<Button
-										size="xs"
-										mr="4"
-										onClick={handleSaveWorkerUrl}
-										isLoading={updateWorkspaceMutation.isLoading}
-									>
-										Save
-									</Button>
-								</InputRightElement>
-							)}
-						</InputGroup>
-					</FormControl>
-				</Flex>
+				<Table
+					w="container.lg"
+					borderLeftWidth="1px"
+					borderRightWidth="1px"
+					variant="simple"
+				>
+					<Thead>
+						<Tr>
+							<Th>Name</Th>
+							<Th>Key</Th>
+							<Th isNumeric>Actions</Th>
+						</Tr>
+					</Thead>
+					<Tbody>
+						{tokens.map((token: ProxyToken) => {
+							return <WorkerTokenRow token={token} />;
+						})}
+					</Tbody>
+				</Table>
 			</Stack>
 		</PageLayout>
 	);

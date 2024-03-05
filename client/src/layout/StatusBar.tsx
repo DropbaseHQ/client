@@ -73,7 +73,7 @@ export const StatusBar = () => {
 			{!selectedWorkspaceMatchesWorker && !isLoading ? (
 				<>
 					<Divider orientation="vertical" />
-					<Circle ml="1" size="2" bg={websocketIsConnected ? 'green' : 'red'} />
+					<Circle ml="1" size="2" bg="red" />
 					<Text noOfLines={1} fontSize="xs">
 						The selected workspace does not match the worker workspace.
 					</Text>

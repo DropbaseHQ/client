@@ -194,6 +194,7 @@ const UserRow = (item: any) => {
 		</Tr>
 	);
 };
+
 export const Users = () => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 

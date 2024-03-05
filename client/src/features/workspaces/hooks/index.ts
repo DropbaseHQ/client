@@ -45,7 +45,10 @@ export const useWorkerWorkspace = () => {
 		pathname.startsWith('/github_auth');
 
 	const { data: response, ...rest } = useQuery('workerWorkspace', getWorkerWorkspace, {
-		enabled: !loginRoutes && !!workerAxios.defaults.headers['access-token'],
+		enabled:
+			!loginRoutes &&
+			import.meta.env.VITE_APP_TYPE !== 'app' &&
+			!!workerAxios.defaults.headers['access-token'],
 	});
 
 	return {

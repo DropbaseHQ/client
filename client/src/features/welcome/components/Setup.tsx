@@ -8,13 +8,43 @@ import {
 	useClipboard,
 	IconButton,
 	Code,
+	FormControl,
+	FormLabel,
 } from '@chakra-ui/react';
+import { useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { CheckCircle, Copy, Download, ExternalLink } from 'react-feather';
 import { useToast } from '@/lib/chakra-ui';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { useProxyTokens } from '@/features/settings/hooks/token';
 import { workspaceAtom } from '@/features/workspaces';
+import { InputRenderer } from '@/components/FormInput';
+
+const SOURCES_SNIPPET: any = {
+	postgres: `
+SOURCE_PG_MYDB_HOST="YOUR HOST"
+SOURCE_PG_MYDB_DATABASE="YOUR DATABASE"
+SOURCE_PG_MYDB_USERNAME="YOUR USERNAME"
+SOURCE_PG_MYDB_PASSWORD="YOUR PASSWORD"
+SOURCE_PG_MYDB_PORT=5432 # CHANGE TO YOUR PORT`,
+	mysql: `
+SOURCE_MYSQL_MYDB_HOST="YOUR HOST"
+SOURCE_MYSQL_MYDB_DATABASE="YOUR DATABASE"
+SOURCE_MYSQL_MYDB_USERNAME="YOUR USERNAME"
+SOURCE_MYSQL_MYDB_PASSWORD="YOUR PASSWORD"
+SOURCE_MYSQL_MYDB_PORT=3306 # CHANGE TO YOUR PORT
+`,
+	snowflake: `
+SOURCE_SNOWFLAKE_MYDB_HOST="YOUR HOST"
+SOURCE_SNOWFLAKE_MYDB_DATABASE="YOUR DATABASE"
+SOURCE_SNOWFLAKE_MYDB_USERNAME="YOUR USERNAME"
+SOURCE_SNOWFLAKE_MYDB_PASSWORD="YOUR PASSWORD"
+SOURCE_SNOWFLAKE_MYDB_SCHEMA="YOUR SCHEMA"
+SOURCE_SNOWFLAKE_MYDB_WAREHOUSE="YOUR WAREHOUSE"
+SOURCE_SNOWFLAKE_MYDB_ROLE="YOUR ROLE"`,
+	sqlite: `
+SOURCE_SQLITE_MYDB_HOST="YOUR DB FILE"`,
+};
 
 const CodeSnippet = ({ code, file }: any) => {
 	const toast = useToast();
@@ -49,8 +79,9 @@ const CodeSnippet = ({ code, file }: any) => {
 
 				<IconButton
 					position="absolute"
-					right="10px"
+					right="2px"
 					flexShrink="0"
+					bottom="2px"
 					variant="ghost"
 					icon={hasCopied ? <CheckCircle size="14" /> : <Copy size="14" />}
 					size="xs"
@@ -72,6 +103,8 @@ const CodeSnippet = ({ code, file }: any) => {
 export const Setup = () => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { user } = useGetCurrentUser();
+
+	const [source, setSource] = useState('sqlite');
 
 	const { tokens } = useProxyTokens({ userId: user.id, workspaceId });
 	const firstToken = tokens[0] || { token: '' };
@@ -97,7 +130,7 @@ export const Setup = () => {
 			<ListItem>
 				<Stack>
 					<Text>Clone the repo</Text>
-					<CodeSnippet code="git clone git@github.com:DropbaseHQ/dropbase.git" />
+					<CodeSnippet code="git clone https://github.com/DropbaseHQ/dropbase.git" />
 				</Stack>
 			</ListItem>
 			<ListItem>
@@ -105,9 +138,27 @@ export const Setup = () => {
 					<Text>
 						Create a <Code>.env</Code> at the root directory ( dropbase ) and copy this
 					</Text>
+
+					<FormControl maxW="sm">
+						<FormLabel>Select your DB</FormLabel>
+						<InputRenderer
+							type="custom-select"
+							options={Object.keys(SOURCES_SNIPPET).map((option: any) => ({
+								name: option,
+								value: option,
+							}))}
+							name="source"
+							id="source"
+							onChange={setSource}
+							value={source || ''}
+						/>
+					</FormControl>
+
 					<CodeSnippet
 						file=".env"
-						code={`DROPBASE_TOKEN='${firstToken?.token}'\nDROPBASE_API_URL='https://api.dropbase.io'`}
+						code={`DROPBASE_TOKEN='${firstToken?.token}'\nDROPBASE_API_URL='https://api.dropbase.io'\n${
+							SOURCES_SNIPPET[source] || ''
+						}`}
 					/>
 				</Stack>
 			</ListItem>
@@ -123,7 +174,7 @@ export const Setup = () => {
 			<ListItem>
 				<Stack>
 					<Text>
-						In your browser go to <Code>locahost:3030</Code> and login
+						In your browser go to <Code>http://localhost:3030</Code> and login
 					</Text>
 					<Button
 						size="xs"
