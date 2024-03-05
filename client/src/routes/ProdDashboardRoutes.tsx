@@ -7,8 +7,8 @@ import { Welcome } from '../features/welcome';
 export const ProdDashboardRoutes = () => {
 	return (
 		<DashboardRoutes homeRoute="/welcome">
-			<Route path="welcome" element={<Welcome />} />
 			<Route element={<ProtectedRoutes />}>
+				<Route path="welcome" element={<Welcome />} />
 				<Route path="settings/permissions" element={<Permissions />} />
 				<Route path="settings/developer" element={<DeveloperSettings />} />
 			</Route>
