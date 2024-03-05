@@ -83,12 +83,12 @@ const TargetSelector = ({
 
 	const componentProperty = getComponentProperty(rule.target);
 
-	const getTargetType = () => {
-		if (!rule.target) return 'text';
+	const getTargetType = (target: string) => {
+		if (!target) return 'text';
 		if (componentProperty?.component_type === 'select' && componentProperty?.multiple) {
 			return 'string_array';
 		}
-		return getColType(rule.target);
+		return getColType(target);
 	};
 
 	useEffect(() => {
@@ -104,13 +104,14 @@ const TargetSelector = ({
 							return {
 								...r,
 								target: item.value,
-								target_type: getTargetType(),
+								target_type: getTargetType(item.value),
 							};
 						}
 
 						return r;
 					}),
 				);
+				setEditTarget(item.value);
 			}}
 		>
 			<FormControl isInvalid={isInvalid}>
@@ -124,6 +125,7 @@ const TargetSelector = ({
 					onChange={(e: any) => {
 						setEditTarget(e.target.value);
 					}}
+					submitKeys={['Enter']}
 				/>
 				{!targetExists() && (
 					<Text mt="1" fontSize="xs" color="orange.500">
@@ -212,6 +214,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 
 		const [, specificCategory, targetName] = target.split('.');
 		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
+		// console.log('table type', table?.[targetName as keyof typeof table]);
 		return table?.[targetName as keyof typeof table];
 	};
 
