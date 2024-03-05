@@ -13,8 +13,10 @@ import {
 	useRadioGroup,
 	Input,
 	Stack,
+	Tooltip,
 } from '@chakra-ui/react';
-import { Icon as ReactFeatherIcon } from 'react-feather';
+
+import { HelpCircle, Icon as ReactFeatherIcon } from 'react-feather';
 import { useEffect } from 'react';
 
 export const PermissionsSubjectRow = ({
@@ -173,6 +175,21 @@ export const PermissionsFilterRow = ({ children }: any) => {
 	);
 };
 
+const PermissionsTableHeader = ({ name, label }: { name: string; label?: string }) => {
+	return (
+		<Th>
+			<Box display="flex" alignItems="center">
+				{name}
+				<Box ml="1">
+					<Tooltip label={label || ''} placement="top-start">
+						<HelpCircle size="12" />
+					</Tooltip>
+				</Box>
+			</Box>
+		</Th>
+	);
+};
+
 export const PermissionsTable = ({ subjectName, tableRows }: any) => {
 	return (
 		<Box mt="2" border="1px" overflowY="auto" w="25vw" borderColor="gray.200" maxHeight="65vh">
@@ -180,10 +197,23 @@ export const PermissionsTable = ({ subjectName, tableRows }: any) => {
 				<Thead position="sticky" bgColor="white" top="-1" zIndex="1000">
 					<Tr>
 						<Th>{subjectName}</Th>
-						<Th>None</Th>
-						<Th>Use</Th>
-						<Th>Edit</Th>
-						<Th>Own</Th>
+
+						<PermissionsTableHeader
+							name="None"
+							label="A user with no permissions. Is just a member of the workspace."
+						/>
+						<PermissionsTableHeader
+							name="Use"
+							label="Use access allows a user or group to view and use an app. They can't edit or delete the app."
+						/>
+						<PermissionsTableHeader
+							name="Edit"
+							label="Edit access allows a user or group to view, use, and edit an app. They can't change the app's permissions, manage users, or delete the app."
+						/>
+						<PermissionsTableHeader
+							name="Own"
+							label="Own access allows a user or group to view, use, edit, and delete an app. They can also manage the app's permissions and users."
+						/>
 					</Tr>
 				</Thead>
 				<Tbody w="full" overflowY="auto" insetBlockEnd={0}>
