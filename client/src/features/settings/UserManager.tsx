@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+	Box,
 	Table,
 	Thead,
 	Tbody,
@@ -140,9 +141,9 @@ const UserRow = (item: any) => {
 				</HStack>
 			</Td>
 			<Td border="1px 0px" borderColor="gray.200">
-				<Flex>
+				<Flex wrap="wrap" overflow="auto" maxHeight="2rem">
 					{user?.groups?.map((obj: any) => (
-						<Tag m="1" size="sm" key={obj?.id}>
+						<Tag m="1" size="sm" key={obj?.id} colorScheme="teal">
 							{obj.name}
 						</Tag>
 					))}
@@ -253,127 +254,128 @@ export const Users = () => {
 	}
 
 	return (
-		<PageLayout
-			title="Workspace Members"
-			action={
-				<Button
-					colorScheme="blue"
-					size="sm"
-					ml="auto"
-					data-cy="add-member"
-					onClick={inviteMemberOnOpen}
-				>
-					Add Member
-				</Button>
-			}
-		>
-			<Stack
-				bg="white"
-				borderWidth="1px"
-				borderRadius="sm"
-				direction="row"
-				p="1.5"
-				alignItems="center"
-				w="full"
+		<Box w="60vw">
+			<PageLayout
+				title="Workspace Members"
+				action={
+					<Button
+						colorScheme="blue"
+						size="sm"
+						ml="auto"
+						data-cy="add-member"
+						onClick={inviteMemberOnOpen}
+					>
+						Add Member
+					</Button>
+				}
 			>
 				<Stack
-					direction="row"
+					bg="white"
+					borderWidth="1px"
 					borderRadius="sm"
-					px="2"
-					spacing="6"
-					flex="1"
-					overflow="auto"
-					w="full"
+					direction="row"
+					p="1.5"
+					alignItems="center"
 				>
-					<PermissionsFilter
-						name="Email"
-						operator="="
-						value={emailFilter}
-						onChange={setEmailFilter}
-					/>
-					<PermissionsFilter
-						name="Role"
-						operator="="
-						value={roleFilter}
-						onChange={setRoleFilter}
-					/>
-					<PermissionsFilter
-						name="Group"
-						operator="="
-						value={groupFilter}
-						onChange={setGroupFilter}
-					/>
+					<Stack
+						direction="row"
+						borderRadius="sm"
+						px="2"
+						spacing="6"
+						flex="1"
+						overflow="auto"
+						w="full"
+					>
+						<PermissionsFilter
+							name="Email"
+							operator="="
+							value={emailFilter}
+							onChange={setEmailFilter}
+						/>
+						<PermissionsFilter
+							name="Role"
+							operator="="
+							value={roleFilter}
+							onChange={setRoleFilter}
+						/>
+						<PermissionsFilter
+							name="Group"
+							operator="="
+							value={groupFilter}
+							onChange={setGroupFilter}
+						/>
+					</Stack>
 				</Stack>
-			</Stack>
 
-			<Table variant="unstyled" layout="fixed">
-				<Thead border="1px" borderColor="gray.200">
-					<Tr>
-						<Th border="1px 0px" borderColor="gray.200" w="15rem">
-							Email
-						</Th>
-						<Th border="1px 0px" borderColor="gray.200">
-							Workspace Role
-						</Th>
-						<Th>Groups</Th>
-						<Th border="1px 0px" borderColor="gray.200">
-							Actions
-						</Th>
-					</Tr>
-				</Thead>
-				<Tbody border="1px" borderColor="gray.200">
-					{filteredUsers.map((item: any) => (
-						<UserRow user={item} key={item.id} />
-					))}
-				</Tbody>
-			</Table>
-			<Modal isOpen={inviteMemberIsOpen} onClose={inviteMemberOnClose}>
-				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>Invite a member</ModalHeader>
-					<ModalCloseButton />
-					<ModalBody>
-						<VStack spacing="3">
-							<Input
-								placeholder="Member Email"
-								value={newMemberEmail}
-								data-cy="new-member-email"
-								onChange={(e) => {
-									setNewMemberEmail(e.target.value);
-								}}
-							/>
-							<Select
-								placeholder="Select role"
-								value={newMemberRole}
-								data-cy="new-member-role"
-								onChange={(e) => {
-									setNewMemberRole(e.target.value);
-								}}
+				<Table variant="unstyled" layout="fixed">
+					<Thead border="1px" borderColor="gray.200">
+						<Tr>
+							<Th border="1px 0px" borderColor="gray.200" w="15rem">
+								Email
+							</Th>
+							<Th border="1px 0px" borderColor="gray.200">
+								Workspace Role
+							</Th>
+							<Th>Groups</Th>
+							<Th border="1px 0px" borderColor="gray.200">
+								Actions
+							</Th>
+						</Tr>
+					</Thead>
+					<Tbody border="1px" borderColor="gray.200">
+						{filteredUsers.map((item: any) => (
+							<UserRow user={item} key={item.id} />
+						))}
+					</Tbody>
+				</Table>
+				<Modal isOpen={inviteMemberIsOpen} onClose={inviteMemberOnClose}>
+					<ModalOverlay />
+					<ModalContent>
+						<ModalHeader>Invite a member</ModalHeader>
+						<ModalCloseButton />
+						<ModalBody>
+							<VStack spacing="3">
+								<Input
+									placeholder="Member Email"
+									value={newMemberEmail}
+									data-cy="new-member-email"
+									onChange={(e) => {
+										setNewMemberEmail(e.target.value);
+									}}
+								/>
+								<Select
+									placeholder="Select role"
+									value={newMemberRole}
+									data-cy="new-member-role"
+									onChange={(e) => {
+										setNewMemberRole(e.target.value);
+									}}
+								>
+									<option value={ADMIN_UUID}>Admin</option>
+									<option value={DEV_UUID}>Dev</option>
+									<option value={USER_UUID}>User</option>
+									<option value={MEMBER_UUID}>Member</option>
+								</Select>
+							</VStack>
+						</ModalBody>
+
+						<ModalFooter>
+							<Button
+								colorScheme="blue"
+								mr={3}
+								data-cy="invite-member"
+								onClick={handleInviteMember}
+								isLoading={inviteMemberMutation.isLoading}
 							>
-								<option value={ADMIN_UUID}>Admin</option>
-								<option value={DEV_UUID}>Dev</option>
-								<option value={USER_UUID}>User</option>
-								<option value={MEMBER_UUID}>Member</option>
-							</Select>
-						</VStack>
-					</ModalBody>
-
-					<ModalFooter>
-						<Button
-							colorScheme="blue"
-							mr={3}
-							data-cy="invite-member"
-							onClick={handleInviteMember}
-							isLoading={inviteMemberMutation.isLoading}
-						>
-							Invite
-						</Button>
-						<Button variant="ghost" onClick={inviteMemberOnClose}>
-							Cancel
-						</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal>
-		</PageLayout>
+								Invite
+							</Button>
+							<Button variant="ghost" onClick={inviteMemberOnClose}>
+								Cancel
+							</Button>
+						</ModalFooter>
+					</ModalContent>
+				</Modal>
+			</PageLayout>
+		</Box>
 	);
 };
