@@ -65,7 +65,7 @@ const fileOptions = [
 	},
 ];
 
-export const NewFile = (props: any) => {
+export const NewFile = ({ children, ...props }: any) => {
 	const toast = useToast();
 	const methods = useForm({
 		shouldUnregister: true,
@@ -136,18 +136,29 @@ export const NewFile = (props: any) => {
 	return (
 		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur={false}>
 			<PopoverTrigger>
-				<IconButton
-					aria-label="Add function"
-					data-cy="create-file-button"
-					icon={<Plus size="14" />}
-					onClick={(e) => {
-						e.stopPropagation();
-						onToggle();
-					}}
-					isDisabled={!isConnected}
-					isLoading={mutation.isLoading}
-					{...props}
-				/>
+				{children ? (
+					children?.({
+						onClick: (e: any) => {
+							e.stopPropagation();
+							onToggle();
+						},
+						isDisabled: !isConnected,
+						isLoading: mutation.isLoading,
+					})
+				) : (
+					<IconButton
+						aria-label="Add function"
+						data-cy="create-file-button"
+						icon={<Plus size="14" />}
+						onClick={(e) => {
+							e.stopPropagation();
+							onToggle();
+						}}
+						isDisabled={!isConnected}
+						isLoading={mutation.isLoading}
+						{...props}
+					/>
+				)}
 			</PopoverTrigger>
 
 			<Portal>

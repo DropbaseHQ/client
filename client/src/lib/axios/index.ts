@@ -27,6 +27,21 @@ export const setWorkerAxiosWorkspaceIdHeader = (workspaceId: string) => {
 	workerAxios.defaults.headers['workspace-id'] = workspaceId;
 };
 
+const redirectToLogin = () => {
+	if (
+		!(
+			window.location.pathname.includes('/login') ||
+			window.location.pathname.includes('/register') ||
+			window.location.pathname.includes('/email-confirmation') ||
+			window.location.pathname.includes('/forgot') ||
+			window.location.pathname.includes('/reset') ||
+			window.location.pathname.includes('/github_auth')
+		)
+	) {
+		window.location.href = '/login';
+	}
+};
+
 axios.interceptors.response.use(
 	(res) => {
 		return res;
@@ -40,44 +55,34 @@ axios.interceptors.response.use(
 			apiConfig.url !== '/user/refresh' &&
 			err.response
 		) {
-			// Access Token was expired
-			if (
-				err.response.status === 401 &&
-				!apiConfig.retry &&
-				localStorage.getItem('refresh_token')
-			) {
-				apiConfig.retry = true;
+			if (err.response.status === 401) {
+				const savedRefreshToken = localStorage.getItem('refresh_token');
 
-				try {
-					const refreshResponse = await axios.post('/user/refresh', undefined, {
-						headers: {
-							Authorization: `Bearer ${localStorage.getItem('refresh_token')}`,
-						},
-					});
-					const accessToken = refreshResponse?.data?.access_token;
-					localStorage.setItem('access_token', accessToken);
-					setAxiosToken(accessToken);
-					setWorkerAxiosToken(accessToken);
+				if (savedRefreshToken) {
+					// Access Token was expired & refresh token present in local storage
+					if (!apiConfig.retry) {
+						apiConfig.retry = true;
 
-					return await axios(apiConfig);
-				} catch (_error) {
-					if (
-						!(
-							window.location.pathname.includes('/login') ||
-							window.location.pathname.includes('/register') ||
-							window.location.pathname.includes('/email-confirmation') ||
-							window.location.pathname.includes('/forgot') ||
-							window.location.pathname.includes('/reset') ||
-							window.location.pathname.includes('/github_auth')
-						)
-					) {
-						window.location.href = '/login';
+						try {
+							const refreshResponse = await axios.post('/user/refresh', undefined, {
+								headers: {
+									Authorization: `Bearer ${savedRefreshToken}`,
+								},
+							});
+							const accessToken = refreshResponse?.data?.access_token;
+							localStorage.setItem('access_token', accessToken);
+							setAxiosToken(accessToken);
+							setWorkerAxiosToken(accessToken);
+
+							return await axios(apiConfig);
+						} catch (_error) {
+							redirectToLogin();
+						}
 					}
+				} else {
+					redirectToLogin();
 				}
 			}
-			// if (err.response.status === 500) {
-			// 	window.location.href = '/login';
-			// }
 		}
 
 		return Promise.reject(err);

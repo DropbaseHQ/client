@@ -66,6 +66,7 @@ const TargetSelector = ({
 	displayRules,
 	getColType,
 	isInvalid,
+	getComponentProperty,
 }: any) => {
 	const [editTarget, setEditTarget] = useState<string>(rule.target);
 
@@ -78,6 +79,16 @@ const TargetSelector = ({
 			return tableTargets?.some((t: any) => t.value === rule.target);
 		}
 		return widgetTargets?.some((t: any) => t.value === rule.target);
+	};
+
+	const componentProperty = getComponentProperty(rule.target);
+
+	const getTargetType = (target: string) => {
+		if (!target) return 'text';
+		if (componentProperty?.component_type === 'select' && componentProperty?.multiple) {
+			return 'string_array';
+		}
+		return getColType(target);
 	};
 
 	useEffect(() => {
@@ -93,13 +104,14 @@ const TargetSelector = ({
 							return {
 								...r,
 								target: item.value,
-								target_type: getColType(item.value),
+								target_type: getTargetType(item.value),
 							};
 						}
 
 						return r;
 					}),
 				);
+				setEditTarget(item.value);
 			}}
 		>
 			<FormControl isInvalid={isInvalid}>
@@ -113,6 +125,7 @@ const TargetSelector = ({
 					onChange={(e: any) => {
 						setEditTarget(e.target.value);
 					}}
+					submitKeys={['Enter']}
 				/>
 				{!targetExists() && (
 					<Text mt="1" fontSize="xs" color="orange.500">
@@ -187,16 +200,23 @@ export const DisplayRulesEditor = ({ name }: any) => {
 					c.component_type === 'boolean'),
 		)
 		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
+
+	const getComponentProperty = (target: string) => {
+		if (!target) return null;
+		return componentsProperties?.[target.split('.')[2]];
+	};
+
 	const getColType = (target: string) => {
 		if (!target) return 'text';
 
-		const componentProperty = componentsProperties?.[target.split('.')[2]];
+		const componentProperty = getComponentProperty(target);
 		if (target.includes('widgets')) return componentProperty?.data_type;
 
 		const [, specificCategory, targetName] = target.split('.');
 		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
 		return table?.[targetName as keyof typeof table];
 	};
+
 	const tableTargets = useMemo(() => {
 		return Object.keys(tableState)
 			.map((tableName: any) => {
@@ -247,35 +267,15 @@ export const DisplayRulesEditor = ({ name }: any) => {
 					return (
 						<Stack spacing="2.5">
 							{displayRules.map((rule: any, index: any) => {
-								const ruleName = rule?.target?.split('.')?.[2];
-								const componentProperty = componentsProperties?.[ruleName];
 								let usesComparatorOps = false;
-								let input: any = {
-									type: 'text',
-								};
+
+								const targetType = getColType(rule.target);
 
 								if (
-									getColType(rule.target) === 'number' ||
-									getColType(rule.target) === 'float'
+									NUMBER_TYPES.includes(targetType) ||
+									DATETIME_TYPES.includes(targetType)
 								) {
 									usesComparatorOps = true;
-								}
-
-								if (
-									NUMBER_TYPES.includes(componentProperty?.data_type) ||
-									DATETIME_TYPES.includes(componentProperty?.data_type)
-								) {
-									usesComparatorOps = true;
-									if (componentProperty?.component_type === 'input') {
-										input = {
-											type: 'number',
-										};
-									} else if (componentProperty?.component_type === 'select') {
-										input = {
-											type: 'select',
-											options: componentProperty?.property?.options || [],
-										};
-									}
 								}
 
 								return (
@@ -324,6 +324,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 											displayRules={displayRules}
 											getColType={getColType}
 											isInvalid={!isValid && isSubmitted && !rule.target}
+											getComponentProperty={getComponentProperty}
 										/>
 
 										<Stack alignItems="end" key={rule.id} direction="row">
@@ -384,7 +385,6 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														flex="1"
 														disabled={!rule.target}
 														placeholder="select value"
-														{...input}
 														type={processColType(
 															getColType(rule.target),
 														)}

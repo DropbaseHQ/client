@@ -86,7 +86,7 @@ export const getErrorMessage = (error: any) => {
 };
 
 export const isProductionApp = () => {
-	return window.location.href.includes('app.dropbase.io');
+	return import.meta.env.VITE_APP_TYPE === 'app';
 };
 
 export const invalidResourceName = (
