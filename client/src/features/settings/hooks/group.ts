@@ -122,14 +122,14 @@ export const useUpdateGroupPolicy = (mutationConfig?: any) => {
 		onSuccess: () => {
 			mutationConfig?.onSuccess?.();
 			toast({
-				title: 'Policy updated',
+				title: 'Group permission updated',
 				status: 'success',
 			});
 		},
 		onError: () => {
 			mutationConfig?.onError?.();
 			toast({
-				title: 'Error updating policy',
+				title: 'Error updating group permission',
 				status: 'error',
 			});
 		},

@@ -69,13 +69,13 @@ export const useUpdateUserPolicy = (mutationConfig?: any) => {
 		...(mutationConfig || {}),
 		onSuccess: () => {
 			toast({
-				title: 'Permissions updated',
+				title: 'User permissions updated',
 				status: 'success',
 			});
 		},
 		onError: () => {
 			toast({
-				title: 'Error updating permissions',
+				title: 'Error updating user permissions',
 				status: 'error',
 			});
 		},
