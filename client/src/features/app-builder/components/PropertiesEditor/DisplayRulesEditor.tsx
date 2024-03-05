@@ -214,7 +214,6 @@ export const DisplayRulesEditor = ({ name }: any) => {
 
 		const [, specificCategory, targetName] = target.split('.');
 		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
-		// console.log('table type', table?.[targetName as keyof typeof table]);
 		return table?.[targetName as keyof typeof table];
 	};
 
