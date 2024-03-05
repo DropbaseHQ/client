@@ -49,8 +49,9 @@ const CodeSnippet = ({ code, file }: any) => {
 
 				<IconButton
 					position="absolute"
-					right="10px"
+					right="2px"
 					flexShrink="0"
+					bottom="2px"
 					variant="ghost"
 					icon={hasCopied ? <CheckCircle size="14" /> : <Copy size="14" />}
 					size="xs"
@@ -97,7 +98,7 @@ export const Setup = () => {
 			<ListItem>
 				<Stack>
 					<Text>Clone the repo</Text>
-					<CodeSnippet code="git clone git@github.com:DropbaseHQ/dropbase.git" />
+					<CodeSnippet code="git clone https://github.com/DropbaseHQ/dropbase.git" />
 				</Stack>
 			</ListItem>
 			<ListItem>
