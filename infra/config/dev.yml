@@ -12,8 +12,8 @@ environment_variables:
   CLIENT_URL: https://dev.dropbase.io
   LOOPS_API_KEY: 771ca36f885accd66ab864342acabf6b
   GOOGLE_CLIENT_ID: "29567616605-al7naomojd9n3hhtt7gdtkmm7vggsb0m.apps.googleusercontent.com"
-  GITHUB_CLIENT_SECRET: "9ba9ee52acc5fa7e1416cd1387179454ce7b9a8c"
-  GITHUB_CLIENT_ID: "0cc0b4d0157e439493fc"
+  GITHUB_CLIENT_SECRET: "a95ed5b557ffda08d9e269fd5c68157255cad3c3"
+  GITHUB_CLIENT_ID: "b7c6e1a4b73871d22098"
 
 # environment variables with values from AWS Secret Manager that will be
 # fetched and deployed by the CI/CD automatically
