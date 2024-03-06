@@ -8,6 +8,7 @@ import { DropbaseLogo } from '@/components/Logo';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { isProductionApp } from '../utils';
 import { workspaceAtom } from '@/features/workspaces';
+import { WorkspaceSwitcher } from '@/features/app/components/WorkspaceSwitcher';
 
 export const Navbar = () => {
 	const { pathname } = useLocation();
@@ -24,22 +25,20 @@ export const Navbar = () => {
 	return (
 		<Stack w="14" h="full" bg="white" borderRightWidth="1px" p="3" alignItems="center">
 			<Stack alignItems="center" h="full">
-				<Box mb="8" w="12" as={Link} to="/apps">
+				<Box mb="8" w="12" as={Link} to="/apps" display="flex" flexDirection="column">
 					<DropbaseLogo />
+					<WorkspaceSwitcher
+						trigger={
+							<IconButton
+								size="sm"
+								variant="ghost"
+								color="body"
+								aria-label="Workspace Switcher"
+								icon={<Repeat size="14" />}
+							/>
+						}
+					/>
 				</Box>
-				{user?.email?.endsWith('dropbase.io') && (
-					<Tooltip label="Workspace Switcher" placement="right">
-						<IconButton
-							variant="ghost"
-							as={Link}
-							to="/workspaces"
-							color={pathname === '/workspaces' ? 'blue.500' : 'body'}
-							colorScheme={pathname === '/workspaces' ? 'blue' : 'gray'}
-							aria-label="Apps"
-							icon={<Repeat size="22" />}
-						/>
-					</Tooltip>
-				)}
 
 				{isProductionApp() ? null : (
 					<Tooltip label="Apps" placement="right">
