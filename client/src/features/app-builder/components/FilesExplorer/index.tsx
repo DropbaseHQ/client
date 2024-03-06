@@ -8,8 +8,12 @@ import {
 	Stack,
 	useDisclosure,
 	Spacer,
+	Text,
+	Button,
+	Center,
+	Link,
 } from '@chakra-ui/react';
-import { Code, Table, Box as BoxIcon, Edit2, Check, X } from 'react-feather';
+import { Code, Table, Box as BoxIcon, Edit2, Check, X, Plus } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -22,6 +26,7 @@ import { DeleteFile } from './DeleteFile';
 import { useUpdateFile } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
+import { NewFile } from '@/features/app-builder/components/FilesExplorer/NewFile';
 
 const FileButton = ({ file }: any) => {
 	const toast = useToast();
@@ -254,6 +259,36 @@ export const FilesExplorer = () => {
 					<Skeleton h="7" w="32" />
 				</Stack>
 			</Stack>
+		);
+	}
+
+	if (files?.length === 0) {
+		return (
+			<Center spacing="0.5" as={Stack}>
+				<Text fontSize="md" fontWeight="semibold">
+					No files present
+				</Text>
+				<Link fontSize="sm" href="https://docs.dropbase.io/concepts/studio/" isExternal>
+					Learn more
+				</Link>
+				<NewFile>
+					{(props: any) => (
+						<Button
+							mt="2"
+							variant="outline"
+							colorScheme="gray"
+							size="sm"
+							flexShrink="0"
+							{...props}
+						>
+							<Stack alignItems="center" justifyContent="center" direction="row">
+								<Plus size="14" />
+								<Box>New File</Box>
+							</Stack>
+						</Button>
+					)}
+				</NewFile>
+			</Center>
 		);
 	}
 

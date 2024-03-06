@@ -22,15 +22,13 @@ import { useGoogleRegister, useRegister } from './hooks/useRegister';
 import { useToast } from '@/lib/chakra-ui';
 import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '@/utils';
+import { onboardingAtom } from '@/features/authorization';
 import { showConfirmationAtom } from './atoms';
 import { workspaceAtom } from '@/features/workspaces';
 
 type FormValues = {
 	email: string;
 	password: string;
-	name: string;
-	last_name: string;
-	company: string;
 	confirm: string;
 };
 
@@ -46,6 +44,7 @@ export const Register = () => {
 
 	const toast = useToast();
 	const updateWorkspace = useSetAtom(workspaceAtom);
+	const updateOnboardingStatus = useSetAtom(onboardingAtom);
 
 	const { mutate: googleMutate } = useGoogleRegister({
 		onError: (error: any) => {
@@ -69,6 +68,7 @@ export const Register = () => {
 				title: 'Registered successfully',
 				status: 'success',
 			});
+			updateOnboardingStatus(data?.onboarding || false);
 			navigate('/apps');
 		},
 	});
@@ -125,42 +125,6 @@ export const Register = () => {
 					<form onSubmit={onSubmit}>
 						<Stack spacing="6">
 							<Stack spacing="5">
-								<FormControl isInvalid={!!errors?.name}>
-									<FormLabel htmlFor="name">First Name</FormLabel>
-									<Input
-										placeholder="Please enter your first name"
-										id="name"
-										type="name"
-										data-cy="first-name"
-										{...register('name', {
-											required: 'name is required',
-										})}
-									/>
-								</FormControl>
-								<FormControl isInvalid={!!errors?.last_name}>
-									<FormLabel htmlFor="last_name">Last Name</FormLabel>
-									<Input
-										placeholder="Please enter your last name"
-										id="last_name"
-										type="name"
-										data-cy="last-name"
-										{...register('last_name', {
-											required: 'last_name is required',
-										})}
-									/>
-								</FormControl>
-								<FormControl isInvalid={!!errors?.company}>
-									<FormLabel htmlFor="company">Company</FormLabel>
-									<Input
-										placeholder="Please enter your company"
-										id="company"
-										type="name"
-										data-cy="company"
-										{...register('company', {
-											required: 'Company is required',
-										})}
-									/>
-								</FormControl>
 								<FormControl isInvalid={!!errors?.email}>
 									<FormLabel htmlFor="email">Email</FormLabel>
 									<Input

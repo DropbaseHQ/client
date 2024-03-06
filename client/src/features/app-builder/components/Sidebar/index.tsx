@@ -27,7 +27,7 @@ export const BuilderSidebar = () => {
 	const { isRefetching, refetch } = useInitializePageState(appName || '', pageName || '');
 
 	return (
-		<Accordion h="full" overflowY="auto" allowToggle>
+		<Accordion h="full" overflowY="auto" allowMultiple>
 			<AccordionItem>
 				{({ isExpanded }) => (
 					<>

@@ -1,5 +1,5 @@
 import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 
 import { lazyImport } from '@/utils/lazy-import';
@@ -7,6 +7,7 @@ import { lazyImport } from '@/utils/lazy-import';
 import { useWorkspaces } from '@/features/workspaces';
 import { GithubAuth } from '@/features/authorization/GithubAuth';
 import { DashboardLayout } from '@/layout';
+import { OnboardingForm } from '@/features/authorization/OnboardingForm';
 
 const { Login } = lazyImport(() => import('@/features/authorization'), 'Login');
 const { Register } = lazyImport(() => import('@/features/authorization'), 'Register');
@@ -21,6 +22,24 @@ const { RequestResetLink } = lazyImport(
 );
 
 export const DashboardRoutes = ({ homeRoute, children }: any) => {
+	useEffect(() => {
+		let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
+		if (!link) {
+			link = document.createElement('link') as HTMLLinkElement;
+			link.rel = 'shortcut icon';
+			document.getElementsByTagName('head')[0].appendChild(link);
+		}
+		link.type = 'image/x-icon';
+		if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+			link.href = '/favicon-dark.ico';
+		} else {
+			link.href = '/favicon-light.ico';
+		}
+		if (window.location.hostname === 'localhost') {
+			link.href = '/favicon-dev.ico';
+		}
+	}, []);
+
 	const { isLoading } = useWorkspaces();
 
 	if (isLoading) {
@@ -58,6 +77,7 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 					element={
 						<DashboardLayout>
 							<Outlet />
+							<OnboardingForm />
 						</DashboardLayout>
 					}
 				>

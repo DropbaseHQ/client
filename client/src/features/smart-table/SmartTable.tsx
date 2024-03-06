@@ -129,6 +129,9 @@ export const SmartTable = ({ tableName, provider }: any) => {
 	} = useGetTable(tableName || '');
 	const tableIsUnsynced = useTableSyncStatus(tableName);
 
+	const currentFetcher = table?.fetcher;
+	const previousFetcher = usePrevious(currentFetcher);
+
 	const handleEvent = useEvent();
 
 	const mutation = useUpdatePageData({
@@ -218,6 +221,34 @@ export const SmartTable = ({ tableName, provider }: any) => {
 			}));
 		}
 	}, [selectedRow, rows, selection]);
+
+	useEffect(() => {
+		/**
+		 * If fetcher changed for the table, and if columns are different than selected Row.
+		 */
+		if (
+			JSON.stringify(currentFetcher) !== JSON.stringify(previousFetcher) &&
+			selectedRow &&
+			columnDict
+		) {
+			const columnNotFound = Object.keys(columnDict).find(
+				(c) => !Object.keys(selectedRow)?.includes(c),
+			);
+
+			if (columnNotFound) {
+				selectRow((old: any) => ({
+					...old,
+					[tableName]: Object.keys(columnDict).reduce(
+						(acc: { [col: string]: string | null }, curr: string) => ({
+							...acc,
+							[curr]: null,
+						}),
+						{},
+					),
+				}));
+			}
+		}
+	}, [selectedRow, columnDict, tableName, currentFetcher, previousFetcher, selectRow]);
 
 	useEffect(() => {
 		if (JSON.stringify(previousSelectedRow) !== JSON.stringify(selectedRow)) {
@@ -494,10 +525,17 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					const allOptions = [
 						...new Set([
 							...(column?.configurations?.options || []),
-							...cellValue.split(',').map((o: any) => ({
-								label: o,
-								value: o,
-							})),
+							...cellValue
+								.split(',')
+								.filter((o: any) => {
+									return !(column?.configurations?.options || []).find(
+										(c: any) => c?.value === o?.value,
+									);
+								})
+								.map((o: any) => ({
+									label: o,
+									value: o,
+								})),
 						]),
 					];
 
@@ -509,6 +547,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							values: cellValue?.split(','),
 							options: allOptions.map((option: any) => ({
 								...option,
+								label: option?.name || option?.label,
 								color: '#cdcdcd',
 							})),
 
@@ -520,11 +559,13 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					};
 				}
 
+				const isElementAlreadyPresent = (column?.configurations?.options || [])?.find(
+					(c: any) => c.value === cellValue,
+				);
+
 				const allOptions = [
-					...new Set([
-						...(column?.configurations?.options || []),
-						{ label: cellValue, value: cellValue },
-					]),
+					...(column?.configurations?.options || []),
+					...(isElementAlreadyPresent ? [] : [{ label: cellValue, value: cellValue }]),
 				];
 
 				return {
@@ -534,6 +575,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						kind: 'dropdown-cell',
 						allowedValues: allOptions.map((option: any) => ({
 							...option,
+							label: option?.name || option?.label,
 							color: '#cdcdcd',
 						})),
 						value: cellValue,

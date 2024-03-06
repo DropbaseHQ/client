@@ -16,6 +16,7 @@ env:
   VITE_API_ENDPOINT: "https://api.dropbase.io/"
   VITE_PYTHON_LSP_SERVER: "wss://api.dropbase.io"
   VITE_WORKER_API_ENDPOINT: "https://api.dropbase.io"
+  VITE_GOOGLE_CLIENT_ID: "213282612010-bskbkd0ccja88fdtg8ua1jrt365qnenj.apps.googleusercontent.com"
   VITE_APP_TYPE: "app"
 
 jobs:

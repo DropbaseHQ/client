@@ -79,7 +79,10 @@ export const NewColumn = (props: any) => {
 					if (t.name === tableName) {
 						return {
 							...t,
-							columns: [...(t?.columns || []), formValues],
+							columns: [
+								...(t?.columns || []),
+								{ ...formValues, column_type: 'button_column' },
+							],
 						};
 					}
 
@@ -104,7 +107,7 @@ export const NewColumn = (props: any) => {
 				>
 					<Stack alignItems="center" justifyContent="center" direction="row">
 						<Plus size="14" />
-						<Box>Add Virtual Column</Box>
+						<Box>Add Action Column</Box>
 					</Stack>
 				</Button>
 			</PopoverTrigger>
@@ -116,7 +119,7 @@ export const NewColumn = (props: any) => {
 					}}
 				>
 					<PopoverHeader pt={4} fontWeight="bold" fontSize="md" border="0">
-						Create a new virtual column
+						Create a new action column
 					</PopoverHeader>
 					<PopoverArrow />
 					<PopoverCloseButton />
@@ -126,82 +129,89 @@ export const NewColumn = (props: any) => {
 								{isOpen ? (
 									<Stack spacing="2">
 										<Stack>
-											{btnColumnFields.map((property: any) => {
-												// FIXME: reuse this logic of iteration
-												if (property?.name === 'label') {
+											{btnColumnFields
+												.filter(
+													(p: any) =>
+														p.name === 'label' || p.name === 'name',
+												)
+												.map((property: any) => {
+													// FIXME: reuse this logic of iteration
+													if (property?.name === 'label') {
+														return (
+															<FormInput
+																{...property}
+																id={property.name}
+																name="Button Label"
+																type="template"
+																key={property.name}
+															/>
+														);
+													}
+
+													if (property?.name === 'name') {
+														return (
+															<FormInput
+																{...property}
+																id={property.name}
+																name="Column Name"
+																validation={{
+																	required: 'Cannot  be empty',
+																	validate: {
+																		unique: (value: any) => {
+																			if (
+																				columns.find(
+																					(c: any) =>
+																						c.name ===
+																						value,
+																				)
+																			) {
+																				return 'Name must be unique';
+																			}
+
+																			return true;
+																		},
+																	},
+																}}
+															/>
+														);
+													}
+
+													if (
+														property.name === 'on_click' ||
+														property.name === 'on_change'
+													) {
+														return (
+															<EventPropertyEditor
+																id={property.name}
+															/>
+														);
+													}
+
+													const showFunctionList =
+														property.type === 'function';
+
 													return (
 														<FormInput
 															{...property}
 															id={property.name}
 															name={property.title}
-															type="template"
+															type={
+																showFunctionList
+																	? 'select'
+																	: property.type
+															}
+															options={(
+																property.enum ||
+																property.options ||
+																[]
+															).map((o: any) => ({
+																name: o,
+																value: o,
+															}))}
 															key={property.name}
 														/>
 													);
-												}
-
-												if (property?.name === 'name') {
-													return (
-														<FormInput
-															{...property}
-															id={property.name}
-															name={property.title}
-															validation={{
-																required: 'Cannot  be empty',
-																validate: {
-																	unique: (value: any) => {
-																		if (
-																			columns.find(
-																				(c: any) =>
-																					c.name ===
-																					value,
-																			)
-																		) {
-																			return 'Name must be unique';
-																		}
-
-																		return true;
-																	},
-																},
-															}}
-														/>
-													);
-												}
-
-												if (
-													property.name === 'on_click' ||
-													property.name === 'on_change'
-												) {
-													return (
-														<EventPropertyEditor id={property.name} />
-													);
-												}
-
-												const showFunctionList =
-													property.type === 'function';
-
-												return (
-													<FormInput
-														{...property}
-														id={property.name}
-														name={property.title}
-														type={
-															showFunctionList
-																? 'select'
-																: property.type
-														}
-														options={(
-															property.enum ||
-															property.options ||
-															[]
-														).map((o: any) => ({
-															name: o,
-															value: o,
-														}))}
-														key={property.name}
-													/>
-												);
-											})}
+												})}
 										</Stack>
 									</Stack>
 								) : null}

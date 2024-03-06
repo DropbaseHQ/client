@@ -66,6 +66,7 @@ const TargetSelector = ({
 	displayRules,
 	getColType,
 	isInvalid,
+	getComponentProperty,
 }: any) => {
 	const [editTarget, setEditTarget] = useState<string>(rule.target);
 
@@ -78,6 +79,16 @@ const TargetSelector = ({
 			return tableTargets?.some((t: any) => t.value === rule.target);
 		}
 		return widgetTargets?.some((t: any) => t.value === rule.target);
+	};
+
+	const componentProperty = getComponentProperty(rule.target);
+
+	const getTargetType = (target: string) => {
+		if (!target) return 'text';
+		if (componentProperty?.component_type === 'select' && componentProperty?.multiple) {
+			return 'string_array';
+		}
+		return getColType(target);
 	};
 
 	useEffect(() => {
@@ -93,13 +104,14 @@ const TargetSelector = ({
 							return {
 								...r,
 								target: item.value,
-								target_type: getColType(item.value),
+								target_type: getTargetType(item.value),
 							};
 						}
 
 						return r;
 					}),
 				);
+				setEditTarget(item.value);
 			}}
 		>
 			<FormControl isInvalid={isInvalid}>
@@ -113,6 +125,7 @@ const TargetSelector = ({
 					onChange={(e: any) => {
 						setEditTarget(e.target.value);
 					}}
+					submitKeys={['Enter']}
 				/>
 				{!targetExists() && (
 					<Text mt="1" fontSize="xs" color="orange.500">
@@ -171,13 +184,6 @@ export const DisplayRulesEditor = ({ name }: any) => {
 
 	const { control } = useFormContext();
 
-	const processColType = (colType: string) => {
-		if (colType === 'boolean') {
-			return 'select';
-		}
-		return colType;
-	};
-
 	const componentsProperties = components
 		.filter(
 			(c: any) =>
@@ -187,15 +193,56 @@ export const DisplayRulesEditor = ({ name }: any) => {
 					c.component_type === 'boolean'),
 		)
 		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
+
+	const getComponentProperty = (target: string) => {
+		if (!target) return null;
+		return componentsProperties?.[target.split('.')[2]];
+	};
+
 	const getColType = (target: string) => {
 		if (!target) return 'text';
 
-		const componentProperty = componentsProperties?.[target.split('.')[2]];
+		const componentProperty = getComponentProperty(target);
 		if (target.includes('widgets')) return componentProperty?.data_type;
 
 		const [, specificCategory, targetName] = target.split('.');
 		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
 		return table?.[targetName as keyof typeof table];
+	};
+
+	const getInputType = (target?: string) => {
+		if (!target) return 'text';
+		const componentProperty = componentsProperties?.[target.split('.')[2]];
+		if (target.includes('widgets') && componentProperty?.component_type === 'select') {
+			return 'select';
+		}
+		const colType = getColType(target);
+		if (colType === 'boolean') {
+			return 'select';
+		}
+
+		return colType;
+	};
+
+	const getOptions = (target: string) => {
+		if (!target) return null;
+		const componentProperty = componentsProperties?.[target.split('.')[2]];
+		if (getColType(target) === 'boolean') {
+			return [
+				{
+					name: 'True',
+					value: true,
+				},
+				{
+					name: 'False',
+					value: false,
+				},
+			];
+		}
+		if (target.includes('widgets') && componentProperty?.component_type === 'select') {
+			return componentProperty?.options;
+		}
+		return null;
 	};
 	const tableTargets = useMemo(() => {
 		return Object.keys(tableState)
@@ -304,6 +351,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 											displayRules={displayRules}
 											getColType={getColType}
 											isInvalid={!isValid && isSubmitted && !rule.target}
+											getComponentProperty={getComponentProperty}
 										/>
 
 										<Stack alignItems="end" key={rule.id} direction="row">
@@ -364,24 +412,9 @@ export const DisplayRulesEditor = ({ name }: any) => {
 														flex="1"
 														disabled={!rule.target}
 														placeholder="select value"
-														type={processColType(
-															getColType(rule.target),
-														)}
+														type={getInputType(rule.target)}
 														value={rule.value}
-														options={
-															getColType(rule.target) === 'boolean'
-																? [
-																		{
-																			name: 'True',
-																			value: true,
-																		},
-																		{
-																			name: 'False',
-																			value: false,
-																		},
-																  ]
-																: null
-														}
+														options={getOptions(rule.target)}
 														data-cy="display-rule-value"
 														onChange={(newValue: any) => {
 															onChange(

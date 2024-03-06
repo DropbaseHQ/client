@@ -33,6 +33,7 @@ from server.schemas.user import (
     CreateUserRequest,
     LoginGoogleUser,
     LoginUser,
+    OnboardUser,
     ReadUser,
     ResetPasswordRequest,
     UpdateUserPolicyRequest,
@@ -45,6 +46,7 @@ from server.utils.authentication import (
 from server.utils.hash import get_confirmation_token_hash
 from server.utils.helper import raise_http_exception
 from server.utils.loops_integration import loops_controller
+from server.utils.amplemarket_integration import amplemarket_controller
 from server.utils.permissions.casbin_utils import (
     get_all_action_permissions,
     get_contexted_enforcer,
@@ -128,6 +130,7 @@ def login_user(db: Session, Authorize: AuthJWT, request: LoginUser):
             "workspace": workspace,
             "access_token": access_token,
             "refresh_token": refresh_token,
+            "onboarding": not user.onboarded,
         }
 
     except HTTPException as e:
@@ -182,11 +185,20 @@ def login_google_user(db: Session, Authorize: AuthJWT, request: LoginGoogleUser)
         workspace = (
             ReadWorkspace.from_orm(workspaces[0]) if len(workspaces) > 0 else None
         )
+
         return {
             "user": ReadUser.from_orm(user),
             "workspace": workspace,
             "access_token": access_token,
             "refresh_token": refresh_token,
+            "onboarding": (
+                False
+                if user.onboarded
+                else {
+                    "name": idinfo.get("given_name", user.name),
+                    "last_name": idinfo.get("last_name", user.last_name),
+                }
+            ),
         }
 
     except HTTPException as e:
@@ -227,18 +239,19 @@ def register_user(db: Session, request: CreateUserRequest):
     try:
         hashed_password = get_password_hash(request.password)
         confirmation_token = get_confirmation_token_hash(
-            request.email + hashed_password + request.name
+            request.email + hashed_password
         )
 
         user_obj = CreateUser(
-            name=request.name,
-            last_name=request.last_name,
-            company=request.company,
+            name="",
+            last_name="",
+            company="",
             email=request.email,
             hashed_password=hashed_password,
             trial_eligible=True,
             active=False,
             confirmation_token=confirmation_token,
+            onboarded=False,
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
@@ -291,7 +304,7 @@ def register_google_user(
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        name = idinfo.get("name")
+        name = idinfo.get("given_name") or idinfo.get("name")
         last = idinfo.get("family_name")
         domain = idinfo.get("hd", None)
         email = idinfo.get("email")
@@ -305,8 +318,9 @@ def register_google_user(
             email=email,
             hashed_password="",
             trial_eligible=True,
-            active=False,
+            active=True,
             social_login="google",
+            onboarded=False,
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
@@ -316,14 +330,6 @@ def register_google_user(
         db.commit()
 
         slack_sign_up(name=name, email=email)
-
-        loops_controller.add_user(
-            user_email=email,
-            name=name,
-            last_name=last,
-            company=company,
-            user_id=str(user.id),
-        )
 
         access_token = Authorize.create_access_token(
             subject=user.email,
@@ -343,6 +349,10 @@ def register_google_user(
             "workspace": workspace,
             "access_token": access_token,
             "refresh_token": refresh_token,
+            "onboarding": {
+                "name": name,
+                "last_name": last,
+            },
         }
 
     except HTTPException as e:
@@ -359,13 +369,6 @@ def verify_user(db: Session, token: str, user_id: UUID):
         try:
             user.confirmation_token = None
             user.active = True
-            loops_controller.add_user(
-                user_email=user.email,
-                name=user.name,
-                last_name=user.last_name,
-                company=user.company,
-                user_id=str(user.id),
-            )
             db.commit()
             return {"message": "User successfully confirmed"}
         except Exception as e:
@@ -373,6 +376,36 @@ def verify_user(db: Session, token: str, user_id: UUID):
             print("error", e)
             raise_http_exception(status_code=500, message="Internal server error")
     raise_http_exception(status_code=404, message="User not found")
+
+
+def onboard_user(db: Session, request: OnboardUser, user_id: UUID):
+    user = crud.user.get_object_by_id_or_404(db, id=user_id)
+
+    try:
+        user.active = True
+        user.onboarded = True
+        user.name = request.name
+        user.last_name = request.last_name
+        user.company = request.company
+        db.commit()
+
+        loops_controller.add_user(
+            user_email=user.email,
+            name=user.name,
+            last_name=user.last_name,
+            company=user.company,
+            user_id=str(user.id),
+        )
+        amplemarket_controller.add_lead(
+            email=user.email, first=user.name, last=user.last_name, company=user.company
+        )
+
+    except Exception as e:
+        db.rollback()
+        print("error", e)
+        raise_http_exception(status_code=500, message="Internal server error")
+
+    return {"message": "User successfully onboarded"}
 
 
 def add_policy(db: Session, user_id: UUID, request: AddPolicyRequest):
@@ -464,6 +497,7 @@ def get_user_workspaces(db: Session, user_id: UUID):
                 "worker_url": workspace.worker_url,
                 "in_trial": workspace.in_trial,
                 "trial_end_date": workspace.trial_end_date,
+                "role_name": workspace.role_name,
             }
         )
 
@@ -629,13 +663,6 @@ def github_auth(db: Session, Authorize: AuthJWT, code: str):
         workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
         workspace_creator.create()
         slack_sign_up(name=user.name, email=user.email)
-        loops_controller.add_user(
-            user_email=email,
-            name=user.name,
-            last_name=user.last_name,
-            company=user.company,
-            user_id=str(user.id),
-        )
         db.commit()
     if user.social_login != "github":
         raise_http_exception(400, "Email is already registered with another provider")
@@ -647,4 +674,8 @@ def github_auth(db: Session, Authorize: AuthJWT, code: str):
     refresh_token = Authorize.create_refresh_token(
         subject=str(user.email), user_claims={"github_access_token": access_token}
     )
-    return {"access_token": access_token, "refresh_token": refresh_token}
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "onboarding": not user.onboarded,
+    }

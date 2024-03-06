@@ -1,4 +1,5 @@
 import {
+	HStack,
 	Flex,
 	IconButton,
 	Stack,
@@ -139,17 +140,20 @@ export const AppNavbar = ({ isPreview }: any) => {
 			direction="row"
 			bg="white"
 		>
-			<DropbaseIcon
-				icon={<ArrowLeft size="16" />}
-				w="11"
-				h="12"
-				colorScheme="gray"
-				overflow="hidden"
-				as={Link}
-				to="/apps"
-				borderRadius="0"
-				variant="ghost"
-			/>
+			<HStack spacing="1">
+				<DropbaseIcon
+					icon={<ArrowLeft size="16" />}
+					w="11"
+					h="12"
+					colorScheme="gray"
+					overflow="hidden"
+					as={Link}
+					to="/apps"
+					borderRadius="0"
+					variant="ghost"
+				/>
+			</HStack>
+
 			<Stack alignItems="center" direction="row">
 				<LabelContainer>
 					<LabelContainer.Label> {app?.label}</LabelContainer.Label>
