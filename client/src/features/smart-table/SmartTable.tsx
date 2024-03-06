@@ -188,6 +188,25 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		height: 0,
 	});
 
+	const selectRowAndUpdateState = (row: number) => {
+		const newSelectedRow = { [tableName]: rows[row] || {} } as any;
+
+		selectRow((old: any) => ({
+			...old,
+			...newSelectedRow,
+		}));
+
+		setTableRowSelection((curr: any) => ({
+			...curr,
+			[tableName]: true,
+		}));
+
+		pageState.state.tables = {
+			...pageState.state.tables,
+			...newSelectedRow,
+		};
+	};
+
 	const clickColButton = (event: any, col: number, row: number) => {
 		setSelection((old: any) => {
 			return {
@@ -201,23 +220,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 			};
 		});
 
-		const newSelectedRow = { [tableName]: rows[row] || {} } as any;
-
-		selectRow((old: any) => ({
-			...old,
-			...newSelectedRow,
-		}));
-
-		pageState.state.tables = {
-			...pageState.state.tables,
-			...newSelectedRow,
-		};
-
-		setTableRowSelection((curr: any) => ({
-			...curr,
-			[tableName]: true,
-		}));
-
+		selectRowAndUpdateState(row);
 		handleEvent(event);
 	};
 
@@ -808,27 +811,12 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				current: newSelection.current,
 			});
 
-			const newSelectedRow = { [tableName]: rows[currentRow] || {} } as any;
-
-			selectRow((old: any) => ({
-				...old,
-				...newSelectedRow,
-			}));
-
-			setTableRowSelection((curr: any) => ({
-				...curr,
-				[tableName]: true,
-			}));
+			selectRowAndUpdateState(currentRow);
 
 			// We need to pass the most update state to server
 			// If we pass pageState directly, the new selected row info will not be present before the request is sent
 			// So here we just manually update the pageState and send the updated state to server
 			// Open to better suggestions
-
-			pageState.state.tables = {
-				...pageState.state.tables,
-				...newSelectedRow,
-			};
 
 			sendJsonMessage({
 				type: 'display_rule',
