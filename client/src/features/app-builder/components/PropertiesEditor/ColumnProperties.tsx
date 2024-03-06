@@ -466,9 +466,7 @@ const ColumnProperty = ({
 													id={`configurations.${key}`}
 													name={key}
 													keys={
-														key === 'options'
-															? ['label', 'value']
-															: null
+														key === 'options' ? ['name', 'value'] : null
 													}
 													required={isRequired}
 													validation={
