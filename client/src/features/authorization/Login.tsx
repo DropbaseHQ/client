@@ -10,7 +10,7 @@ import {
 	Input,
 	Stack,
 	Text,
-	Divider,
+	// Divider,
 } from '@chakra-ui/react';
 import { GitHub } from 'react-feather';
 import { useState } from 'react';
@@ -206,8 +206,8 @@ export const Login = () => {
 										Forgot Password?
 									</Text>
 								</Link>
-								<Divider />
-								<Stack>
+								{/* <Divider /> */}
+								<Stack visibility="hidden">
 									<GoogleLogin
 										onSuccess={onGoogleSuccess}
 										onError={onGoogleError}

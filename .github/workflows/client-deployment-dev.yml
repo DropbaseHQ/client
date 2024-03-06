@@ -18,6 +18,7 @@ env:
   VITE_WORKER_API_ENDPOINT: "https://api.dev.dropbase.io"
   VITE_GOOGLE_CLIENT_ID: "29567616605-al7naomojd9n3hhtt7gdtkmm7vggsb0m.apps.googleusercontent.com"
   VITE_GITHUB_CLIENT_ID: "b7c6e1a4b73871d22098"
+  VITE_APP_TYPE: "app"
 
 jobs:
   build-and-deploy:
