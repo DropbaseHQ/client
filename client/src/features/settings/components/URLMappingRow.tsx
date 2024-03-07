@@ -60,9 +60,11 @@ const EditableText = ({ inputProps, text, handleUpdate, isEditable = true }: any
 export const URLMappingRow = ({
 	urlMapping,
 	isEditable = true,
+	isDefault = false,
 }: {
 	urlMapping: any;
 	isEditable?: boolean;
+	isDefault?: boolean;
 }) => {
 	const activeMapping = useAtomValue(activeURLMappingAtom);
 	const deleteMappingMutation = useDeleteURLMapping();
@@ -85,6 +87,11 @@ export const URLMappingRow = ({
 			worker_url: workerUrl,
 			worker_ws_url: workerWsUrl,
 		});
+	};
+	const getIsActive = () => {
+		if (!activeMapping && isDefault) return true;
+
+		return (activeMapping?.id || '') === urlMapping?.id;
 	};
 
 	return (
@@ -123,7 +130,7 @@ export const URLMappingRow = ({
 				/>
 			</Td>
 			<Td>
-				<Check size="18" color={activeMapping?.id === urlMapping?.id ? 'green' : ''} />
+				<Check size="18" color={getIsActive() ? 'green' : ''} />
 			</Td>
 			<Td>
 				{isEditable && (

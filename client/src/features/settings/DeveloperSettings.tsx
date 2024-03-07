@@ -130,9 +130,9 @@ export const DeveloperSettings = () => {
 								client_url: 'http://localhost:3030',
 								worker_url: 'http://localhost:9090',
 								worker_ws_url: 'ws://localhost:3030/ws',
-								active: true,
 							}}
 							isEditable={false}
+							isDefault
 						/>
 						{urlMappings.map((token: any) => {
 							return <URLMappingRow urlMapping={token} />;
