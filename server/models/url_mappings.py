@@ -15,7 +15,7 @@ class URLMapping(Base):
     name = Column(String)
     client_url = Column(String)
     worker_url = Column(String)
-    worker_ws_url = Column(String)
+    lsp_url = Column(String)
     date = Column(TIMESTAMP, server_default=func.now())
 
     __tablename__ = "url_mapping"
