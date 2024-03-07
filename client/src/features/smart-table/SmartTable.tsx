@@ -191,6 +191,42 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		height: 0,
 	});
 
+	const selectRowAndUpdateState = (row: number) => {
+		const newSelectedRow = { [tableName]: rows[row] || {} } as any;
+
+		selectRow((old: any) => ({
+			...old,
+			...newSelectedRow,
+		}));
+
+		setTableRowSelection((curr: any) => ({
+			...curr,
+			[tableName]: true,
+		}));
+
+		pageState.state.tables = {
+			...pageState.state.tables,
+			...newSelectedRow,
+		};
+	};
+
+	const clickColButton = (event: any, col: number, row: number) => {
+		setSelection((old: any) => {
+			return {
+				...old,
+				current: {
+					cell: [col, row],
+					range: { x: col, y: row, width: 1, height: 1 },
+					rangeStack: [],
+				},
+				rows: CompactSelection.fromSingleSelection([row, row + 1]),
+			};
+		});
+
+		selectRowAndUpdateState(row);
+		handleEvent(event);
+	};
+
 	const onColumnResize = useCallback(
 		(col: any, newSize: any) => {
 			setColumnWidth((c: any) => ({
@@ -499,7 +535,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					borderColor: columnColor?.[500],
 					borderRadius: 2,
 					title: column.label,
-					onClick: () => handleEvent(column?.on_click),
+					onClick: () => clickColButton(column?.on_click, col, row),
 				},
 				...themeOverride,
 			};
@@ -817,27 +853,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				current: newSelection.current,
 			});
 
-			const newSelectedRow = { [tableName]: rows[currentRow] || {} } as any;
-
-			selectRow((old: any) => ({
-				...old,
-				...newSelectedRow,
-			}));
-
-			setTableRowSelection((curr: any) => ({
-				...curr,
-				[tableName]: true,
-			}));
-
-			// We need to pass the most update state to server
-			// If we pass pageState directly, the new selected row info will not be present before the request is sent
-			// So here we just manually update the pageState and send the updated state to server
-			// Open to better suggestions
-
-			pageState.state.tables = {
-				...pageState.state.tables,
-				...newSelectedRow,
-			};
+			selectRowAndUpdateState(currentRow);
 
 			sendJsonMessage({
 				type: 'display_rule',
