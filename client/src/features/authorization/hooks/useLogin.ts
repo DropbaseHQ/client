@@ -1,9 +1,10 @@
 import { useMutation } from 'react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { MutationConfig } from '@/lib/react-query';
-import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
+import { workspaceAtom } from '@/features/workspaces';
+import { activeURLMappingAtom } from '@/features/settings/atoms';
 import {
 	axios,
 	setWorkerAxiosWorkspaceIdHeader,
@@ -11,7 +12,8 @@ import {
 	setWorkerAxiosBaseURL,
 	setAxiosToken,
 } from '@/lib/axios';
-import { getWorkerURL } from '@/utils/url';
+import { getWorkerURL, getWebSocketURL } from '@/utils/url';
+import { useURLMappings } from '@/features/settings/hooks/urlMappings';
 
 export type LoginResponse = {
 	user: any;
@@ -87,15 +89,33 @@ export const useSetAxiosToken = () => {
 	}, [navigate, workspaceId, loginRoutes]);
 };
 export const useSetWorkerAxiosBaseURL = () => {
-	const [workspace] = useAtom(workspaceAtom);
-	const workspaceId = workspace?.id;
-	const { workspaces } = useWorkspaces();
-	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
+	const { urlMappings } = useURLMappings();
+	const setActiveMapping = useSetAtom(activeURLMappingAtom);
+	const matchingURL = urlMappings.find(
+		(mapping) => !!mapping?.client_url && window.location.href.includes(mapping.client_url),
+	);
 	useEffect(() => {
-		if (currentWorkspace?.worker_url) {
-			setWorkerAxiosBaseURL(`http://${currentWorkspace.worker_url}`);
+		if (matchingURL) {
+			setWorkerAxiosBaseURL(matchingURL.worker_url);
+			setActiveMapping(matchingURL);
 		} else {
 			setWorkerAxiosBaseURL(getWorkerURL());
 		}
-	}, [workspaces, workspaceId, currentWorkspace]);
+	}, [matchingURL, setActiveMapping, urlMappings]);
+};
+
+export const useGetWebSocketURL = () => {
+	const { urlMappings } = useURLMappings();
+	const setActiveMapping = useSetAtom(activeURLMappingAtom);
+
+	const matchingURL = urlMappings.find(
+		(mapping) => !!mapping?.client_url && window.location.href.includes(mapping.client_url),
+	);
+
+	if (matchingURL) {
+		setActiveMapping(matchingURL);
+		return matchingURL.worker_ws_url;
+	}
+
+	return getWebSocketURL();
 };
