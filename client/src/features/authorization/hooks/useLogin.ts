@@ -96,7 +96,7 @@ export const useSetWorkerAxiosBaseURL = () => {
 	);
 	useEffect(() => {
 		if (matchingURL) {
-			setWorkerAxiosBaseURL(`http://${matchingURL.worker_url}`);
+			setWorkerAxiosBaseURL(matchingURL.worker_url);
 			setActiveMapping(matchingURL);
 		} else {
 			setWorkerAxiosBaseURL(getWorkerURL());

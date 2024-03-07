@@ -118,7 +118,7 @@ export const DeveloperSettings = () => {
 					<Thead>
 						<Tr>
 							<Th>Client URL</Th>
-							<Th>Worker HTTPS URL</Th>
+							<Th>Worker URL</Th>
 							<Th>Worker WS URL</Th>
 							<Th>Active</Th>
 							<Th>Actions</Th>
