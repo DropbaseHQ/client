@@ -67,11 +67,6 @@ const options = [
 		icon: Code,
 		isGranular: false,
 	},
-	// {
-	// 	name: 'Billing',
-	// 	link: 'billing',
-	// 	isGranular: false,
-	// },
 ];
 
 export const SettingsLayout = ({ children }: PropsWithChildren<any>) => {

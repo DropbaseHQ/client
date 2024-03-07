@@ -1,4 +1,5 @@
 import { User } from 'react-feather';
+import { Spinner } from '@chakra-ui/react';
 import { useState, useCallback } from 'react';
 import { useAtomValue } from 'jotai';
 import { useGetWorkspaceApps } from '../../../app-list/hooks/useGetWorkspaceApps';
@@ -48,7 +49,11 @@ const UsersList = ({
 	selectedUser: string;
 	setSelectedUser: (value: string) => void;
 }) => {
-	const { users } = useGetWorkspaceUsers();
+	const { isLoading, users } = useGetWorkspaceUsers();
+
+	if (isLoading) {
+		return <Spinner />;
+	}
 
 	return users?.map((user: any) => (
 		<PermissionsSubjectRow

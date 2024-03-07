@@ -54,6 +54,7 @@ export const PermissionsSubjectRow = ({
 		</Box>
 	);
 };
+
 export const PermissionsSubLayout = ({ list, table, selectedName }: any) => {
 	return (
 		<Flex w="full" h="100%">

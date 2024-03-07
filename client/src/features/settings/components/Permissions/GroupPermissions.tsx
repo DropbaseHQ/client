@@ -1,4 +1,5 @@
 import { Users } from 'react-feather';
+import { Spinner } from '@chakra-ui/react';
 import { useState, useCallback } from 'react';
 import { useGetWorkspaceApps } from '../../../app-list/hooks/useGetWorkspaceApps';
 import {
@@ -44,7 +45,11 @@ const GroupList = ({
 	selectedGroup: string;
 	setSelectedGroup: (value: string) => void;
 }) => {
-	const { groups } = useGetWorkspaceGroups();
+	const { isLoading, groups } = useGetWorkspaceGroups();
+
+	if (isLoading) {
+		return <Spinner />;
+	}
 
 	return groups?.map((group) => (
 		<PermissionsSubjectRow

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { Spinner } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { Layout } from 'react-feather';
 import { useGetWorkspaceApps } from '../../../app-list/hooks/useGetWorkspaceApps';
@@ -75,7 +76,9 @@ const AppList = ({
 	selectedApp: string;
 	setSelectedApp: (value: string) => void;
 }) => {
-	const { apps } = useGetWorkspaceApps();
+	const { isLoading, apps } = useGetWorkspaceApps();
+
+	if (isLoading) return <Spinner />;
 
 	return apps?.map((app) => (
 		<PermissionsSubjectRow
