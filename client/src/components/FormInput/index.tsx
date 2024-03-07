@@ -75,11 +75,22 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	if (type === 'number' || type === 'integer' || type === 'float') {
 		return (
 			<NumberInput
-				onChange={(_, valueAsNumber) => {
-					onChange?.(valueAsNumber);
+				onChange={(valueAsString, valueAsNumber) => {
+					const parsedValue =
+						valueAsString.endsWith('.') ||
+						valueAsString.endsWith('.0') ||
+						valueAsString.endsWith('.00')
+							? valueAsString
+							: valueAsNumber;
+
+					onChange?.(type === 'integer' ? valueAsNumber : parsedValue);
 				}}
 				size="sm"
-				onBlur={onBlur}
+				onBlur={() => {
+					if (type === 'float') {
+						onChange?.(parseFloat(value));
+					}
+				}}
 				value={value === null ? '' : value}
 				precision={2}
 				step={type === 'integer' ? 1 : 0.01}

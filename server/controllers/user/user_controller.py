@@ -191,10 +191,14 @@ def login_google_user(db: Session, Authorize: AuthJWT, request: LoginGoogleUser)
             "workspace": workspace,
             "access_token": access_token,
             "refresh_token": refresh_token,
-            "onboarding": False if user.onboarded else {
-                "name": idinfo.get("given_name", user.name),
-                "last_name": idinfo.get("last_name", user.last_name),
-            },
+            "onboarding": (
+                False
+                if user.onboarded
+                else {
+                    "name": idinfo.get("given_name", user.name),
+                    "last_name": idinfo.get("last_name", user.last_name),
+                }
+            ),
         }
 
     except HTTPException as e:
@@ -247,7 +251,7 @@ def register_user(db: Session, request: CreateUserRequest):
             trial_eligible=True,
             active=False,
             confirmation_token=confirmation_token,
-            onboarded=False
+            onboarded=False,
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
@@ -316,7 +320,7 @@ def register_google_user(
             trial_eligible=True,
             active=True,
             social_login="google",
-            onboarded=False
+            onboarded=False,
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
@@ -393,10 +397,7 @@ def onboard_user(db: Session, request: OnboardUser, user_id: UUID):
             user_id=str(user.id),
         )
         amplemarket_controller.add_lead(
-            email=user.email,
-            first=user.name,
-            last=user.last_name,
-            company=user.company
+            email=user.email, first=user.name, last=user.last_name, company=user.company
         )
 
     except Exception as e:
@@ -496,6 +497,7 @@ def get_user_workspaces(db: Session, user_id: UUID):
                 "worker_url": workspace.worker_url,
                 "in_trial": workspace.in_trial,
                 "trial_end_date": workspace.trial_end_date,
+                "role_name": workspace.role_name,
             }
         )
 
@@ -672,4 +674,8 @@ def github_auth(db: Session, Authorize: AuthJWT, code: str):
     refresh_token = Authorize.create_refresh_token(
         subject=str(user.email), user_claims={"github_access_token": access_token}
     )
-    return {"access_token": access_token, "refresh_token": refresh_token, "onboarding": not user.onboarded}
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "onboarding": not user.onboarded,
+    }

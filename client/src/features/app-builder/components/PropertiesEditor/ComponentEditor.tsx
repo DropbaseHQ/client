@@ -56,12 +56,28 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		formState: { isDirty },
 		reset,
 		watch,
+		setValue,
 	} = methods;
 
 	const dataType = watch('data_type');
 	const componentType = watch('component_type');
 	const multiple = watch('multiple');
 	const options = watch('options');
+	const defaultValue = watch('default');
+
+	useEffect(() => {
+		if (multiple) {
+			if (!Array.isArray(defaultValue)) {
+				setValue('default', [defaultValue], {
+					shouldDirty: false,
+				});
+			}
+		} else if (Array.isArray(defaultValue)) {
+			setValue('default', '', {
+				shouldDirty: false,
+			});
+		}
+	}, [setValue, defaultValue, multiple]);
 
 	const updateMutation = useUpdatePageData({
 		onSuccess: () => {

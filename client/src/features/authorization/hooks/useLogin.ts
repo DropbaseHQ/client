@@ -1,9 +1,10 @@
 import { useMutation } from 'react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { MutationConfig } from '@/lib/react-query';
-import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
+import { workspaceAtom } from '@/features/workspaces';
+import { activeURLMappingAtom } from '@/features/settings/atoms';
 import {
 	axios,
 	setWorkerAxiosWorkspaceIdHeader,
@@ -11,7 +12,8 @@ import {
 	setWorkerAxiosBaseURL,
 	setAxiosToken,
 } from '@/lib/axios';
-import { getWorkerURL } from '@/utils/url';
+import { getWorkerURL, getWebSocketURL, getLSPURL } from '@/utils/url';
+import { URLMapping, useURLMappings } from '@/features/settings/hooks/urlMappings';
 
 export type LoginResponse = {
 	user: any;
@@ -86,16 +88,62 @@ export const useSetAxiosToken = () => {
 		setWorkerAxiosWorkspaceIdHeader(workspaceId || '');
 	}, [navigate, workspaceId, loginRoutes]);
 };
+
+const urlMatcher = (mapping: URLMapping) =>
+	!!mapping?.client_url && window.location.href.includes(mapping.client_url);
+
 export const useSetWorkerAxiosBaseURL = () => {
-	const [workspace] = useAtom(workspaceAtom);
-	const workspaceId = workspace?.id;
-	const { workspaces } = useWorkspaces();
-	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
+	const { urlMappings } = useURLMappings();
+	const setActiveMapping = useSetAtom(activeURLMappingAtom);
+	const matchingURL = urlMappings.find(urlMatcher);
+	const getHTTP = () => {
+		if (window.location.protocol === 'https:') {
+			return 'https';
+		}
+		return 'http';
+	};
+
 	useEffect(() => {
-		if (currentWorkspace?.worker_url) {
-			setWorkerAxiosBaseURL(`http://${currentWorkspace.worker_url}`);
+		if (matchingURL) {
+			setWorkerAxiosBaseURL(`${getHTTP()}://${matchingURL.worker_url}`);
+			setActiveMapping(matchingURL);
 		} else {
 			setWorkerAxiosBaseURL(getWorkerURL());
 		}
-	}, [workspaces, workspaceId, currentWorkspace]);
+	}, [matchingURL, setActiveMapping, urlMappings]);
+};
+
+const getWS = () => {
+	if (window.location.protocol === 'https:') {
+		return 'wss';
+	}
+	return 'ws';
+};
+
+export const useGetWebSocketURL = () => {
+	const { urlMappings } = useURLMappings();
+	const setActiveMapping = useSetAtom(activeURLMappingAtom);
+
+	const matchingURL = urlMappings.find(urlMatcher);
+
+	if (matchingURL) {
+		setActiveMapping(matchingURL);
+		return `${getWS()}://${matchingURL.worker_url}/ws`;
+	}
+
+	return getWebSocketURL();
+};
+
+export const useGetLSPURL = () => {
+	const { urlMappings } = useURLMappings();
+	const setActiveMapping = useSetAtom(activeURLMappingAtom);
+
+	const matchingURL = urlMappings.find(urlMatcher);
+
+	if (matchingURL) {
+		setActiveMapping(matchingURL);
+		return `${getWS()}://${matchingURL.lsp_url}/lsp`;
+	}
+
+	return getLSPURL();
 };

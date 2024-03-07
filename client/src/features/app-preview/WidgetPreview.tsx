@@ -25,10 +25,9 @@ import { InspectorContainer } from '@/features/app-builder';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
 import { appModeAtom, websocketStatusAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
-import { getWebSocketURL } from '@/utils/url';
+import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 
 // websocket
-export const SOCKET_URL = getWebSocketURL();
 
 export const WidgetPreview = ({ widgetName }: any) => {
 	const { appName, pageName } = useParams();
@@ -58,7 +57,9 @@ export const WidgetPreview = ({ widgetName }: any) => {
 
 	const { properties } = useGetPage({ appName, pageName });
 
-	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
+	const websocketURL = useGetWebSocketURL();
+
+	const { sendJsonMessage } = useWebSocket(websocketURL, {
 		onOpen: () => {
 			setWebsocketIsAlive(true);
 

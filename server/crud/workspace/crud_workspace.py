@@ -15,7 +15,17 @@ class CRUDWorkspace(CRUDBase[Workspace, CreateWorkspace, UpdateWorkspace]):
         return (
             db.query(Workspace)
             .join(UserRole, UserRole.workspace_id == Workspace.id)
+            .join(Role, Role.id == UserRole.role_id)
             .filter(UserRole.user_id == user_id)
+            .with_entities(
+                Workspace.id,
+                Workspace.name,
+                Role.name.label("role_name"),
+                Workspace.worker_url,
+                Workspace.in_trial,
+                Workspace.trial_end_date,
+                Workspace.date,
+            )
             .all()
         )
 
@@ -71,7 +81,9 @@ class CRUDWorkspace(CRUDBase[Workspace, CreateWorkspace, UpdateWorkspace]):
         UserRoleAlias = aliased(UserRole)
 
         oldest_users_subquery = (
-            db.query(UserRoleAlias.workspace_id, func.min(UserRoleAlias.date).label("date"))
+            db.query(
+                UserRoleAlias.workspace_id, func.min(UserRoleAlias.date).label("date")
+            )
             .group_by(UserRoleAlias.workspace_id)
             .subquery("oldest_users_subquery")
         )
