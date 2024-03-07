@@ -16,6 +16,7 @@ class ReadURLMapping(BaseURLMapping):
 
 
 class CreateURLMapping(BaseModel):
+    workspace_id: str
     name: Optional[str]
     client_url: Optional[str]
     worker_url: Optional[str]
