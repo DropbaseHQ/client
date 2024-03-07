@@ -1,9 +1,10 @@
 import { useMutation } from 'react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { MutationConfig } from '@/lib/react-query';
 import { workspaceAtom } from '@/features/workspaces';
+import { activeURLMappingAtom } from '@/features/settings/atoms';
 import {
 	axios,
 	setWorkerAxiosWorkspaceIdHeader,
@@ -89,27 +90,32 @@ export const useSetAxiosToken = () => {
 };
 export const useSetWorkerAxiosBaseURL = () => {
 	const { urlMappings } = useURLMappings();
-
-	const matchingURL = urlMappings.find((mapping) =>
-		window.location.href.includes(mapping.client_url),
+	const setActiveMapping = useSetAtom(activeURLMappingAtom);
+	const matchingURL = urlMappings.find(
+		(mapping) => !!mapping?.client_url && window.location.href.includes(mapping.client_url),
 	);
 	useEffect(() => {
 		if (matchingURL) {
 			setWorkerAxiosBaseURL(`http://${matchingURL.worker_url}`);
+			setActiveMapping(matchingURL);
 		} else {
 			setWorkerAxiosBaseURL(getWorkerURL());
 		}
-	}, [matchingURL]);
+	}, [matchingURL, setActiveMapping, urlMappings]);
 };
 
 export const useGetWebSocketURL = () => {
 	const { urlMappings } = useURLMappings();
+	const setActiveMapping = useSetAtom(activeURLMappingAtom);
 
-	const matchingURL = urlMappings.find((mapping) =>
-		window.location.href.includes(mapping.client_url),
+	const matchingURL = urlMappings.find(
+		(mapping) => !!mapping?.client_url && window.location.href.includes(mapping.client_url),
 	);
 
-	if (matchingURL) return matchingURL.worker_ws_url;
+	if (matchingURL) {
+		setActiveMapping(matchingURL);
+		return matchingURL.worker_ws_url;
+	}
 
 	return getWebSocketURL();
 };

@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Edit, Trash2, Check } from 'react-feather';
 import { Td, Tr, Input, Text, HStack, IconButton } from '@chakra-ui/react';
+import { useAtomValue } from 'jotai';
+import { activeURLMappingAtom } from '../atoms';
 import { useDeleteURLMapping, useUpdateURLMapping } from '../hooks/urlMappings';
 
 const EditableText = ({ inputProps, text, handleUpdate }: any) => {
@@ -54,7 +56,7 @@ const EditableText = ({ inputProps, text, handleUpdate }: any) => {
 };
 
 export const URLMappingRow = ({ urlMapping }: { urlMapping: any }) => {
-	const mappingIsActive = window.location.href.includes(urlMapping?.client_url);
+	const activeMapping = useAtomValue(activeURLMappingAtom);
 	const deleteMappingMutation = useDeleteURLMapping();
 	const updateMappingMutation = useUpdateURLMapping();
 
@@ -110,7 +112,7 @@ export const URLMappingRow = ({ urlMapping }: { urlMapping: any }) => {
 				/>
 			</Td>
 			<Td>
-				<Check size="18" color={mappingIsActive ? 'green' : ''} />
+				<Check size="18" color={activeMapping?.id === urlMapping?.id ? 'green' : ''} />
 			</Td>
 			<Td>
 				<IconButton
