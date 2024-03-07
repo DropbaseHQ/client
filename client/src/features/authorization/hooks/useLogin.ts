@@ -94,9 +94,16 @@ export const useSetWorkerAxiosBaseURL = () => {
 	const matchingURL = urlMappings.find(
 		(mapping) => !!mapping?.client_url && window.location.href.includes(mapping.client_url),
 	);
+	const getHTTP = () => {
+		if (window.location.protocol === 'https:') {
+			return 'https';
+		}
+		return 'http';
+	};
+
 	useEffect(() => {
 		if (matchingURL) {
-			setWorkerAxiosBaseURL(matchingURL.worker_url);
+			setWorkerAxiosBaseURL(`${getHTTP()}://${matchingURL.worker_url}`);
 			setActiveMapping(matchingURL);
 		} else {
 			setWorkerAxiosBaseURL(getWorkerURL());
@@ -108,13 +115,19 @@ export const useGetWebSocketURL = () => {
 	const { urlMappings } = useURLMappings();
 	const setActiveMapping = useSetAtom(activeURLMappingAtom);
 
+	const getWS = () => {
+		if (window.location.protocol === 'https:') {
+			return 'wss';
+		}
+		return 'ws';
+	};
 	const matchingURL = urlMappings.find(
 		(mapping) => !!mapping?.client_url && window.location.href.includes(mapping.client_url),
 	);
 
 	if (matchingURL) {
 		setActiveMapping(matchingURL);
-		return matchingURL.worker_ws_url;
+		return `${getWS()}://${matchingURL.worker_url}/ws`;
 	}
 
 	return getWebSocketURL();

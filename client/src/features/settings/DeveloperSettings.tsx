@@ -120,9 +120,9 @@ export const DeveloperSettings = () => {
 					<Tbody>
 						<URLMappingRow
 							urlMapping={{
-								client_url: 'http://localhost:3030',
-								worker_url: 'http://localhost:9090',
-								worker_ws_url: 'ws://localhost:9095/ws',
+								client_url: 'localhost:3030',
+								worker_url: 'localhost:9090',
+								worker_ws_url: 'localhost:9095',
 							}}
 							isEditable={false}
 							isDefault
