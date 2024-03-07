@@ -30,4 +30,4 @@ def update_url_mapping(
 
 @router.delete("/{url_mapping_id}")
 def delete_url_mapping(url_mapping_id: UUID, db: Session = Depends(get_db)):
-    return crud.url_mapping.remove(db, db_obj_id=url_mapping_id)
+    return crud.url_mapping.remove(db, id=url_mapping_id)
