@@ -60,14 +60,6 @@ export const DeveloperSettings = () => {
 							Generate workspace token for your worker
 						</Text>
 					</Stack>
-					<Button
-						w="fit-content"
-						variant="outline"
-						isLoading={createMutation.isLoading}
-						onClick={handleGenerateToken}
-					>
-						Generate Token
-					</Button>
 				</Flex>
 
 				<Table
@@ -90,7 +82,16 @@ export const DeveloperSettings = () => {
 					</Tbody>
 				</Table>
 
-				<Flex mt="2" direction="row" justifyContent="space-between" alignItems="center">
+				<Button
+					w="fit-content"
+					variant="outline"
+					isLoading={createMutation.isLoading}
+					onClick={handleGenerateToken}
+				>
+					Generate Token
+				</Button>
+
+				<Flex mt="8" direction="row" justifyContent="space-between" alignItems="center">
 					<Stack spacing="0.5">
 						<Text fontSize="lg" fontWeight="bold">
 							URL Mappings
@@ -100,14 +101,6 @@ export const DeveloperSettings = () => {
 							Choose worker URLs to map to your chosen client URLs
 						</Text>
 					</Stack>
-					<Button
-						w="fit-content"
-						variant="outline"
-						isLoading={createMutation.isLoading}
-						onClick={handleGenerateMapping}
-					>
-						Generate Mapping
-					</Button>
 				</Flex>
 				<Table
 					w="container.lg"
@@ -117,9 +110,9 @@ export const DeveloperSettings = () => {
 				>
 					<Thead>
 						<Tr>
-							<Th>Client URL</Th>
-							<Th>Worker URL</Th>
-							<Th>Worker WS URL</Th>
+							<Th>Client</Th>
+							<Th>Worker</Th>
+							<Th>LSP</Th>
 							<Th>Active</Th>
 							<Th>Actions</Th>
 						</Tr>
@@ -129,7 +122,7 @@ export const DeveloperSettings = () => {
 							urlMapping={{
 								client_url: 'http://localhost:3030',
 								worker_url: 'http://localhost:9090',
-								worker_ws_url: 'ws://localhost:3030/ws',
+								worker_ws_url: 'ws://localhost:9095/ws',
 							}}
 							isEditable={false}
 							isDefault
@@ -139,6 +132,14 @@ export const DeveloperSettings = () => {
 						})}
 					</Tbody>
 				</Table>
+				<Button
+					w="fit-content"
+					variant="outline"
+					isLoading={createMutation.isLoading}
+					onClick={handleGenerateMapping}
+				>
+					Add URL Mapping
+				</Button>
 			</Stack>
 		</PageLayout>
 	);
