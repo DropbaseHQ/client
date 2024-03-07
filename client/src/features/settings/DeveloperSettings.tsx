@@ -30,9 +30,9 @@ export const DeveloperSettings = () => {
 	const handleGenerateMapping = async () => {
 		createMappingMutation.mutate({
 			workspaceId: workspaceId || '',
-			client_url: 'http://localhost:3030',
-			worker_url: 'http://localhost:9090',
-			worker_ws_url: 'ws://localhost:9090',
+			client_url: '',
+			worker_url: '',
+			worker_ws_url: '',
 		});
 	};
 

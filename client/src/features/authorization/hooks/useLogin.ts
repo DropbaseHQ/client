@@ -1,7 +1,7 @@
 import { useMutation } from 'react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { MutationConfig } from '@/lib/react-query';
 import { workspaceAtom } from '@/features/workspaces';
 import {
@@ -11,7 +11,7 @@ import {
 	setWorkerAxiosBaseURL,
 	setAxiosToken,
 } from '@/lib/axios';
-import { getWorkerURL } from '@/utils/url';
+import { getWorkerURL, getWebSocketURL } from '@/utils/url';
 import { useURLMappings } from '@/features/settings/hooks/urlMappings';
 
 export type LoginResponse = {
@@ -88,8 +88,6 @@ export const useSetAxiosToken = () => {
 	}, [navigate, workspaceId, loginRoutes]);
 };
 export const useSetWorkerAxiosBaseURL = () => {
-	const [workspace] = useAtom(workspaceAtom);
-	const workspaceId = workspace?.id;
 	const { urlMappings } = useURLMappings();
 
 	const matchingURL = urlMappings.find((mapping) =>
@@ -97,10 +95,21 @@ export const useSetWorkerAxiosBaseURL = () => {
 	);
 	useEffect(() => {
 		if (matchingURL) {
-			console.log('in here');
 			setWorkerAxiosBaseURL(`http://${matchingURL.worker_url}`);
 		} else {
 			setWorkerAxiosBaseURL(getWorkerURL());
 		}
-	}, [workspaceId, matchingURL]);
+	}, [matchingURL]);
+};
+
+export const useGetWebSocketURL = () => {
+	const { urlMappings } = useURLMappings();
+
+	const matchingURL = urlMappings.find((mapping) =>
+		window.location.href.includes(mapping.client_url),
+	);
+
+	if (matchingURL) return matchingURL.worker_ws_url;
+
+	return getWebSocketURL();
 };

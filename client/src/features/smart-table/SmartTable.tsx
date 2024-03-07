@@ -62,10 +62,10 @@ import { Pagination } from './components/Pagination';
 import { DEFAULT_PAGE_SIZE } from './constants';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
-import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 import { LabelContainer } from '@/components/LabelContainer';
 import { useEvent } from '@/features/app-preview/hooks';
 import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
+import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -82,7 +82,9 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 	const { appName, pageName } = useParams();
 
-	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
+	const websocketURL = useGetWebSocketURL();
+
+	const { sendJsonMessage } = useWebSocket(websocketURL, {
 		share: true,
 	});
 

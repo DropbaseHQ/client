@@ -2,13 +2,13 @@ import useWebSocket from 'react-use-websocket';
 import { useSetAtom } from 'jotai';
 import { Route } from 'react-router-dom';
 import {
+	useGetWebSocketURL,
 	useSetAxiosToken,
 	useSetWorkerAxiosBaseURL,
 } from '@/features/authorization/hooks/useLogin';
 import { websocketStatusAtom } from '@/features/app/atoms';
 
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
-import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 import { DashboardRoutes } from './DashboardRoutes';
 
 import { Workspaces } from '@/features/workspaces';
@@ -23,7 +23,10 @@ export const WorkerDashboardRoutes = () => {
 	useSetAxiosToken();
 	useSetWorkerAxiosBaseURL();
 	// Initialize websocket
-	useWebSocket(SOCKET_URL, {
+
+	const websocketURL = useGetWebSocketURL();
+
+	useWebSocket(websocketURL, {
 		share: true,
 		shouldReconnect: () => true,
 		reconnectAttempts: 3,
