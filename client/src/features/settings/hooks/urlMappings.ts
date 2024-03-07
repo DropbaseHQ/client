@@ -9,7 +9,7 @@ export type URLMapping = {
 	name?: string;
 	client_url: string;
 	worker_url: string;
-	worker_ws_url: string;
+	lsp_url: string;
 };
 
 const fetchURLMappings = async ({ workspaceId }: { workspaceId: string }) => {
@@ -36,18 +36,18 @@ export const useURLMappings = () => {
 const createURLMapping = async ({
 	client_url,
 	worker_url,
-	worker_ws_url,
+	lsp_url,
 	workspaceId,
 }: {
 	client_url: string;
 	worker_url: string;
-	worker_ws_url: string;
+	lsp_url: string;
 	workspaceId: string;
 }) => {
 	const response = await axios.post('/url_mapping/', {
 		client_url,
 		worker_url,
-		worker_ws_url,
+		lsp_url,
 		workspace_id: workspaceId,
 	});
 	return response.data;
@@ -80,17 +80,17 @@ const updateURLMapping = async ({
 	id,
 	client_url,
 	worker_url,
-	worker_ws_url,
+	lsp_url,
 }: {
 	id: string;
 	client_url: string;
 	worker_url: string;
-	worker_ws_url: string;
+	lsp_url: string;
 }) => {
 	const response = await axios.put(`/url_mapping/${id}`, {
 		client_url,
 		worker_url,
-		worker_ws_url,
+		lsp_url,
 	});
 	return response.data;
 };

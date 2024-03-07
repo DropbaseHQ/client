@@ -12,8 +12,8 @@ import {
 	setWorkerAxiosBaseURL,
 	setAxiosToken,
 } from '@/lib/axios';
-import { getWorkerURL, getWebSocketURL } from '@/utils/url';
-import { useURLMappings } from '@/features/settings/hooks/urlMappings';
+import { getWorkerURL, getWebSocketURL, getLSPURL } from '@/utils/url';
+import { URLMapping, useURLMappings } from '@/features/settings/hooks/urlMappings';
 
 export type LoginResponse = {
 	user: any;
@@ -88,12 +88,14 @@ export const useSetAxiosToken = () => {
 		setWorkerAxiosWorkspaceIdHeader(workspaceId || '');
 	}, [navigate, workspaceId, loginRoutes]);
 };
+
+const urlMatcher = (mapping: URLMapping) =>
+	!!mapping?.client_url && window.location.href.includes(mapping.client_url);
+
 export const useSetWorkerAxiosBaseURL = () => {
 	const { urlMappings } = useURLMappings();
 	const setActiveMapping = useSetAtom(activeURLMappingAtom);
-	const matchingURL = urlMappings.find(
-		(mapping) => !!mapping?.client_url && window.location.href.includes(mapping.client_url),
-	);
+	const matchingURL = urlMappings.find(urlMatcher);
 	const getHTTP = () => {
 		if (window.location.protocol === 'https:') {
 			return 'https';
@@ -111,19 +113,18 @@ export const useSetWorkerAxiosBaseURL = () => {
 	}, [matchingURL, setActiveMapping, urlMappings]);
 };
 
+const getWS = () => {
+	if (window.location.protocol === 'https:') {
+		return 'wss';
+	}
+	return 'ws';
+};
+
 export const useGetWebSocketURL = () => {
 	const { urlMappings } = useURLMappings();
 	const setActiveMapping = useSetAtom(activeURLMappingAtom);
 
-	const getWS = () => {
-		if (window.location.protocol === 'https:') {
-			return 'wss';
-		}
-		return 'ws';
-	};
-	const matchingURL = urlMappings.find(
-		(mapping) => !!mapping?.client_url && window.location.href.includes(mapping.client_url),
-	);
+	const matchingURL = urlMappings.find(urlMatcher);
 
 	if (matchingURL) {
 		setActiveMapping(matchingURL);
@@ -131,4 +132,18 @@ export const useGetWebSocketURL = () => {
 	}
 
 	return getWebSocketURL();
+};
+
+export const useGetLSPURL = () => {
+	const { urlMappings } = useURLMappings();
+	const setActiveMapping = useSetAtom(activeURLMappingAtom);
+
+	const matchingURL = urlMappings.find(urlMatcher);
+
+	if (matchingURL) {
+		setActiveMapping(matchingURL);
+		return `${getWS()}://${matchingURL.lsp_url}/lsp`;
+	}
+
+	return getLSPURL();
 };
