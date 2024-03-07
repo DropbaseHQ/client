@@ -123,7 +123,7 @@ export const DeveloperSettings = () => {
 							urlMapping={{
 								client_url: 'localhost:3030',
 								worker_url: 'localhost:9090',
-								worker_ws_url: 'localhost:9095',
+								lsp_url: 'localhost:9095',
 							}}
 							isEditable={false}
 							isDefault
