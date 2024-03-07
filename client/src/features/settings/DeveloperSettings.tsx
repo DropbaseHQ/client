@@ -8,18 +8,31 @@ import { useCreateProxyToken, useProxyTokens, ProxyToken } from '@/features/sett
 
 import { TokenModal } from './components/TokenModal/TokenModal';
 import { WorkerTokenRow } from '@/features/settings/components/WorkerTokenRow';
+import { URLMappingRow } from './components/URLMappingRow';
+import { useCreateURLMapping, useURLMappings } from './hooks/urlMappings';
 
 export const DeveloperSettings = () => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { user } = useGetCurrentUser();
 	const [, setWorkerUrl] = useState('');
 	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
+	const { urlMappings } = useURLMappings();
 	const { workspaces } = useWorkspaces();
 	const createMutation = useCreateProxyToken();
+	const createMappingMutation = useCreateURLMapping();
 	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
-	const handleButtonClick = async () => {
+	const handleGenerateToken = async () => {
 		createMutation.mutate({
 			workspaceId: workspaceId || '',
+		});
+	};
+
+	const handleGenerateMapping = async () => {
+		createMappingMutation.mutate({
+			workspaceId: workspaceId || '',
+			client_url: 'http://localhost:3030',
+			worker_url: 'http://localhost:9090',
+			worker_ws_url: 'ws://localhost:9090',
 		});
 	};
 
@@ -51,7 +64,7 @@ export const DeveloperSettings = () => {
 						w="fit-content"
 						variant="outline"
 						isLoading={createMutation.isLoading}
-						onClick={handleButtonClick}
+						onClick={handleGenerateToken}
 					>
 						Generate Token
 					</Button>
@@ -73,6 +86,47 @@ export const DeveloperSettings = () => {
 					<Tbody>
 						{tokens.map((token: ProxyToken) => {
 							return <WorkerTokenRow token={token} />;
+						})}
+					</Tbody>
+				</Table>
+
+				<Flex mt="2" direction="row" justifyContent="space-between" alignItems="center">
+					<Stack spacing="0.5">
+						<Text fontSize="lg" fontWeight="bold">
+							URL Mappings
+						</Text>
+
+						<Text fontSize="md" fontWeight="medium">
+							Map worker URLs depending on your client URL
+						</Text>
+					</Stack>
+					<Button
+						w="fit-content"
+						variant="outline"
+						isLoading={createMutation.isLoading}
+						onClick={handleGenerateMapping}
+					>
+						Generate Mapping
+					</Button>
+				</Flex>
+				<Table
+					w="container.lg"
+					borderLeftWidth="1px"
+					borderRightWidth="1px"
+					variant="simple"
+				>
+					<Thead>
+						<Tr>
+							<Th>Client URL</Th>
+							<Th>Worker HTTPS URL</Th>
+							<Th>Worker WS URL</Th>
+							<Th>Active</Th>
+							<Th>Actions</Th>
+						</Tr>
+					</Thead>
+					<Tbody>
+						{urlMappings.map((token: any) => {
+							return <URLMappingRow urlMapping={token} />;
 						})}
 					</Tbody>
 				</Table>
