@@ -42,7 +42,6 @@ export const GroupCard = ({
 		setDeletePopoverOpen(true);
 	};
 
-	// Function to close the delete popover
 	const closeDeletePopover = () => {
 		setDeletePopoverOpen(false);
 	};
@@ -55,19 +54,19 @@ export const GroupCard = ({
 	return (
 		<Box
 			key={group.id}
-			p={3}
-			borderWidth="2px"
-			borderRadius="lg"
-			boxShadow={selectedGroup === group.id ? 'sm' : 'md'}
-			_hover={{ cursor: 'pointer' }}
+			px="2"
+			py="1"
+			// boxShadow={selectedGroup === group.id ? 'sm' : 'md'}
+			bgColor={selectedGroup === group.id ? 'gray.100' : ''}
+			_hover={{ cursor: 'pointer', bg: 'gray.100' }}
 			borderColor={selectedGroup === group.id ? 'blue.500' : 'gray.200'}
 			onClick={() => setSelectedGroup(group.id)}
 			display="flex"
+			alignItems="center"
+			w="full"
 			justifyContent="space-between"
 		>
-			<Text fontSize="xl" fontWeight="bold">
-				{group.name}
-			</Text>
+			<Text fontSize="lg">{group.name}</Text>
 			<Popover
 				returnFocusOnClose={false}
 				isOpen={isDeletePopoverOpen}
@@ -79,8 +78,9 @@ export const GroupCard = ({
 					<IconButton
 						aria-label="Delete Group"
 						size="xs"
-						icon={<Trash size="12" />}
-						bgColor="red"
+						icon={<Trash size="14" />}
+						variant="ghost"
+						color="red"
 						onClick={openDeletePopover}
 					/>
 				</PopoverTrigger>

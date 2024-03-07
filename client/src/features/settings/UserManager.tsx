@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import {
+	Box,
 	Table,
 	Thead,
 	Tbody,
 	Tr,
 	Th,
 	Td,
+	Tag,
 	Button,
 	Modal,
 	ModalOverlay,
@@ -31,8 +33,9 @@ import {
 	IconButton,
 	HStack,
 	Select,
+	Stack,
 } from '@chakra-ui/react';
-import { UserMinus, Edit } from 'react-feather';
+import { UserMinus } from 'react-feather';
 import { useAtomValue } from 'jotai';
 import { useQueryClient } from 'react-query';
 import {
@@ -44,6 +47,9 @@ import {
 } from './hooks/workspace';
 import { workspaceAtom } from '@/features/workspaces';
 import { PageLayout } from '@/layout';
+import { useToast } from '@/lib/chakra-ui';
+import { PermissionsFilter } from './components/Permissions/PermissionsComponents';
+import { canUseGranularPermissionsAtom } from './atoms';
 
 // Will get this from the server later
 const ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
@@ -52,6 +58,7 @@ const USER_UUID = '00000000-0000-0000-0000-000000000003';
 const MEMBER_UUID = '00000000-0000-0000-0000-000000000004';
 
 const UserRow = (item: any) => {
+	const toast = useToast();
 	const { user } = item;
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
@@ -59,17 +66,38 @@ const UserRow = (item: any) => {
 	const [newRole, setNewRole] = useState(user.role_id);
 
 	const { isOpen: isOpenRemove, onOpen: onOpenRemove, onClose: onCloseRemove } = useDisclosure();
-	const { isOpen: isOpenEdit, onOpen: onOpenEdit, onClose: onCloseEdit } = useDisclosure();
 	const removeMemberMutation = useRemoveMember({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
+			toast({
+				title: 'Member removed',
+				status: 'success',
+			});
+
 			onCloseRemove();
+		},
+		onError: (error: any) => {
+			toast({
+				title: 'Error removing member',
+				description: error.message,
+				status: 'error',
+			});
 		},
 	});
 	const changeUserRoleMutation = useUpdateUserRole({
 		onSuccess: () => {
 			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
-			onCloseEdit();
+			toast({
+				title: 'Role updated',
+				status: 'success',
+			});
+		},
+		onError: (error: any) => {
+			toast({
+				title: 'Error updating role',
+				description: error.message,
+				status: 'error',
+			});
 		},
 	});
 
@@ -79,78 +107,50 @@ const UserRow = (item: any) => {
 			workspaceId,
 		});
 	};
-	const handleChangeRole = () => {
+	const handleChangeRole = (newValue: string) => {
+		setNewRole(newValue);
 		changeUserRoleMutation.mutate({
 			userId: user.id,
 			workspaceId,
-			roleId: newRole,
+			roleId: newValue,
 		});
 	};
 
 	return (
-		<Tr key={user.id}>
-			<Td>{user.email}</Td>
-			<Td>
+		<Tr
+			key={user.id}
+			_hover={{
+				bg: 'gray.100',
+			}}
+		>
+			<Td border="1px 0px" borderColor="gray.200" w="min-content">
+				{user.email}
+			</Td>
+			<Td border="1px 0px" borderColor="gray.200">
 				<HStack spacing="6">
-					<Text>{user.role_name}</Text>
-					<Popover
-						isOpen={isOpenEdit}
-						onClose={onCloseEdit}
-						onOpen={onOpenEdit}
-						placement="right"
+					<Select
+						size="sm"
+						value={newRole}
+						onChange={(e) => handleChangeRole(e.target.value)}
 					>
-						<PopoverTrigger>
-							<IconButton
-								aria-label="Edit Role"
-								size="xs"
-								p="0"
-								variant="outline"
-								icon={<Edit size="14" />}
-							/>
-						</PopoverTrigger>
-						<PopoverContent>
-							<PopoverArrow />
-							<PopoverCloseButton />
-							<PopoverHeader>Change member role</PopoverHeader>
-							<PopoverBody>
-								<Select
-									size="sm"
-									value={newRole}
-									onChange={(e) => setNewRole(e.target.value)}
-								>
-									<option value={ADMIN_UUID}>Admin</option>
-									<option value={DEV_UUID}>Dev</option>
-									<option value={USER_UUID}>User</option>
-									<option value={MEMBER_UUID}>Member</option>
-								</Select>
-							</PopoverBody>
-							<PopoverFooter display="flex" justifyContent="flex-end">
-								<ButtonGroup size="sm">
-									<Button
-										colorScheme="blue"
-										onClick={handleChangeRole}
-										isLoading={changeUserRoleMutation.isLoading}
-									>
-										Change
-									</Button>
-									<Button variant="outline" onClick={onCloseEdit}>
-										Cancel
-									</Button>
-								</ButtonGroup>
-							</PopoverFooter>
-						</PopoverContent>
-					</Popover>
+						<option value={ADMIN_UUID}>Admin</option>
+						<option value={DEV_UUID}>Dev</option>
+						<option value={USER_UUID}>User</option>
+						<option value={MEMBER_UUID}>Member</option>
+					</Select>
 				</HStack>
 			</Td>
-			<Td>
+			<Td border="1px 0px" borderColor="gray.200">
+				<Flex wrap="wrap" overflow="auto" maxHeight="2rem">
+					{user?.groups?.map((obj: any) => (
+						<Tag m="1" size="sm" key={obj?.id} colorScheme="teal">
+							{obj.name}
+						</Tag>
+					))}
+				</Flex>
+			</Td>
+			<Td border="1px 0px" borderColor="gray.200">
 				<Flex justifyContent="space-between">
-					{/* <Flex>
-						{user?.groups?.map((obj: any) => (
-							<Tag size="sm" key={obj?.id}>
-								{obj.name}
-							</Tag>
-						))}
-					</Flex> */}
 					<Popover
 						isOpen={isOpenRemove}
 						onClose={onCloseRemove}
@@ -197,9 +197,14 @@ const UserRow = (item: any) => {
 
 export const Users = () => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
+	const canUseGranularPermissions = useAtomValue(canUseGranularPermissionsAtom);
 
 	const [newMemberEmail, setNewMemberEmail] = useState('');
 	const [newMemberRole, setNewMemberRole] = useState(MEMBER_UUID);
+
+	const [emailFilter, setEmailFilter] = useState('');
+	const [roleFilter, setRoleFilter] = useState('');
+	const [groupFilter, setGroupFilter] = useState('');
 
 	const queryClient = useQueryClient();
 	const { users } = useGetWorkspaceUsers();
@@ -223,83 +228,154 @@ export const Users = () => {
 			roleId: newMemberRole,
 		});
 	};
-	return (
-		<PageLayout
-			title="Workspace Members"
-			action={
-				<Button
-					colorScheme="blue"
-					size="sm"
-					ml="auto"
-					data-cy="add-member"
-					onClick={inviteMemberOnOpen}
-				>
-					Add Member
-				</Button>
-			}
-		>
-			<Table variant="simple">
-				<Thead>
-					<Tr>
-						<Th>Email</Th>
-						<Th>Role</Th>
-						{/* <Th>Groups</Th> */}
-						<Th>Actions</Th>
-					</Tr>
-				</Thead>
-				<Tbody>
-					{users.map((item: any) => (
-						<UserRow user={item} key={item.id} />
-					))}
-				</Tbody>
-			</Table>
-			<Modal isOpen={inviteMemberIsOpen} onClose={inviteMemberOnClose}>
-				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>Invite a member</ModalHeader>
-					<ModalCloseButton />
-					<ModalBody>
-						<VStack spacing="3">
-							<Input
-								placeholder="Member Email"
-								value={newMemberEmail}
-								data-cy="new-member-email"
-								onChange={(e) => {
-									setNewMemberEmail(e.target.value);
-								}}
-							/>
-							<Select
-								placeholder="Select role"
-								value={newMemberRole}
-								data-cy="new-member-role"
-								onChange={(e) => {
-									setNewMemberRole(e.target.value);
-								}}
-							>
-								<option value={ADMIN_UUID}>Admin</option>
-								<option value={DEV_UUID}>Dev</option>
-								<option value={USER_UUID}>User</option>
-								<option value={MEMBER_UUID}>Member</option>
-							</Select>
-						</VStack>
-					</ModalBody>
 
-					<ModalFooter>
-						<Button
-							colorScheme="blue"
-							mr={3}
-							data-cy="invite-member"
-							onClick={handleInviteMember}
-							isLoading={inviteMemberMutation.isLoading}
-						>
-							Invite
-						</Button>
-						<Button variant="ghost" onClick={inviteMemberOnClose}>
-							Cancel
-						</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal>
-		</PageLayout>
+	const filteredUsers = users.filter((user: any) => {
+		const emailMatch = emailFilter
+			? user.email.toLowerCase().includes(emailFilter.toLowerCase())
+			: true;
+
+		const roleMatch = roleFilter
+			? user.role_name.toLowerCase().includes(roleFilter.toLowerCase())
+			: true;
+		const groupMatch = groupFilter
+			? user.groups?.some((group: any) =>
+					group.name.toLowerCase().includes(groupFilter.toLowerCase()),
+			  )
+			: true;
+		return emailMatch && roleMatch && groupMatch;
+	});
+
+	if (!canUseGranularPermissions) {
+		return (
+			<PageLayout title="Workspace Members">
+				<Text> Granular permissions are not available for your current plan.</Text>
+			</PageLayout>
+		);
+	}
+
+	return (
+		<Box w="60vw">
+			<PageLayout
+				title="Workspace Members"
+				action={
+					<Button
+						colorScheme="blue"
+						size="sm"
+						ml="auto"
+						data-cy="add-member"
+						onClick={inviteMemberOnOpen}
+					>
+						Add Member
+					</Button>
+				}
+			>
+				<Stack
+					bg="white"
+					borderWidth="1px"
+					borderRadius="sm"
+					direction="row"
+					p="1.5"
+					alignItems="center"
+				>
+					<Stack
+						direction="row"
+						borderRadius="sm"
+						px="2"
+						spacing="6"
+						flex="1"
+						overflow="auto"
+						w="full"
+					>
+						<PermissionsFilter
+							name="Email"
+							operator="="
+							value={emailFilter}
+							onChange={setEmailFilter}
+						/>
+						<PermissionsFilter
+							name="Role"
+							operator="="
+							value={roleFilter}
+							onChange={setRoleFilter}
+						/>
+						<PermissionsFilter
+							name="Group"
+							operator="="
+							value={groupFilter}
+							onChange={setGroupFilter}
+						/>
+					</Stack>
+				</Stack>
+
+				<Table variant="unstyled" layout="fixed">
+					<Thead border="1px" borderColor="gray.200">
+						<Tr>
+							<Th border="1px 0px" borderColor="gray.200" w="15rem">
+								Email
+							</Th>
+							<Th border="1px 0px" borderColor="gray.200">
+								Workspace Role
+							</Th>
+							<Th>Groups</Th>
+							<Th border="1px 0px" borderColor="gray.200">
+								Actions
+							</Th>
+						</Tr>
+					</Thead>
+					<Tbody border="1px" borderColor="gray.200">
+						{filteredUsers.map((item: any) => (
+							<UserRow user={item} key={item.id} />
+						))}
+					</Tbody>
+				</Table>
+				<Modal isOpen={inviteMemberIsOpen} onClose={inviteMemberOnClose}>
+					<ModalOverlay />
+					<ModalContent>
+						<ModalHeader>Invite a member</ModalHeader>
+						<ModalCloseButton />
+						<ModalBody>
+							<VStack spacing="3">
+								<Input
+									placeholder="Member Email"
+									value={newMemberEmail}
+									data-cy="new-member-email"
+									onChange={(e) => {
+										setNewMemberEmail(e.target.value);
+									}}
+								/>
+								<Select
+									placeholder="Select role"
+									value={newMemberRole}
+									data-cy="new-member-role"
+									onChange={(e) => {
+										setNewMemberRole(e.target.value);
+									}}
+								>
+									<option value={ADMIN_UUID}>Admin</option>
+									<option value={DEV_UUID}>Dev</option>
+									<option value={USER_UUID}>User</option>
+									<option value={MEMBER_UUID}>Member</option>
+								</Select>
+							</VStack>
+						</ModalBody>
+
+						<ModalFooter>
+							<Button
+								colorScheme="blue"
+								mr={3}
+								data-cy="invite-member"
+								onClick={handleInviteMember}
+								isLoading={inviteMemberMutation.isLoading}
+							>
+								Invite
+							</Button>
+							<Button variant="ghost" onClick={inviteMemberOnClose}>
+								Cancel
+							</Button>
+						</ModalFooter>
+					</ModalContent>
+				</Modal>
+			</PageLayout>
+		</Box>
 	);
 };

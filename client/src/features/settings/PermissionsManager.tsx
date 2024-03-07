@@ -53,7 +53,7 @@ import {
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { useGetWorkspaceApps, App } from '../app-list/hooks/useGetWorkspaceApps';
 import { UserPolicySelector, GroupPolicySelector } from './components/PolicySelector';
-import { GroupCard } from './Group';
+import { GroupCard } from './GroupCard';
 import { UserCard } from './Users';
 import { PermissionsCard } from './components/EntityCard/EntityCard';
 
