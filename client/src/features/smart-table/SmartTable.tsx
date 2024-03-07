@@ -27,7 +27,13 @@ import DataEditor, {
 	GridCellKind,
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
-import { DatePickerCell, MultiSelectCell, ButtonCell } from '@glideapps/glide-data-grid-cells';
+import {
+	DatePickerCell,
+	MultiSelectCell,
+	ButtonCell,
+	SparklineCell,
+	TagsCell,
+} from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import { useParams } from 'react-router-dom';
@@ -73,7 +79,14 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-const ALL_CELLS = [DatePickerCell, dropdownCellRenderer, MultiSelectCell, ButtonCell];
+const ALL_CELLS = [
+	DatePickerCell,
+	dropdownCellRenderer,
+	MultiSelectCell,
+	ButtonCell,
+	SparklineCell,
+	TagsCell,
+];
 
 export const SmartTable = ({ tableName, provider }: any) => {
 	const toast = useToast();
@@ -552,6 +565,74 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							? ''
 							: `${column?.configurations?.symbol}${cellValue}`,
 					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'array': {
+				if (Array.isArray(currentValue)) {
+					if (
+						column?.configurations?.display_as === 'area' ||
+						column?.configurations?.display_as === 'bar'
+					) {
+						const containsString = currentValue.find((c: any) => typeof c !== 'number');
+
+						if (containsString) {
+							return {
+								kind: GridCellKind.Text,
+								data: '',
+								allowOverlay: false,
+								displayData: 'Incorrect data',
+								readonly: true,
+								...themeOverride,
+							};
+						}
+
+						const max = Math.max(...currentValue);
+						const min = Math.min(...currentValue);
+
+						return {
+							kind: GridCellKind.Custom,
+							allowOverlay: false,
+							data: {
+								kind: 'sparkline-cell',
+								values: currentValue,
+								displayValues: currentValue.map((x: any) => x.toString()),
+								color:
+									currentValue?.[0] < currentValue?.[currentValue.length - 1]
+										? theme.colors.green[500]
+										: theme.colors.red[500],
+								graphKind: column?.configurations?.display_as,
+								hideAxis: false,
+								yAxis: [min, max],
+							},
+							...themeOverride,
+						};
+					}
+
+					return {
+						kind: GridCellKind.Custom,
+						allowOverlay: true,
+						copyData: '4',
+						readonly: true,
+						data: {
+							kind: 'tags-cell',
+							possibleTags: currentValue.map((c: any) => ({
+								tag: c,
+								color: '#cdcdcd',
+							})),
+							tags: currentValue.map((c: any) => String(c)),
+						},
+						...themeOverride,
+					};
+				}
+
+				return {
+					kind: GridCellKind.Text,
+					data: '',
+					allowOverlay: false,
+					displayData: 'Incorrect data',
+					readonly: true,
 					...themeOverride,
 				};
 			}
