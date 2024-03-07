@@ -28,11 +28,12 @@ export const DeveloperSettings = () => {
 	};
 
 	const handleGenerateMapping = async () => {
+		const hostName = window.location.hostname;
 		createMappingMutation.mutate({
 			workspaceId: workspaceId || '',
-			client_url: '',
-			worker_url: '',
-			worker_ws_url: '',
+			client_url: `${hostName}:3030`,
+			worker_url: `${hostName}:9090`,
+			lsp_url: `${hostName}:9095`,
 		});
 	};
 

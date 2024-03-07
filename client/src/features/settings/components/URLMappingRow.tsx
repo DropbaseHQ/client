@@ -72,7 +72,7 @@ export const URLMappingRow = ({
 
 	const [clientUrl, setClientUrl] = useState(urlMapping?.client_url);
 	const [workerUrl, setWorkerUrl] = useState(urlMapping?.worker_url);
-	const [workerWsUrl, setWorkerWsUrl] = useState(urlMapping?.worker_ws_url);
+	const [workerWsUrl, setWorkerWsUrl] = useState(urlMapping?.lsp_url);
 
 	const handleDeleteMapping = async () => {
 		deleteMappingMutation.mutate({
@@ -85,7 +85,7 @@ export const URLMappingRow = ({
 			id: urlMapping.id,
 			client_url: clientUrl,
 			worker_url: workerUrl,
-			worker_ws_url: workerWsUrl,
+			lsp_url: workerWsUrl,
 		});
 	};
 	const getIsActive = () => {
@@ -125,7 +125,7 @@ export const URLMappingRow = ({
 						onChange: (e: any) => setWorkerWsUrl(e.target.value),
 					}}
 					handleUpdate={handleUpdateMapping}
-					text={urlMapping?.worker_ws_url}
+					text={urlMapping?.lsp_url}
 					isEditable={isEditable}
 				/>
 			</Td>
