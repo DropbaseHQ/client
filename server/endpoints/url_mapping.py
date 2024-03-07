@@ -25,7 +25,7 @@ def create_url_mapping(request: CreateURLMapping, db: Session = Depends(get_db))
 def update_url_mapping(
     url_mapping_id: UUID, request: UpdateURLMapping, db: Session = Depends(get_db)
 ):
-    return crud.url_mapping.update(db, db_obj_id=url_mapping_id, obj_in=request)
+    return crud.url_mapping.update_by_pk(db, pk=url_mapping_id, obj_in=request)
 
 
 @router.delete("/{url_mapping_id}")
