@@ -97,7 +97,7 @@ export const DeveloperSettings = () => {
 						</Text>
 
 						<Text fontSize="md" fontWeight="medium">
-							Map worker URLs depending on your client URL
+							Choose worker URLs to map to your chosen client URLs
 						</Text>
 					</Stack>
 					<Button
@@ -125,6 +125,15 @@ export const DeveloperSettings = () => {
 						</Tr>
 					</Thead>
 					<Tbody>
+						<URLMappingRow
+							urlMapping={{
+								client_url: 'http://localhost:3030',
+								worker_url: 'http://localhost:9090',
+								worker_ws_url: 'ws://localhost:3030/ws',
+								active: true,
+							}}
+							isEditable={false}
+						/>
 						{urlMappings.map((token: any) => {
 							return <URLMappingRow urlMapping={token} />;
 						})}

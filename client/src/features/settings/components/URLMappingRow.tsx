@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 import { activeURLMappingAtom } from '../atoms';
 import { useDeleteURLMapping, useUpdateURLMapping } from '../hooks/urlMappings';
 
-const EditableText = ({ inputProps, text, handleUpdate }: any) => {
+const EditableText = ({ inputProps, text, handleUpdate, isEditable = true }: any) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -18,7 +18,7 @@ const EditableText = ({ inputProps, text, handleUpdate }: any) => {
 		}
 	}, [isEditing]);
 
-	if (isEditing) {
+	if (isEditable && isEditing) {
 		return (
 			<Input
 				ref={inputRef}
@@ -39,23 +39,31 @@ const EditableText = ({ inputProps, text, handleUpdate }: any) => {
 	return (
 		<HStack>
 			<Text>{text}</Text>
-			<IconButton
-				aria-label="Edit name"
-				size="xs"
-				height="24px"
-				width="24px"
-				variant="ghost"
-				onClick={(e) => {
-					e.stopPropagation();
-					setIsEditing(true);
-				}}
-				icon={<Edit size="12" />}
-			/>
+			{isEditable && (
+				<IconButton
+					aria-label="Edit name"
+					size="xs"
+					height="24px"
+					width="24px"
+					variant="ghost"
+					onClick={(e) => {
+						e.stopPropagation();
+						setIsEditing(true);
+					}}
+					icon={<Edit size="12" />}
+				/>
+			)}
 		</HStack>
 	);
 };
 
-export const URLMappingRow = ({ urlMapping }: { urlMapping: any }) => {
+export const URLMappingRow = ({
+	urlMapping,
+	isEditable = true,
+}: {
+	urlMapping: any;
+	isEditable?: boolean;
+}) => {
 	const activeMapping = useAtomValue(activeURLMappingAtom);
 	const deleteMappingMutation = useDeleteURLMapping();
 	const updateMappingMutation = useUpdateURLMapping();
@@ -89,6 +97,7 @@ export const URLMappingRow = ({ urlMapping }: { urlMapping: any }) => {
 					}}
 					handleUpdate={handleUpdateMapping}
 					text={urlMapping?.client_url}
+					isEditable={isEditable}
 				/>
 			</Td>
 			<Td>
@@ -99,6 +108,7 @@ export const URLMappingRow = ({ urlMapping }: { urlMapping: any }) => {
 					}}
 					handleUpdate={handleUpdateMapping}
 					text={urlMapping?.worker_url}
+					isEditable={isEditable}
 				/>
 			</Td>
 			<Td>
@@ -109,23 +119,26 @@ export const URLMappingRow = ({ urlMapping }: { urlMapping: any }) => {
 					}}
 					handleUpdate={handleUpdateMapping}
 					text={urlMapping?.worker_ws_url}
+					isEditable={isEditable}
 				/>
 			</Td>
 			<Td>
 				<Check size="18" color={activeMapping?.id === urlMapping?.id ? 'green' : ''} />
 			</Td>
 			<Td>
-				<IconButton
-					aria-label="Delete token"
-					size="xs"
-					colorScheme="red"
-					variant="outline"
-					icon={<Trash2 size="14" />}
-					onClick={(e) => {
-						e.stopPropagation();
-						handleDeleteMapping();
-					}}
-				/>
+				{isEditable && (
+					<IconButton
+						aria-label="Delete token"
+						size="xs"
+						colorScheme="red"
+						variant="outline"
+						icon={<Trash2 size="14" />}
+						onClick={(e) => {
+							e.stopPropagation();
+							handleDeleteMapping();
+						}}
+					/>
+				)}
 			</Td>
 		</Tr>
 	);
