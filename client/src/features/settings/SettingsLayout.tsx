@@ -34,11 +34,15 @@ const SettingsOption = ({
 		>
 			{Icon ? (
 				<Box mr="3">
-					<Icon size="16" />
+					<Icon size="12" />
 				</Box>
 			) : null}
 			{children}
-			{available ? null : <Lock size="12" color="gray" />}
+			{available ? null : (
+				<Box ml="2">
+					<Lock size="10" color="gray" />
+				</Box>
+			)}
 		</Box>
 	);
 };
@@ -89,7 +93,7 @@ export const SettingsLayout = ({ children }: PropsWithChildren<any>) => {
 								Icon={option.icon}
 								available={option.isGranular ? canUse : true}
 							>
-								<Text fontSize="xl">{option.name}</Text>
+								<Text fontSize="md">{option.name}</Text>
 							</SettingsOption>
 						))}
 					</Stack>
