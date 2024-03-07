@@ -14,7 +14,7 @@ import { DashboardRoutes } from './DashboardRoutes';
 import { Workspaces } from '@/features/workspaces';
 import { App } from '@/features/app';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
-import { SettingsRoutes } from './SettingsRoutes';
+import { SettingsRoutes } from '@/features/settings/SettingsRoutes';
 
 export const WorkerDashboardRoutes = () => {
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
@@ -41,10 +41,6 @@ export const WorkerDashboardRoutes = () => {
 			<Route element={<ProtectedRoutes />}>
 				<Route path="workspaces" element={<Workspaces />} />
 				<Route path="apps/*" element={<App />} />
-				{/* <Route path="settings" element={<Settings />} />
-				<Route path="settings/members" element={<Users />} />
-				<Route path="settings/permissions" element={<Permissions />} />
-				<Route path="settings/developer" element={<DeveloperSettings />} /> */}
 				<Route path="settings/*" element={<SettingsRoutes />} />
 			</Route>
 		</DashboardRoutes>
