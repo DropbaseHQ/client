@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { MutationConfig } from '@/lib/react-query';
-import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
+import { workspaceAtom } from '@/features/workspaces';
 import {
 	axios,
 	setWorkerAxiosWorkspaceIdHeader,
@@ -12,6 +12,7 @@ import {
 	setAxiosToken,
 } from '@/lib/axios';
 import { getWorkerURL } from '@/utils/url';
+import { useURLMappings } from '@/features/settings/hooks/urlMappings';
 
 export type LoginResponse = {
 	user: any;
@@ -89,13 +90,17 @@ export const useSetAxiosToken = () => {
 export const useSetWorkerAxiosBaseURL = () => {
 	const [workspace] = useAtom(workspaceAtom);
 	const workspaceId = workspace?.id;
-	const { workspaces } = useWorkspaces();
-	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
+	const { urlMappings } = useURLMappings();
+
+	const matchingURL = urlMappings.find((mapping) =>
+		window.location.href.includes(mapping.client_url),
+	);
 	useEffect(() => {
-		if (currentWorkspace?.worker_url) {
-			setWorkerAxiosBaseURL(`http://${currentWorkspace.worker_url}`);
+		if (matchingURL) {
+			console.log('in here');
+			setWorkerAxiosBaseURL(`http://${matchingURL.worker_url}`);
 		} else {
 			setWorkerAxiosBaseURL(getWorkerURL());
 		}
-	}, [workspaces, workspaceId, currentWorkspace]);
+	}, [workspaceId, matchingURL]);
 };
