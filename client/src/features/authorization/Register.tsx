@@ -201,7 +201,7 @@ export const Register = () => {
 								</Button>
 							</Stack>
 							{/* <Divider /> */}
-							<Stack visibility="hidden">
+							<Stack display="none">
 								<GoogleLogin
 									onSuccess={onGoogleSuccess}
 									onError={onGoogleError}
