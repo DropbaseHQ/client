@@ -1,7 +1,7 @@
 import { Route } from 'react-router-dom';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
-import { DeveloperSettings, Permissions, Users } from '@/features/settings';
 import { DashboardRoutes } from './DashboardRoutes';
+import { SettingsRoutes } from '@/features/settings/SettingsRoutes';
 import { Welcome } from '../features/welcome';
 
 export const ProdDashboardRoutes = () => {
@@ -10,9 +10,7 @@ export const ProdDashboardRoutes = () => {
 			<Route element={<ProtectedRoutes />}>
 				<Route path="welcome" element={<Welcome />} />
 
-				<Route path="settings/members" element={<Users />} />
-				<Route path="settings/permissions" element={<Permissions />} />
-				<Route path="settings/developer" element={<DeveloperSettings />} />
+				<Route path="settings/*" element={<SettingsRoutes />} />
 			</Route>
 		</DashboardRoutes>
 	);

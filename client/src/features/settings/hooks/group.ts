@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from 'react-query';
 import { axios } from '@/lib/axios';
+import { useToast } from '@/lib/chakra-ui';
 
 export type GroupResponse = {
 	group: {
@@ -115,7 +116,22 @@ const updateGroupPolicy = async ({
 };
 
 export const useUpdateGroupPolicy = (mutationConfig?: any) => {
+	const toast = useToast();
 	return useMutation(updateGroupPolicy, {
 		...(mutationConfig || {}),
+		onSuccess: () => {
+			mutationConfig?.onSuccess?.();
+			toast({
+				title: 'Group permission updated',
+				status: 'success',
+			});
+		},
+		onError: () => {
+			mutationConfig?.onError?.();
+			toast({
+				title: 'Error updating group permission',
+				status: 'error',
+			});
+		},
 	});
 };

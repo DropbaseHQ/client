@@ -1,29 +1,32 @@
 import useWebSocket from 'react-use-websocket';
+import { Center, Text } from '@chakra-ui/react';
 import { useSetAtom } from 'jotai';
 import { Route } from 'react-router-dom';
 import {
+	useGetWebSocketURL,
 	useSetAxiosToken,
 	useSetWorkerAxiosBaseURL,
 } from '@/features/authorization/hooks/useLogin';
 import { websocketStatusAtom } from '@/features/app/atoms';
 
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
-import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 import { DashboardRoutes } from './DashboardRoutes';
 
 import { Workspaces } from '@/features/workspaces';
 import { App } from '@/features/app';
-import { Users, DeveloperSettings, Permissions } from '@/features/settings';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
+import { SettingsRoutes } from '@/features/settings/SettingsRoutes';
 
 export const WorkerDashboardRoutes = () => {
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
 
 	useSyncProxyToken();
 	useSetAxiosToken();
-	useSetWorkerAxiosBaseURL();
-	// Initialize websocket
-	useWebSocket(SOCKET_URL, {
+	const { urlSet, isLoading } = useSetWorkerAxiosBaseURL();
+
+	const websocketURL = useGetWebSocketURL();
+
+	useWebSocket(websocketURL, {
 		share: true,
 		shouldReconnect: () => true,
 		reconnectAttempts: 3,
@@ -36,15 +39,48 @@ export const WorkerDashboardRoutes = () => {
 		},
 	});
 
-	return (
-		<DashboardRoutes homeRoute="/apps">
-			<Route element={<ProtectedRoutes />}>
+	let children = null;
+
+	/**
+	 * Only show worker routes when the correct URL is set and track the Loading
+	 * state of URL mappings since we want to make sure it was URL set after loading
+	 * mappings
+	 */
+	if (isLoading) {
+		children = (
+			<Route
+				path="*"
+				element={
+					<Center>
+						<Text>Loading User Config...</Text>
+					</Center>
+				}
+			/>
+		);
+	} else if (!urlSet) {
+		children = (
+			<Route
+				path="*"
+				element={
+					<Center>
+						<Text>URL Mapping not set</Text>
+					</Center>
+				}
+			/>
+		);
+	} else {
+		children = (
+			<>
 				<Route path="workspaces" element={<Workspaces />} />
 				<Route path="apps/*" element={<App />} />
-				<Route path="settings/members" element={<Users />} />
-				<Route path="settings/permissions" element={<Permissions />} />
-				<Route path="settings/developer" element={<DeveloperSettings />} />
-			</Route>
+				<Route path="settings/*" element={<SettingsRoutes />} />
+			</>
+		);
+	}
+
+	return (
+		<DashboardRoutes homeRoute="/apps">
+			<Route element={<ProtectedRoutes />}>{children}</Route>
 		</DashboardRoutes>
 	);
 };

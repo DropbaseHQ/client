@@ -1,22 +1,15 @@
 import { Stack, IconButton, Tooltip, Box } from '@chakra-ui/react';
 
-import { LogOut, Grid, Repeat, Users, Lock, Settings } from 'react-feather';
+import { LogOut, Grid, Repeat, Settings } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
-import { useAtomValue } from 'jotai';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
-import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { isProductionApp } from '../utils';
-import { workspaceAtom } from '@/features/workspaces';
 import { WorkspaceSwitcher } from '@/features/app/components/WorkspaceSwitcher';
 
 export const Navbar = () => {
 	const { pathname } = useLocation();
 	const { mutate: logout } = useLogout();
-	const { user } = useGetCurrentUser();
-	const { in_trial: inTrial } = useAtomValue(workspaceAtom);
-
-	const canUseGranularPermissions = inTrial || user?.email?.endsWith('dropbase.io');
 
 	const handleLogout = () => {
 		logout();
@@ -53,33 +46,6 @@ export const Navbar = () => {
 						/>
 					</Tooltip>
 				)}
-
-				<Tooltip label="Members" placement="right">
-					<IconButton
-						variant="ghost"
-						as={Link}
-						to="/settings/members"
-						color={pathname === '/settings/members' ? 'blue.500' : 'body'}
-						colorScheme={pathname === '/settings/members' ? 'blue' : 'gray'}
-						aria-label="Members"
-						icon={<Users size="22" />}
-					/>
-				</Tooltip>
-
-				{canUseGranularPermissions && (
-					<Tooltip label="Permissions" placement="right">
-						<IconButton
-							variant="ghost"
-							as={Link}
-							to="/settings/permissions"
-							color={pathname === '/settings/permissions' ? 'blue.500' : 'body'}
-							colorScheme={pathname === '/settings/permissions' ? 'blue' : 'gray'}
-							aria-label="permissions"
-							icon={<Lock size="22" />}
-						/>
-					</Tooltip>
-				)}
-
 				<Stack mt="auto" alignItems="center">
 					<Tooltip label="Developer settings" placement="right">
 						<IconButton

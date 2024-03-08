@@ -81,9 +81,9 @@ const TargetSelector = ({
 		return widgetTargets?.some((t: any) => t.value === rule.target);
 	};
 
-	const componentProperty = getComponentProperty(rule.target);
-
 	const getTargetType = (target: string) => {
+		const componentProperty = getComponentProperty(target);
+
 		if (!target) return 'text';
 		if (componentProperty?.component_type === 'select' && componentProperty?.multiple) {
 			return 'string_array';

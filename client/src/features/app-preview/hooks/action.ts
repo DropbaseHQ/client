@@ -33,7 +33,7 @@ export const useExecuteAction = (props: any = {}) => {
 	});
 };
 
-export const useEvent = () => {
+export const useEvent = (props?: any) => {
 	const toast = useToast();
 	const [{ pageName, appName, widgetName, widgets }, setPageContext] = useAtom(pageAtom);
 
@@ -44,6 +44,7 @@ export const useEvent = () => {
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
 			syncState(data);
+			props?.onSuccess(data);
 		},
 		onError: (error: any) => {
 			toast({
@@ -51,6 +52,7 @@ export const useEvent = () => {
 				title: 'Failed to execute action',
 				description: getErrorMessage(error),
 			});
+			props?.onError();
 		},
 	});
 

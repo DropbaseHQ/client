@@ -4,6 +4,7 @@ import { useAtomValue } from 'jotai';
 import { workerAxios } from '../lib/axios';
 import { useWorkerWorkspace, workspaceAtom } from '@/features/workspaces';
 import { websocketStatusAtom } from '@/features/app/atoms';
+import { useSetWorkerAxiosBaseURL } from '@/features/authorization/hooks/useLogin';
 
 export const STATUS_QUERY_KEY = 'allFiles';
 
@@ -14,10 +15,12 @@ const fetchStatus: any = async () => {
 
 export const useStatus = () => {
 	const queryKey = [STATUS_QUERY_KEY];
+	const { isFetched } = useSetWorkerAxiosBaseURL();
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchStatus(), {
 		refetchInterval: 10 * 1000,
 		refetchIntervalInBackground: true,
+		enabled: isFetched,
 	});
 
 	return {

@@ -450,36 +450,51 @@ const ColumnProperty = ({
 
 							{Object.keys(configProperties).length > 0 ? (
 								<SimpleGrid py="2" gap={4} columns={2}>
-									{Object.keys(configProperties).map((key: any) => {
-										const property = configProperties?.[key];
-										const isRequired =
-											displayConfiguration?.required?.includes(key);
-										return (
-											<Box
-												gridColumn={
-													property.type === 'array' ? '1 / -1' : ''
-												}
-											>
-												<FormInput
-													key={key}
-													type={property?.type}
-													id={`configurations.${key}`}
-													name={key}
-													keys={
-														key === 'options' ? ['name', 'value'] : null
+									{Object.keys(configProperties)
+										.filter(
+											(key: any) =>
+												configProperties?.[key]?.category !== 'Internal',
+										)
+										.map((key: any) => {
+											const property = configProperties?.[key];
+											const isRequired =
+												displayConfiguration?.required?.includes(key);
+											return (
+												<Box
+													gridColumn={
+														property.type === 'array' ? '1 / -1' : ''
 													}
-													required={isRequired}
-													validation={
-														isRequired
-															? {
-																	required: `${key} is required`,
-															  }
-															: {}
-													}
-												/>
-											</Box>
-										);
-									})}
+												>
+													<FormInput
+														key={key}
+														type={property?.type}
+														id={`configurations.${key}`}
+														name={property?.title}
+														keys={
+															key === 'options'
+																? ['name', 'value']
+																: null
+														}
+														options={(
+															property.enum ||
+															property.options ||
+															[]
+														).map((o: any) => ({
+															name: o,
+															value: o,
+														}))}
+														required={isRequired}
+														validation={
+															isRequired
+																? {
+																		required: `${key} is required`,
+																  }
+																: {}
+														}
+													/>
+												</Box>
+											);
+										})}
 								</SimpleGrid>
 							) : null}
 

@@ -207,7 +207,7 @@ export const Login = () => {
 									</Text>
 								</Link>
 								{/* <Divider /> */}
-								<Stack visibility="hidden">
+								<Stack display="none">
 									<GoogleLogin
 										onSuccess={onGoogleSuccess}
 										onError={onGoogleError}

@@ -27,7 +27,14 @@ import DataEditor, {
 	GridCellKind,
 	GridColumnIcon,
 } from '@glideapps/glide-data-grid';
-import { DatePickerCell, MultiSelectCell, ButtonCell } from '@glideapps/glide-data-grid-cells';
+import {
+	DatePickerCell,
+	MultiSelectCell,
+	ButtonCell,
+	SparklineCell,
+	TagsCell,
+	SpinnerCell,
+} from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
 
 import { useParams } from 'react-router-dom';
@@ -62,10 +69,10 @@ import { Pagination } from './components/Pagination';
 import { DEFAULT_PAGE_SIZE } from './constants';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
-import { SOCKET_URL } from '@/features/app-preview/WidgetPreview';
 import { LabelContainer } from '@/components/LabelContainer';
 import { useEvent } from '@/features/app-preview/hooks';
 import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
+import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 
 const heightMap: any = {
 	'1/3': '3xs',
@@ -73,16 +80,28 @@ const heightMap: any = {
 	full: '2xl',
 };
 
-const ALL_CELLS = [DatePickerCell, dropdownCellRenderer, MultiSelectCell, ButtonCell];
+const ALL_CELLS = [
+	DatePickerCell,
+	dropdownCellRenderer,
+	MultiSelectCell,
+	ButtonCell,
+	SparklineCell,
+	TagsCell,
+	SpinnerCell,
+];
 
 export const SmartTable = ({ tableName, provider }: any) => {
 	const toast = useToast();
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
 
+	const [buttonTrigger, setButtonTrigger] = useState<any>(null);
+
 	const { appName, pageName } = useParams();
 
-	const { sendJsonMessage } = useWebSocket(SOCKET_URL, {
+	const websocketURL = useGetWebSocketURL();
+
+	const { sendJsonMessage } = useWebSocket(websocketURL, {
 		share: true,
 	});
 
@@ -132,7 +151,14 @@ export const SmartTable = ({ tableName, provider }: any) => {
 	const currentFetcher = table?.fetcher;
 	const previousFetcher = usePrevious(currentFetcher);
 
-	const handleEvent = useEvent();
+	const handleEvent = useEvent({
+		onSuccess: () => {
+			setButtonTrigger(null);
+		},
+		onError: () => {
+			setButtonTrigger(null);
+		},
+	});
 
 	const mutation = useUpdatePageData({
 		onSuccess: () => {
@@ -190,6 +216,46 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		width: 0,
 		height: 0,
 	});
+
+	const selectRowAndUpdateState = (row: number) => {
+		const newSelectedRow = { [tableName]: rows[row] || {} } as any;
+
+		selectRow((old: any) => ({
+			...old,
+			...newSelectedRow,
+		}));
+
+		setTableRowSelection((curr: any) => ({
+			...curr,
+			[tableName]: true,
+		}));
+
+		pageState.state.tables = {
+			...pageState.state.tables,
+			...newSelectedRow,
+		};
+	};
+
+	const clickColButton = (event: any, col: number, row: number) => {
+		setSelection((old: any) => {
+			return {
+				...old,
+				current: {
+					cell: [col, row],
+					range: { x: col, y: row, width: 1, height: 1 },
+					rangeStack: [],
+				},
+				rows: CompactSelection.fromSingleSelection([row, row + 1]),
+			};
+		});
+
+		selectRowAndUpdateState(row);
+
+		if (event?.type === 'function') {
+			setButtonTrigger(JSON.stringify([row, col]));
+		}
+		handleEvent(event);
+	};
 
 	const onColumnResize = useCallback(
 		(col: any, newSize: any) => {
@@ -486,7 +552,20 @@ export const SmartTable = ({ tableName, provider }: any) => {
 			  };
 
 		if (column?.column_type === 'button_column') {
+			const currentActive = buttonTrigger === JSON.stringify([row, col]);
 			const columnColor = theme.colors?.[column?.color || 'gray'];
+
+			if (currentActive) {
+				return {
+					kind: GridCellKind.Custom,
+					allowOverlay: false,
+					readOnly: true,
+					data: {
+						kind: 'spinner-cell',
+					},
+					...themeOverride,
+				};
+			}
 
 			return {
 				kind: GridCellKind.Custom,
@@ -499,7 +578,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					borderColor: columnColor?.[500],
 					borderRadius: 2,
 					title: column.label,
-					onClick: () => handleEvent(column?.on_click),
+					onClick: () => clickColButton(column?.on_click, col, row),
 				},
 				...themeOverride,
 			};
@@ -516,6 +595,74 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							? ''
 							: `${column?.configurations?.symbol}${cellValue}`,
 					readonly: !canEdit,
+					...themeOverride,
+				};
+			}
+
+			case 'array': {
+				if (Array.isArray(currentValue)) {
+					if (
+						column?.configurations?.display_as === 'area' ||
+						column?.configurations?.display_as === 'bar'
+					) {
+						const containsString = currentValue.find((c: any) => typeof c !== 'number');
+
+						if (containsString) {
+							return {
+								kind: GridCellKind.Text,
+								data: '',
+								allowOverlay: false,
+								displayData: 'Incorrect data',
+								readonly: true,
+								...themeOverride,
+							};
+						}
+
+						const max = Math.max(...currentValue);
+						const min = Math.min(...currentValue);
+
+						return {
+							kind: GridCellKind.Custom,
+							allowOverlay: false,
+							data: {
+								kind: 'sparkline-cell',
+								values: currentValue,
+								displayValues: currentValue.map((x: any) => x.toString()),
+								color:
+									currentValue?.[0] < currentValue?.[currentValue.length - 1]
+										? theme.colors.green[500]
+										: theme.colors.red[500],
+								graphKind: column?.configurations?.display_as,
+								hideAxis: false,
+								yAxis: [min, max],
+							},
+							...themeOverride,
+						};
+					}
+
+					return {
+						kind: GridCellKind.Custom,
+						allowOverlay: true,
+						copyData: '4',
+						readonly: true,
+						data: {
+							kind: 'tags-cell',
+							possibleTags: currentValue.map((c: any) => ({
+								tag: c,
+								color: '#cdcdcd',
+							})),
+							tags: currentValue.map((c: any) => String(c)),
+						},
+						...themeOverride,
+					};
+				}
+
+				return {
+					kind: GridCellKind.Text,
+					data: '',
+					allowOverlay: false,
+					displayData: 'Incorrect data',
+					readonly: true,
 					...themeOverride,
 				};
 			}
@@ -817,27 +964,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 				current: newSelection.current,
 			});
 
-			const newSelectedRow = { [tableName]: rows[currentRow] || {} } as any;
-
-			selectRow((old: any) => ({
-				...old,
-				...newSelectedRow,
-			}));
-
-			setTableRowSelection((curr: any) => ({
-				...curr,
-				[tableName]: true,
-			}));
-
-			// We need to pass the most update state to server
-			// If we pass pageState directly, the new selected row info will not be present before the request is sent
-			// So here we just manually update the pageState and send the updated state to server
-			// Open to better suggestions
-
-			pageState.state.tables = {
-				...pageState.state.tables,
-				...newSelectedRow,
-			};
+			selectRowAndUpdateState(currentRow);
 
 			sendJsonMessage({
 				type: 'display_rule',
