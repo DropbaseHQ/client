@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { useAtom } from 'jotai';
 import { axios, workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
+import { useSetWorkerAxiosBaseURL } from '@/features/authorization/hooks/useLogin';
 
 export const WORKSPACE_QUERY = 'workspaces';
 
@@ -36,6 +37,7 @@ const getWorkerWorkspace = async () => {
 
 export const useWorkerWorkspace = () => {
 	const { pathname } = useLocation();
+	const { isFetched } = useSetWorkerAxiosBaseURL();
 	const loginRoutes =
 		pathname.startsWith('/login') ||
 		pathname.startsWith('/register') ||
@@ -48,7 +50,8 @@ export const useWorkerWorkspace = () => {
 		enabled:
 			!loginRoutes &&
 			import.meta.env.VITE_APP_TYPE !== 'app' &&
-			!!workerAxios.defaults.headers['access-token'],
+			!!workerAxios.defaults.headers['access-token'] &&
+			isFetched,
 	});
 
 	return {

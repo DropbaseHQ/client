@@ -95,7 +95,7 @@ const urlMatcher = (mapping: URLMapping) =>
 export const useSetWorkerAxiosBaseURL = () => {
 	// Track whether the URL was set successfully or not
 	const [urlSet, setWorkerURL] = useState(false);
-	const { urlMappings, isLoading } = useURLMappings();
+	const { urlMappings, isLoading, isFetched } = useURLMappings();
 
 	const setActiveMapping = useSetAtom(activeURLMappingAtom);
 	const matchingURL = urlMappings.find(urlMatcher);
@@ -107,7 +107,7 @@ export const useSetWorkerAxiosBaseURL = () => {
 	};
 
 	useEffect(() => {
-		if (!isLoading) {
+		if (!isLoading && isFetched) {
 			if (matchingURL) {
 				setWorkerAxiosBaseURL(`${getHTTP()}://${matchingURL.worker_url}`);
 				setActiveMapping(matchingURL);
@@ -116,11 +116,12 @@ export const useSetWorkerAxiosBaseURL = () => {
 			}
 			setWorkerURL(true);
 		}
-	}, [matchingURL, isLoading, setActiveMapping, urlMappings]);
+	}, [matchingURL, isLoading, setActiveMapping, urlMappings, isFetched]);
 
 	return {
 		urlSet,
 		isLoading,
+		isFetched,
 	};
 };
 
