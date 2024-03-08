@@ -36,9 +36,10 @@ def fill_smart_cols_data(
     smart_col_paths: OutputSchema, db_schema: FullDBSchema
 ) -> dict[str, Union[SqlSmartColumnProperty]]: # If we want to add more
     try:
-        smart_cols_data = {}
+        smart_cols_list = []
         for item in smart_col_paths.output:
             for name, col_path in item.items():
+                smart_cols_data = {}
                 try:
                     table = col_path.table_name
                     column = col_path.column_name
@@ -53,7 +54,9 @@ def fill_smart_cols_data(
                     # Skip ChatGPT "hallucinated" columns
                     continue
                 smart_cols_data[name] = SqlSmartColumnProperty(name=name, **col_schema_data)
-        return {"columns": smart_cols_data}
+            
+            smart_cols_list.append(smart_cols_data)
+        return {"columns": smart_cols_list}
     except Exception as e:
         logger.info(str(e))
         raise HTTPException(status_code=500, detail="API call failed. Please try again.")
@@ -75,6 +78,8 @@ def call_gpt(user_sql: str, column_names: list, db_schema: dict, db_type: str) -
         ]["content"]
 
         output = json.loads(output_dict)
+
+        print(output)
 
         # validate output/
         output = OutputSchema(output=output)
