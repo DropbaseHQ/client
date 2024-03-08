@@ -1,4 +1,5 @@
 import useWebSocket from 'react-use-websocket';
+import { Center, Text } from '@chakra-ui/react';
 import { useSetAtom } from 'jotai';
 import { Route } from 'react-router-dom';
 import {
@@ -21,8 +22,7 @@ export const WorkerDashboardRoutes = () => {
 
 	useSyncProxyToken();
 	useSetAxiosToken();
-	useSetWorkerAxiosBaseURL();
-	// Initialize websocket
+	const { urlSet, isLoading } = useSetWorkerAxiosBaseURL();
 
 	const websocketURL = useGetWebSocketURL();
 
@@ -39,13 +39,48 @@ export const WorkerDashboardRoutes = () => {
 		},
 	});
 
-	return (
-		<DashboardRoutes homeRoute="/apps">
-			<Route element={<ProtectedRoutes />}>
+	let children = null;
+
+	/**
+	 * Only show worker routes when the correct URL is set and track the Loading
+	 * state of URL mappings since we want to make sure it was URL set after loading
+	 * mappings
+	 */
+	if (isLoading) {
+		children = (
+			<Route
+				path="*"
+				element={
+					<Center>
+						<Text>Loading User Config...</Text>
+					</Center>
+				}
+			/>
+		);
+	} else if (!urlSet) {
+		children = (
+			<Route
+				path="*"
+				element={
+					<Center>
+						<Text>URL Mapping not set</Text>
+					</Center>
+				}
+			/>
+		);
+	} else {
+		children = (
+			<>
 				<Route path="workspaces" element={<Workspaces />} />
 				<Route path="apps/*" element={<App />} />
 				<Route path="settings/*" element={<SettingsRoutes />} />
-			</Route>
+			</>
+		);
+	}
+
+	return (
+		<DashboardRoutes homeRoute="/apps">
+			<Route element={<ProtectedRoutes />}>{children}</Route>
 		</DashboardRoutes>
 	);
 };

@@ -48,10 +48,10 @@ export const DeveloperSettings = () => {
 	}
 
 	return (
-		<PageLayout title="Developer Settings">
+		<PageLayout pageProps={{ overflow: 'auto' }} title="Developer Settings">
 			<TokenModal />
 			<Stack>
-				<Flex direction="row" justifyContent="space-between" alignItems="center">
+				<Stack direction="row" justifyContent="space-between" alignItems="center">
 					<Stack spacing="0.5">
 						<Text fontSize="lg" fontWeight="bold">
 							Worker Tokens
@@ -61,7 +61,7 @@ export const DeveloperSettings = () => {
 							Generate workspace token for your worker
 						</Text>
 					</Stack>
-				</Flex>
+				</Stack>
 
 				<Table
 					w="container.lg"

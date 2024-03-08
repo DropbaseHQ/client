@@ -56,7 +56,9 @@ export const WorkspaceSwitcher = ({ trigger }: any) => {
 					<Text fontSize="sm">{user?.email}</Text>
 				</PopoverHeader>
 				<PopoverBody>
-					{workspaces?.map((workspace: any) => <WorkspaceCard workspace={workspace} />)}
+					{workspaces?.map((workspace: any) => (
+						<WorkspaceCard key={workspace?.name} workspace={workspace} />
+					))}
 				</PopoverBody>
 			</PopoverContent>
 		</Popover>
