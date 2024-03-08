@@ -1,10 +1,9 @@
 import json
-from typing import Any, Dict, Union
+from typing import Any, Dict, Union, Optional, List
 from fastapi import HTTPException
 import logging
 
 import openai
-from typing import Optional
 from pydantic import BaseModel
 
 from server.constants import GPT_MODEL, GPT_TEMPERATURE
@@ -27,32 +26,33 @@ class ColumnInfo(BaseModel):
 
 
 class OutputSchema(BaseModel):
-    output: Dict[str, ColumnInfo]
+    output: List[Dict[str, ColumnInfo]]
 
 
 FullDBSchema = dict[str, dict[str, dict[str, dict[str, Any]]]]
 
 
 def fill_smart_cols_data(
-    smart_col_paths: dict, db_schema: FullDBSchema
+    smart_col_paths: OutputSchema, db_schema: FullDBSchema
 ) -> dict[str, Union[SqlSmartColumnProperty]]: # If we want to add more
     try:
         smart_cols_data = {}
-        for name, col_path in smart_col_paths.items():
-            try:
-                table = col_path["table_name"]
-                column = col_path["column_name"]
-                if "schema_name" in col_path:
-                    schema = col_path["schema_name"]
-                    col_schema_data = db_schema[schema][table][column] # this part schema does not exist
-                elif "database_name" in col_path:
-                    database = col_path["database_name"]
-                    table = col_path["table_name"]
-                    col_schema_data = db_schema[database][table][column]
-            except KeyError:
-                # Skip ChatGPT "hallucinated" columns
-                continue
-            smart_cols_data[name] = SqlSmartColumnProperty(name=name, **col_schema_data)
+        for item in smart_col_paths.output:
+            for name, col_path in item.items():
+                try:
+                    table = col_path.table_name
+                    column = col_path.column_name
+                    if col_path.schema_name != None:
+                        schema = col_path.schema_name
+                        col_schema_data = db_schema[schema][table][column] # this part schema does not exist
+                    elif col_path.database_name != None:
+                        database = col_path.database_name
+                        table = col_path.table_name
+                        col_schema_data = db_schema[database][table][column]
+                except KeyError:
+                    # Skip ChatGPT "hallucinated" columns
+                    continue
+                smart_cols_data[name] = SqlSmartColumnProperty(name=name, **col_schema_data)
         return {"columns": smart_cols_data}
     except Exception as e:
         logger.info(str(e))
@@ -73,10 +73,11 @@ def call_gpt(user_sql: str, column_names: list, db_schema: dict, db_type: str) -
         output_dict = json.loads(gpt_output).get("choices", [{"message": {"content": "{}"}}])[0][
             "message"
         ]["content"]
-        
+
         output = json.loads(output_dict)
-        # validate output
-        OutputSchema(output=output)
+
+        # validate output/
+        output = OutputSchema(output=output)
         return output
     except Exception as e:
         logger.info(str(e))

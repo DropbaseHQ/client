@@ -1,5 +1,5 @@
 def get_postgres_gpt_input(db_schema: dict, user_sql: str, column_names: list) -> str:
-    return f"""Given a database schema and a SQL query, output a JSON object that contains each column referenced in the SQL query.
+    return f"""Given a database schema and a SQL query, I want you to output something with this format List(dict(str, dict)) here, the list outputs a JSON object with the column name as a key which maps to another JSON object that contains all the column data
 
 Sample JSON object key
 ```json
@@ -15,6 +15,8 @@ Sample JSON object value
         "column_name": "name"
 }}
 ```
+
+However, since I want to allow unique keys I want to wrap all of this into a list where each element of the list is a single element of the dictionary
 
 In the sample JSON, "output column" is the column name as it would be output when executing the SQL statement.
 You will be provided a list of column names that will be returned by the query. Your job is to, for each column name, determine its schema_name, table_name, and column_name based on the SQL query. You may only return information on the columns specified in Column names. You must return information on each of the columns specified in Column names.
@@ -40,4 +42,5 @@ Column names:
 ```
 
 Output no prose, no explanations, just JSON. Exclude calculated columns from the JSON output. Don't format output. Ensure that the output is one JSON object not multiple. Furthermore label the output column the actual column name don't just call it "output column". 
+Furthermore, when the "user_sql" has a JOIN statement then follow ensure that ALL column names in the column names list are outputted correctly. If the same name appears twice make sure to include both of them in the output with their respective database and scehmas, do not combine to columns into one. Don't rename the second column to an alias, keep the names exactly the same.
 """  # noqa
