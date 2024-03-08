@@ -33,6 +33,7 @@ import {
 	ButtonCell,
 	SparklineCell,
 	TagsCell,
+	SpinnerCell,
 } from '@glideapps/glide-data-grid-cells';
 import '@glideapps/glide-data-grid/dist/index.css';
 
@@ -86,12 +87,15 @@ const ALL_CELLS = [
 	ButtonCell,
 	SparklineCell,
 	TagsCell,
+	SpinnerCell,
 ];
 
 export const SmartTable = ({ tableName, provider }: any) => {
 	const toast = useToast();
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
+
+	const [buttonTrigger, setButtonTrigger] = useState<any>(null);
 
 	const { appName, pageName } = useParams();
 
@@ -147,7 +151,14 @@ export const SmartTable = ({ tableName, provider }: any) => {
 	const currentFetcher = table?.fetcher;
 	const previousFetcher = usePrevious(currentFetcher);
 
-	const handleEvent = useEvent();
+	const handleEvent = useEvent({
+		onSuccess: () => {
+			setButtonTrigger(null);
+		},
+		onError: () => {
+			setButtonTrigger(null);
+		},
+	});
 
 	const mutation = useUpdatePageData({
 		onSuccess: () => {
@@ -239,6 +250,10 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		});
 
 		selectRowAndUpdateState(row);
+
+		if (event?.type === 'function') {
+			setButtonTrigger(JSON.stringify([row, col]));
+		}
 		handleEvent(event);
 	};
 
@@ -537,7 +552,20 @@ export const SmartTable = ({ tableName, provider }: any) => {
 			  };
 
 		if (column?.column_type === 'button_column') {
+			const currentActive = buttonTrigger === JSON.stringify([row, col]);
 			const columnColor = theme.colors?.[column?.color || 'gray'];
+
+			if (currentActive) {
+				return {
+					kind: GridCellKind.Custom,
+					allowOverlay: false,
+					readOnly: true,
+					data: {
+						kind: 'spinner-cell',
+					},
+					...themeOverride,
+				};
+			}
 
 			return {
 				kind: GridCellKind.Custom,
