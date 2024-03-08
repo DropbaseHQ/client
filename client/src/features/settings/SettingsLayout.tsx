@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue } from 'jotai';
-import { Box, Flex, Stack, Text } from '@chakra-ui/react';
+import { Box, Stack, Text } from '@chakra-ui/react';
 import { Lock, User, Users, Code, Icon as ReactFeatherIcon } from 'react-feather';
 import { PropsWithChildren, useEffect } from 'react';
 import { Link as ReactRouterLink } from 'react-router-dom';
@@ -81,9 +81,10 @@ export const SettingsLayout = ({ children }: PropsWithChildren<any>) => {
 	useEffect(() => {
 		setCanUse(inTrial || userInfo?.email?.endsWith('dropbase.io'));
 	}, [inTrial, userInfo?.email, setCanUse]);
+
 	return (
-		<Flex h="full">
-			<Box flex="1">
+		<Stack direction="row" spacing="0" h="full">
+			<Box h="full" overflow="auto" flex="1">
 				<PageLayout title="Settings">
 					<Stack>
 						{options.map((option) => (
@@ -103,6 +104,6 @@ export const SettingsLayout = ({ children }: PropsWithChildren<any>) => {
 			<Box flex="6" w="full" h="full" borderLeft="1px" borderColor="gray.100">
 				{children}
 			</Box>
-		</Flex>
+		</Stack>
 	);
 };

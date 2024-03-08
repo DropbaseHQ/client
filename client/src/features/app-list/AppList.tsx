@@ -284,7 +284,7 @@ export const AppList = () => {
 					) : (
 						apps
 							.sort((a, b) => a.name.localeCompare(b.name))
-							.map((app) => <AppCard key={app.id} app={app} />)
+							.map((app) => <AppCard key={app.name} app={app} />)
 					)}
 				</SimpleGrid>
 			) : (

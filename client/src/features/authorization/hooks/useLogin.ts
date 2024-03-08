@@ -1,6 +1,6 @@
 import { useMutation } from 'react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { MutationConfig } from '@/lib/react-query';
 import { workspaceAtom } from '@/features/workspaces';
@@ -93,7 +93,10 @@ const urlMatcher = (mapping: URLMapping) =>
 	!!mapping?.client_url && window.location.href.includes(mapping.client_url);
 
 export const useSetWorkerAxiosBaseURL = () => {
-	const { urlMappings } = useURLMappings();
+	// Track whether the URL was set successfully or not
+	const [urlSet, setWorkerURL] = useState(false);
+	const { urlMappings, isLoading } = useURLMappings();
+
 	const setActiveMapping = useSetAtom(activeURLMappingAtom);
 	const matchingURL = urlMappings.find(urlMatcher);
 	const getHTTP = () => {
@@ -104,13 +107,21 @@ export const useSetWorkerAxiosBaseURL = () => {
 	};
 
 	useEffect(() => {
-		if (matchingURL) {
-			setWorkerAxiosBaseURL(`${getHTTP()}://${matchingURL.worker_url}`);
-			setActiveMapping(matchingURL);
-		} else {
-			setWorkerAxiosBaseURL(getWorkerURL());
+		if (!isLoading) {
+			if (matchingURL) {
+				setWorkerAxiosBaseURL(`${getHTTP()}://${matchingURL.worker_url}`);
+				setActiveMapping(matchingURL);
+			} else {
+				setWorkerAxiosBaseURL(getWorkerURL());
+			}
+			setWorkerURL(true);
 		}
-	}, [matchingURL, setActiveMapping, urlMappings]);
+	}, [matchingURL, isLoading, setActiveMapping, urlMappings]);
+
+	return {
+		urlSet,
+		isLoading,
+	};
 };
 
 const getWS = () => {
