@@ -191,6 +191,7 @@ export const AppComponent = (props: any) => {
 		);
 	}
 
+	// FIXME: this logic is repeated in component editor, find a way to reuse
 	let inputType = type;
 
 	if (componentType === 'select') {
@@ -203,6 +204,10 @@ export const AppComponent = (props: any) => {
 
 	if (componentType === 'boolean') {
 		inputType = 'boolean';
+	}
+
+	if (inputType === 'text' && component?.multiline) {
+		inputType = 'textarea';
 	}
 
 	return (
