@@ -31,7 +31,7 @@ const sizeMap: any = {
 	large: 'lg',
 };
 
-const potentialTemplatesField = ['label', 'text', 'placeholder'];
+const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 
 export const AppComponent = (props: any) => {
 	const { sendJsonMessage } = props;
@@ -45,7 +45,6 @@ export const AppComponent = (props: any) => {
 		display_rules: displayRules,
 		color,
 		on_click: onClick,
-		default: defaultValue,
 		...component
 	} = props;
 
@@ -57,6 +56,28 @@ export const AppComponent = (props: any) => {
 
 	const inputValues: any = useAtomValue(allWidgetsInputAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
+
+	const syncState = useSyncState();
+
+	const { isPreview } = useAtomValue(appModeAtom);
+	const isEditorMode = !isPreview;
+
+	const shouldDisplay =
+		widgetComponents?.[name]?.visible || widgetComponents?.[name]?.visible === null;
+	const grayOutComponent = !shouldDisplay && isEditorMode;
+
+	const {
+		label,
+		text,
+		placeholder,
+		default: defaultValue,
+	} = potentialTemplatesField.reduce(
+		(agg: any, field: any) => ({
+			...agg,
+			[field]: extractTemplateString(component?.[field], pageState) || '',
+		}),
+		{},
+	);
 
 	useEffect(() => {
 		/**
@@ -72,15 +93,6 @@ export const AppComponent = (props: any) => {
 			}, 100);
 		}
 	}, [defaultValue, name, setWidgetComponentValues]);
-
-	const syncState = useSyncState();
-
-	const { isPreview } = useAtomValue(appModeAtom);
-	const isEditorMode = !isPreview;
-
-	const shouldDisplay =
-		widgetComponents?.[name]?.visible || widgetComponents?.[name]?.visible === null;
-	const grayOutComponent = !shouldDisplay && isEditorMode;
 
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
@@ -134,14 +146,6 @@ export const AppComponent = (props: any) => {
 	if (!shouldDisplay && !isEditorMode) {
 		return null;
 	}
-
-	const { label, text, placeholder } = potentialTemplatesField.reduce(
-		(agg: any, field: any) => ({
-			...agg,
-			[field]: extractTemplateString(component?.[field], pageState) || '',
-		}),
-		{},
-	);
 
 	if (componentType === 'button') {
 		return (

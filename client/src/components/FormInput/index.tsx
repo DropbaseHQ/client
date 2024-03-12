@@ -87,7 +87,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				}}
 				size="sm"
 				onBlur={() => {
-					if (type === 'float') {
+					if (type === 'float' && value !== null) {
 						onChange?.(parseFloat(value));
 					}
 				}}
