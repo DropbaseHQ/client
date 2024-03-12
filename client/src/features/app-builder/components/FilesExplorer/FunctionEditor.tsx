@@ -18,7 +18,7 @@ import {
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Info, Play, Save } from 'react-feather';
+import { Info, Play, RotateCw, Save } from 'react-feather';
 import { useQueryClient } from 'react-query';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -105,7 +105,7 @@ export const FunctionEditor = ({ name }: any) => {
 
 	// ⚠️ check using / else will take files which ends with the same keywords like activate.py & deactivate.py
 	const filePath = workerFiles.find((f: any) => f.endsWith(`/${fileName}`));
-	const { isLoading, code, refetch } = useFile({
+	const { isLoading, code, refetch, isRefetching } = useFile({
 		pageName,
 		appName,
 		fileName,
@@ -200,20 +200,34 @@ export const FunctionEditor = ({ name }: any) => {
 					{fileName}
 				</Text>
 
-				<Button
-					w="fit-content"
-					onClick={refetchColumns}
-					variant="outline"
-					colorScheme="gray"
-					size="sm"
-					isDisabled={
-						code === updatedCode &&
-						JSON.stringify(depends) === JSON.stringify(file?.depends_on)
-					}
-					leftIcon={<Save size="14" />}
-				>
-					Update
-				</Button>
+				<Stack alignItems="center" direction="row">
+					<IconButton
+						aria-label="Reload file"
+						flexShrink="0"
+						colorScheme="gray"
+						size="sm"
+						variant="outline"
+						icon={<RotateCw size={12} />}
+						onClick={() => {
+							refetch();
+						}}
+						isLoading={isRefetching}
+					/>
+					<Button
+						w="fit-content"
+						onClick={refetchColumns}
+						variant="outline"
+						colorScheme="gray"
+						size="sm"
+						isDisabled={
+							code === updatedCode &&
+							JSON.stringify(depends) === JSON.stringify(file?.depends_on)
+						}
+						leftIcon={<Save size="14" />}
+					>
+						Update
+					</Button>
+				</Stack>
 			</Stack>
 
 			{!isLoadingWorkerFiles && updatedCode && isNotSameFunctionName ? (
