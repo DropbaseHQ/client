@@ -137,7 +137,7 @@ export const AppComponent = (props: any) => {
 					...oldPage,
 					widgetName: event.value,
 					modals: [
-						...oldPage.modals,
+						...oldPage.modals.filter((m: any) => m.name !== event.value),
 						{
 							name: event.value,
 							caller: widgetName,
@@ -147,6 +147,7 @@ export const AppComponent = (props: any) => {
 			} else {
 				setPageContext((oldPage: any) => ({
 					...oldPage,
+					modals: [],
 					widgetName: event.value,
 				}));
 			}
