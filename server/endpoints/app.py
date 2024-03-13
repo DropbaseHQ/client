@@ -57,12 +57,13 @@ def get_app_access(app_id: UUID, db: Session = Depends(get_db)):
         final_app_permissions = []
         for user in workspace_subjects:
             subject_id = str(user.id)
-            print("user", user.id)
             permissions = get_all_action_permissions(
-                db=db, user_id=user.id, workspace_id=app.workspace_id, app_id=app_id
+                db=db,
+                user_id=user.id,
+                workspace_id=app.workspace_id,
+                app_id=str(app_id),
             )
             app_permissions = permissions.get("app_permissions")
-            print("permissions", permissions)
             if app_permissions.get("own"):
                 final_app_permissions.append(
                     {
@@ -91,8 +92,6 @@ def get_app_access(app_id: UUID, db: Session = Depends(get_db)):
 
     users_permissions = get_highest_permissions_for_list(workspace_users)
     groups_permissions = get_highest_permissions_for_list(workspace_groups)
-    print("Users permissions", users_permissions)
-    print("Groups permissions", groups_permissions)
 
     return {
         "users": users_permissions,
