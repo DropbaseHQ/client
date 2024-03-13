@@ -12,24 +12,37 @@ import {
 	Divider,
 	VStack,
 	Text,
-	Badge,
 	Flex,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
-import { useState, useCallback } from 'react';
-import { useQueryClient } from 'react-query';
+import { useState, useCallback, useMemo } from 'react';
 import { InputRenderer } from '@/components/FormInput';
 import { getErrorMessage } from '@/utils';
 import {
 	useGetWorkspaceGroups,
 	useGetWorkspaceUsers,
 	useUpdateAppPolicy,
-	GET_WORKSPACE_USERS_QUERY_KEY,
-	GET_WORKSPACE_GROUPS_QUERY_KEY,
 	useGetAppAccess,
 } from '@/features/settings/hooks/workspace';
 import { useToast } from '@/lib/chakra-ui';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
+
+const SubjectRow = ({
+	identification,
+	permission,
+}: {
+	identification: string;
+	permission: string;
+}) => {
+	return (
+		<Flex alignItems="center" justifyContent="space-between" w="full" px="2" py="1">
+			<Text fontSize="sm">{identification}</Text>
+			<Text fontSize="xs" color="gray" textTransform="capitalize">
+				{permission}
+			</Text>
+		</Flex>
+	);
+};
 
 const AccessList = () => {
 	const { userAccess, groupAccess } = useGetAppAccess();
@@ -51,30 +64,29 @@ const AccessList = () => {
 
 	return (
 		<VStack w="full">
-			<Text mr="auto" fontWeight="medium">
+			<Text mr="auto" fontSize="md" fontWeight="medium">
 				People with access
 			</Text>
-			{userAccess.map((accessObject) => {
+			{userAccess?.map((accessObject) => {
 				return (
-					<Flex alignItems="center" justifyContent="space-between" w="full">
-						<Text fontSize="sm">{getTargetUser(accessObject.id)?.email}</Text>
-						<Text fontSize="xs" color="gray" textTransform="capitalize">
-							{' '}
-							{accessObject.permission}
-						</Text>
-					</Flex>
+					<SubjectRow
+						key={accessObject.id}
+						identification={getTargetUser(accessObject.id)?.email || ''}
+						permission={accessObject.permission}
+					/>
 				);
 			})}
 
-			<Text mr="auto" mt="2" fontWeight="medium">
+			<Text mr="auto" mt="2" fontSize="md" fontWeight="medium">
 				Groups with access
 			</Text>
-			{groupAccess.map((accessObject) => {
+			{groupAccess?.map((accessObject) => {
 				return (
-					<Flex alignItems="center" justifyContent="space-between" w="full">
-						<Text fontSize="sm">{getTargetGroup(accessObject.id)?.name}</Text>
-						<Badge size="sm">{accessObject.permission}</Badge>
-					</Flex>
+					<SubjectRow
+						key={accessObject.id}
+						identification={getTargetGroup(accessObject.id)?.name || ''}
+						permission={accessObject.permission}
+					/>
 				);
 			})}
 		</VStack>
@@ -87,7 +99,6 @@ export const ShareModal = ({ isOpen, onClose }: any) => {
 	const { apps } = useGetWorkspaceApps();
 	const { appName } = useParams();
 	const toast = useToast();
-	const queryClient = useQueryClient();
 
 	const [invitees, setInvitees] = useState<any[]>([]);
 	const [action, setAction] = useState('');
@@ -100,8 +111,6 @@ export const ShareModal = ({ isOpen, onClose }: any) => {
 				title: 'App shared',
 				status: 'success',
 			});
-			queryClient.invalidateQueries(GET_WORKSPACE_USERS_QUERY_KEY);
-			queryClient.invalidateQueries(GET_WORKSPACE_GROUPS_QUERY_KEY);
 			onClose();
 		},
 		onError: (error: any) => {
@@ -112,17 +121,21 @@ export const ShareModal = ({ isOpen, onClose }: any) => {
 			});
 		},
 	});
-	const formattedUsers = users
-		.filter((user) => user.role_name === 'member' || user.role_name === 'user')
-		.map((user: any) => ({
-			name: user.email,
-			value: user.id,
-		}));
+	const formattedUsers = useMemo(() => {
+		return users
+			.filter((user) => user.role_name === 'member' || user.role_name === 'user')
+			.map((user: any) => ({
+				name: user.email,
+				value: user.id,
+			}));
+	}, [users]);
 
-	const formattedGroups = groups.map((group: any) => ({
-		name: group.name,
-		value: group.id,
-	}));
+	const formattedGroups = useMemo(() => {
+		return groups.map((group: any) => ({
+			name: group.name,
+			value: group.id,
+		}));
+	}, [groups]);
 
 	const inviteeOptions = [...formattedUsers, ...formattedGroups];
 
@@ -177,7 +190,9 @@ export const ShareModal = ({ isOpen, onClose }: any) => {
 				</ModalBody>
 
 				<ModalFooter>
-					<Button variant="ghost">Cancel</Button>
+					<Button variant="ghost" onClick={() => onClose()}>
+						Cancel
+					</Button>
 					<Button
 						colorScheme="blue"
 						mr={3}
