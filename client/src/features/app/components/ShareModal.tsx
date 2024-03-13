@@ -9,10 +9,14 @@ import {
 	Button,
 	FormControl,
 	FormLabel,
+	Divider,
 	VStack,
+	Text,
+	Badge,
+	Flex,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useQueryClient } from 'react-query';
 import { InputRenderer } from '@/components/FormInput';
 import { getErrorMessage } from '@/utils';
@@ -22,9 +26,60 @@ import {
 	useUpdateAppPolicy,
 	GET_WORKSPACE_USERS_QUERY_KEY,
 	GET_WORKSPACE_GROUPS_QUERY_KEY,
+	useGetAppAccess,
 } from '@/features/settings/hooks/workspace';
 import { useToast } from '@/lib/chakra-ui';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
+
+const AccessList = () => {
+	const { userAccess, groupAccess } = useGetAppAccess();
+	const { users } = useGetWorkspaceUsers();
+	const { groups } = useGetWorkspaceGroups();
+
+	const getTargetUser = useCallback(
+		(userId: string) => {
+			return users.find((user) => user.id === userId);
+		},
+		[users],
+	);
+	const getTargetGroup = useCallback(
+		(groupId: string) => {
+			return groups.find((group) => group.id === groupId);
+		},
+		[groups],
+	);
+
+	return (
+		<VStack w="full">
+			<Text mr="auto" fontWeight="medium">
+				People with access
+			</Text>
+			{userAccess.map((accessObject) => {
+				return (
+					<Flex alignItems="center" justifyContent="space-between" w="full">
+						<Text fontSize="sm">{getTargetUser(accessObject.id)?.email}</Text>
+						<Text fontSize="xs" color="gray" textTransform="capitalize">
+							{' '}
+							{accessObject.permission}
+						</Text>
+					</Flex>
+				);
+			})}
+
+			<Text mr="auto" mt="2" fontWeight="medium">
+				Groups with access
+			</Text>
+			{groupAccess.map((accessObject) => {
+				return (
+					<Flex alignItems="center" justifyContent="space-between" w="full">
+						<Text fontSize="sm">{getTargetGroup(accessObject.id)?.name}</Text>
+						<Badge size="sm">{accessObject.permission}</Badge>
+					</Flex>
+				);
+			})}
+		</VStack>
+	);
+};
 
 export const ShareModal = ({ isOpen, onClose }: any) => {
 	const { users } = useGetWorkspaceUsers();
@@ -115,6 +170,9 @@ export const ShareModal = ({ isOpen, onClose }: any) => {
 								]}
 							/>
 						</FormControl>
+						<Divider />
+
+						<AccessList />
 					</VStack>
 				</ModalBody>
 

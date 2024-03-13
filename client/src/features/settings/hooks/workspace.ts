@@ -1,7 +1,9 @@
 import { useQuery, useMutation } from 'react-query';
+import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { axios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
+import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 
 export type Group = {
 	id: string;
@@ -136,4 +138,40 @@ export const useUpdateAppPolicy = (mutationConfig?: any) => {
 	return useMutation(updateAppPolicy, {
 		...(mutationConfig || {}),
 	});
+};
+
+type AppAccess = {
+	users: {
+		id: string;
+		permission: string;
+	}[];
+	groups: {
+		id: string;
+		permission: string;
+	}[];
+};
+
+const fetchAppAccess = async ({ appId }: { appId: string }) => {
+	const response = await axios.get<AppAccess>(`/app/${appId}/has_access`);
+	return response.data;
+};
+
+export const useGetAppAccess = () => {
+	const { appName } = useParams();
+	const { apps } = useGetWorkspaceApps();
+
+	const currentApp = apps?.find((app: any) => app.name === appName);
+	const { data, ...rest } = useQuery(
+		['appAccess'],
+		() => fetchAppAccess({ appId: currentApp?.id || '' }),
+		{
+			enabled: !!currentApp?.id,
+		},
+	);
+
+	return {
+		userAccess: data?.users || [],
+		groupAccess: data?.groups || [],
+		...rest,
+	};
 };
