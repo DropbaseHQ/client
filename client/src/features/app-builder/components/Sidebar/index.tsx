@@ -28,7 +28,7 @@ export const BuilderSidebar = () => {
 
 	return (
 		<Accordion h="full" overflowY="auto" allowMultiple>
-			<AccordionItem>
+			<AccordionItem borderTopWidth="0">
 				{({ isExpanded }) => (
 					<>
 						<AccordionButton
