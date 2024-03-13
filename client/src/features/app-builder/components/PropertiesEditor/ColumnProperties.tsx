@@ -119,9 +119,9 @@ const ColumnProperty = ({
 
 	const displayType = watch('display_type');
 
-	const allDisplayConfigurations = resourceFields.display_type_configurations;
+	const allDisplayConfigurations = resourceFields?.display_type_configurations || [];
 	const displayConfiguration =
-		allDisplayConfigurations?.find((d: any) => d.name === displayType) || [];
+		allDisplayConfigurations?.find((d: any) => d.name === displayType) || {};
 	const configProperties = displayConfiguration?.properties || {};
 
 	const editableFields = VISIBLE_EDITABLE_FIELDS?.[columnField];
@@ -251,8 +251,27 @@ const ColumnProperty = ({
 		}
 	};
 
-	const resetConfig = () => {
-		setValue('configurations', null);
+	const handleDisplayType = (newType: any) => {
+		const newDisplayConfig =
+			allDisplayConfigurations?.find((d: any) => d.name === newType) || {};
+		const newConfigProperties = newDisplayConfig?.properties || {};
+
+		/**
+		 * If config properties is present, set the default values for all fields
+		 */
+		if (newDisplayConfig?.properties) {
+			const configDefaults = Object.keys(newConfigProperties).reduce(
+				(agg: any, prop: any) => ({
+					...agg,
+					[prop]: newConfigProperties?.[prop]?.default,
+				}),
+				{},
+			);
+
+			setValue(`configurations`, configDefaults);
+		} else {
+			setValue('configurations', null);
+		}
 	};
 
 	const onSubmit = (formValues: any) => {
@@ -378,7 +397,7 @@ const ColumnProperty = ({
 														value: option,
 													}),
 												)}
-												onSelect={resetConfig}
+												onSelect={handleDisplayType}
 											/>
 										);
 									}
