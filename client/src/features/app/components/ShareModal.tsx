@@ -13,6 +13,7 @@ import {
 	VStack,
 	Text,
 	Flex,
+	Box,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { useState, useCallback, useMemo } from 'react';
@@ -67,28 +68,32 @@ const AccessList = () => {
 			<Text mr="auto" fontSize="md" fontWeight="medium">
 				People with access
 			</Text>
-			{userAccess?.map((accessObject) => {
-				return (
-					<SubjectRow
-						key={accessObject.id}
-						identification={getTargetUser(accessObject.id)?.email || ''}
-						permission={accessObject.permission}
-					/>
-				);
-			})}
+			<Box maxHeight="6rem" overflow="auto">
+				{userAccess?.map((accessObject) => {
+					return (
+						<SubjectRow
+							key={accessObject.id}
+							identification={getTargetUser(accessObject.id)?.email || ''}
+							permission={accessObject.permission}
+						/>
+					);
+				})}
+			</Box>
 
 			<Text mr="auto" mt="2" fontSize="md" fontWeight="medium">
 				Groups with access
 			</Text>
-			{groupAccess?.map((accessObject) => {
-				return (
-					<SubjectRow
-						key={accessObject.id}
-						identification={getTargetGroup(accessObject.id)?.name || ''}
-						permission={accessObject.permission}
-					/>
-				);
-			})}
+			<Box maxHeight="6rem" overflow="auto">
+				{groupAccess?.map((accessObject) => {
+					return (
+						<SubjectRow
+							key={accessObject.id}
+							identification={getTargetGroup(accessObject.id)?.name || ''}
+							permission={accessObject.permission}
+						/>
+					);
+				})}
+			</Box>
 		</VStack>
 	);
 };
