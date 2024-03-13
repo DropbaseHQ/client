@@ -1,6 +1,4 @@
 import { atom } from 'jotai';
-import lodashSet from 'lodash/set';
-import { pageAtom } from '@/features/page';
 
 // Selected table rows atom
 export const selectedRowAtom: any = atom({});
@@ -19,35 +17,15 @@ export const allWidgetStateAtom = atom({
 	state: {},
 });
 
+// input values grouped by widget
 export const allWidgetsInputAtom: any = atom({});
 
 // read-write atom for widget components based on widgetState
-export const widgetComponentsAtom: any = atom(
-	(get) => {
-		const currentState = get(allWidgetStateAtom) as any;
+export const widgetComponentsAtom: any = atom((get) => {
+	const currentState = get(allWidgetStateAtom) as any;
 
-		return currentState.state;
-	},
-	(get, set, inputs: any) => {
-		const pageContext: any = get(pageAtom);
-		let currentInputs: any = get(allWidgetsInputAtom);
-
-		if (pageContext.widgetName) {
-			// FIXME: use just allWidgetsInputAtom
-			Object.keys(inputs).forEach((i) => {
-				currentInputs = lodashSet(
-					currentInputs,
-					`${pageContext.widgetName}.${i}`,
-					inputs[i],
-				);
-			});
-
-			set(allWidgetsInputAtom, {
-				...JSON.parse(JSON.stringify(currentInputs)),
-			});
-		}
-	},
-);
+	return currentState.state;
+});
 
 export const newPageStateAtom = atom((get) => {
 	const userInputState: any = get(allWidgetsInputAtom) || {};
