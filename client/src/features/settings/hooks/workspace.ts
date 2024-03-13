@@ -115,3 +115,25 @@ export const useUpdateUserRole = (mutationConfig?: any) => {
 		...(mutationConfig || {}),
 	});
 };
+
+const updateAppPolicy = async ({
+	appId,
+	subjects,
+	action,
+}: {
+	appId: string;
+	subjects: string[];
+	action: string;
+}) => {
+	const response = await axios.post(`/app/${appId}/share`, {
+		subjects,
+		action,
+	});
+	return response.data;
+};
+
+export const useUpdateAppPolicy = (mutationConfig?: any) => {
+	return useMutation(updateAppPolicy, {
+		...(mutationConfig || {}),
+	});
+};

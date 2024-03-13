@@ -18,6 +18,7 @@ import {
 	FormErrorMessage,
 	TabList,
 	Tabs,
+	useDisclosure,
 } from '@chakra-ui/react';
 import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
 import { useEffect, useState } from 'react';
@@ -32,6 +33,7 @@ import { useCreatePage } from '@/features/page';
 import { getErrorMessage, generateSequentialName } from '@/utils';
 import { PageTab } from './PageTab';
 import { LabelContainer } from '@/components/LabelContainer';
+import { ShareModal } from './ShareModal';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const toast = useToast();
@@ -40,6 +42,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
 	const { permissions } = useAppState(appName || '', pageName || '');
+	const { isOpen: shareIsOpen, onOpen: shareOnOpen, onClose: shareOnClose } = useDisclosure();
 
 	const [label, setAppLabel] = useState('');
 
@@ -252,6 +255,9 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Flex>
 
 			<Stack direction="row" spacing="2" ml="auto">
+				<Button size="sm" variant="outline" onClick={() => shareOnOpen()}>
+					Share
+				</Button>
 				{permissions?.edit && (
 					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
 						<Button
@@ -271,6 +277,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 					</Tooltip>
 				)}
 			</Stack>
+			<ShareModal isOpen={shareIsOpen} onClose={shareOnClose} />
 		</Stack>
 	);
 };
