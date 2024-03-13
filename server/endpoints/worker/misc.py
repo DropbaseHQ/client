@@ -54,3 +54,11 @@ def get_worker_workspace(workspace: Workspace = Depends(verify_worker_token)):
         "id": workspace.id,
         "name": workspace.name,
     }
+
+
+@router.get("/sync_demo")
+def sync_demo(
+    workspace: Workspace = Depends(verify_worker_token),
+    db: Session = Depends(get_db)
+):
+    return user_controller.sync_demo(db, workspace)

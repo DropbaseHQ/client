@@ -104,7 +104,11 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
 
 
 @router.post("/onboard")
-def onboard_user(request: OnboardUser, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def onboard_user(
+    request: OnboardUser,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
     return user_controller.onboard_user(db, request, user.id)
 
 

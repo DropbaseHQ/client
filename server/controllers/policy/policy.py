@@ -90,7 +90,7 @@ class PolicyUpdater:
                 self.db.commit()
                 return {"message": "Policy updated!"}
 
-            updated_list_of_actions = ALLOWED_ACTIONS[ALLOWED_ACTIONS.index(self.request.action) :]
+            updated_list_of_actions = ALLOWED_ACTIONS[ALLOWED_ACTIONS.index(self.request.action):]
 
             if existing_policies:
                 # Update the action if the action is not none

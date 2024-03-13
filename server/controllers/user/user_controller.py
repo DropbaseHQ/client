@@ -679,3 +679,30 @@ def github_auth(db: Session, Authorize: AuthJWT, code: str):
         "refresh_token": refresh_token,
         "onboarding": not user.onboarded,
     }
+
+
+def sync_demo(db: Session, workspace):
+    # app demo page
+    app = crud.app.create(
+        db,
+        obj_in={
+            "name": "demo",
+            "label": "Demo App",
+            "description": "This is a demo app",
+            "workspace_id": workspace.id,
+        }
+    )
+    # add demo app
+    page = crud.page.create(
+        db,
+        obj_in={
+            "name": "page1",
+            "label": "Page1",
+            "description": "Page 1 of the demo app",
+            "app_id": app.id
+        }
+    )
+    return {
+        "app_id": app.id,
+        "page_id": page.id
+    }
