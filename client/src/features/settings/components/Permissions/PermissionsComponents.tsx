@@ -161,15 +161,7 @@ export const PermissionsFilterRow = ({ children }: any) => {
 			alignItems="center"
 			w="25vw"
 		>
-			<Stack
-				direction="row"
-				borderRadius="sm"
-				px="2"
-				spacing="6"
-				flex="1"
-				overflow="auto"
-				w="full"
-			>
+			<Stack direction="row" borderRadius="sm" spacing="6" flex="1" overflow="auto" w="full">
 				{children}
 			</Stack>
 		</Stack>
