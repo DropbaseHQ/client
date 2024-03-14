@@ -3,8 +3,9 @@ import { Circle, Link, Stack, Text, Divider } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { workerAxios } from '../lib/axios';
 import { useWorkerWorkspace, workspaceAtom } from '@/features/workspaces';
-import { lspStatusAtom, websocketStatusAtom } from '@/features/app/atoms';
+import { websocketStatusAtom } from '@/features/app/atoms';
 import { useSetWorkerAxiosBaseURL } from '@/features/authorization/hooks/useLogin';
+import { lspStatusAtom } from '@/components/Editor';
 
 export const STATUS_QUERY_KEY = 'allFiles';
 

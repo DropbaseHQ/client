@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSetAtom } from 'jotai';
-import { initializeLanguageServices } from '@/components/Editor';
+import { initializeLanguageServices, lspStatusAtom } from '@/components/Editor';
 import { useGetLSPURL } from '@/features/authorization/hooks/useLogin';
-import { lspStatusAtom } from '@/features/app/atoms';
 
 export const useMonacoLoader = () => {
 	const [isMonacoReady, setReady] = useState(false);
