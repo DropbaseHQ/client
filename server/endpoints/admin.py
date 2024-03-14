@@ -1,26 +1,28 @@
 from uuid import UUID
 from pydantic import BaseModel
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from server import crud
 from server.schemas import CheckPermissionRequest
-from server.schemas.role import CreateRole, UpdateRole
-from server.utils.authorization import RESOURCES, AuthZDepFactory
 from server.controllers import workspace as workspace_controller
 from server.controllers import user as user_controller
 from server.controllers.policy import (
     PolicyUpdater,
-    format_permissions_for_highest_action,
 )
-
-
 from server.utils.connect import get_db
+
+
+def check_power_user_token(request: Request):
+    token = request.headers.get("powerUserToken")
+    if token != "dropbasePowerToken":
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 router = APIRouter(
     prefix="/power",
     tags=["power"],
+    dependencies=[Depends(check_power_user_token)],
 )
 
 
