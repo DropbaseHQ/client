@@ -76,10 +76,12 @@ const MemberTableRowsList = ({
 }) => {
 	const { apps } = useGetWorkspaceApps();
 
-	const filteredApps = apps?.filter((app) => app.name.includes(appFilter));
+	const filteredApps = apps?.filter(
+		(app) => app.name?.toLowerCase().includes(appFilter?.toLowerCase()),
+	);
 
 	return filteredApps?.map((app: any) => (
-		<MemberTableRow key={app.id} name={app.name} userId={selectedUser} appId={app.id} />
+		<MemberTableRow key={app.name} name={app.name} userId={selectedUser} appId={app.id} />
 	));
 };
 

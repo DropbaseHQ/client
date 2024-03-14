@@ -72,7 +72,9 @@ const GroupTableRowsList = ({
 }) => {
 	const { apps } = useGetWorkspaceApps();
 
-	const filteredApps = apps?.filter((app) => app.name.includes(appFilter));
+	const filteredApps = apps?.filter(
+		(app) => app.name?.toLowerCase().includes(appFilter?.toLowerCase()),
+	);
 
 	return filteredApps?.map((app: any) => (
 		<GroupTableRow key={app.name} name={app.name} groupId={selectedGroup} appId={app.id} />
