@@ -14,6 +14,7 @@ import {
 	Text,
 	Flex,
 	Box,
+	Spinner,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { useState, useCallback, useMemo } from 'react';
@@ -36,7 +37,7 @@ const SubjectRow = ({
 	permission: string;
 }) => {
 	return (
-		<Flex alignItems="center" justifyContent="space-between" w="full" px="2" py="1">
+		<Flex alignItems="center" justifyContent="space-between" w="full" px="2" py="2">
 			<Text fontSize="sm">{identification}</Text>
 			<Text fontSize="xs" color="gray" textTransform="capitalize">
 				{permission}
@@ -46,7 +47,7 @@ const SubjectRow = ({
 };
 
 const AccessList = () => {
-	const { userAccess, groupAccess } = useGetAppAccess();
+	const { userAccess, groupAccess, isLoading } = useGetAppAccess();
 	const { users } = useGetWorkspaceUsers();
 	const { groups } = useGetWorkspaceGroups();
 
@@ -68,7 +69,9 @@ const AccessList = () => {
 			<Text mr="auto" fontSize="md" fontWeight="medium">
 				People with access
 			</Text>
-			<Box maxHeight="6rem" overflow="auto">
+			{isLoading && <Spinner />}
+
+			<Box maxHeight="6rem" overflow="auto" w="full">
 				{userAccess?.map((accessObject) => {
 					return (
 						<SubjectRow
@@ -83,7 +86,9 @@ const AccessList = () => {
 			<Text mr="auto" mt="2" fontSize="md" fontWeight="medium">
 				Groups with access
 			</Text>
-			<Box maxHeight="6rem" overflow="auto">
+			{isLoading && <Spinner />}
+
+			<Box maxHeight="6rem" overflow="auto" w="full">
 				{groupAccess?.map((accessObject) => {
 					return (
 						<SubjectRow
@@ -195,7 +200,7 @@ export const ShareModal = ({ isOpen, onClose }: any) => {
 				</ModalBody>
 
 				<ModalFooter>
-					<Button variant="ghost" onClick={() => onClose()}>
+					<Button mr="1" variant="ghost" onClick={() => onClose()}>
 						Cancel
 					</Button>
 					<Button

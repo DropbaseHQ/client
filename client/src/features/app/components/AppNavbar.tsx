@@ -255,9 +255,11 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Flex>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				<Button size="sm" variant="outline" onClick={() => shareOnOpen()}>
-					Share
-				</Button>
+				{permissions?.own && (
+					<Button size="sm" variant="outline" onClick={() => shareOnOpen()}>
+						Share
+					</Button>
+				)}
 				{permissions?.edit && (
 					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
 						<Button
