@@ -141,6 +141,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		error,
 		remove: removeQuery,
 	} = useCurrentTableData(tableName);
+
 	const {
 		depends_on: dependsOn,
 		isLoading: isLoadingTable,
@@ -1173,7 +1174,15 @@ export const SmartTable = ({ tableName, provider }: any) => {
 									variant="outline"
 									isLoading={isRefetching}
 									onClick={() => {
-										removeQuery();
+										/**
+										 * Remove query because if user refreshes in middle of loading,
+										 * for eg: wrong query and reloads it; we discard the old jobId
+										 * and generate a new one to get fresh data
+										 */
+										if (isLoading) {
+											removeQuery();
+										}
+
 										refetch({ cancelRefetch: true });
 									}}
 								/>
@@ -1232,24 +1241,26 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							}
 						}}
 					>
-						{isLoading ? (
+						{isLoading || isRefetching ? (
 							<>
-								<Skeleton
-									isLoaded={false}
-									h="calc(100% - 6px)"
-									position="absolute"
-									top="6px"
-									left="0"
-									w="full"
-									as={Stack}
-									startColor="blackAlpha.50"
-									endColor="blackAlpha.300"
-									zIndex={9}
-								/>
+								{isRefetching ? (
+									<Skeleton
+										isLoaded={false}
+										h="calc(100% - 6px)"
+										position="absolute"
+										top="6px"
+										left="0"
+										w="full"
+										as={Stack}
+										startColor="blackAlpha.200"
+										endColor="blackAlpha.400"
+										zIndex={9}
+									/>
+								) : null}
 								<Progress
 									w="full"
 									position="absolute"
-									bottom="0px"
+									top="8px"
 									left="0"
 									size="xs"
 									isIndeterminate
