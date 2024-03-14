@@ -60,9 +60,9 @@ export const AppBuilder = () => {
 								<Box
 									as={PanelGroup}
 									borderWidth="1px"
-									borderRadius="md"
+									borderRadius="lg"
 									autoSaveId="data-panel"
-									boxShadow={`0 0px 4px ${theme.colors.blackAlpha[300]}`}
+									boxShadow={`0 0px 5px ${theme.colors.blackAlpha[300]}`}
 									direction="horizontal"
 								>
 									<Panel defaultSize={80} minSize={10}>
