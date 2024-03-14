@@ -114,3 +114,7 @@ class OnboardUser(BaseModel):
 
 class CheckPermissionRequest(BaseModel):
     app_id: str
+
+
+class CheckAppsPermissionsRequest(BaseModel):
+    app_ids: list

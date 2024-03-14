@@ -28,6 +28,7 @@ from server.models import Policy, User, Workspace
 from server.schemas.user import (
     AddPolicyRequest,
     CheckPermissionRequest,
+    CheckAppsPermissionsRequest,
     CreateGoogleUserRequest,
     PowerCreateUserRequest,
     CreateUser,
@@ -51,6 +52,7 @@ from server.utils.amplemarket_integration import amplemarket_controller
 from server.utils.permissions.casbin_utils import (
     get_all_action_permissions,
     get_contexted_enforcer,
+    high_level_enforce,
 )
 from server.utils.slack import slack_sign_up
 
@@ -630,6 +632,30 @@ def check_permissions(
         db, str(user.id), workspace_id, app_id
     )
     return permissions_dict
+
+
+def check_apps_permissions(
+    db: Session, user: User, request: CheckAppsPermissionsRequest, workspace: Workspace
+):
+    # Checks that a user has permissions to see and use and app
+    print("workspace id", workspace.id)
+    app_ids = request.app_ids
+    permissions = {}
+    enforcer = get_contexted_enforcer(db, workspace_id=workspace.id)
+
+    for app_id in app_ids:
+        print("Checking permissions for app", app_id)
+        print("User id", user.id)
+        permissions[app_id] = high_level_enforce(
+            db=db,
+            enforcer=enforcer,
+            user_id=user.id,
+            resource=app_id,
+            action="use",
+            workspace=workspace,
+        )
+
+    return permissions
 
 
 def github_auth(db: Session, Authorize: AuthJWT, code: str):
