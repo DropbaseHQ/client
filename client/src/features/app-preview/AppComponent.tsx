@@ -82,14 +82,20 @@ export const AppComponent = (props: any) => {
 	const handleInputValue = useCallback(
 		(inputName: any, newInputValue: any) => {
 			if (widgetName) {
-				setInputValues((old: any) => ({
-					...old,
-					[widgetName]: {
-						...(old[widgetName] || {}),
-						[inputName]: newInputValue,
-					},
-				}));
+				let newWidgetState = {};
+				setInputValues((old: any) => {
+					newWidgetState = {
+						...old,
+						[widgetName]: {
+							...(old[widgetName] || {}),
+							[inputName]: newInputValue,
+						},
+					};
+					return newWidgetState;
+				});
+				return newWidgetState;
 			}
+			return {};
 		},
 		[widgetName, setInputValues],
 	);
@@ -234,7 +240,9 @@ export const AppComponent = (props: any) => {
 					data-cy={`input-${name}`}
 					type={inputType}
 					onChange={(newValue: any) => {
-						handleInputValue(name, newValue);
+						// We need this newWidgetState because the state in pageState
+						// is not up to date with the latest input value
+						const newWidgetState = handleInputValue(name, newValue);
 
 						if (component.on_change) {
 							handleEvent(component.on_change);
@@ -246,7 +254,13 @@ export const AppComponent = (props: any) => {
 
 						sendJsonMessage({
 							type: 'display_rule',
-							state_context: pageState,
+							state_context: {
+								...pageState,
+								state: {
+									...(pageState?.state || {}),
+									widgets: newWidgetState,
+								},
+							},
 							app_name: appName,
 							page_name: pageName,
 						});
