@@ -28,7 +28,9 @@ from server.models import Policy, User, Workspace
 from server.schemas.user import (
     AddPolicyRequest,
     CheckPermissionRequest,
+    CheckAppsPermissionsRequest,
     CreateGoogleUserRequest,
+    PowerCreateUserRequest,
     CreateUser,
     CreateUserRequest,
     LoginGoogleUser,
@@ -50,6 +52,7 @@ from server.utils.amplemarket_integration import amplemarket_controller
 from server.utils.permissions.casbin_utils import (
     get_all_action_permissions,
     get_contexted_enforcer,
+    high_level_enforce,
 )
 from server.utils.slack import slack_sign_up
 
@@ -631,6 +634,30 @@ def check_permissions(
     return permissions_dict
 
 
+def check_apps_permissions(
+    db: Session, user: User, request: CheckAppsPermissionsRequest, workspace: Workspace
+):
+    # Checks that a user has permissions to see and use and app
+    print("workspace id", workspace.id)
+    app_ids = request.app_ids
+    permissions = {}
+    enforcer = get_contexted_enforcer(db, workspace_id=workspace.id)
+
+    for app_id in app_ids:
+        print("Checking permissions for app", app_id)
+        print("User id", user.id)
+        permissions[app_id] = high_level_enforce(
+            db=db,
+            enforcer=enforcer,
+            user_id=user.id,
+            resource=app_id,
+            action="use",
+            workspace=workspace,
+        )
+
+    return permissions
+
+
 def github_auth(db: Session, Authorize: AuthJWT, code: str):
     github_controller = GithubController()
     access_token = github_controller.verify_github_auth_code(code)
@@ -679,3 +706,27 @@ def github_auth(db: Session, Authorize: AuthJWT, code: str):
         "refresh_token": refresh_token,
         "onboarding": not user.onboarded,
     }
+
+
+def sync_demo(db: Session, workspace):
+    # app demo page
+    app = crud.app.create(
+        db,
+        obj_in={
+            "name": "demo",
+            "label": "Demo App",
+            "description": "This is a demo app",
+            "workspace_id": workspace.id,
+        },
+    )
+    # add demo app
+    page = crud.page.create(
+        db,
+        obj_in={
+            "name": "page1",
+            "label": "Page1",
+            "description": "Page 1 of the demo app",
+            "app_id": app.id,
+        },
+    )
+    return {"app_id": app.id, "page_id": page.id}

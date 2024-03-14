@@ -115,7 +115,7 @@ const AppTableRowsList = ({
 
 	const combinedList = formattedGroups.concat(formattedUsers);
 	const filteredCombinedList = combinedList.filter((subject) =>
-		subject.name.includes(subjectFilter),
+		subject.name.toLowerCase().includes(subjectFilter.toLowerCase()),
 	);
 
 	return filteredCombinedList.map((subject) => {

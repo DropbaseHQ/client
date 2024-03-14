@@ -13,6 +13,7 @@ from server.schemas.user import (
     CreateGoogleUserRequest,
     CreateUser,
     CreateUserRequest,
+    PowerCreateUserRequest,
     LoginGoogleUser,
     LoginUser,
     OnboardUser,
@@ -42,6 +43,11 @@ def get_user_worpsaces(
 @router.post("/register")
 def register_user(request: CreateUserRequest, db: Session = Depends(get_db)):
     return user_controller.register_user(db, request)
+
+
+@router.post("/power_create")
+def power_register_user(request: PowerCreateUserRequest, db: Session = Depends(get_db)):
+    return user_controller.power_create_user(db, request)
 
 
 @router.post("/registerGoogle")
@@ -104,7 +110,11 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
 
 
 @router.post("/onboard")
-def onboard_user(request: OnboardUser, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+def onboard_user(
+    request: OnboardUser,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
     return user_controller.onboard_user(db, request, user.id)
 
 

@@ -9,7 +9,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { extractTemplateString, getErrorMessage } from '@/utils';
 
 import { useExecuteAction } from '@/features/app-preview/hooks';
@@ -49,12 +49,12 @@ export const AppComponent = (props: any) => {
 	} = props;
 
 	const pageState = useAtomValue(newPageStateAtom);
-	const [allWidgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
+	const allWidgetComponents = useAtomValue(widgetComponentsAtom) as any;
 	const widgetComponents = allWidgetComponents[widgetName || '']?.components || {};
 
 	const inputState = widgetComponents?.[name] || {};
 
-	const inputValues: any = useAtomValue(allWidgetsInputAtom);
+	const [inputValues, setInputValues]: any = useAtom(allWidgetsInputAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
 
 	const syncState = useSyncState();
@@ -74,9 +74,24 @@ export const AppComponent = (props: any) => {
 	} = potentialTemplatesField.reduce(
 		(agg: any, field: any) => ({
 			...agg,
-			[field]: extractTemplateString(component?.[field], pageState) || '',
+			[field]: extractTemplateString(component?.[field], pageState),
 		}),
 		{},
+	);
+
+	const handleInputValue = useCallback(
+		(inputName: any, newInputValue: any) => {
+			if (widgetName) {
+				setInputValues((old: any) => ({
+					...old,
+					[widgetName]: {
+						...(old[widgetName] || {}),
+						[inputName]: newInputValue,
+					},
+				}));
+			}
+		},
+		[widgetName, setInputValues],
 	);
 
 	useEffect(() => {
@@ -85,14 +100,11 @@ export const AppComponent = (props: any) => {
 		 */
 		if (defaultValue !== null && defaultValue !== undefined && name) {
 			const timeoutId = setTimeout(() => {
-				setWidgetComponentValues({
-					[name]: defaultValue,
-				});
-
+				handleInputValue(name, defaultValue);
 				clearTimeout(timeoutId);
 			}, 100);
 		}
-	}, [defaultValue, name, setWidgetComponentValues]);
+	}, [defaultValue, name, handleInputValue, setInputValues]);
 
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
@@ -125,7 +137,7 @@ export const AppComponent = (props: any) => {
 					...oldPage,
 					widgetName: event.value,
 					modals: [
-						...oldPage.modals,
+						...oldPage.modals.filter((m: any) => m.name !== event.value),
 						{
 							name: event.value,
 							caller: widgetName,
@@ -135,6 +147,7 @@ export const AppComponent = (props: any) => {
 			} else {
 				setPageContext((oldPage: any) => ({
 					...oldPage,
+					modals: [],
 					widgetName: event.value,
 				}));
 			}
@@ -221,9 +234,7 @@ export const AppComponent = (props: any) => {
 					data-cy={`input-${name}`}
 					type={inputType}
 					onChange={(newValue: any) => {
-						setWidgetComponentValues({
-							[name]: newValue,
-						});
+						handleInputValue(name, newValue);
 
 						if (component.on_change) {
 							handleEvent(component.on_change);
