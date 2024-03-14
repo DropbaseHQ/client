@@ -5,3 +5,4 @@ export const appModeAtom = atom({
 });
 
 export const websocketStatusAtom = atom(false);
+export const lspStatusAtom = atom<boolean | null>(null);
