@@ -55,6 +55,7 @@ app.include_router(endpoints.user_router)
 app.include_router(endpoints.group_router)
 app.include_router(endpoints.token_router)
 app.include_router(endpoints.url_mapping_router)
+app.include_router(endpoints.app_router)
 app.include_router(endpoints.admin_router)
 app.include_router(require_authentication_routes)
 
