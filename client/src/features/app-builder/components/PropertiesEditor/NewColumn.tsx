@@ -142,7 +142,6 @@ export const NewColumn = (props: any) => {
 																{...property}
 																id={property.name}
 																name="Button Label"
-																type="template"
 																key={property.name}
 															/>
 														);

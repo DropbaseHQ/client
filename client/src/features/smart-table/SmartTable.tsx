@@ -9,7 +9,8 @@ import {
 	IconButton,
 	Popover,
 	PopoverTrigger,
-	Spinner,
+	Progress,
+	Skeleton,
 	Stack,
 	Text,
 	Tooltip,
@@ -46,6 +47,7 @@ import {
 	formatDateTime,
 	getEpochFromTimeString,
 	getTimeStringFromEpoch,
+	getDateInstance,
 } from '@/features/smart-table/utils';
 import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
 
@@ -763,7 +765,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					readonly: !canEdit,
 					data: {
 						kind: 'date-picker-cell',
-						date: new Date(+cellValue),
+						date: getDateInstance(cellValue),
 						displayDate: formatDateTime(cellValue),
 						format: 'datetime-local',
 					},
@@ -780,7 +782,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 					data: {
 						kind: 'date-picker-cell',
-						date: new Date(+cellValue),
+						date: getDateInstance(cellValue),
 						displayDate: formatDate(cellValue),
 						format: 'date',
 					},
@@ -1195,7 +1197,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					</Stack>
 				</NavLoader>
 
-				<Stack spacing="2">
+				<Stack position="relative" spacing="2">
 					<Popover
 						returnFocusOnClose={false}
 						isOpen={!isPreview && !table?.smart && table?.fetcher && convertPopoverOpen}
@@ -1231,70 +1233,87 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						}}
 					>
 						{isLoading ? (
-							<Center h="full" as={Stack}>
-								<Spinner size="md" />
-								<Text fontSize="md">Loading data...</Text>
+							<>
+								<Skeleton
+									isLoaded={false}
+									h="calc(100% - 6px)"
+									position="absolute"
+									top="6px"
+									left="0"
+									w="full"
+									as={Stack}
+									startColor="blackAlpha.50"
+									endColor="blackAlpha.300"
+									zIndex={9}
+								/>
+								<Progress
+									w="full"
+									position="absolute"
+									bottom="0px"
+									left="0"
+									size="xs"
+									isIndeterminate
+									colorScheme="blue"
+								/>
+							</>
+						) : null}
+
+						{!isPreview && errorMessage ? (
+							<Center as={Stack} spacing="0" p="6" h="full">
+								<Text color="red.500" fontWeight="medium" fontSize="lg">
+									Failed to load data
+								</Text>
+								<Text fontSize="md">{getErrorMessage(errorMessage)}</Text>
 							</Center>
 						) : (
 							<>
-								{!isPreview && errorMessage ? (
-									<Center as={Stack} spacing="0" p="6" h="full">
-										<Text color="red.500" fontWeight="medium" fontSize="lg">
-											Failed to load data
-										</Text>
-										<Text fontSize="md">{getErrorMessage(errorMessage)}</Text>
-									</Center>
-								) : (
-									<>
-										{columnMessage.message ? (
-											<Stack
-												direction="row"
-												fontSize={12}
-												alignItems="center"
-												borderRadius="md"
-												shadow="xs"
-												borderWidth="1px"
-												bg="white"
-												style={{
-													position: 'absolute',
-													transform: `translate(-50%, -${columnMessage.height}px)`,
-													left: columnMessage.x + columnMessage.width / 2,
-													padding: '5px 10px',
-													zIndex: 1,
-												}}
-											>
-												{columnMessage.icon}
-												<Text>{columnMessage.message}</Text>
-											</Stack>
-										) : null}
-										<DataEditor
-											columns={gridColumns}
-											rows={Math.min(
-												rows.length,
-												pageInfo.pageSize || DEFAULT_PAGE_SIZE,
-											)}
-											customRenderers={ALL_CELLS}
-											width="100%"
-											height="100%"
-											getCellContent={getCellContent}
-											rowMarkers="both"
-											smoothScrollX
-											smoothScrollY
-											theme={gridTheme}
-											onGridSelectionChange={handleSetSelection}
-											onSelectionCleared={onSelectionCleared}
-											gridSelection={selection}
-											highlightRegions={highlights}
-											getCellsForSelection
-											onCellEdited={onCellEdited}
-											onPaste
-											keybindings={{ search: true }}
-											onColumnResize={onColumnResize}
-											rowHeight={30}
-											drawHeader={drawHeader}
-										/>
-									</>
-								)}
+								{columnMessage.message ? (
+									<Stack
+										direction="row"
+										fontSize={12}
+										alignItems="center"
+										borderRadius="md"
+										shadow="xs"
+										borderWidth="1px"
+										bg="white"
+										style={{
+											position: 'absolute',
+											transform: `translate(-50%, -${columnMessage.height}px)`,
+											left: columnMessage.x + columnMessage.width / 2,
+											padding: '5px 10px',
+											zIndex: 1,
+										}}
+									>
+										{columnMessage.icon}
+										<Text>{columnMessage.message}</Text>
+									</Stack>
+								) : null}
+								<DataEditor
+									columns={gridColumns}
+									rows={Math.min(
+										rows.length,
+										pageInfo.pageSize || DEFAULT_PAGE_SIZE,
+									)}
+									customRenderers={ALL_CELLS}
+									width="100%"
+									height="100%"
+									getCellContent={getCellContent}
+									rowMarkers="both"
+									smoothScrollX
+									smoothScrollY
+									theme={gridTheme}
+									onGridSelectionChange={handleSetSelection}
+									onSelectionCleared={onSelectionCleared}
+									gridSelection={selection}
+									highlightRegions={highlights}
+									getCellsForSelection
+									onCellEdited={onCellEdited}
+									onPaste
+									keybindings={{ search: true }}
+									onColumnResize={onColumnResize}
+									rowHeight={30}
+									drawHeader={drawHeader}
+								/>
 							</>
 						)}
 					</Box>

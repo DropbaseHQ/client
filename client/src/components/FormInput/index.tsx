@@ -23,6 +23,7 @@ import {
 	Switch,
 	Center,
 	Portal,
+	Textarea,
 } from '@chakra-ui/react';
 import { forwardRef, useState } from 'react';
 import { ChevronDown, Plus, Trash } from 'react-feather';
@@ -87,7 +88,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				}}
 				size="sm"
 				onBlur={() => {
-					if (type === 'float') {
+					if (type === 'float' && value !== null) {
 						onChange?.(parseFloat(value));
 					}
 				}}
@@ -124,6 +125,20 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					</option>
 				))}
 			</Select>
+		);
+	}
+
+	if (type === 'textarea') {
+		return (
+			<Textarea
+				onBlur={onBlur}
+				onChange={(e) => onChange?.(e.target.value)}
+				value={value || ''}
+				size="sm"
+				borderRadius="sm"
+				ref={ref}
+				{...inputProps}
+			/>
 		);
 	}
 

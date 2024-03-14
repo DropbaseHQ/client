@@ -9,7 +9,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { extractTemplateString, getErrorMessage } from '@/utils';
 
 import { useExecuteAction } from '@/features/app-preview/hooks';
@@ -31,7 +31,7 @@ const sizeMap: any = {
 	large: 'lg',
 };
 
-const potentialTemplatesField = ['label', 'text', 'placeholder'];
+const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 
 export const AppComponent = (props: any) => {
 	const { sendJsonMessage } = props;
@@ -45,33 +45,17 @@ export const AppComponent = (props: any) => {
 		display_rules: displayRules,
 		color,
 		on_click: onClick,
-		default: defaultValue,
 		...component
 	} = props;
 
 	const pageState = useAtomValue(newPageStateAtom);
-	const [allWidgetComponents, setWidgetComponentValues] = useAtom(widgetComponentsAtom) as any;
+	const allWidgetComponents = useAtomValue(widgetComponentsAtom) as any;
 	const widgetComponents = allWidgetComponents[widgetName || '']?.components || {};
 
 	const inputState = widgetComponents?.[name] || {};
 
-	const inputValues: any = useAtomValue(allWidgetsInputAtom);
+	const [inputValues, setInputValues]: any = useAtom(allWidgetsInputAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
-
-	useEffect(() => {
-		/**
-		 * Set default values to component
-		 */
-		if (defaultValue !== null && defaultValue !== undefined && name) {
-			const timeoutId = setTimeout(() => {
-				setWidgetComponentValues({
-					[name]: defaultValue,
-				});
-
-				clearTimeout(timeoutId);
-			}, 100);
-		}
-	}, [defaultValue, name, setWidgetComponentValues]);
 
 	const syncState = useSyncState();
 
@@ -81,6 +65,46 @@ export const AppComponent = (props: any) => {
 	const shouldDisplay =
 		widgetComponents?.[name]?.visible || widgetComponents?.[name]?.visible === null;
 	const grayOutComponent = !shouldDisplay && isEditorMode;
+
+	const {
+		label,
+		text,
+		placeholder,
+		default: defaultValue,
+	} = potentialTemplatesField.reduce(
+		(agg: any, field: any) => ({
+			...agg,
+			[field]: extractTemplateString(component?.[field], pageState),
+		}),
+		{},
+	);
+
+	const handleInputValue = useCallback(
+		(inputName: any, newInputValue: any) => {
+			if (widgetName) {
+				setInputValues((old: any) => ({
+					...old,
+					[widgetName]: {
+						...(old[widgetName] || {}),
+						[inputName]: newInputValue,
+					},
+				}));
+			}
+		},
+		[widgetName, setInputValues],
+	);
+
+	useEffect(() => {
+		/**
+		 * Set default values to component
+		 */
+		if (defaultValue !== null && defaultValue !== undefined && name) {
+			const timeoutId = setTimeout(() => {
+				handleInputValue(name, defaultValue);
+				clearTimeout(timeoutId);
+			}, 100);
+		}
+	}, [defaultValue, name, handleInputValue, setInputValues]);
 
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
@@ -113,7 +137,7 @@ export const AppComponent = (props: any) => {
 					...oldPage,
 					widgetName: event.value,
 					modals: [
-						...oldPage.modals,
+						...oldPage.modals.filter((m: any) => m.name !== event.value),
 						{
 							name: event.value,
 							caller: widgetName,
@@ -123,6 +147,7 @@ export const AppComponent = (props: any) => {
 			} else {
 				setPageContext((oldPage: any) => ({
 					...oldPage,
+					modals: [],
 					widgetName: event.value,
 				}));
 			}
@@ -134,14 +159,6 @@ export const AppComponent = (props: any) => {
 	if (!shouldDisplay && !isEditorMode) {
 		return null;
 	}
-
-	const { label, text, placeholder } = potentialTemplatesField.reduce(
-		(agg: any, field: any) => ({
-			...agg,
-			[field]: extractTemplateString(component?.[field], pageState) || '',
-		}),
-		{},
-	);
 
 	if (componentType === 'button') {
 		return (
@@ -187,6 +204,7 @@ export const AppComponent = (props: any) => {
 		);
 	}
 
+	// FIXME: this logic is repeated in component editor, find a way to reuse
 	let inputType = type;
 
 	if (componentType === 'select') {
@@ -201,6 +219,10 @@ export const AppComponent = (props: any) => {
 		inputType = 'boolean';
 	}
 
+	if (inputType === 'text' && component?.multiline) {
+		inputType = 'textarea';
+	}
+
 	return (
 		<Stack spacing="0.5">
 			<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
@@ -212,9 +234,7 @@ export const AppComponent = (props: any) => {
 					data-cy={`input-${name}`}
 					type={inputType}
 					onChange={(newValue: any) => {
-						setWidgetComponentValues({
-							[name]: newValue,
-						});
+						handleInputValue(name, newValue);
 
 						if (component.on_change) {
 							handleEvent(component.on_change);

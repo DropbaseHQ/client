@@ -189,7 +189,7 @@ export const AppList = () => {
 	const toast = useToast();
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { workspaces } = useWorkspaces();
-	const { status } = useStatus();
+	const { status, isLoading: isCheckingStatus } = useStatus();
 	const methods = useForm();
 	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
 
@@ -257,6 +257,20 @@ export const AppList = () => {
 	const shouldDisplaySalesModal = isDeployed
 		? !workspaceHasWorkspaceURL && !workerIsConnected
 		: false;
+
+	if (isCheckingStatus || isLoading) {
+		return (
+			<PageLayout title="Your apps">
+				<SimpleGrid spacing={6} pb="4" columns={4}>
+					<Skeleton w="full" h={24} />
+					<Skeleton w="full" h={24} />
+					<Skeleton w="full" h={24} />
+					<Skeleton w="full" h={24} />
+				</SimpleGrid>
+			</PageLayout>
+		);
+	}
+
 	return (
 		<PageLayout
 			title="Your apps"
@@ -274,18 +288,11 @@ export const AppList = () => {
 		>
 			{workerIsConnected ? (
 				<SimpleGrid spacing={6} pb="4" columns={4}>
-					{isLoading ? (
-						<>
-							<Skeleton w="full" h={24} />
-							<Skeleton w="full" h={24} />
-							<Skeleton w="full" h={24} />
-							<Skeleton w="full" h={24} />
-						</>
-					) : (
-						apps
-							.sort((a, b) => a.name.localeCompare(b.name))
-							.map((app) => <AppCard key={app.name} app={app} />)
-					)}
+					{apps
+						.sort((a, b) => a.name.localeCompare(b.name))
+						.map((app) => (
+							<AppCard key={app.name} app={app} />
+						))}
 				</SimpleGrid>
 			) : (
 				<Text fontSize="lg" fontWeight="bold">

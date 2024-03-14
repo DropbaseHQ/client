@@ -119,9 +119,9 @@ const ColumnProperty = ({
 
 	const displayType = watch('display_type');
 
-	const allDisplayConfigurations = resourceFields.display_type_configurations;
+	const allDisplayConfigurations = resourceFields?.display_type_configurations || [];
 	const displayConfiguration =
-		allDisplayConfigurations?.find((d: any) => d.name === displayType) || [];
+		allDisplayConfigurations?.find((d: any) => d.name === displayType) || {};
 	const configProperties = displayConfiguration?.properties || {};
 
 	const editableFields = VISIBLE_EDITABLE_FIELDS?.[columnField];
@@ -251,8 +251,27 @@ const ColumnProperty = ({
 		}
 	};
 
-	const resetConfig = () => {
-		setValue('configurations', null);
+	const handleDisplayType = (newType: any) => {
+		const newDisplayConfig =
+			allDisplayConfigurations?.find((d: any) => d.name === newType) || {};
+		const newConfigProperties = newDisplayConfig?.properties || {};
+
+		/**
+		 * If config properties is present, set the default values for all fields
+		 */
+		if (newDisplayConfig?.properties) {
+			const configDefaults = Object.keys(newConfigProperties).reduce(
+				(agg: any, prop: any) => ({
+					...agg,
+					[prop]: newConfigProperties?.[prop]?.default,
+				}),
+				{},
+			);
+
+			setValue(`configurations`, configDefaults);
+		} else {
+			setValue('configurations', null);
+		}
 	};
 
 	const onSubmit = (formValues: any) => {
@@ -282,9 +301,11 @@ const ColumnProperty = ({
 						direction="row"
 						borderBottomWidth={isOpen ? '1px' : '0'}
 						alignItems="center"
+						_hover={{ bg: 'gray.100' }}
+						cursor="pointer"
 						gap={3}
+						onClick={onToggle}
 						bg={isOpen ? 'gray.50' : ''}
-						// columns={3}
 					>
 						<Box alignSelf="center" overflow="hidden" width="40%">
 							<Tooltip placement="left-end" label={defaultName}>
@@ -345,33 +366,16 @@ const ColumnProperty = ({
 								}}
 							/>
 
-							<Stack direction="row" alignItems="center">
-								{isDirty ? (
-									<IconButton
-										aria-label="Update column"
-										type="submit"
-										isLoading={updateMutation.isLoading}
-										size="xs"
-										icon={<Save size="14" />}
-									/>
-								) : null}
-								<Box
-									as="button"
-									border="0"
-									cursor="pointer"
-									p="1"
-									type="button"
-									onClick={onToggle}
-									borderRadius="sm"
-									_hover={{ bg: 'gray.100' }}
-								>
-									{isOpen ? (
-										<ChevronDown size="14" />
-									) : (
-										<ChevronRight size="14" />
-									)}
-								</Box>
-							</Stack>
+							<Box
+								as="button"
+								border="0"
+								cursor="pointer"
+								p="1"
+								type="button"
+								borderRadius="sm"
+							>
+								{isOpen ? <ChevronDown size="14" /> : <ChevronRight size="14" />}
+							</Box>
 						</Stack>
 					</Stack>
 					<Collapse in={isOpen}>
@@ -393,7 +397,7 @@ const ColumnProperty = ({
 														value: option,
 													}),
 												)}
-												onSelect={resetConfig}
+												onSelect={handleDisplayType}
 											/>
 										);
 									}
@@ -512,22 +516,34 @@ const ColumnProperty = ({
 									</Button>
 								) : null}
 
-								{isCustomColumn ? (
-									<Tooltip label="Delete Column">
+								<Stack ml="auto" direction="row" alignItems="center">
+									{isDirty ? (
 										<IconButton
-											aria-label="Delete component"
-											variant="outline"
-											size="xs"
-											ml="auto"
-											colorScheme="red"
+											aria-label="Update column"
+											type="submit"
 											isLoading={updateMutation.isLoading}
-											onClick={() => {
-												handleDelete(defaultName);
-											}}
-											icon={<Trash size="14" />}
+											size="xs"
+											icon={<Save size="14" />}
 										/>
-									</Tooltip>
-								) : null}
+									) : null}
+
+									{isCustomColumn ? (
+										<Tooltip label="Delete Column">
+											<IconButton
+												aria-label="Delete component"
+												variant="outline"
+												size="xs"
+												ml="auto"
+												colorScheme="red"
+												isLoading={updateMutation.isLoading}
+												onClick={() => {
+													handleDelete(defaultName);
+												}}
+												icon={<Trash size="14" />}
+											/>
+										</Tooltip>
+									) : null}
+								</Stack>
 							</Stack>
 
 							<Collapse in={isConfigurationOpen}>

@@ -5,29 +5,24 @@ import { Play } from 'react-feather';
 
 const list = [
 	{
-		name: 'Exploring the Dropbase demo app',
-		thumbnail: '/thumbnail/demo.png',
-		link: 'https://www.youtube.com/embed/-MzYtgZLK2Y?si=dPm9PqTlonfmvoty',
-	},
-	{
 		name: 'Build an approval app',
 		thumbnail: '/thumbnail/approval.png',
-		link: 'https://www.youtube.com/embed/A1MIIRNkv3Q?si=tM9yavSbr2FQEXTA',
+		link: 'https://www.youtube.com/embed/d0uWiS3eirQ?si=VyMgOkwBCj50Hmd4',
 	},
 	{
 		name: 'Build a data editor',
 		thumbnail: '/thumbnail/editor.png',
-		link: 'https://www.youtube.com/embed/R1cHO9lMRXo?si=6tCOHm-CRNI1nF63',
+		link: 'https://www.youtube.com/embed/aH9Qe1lEK98?si=Ge_Vi-72x5chxVfi',
 	},
 	{
 		name: 'Build an Email notifier',
 		thumbnail: '/thumbnail/email.png',
-		link: 'https://www.youtube.com/embed/2uLjazAezrU?si=o0CB8udZ4QxiD2Dc',
+		link: 'https://www.youtube.com/embed/MQA9xnt5OaM?si=dMvLEQRiTwAfZBJD',
 	},
 	{
 		name: 'Build an admin panel',
 		thumbnail: '/thumbnail/admin.png',
-		link: 'https://www.youtube.com/embed/if0E8oC0Qc4?si=uV894x0-k6qRxxMv',
+		link: 'https://www.youtube.com/embed/QQBJBvpU9G8?si=DLwmKG7SRN3e2mUd',
 	},
 ];
 

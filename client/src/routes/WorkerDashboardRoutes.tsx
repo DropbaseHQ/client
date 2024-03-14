@@ -1,5 +1,5 @@
 import useWebSocket from 'react-use-websocket';
-import { Center, Text } from '@chakra-ui/react';
+import { Badge, Box, Center, Circle, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useSetAtom } from 'jotai';
 import { Route } from 'react-router-dom';
 import {
@@ -16,6 +16,7 @@ import { Workspaces } from '@/features/workspaces';
 import { App } from '@/features/app';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
 import { SettingsRoutes } from '@/features/settings/SettingsRoutes';
+import { useStatus } from '../layout/StatusBar';
 
 export const WorkerDashboardRoutes = () => {
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
@@ -23,6 +24,10 @@ export const WorkerDashboardRoutes = () => {
 	useSyncProxyToken();
 	useSetAxiosToken();
 	const { urlSet, isLoading } = useSetWorkerAxiosBaseURL();
+
+	const { isLoading: isCheckingStatus, status } = useStatus();
+
+	const workerIsConnected = status === 'success';
 
 	const websocketURL = useGetWebSocketURL();
 
@@ -51,8 +56,44 @@ export const WorkerDashboardRoutes = () => {
 			<Route
 				path="*"
 				element={
-					<Center>
+					<Center as={Stack}>
+						<Spinner />
 						<Text>Loading User Config...</Text>
+					</Center>
+				}
+			/>
+		);
+	} else if (isCheckingStatus) {
+		children = (
+			<Route
+				path="*"
+				element={
+					<Center h="full" as={Stack}>
+						<Spinner />
+						<Text>Connecting worker...</Text>
+					</Center>
+				}
+			/>
+		);
+	} else if (!workerIsConnected) {
+		children = (
+			<Route
+				path="*"
+				element={
+					<Center as={Stack} h="full">
+						<Badge
+							display="flex"
+							alignItems="center"
+							colorScheme="red"
+							variant="subtle"
+						>
+							<Circle size="8px" bg="red.500" />
+							<Box ml="2">Offline</Box>
+						</Badge>
+						<Text fontSize="xl" fontWeight="semibold">
+							Worker not connected
+						</Text>
+						<Text fontSize="md">Please make sure your worker is connected</Text>
 					</Center>
 				}
 			/>

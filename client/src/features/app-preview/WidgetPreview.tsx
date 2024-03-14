@@ -178,6 +178,8 @@ export const WidgetPreview = ({ widgetName }: any) => {
 		});
 	};
 
+	const modalIndex = isModal ? modals.findIndex((m: any) => m.name === widgetName) : -1;
+
 	const showModalStyles = isModal && modals.map((m: any) => m.name).includes(widgetName);
 
 	const containerStyles = showModalStyles
@@ -192,7 +194,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 				pt: 3,
 				top: '10px',
 				left: '10px',
-				zIndex: 3,
+				zIndex: 3 + modalIndex,
 		  }
 		: {
 				h: 'full',
