@@ -274,13 +274,17 @@ export const FunctionEditor = ({ name }: any) => {
 			) : null}
 
 			<Box overflowY="auto" h="full">
-				<PythonEditorLSP
-					code={code}
-					name={name}
-					updateCode={setCode}
-					filePath={filePath}
-					key={name}
-				/>
+				{isRefetching ? (
+					<Skeleton startColor="gray.100" endColor="gray.400" h="full" />
+				) : (
+					<PythonEditorLSP
+						code={code}
+						name={name}
+						updateCode={setCode}
+						filePath={filePath}
+						key={name}
+					/>
+				)}
 			</Box>
 		</Stack>
 	);
