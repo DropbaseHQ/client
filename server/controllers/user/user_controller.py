@@ -29,6 +29,7 @@ from server.schemas.user import (
     AddPolicyRequest,
     CheckPermissionRequest,
     CreateGoogleUserRequest,
+    PowerCreateUserRequest,
     CreateUser,
     CreateUserRequest,
     LoginGoogleUser,
@@ -679,3 +680,22 @@ def github_auth(db: Session, Authorize: AuthJWT, code: str):
         "refresh_token": refresh_token,
         "onboarding": not user.onboarded,
     }
+
+
+def power_create_user(db: Session, request: PowerCreateUserRequest):
+    try:
+        user_obj = CreateUser(
+            name=request.name,
+            last_name=request.last_name,
+            email=request.email,
+            hashed_password=get_password_hash(request.password),
+            trial_eligible=True,
+            active=True,
+        )
+        crud.user.create(db, obj_in=user_obj, auto_commit=False)
+        db.commit()
+        return {"message": "User successfully created"}
+    except Exception as e:
+        db.rollback()
+        print("error", e)
+        raise_http_exception(status_code=500, message="Internal server error")
