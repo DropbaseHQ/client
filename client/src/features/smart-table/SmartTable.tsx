@@ -1168,7 +1168,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							<Tooltip label="Refresh data">
 								<IconButton
 									aria-label="Refresh Data"
-									size="sm"
+									size="xs"
 									colorScheme="gray"
 									icon={<RotateCw size="14" />}
 									variant="outline"

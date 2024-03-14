@@ -48,9 +48,9 @@ export const PermissionsSubjectRow = ({
 			onClick={handleClick}
 		>
 			<Box mr="2">
-				<Icon size="16" color="gray" />
+				<Icon size="13" color="gray" />
 			</Box>
-			{name}
+			<Text fontSize="md">{name}</Text>
 		</Box>
 	);
 };
@@ -67,7 +67,7 @@ export const PermissionsSubLayout = ({ list, table, selectedName }: any) => {
 			<Flex flexGrow="6" p="6" direction="column">
 				{selectedName ? (
 					<>
-						<Text fontSize="2xl" fontWeight="semibold" mb="2">
+						<Text fontSize="lg" fontWeight="semibold" mb="2">
 							{selectedName} Permissions
 						</Text>
 						{table}
@@ -185,7 +185,15 @@ const PermissionsTableHeader = ({ name, label }: { name: string; label?: string 
 
 export const PermissionsTable = ({ subjectName, tableRows }: any) => {
 	return (
-		<Box mt="2" border="1px" overflowY="auto" w="25vw" borderColor="gray.200" maxHeight="65vh">
+		<Box
+			mt="2"
+			border="1px"
+			overflowY="auto"
+			w="25vw"
+			minW="470px"
+			borderColor="gray.200"
+			maxHeight="65vh"
+		>
 			<Table variant="unstyled">
 				<Thead position="sticky" bgColor="white" top="-1" zIndex="1000">
 					<Tr>
