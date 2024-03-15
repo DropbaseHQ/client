@@ -1089,9 +1089,9 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
-			<Stack pos="relative" h="full" spacing="1">
+			<Stack pos="relative" h="full" spacing="0">
 				<NavLoader isLoading={isLoadingTable}>
-					<Stack alignItems="center" direction="row" w="full" overflow="hidden">
+					<Stack alignItems="center" pb="3" direction="row" w="full" overflow="hidden">
 						<Stack spacing="0" px="2" flexShrink="0">
 							<LabelContainer>
 								<LabelContainer.Label>
@@ -1206,7 +1206,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					</Stack>
 				</NavLoader>
 
-				<Stack position="relative" spacing="2">
+				<Stack position="relative" spacing="0">
 					<Popover
 						returnFocusOnClose={false}
 						isOpen={!isPreview && !table?.smart && table?.fetcher && convertPopoverOpen}
@@ -1234,7 +1234,6 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						}}
 						minH={heightMap[height] || '3xs'}
 						borderWidth="1px"
-						borderRadius="sm"
 						onDoubleClick={() => {
 							if (!table?.smart && table?.type === 'sql') {
 								openConvertPopover();
@@ -1324,6 +1323,8 @@ export const SmartTable = ({ tableName, provider }: any) => {
 									onColumnResize={onColumnResize}
 									rowHeight={30}
 									drawHeader={drawHeader}
+									fixedShadowX={false}
+									fixedShadowY={false}
 								/>
 							</>
 						)}

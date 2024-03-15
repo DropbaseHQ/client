@@ -64,14 +64,16 @@ export const SortButton = () => {
 		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur>
 			<PopoverTrigger>
 				<Button
-					leftIcon={<SortIcon size={14} />}
-					size="sm"
+					leftIcon={<SortIcon size={12} />}
+					size="xs"
 					onClick={onToggle}
 					variant="ghost"
 					isDisabled={!isSmartTable}
 					colorScheme={haveSortsApplied ? 'blue' : 'gray'}
 				>
-					Sorts
+					<Text fontWeight="medium" fontSize="sm">
+						Sorts
+					</Text>
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent boxShadow="md" minW="35rem">

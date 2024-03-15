@@ -1,4 +1,4 @@
-import { Box, Flex, Input, Stack } from '@chakra-ui/react';
+import { Flex, Input, Stack, Text } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
 import { useCurrentTableData, useCurrentTableName } from '@/features/smart-table/hooks';
 import { filtersAtom } from '@/features/smart-table/atoms';
@@ -35,19 +35,25 @@ export const PinnedFilters = () => {
 				}
 
 				return (
-					<Flex key={f.id} fontSize="sm" borderWidth="1px" borderRadius="sm">
-						<Box h="full" py="1" px="3" borderRightWidth="1px">
+					<Flex
+						key={f.id}
+						fontSize="sm"
+						borderRadius="sm"
+						justify="center"
+						alignItems="center"
+					>
+						<Text ml="3" mr="1" fontSize="sm" fontWeight="medium">
 							{f.column_name}
-						</Box>
-						<Box h="full" py="1" px="3" borderRightWidth="1px">
+						</Text>
+						<Text mr="2" fontSize="sm" fontWeight="normal">
 							{f.condition}
-						</Box>
+						</Text>
 						<Input
 							type={inputType}
 							colorScheme="blue"
 							value={f.value}
 							size="sm"
-							borderWidth="0"
+							borderWidth="1px"
 							onChange={(e) => {
 								setFilters((old: any) => ({
 									...old,
@@ -69,7 +75,7 @@ export const PinnedFilters = () => {
 								}));
 							}}
 							borderRadius="sm"
-							h="full"
+							h="2.2em"
 							placeholder="Enter value"
 						/>
 					</Flex>
