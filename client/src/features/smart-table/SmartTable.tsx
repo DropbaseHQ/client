@@ -149,7 +149,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 	const heightMap: any = {
 		'1/3': '30vh',
 		'1/2': '42vh',
-		full: '97vh',
+		full: '95vh',
 	};
 	const tableIsUnsynced = useTableSyncStatus(tableName);
 
@@ -1234,7 +1234,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							// When you set the data-rbd-drag-handle-context-id, RBD applies cursor: grab, so we need to revert that
 							cursor: 'auto',
 						}}
-						height={`calc(${heightMap[height]} -  75px)`}
+						height={`calc(${height ? heightMap[height] : '42vh'} -  75px)`}
 						borderWidth="1px"
 						onDoubleClick={() => {
 							if (!table?.smart && table?.type === 'sql') {
