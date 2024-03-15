@@ -726,7 +726,10 @@ def sync_demo(db: Session, workspace):
             "name": "page1",
             "label": "Page1",
             "description": "Page 1 of the demo app",
-            "app_id": app.id,
-        },
+            "app_id": app.id
+        }
     )
-    return {"app_id": app.id, "page_id": page.id}
+    return {
+        "app_id": app.id,
+        "page_id": page.id
+    }
