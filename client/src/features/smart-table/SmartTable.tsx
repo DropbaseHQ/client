@@ -698,7 +698,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							options: allOptions.map((option: any) => ({
 								...option,
 								label: option?.name || option?.label,
-								color: '#cdcdcd',
+								color: 'gray',
 							})),
 
 							allowDuplicates: false,
@@ -726,7 +726,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						allowedValues: allOptions.map((option: any) => ({
 							...option,
 							label: option?.name || option?.label,
-							color: '#cdcdcd',
+							color: 'gray',
 						})),
 						value: cellValue,
 					},
@@ -1245,9 +1245,8 @@ export const SmartTable = ({ tableName, provider }: any) => {
 								{isRefetching ? (
 									<Skeleton
 										isLoaded={false}
-										h="calc(100% - 6px)"
+										h="calc(100%-6px)"
 										position="absolute"
-										top="6px"
 										left="0"
 										w="full"
 										as={Stack}
@@ -1259,7 +1258,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 								<Progress
 									w="full"
 									position="absolute"
-									top="8px"
+									top="-2px"
 									left="0"
 									size="xs"
 									isIndeterminate
