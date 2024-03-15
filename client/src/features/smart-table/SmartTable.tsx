@@ -76,12 +76,6 @@ import { useEvent } from '@/features/app-preview/hooks';
 import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
 import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 
-const heightMap: any = {
-	'1/3': '3xs',
-	'1/2': 'xs',
-	full: '2xl',
-};
-
 const ALL_CELLS = [
 	DatePickerCell,
 	dropdownCellRenderer,
@@ -149,6 +143,14 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		size,
 		table,
 	} = useGetTable(tableName || '');
+
+	// @yash-dropbase: ideally, this is inferred dynamically from the header
+	// @yash-dropbase: need somethig line calc((100vh - headerHeight - footerHeight) / heightMap[height] - tableHeaderHeigh)
+	const heightMap: any = {
+		'1/3': '30vh',
+		'1/2': '42vh',
+		full: '95vh',
+	};
 	const tableIsUnsynced = useTableSyncStatus(tableName);
 
 	const currentFetcher = table?.fetcher;
@@ -1221,7 +1223,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 					</Popover>
 					<TableBar />
 
-					<Box
+					<Stack
 						// https://linear.app/dropbase/issue/DBA-561/cant-resize-table-columns-whole-table-moves
 						// https://github.com/atlassian/react-beautiful-dnd/issues/1810#issuecomment-1077952496
 						data-rbd-drag-handle-context-id={
@@ -1232,7 +1234,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							// When you set the data-rbd-drag-handle-context-id, RBD applies cursor: grab, so we need to revert that
 							cursor: 'auto',
 						}}
-						minH={heightMap[height] || '3xs'}
+						height={`calc(${height ? heightMap[height] : '42vh'} -  75px)`}
 						borderWidth="1px"
 						onDoubleClick={() => {
 							if (!table?.smart && table?.type === 'sql') {
@@ -1327,7 +1329,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 								/>
 							</>
 						)}
-					</Box>
+					</Stack>
 
 					<Pagination />
 				</Stack>
