@@ -20,7 +20,7 @@ import {
 	Tabs,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
+import { ArrowLeft, Edit, Eye, Plus, Share } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -256,7 +256,12 @@ export const AppNavbar = ({ isPreview }: any) => {
 
 			<Stack direction="row" spacing="2" ml="auto">
 				{permissions?.own && (
-					<Button size="sm" variant="outline" onClick={() => shareOnOpen()}>
+					<Button
+						size="sm"
+						variant="outline"
+						onClick={shareOnOpen}
+						leftIcon={<Share size="14" />}
+					>
 						Share
 					</Button>
 				)}
