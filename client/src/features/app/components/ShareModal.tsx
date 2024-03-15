@@ -15,6 +15,7 @@ import {
 	Flex,
 	Box,
 	Spinner,
+	Stack,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { useState, useCallback, useMemo } from 'react';
@@ -161,56 +162,60 @@ export const ShareModal = ({ isOpen, onClose }: any) => {
 		<Modal isOpen={isOpen} onClose={onClose}>
 			<ModalOverlay />
 			<ModalContent>
-				<ModalHeader>Share this app</ModalHeader>
+				<ModalHeader borderBottomWidth="1px">Share this app</ModalHeader>
 				<ModalCloseButton />
-				<ModalBody>
-					<VStack spacing={4}>
-						<FormControl>
-							<FormLabel>Invitees</FormLabel>
-							<InputRenderer
-								label="Invitees"
-								type="multiselect"
-								options={inviteeOptions}
-								value={invitees}
-								onChange={(value: any) => {
-									setInvitees(value);
-								}}
-							/>
-						</FormControl>
+				<ModalBody p={0}>
+					<Stack spacing={4} divider={<Divider />}>
+						<Stack p={4}>
+							<FormControl>
+								<FormLabel>Invitees</FormLabel>
+								<InputRenderer
+									label="Invitees"
+									type="multiselect"
+									options={inviteeOptions}
+									value={invitees}
+									onChange={(value: any) => {
+										setInvitees(value);
+									}}
+								/>
+							</FormControl>
 
-						<FormControl>
-							<FormLabel>Role</FormLabel>
-							<InputRenderer
-								type="select"
-								value={action}
-								onChange={(value: any) => {
-									setAction(value);
-								}}
-								options={[
-									{ name: 'Use', value: 'use' },
-									{ name: 'Edit', value: 'edit' },
-									{ name: 'Own', value: 'own' },
-								]}
-							/>
-						</FormControl>
-						<Divider />
+							<FormControl>
+								<FormLabel>Role</FormLabel>
+								<InputRenderer
+									type="select"
+									value={action}
+									onChange={(value: any) => {
+										setAction(value);
+									}}
+									options={[
+										{ name: 'Use', value: 'use' },
+										{ name: 'Edit', value: 'edit' },
+										{ name: 'Own', value: 'own' },
+									]}
+								/>
+							</FormControl>
+						</Stack>
 
-						<AccessList />
-					</VStack>
+						<Box p={4}>
+							<AccessList />
+						</Box>
+					</Stack>
 				</ModalBody>
 
-				<ModalFooter>
-					<Button mr="1" variant="ghost" onClick={() => onClose()}>
-						Cancel
-					</Button>
-					<Button
-						colorScheme="blue"
-						mr={3}
-						onClick={handleShare}
-						isLoading={updateAppPolicyMutation.isLoading}
-					>
-						Share
-					</Button>
+				<ModalFooter borderTopWidth="1px">
+					<Stack direction="row" alignItems="center">
+						<Button variant="ghost" onClick={() => onClose()}>
+							Cancel
+						</Button>
+						<Button
+							colorScheme="blue"
+							onClick={handleShare}
+							isLoading={updateAppPolicyMutation.isLoading}
+						>
+							Share
+						</Button>
+					</Stack>
 				</ModalFooter>
 			</ModalContent>
 		</Modal>
