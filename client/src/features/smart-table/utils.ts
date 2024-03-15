@@ -7,8 +7,10 @@ const getDateInitiator = (epoch: any) => {
 	return epoch;
 };
 
-const convertToUTC = (dateInstance: any) =>
-	new Date(new Date(dateInstance).getTime() + new Date().getTimezoneOffset() * 60 * 1000);
+const convertToUTC = (epochMillis: string) => {
+	// Directly create a Date object assuming epochMillis is in UTC
+	return new Date(parseInt(epochMillis, 10));
+};
 
 const convertToLocal = (epoch: any) =>
 	new Date(getDateInitiator(epoch) - new Date().getTimezoneOffset() * 60 * 1000);
@@ -41,18 +43,23 @@ export const getDateInstance = (string: any) => {
 	}
 };
 
-// converts epoch time to string of format dd-MM-YYYY
-export const formatDate = (epoch: string) => {
-	const dateInstance = getDateInstance(epoch);
+const getDateInstanceFromEpoch = (epochMillis) => new Date(parseInt(epochMillis, 10));
 
+export const formatDate = (epoch) => {
 	try {
-		return format(convertToUTC(dateInstance), 'dd-MM-yyyy');
+		const dateInstance = getDateInstanceFromEpoch(epoch);
+		const formattedInstance = format(dateInstance, 'dd-MM-yyyy');
+
+		if (isNaN(dateInstance.getTime())) {
+			throw new Error('Invalid date');
+		}
+
+		return formattedInstance;
 	} catch (e) {
 		return epoch;
 	}
 };
 
-// converts hh:mm:ss.ms to hh:mm:ss AM/PM
 export const formatTime = (time: string) => {
 	try {
 		const date = parse(time.split('.')[0], 'HH:mm:ss', new Date());
@@ -62,7 +69,6 @@ export const formatTime = (time: string) => {
 	}
 };
 
-// converts hh:mm:ss.ms to epoch seconds
 export const getEpochFromTimeString = (time: string) => {
 	try {
 		const utcDate = parse(time.split('.')[0], 'HH:mm:ss', new Date()).getTime();
@@ -70,7 +76,6 @@ export const getEpochFromTimeString = (time: string) => {
 		if (Number.isNaN(localDate)) throw new Error('Invalid date');
 		return localDate;
 	} catch (e) {
-		// fall back on current time if time string is invalid or null
 		return new Date().getTime();
 	}
 };
@@ -88,7 +93,10 @@ export const getTimeStringFromEpoch = (epoch: string) => {
 // converts epoch time to string of format yyyy-mm-dd hh:mm:ss AM/PM
 export const formatDateTime = (epoch: string) => {
 	try {
-		return format(convertToUTC(epoch), 'yyyy-MM-dd hh:mm:ss a');
+		const utcDate = convertToUTC(epoch);
+		const formattedDate = format(utcDate, 'yyyy-MM-dd hh:mm:ss a');
+
+		return formattedDate;
 	} catch (e) {
 		return epoch;
 	}
