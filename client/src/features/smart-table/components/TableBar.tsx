@@ -89,9 +89,11 @@ export const TableBar = () => {
 			<Stack
 				bg="white"
 				borderWidth="1px"
-				borderRadius="sm"
+				borderBottom="0"
+				borderTopLeftRadius="md"
+				borderTopRightRadius="md"
 				direction="row"
-				p="1.5"
+				p="2"
 				alignItems="center"
 				justifyContent="space-between"
 			>
@@ -110,6 +112,7 @@ export const TableBar = () => {
 										onMouseOver={onOpen}
 										onMouseEnter={onOpen}
 										direction="row"
+										mr="3"
 									>
 										<FilterButton />
 										<SortButton />

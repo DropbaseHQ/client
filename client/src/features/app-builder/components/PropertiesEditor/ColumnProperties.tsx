@@ -294,20 +294,22 @@ const ColumnProperty = ({
 	return (
 		<form onSubmit={methods.handleSubmit(onSubmit)}>
 			<FormProvider {...methods}>
-				<Stack spacing="0" borderBottomWidth="1px">
+				<Stack
+					spacing="0"
+					borderBottomWidth={isOpen ? '1px' : '0'}
+					borderTopWidth={isOpen ? '1px' : '0'}
+				>
 					<Stack
 						py="2"
 						px="3"
 						direction="row"
-						borderBottomWidth={isOpen ? '1px' : '0'}
 						alignItems="center"
-						_hover={{ bg: 'gray.100' }}
+						_hover={{ bg: 'gray.50' }}
 						cursor="pointer"
 						gap={3}
 						onClick={onToggle}
-						bg={isOpen ? 'gray.50' : ''}
 					>
-						<Box alignSelf="center" overflow="hidden" width="40%">
+						<Box alignSelf="center" overflow="hidden" width="50%">
 							<Tooltip placement="left-end" label={defaultName}>
 								<Code
 									h="full"
@@ -326,10 +328,10 @@ const ColumnProperty = ({
 							</Tooltip>
 						</Box>
 						{isCustomColumn ? (
-							<Box width="30%" />
+							<Box width="20%" />
 						) : (
 							<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
-								<Box width="30%">
+								<Stack direction="row" width="20%">
 									<InputRenderer
 										type="boolean"
 										isDisabled={
@@ -345,15 +347,10 @@ const ColumnProperty = ({
 											});
 										}}
 									/>
-								</Box>
+								</Stack>
 							</Tooltip>
 						)}
-						<Stack
-							alignItems="center"
-							justifyContent="space-between"
-							direction="row"
-							width="30%"
-						>
+						<Stack align="center" justify="space-between" direction="row" width="20%">
 							<InputRenderer
 								type="boolean"
 								id="hidden"
@@ -365,7 +362,8 @@ const ColumnProperty = ({
 									});
 								}}
 							/>
-
+						</Stack>
+						<Stack>
 							<Box
 								as="button"
 								border="0"
@@ -607,18 +605,12 @@ export const ColumnsProperties = () => {
 	if (isLoading) {
 		return (
 			<Stack p="3">
-				<Skeleton
-					startColor="gray.100"
-					endColor="gray.200"
-					w="36"
-					h="10"
-					borderRadius="sm"
-				/>
+				<Skeleton w="36" h="10" borderRadius="sm" />
 				<Stack p="3" bg="white">
-					<Stack borderWidth="1px" spacing="0" divider={<Divider />}>
-						<Skeleton startColor="gray.50" endColor="gray.100" h="10" />
-						<Skeleton startColor="gray.50" endColor="gray.100" h="10" />
-						<Skeleton startColor="gray.50" endColor="gray.100" h="10" />
+					<Stack spacing="0" divider={<Divider />}>
+						<Skeleton h="10" />
+						<Skeleton h="10" />
+						<Skeleton h="10" />
 					</Stack>
 				</Stack>
 			</Stack>
@@ -626,12 +618,10 @@ export const ColumnsProperties = () => {
 	}
 
 	return (
-		<Stack spacing="3" h="full" overflowY="auto">
-			<Stack direction="row" pb="2" px="3" alignItems="center">
-				<Text fontSize="md" fontWeight="semibold">
-					Columns
-				</Text>
-			</Stack>
+		<Stack h="full" overflowY="auto">
+			<Text fontSize="md" px="3" pt="3" pb="0" fontWeight="semibold">
+				Columns
+			</Text>
 			{type === 'sql' && !table?.smart ? (
 				<Button
 					leftIcon={<Zap size="14" />}
@@ -646,18 +636,14 @@ export const ColumnsProperties = () => {
 					Convert to Smart Table
 				</Button>
 			) : null}
-			<Stack spacing="0" borderTopWidth="1px">
-				<Stack
-					p="3"
-					direction="row"
-					fontWeight="medium"
-					fontSize="sm"
-					bg="gray.50"
-					borderBottomWidth="1px"
-				>
-					<Text width="40%">Column</Text>
-					<Text width="30%">Editable</Text>
-					<Text width="30%">Hidden</Text>
+			<Stack spacing="0">
+				<Stack px="3" py="1" direction="row" fontWeight="medium" fontSize="sm">
+					<Text width="50%">Column</Text>
+					<Text width="20%" align="center">
+						Editable
+					</Text>
+					<Text width="20%">Hidden</Text>
+					<Text width="10%" />
 				</Stack>
 				{columns.map((column: any) => (
 					<ColumnProperty tableType={type} key={column.name} {...column} />

@@ -34,7 +34,7 @@ export const TableProperties = () => {
 
 	const { fields } = useResourceFields();
 
-	const currentCategories = ['Default', 'Events'];
+	const currentCategories = ['Default'];
 
 	const { tables, files, properties } = useGetPage({ appName, pageName });
 
