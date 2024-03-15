@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from server.controllers.tables.convert import call_gpt, fill_smart_cols_data
 from server.utils.authorization import get_current_user
 from server.utils.authentication import verify_worker_token
-from server.schemas import CheckPermissionRequest, SyncStructureRequest
+from server.schemas import CheckPermissionRequest, SyncStructureRequest, SyncAppRequest
 from server.controllers.user import user_controller
 from server.utils.connect import get_db
 from server.models import User, Workspace
@@ -66,13 +66,12 @@ def sync_structure(
     workspace: Workspace = Depends(verify_worker_token),
 ):
     structure_report = {"apps_with_id": {}, "apps_without_id": []}
-    print("request", request.apps)
 
     for app in request.apps:
         target_app = crud.app.get(db, id=app.id)
         if not target_app:
             app_by_name = crud.app.get_app_by_name(
-                db=db, name=app.name, workspace_id=workspace.id
+                db=db, app_name=app.name, workspace_id=workspace.id
             )
             if not app_by_name:
                 structure_report["apps_without_id"].append(
@@ -154,5 +153,33 @@ def sync_structure(
                     "status": "SYNCED",
                     "message": f"Page with id {page.id} is already synced. No changes made.",
                 }
-    print("Structure report: ", structure_report)
     return structure_report
+
+
+@router.post("/sync/app")
+def sync_app(
+    request: SyncAppRequest,
+    db: Session = Depends(get_db),
+    workspace: Workspace = Depends(verify_worker_token),
+):
+    if not request.generate_new and request.app_name is not None:
+        app = crud.app.get_app_by_name(db, request.app_name, workspace.id)
+        if not app:
+            return HTTPException(
+                status_code=404,
+                detail=f"App with name {request.app_name} not found in workspace",
+            )
+        return {"status": "FOUND", "app_id": app.id}
+    if request.app_name is None:
+        return HTTPException(status_code=400, detail="App name not provided")
+
+    new_app = crud.app.create(
+        db=db,
+        obj_in={
+            "name": request.app_name,
+            "label": request.app_label,
+            "workspace_id": workspace.id,
+        },
+    )
+
+    return {"status": "CREATED", "app_id": new_app.id}
