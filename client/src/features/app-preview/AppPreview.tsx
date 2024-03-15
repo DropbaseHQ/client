@@ -121,7 +121,14 @@ export const AppPreview = () => {
 	return (
 		<Loader isLoading={isLoading}>
 			<Stack position="relative" bg="white" h="full">
-				<Stack alignItems="center" px="4" p="2" borderBottomWidth="1px" direction="row">
+				<Stack
+					alignItems="center"
+					px="4"
+					pt="2"
+					pb="3"
+					borderBottomWidth="1px"
+					direction="row"
+				>
 					<InspectorContainer flex="1" type="widget" id={widgetName}>
 						<Stack overflow="hidden" spacing="0">
 							<Stack direction="row" display="flex" alignItems="center">

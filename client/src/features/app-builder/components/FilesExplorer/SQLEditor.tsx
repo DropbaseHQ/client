@@ -10,7 +10,7 @@ import {
 	Text,
 	Tooltip,
 } from '@chakra-ui/react';
-import { Play, Save, Info } from 'react-feather';
+import { Play, Save, Info, RotateCw } from 'react-feather';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -43,6 +43,7 @@ export const SQLEditor = ({ name }: any) => {
 		isLoading,
 		code: defaultCode,
 		refetch,
+		isRefetching,
 	} = useFile({
 		pageName,
 		appName,
@@ -147,23 +148,36 @@ export const SQLEditor = ({ name }: any) => {
 					<Text fontSize="md" fontWeight="semibold">
 						{fullFileName}
 					</Text>
-
-					<Button
-						w="fit-content"
-						isLoading={saveSQLMutation.isLoading}
-						onClick={handleSave}
-						variant="outline"
-						colorScheme="gray"
-						size="sm"
-						isDisabled={
-							!selectedSource ||
-							!code ||
-							(code === defaultCode && file?.source === selectedSource)
-						}
-						leftIcon={<Save size="14" />}
-					>
-						Update
-					</Button>
+					<Stack alignItems="center" direction="row">
+						<IconButton
+							aria-label="Reload file"
+							flexShrink="0"
+							colorScheme="gray"
+							size="sm"
+							variant="outline"
+							icon={<RotateCw size={12} />}
+							onClick={() => {
+								refetch();
+							}}
+							isLoading={isRefetching}
+						/>
+						<Button
+							w="fit-content"
+							isLoading={saveSQLMutation.isLoading}
+							onClick={handleSave}
+							variant="outline"
+							colorScheme="gray"
+							size="sm"
+							isDisabled={
+								!selectedSource ||
+								!code ||
+								(code === defaultCode && file?.source === selectedSource)
+							}
+							leftIcon={<Save size="14" />}
+						>
+							Update
+						</Button>
+					</Stack>
 				</Stack>
 				<Stack direction="row" px="3" pb="3" borderBottomWidth="1px" alignItems="start">
 					<FormControl>

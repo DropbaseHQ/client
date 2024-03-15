@@ -34,7 +34,7 @@ export const TableProperties = () => {
 
 	const { fields } = useResourceFields();
 
-	const currentCategories = ['Default', 'Events'];
+	const currentCategories = ['Default'];
 
 	const { tables, files, properties } = useGetPage({ appName, pageName });
 
@@ -348,18 +348,13 @@ export const TableProperties = () => {
 												property.type === 'on_row_change' ||
 												property.name === 'on_row_select';
 
-											const propertyType =
-												property.name === 'label'
-													? 'template'
-													: property.type;
-
 											return (
 												<FormInput
 													{...property}
 													id={property.name}
 													name={property.title}
 													type={
-														showFunctionList ? 'select' : propertyType
+														showFunctionList ? 'select' : property.type
 													}
 													options={(
 														(showFunctionList

@@ -30,8 +30,8 @@ const PermissionsTab = ({
 			alignItems="center"
 			onClick={() => onClick(value)}
 		>
-			<Box mr="3">{Icon ? <Icon size="16" color="gray" /> : null}</Box>
-			{name}
+			<Box mr="3">{Icon ? <Icon size="13" color="gray" /> : null}</Box>
+			<Text fontSize="md">{name}</Text>
 		</Box>
 	);
 };

@@ -5,6 +5,7 @@ import { workerAxios } from '../lib/axios';
 import { useWorkerWorkspace, workspaceAtom } from '@/features/workspaces';
 import { websocketStatusAtom } from '@/features/app/atoms';
 import { useSetWorkerAxiosBaseURL } from '@/features/authorization/hooks/useLogin';
+import { lspStatusAtom } from '@/components/Editor';
 
 export const STATUS_QUERY_KEY = 'allFiles';
 
@@ -33,6 +34,7 @@ export const useStatus = () => {
 export const StatusBar = () => {
 	const { status } = useStatus();
 	const websocketIsConnected = useAtomValue(websocketStatusAtom);
+	const lspIsConnected = useAtomValue(lspStatusAtom);
 	const currentWorkspace = useAtomValue(workspaceAtom);
 	const { workspace: workerWorkspace, isLoading } = useWorkerWorkspace();
 
@@ -58,6 +60,16 @@ export const StatusBar = () => {
 			<Text noOfLines={1} fontSize="xs">
 				{websocketIsConnected ? 'WS connected' : 'WS not connected'}
 			</Text>
+
+			{/* don't show status if null */}
+			{typeof lspIsConnected === 'boolean' && (
+				<>
+					<Circle ml="1" size="2" bg={lspIsConnected ? 'green' : 'red'} />
+					<Text noOfLines={1} fontSize="xs">
+						{lspIsConnected ? 'LSP connected' : 'LSP not connected'}
+					</Text>
+				</>
+			)}
 
 			{status === 'error' ? (
 				<Link

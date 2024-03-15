@@ -1,4 +1,4 @@
-import { Box, Stack } from '@chakra-ui/react';
+import { Box, Stack, useTheme } from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { useEffect } from 'react';
 import { useSetAtom } from 'jotai';
@@ -24,6 +24,7 @@ export const AppBuilder = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
 	const { isLoading } = useInitPage();
+	const theme = useTheme();
 	const setInspectedItem = useSetAtom(inspectedResourceAtom);
 	const { permissions, isLoading: appStateIsLoading } = useAppState(
 		appName || '',
@@ -55,8 +56,15 @@ export const AppBuilder = () => {
 				<PanelGroup direction="horizontal">
 					<Panel>
 						<PanelGroup autoSaveId="main-panel" direction="vertical">
-							<Panel defaultSize={45}>
-								<PanelGroup autoSaveId="data-panel" direction="horizontal">
+							<Box as={Panel} p={4} bg="gray.50" defaultSize={45}>
+								<Box
+									as={PanelGroup}
+									borderWidth="1px"
+									borderRadius="lg"
+									autoSaveId="data-panel"
+									boxShadow={`0 0px 5px ${theme.colors.blackAlpha[300]}`}
+									direction="horizontal"
+								>
 									<Panel defaultSize={80} minSize={10}>
 										<Loader isLoading={isLoading}>
 											<StackedTables />
@@ -68,13 +76,10 @@ export const AppBuilder = () => {
 											<AppPreview />
 										</Loader>
 									</Panel>
-								</PanelGroup>
-							</Panel>
+								</Box>
+							</Box>
 
-							<PanelHandle
-								boxShadow="0 -2px 4px rgba(0,0,0,0.2)"
-								direction="horizontal"
-							/>
+							<PanelHandle direction="horizontal" />
 
 							<Panel>
 								<PanelGroup autoSaveId="dev-panel" direction="horizontal">

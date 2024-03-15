@@ -225,14 +225,16 @@ export const FilterButton = () => {
 		<Popover isOpen={isOpen} onClose={onClose} placement="bottom" closeOnBlur>
 			<PopoverTrigger>
 				<Button
-					leftIcon={<FilterIcon size={14} />}
-					size="sm"
+					leftIcon={<FilterIcon size={12} />}
+					size="xs"
 					isDisabled={!isSmartTable}
 					variant="ghost"
 					onClick={onToggle}
 					colorScheme={haveFiltersApplied ? 'blue' : 'gray'}
 				>
-					Filters
+					<Text fontWeight="medium" fontSize="sm">
+						Filters
+					</Text>
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent boxShadow="md" minW="35rem">

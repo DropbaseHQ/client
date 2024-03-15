@@ -1,15 +1,52 @@
 import { format, parse } from 'date-fns';
 
-const convertToUTC = (epoch: string) =>
-	new Date(parseInt(epoch, 10) + new Date().getTimezoneOffset() * 60 * 1000);
+const getDateInitiator = (epoch: any) => {
+	if (Number.isFinite(+epoch)) {
+		return +epoch;
+	}
+	return epoch;
+};
 
-const convertToLocal = (epoch: number) =>
-	new Date(epoch - new Date().getTimezoneOffset() * 60 * 1000);
+const convertToUTC = (dateInstance: any) =>
+	new Date(new Date(dateInstance).getTime() + new Date().getTimezoneOffset() * 60 * 1000);
 
-// converts epoch time to string of format yyyy-mm-dd
-export const formatDate = (epoch: string) => {
+const convertToLocal = (epoch: any) =>
+	new Date(getDateInitiator(epoch) - new Date().getTimezoneOffset() * 60 * 1000);
+
+const isValidDate = (d: any) => {
+	if (Object.prototype.toString.call(d) === '[object Date]') {
+		// it is a date
+		if (Number.isFinite(+d)) {
+			return true;
+		}
+		return false;
+	}
+
+	return false;
+};
+
+export const getDateInstance = (string: any) => {
 	try {
-		return format(convertToUTC(epoch), 'yyyy-MM-dd');
+		const epochDate = new Date(+string);
+
+		if (isValidDate(epochDate)) {
+			return epochDate;
+		}
+
+		const stringDate = new Date(string);
+
+		return stringDate;
+	} catch (e) {
+		return string;
+	}
+};
+
+// converts epoch time to string of format dd-MM-YYYY
+export const formatDate = (epoch: string) => {
+	const dateInstance = getDateInstance(epoch);
+
+	try {
+		return format(convertToUTC(dateInstance), 'dd-MM-yyyy');
 	} catch (e) {
 		return epoch;
 	}

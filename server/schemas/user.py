@@ -63,6 +63,15 @@ class CreateUserRequest(BaseModel):
     password: str
 
 
+class PowerCreateUserRequest(BaseModel):
+    name: str
+    last_name: str
+    company: str
+    email: str
+    password: str
+    active: Optional[bool]
+
+
 class ResetPasswordRequest(BaseModel):
     email: str
     new_password: str
@@ -105,3 +114,7 @@ class OnboardUser(BaseModel):
 
 class CheckPermissionRequest(BaseModel):
     app_id: str
+
+
+class CheckAppsPermissionsRequest(BaseModel):
+    app_ids: list

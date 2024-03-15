@@ -38,7 +38,16 @@ export const Pagination = () => {
 	}
 
 	return (
-		<Stack alignItems="center" borderRadius="sm" borderWidth="1px" p="2" direction="row">
+		<Stack
+			alignItems="center"
+			borderBottomRightRadius="md"
+			borderBottomLeftRadius="md"
+			borderTop="0"
+			borderWidth="1px"
+			py="1"
+			px="2"
+			direction="row"
+		>
 			<FormControl>
 				<InputRenderer
 					size="xs"
@@ -72,7 +81,7 @@ export const Pagination = () => {
 			) : null}
 			<Stack alignItems="center" spacing="0" direction="row" ml="auto">
 				<IconButton
-					icon={<ChevronLeft size="14" />}
+					icon={<ChevronLeft size="12" />}
 					variant="outline"
 					size="xs"
 					colorScheme="gray"
@@ -89,7 +98,7 @@ export const Pagination = () => {
 					{tablePageInfo.currentPage + 1}
 				</Box>
 				<IconButton
-					icon={<ChevronRight size="14" />}
+					icon={<ChevronRight size="12" />}
 					variant="outline"
 					size="xs"
 					colorScheme="gray"

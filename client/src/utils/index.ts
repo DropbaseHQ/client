@@ -128,9 +128,21 @@ export const extractTemplateString = (value: any, state: any) => {
 		let newInputString = value;
 
 		[...matches].forEach((element) => {
-			const [mainStr, underlyingValue] = element;
+			const [mainStr, underlyingTemplate] = element;
 
-			newInputString = newInputString.replace(mainStr, get(state, underlyingValue, ''));
+			const parsedValue = get(state, underlyingTemplate);
+
+			/**
+			 * If the template is just accesing values, we just get the parsed value
+			 * instead of converting it to a string
+			 *
+			 * For eg: Default Values
+			 */
+			if (newInputString === mainStr) {
+				newInputString = parsedValue;
+			} else {
+				newInputString = newInputString.replace(mainStr, parsedValue || '');
+			}
 		});
 
 		return newInputString;

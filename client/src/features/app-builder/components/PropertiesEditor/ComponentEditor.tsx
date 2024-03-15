@@ -64,6 +64,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const multiple = watch('multiple');
 	const options = watch('options');
 	const defaultValue = watch('default');
+	const multiline = watch('multiline');
 
 	useEffect(() => {
 		if (multiple) {
@@ -295,6 +296,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 													if (multiple) {
 														inputType = 'multiselect';
 													}
+												}
+
+												if (dataType === 'text' && multiline) {
+													inputType = 'textarea';
 												}
 
 												return (

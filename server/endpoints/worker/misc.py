@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from server.controllers.tables.convert import call_gpt, fill_smart_cols_data
 from server.utils.authorization import get_current_user
 from server.utils.authentication import verify_worker_token
-from server.schemas import CheckPermissionRequest
+from server.schemas import CheckPermissionRequest, CheckAppsPermissionsRequest
 from server.controllers.user import user_controller
 from server.utils.connect import get_db
 from server.models import User, Workspace
@@ -23,7 +23,9 @@ class ConvertTable(BaseModel):
 
 @router.post("/get_smart_cols/")
 def get_smart_cols(req: ConvertTable, db: Session = Depends(get_db)):
-    smart_col_paths = call_gpt(req.user_sql, req.column_names, req.gpt_schema, req.db_type)
+    smart_col_paths = call_gpt(
+        req.user_sql, req.column_names, req.gpt_schema, req.db_type
+    )
 
     # Fill smart col data before validation to get
     # primary keys along with other column metadata
@@ -48,9 +50,27 @@ def check_permission(
     return user_controller.check_permissions(db, user, request, workspace)
 
 
+@router.post("/check_apps_permissions")
+def check_apps_permissions(
+    request: CheckAppsPermissionsRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+    workspace: Workspace = Depends(verify_worker_token),
+):
+    return user_controller.check_apps_permissions(db, user, request, workspace)
+
+
 @router.get("/worker_workspace")
 def get_worker_workspace(workspace: Workspace = Depends(verify_worker_token)):
     return {
         "id": workspace.id,
         "name": workspace.name,
     }
+
+
+@router.get("/sync_demo")
+def sync_demo(
+    workspace: Workspace = Depends(verify_worker_token),
+    db: Session = Depends(get_db)
+):
+    return user_controller.sync_demo(db, workspace)
