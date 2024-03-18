@@ -8,6 +8,7 @@ import { language, conf } from 'monaco-editor/esm/vs/basic-languages/python/pyth
 import { buildWorkerDefinition } from 'monaco-editor-workers';
 
 import { useMonacoTheme } from './useMonacoTheme';
+import { RECONNECT_DELAY } from '../utils/constants';
 
 buildWorkerDefinition(
 	'../../../../node_modules/monaco-editor-workers/dist/workers/',
@@ -62,7 +63,7 @@ const createLSPWebSocket = (url: string, onOpen: () => void, onClose: () => void
 			onClose();
 			setTimeout(() => {
 				connectWebSocket();
-			}, 5000); // attempt to reconnect every 5 seconds
+			}, RECONNECT_DELAY);
 		};
 	};
 
