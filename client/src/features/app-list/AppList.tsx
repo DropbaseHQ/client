@@ -1,4 +1,5 @@
 import {
+	Badge,
 	Stack,
 	Text,
 	Button,
@@ -19,10 +20,11 @@ import {
 	MenuItem,
 	IconButton,
 	Code,
+	Tooltip,
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Layout, MoreVertical, Trash } from 'react-feather';
+import { Layout, MoreVertical, Trash, Plus, PlusCircle } from 'react-feather';
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { useStatus } from '@/layout/StatusBar';
@@ -35,12 +37,28 @@ import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { SalesModal } from './AppSalesModal';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
+import { useSyncApp } from './hooks/useSyncApp';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const methods = useForm();
 	const navigate = useNavigate();
+	const syncAppMutation = useSyncApp({
+		onSuccess: () => {
+			toast({
+				status: 'success',
+				title: 'App synced',
+			});
+		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to sync app',
+				description: getErrorMessage(error),
+			});
+		},
+	});
 
 	const deleteMutation = useDeleteApp({
 		onSuccess: () => {
@@ -61,6 +79,9 @@ const AppCard = ({ app }: { app: AppType }) => {
 
 	const handleClick = () => {
 		navigate(`/apps/${app.name}/${app?.pages?.[0]?.name}`);
+	};
+	const handleSyncApp = (generateNew: boolean) => {
+		syncAppMutation.mutate({ appName: app.name, generateNew });
 	};
 
 	const onSubmit = () => {
@@ -92,6 +113,26 @@ const AppCard = ({ app }: { app: AppType }) => {
 			<Text fontSize="lg" fontWeight="semibold" isTruncated flex="1">
 				{app?.label}
 			</Text>
+			{app?.status === 'ID_NOT_FOUND_AND_NAME_NOT_FOUND' && (
+				<Tooltip
+					placement="top"
+					label="This app has no ID. This means that this app will not work because Dropbase will not be able to identify it. This may have happened if you changed the workspace folder manually."
+				>
+					<Badge colorScheme="red" variant="subtle" size="xs">
+						No ID Found
+					</Badge>
+				</Tooltip>
+			)}
+			{app?.status === 'ID_NOT_FOUND_BUT_NAME_FOUND' && (
+				<Tooltip
+					placement="top"
+					label="This app has no ID. However, we found an app with a matching name in our Database that belongs to your workspace. You have the option of syncing your app with the one that we found. Do note that we cannot guarantee that the app we found is the same as the one in your workspace. This may have happened if you changed the workspace folder manually."
+				>
+					<Badge colorScheme="orange" variant="subtle" size="xs">
+						No ID Found But Name Found
+					</Badge>
+				</Tooltip>
+			)}
 			<Menu>
 				<MenuButton
 					flexShrink="0"
@@ -124,6 +165,32 @@ const AppCard = ({ app }: { app: AppType }) => {
 							<Box>Delete App</Box>
 						</Stack>
 					</MenuItem>
+					{app?.status !== 'SYNCED' && (
+						<MenuItem
+							onClick={(e) => {
+								e.stopPropagation();
+								handleSyncApp(true);
+							}}
+						>
+							<Stack alignItems="center" direction="row" fontSize="md">
+								<Plus size="14" />
+								<Box>Sync a New App</Box>
+							</Stack>
+						</MenuItem>
+					)}
+					{app?.status === 'ID_NOT_FOUND_BUT_NAME_FOUND' && (
+						<MenuItem
+							onClick={(e) => {
+								e.stopPropagation();
+								handleSyncApp(false);
+							}}
+						>
+							<Stack alignItems="center" direction="row" fontSize="md">
+								<PlusCircle size="14" />
+								<Box>Sync an Existing App</Box>
+							</Stack>
+						</MenuItem>
+					)}
 				</MenuList>
 			</Menu>
 

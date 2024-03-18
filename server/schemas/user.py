@@ -116,5 +116,29 @@ class CheckPermissionRequest(BaseModel):
     app_id: str
 
 
+class PageObject(BaseModel):
+    name: str
+    id: Optional[str]
+    label: Optional[str]
+
+
+class AppObject(BaseModel):
+    name: str
+    id: Optional[str]
+    label: Optional[str]
+    pages: Optional[list[PageObject]]
+
+
+class SyncStructureRequest(BaseModel):
+    apps: list[AppObject]
+
+
+class SyncAppRequest(BaseModel):
+    app_name: Optional[str] = None
+    app_label: Optional[str] = None
+    generate_new: bool = True
+    pages: Optional[list[PageObject]] = None
+
+
 class CheckAppsPermissionsRequest(BaseModel):
     app_ids: list
