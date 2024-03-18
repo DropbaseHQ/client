@@ -49,16 +49,12 @@ export const Notification = ({ message, type, onClose }: any) => {
 			<Circle
 				cursor="pointer"
 				position="absolute"
-				top={-3}
-				size={6}
-				right={-2}
+				size={7}
+				right={2}
 				alignItems="center"
 				alignSelf="start"
 				justifySelf="start"
 				aria-label="Close alert"
-				bg="white"
-				borderColor={color}
-				borderWidth="1px"
 				_hover={{
 					bg: `${colors?.[type] || 'blue'}.50`,
 				}}
