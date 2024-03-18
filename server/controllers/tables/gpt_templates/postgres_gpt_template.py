@@ -15,6 +15,8 @@ Sample JSON object value
         "column_name": "name"
 }}
 ```
+This is only a sample value, only name the schema_name "public" if it is actually public. 
+You can find the actual schema_names to fill into the "schema_name" under the key "schema" write after "metadata"
 
 In the sample JSON, "output column" is the column name as it would be output when executing the SQL statement.
 You will be provided a list of column names that will be returned by the query. Your job is to, for each column name, determine its schema_name, table_name, and column_name based on the SQL query. You may only return information on the columns specified in Column names. You must return information on each of the columns specified in Column names.
