@@ -8,6 +8,7 @@ import { language, conf } from 'monaco-editor/esm/vs/basic-languages/python/pyth
 import { buildWorkerDefinition } from 'monaco-editor-workers';
 
 import { useMonacoTheme } from './useMonacoTheme';
+import { RECONNECT_DELAY } from '../utils/constants';
 
 buildWorkerDefinition(
 	'../../../../node_modules/monaco-editor-workers/dist/workers/',
@@ -38,23 +39,40 @@ const createLanguageClient = (transports: MessageTransports): MonacoLanguageClie
 	});
 };
 
-const createLSPWebSocket = (url: string): WebSocket => {
-	const webSocket = new WebSocket(url);
-	webSocket.onopen = () => {
-		const socket = toSocket(webSocket);
-		const reader = new WebSocketMessageReader(socket);
-		const writer = new WebSocketMessageWriter(socket);
-		const languageClient = createLanguageClient({
-			reader,
-			writer,
-		});
-		languageClient.start();
-		reader.onClose(() => languageClient.stop());
+const createLSPWebSocket = (config: { url: string; onOpen: () => void; onClose: () => void }) => {
+	const connectWebSocket = () => {
+		const webSocket = new WebSocket(config.url);
+		webSocket.onopen = () => {
+			config.onOpen();
+
+			const socket = toSocket(webSocket);
+			const reader = new WebSocketMessageReader(socket);
+			const writer = new WebSocketMessageWriter(socket);
+			const languageClient = createLanguageClient({
+				reader,
+				writer,
+			});
+			languageClient.start();
+			reader.onClose(() => {
+				connectWebSocket();
+				languageClient.stop();
+			});
+		};
+
+		webSocket.onclose = () => {
+			config.onClose();
+			setTimeout(connectWebSocket, RECONNECT_DELAY);
+		};
 	};
-	return webSocket;
+
+	connectWebSocket();
 };
 
-export const initializeLanguageServices = async (url: string) => {
+export const initializeLanguageServices = async (config: {
+	url: string;
+	onOpen: () => void;
+	onClose: () => void;
+}) => {
 	await initServices({
 		// Use our own themes
 		enableThemeService: false,
@@ -79,7 +97,7 @@ export const initializeLanguageServices = async (url: string) => {
 	monaco.languages.setLanguageConfiguration(languageId, conf);
 	monaco.languages.setMonarchTokensProvider(languageId, language);
 
-	return createLSPWebSocket(url);
+	createLSPWebSocket(config);
 };
 
 const createPythonEditor = async (config: { htmlElement: HTMLElement; filepath: string }) => {
