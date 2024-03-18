@@ -1,8 +1,5 @@
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
-	Alert,
-	AlertDescription,
-	AlertIcon,
 	Box,
 	Button,
 	Center,
@@ -22,6 +19,7 @@ import { CheckCircleIcon, InfoIcon, SpinnerIcon, WarningIcon } from '@chakra-ui/
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 import { Info, RotateCw, UploadCloud } from 'react-feather';
+import lodashSet from 'lodash/set';
 
 import DataEditor, {
 	CompactSelection,
@@ -75,6 +73,7 @@ import { LabelContainer } from '@/components/LabelContainer';
 import { useEvent } from '@/features/app-preview/hooks';
 import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
 import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
+import { Notification } from '@/features/app-preview/components/Notification';
 
 const ALL_CELLS = [
 	DatePickerCell,
@@ -104,6 +103,7 @@ export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 	});
 
 	const pageState = useAtomValue(newPageStateAtom);
+	const setPageContext = useSetAtom(nonWidgetContextAtom);
 	const { isPreview } = useAtomValue(appModeAtom);
 
 	const [allTableColumnWidth, setTableColumnWidth] = useAtom(tableColumnWidthAtom);
@@ -1094,6 +1094,15 @@ export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 		return false;
 	};
 
+	const handleRemoveAlert = () => {
+		setPageContext((oldData: any) => {
+			return {
+				...lodashSet(oldData, `tables.${tableName}.message`, null),
+				...lodashSet(oldData, `tables.${tableName}.message_type`, null),
+			};
+		});
+	};
+
 	const getContainerHeight = () => {
 		switch (height) {
 			case '1/3': {
@@ -1176,24 +1185,6 @@ export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 								</Stack>
 							) : null}
 						</Stack>
-
-						{pageState?.context?.tables?.[tableName]?.message ? (
-							<Stack ml="auto" overflow="hidden">
-								<Alert
-									status={
-										pageState?.context?.tables?.[tableName]?.message_type ||
-										'info'
-									}
-									bgColor="transparent"
-									p={0}
-								>
-									<AlertIcon boxSize={4} />
-									<AlertDescription fontSize="sm">
-										{pageState?.context?.tables?.[tableName]?.message}
-									</AlertDescription>
-								</Alert>
-							</Stack>
-						) : null}
 
 						<Stack
 							ml="auto"
@@ -1371,6 +1362,12 @@ export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 
 					<Pagination />
 				</Stack>
+
+				<Notification
+					message={pageState?.context?.tables?.[tableName]?.message}
+					type={pageState?.context?.tables?.[tableName]?.message_type}
+					onClose={handleRemoveAlert}
+				/>
 			</Stack>
 		</CurrentTableContext.Provider>
 	);

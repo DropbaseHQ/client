@@ -1,15 +1,5 @@
-import {
-	Alert,
-	AlertDescription,
-	AlertIcon,
-	Box,
-	CloseButton,
-	IconButton,
-	Progress,
-	Stack,
-} from '@chakra-ui/react';
+import { Box, CloseButton, Progress, Stack } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
-import { X } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
@@ -26,8 +16,7 @@ import { NewComponent } from '@/features/app-builder/components/PropertiesEditor
 import { appModeAtom, websocketStatusAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
 import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
-
-// websocket
+import { Notification } from '@/features/app-preview/components/Notification';
 
 export const WidgetPreview = ({ widgetName }: any) => {
 	const { appName, pageName } = useParams();
@@ -120,6 +109,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 	const handleRemoveAlert = () => {
 		setWidgetData((oldData: any) => ({
 			...lodashSet(oldData, `state.${widgetName}.message`, null),
+			...lodashSet(oldData, `state.${widgetName}.message_type`, null),
 		}));
 	};
 
@@ -288,46 +278,13 @@ export const WidgetPreview = ({ widgetName }: any) => {
 						)}
 					</Droppable>
 				</DragDropContext>
-				{widgetState?.message ? (
-					<Stack
-						flexShrink="0"
-						pos="sticky"
-						mt="auto"
-						bg="gray.50"
-						bottom="0"
-						w="full"
-						flexGrow="0"
-					>
-						<Alert
-							bg="transparent"
-							status={widgetState?.message_type || 'info'}
-							variant="top-accent"
-							borderTopWidth="3px"
-						>
-							<AlertIcon />
 
-							<AlertDescription>{widgetState?.message}</AlertDescription>
-						</Alert>
-						<IconButton
-							position="absolute"
-							top={-3}
-							h={6}
-							w={6}
-							right={2}
-							alignSelf="start"
-							justifySelf="start"
-							aria-label="Close alert"
-							size="sm"
-							borderRadius="full"
-							icon={<X size="16" />}
-							bg="white"
-							borderColor="blue.500"
-							borderWidth="1px"
-							variant="ghost"
-							onClick={handleRemoveAlert}
-						/>
-					</Stack>
-				) : null}
+				<Notification
+					message={widgetState?.message}
+					type={widgetState?.message_type}
+					onClose={handleRemoveAlert}
+				/>
+
 				{reorderMutation.isLoading && <Progress mt="auto" size="xs" isIndeterminate />}
 			</Stack>
 		</Loader>
