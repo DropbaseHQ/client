@@ -19,7 +19,7 @@ import {
 	useTheme,
 } from '@chakra-ui/react';
 import { CheckCircleIcon, InfoIcon, SpinnerIcon, WarningIcon } from '@chakra-ui/icons';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 import { Info, RotateCw, UploadCloud } from 'react-feather';
 
@@ -86,7 +86,9 @@ const ALL_CELLS = [
 	SpinnerCell,
 ];
 
-export const SmartTable = ({ tableName, provider }: any) => {
+const TABLE_HEADER_HEIGHT = 40;
+
+export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 	const toast = useToast();
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
@@ -115,7 +117,8 @@ export const SmartTable = ({ tableName, provider }: any) => {
 
 	const tableColumnWidth = allTableColumnWidth?.[tableName];
 
-	const { properties } = useGetPage({ appName, pageName });
+	const { properties, tables } = useGetPage({ appName, pageName });
+	const totalTables = tables.length || 1;
 
 	const {
 		renderPopoverContent,
@@ -144,13 +147,9 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		table,
 	} = useGetTable(tableName || '');
 
-	// @yash-dropbase: ideally, this is inferred dynamically from the header
-	// @yash-dropbase: need somethig line calc((100vh - headerHeight - footerHeight) / heightMap[height] - tableHeaderHeigh)
-	const heightMap: any = {
-		'1/3': '30vh',
-		'1/2': '42vh',
-		full: '95vh',
-	};
+	const [tableBarHeight, setTableBarHeight] = useState<any>();
+	const tableBarRef: any = useRef();
+
 	const tableIsUnsynced = useTableSyncStatus(tableName);
 
 	const currentFetcher = table?.fetcher;
@@ -182,22 +181,6 @@ export const SmartTable = ({ tableName, provider }: any) => {
 	});
 	const [nonWidgetContext, setNonWidgetContext] = useAtom(nonWidgetContextAtom);
 	const currentTableContext = nonWidgetContext?.tables?.[tableName];
-
-	useEffect(() => {
-		if (currentTableContext && currentTableContext?.reload) {
-			refetch();
-			setNonWidgetContext((old: any) => ({
-				...old,
-				tables: {
-					...old.tables,
-					[tableName]: {
-						...old.tables[tableName],
-						reload: false,
-					},
-				},
-			}));
-		}
-	}, [currentTableContext, setNonWidgetContext, tableName, refetch]);
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
 	const cellEdits = allCellEdits?.[tableName] || [];
@@ -279,6 +262,28 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		},
 		[setTableColumnWidth, tableName],
 	);
+
+	useEffect(() => {
+		if (tableBarRef?.current) {
+			setTableBarHeight(tableBarRef?.current?.getBoundingClientRect()?.height);
+		}
+	}, []);
+
+	useEffect(() => {
+		if (currentTableContext && currentTableContext?.reload) {
+			refetch();
+			setNonWidgetContext((old: any) => ({
+				...old,
+				tables: {
+					...old.tables,
+					[tableName]: {
+						...old.tables[tableName],
+						reload: false,
+					},
+				},
+			}));
+		}
+	}, [currentTableContext, setNonWidgetContext, tableName, refetch]);
 
 	useEffect(() => {
 		const selectedIndex = rows.findIndex(
@@ -1089,11 +1094,41 @@ export const SmartTable = ({ tableName, provider }: any) => {
 		return false;
 	};
 
+	const getContainerHeight = () => {
+		switch (height) {
+			case '1/3': {
+				return containerHeight / 3;
+			}
+			case '1/2': {
+				return containerHeight / 2;
+			}
+			case 'full': {
+				return containerHeight;
+			}
+			default:
+				return containerHeight / Math.min(totalTables, 3);
+		}
+	};
+
+	/**
+	 * containerHeight is height of the canvas available for tables
+	 * TABLE_HEADER_HEIGHT * 2.5 includes Table Header, Pagination, spaces between and the status bar
+	 * tableBarHeight includes table bar including filters, messages
+	 */
+	const tableHeight = getContainerHeight() - TABLE_HEADER_HEIGHT * 2.5 - tableBarHeight;
+
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="0">
 				<NavLoader isLoading={isLoadingTable}>
-					<Stack alignItems="center" pb="3" direction="row" w="full" overflow="hidden">
+					<Stack
+						height={`${TABLE_HEADER_HEIGHT}px`}
+						alignItems="center"
+						pb="3"
+						direction="row"
+						w="full"
+						overflow="hidden"
+					>
 						<Stack spacing="0" px="2" flexShrink="0">
 							<LabelContainer>
 								<LabelContainer.Label>
@@ -1221,7 +1256,10 @@ export const SmartTable = ({ tableName, provider }: any) => {
 						</PopoverTrigger>
 						{renderPopoverContent()}
 					</Popover>
-					<TableBar />
+
+					<Box ref={tableBarRef}>
+						<TableBar />
+					</Box>
 
 					<Stack
 						// https://linear.app/dropbase/issue/DBA-561/cant-resize-table-columns-whole-table-moves
@@ -1234,7 +1272,7 @@ export const SmartTable = ({ tableName, provider }: any) => {
 							// When you set the data-rbd-drag-handle-context-id, RBD applies cursor: grab, so we need to revert that
 							cursor: 'auto',
 						}}
-						height={`calc(${height ? heightMap[height] : '42vh'} -  75px)`}
+						height={tableHeight}
 						borderWidth="1px"
 						onDoubleClick={() => {
 							if (!table?.smart && table?.type === 'sql') {

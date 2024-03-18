@@ -17,10 +17,17 @@ export const StackedTables = () => {
 	const { isPreview } = useAtomValue(appModeAtom);
 	const { tables, properties } = useGetPage({ appName, pageName });
 
+	const [containerHeight, setContainerHeight] = useState<number | null>(null);
 	const [tableState, setTableState] = useState(tables);
 
 	const reorderMutation = useReorderTables();
 	const updateMutation = useUpdatePageData();
+
+	useEffect(() => {
+		setContainerHeight(
+			document.getElementById('table-container')?.getBoundingClientRect()?.height || 1000,
+		);
+	}, [isPreview]);
 
 	const handleDragEnd = (result: any) => {
 		const { destination, source } = result;
@@ -64,6 +71,7 @@ export const StackedTables = () => {
 						py="2"
 						h="full"
 						overflow="auto"
+						id="table-container"
 						{...provided.droppableProps}
 					>
 						{tableState.map((table: any, index: number) => (
@@ -87,7 +95,13 @@ export const StackedTables = () => {
 											type="table"
 											id={table.name}
 										>
-											<SmartTable provider={p} tableName={table.name} />
+											{containerHeight ? (
+												<SmartTable
+													containerHeight={containerHeight}
+													provider={p}
+													tableName={table.name}
+												/>
+											) : null}
 										</InspectorContainer>
 									</Box>
 								)}
