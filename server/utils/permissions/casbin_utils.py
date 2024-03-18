@@ -166,6 +166,22 @@ def unload_policy_line(line, model):
         pass
 
 
+def high_level_enforce(
+    db: Session, enforcer: casbin.Enforcer, user_id, resource, action, workspace
+):
+    workspace_owner = crud.workspace.get_oldest_user(db, workspace.id)
+    can_use_granular_permissions = workspace.in_trial or workspace_owner.email.endswith(
+        "@dropbase.io"
+    )
+    if enforcer.enforce(str(user_id), "workspace", action):
+        return True
+    if can_use_granular_permissions:
+        if enforcer.enforce(str(user_id), resource, action):
+            return True
+    if enforcer.enforce(str(user_id), "app", action):
+        return True
+
+
 def get_all_action_permissions(
     db: Session, user_id: str, workspace_id: str, app_id: str = None
 ):

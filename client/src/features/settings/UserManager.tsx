@@ -280,7 +280,6 @@ export const Users = () => {
 					<Stack
 						direction="row"
 						borderRadius="sm"
-						px="2"
 						spacing="6"
 						flex="1"
 						overflow="auto"

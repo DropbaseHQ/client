@@ -5,7 +5,12 @@ from sqlalchemy.orm import Session
 from server.controllers.tables.convert import call_gpt, fill_smart_cols_data
 from server.utils.authorization import get_current_user
 from server.utils.authentication import verify_worker_token
-from server.schemas import CheckPermissionRequest, SyncStructureRequest, SyncAppRequest
+from server.schemas import (
+    CheckPermissionRequest,
+    SyncStructureRequest,
+    SyncAppRequest,
+    CheckAppsPermissionsRequest,
+)
 from server.controllers.user import user_controller
 from server.utils.connect import get_db
 from server.models import User, Workspace
@@ -49,6 +54,16 @@ def check_permission(
     workspace: Workspace = Depends(verify_worker_token),
 ):
     return user_controller.check_permissions(db, user, request, workspace)
+
+
+@router.post("/check_apps_permissions")
+def check_apps_permissions(
+    request: CheckAppsPermissionsRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+    workspace: Workspace = Depends(verify_worker_token),
+):
+    return user_controller.check_apps_permissions(db, user, request, workspace)
 
 
 @router.get("/worker_workspace")
@@ -183,3 +198,10 @@ def sync_app(
     )
 
     return {"status": "CREATED", "app_id": new_app.id}
+
+
+@router.get("/sync_demo")
+def sync_demo(
+    workspace: Workspace = Depends(verify_worker_token), db: Session = Depends(get_db)
+):
+    return user_controller.sync_demo(db, workspace)

@@ -4,3 +4,5 @@ from .token import router as token_router
 from .user import router as user_router
 from .workspace import router as workspace_router
 from .url_mapping import router as url_mapping_router
+from .app import router as app_router
+from .admin import router as admin_router
