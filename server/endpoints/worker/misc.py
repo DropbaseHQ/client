@@ -93,10 +93,3 @@ def sync_app(
     workspace: Workspace = Depends(verify_worker_token),
 ):
     return workspace_controller.sync_app(db=db, request=request, workspace=workspace)
-
-
-@router.get("/sync_demo")
-def sync_demo(
-    workspace: Workspace = Depends(verify_worker_token), db: Session = Depends(get_db)
-):
-    return user_controller.sync_demo(db, workspace)
