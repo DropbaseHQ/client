@@ -137,6 +137,7 @@ class SyncAppRequest(BaseModel):
     app_name: Optional[str] = None
     app_label: Optional[str] = None
     generate_new: bool = True
+    pages: Optional[list[PageObject]] = None
 
 
 class CheckAppsPermissionsRequest(BaseModel):

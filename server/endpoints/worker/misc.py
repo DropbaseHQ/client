@@ -12,6 +12,7 @@ from server.schemas import (
     CheckAppsPermissionsRequest,
 )
 from server.controllers.user import user_controller
+from server.controllers import workspace as workspace_controller
 from server.utils.connect import get_db
 from server.models import User, Workspace
 from server import crud
@@ -80,95 +81,9 @@ def sync_structure(
     db: Session = Depends(get_db),
     workspace: Workspace = Depends(verify_worker_token),
 ):
-    structure_report = {"apps_with_id": {}, "apps_without_id": []}
-
-    for app in request.apps:
-        target_app = crud.app.get(db, id=app.id)
-        if not target_app:
-            app_by_name = crud.app.get_app_by_name(
-                db=db, app_name=app.name, workspace_id=workspace.id
-            )
-            if not app_by_name:
-                structure_report["apps_without_id"].append(
-                    {
-                        "status": "NOT_FOUND",
-                        "message": f"App with id {app.id} not found. No app with name {app.name} found either.",
-                    }
-                )
-            else:
-                structure_report["apps_without_id"].append(
-                    {
-                        "status": "ID_NOT_FOUND_NAME_FOUND",
-                        "message": f"App with id {app.id} not found. App with name {app.name} found. Suggest resyncing.",
-                        "name": app.name,
-                    }
-                )
-            continue
-
-        if target_app.name != app.name:
-            crud.app.update_by_pk(db, pk=target_app.id, obj_in={"name": app.name})
-            structure_report["apps_with_id"][app.id] = {
-                "status": "UPDATED",
-                "message": f"App with id {app.id} updated in database",
-            }
-
-        if target_app.label != app.label:
-            crud.app.update_by_pk(db, pk=target_app.id, obj_in={"label": app.label})
-            structure_report["apps_with_id"][app.id] = {
-                "status": "UPDATED",
-                "message": f"App with id {app.id} updated in database",
-            }
-
-        if target_app.label == app.label and target_app.name == app.name:
-            structure_report["apps_with_id"][app.id] = {
-                "status": "SYNCED",
-                "message": f"App with id {app.id} is already synced. No changes made.",
-            }
-
-        if not app.pages:
-            continue
-        for page in app.pages:
-            target_page = crud.page.get(db, id=page.id)
-            if not target_page:
-                page_by_name = crud.page.get_page_by_name(
-                    db=db, name=page.name, app_id=app.id
-                )
-                if not page_by_name:
-                    structure_report["apps_with_id"][app.id][page.id] = {
-                        "status": "NOT_FOUND",
-                        "message": f"Page with id {page.id} not found. No page with name {page.name} found either.",
-                    }
-                else:
-                    structure_report["apps_with_id"][app.id][page.id] = {
-                        "status": "ID_NOT_FOUND_NAME_FOUND",
-                        "message": f"Page with id {page.id} not found. Page with name {page.name} found. Suggest resyncing.",
-                    }
-                continue
-
-            if target_page.name != page.name:
-                crud.page.update_by_pk(
-                    db, pk=target_page.id, obj_in={"name": page.name}
-                )
-                structure_report["apps_with_id"][app.id][page.id] = {
-                    "status": "UPDATED",
-                    "message": f"Page with id {page.id} updated in database",
-                }
-
-            if target_page.label != page.label:
-                crud.page.update_by_pk(
-                    db, pk=target_page.id, obj_in={"label": page.label}
-                )
-                structure_report["apps_with_id"][app.id][page.id] = {
-                    "status": "UPDATED",
-                    "message": f"Page with id {page.id} updated in database",
-                }
-
-            if target_page.label == page.label and target_page.name == page.name:
-                structure_report["apps_with_id"][app.id][page.id] = {
-                    "status": "SYNCED",
-                    "message": f"Page with id {page.id} is already synced. No changes made.",
-                }
-    return structure_report
+    return workspace_controller.sync_structure(
+        db=db, request=request, workspace=workspace
+    )
 
 
 @router.post("/sync/app")
@@ -177,27 +92,7 @@ def sync_app(
     db: Session = Depends(get_db),
     workspace: Workspace = Depends(verify_worker_token),
 ):
-    if not request.generate_new and request.app_name is not None:
-        app = crud.app.get_app_by_name(db, request.app_name, workspace.id)
-        if not app:
-            return HTTPException(
-                status_code=404,
-                detail=f"App with name {request.app_name} not found in workspace",
-            )
-        return {"status": "FOUND", "app_id": app.id}
-    if request.app_name is None:
-        return HTTPException(status_code=400, detail="App name not provided")
-
-    new_app = crud.app.create(
-        db=db,
-        obj_in={
-            "name": request.app_name,
-            "label": request.app_label,
-            "workspace_id": workspace.id,
-        },
-    )
-
-    return {"status": "CREATED", "app_id": new_app.id}
+    return workspace_controller.sync_app(db=db, request=request, workspace=workspace)
 
 
 @router.get("/sync_demo")
