@@ -156,7 +156,7 @@ export const Setup = () => {
 
 					<CodeSnippet
 						file=".env"
-						code={`DROPBASE_TOKEN='${firstToken?.token}'\nDROPBASE_API_URL='https://api.dropbase.io'\n${
+						code={`DROPBASE_TOKEN='${firstToken?.token}'\nDROPBASE_API_URL='https://api.dropbase.io'\nSOURCE_SQLITE_DEMO_HOST="files/demo.db"\n${
 							SOURCES_SNIPPET[source] || ''
 						}`}
 					/>
