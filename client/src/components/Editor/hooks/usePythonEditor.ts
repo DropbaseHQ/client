@@ -39,11 +39,11 @@ const createLanguageClient = (transports: MessageTransports): MonacoLanguageClie
 	});
 };
 
-const createLSPWebSocket = (url: string, onOpen: () => void, onClose: () => void) => {
+const createLSPWebSocket = (config: { url: string; onOpen: () => void; onClose: () => void }) => {
 	const connectWebSocket = () => {
-		const webSocket = new WebSocket(url);
+		const webSocket = new WebSocket(config.url);
 		webSocket.onopen = () => {
-			onOpen();
+			config.onOpen();
 
 			const socket = toSocket(webSocket);
 			const reader = new WebSocketMessageReader(socket);
@@ -60,21 +60,19 @@ const createLSPWebSocket = (url: string, onOpen: () => void, onClose: () => void
 		};
 
 		webSocket.onclose = () => {
-			onClose();
-			setTimeout(() => {
-				connectWebSocket();
-			}, RECONNECT_DELAY);
+			config.onClose();
+			setTimeout(connectWebSocket, RECONNECT_DELAY);
 		};
 	};
 
 	connectWebSocket();
 };
 
-export const initializeLanguageServices = async (
-	url: string,
-	onOpen: () => void,
-	onClose: () => void,
-) => {
+export const initializeLanguageServices = async (config: {
+	url: string;
+	onOpen: () => void;
+	onClose: () => void;
+}) => {
 	await initServices({
 		// Use our own themes
 		enableThemeService: false,
@@ -99,7 +97,7 @@ export const initializeLanguageServices = async (
 	monaco.languages.setLanguageConfiguration(languageId, conf);
 	monaco.languages.setMonarchTokensProvider(languageId, language);
 
-	createLSPWebSocket(url, onOpen, onClose);
+	createLSPWebSocket(config);
 };
 
 const createPythonEditor = async (config: { htmlElement: HTMLElement; filepath: string }) => {

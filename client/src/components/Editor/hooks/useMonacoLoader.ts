@@ -15,7 +15,11 @@ export const useMonacoLoader = () => {
 		(async () => {
 			setReady(false);
 			try {
-				await initializeLanguageServices(lspURL, setLspStatusTrue, setLspStatusFalse);
+				await initializeLanguageServices({
+					url: lspURL,
+					onOpen: setLspStatusTrue,
+					onClose: setLspStatusFalse,
+				});
 			} catch (e) {
 				// TODO: add error handling
 			} finally {
