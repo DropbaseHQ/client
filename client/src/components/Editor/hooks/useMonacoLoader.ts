@@ -15,10 +15,7 @@ export const useMonacoLoader = () => {
 		(async () => {
 			setReady(false);
 			try {
-				const ws = await initializeLanguageServices(lspURL);
-				ws.addEventListener('open', setLspStatusTrue);
-				ws.addEventListener('close', setLspStatusFalse);
-				ws.addEventListener('error', setLspStatusFalse);
+				await initializeLanguageServices(lspURL, setLspStatusTrue, setLspStatusFalse);
 			} catch (e) {
 				// TODO: add error handling
 			} finally {
