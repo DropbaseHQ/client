@@ -61,6 +61,8 @@ export const StatusBar = () => {
 				{websocketIsConnected ? 'WS connected' : 'WS not connected'}
 			</Text>
 
+			<Divider orientation="vertical" />
+
 			{/* don't show status if null */}
 			{typeof lspIsConnected === 'boolean' && (
 				<>

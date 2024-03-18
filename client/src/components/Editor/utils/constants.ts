@@ -28,3 +28,6 @@ export const databaseSchema = {
 	},
 	metadata: {},
 };
+
+// delay before attempting to reconnect to disconnected LSP websocket
+export const RECONNECT_DELAY = 5000; // ms
