@@ -29,6 +29,8 @@ import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { LabelContainer } from '@/components/LabelContainer';
 
+const TEMPLATE_REGEX = /\{\{(.+?)\}\}/;
+
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
@@ -65,6 +67,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const options = watch('options');
 	const defaultValue = watch('default');
 	const multiline = watch('multiline');
+
+	const hasStateInDefault = watch('stateInDefault');
 
 	useEffect(() => {
 		if (multiple) {
@@ -113,13 +117,16 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	});
 
 	useEffect(() => {
-		reset(component, {
-			keepDirty: false,
-			keepDirtyValues: false,
-		});
+		reset(
+			{ ...component, stateInDefault: TEMPLATE_REGEX.test(component.default) },
+			{
+				keepDirty: false,
+				keepDirtyValues: false,
+			},
+		);
 	}, [component, reset]);
 
-	const onSubmit = (formValues: any) => {
+	const onSubmit = ({ stateInDefault, ...formValues }: any) => {
 		updateMutation.mutate({
 			app_name: appName,
 			page_name: pageName,
@@ -303,13 +310,39 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												}
 
 												return (
-													<FormInput
-														{...property}
-														id={property.name}
-														name={property.title}
-														type={inputType}
-														options={options}
-													/>
+													<Stack>
+														<FormInput
+															{...property}
+															id={property.name}
+															name={property.title}
+															type={
+																hasStateInDefault
+																	? 'template'
+																	: inputType
+															}
+															options={options}
+															validation={
+																hasStateInDefault
+																	? {
+																			pattern: {
+																				value: TEMPLATE_REGEX,
+																				message:
+																					'Invalid state value, please make sure you use template like {{state.tables.table1.id}}',
+																			},
+																	  }
+																	: {}
+															}
+														/>
+														<FormInput
+															id="stateInDefault"
+															name="Use state in default value"
+															type="boolean"
+															onChange={(value: any) => {
+																setValue('default', null);
+																setValue('stateInDefault', value);
+															}}
+														/>
+													</Stack>
 												);
 											}
 
