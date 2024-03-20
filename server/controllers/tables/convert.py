@@ -44,8 +44,8 @@ def fill_smart_cols_data(
                 column = col_path["column_name"]
                 if "schema_name" in col_path:
                     schema = col_path["schema_name"]
-                    col_schema_data = db_schema[schema][table][column] # this part schema does not exist
-                elif "database_name" in col_path:
+                    col_schema_data = db_schema[schema][table][column]
+                elif "database_name" in col_path: # Mysql and Sqlite don't have a schema, instead we take its database
                     database = col_path["database_name"]
                     table = col_path["table_name"]
                     col_schema_data = db_schema[database][table][column]
