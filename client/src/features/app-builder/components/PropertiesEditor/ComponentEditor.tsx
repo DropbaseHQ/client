@@ -59,6 +59,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		reset,
 		watch,
 		setValue,
+		clearErrors,
+		setError,
 	} = methods;
 
 	const dataType = watch('data_type');
@@ -127,6 +129,13 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	}, [component, reset]);
 
 	const onSubmit = ({ stateInDefault, ...formValues }: any) => {
+		if (stateInDefault && !TEMPLATE_REGEX.test(formValues.default)) {
+			setError('default', {
+				message: `Invalid state value, please make sure you use template like {{state.tables.table1.id}}`,
+			});
+			return;
+		}
+
 		updateMutation.mutate({
 			app_name: appName,
 			page_name: pageName,
@@ -321,25 +330,15 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 																	: inputType
 															}
 															options={options}
-															validation={
-																hasStateInDefault
-																	? {
-																			pattern: {
-																				value: TEMPLATE_REGEX,
-																				message:
-																					'Invalid state value, please make sure you use template like {{state.tables.table1.id}}',
-																			},
-																	  }
-																	: {}
-															}
 														/>
 														<FormInput
 															id="stateInDefault"
 															name="Use state in default value"
 															type="boolean"
 															onChange={(value: any) => {
-																setValue('default', null);
 																setValue('stateInDefault', value);
+																setValue('default', null);
+																clearErrors('default');
 															}}
 														/>
 													</Stack>
