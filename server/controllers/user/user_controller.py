@@ -6,8 +6,12 @@ from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 from uuid import UUID
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+from server.utils.connect import try_engine
 from server.controllers.user.github_social_controller import GithubController
-
+from server.controllers.policy import (
+    PolicyUpdater,
+    format_permissions_for_highest_action,
+)
 from fastapi import HTTPException, Response, status, Request
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
@@ -22,7 +26,9 @@ from server.controllers.policy import (
     PolicyUpdater,
     format_permissions_for_highest_action,
 )
+
 from server.controllers.user.workspace_creator import WorkspaceCreator
+from server.controllers import workspace as workspace_controller
 from server.emails.emailer import send_email
 from server.models import Policy, User, Workspace
 from server.schemas.user import (
@@ -39,6 +45,7 @@ from server.schemas.user import (
     ReadUser,
     ResetPasswordRequest,
     UpdateUserPolicyRequest,
+    CreateTestUserRequest,
 )
 from server.schemas.workspace import ReadWorkspace
 from server.utils.authentication import (
@@ -631,6 +638,7 @@ def check_permissions(
     permissions_dict = get_all_action_permissions(
         db, str(user.id), workspace_id, app_id
     )
+    print("permissions_dict", permissions_dict)
     return permissions_dict
 
 
@@ -638,7 +646,6 @@ def check_apps_permissions(
     db: Session, user: User, request: CheckAppsPermissionsRequest, workspace: Workspace
 ):
     # Checks that a user has permissions to see and use and app
-    print("workspace id", workspace.id)
     app_ids = request.app_ids
     permissions = {}
     enforcer = get_contexted_enforcer(db, workspace_id=workspace.id)
@@ -652,6 +659,8 @@ def check_apps_permissions(
             action="use",
             workspace=workspace,
         )
+
+    print("permissions", permissions)
 
     return permissions
 
@@ -704,3 +713,74 @@ def github_auth(db: Session, Authorize: AuthJWT, code: str):
         "refresh_token": refresh_token,
         "onboarding": not user.onboarded,
     }
+
+
+def create_test_user(db: Session, request: CreateTestUserRequest):
+    try:
+        hashed_password = get_password_hash(request.password)
+        user_obj = CreateUser(
+            name=request.name,
+            last_name=request.last_name,
+            company=request.company,
+            email=request.email,
+            hashed_password=hashed_password,
+            trial_eligible=True,
+            active=True,
+            onboarded=False,
+        )
+        user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
+        db.flush()
+
+        # Invite user to workspace as Member
+
+        # crud.user_role.create(
+        #     db=db,
+        #     obj_in={
+        #         "user_id": user.id,
+        #         "workspace_id": request.workspace_id,
+        #         "role_id": "00000000-0000-0000-0000-000000000004",
+        #     },
+        #     auto_commit=False,
+        # )
+        workspace_controller.add_user_to_workspace(
+            db=db,
+            workspace_id=request.workspace_id,
+            user_email=request.email,
+            role_id="00000000-0000-0000-0000-000000000004",
+        )
+
+        # Create an app
+        app = crud.app.create(
+            db,
+            obj_in={
+                "name": f"{request.name}-test-app",
+                "workspace_id": request.workspace_id,
+            },
+            auto_commit=False,
+        )
+        db.flush()
+
+        # Give permission to app
+        policy_updater = PolicyUpdater(
+            db=db,
+            subject_id=user.id,
+            workspace_id=request.workspace_id,
+            request=UpdateUserPolicyRequest(
+                resource=str(app.id), action="edit", workspace_id=request.workspace_id
+            ),
+        )
+        policy_updater.update_policy()
+
+        response = {
+            "user_id": user.id,
+            "email": user.email,
+            "password": request.password,
+            "app_id": app.id,
+            "permission": "edit",
+        }
+
+        return response
+    except Exception as e:
+        print("e", e)
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Internal server error")

@@ -142,3 +142,12 @@ class SyncAppRequest(BaseModel):
 
 class CheckAppsPermissionsRequest(BaseModel):
     app_ids: list
+
+
+class CreateTestUserRequest(BaseModel):
+    name: str
+    last_name: str
+    company: str
+    email: str
+    password: str
+    workspace_id: str
