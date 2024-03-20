@@ -124,7 +124,10 @@ const convertToSmartTable = async ({ table, state, appName, pageName }: any) => 
 		page_name: pageName,
 	});
 
-	return response.data;
+	if (response.data?.job_id) {
+		const jobResponse = await fetchJobStatus(response.data.job_id);
+		return jobResponse;
+	}
 };
 
 export const CONVERT_MUTATION = 'convertMutation';
