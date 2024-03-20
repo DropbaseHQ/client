@@ -151,3 +151,9 @@ class CreateTestUserRequest(BaseModel):
     email: str
     password: str
     workspace_id: str
+
+
+class CreateTestDBTableRequest(BaseModel):
+    name: str
+    last_name: str
+    password: str

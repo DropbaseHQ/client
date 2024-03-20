@@ -15,7 +15,7 @@ from server.controllers.policy import (
 from fastapi import HTTPException, Response, status, Request
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
-
+from sqlalchemy.exc import SQLAlchemyError
 from server import crud
 from server.constants import (
     ACCESS_TOKEN_EXPIRE_SECONDS,
@@ -46,6 +46,7 @@ from server.schemas.user import (
     ResetPasswordRequest,
     UpdateUserPolicyRequest,
     CreateTestUserRequest,
+    CreateTestDBTableRequest,
 )
 from server.schemas.workspace import ReadWorkspace
 from server.utils.authentication import (
@@ -733,15 +734,6 @@ def create_test_user(db: Session, request: CreateTestUserRequest):
 
         # Invite user to workspace as Member
 
-        # crud.user_role.create(
-        #     db=db,
-        #     obj_in={
-        #         "user_id": user.id,
-        #         "workspace_id": request.workspace_id,
-        #         "role_id": "00000000-0000-0000-0000-000000000004",
-        #     },
-        #     auto_commit=False,
-        # )
         workspace_controller.add_user_to_workspace(
             db=db,
             workspace_id=request.workspace_id,
@@ -749,33 +741,10 @@ def create_test_user(db: Session, request: CreateTestUserRequest):
             role_id="00000000-0000-0000-0000-000000000004",
         )
 
-        # Create an app
-        app = crud.app.create(
-            db,
-            obj_in={
-                "name": f"{request.name}-test-app",
-                "workspace_id": request.workspace_id,
-            },
-            auto_commit=False,
-        )
-        db.flush()
-
-        # Give permission to app
-        policy_updater = PolicyUpdater(
-            db=db,
-            subject_id=user.id,
-            workspace_id=request.workspace_id,
-            request=UpdateUserPolicyRequest(
-                resource=str(app.id), action="edit", workspace_id=request.workspace_id
-            ),
-        )
-        policy_updater.update_policy()
-
         response = {
             "user_id": user.id,
             "email": user.email,
             "password": request.password,
-            "app_id": app.id,
             "permission": "edit",
         }
 
@@ -784,3 +753,36 @@ def create_test_user(db: Session, request: CreateTestUserRequest):
         print("e", e)
         db.rollback()
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+def create_test_db_table(db: Session, request: CreateTestDBTableRequest):
+
+    db_user_name = f"{request.name}_{request.last_name}_test_user"
+    db_table_name = f"{request.name}_{request.last_name}_demo"
+    try:
+        with try_engine.connect() as connection:
+            connection.execute(
+                f"CREATE ROLE {db_user_name} LOGIN PASSWORD %s", (request.password,)
+            )
+
+            connection.execute(
+                f"REVOKE ALL PRIVILEGES ON DATABASE try_dropbase FROM {db_user_name}"
+            )
+
+            connection.execute(
+                f"""
+                CREATE TABLE {db_table_name} (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(50) NOT NULL,
+                    age INT NOT NULL
+                )
+                """
+            )
+
+            connection.execute(
+                f"GRANT SELECT, UPDATE ON {db_table_name} TO {db_user_name}"
+            )
+
+    except SQLAlchemyError as e:
+        # Handle exceptions here
+        print("An error occurred:", e)
