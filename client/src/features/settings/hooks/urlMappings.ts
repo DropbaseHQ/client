@@ -18,7 +18,7 @@ const fetchURLMappings = async ({ workspaceId }: { workspaceId: string }) => {
 };
 
 export const useURLMappings = () => {
-	const workspaceId = useAtomValue(workspaceAtom).id;
+	const workspaceId = useAtomValue(workspaceAtom)?.id;
 	const queryKey = ['urlMappings', workspaceId];
 	const { data, ...rest } = useQuery(
 		queryKey,

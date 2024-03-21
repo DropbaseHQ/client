@@ -92,6 +92,13 @@ export const useWorkspaces = () => {
 	const data: any = useMemo(() => {
 		return response || [];
 	}, [response]);
+	if (data?.length === 0 && !loginRoutes) {
+		return {
+			...rest,
+			queryKey,
+			workspaces: [],
+		};
+	}
 
 	return {
 		...rest,
@@ -111,6 +118,22 @@ const updateWorkspaceWorkerURL = async ({ workspaceId, workerURL }: any) => {
 export const useUpdateWorkspaceWorkerURL = () => {
 	const queryClient = useQueryClient();
 	return useMutation(updateWorkspaceWorkerURL, {
+		onSuccess: () => {
+			queryClient.refetchQueries(WORKSPACE_QUERY);
+		},
+	});
+};
+
+const createWorkspace = async ({ name = null }: { name?: string | null }) => {
+	const payload = name ? { name } : {};
+	const response = await axios.post<Workspace>(`/workspace`, payload);
+
+	return response.data;
+};
+
+export const useCreateWorkspace = () => {
+	const queryClient = useQueryClient();
+	return useMutation(createWorkspace, {
 		onSuccess: () => {
 			queryClient.refetchQueries(WORKSPACE_QUERY);
 		},
