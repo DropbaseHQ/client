@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from server import crud
 from server.models import Policy, Token
 from server.schemas.user_role import CreateUserRole
-from server.schemas.workspace import CreateWorkspace
+from server.schemas.workspace import CreateWorkspaceRequest
 
 
 class WorkspaceCreator:
@@ -16,8 +16,10 @@ class WorkspaceCreator:
         self.db = db
         self.user_id = str(user_id)
 
-    def _create_workspace(self, workspace_name: str = "workspace1"):
-        workspace_obj = CreateWorkspace(
+    def _create_workspace(self, workspace_name: str):
+        if not workspace_name:
+            workspace_name = "workspace1"
+        workspace_obj = CreateWorkspaceRequest(
             name=workspace_name,
             active=True,
         )
@@ -114,7 +116,7 @@ class WorkspaceCreator:
 
     def create(self, workspace_name: str = None, auto_commit: bool = False):
         try:
-            workspace = self._create_workspace()
+            workspace = self._create_workspace(workspace_name=workspace_name)
             admin_role = self._create_user_role()
             self._create_default_user_policies(admin_role_id=admin_role.role_id)
             self._create_token()

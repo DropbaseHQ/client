@@ -50,3 +50,7 @@ class UpdateWorkspaceToken(BaseModel):
 class RequestCloud(BaseModel):
     user_number: int
     worker_url: str
+
+
+class CreateWorkspaceRequest(BaseModel):
+    name: Optional[str]
