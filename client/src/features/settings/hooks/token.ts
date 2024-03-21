@@ -67,7 +67,8 @@ export const useCreateProxyToken = (props: any = {}) => {
 };
 
 export const useSyncProxyToken = () => {
-	const { id: workspaceId } = useAtomValue(workspaceAtom);
+	const selectedWorkspace = useAtomValue(workspaceAtom);
+	const workspaceId = selectedWorkspace?.id;
 	const { user, isLoading: isLoadingUser } = useGetCurrentUser();
 
 	const [token, setToken] = useAtom(proxyTokenAtom);
