@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Save, Trash } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
@@ -73,6 +73,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const multiline = watch('multiline');
 	const fetcher = watch('fetcher');
 	const useFetcher = watch('use_fetcher');
+	const nameColumn = watch('name_column');
+	const valueColumn = watch('value_column');
 
 	const fetcherData = useFetcherData({
 		fetcher,
@@ -97,6 +99,30 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 			});
 		}
 	}, [setValue, defaultValue, multiple]);
+
+	const [optionsFromFetcher, setOptionsFromFetcher] = useState([]);
+
+	useEffect(() => {
+		if (componentType === 'select' && useFetcher) {
+			setOptionsFromFetcher(
+				fetcherData?.rows?.map((row: any, i: number) => ({
+					id: i,
+					name: String(row?.[nameColumn]),
+					value: String(row?.[valueColumn]),
+				})),
+			);
+		} else if (componentType === 'select') {
+			setOptionsFromFetcher(options);
+		}
+	}, [
+		fetcherData?.rows,
+		componentType,
+		component?.options,
+		nameColumn,
+		valueColumn,
+		useFetcher,
+		options,
+	]);
 
 	const updateMutation = useUpdatePageData({
 		onSuccess: () => {
@@ -326,7 +352,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 														id={property.name}
 														name={property.title}
 														type={inputType}
-														options={options}
+														options={optionsFromFetcher}
 													/>
 												);
 											}
