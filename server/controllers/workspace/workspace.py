@@ -2,6 +2,7 @@ from uuid import UUID
 from fastapi import HTTPException
 from botocore.exceptions import ClientError
 from sqlalchemy.orm import Session
+from server.controllers.user.workspace_creator import WorkspaceCreator
 
 from server import crud
 from server.emails.emailer import send_email
@@ -12,6 +13,7 @@ from server.schemas import (
     UpdateWorkspaceToken,
     SyncStructureRequest,
     SyncAppRequest,
+    CreateWorkspaceRequest,
 )
 
 
@@ -308,3 +310,12 @@ def sync_app(db: Session, request: SyncAppRequest, workspace: Workspace):
         )
 
     return {"status": "CREATED", "app_id": new_app.id, "pages": pages_info}
+
+
+def create_workspace(db: Session, request: CreateWorkspaceRequest, user: User):
+    workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
+    workspace_creator.create(workspace_name=request.name)
+
+    db.commit()
+
+    return {"message": "Workspace created"}

@@ -7,7 +7,7 @@ from server import crud
 from server.controllers import workspace as workspace_controller
 from server.schemas.workspace import (
     AddUserRequest,
-    CreateWorkspace,
+    CreateWorkspaceRequest,
     RemoveUserRequest,
     RequestCloud,
     UpdateUserRoleRequest,
@@ -74,11 +74,12 @@ def update_workspace_token(
 
 
 @router.post("/")
-def create_workspace(request: CreateWorkspace, db: Session = Depends(get_db)):
-    raise HTTPException(
-        status_code=501, detail="Endpoint POST /workspace is not implemented"
-    )
-    return crud.workspace.create(db, obj_in=request)
+def create_workspace(
+    request: CreateWorkspaceRequest,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    return workspace_controller.create_workspace(db, request, user)
 
 
 @router.put("/{workspace_id}")

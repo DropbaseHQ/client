@@ -258,8 +258,6 @@ def register_user(db: Session, request: CreateUserRequest):
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
-        workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
-        workspace_creator.create()
 
         confirmation_link = (
             f"{CLIENT_URL}/email-confirmation/{confirmation_token}/{user.id}"
@@ -327,8 +325,6 @@ def register_google_user(
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
-        workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
-        workspace_creator.create()
 
         db.commit()
 
@@ -685,8 +681,6 @@ def github_auth(db: Session, Authorize: AuthJWT, code: str):
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
-        workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
-        workspace_creator.create()
         slack_sign_up(name=user.name, email=user.email)
         db.commit()
     if user.social_login != "github":

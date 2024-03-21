@@ -6,10 +6,14 @@ import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
 import { isProductionApp } from '../utils';
 import { WorkspaceSwitcher } from '@/features/app/components/WorkspaceSwitcher';
+import { useWorkspaces } from '@/features/workspaces';
 
 export const Navbar = () => {
 	const { pathname } = useLocation();
 	const { mutate: logout } = useLogout();
+	const { workspaces } = useWorkspaces();
+
+	const hasWorkspaces = workspaces.length > 0;
 
 	const handleLogout = () => {
 		logout();
@@ -20,20 +24,22 @@ export const Navbar = () => {
 			<Stack alignItems="center" h="full">
 				<Box mb="8" w="12" as={Link} to="/apps" display="flex" flexDirection="column">
 					<DropbaseLogo />
-					<WorkspaceSwitcher
-						trigger={
-							<IconButton
-								size="sm"
-								variant="ghost"
-								color="body"
-								aria-label="Workspace Switcher"
-								icon={<Repeat size="14" />}
-							/>
-						}
-					/>
+					{hasWorkspaces && (
+						<WorkspaceSwitcher
+							trigger={
+								<IconButton
+									size="sm"
+									variant="ghost"
+									color="body"
+									aria-label="Workspace Switcher"
+									icon={<Repeat size="14" />}
+								/>
+							}
+						/>
+					)}
 				</Box>
 
-				{isProductionApp() ? null : (
+				{isProductionApp() || !hasWorkspaces ? null : (
 					<Tooltip label="Apps" placement="right">
 						<IconButton
 							variant="ghost"
@@ -47,17 +53,19 @@ export const Navbar = () => {
 					</Tooltip>
 				)}
 				<Stack mt="auto" alignItems="center">
-					<Tooltip label="Developer settings" placement="right">
-						<IconButton
-							variant="ghost"
-							as={Link}
-							to="/settings/developer"
-							color={pathname === '/settings/developer' ? 'blue.500' : 'body'}
-							colorScheme={pathname === '/settings/developer' ? 'blue' : 'gray'}
-							aria-label="developer settings"
-							icon={<Settings size="22" />}
-						/>
-					</Tooltip>
+					{hasWorkspaces && (
+						<Tooltip label="Developer settings" placement="right">
+							<IconButton
+								variant="ghost"
+								as={Link}
+								to="/settings/developer"
+								color={pathname === '/settings/developer' ? 'blue.500' : 'body'}
+								colorScheme={pathname === '/settings/developer' ? 'blue' : 'gray'}
+								aria-label="developer settings"
+								icon={<Settings size="22" />}
+							/>
+						</Tooltip>
+					)}
 					<Tooltip label="Logout" placement="right">
 						<IconButton
 							variant="ghost"
