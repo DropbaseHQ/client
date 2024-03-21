@@ -9,7 +9,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { extractTemplateString, getErrorMessage } from '@/utils';
 
 import { useExecuteAction } from '@/features/app-preview/hooks';
@@ -51,9 +51,12 @@ export const AppComponent = (props: any) => {
 
 	const pageState = useAtomValue(newPageStateAtom);
 	const allWidgetComponents = useAtomValue(widgetComponentsAtom) as any;
-	const widgetComponents = allWidgetComponents[widgetName || '']?.components || {};
+	const widgetComponents = useMemo(
+		() => allWidgetComponents[widgetName || '']?.components || {},
+		[allWidgetComponents, widgetName],
+	);
 
-	const inputState = widgetComponents?.[name] || {};
+	const inputState = useMemo(() => widgetComponents?.[name] || {}, [widgetComponents, name]);
 
 	const fetcher = component?.fetcher;
 
@@ -63,17 +66,31 @@ export const AppComponent = (props: any) => {
 		pageName,
 	});
 
-	let options = [];
+	const [options, setOptions] = useState([]);
 
-	if (componentType === 'select' && component?.use_fetcher) {
-		const { name_column: nameColumn, value_column: valueColumn } = component;
-		options = fetcherData?.rows?.map((row: any) => ({
-			name: row?.[nameColumn],
-			value: row?.[valueColumn],
-		}));
-	} else {
-		options = inputState.options || component.options;
-	}
+	useEffect(() => {
+		if (componentType === 'select' && component?.use_fetcher) {
+			const nameColumn = component?.name_column;
+			const valueColumn = component?.value_column;
+			setOptions(
+				fetcherData?.rows?.map((row: any, i: number) => ({
+					id: i,
+					name: String(row?.[nameColumn]),
+					value: String(row?.[valueColumn]),
+				})),
+			);
+		} else if (componentType === 'select') {
+			setOptions(inputState.options || component?.options);
+		}
+	}, [
+		fetcherData?.rows,
+		inputState,
+		componentType,
+		component?.options,
+		component?.name_column,
+		component?.value_column,
+		component?.use_fetcher,
+	]);
 
 	const [inputValues, setInputValues]: any = useAtom(allWidgetsInputAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
