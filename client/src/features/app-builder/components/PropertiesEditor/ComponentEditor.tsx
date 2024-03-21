@@ -31,6 +31,8 @@ import { LabelContainer } from '@/components/LabelContainer';
 import { SelectDataFetcher } from '../SelectDataFetcher';
 import { useFetcherData } from '@/features/smart-table/hooks/useFetcherData';
 
+const TEMPLATE_REGEX = /\{\{(.+?)\}\}/;
+
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
@@ -63,6 +65,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		reset,
 		watch,
 		setValue,
+		clearErrors,
+		setError,
 	} = methods;
 
 	const dataType = watch('data_type');
@@ -85,6 +89,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const selectColumnsLoading = fetcherData?.status === 'loading';
 
 	const columns = fetcherData?.header.map((c: any) => c?.name);
+
+	const hasStateInDefault = watch('stateInDefault');
 
 	useEffect(() => {
 		if (multiple) {
@@ -157,13 +163,23 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	});
 
 	useEffect(() => {
-		reset(component, {
-			keepDirty: false,
-			keepDirtyValues: false,
-		});
+		reset(
+			{ ...component, stateInDefault: TEMPLATE_REGEX.test(component?.default) },
+			{
+				keepDirty: false,
+				keepDirtyValues: false,
+			},
+		);
 	}, [component, reset]);
 
-	const onSubmit = (formValues: any) => {
+	const onSubmit = ({ stateInDefault, ...formValues }: any) => {
+		if (stateInDefault && !TEMPLATE_REGEX.test(formValues.default)) {
+			setError('default', {
+				message: `Invalid state value, please make sure you use template like {{state.tables.table1.id}}`,
+			});
+			return;
+		}
+
 		updateMutation.mutate({
 			app_name: appName,
 			page_name: pageName,
@@ -347,13 +363,29 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												}
 
 												return (
-													<FormInput
-														{...property}
-														id={property.name}
-														name={property.title}
-														type={inputType}
-														options={optionsFromFetcher}
-													/>
+													<Stack>
+														<FormInput
+															{...property}
+															id={property.name}
+															name={property.title}
+															type={
+																hasStateInDefault
+																	? 'template'
+																	: inputType
+															}
+															options={optionsFromFetcher}
+														/>
+														<FormInput
+															id="stateInDefault"
+															name="Use state in default value"
+															type="boolean"
+															onChange={(value: any) => {
+																setValue('stateInDefault', value);
+																setValue('default', null);
+																clearErrors('default');
+															}}
+														/>
+													</Stack>
 												);
 											}
 
