@@ -53,19 +53,12 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		if (
-			!isLoading &&
-			workspaces.length === 0 &&
-			!loginRoutes &&
-			!pathname.includes('/welcome')
-		) {
-			console.log("navigating to '/welcome'");
-			navigate('/welcome');
+		if (!isLoading && workspaces.length === 0 && !loginRoutes && !pathname.includes('/intro')) {
+			navigate('/intro');
 		}
 	});
 
 	if (isLoading) {
-		console.log('loading');
 		return (
 			<DashboardLayout>
 				<Center as={Stack} spacing="6" w="full" h="full">
@@ -105,7 +98,7 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 					}
 				>
 					<Route index element={<Navigate to={homeRoute} />} />
-					<Route path="welcome" element={<Intro />} />
+					<Route path="intro" element={<Intro />} />
 					<Route path="login" element={<Login />} />
 					<Route path="register" element={<Register />} />
 					<Route path="forgot" element={<RequestResetLink />} />
