@@ -492,10 +492,11 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 
 		if (type === 'select') {
 			otherProperty = {
+				type: 'select',
+				label: newLabel,
 				use_fetcher: false,
-				name_column: 'a',
-				value_column: 'a',
-				fetcher: 'test',
+				name_column: '',
+				value_column: '',
 			};
 		}
 
