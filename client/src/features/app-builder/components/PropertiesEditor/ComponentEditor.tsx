@@ -120,7 +120,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 	useEffect(() => {
 		reset(
-			{ ...component, stateInDefault: TEMPLATE_REGEX.test(component.default) },
+			{ ...component, stateInDefault: TEMPLATE_REGEX.test(component?.default) },
 			{
 				keepDirty: false,
 				keepDirtyValues: false,
