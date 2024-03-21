@@ -45,10 +45,6 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 	const { fields } = useResourceFields();
 
-	// const fetcher = properties?.widgets
-	// 	?.find((w: any) => w.name === widgetName)
-	// 	?.components?.find((c: any) => c.name === component?.name)?.fetcher;
-
 	const currentCategories = [
 		...new Set(
 			fields?.[component?.component_type]
@@ -79,6 +75,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const useFetcher = watch('use_fetcher');
 	const nameColumn = watch('name_column');
 	const valueColumn = watch('value_column');
+	const hasStateInDefault = watch('stateInDefault');
 
 	const fetcherData = useFetcherData({
 		fetcher,
@@ -87,10 +84,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	});
 
 	const selectColumnsLoading = fetcherData?.status === 'loading';
-
 	const columns = fetcherData?.header.map((c: any) => c?.name);
-
-	const hasStateInDefault = watch('stateInDefault');
 
 	useEffect(() => {
 		if (multiple) {
@@ -459,7 +453,6 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 											if (property.name === 'options') {
 												if (useFetcher) return null;
-												// console.log(property);
 												return (
 													<FormInput
 														{...property}

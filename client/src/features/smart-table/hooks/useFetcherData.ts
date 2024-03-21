@@ -21,7 +21,7 @@ const fetchFunctionData = async ({ fetcher, appName, pageName, state }: any) => 
 		return jobResponse;
 	}
 
-	throw new Error('Failed to fetch table data');
+	throw new Error('Failed to retrieve fetcher data');
 };
 
 export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
@@ -43,12 +43,6 @@ export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
 		{
 			enabled: true,
 			staleTime: Infinity,
-			onError: () => {
-				/**
-				 * Reset selected row of the current table, and all the tables
-				 * which depends on the current table.
-				 */
-			},
 		},
 	);
 

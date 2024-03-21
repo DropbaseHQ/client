@@ -64,7 +64,6 @@ export const TableProperties = () => {
 	} = methods;
 
 	const fetchers = files.filter((f: any) => f.type === 'sql' || f.type === 'data_fetcher');
-	//
 	const functions = files.filter((f: any) => f.type === 'ui')?.map((f: any) => f?.name);
 
 	const selectedFetcher = watch('fetcher');
