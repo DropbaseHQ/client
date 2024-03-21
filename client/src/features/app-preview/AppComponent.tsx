@@ -24,6 +24,7 @@ import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
+import { useFetcherData } from '../smart-table/hooks/useFetcherData';
 
 const sizeMap: any = {
 	small: 'sm',
@@ -53,6 +54,26 @@ export const AppComponent = (props: any) => {
 	const widgetComponents = allWidgetComponents[widgetName || '']?.components || {};
 
 	const inputState = widgetComponents?.[name] || {};
+
+	const fetcher = component?.fetcher;
+
+	const fetcherData = useFetcherData({
+		fetcher,
+		appName,
+		pageName,
+	});
+
+	let options = [];
+
+	if (componentType === 'select' && component?.use_fetcher) {
+		const { name_column: nameColumn, value_column: valueColumn } = component;
+		options = fetcherData?.rows?.map((row: any) => ({
+			name: row?.[nameColumn],
+			value: row?.[valueColumn],
+		}));
+	} else {
+		options = inputState.options || component.options;
+	}
 
 	const [inputValues, setInputValues]: any = useAtom(allWidgetsInputAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
@@ -265,7 +286,7 @@ export const AppComponent = (props: any) => {
 							page_name: pageName,
 						});
 					}}
-					options={inputState.options || component.options}
+					options={options}
 				/>
 
 				{inputState?.message ? (

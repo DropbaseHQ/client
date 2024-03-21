@@ -24,6 +24,7 @@ import {
 	Center,
 	Portal,
 	Textarea,
+	Spinner,
 } from '@chakra-ui/react';
 import { forwardRef, useState } from 'react';
 import { ChevronDown, Plus, Trash } from 'react-feather';
@@ -512,6 +513,17 @@ export const FormInput = ({
 		<FormControl isInvalid={!!errors?.[id]} key={name}>
 			{name && (
 				<FormLabel>
+					{inputProps.isLoading && (
+						<Spinner
+							thickness="2px"
+							speed="0.65s"
+							emptyColor="gray.200"
+							color="blue.500"
+							size="xs"
+							ml="1"
+							mr="1"
+						/>
+					)}
 					{name}{' '}
 					{inputProps?.required && (
 						<Box as="span" color="red.500">

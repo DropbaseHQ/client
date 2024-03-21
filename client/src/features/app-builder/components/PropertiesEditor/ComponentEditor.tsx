@@ -28,6 +28,8 @@ import { generateSequentialName, getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { LabelContainer } from '@/components/LabelContainer';
+import { SelectDataFetcher } from '../SelectDataFetcher';
+import { useFetcherData } from '@/features/smart-table/hooks/useFetcherData';
 
 export const ComponentPropertyEditor = ({ id }: any) => {
 	const toast = useToast();
@@ -40,6 +42,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		?.components?.find((c: any) => c.name === id);
 
 	const { fields } = useResourceFields();
+
+	// const fetcher = properties?.widgets
+	// 	?.find((w: any) => w.name === widgetName)
+	// 	?.components?.find((c: any) => c.name === component?.name)?.fetcher;
 
 	const currentCategories = [
 		...new Set(
@@ -65,6 +71,18 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const options = watch('options');
 	const defaultValue = watch('default');
 	const multiline = watch('multiline');
+	const fetcher = watch('fetcher');
+	const useFetcher = watch('use_fetcher');
+
+	const fetcherData = useFetcherData({
+		fetcher,
+		appName,
+		pageName,
+	});
+
+	const selectColumnsLoading = fetcherData?.status === 'loading';
+
+	const columns = fetcherData?.header.map((c: any) => c?.name);
 
 	useEffect(() => {
 		if (multiple) {
@@ -328,6 +346,74 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												return <EventPropertyEditor id={property.name} />;
 											}
 
+											if (property.name === 'use_fetcher') {
+												return (
+													<FormInput
+														{...property}
+														id={property.name}
+														name={property.title}
+														type={property.type}
+														key={property.name}
+													/>
+												);
+											}
+
+											if (property.name === 'fetcher') {
+												if (!useFetcher) return null;
+												const fetchers = files.filter(
+													(f: any) =>
+														f.type === 'sql' ||
+														f.type === 'data_fetcher',
+												);
+
+												return (
+													<SelectDataFetcher
+														title="Select data fetcher"
+														resetDependsOn={() => null}
+														fetchers={fetchers}
+													/>
+												);
+											}
+
+											if (
+												property.name === 'name_column' ||
+												property.name === 'value_column'
+											) {
+												if (!useFetcher) return null;
+												return (
+													<FormInput
+														{...property}
+														id={property.name}
+														name={property.title}
+														type="select"
+														options={
+															selectColumnsLoading
+																? []
+																: columns.map((o: any) => ({
+																		name: o,
+																		value: o,
+																  }))
+														}
+														isLoading={selectColumnsLoading}
+													/>
+												);
+											}
+
+											if (property.name === 'options') {
+												if (useFetcher) return null;
+												// console.log(property);
+												return (
+													<FormInput
+														{...property}
+														id={property.name}
+														name={property.title}
+														type={property.type}
+														options={[]}
+														key={property.name}
+													/>
+												);
+											}
+
 											const showFunctionList = property.type === 'function';
 
 											return (
@@ -402,6 +488,15 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 
 		if (type === 'input') {
 			otherProperty = { type: 'text', label: newLabel };
+		}
+
+		if (type === 'select') {
+			otherProperty = {
+				use_fetcher: false,
+				name_column: 'a',
+				value_column: 'a',
+				fetcher: 'test',
+			};
 		}
 
 		if (type === 'text') {
