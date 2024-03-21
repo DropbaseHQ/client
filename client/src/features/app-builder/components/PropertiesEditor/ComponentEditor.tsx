@@ -495,6 +495,7 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 				type: 'select',
 				label: newLabel,
 				use_fetcher: false,
+				fetcher: '',
 				name_column: '',
 				value_column: '',
 			};
