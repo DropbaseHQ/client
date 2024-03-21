@@ -1124,7 +1124,8 @@ export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 	 * TABLE_HEADER_HEIGHT * 2.5 includes Table Header, Pagination, spaces between and the status bar
 	 * tableBarHeight includes table bar including filters, messages
 	 */
-	const tableHeight = getContainerHeight() - TABLE_HEADER_HEIGHT * 2.5 - tableBarHeight;
+	const actualTableHeight = getContainerHeight() - TABLE_HEADER_HEIGHT * 2.5 - tableBarHeight;
+	const tableHeight = actualTableHeight < 200 ? 200 : actualTableHeight;
 
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
