@@ -628,8 +628,7 @@ export const ColumnsProperties = () => {
 					size="sm"
 					colorScheme="yellow"
 					onClick={handleConvert}
-					isLoading={convertMutation.isLoading}
-					mr="auto"
+					// isLoading={convertMutation.isLoading} temporarily removing, if one smart table is loading this disables all "conver to smart table" buttons
 					ml="2"
 					variant="ghost"
 				>
