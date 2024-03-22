@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Plus, Save, Trash } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
@@ -100,29 +100,16 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		}
 	}, [setValue, defaultValue, multiple]);
 
-	const [optionsFromFetcher, setOptionsFromFetcher] = useState([]);
-
-	useEffect(() => {
+	const getOptions = () => {
 		if (componentType === 'select' && useFetcher) {
-			setOptionsFromFetcher(
-				fetcherData?.rows?.map((row: any, i: number) => ({
-					id: i,
-					name: String(row?.[nameColumn]),
-					value: String(row?.[valueColumn]),
-				})),
-			);
-		} else if (componentType === 'select') {
-			setOptionsFromFetcher(options);
+			return fetcherData?.rows?.map((row: any, i: number) => ({
+				id: i,
+				name: String(row?.[nameColumn]),
+				value: String(row?.[valueColumn]),
+			}));
 		}
-	}, [
-		fetcherData?.rows,
-		componentType,
-		component?.options,
-		nameColumn,
-		valueColumn,
-		useFetcher,
-		options,
-	]);
+		return options;
+	};
 
 	const updateMutation = useUpdatePageData({
 		onSuccess: () => {
@@ -367,7 +354,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 																	? 'template'
 																	: inputType
 															}
-															options={optionsFromFetcher}
+															options={getOptions()}
 														/>
 														<FormInput
 															id="stateInDefault"
@@ -396,18 +383,6 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												property.name === 'on_toggle'
 											) {
 												return <EventPropertyEditor id={property.name} />;
-											}
-
-											if (property.name === 'use_fetcher') {
-												return (
-													<FormInput
-														{...property}
-														id={property.name}
-														name={property.title}
-														type={property.type}
-														key={property.name}
-													/>
-												);
 											}
 
 											if (property.name === 'fetcher') {
@@ -450,18 +425,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												);
 											}
 
-											if (property.name === 'options') {
-												if (useFetcher) return null;
-												return (
-													<FormInput
-														{...property}
-														id={property.name}
-														name={property.title}
-														type={property.type}
-														options={[]}
-														key={property.name}
-													/>
-												);
+											if (property.name === 'options' && useFetcher) {
+												return null;
 											}
 
 											const showFunctionList = property.type === 'function';
