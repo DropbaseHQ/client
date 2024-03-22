@@ -513,7 +513,7 @@ export const FormInput = ({
 		<FormControl isInvalid={!!errors?.[id]} key={name}>
 			{name && (
 				<FormLabel>
-					{inputProps.isLoading && (
+					{inputProps.isLoading ? (
 						<Spinner
 							thickness="2px"
 							speed="0.65s"
@@ -523,7 +523,7 @@ export const FormInput = ({
 							ml="1"
 							mr="1"
 						/>
-					)}
+					) : null}
 					{name}{' '}
 					{inputProps?.required && (
 						<Box as="span" color="red.500">
