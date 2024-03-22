@@ -9,7 +9,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { extractTemplateString, getErrorMessage } from '@/utils';
 
 import { useExecuteAction } from '@/features/app-preview/hooks';
@@ -66,31 +66,19 @@ export const AppComponent = (props: any) => {
 		pageName,
 	});
 
-	const [options, setOptions] = useState([]);
-
-	useEffect(() => {
+	const getInputOptions = () => {
 		if (componentType === 'select' && component?.use_fetcher) {
 			const nameColumn = component?.name_column;
 			const valueColumn = component?.value_column;
-			setOptions(
-				fetcherData?.rows?.map((row: any, i: number) => ({
-					id: i,
-					name: String(row?.[nameColumn]),
-					value: String(row?.[valueColumn]),
-				})),
-			);
-		} else if (componentType === 'select') {
-			setOptions(inputState.options || component?.options);
+			return fetcherData?.rows?.map((row: any, i: number) => ({
+				id: i,
+				name: String(row?.[nameColumn]),
+				value: String(row?.[valueColumn]),
+			}));
 		}
-	}, [
-		fetcherData?.rows,
-		inputState,
-		componentType,
-		component?.options,
-		component?.name_column,
-		component?.value_column,
-		component?.use_fetcher,
-	]);
+
+		return inputState.options || component?.options;
+	};
 
 	const [inputValues, setInputValues]: any = useAtom(allWidgetsInputAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
@@ -303,7 +291,7 @@ export const AppComponent = (props: any) => {
 							page_name: pageName,
 						});
 					}}
-					options={options}
+					options={getInputOptions()}
 				/>
 
 				{inputState?.message ? (
