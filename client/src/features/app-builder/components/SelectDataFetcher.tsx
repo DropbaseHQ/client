@@ -2,13 +2,12 @@ import { Badge, Icon, Stack, Text } from '@chakra-ui/react';
 import { Table } from 'react-feather';
 import { FormInput } from '@/components/FormInput';
 
-export const SelectDataFetcher = ({ title, resetDependsOn, fetchers }: any) => (
+export const SelectDataFetcher = ({ fetchers, ...rest }: any) => (
 	<FormInput
 		type="custom-select"
 		id="fetcher"
-		name={title}
 		placeholder="Select data fetcher"
-		onSelect={resetDependsOn}
+		{...rest}
 		options={(fetchers as any).map((file: any) => ({
 			name: file.name,
 			value: file.name,

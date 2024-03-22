@@ -420,8 +420,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 												return (
 													<SelectDataFetcher
-														title="Select data fetcher"
-														resetDependsOn={() => null}
+														name="Select data fetcher"
 														fetchers={fetchers}
 													/>
 												);

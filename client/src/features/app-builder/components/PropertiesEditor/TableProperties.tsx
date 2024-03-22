@@ -234,8 +234,8 @@ export const TableProperties = () => {
 											if (property.name === 'fetcher') {
 												return (
 													<SelectDataFetcher
-														title={property.title}
-														resetDependsOn={resetDependsOn}
+														name={property.title}
+														onSelect={resetDependsOn}
 														fetchers={fetchers}
 													/>
 												);
