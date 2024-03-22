@@ -5,11 +5,10 @@ from sqlalchemy.orm import Session
 
 from server import crud
 from server.emails.emailer import send_email
-from server.models import Policy, User, Workspace, App
+from server.models import Policy, User, Workspace
 from server.schemas import (
     RequestCloud,
     UpdateUserRoleRequest,
-    UpdateWorkspaceToken,
     SyncStructureRequest,
     SyncAppRequest,
 )
@@ -135,17 +134,6 @@ def update_user_role_in_workspace(
         raise e
 
 
-# def update_workspace_token(db: Session, workspace_id: UUID, request: UpdateWorkspaceToken):
-#     try:
-#         target_token = crud.token.get_object_by_id_or_404(db, id=request.token_id)
-#         crud.token.reset_workspace_selected_token(db, workspace_id=workspace_id)
-#         crud.token.update_by_pk(db, pk=target_token.id, obj_in={"is_selected": True}, auto_commit=False)
-#         db.commit()
-#     except Exception as e:
-#         db.rollback()
-#         raise e
-
-
 def delete_workspace(db: Session, workspace_id: UUID):
     try:
         crud.workspace.remove(db, id=workspace_id, auto_commit=False)
@@ -188,14 +176,14 @@ def sync_structure(db: Session, request: SyncStructureRequest, workspace: Worksp
                 structure_report["apps_without_id"].append(
                     {
                         "status": "NOT_FOUND",
-                        "message": f"App with id {app.id} not found. No app with name {app.name} found either.",
+                        "message": f"App with id {app.id} not found. No app with name {app.name} found either.",  # noqa
                     }
                 )
             else:
                 structure_report["apps_without_id"].append(
                     {
                         "status": "ID_NOT_FOUND_NAME_FOUND",
-                        "message": f"App with id {app.id} not found. App with name {app.name} found. Suggest resyncing.",
+                        "message": f"App with id {app.id} not found. App with name {app.name} found. Suggest resyncing.",  # noqa
                         "name": app.name,
                     }
                 )
@@ -232,12 +220,12 @@ def sync_structure(db: Session, request: SyncStructureRequest, workspace: Worksp
                 if not page_by_name:
                     structure_report["apps_with_id"][app.id][page.id] = {
                         "status": "NOT_FOUND",
-                        "message": f"Page with id {page.id} not found. No page with name {page.name} found either.",
+                        "message": f"Page with id {page.id} not found. No page with name {page.name} found either.",  # noqa
                     }
                 else:
                     structure_report["apps_with_id"][app.id][page.id] = {
                         "status": "ID_NOT_FOUND_NAME_FOUND",
-                        "message": f"Page with id {page.id} not found. Page with name {page.name} found. Suggest resyncing.",
+                        "message": f"Page with id {page.id} not found. Page with name {page.name} found. Suggest resyncing.",  # noqa
                     }
                 continue
 

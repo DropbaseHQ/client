@@ -1,7 +1,4 @@
 import requests
-
-
-from sqlalchemy.orm import Session
 from server.credentials import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
 from server.utils.helper import raise_http_exception
 

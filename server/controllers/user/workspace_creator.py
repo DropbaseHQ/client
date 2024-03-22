@@ -3,7 +3,7 @@ import secrets
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.models import Policy, Token
+from server.models import Policy
 from server.schemas.user_role import CreateUserRole
 from server.schemas.workspace import CreateWorkspace
 
