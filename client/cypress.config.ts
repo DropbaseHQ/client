@@ -12,7 +12,7 @@ export default defineConfig({
 				'gmail:checkRecent': async (args) => {
 					const { from, to, subject, after } = args;
 					const email = await gmail.check_inbox(
-						path.resolve(cwd, 'client_secret.json'),
+						path.resolve(cwd, 'team_mail_client_secret.json'),
 						path.resolve(cwd, 'token.json'),
 						{
 							from: from,
