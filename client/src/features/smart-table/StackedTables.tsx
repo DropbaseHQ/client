@@ -120,18 +120,7 @@ export const StackedTables = () => {
 			{updateMutation.isLoading ? (
 				<Progress position="absolute" top="0" left="0" w="full" size="xs" isIndeterminate />
 			) : null}
-			{isPreview ? null : (
-				<Box
-					ml="auto"
-					borderWidth="1px"
-					borderStyle="dashed"
-					p="2"
-					borderRadius="md"
-					minW="48"
-				>
-					<NewTable w="full" variant="secondary" />
-				</Box>
-			)}
+
 			{containerHeight ? (
 				<ReactGridLayout
 					className="layout"
@@ -172,6 +161,18 @@ export const StackedTables = () => {
 					))}
 				</ReactGridLayout>
 			) : null}
+			{isPreview ? null : (
+				<Box
+					ml="auto"
+					borderWidth="1px"
+					borderStyle="dashed"
+					p="2"
+					borderRadius="md"
+					minW="48"
+				>
+					<NewTable w="full" variant="secondary" />
+				</Box>
+			)}
 		</StackedTableWrapper>
 	);
 };
