@@ -18,7 +18,7 @@ Sample JSON object value
 This is only a sample value, only name the database_name "public" if it is actually public. 
 This part is extremely important please be careful. When trying to find the "database_name" ENSURE that the database_name consists of the table that is queried in user_query.
 Loop through all the database_names under the values under the "database" key until you find a key (under the database key) that is titled the same as the table in the query, when you find it assign that database to be the database_name
-If you absolutely can not find a match then use the "default_schema" under the "meta_data" key
+If you absolutely can not find a match then use the "default_schema" under the "meta_data" key. Be sure to check the, the default_schema is not always the right schema.
 
 In the sample JSON, "output column" is the column name as it would be output when executing the SQL statement.
 You will be provided a list of column names that will be returned by the query. Your job is to, for each column name, determine its database_name, table_name, and column_name based on the SQL query. You may only return information on the columns specified in Column names. You must return information on each of the columns specified in Column names.
