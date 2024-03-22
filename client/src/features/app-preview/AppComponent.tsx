@@ -24,7 +24,7 @@ import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
-import { useFetcherData } from '../smart-table/hooks/useFetcherData';
+import { useFetcherData } from '../smart-table/hooks';
 
 const sizeMap: any = {
 	small: 'sm',

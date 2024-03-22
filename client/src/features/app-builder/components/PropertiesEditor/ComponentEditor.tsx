@@ -29,7 +29,7 @@ import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { LabelContainer } from '@/components/LabelContainer';
 import { SelectDataFetcher } from '../SelectDataFetcher';
-import { useFetcherData } from '@/features/smart-table/hooks/useFetcherData';
+import { useFetcherData } from '@/features/smart-table/hooks';
 
 const TEMPLATE_REGEX = /\{\{(.+?)\}\}/;
 
