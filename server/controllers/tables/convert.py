@@ -35,7 +35,8 @@ FullDBSchema = dict[str, dict[str, dict[str, dict[str, Any]]]]
 
 def fill_smart_cols_data(
     smart_col_paths: dict, db_schema: FullDBSchema
-) -> dict[str, Union[SqlSmartColumnProperty]]: # If we want to add more
+) -> dict[str, Union[SqlSmartColumnProperty]]:
+    # If we want to add more
     try:
         smart_cols_data = {}
         for name, col_path in smart_col_paths.items():
@@ -73,7 +74,7 @@ def call_gpt(user_sql: str, column_names: list, db_schema: dict, db_type: str) -
         output_dict = json.loads(gpt_output).get("choices", [{"message": {"content": "{}"}}])[0][
             "message"
         ]["content"]
-        
+
         output = json.loads(output_dict)
         # validate output
         OutputSchema(output=output)

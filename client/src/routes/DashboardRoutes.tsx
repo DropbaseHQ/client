@@ -1,6 +1,6 @@
 import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
 import { Suspense, useEffect } from 'react';
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import { lazyImport } from '@/utils/lazy-import';
 
@@ -8,6 +8,7 @@ import { useWorkspaces } from '@/features/workspaces';
 import { GithubAuth } from '@/features/authorization/GithubAuth';
 import { DashboardLayout } from '@/layout';
 import { OnboardingForm } from '@/features/authorization/OnboardingForm';
+import { Intro } from '@/features/intro';
 
 const { Login } = lazyImport(() => import('@/features/authorization'), 'Login');
 const { Register } = lazyImport(() => import('@/features/authorization'), 'Register');
@@ -39,8 +40,23 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 			link.href = '/favicon-dev.ico';
 		}
 	}, []);
+	const { pathname } = useLocation();
 
-	const { isLoading } = useWorkspaces();
+	const loginRoutes =
+		pathname.startsWith('/login') ||
+		pathname.startsWith('/register') ||
+		pathname.startsWith('/reset') ||
+		pathname.startsWith('/email-confirmation') ||
+		pathname.startsWith('/forgot') ||
+		pathname.startsWith('/github_auth');
+	const { isLoading, workspaces } = useWorkspaces();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!isLoading && workspaces.length === 0 && !loginRoutes && !pathname.includes('/intro')) {
+			navigate('/intro');
+		}
+	});
 
 	if (isLoading) {
 		return (
@@ -82,6 +98,7 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 					}
 				>
 					<Route index element={<Navigate to={homeRoute} />} />
+					<Route path="intro" element={<Intro />} />
 					<Route path="login" element={<Login />} />
 					<Route path="register" element={<Register />} />
 					<Route path="forgot" element={<RequestResetLink />} />

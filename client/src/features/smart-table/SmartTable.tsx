@@ -18,7 +18,7 @@ import {
 import { CheckCircleIcon, InfoIcon, SpinnerIcon, WarningIcon } from '@chakra-ui/icons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
-import { Info, RotateCw, UploadCloud } from 'react-feather';
+import { Info, Move, RotateCw, UploadCloud } from 'react-feather';
 import lodashSet from 'lodash/set';
 
 import DataEditor, {
@@ -87,7 +87,7 @@ const ALL_CELLS = [
 
 const TABLE_HEADER_HEIGHT = 40;
 
-export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
+export const SmartTable = ({ tableName, height }: any) => {
 	const toast = useToast();
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
@@ -117,8 +117,7 @@ export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 
 	const tableColumnWidth = allTableColumnWidth?.[tableName];
 
-	const { properties, tables } = useGetPage({ appName, pageName });
-	const totalTables = tables.length || 1;
+	const { properties } = useGetPage({ appName, pageName });
 
 	const {
 		renderPopoverContent,
@@ -142,7 +141,6 @@ export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 	const {
 		depends_on: dependsOn,
 		isLoading: isLoadingTable,
-		height,
 		size,
 		table,
 	} = useGetTable(tableName || '');
@@ -1103,28 +1101,14 @@ export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 		});
 	};
 
-	const getContainerHeight = () => {
-		switch (height) {
-			case '1/3': {
-				return containerHeight / 3;
-			}
-			case '1/2': {
-				return containerHeight / 2;
-			}
-			case 'full': {
-				return containerHeight;
-			}
-			default:
-				return containerHeight / Math.min(totalTables, 3);
-		}
-	};
-
 	/**
 	 * containerHeight is height of the canvas available for tables
 	 * TABLE_HEADER_HEIGHT * 2.5 includes Table Header, Pagination, spaces between and the status bar
 	 * tableBarHeight includes table bar including filters, messages
+	 *
+	 * 20 is extra space so that we see pagination and a little space below
 	 */
-	const tableHeight = getContainerHeight() - TABLE_HEADER_HEIGHT * 2.5 - tableBarHeight;
+	const tableHeight = height - TABLE_HEADER_HEIGHT * 2 - tableBarHeight;
 
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
@@ -1138,8 +1122,23 @@ export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 						w="full"
 						overflow="hidden"
 					>
-						<Stack spacing="0" px="2" flexShrink="0">
+						<Stack spacing="0" flexShrink="0">
 							<LabelContainer>
+								{isPreview ? null : (
+									<Box
+										_hover={{
+											color: 'gray.800',
+											borderColor: 'gray.50',
+										}}
+										borderWidth="1px"
+										borderColor="transparent"
+										borderRadius="sm"
+										cursor="grab"
+										className="react-grid-drag-handle"
+									>
+										<Move size="14" />
+									</Box>
+								)}
 								<LabelContainer.Label>
 									{extractTemplateString(table?.label || tableName, pageState)}
 								</LabelContainer.Label>
@@ -1253,16 +1252,6 @@ export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 					</Box>
 
 					<Stack
-						// https://linear.app/dropbase/issue/DBA-561/cant-resize-table-columns-whole-table-moves
-						// https://github.com/atlassian/react-beautiful-dnd/issues/1810#issuecomment-1077952496
-						data-rbd-drag-handle-context-id={
-							provider?.dragHandleProps?.['data-rbd-drag-handle-context-id']
-						}
-						data-rbd-drag-handle-draggable-id="gibberish"
-						style={{
-							// When you set the data-rbd-drag-handle-context-id, RBD applies cursor: grab, so we need to revert that
-							cursor: 'auto',
-						}}
 						height={tableHeight}
 						borderWidth="1px"
 						onDoubleClick={() => {
