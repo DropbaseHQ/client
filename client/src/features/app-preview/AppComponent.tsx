@@ -6,7 +6,7 @@ import {
 	FormControl,
 	FormLabel,
 	Stack,
-	Text,
+	// Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect } from 'react';
@@ -24,12 +24,13 @@ import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
+import Markdown from 'react-markdown';
 
-const sizeMap: any = {
-	small: 'sm',
-	medium: 'md',
-	large: 'lg',
-};
+// const sizeMap: any = {
+// 	small: 'sm',
+// 	medium: 'md',
+// 	large: 'lg',
+// };
 
 const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 
@@ -197,13 +198,13 @@ export const AppComponent = (props: any) => {
 	if (componentType === 'text') {
 		return (
 			<Stack spacing="0.5">
-				<Text
-					fontSize={sizeMap[component.size]}
-					color={component.color || `${component.color}.500`}
-					bgColor={grayOutComponent ? 'gray.100' : ''}
+				<Markdown
+				// fontSize={sizeMap[component.size]}
+				// color={component.color || `${component.color}.500`}
+				// bgColor={grayOutComponent ? 'gray.100' : ''}
 				>
 					{text}
-				</Text>
+				</Markdown>
 
 				{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
 			</Stack>
