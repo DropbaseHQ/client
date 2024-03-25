@@ -102,8 +102,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 
 	const getOptions = () => {
 		if (componentType === 'select' && useFetcher) {
-			return fetcherData?.rows?.map((row: any, i: number) => ({
-				id: i,
+			return fetcherData?.rows?.map((row: any) => ({
 				name: String(row?.[nameColumn]),
 				value: String(row?.[valueColumn]),
 			}));
