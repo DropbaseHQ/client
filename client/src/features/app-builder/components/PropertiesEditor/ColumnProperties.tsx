@@ -490,7 +490,7 @@ const ColumnProperty = ({
 															isRequired
 																? {
 																		required: `${key} is required`,
-																  }
+																	}
 																: {}
 														}
 													/>
@@ -628,8 +628,10 @@ export const ColumnsProperties = () => {
 					size="sm"
 					colorScheme="yellow"
 					onClick={handleConvert}
-					isLoading={convertMutation.isLoading}
-					mr="auto"
+					isLoading={
+						convertMutation.isLoading &&
+						convertMutation.variables?.table?.name === tableId
+					}
 					ml="2"
 					variant="ghost"
 				>
