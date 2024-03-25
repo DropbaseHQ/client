@@ -121,7 +121,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				placeholder="Select option"
 			>
 				{(selectOptions || []).map((option: any) => (
-					<option key={option.id != null ? option.id : option.name} value={option.value}>
+					<option key={option.name} value={option.value}>
 						{option.name}
 					</option>
 				))}
