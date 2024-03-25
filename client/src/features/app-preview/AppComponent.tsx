@@ -70,11 +70,17 @@ export const AppComponent = (props: any) => {
 		if (componentType === 'select' && component?.use_fetcher) {
 			const nameColumn = component?.name_column;
 			const valueColumn = component?.value_column;
-			return fetcherData?.rows?.map((row: any, i: number) => ({
-				id: i,
-				name: String(row?.[nameColumn]),
-				value: String(row?.[valueColumn]),
-			}));
+			const duplicateCheck = new Set();
+			return fetcherData?.rows
+				?.filter((row: any) =>
+					duplicateCheck.has(row?.[nameColumn])
+						? false
+						: duplicateCheck.add(row?.[nameColumn]),
+				)
+				?.map((row: any) => ({
+					name: String(row?.[nameColumn]),
+					value: String(row?.[valueColumn]),
+				}));
 		}
 
 		return inputState.options || component?.options;
