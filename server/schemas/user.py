@@ -113,7 +113,7 @@ class OnboardUser(BaseModel):
 
 
 class CheckPermissionRequest(BaseModel):
-    app_id: str
+    app_id: Optional[str]
 
 
 class PageObject(BaseModel):
@@ -157,3 +157,4 @@ class CreateTestDBTableRequest(BaseModel):
     name: str
     last_name: str
     password: str
+    table_name: str
