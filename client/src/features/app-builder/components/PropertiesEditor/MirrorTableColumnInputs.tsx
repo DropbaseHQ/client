@@ -84,6 +84,13 @@ export const MirrorTableColumns = ({ widgetName, ...props }: any) => {
 						};
 					}
 
+					case 'array': {
+						return {
+							...component,
+							data_type: 'text',
+						};
+					}
+
 					case 'select': {
 						return {
 							...component,
