@@ -128,6 +128,8 @@ const convertToSmartTable = async ({ table, state, appName, pageName }: any) => 
 		const jobResponse = await fetchJobStatus(response.data.job_id);
 		return jobResponse;
 	}
+
+	throw new Error('Cant convert to table');
 };
 
 export const CONVERT_MUTATION = 'convertMutation';

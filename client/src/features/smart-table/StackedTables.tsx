@@ -25,8 +25,6 @@ const StackedTableWrapper = styled(Stack)`
 	}
 
 	.react-grid-item > .react-resizable-handle {
-		bottom: -1px;
-		right: -5px;
 		background-image: none;
 
 		&::after {
@@ -38,8 +36,19 @@ const StackedTableWrapper = styled(Stack)`
 			right: 5px;
 			bottom: 6px;
 		}
+
+		&.react-resizable-handle-se {
+			right: -5px;
+		}
+
+		&.react-resizable-handle-sw {
+			left: -5px;
+			bottom: 1px;
+		}
 	}
 `;
+
+const NEW_TABLE_ID = 'new-table';
 
 export const StackedTables = () => {
 	const { appName, pageName } = useParams();
@@ -67,7 +76,9 @@ export const StackedTables = () => {
 	};
 
 	const handleNewLayout = (newLayout: any) => {
-		const tablesNeedUpdates = newLayout.filter((item: any) => {
+		const filteredLayout = newLayout.filter((item: any) => item.i !== NEW_TABLE_ID);
+
+		const tablesNeedUpdates = filteredLayout.filter((item: any) => {
 			const table = tables?.find((t: any) => t.name === item.i);
 
 			return (
@@ -75,7 +86,7 @@ export const StackedTables = () => {
 			);
 		});
 
-		const tableLayout = newLayout.reduce(
+		const tableLayout = filteredLayout.reduce(
 			(agg: any, item: any) => ({
 				...agg,
 				[item.i]: {
@@ -104,6 +115,8 @@ export const StackedTables = () => {
 			});
 		}
 	};
+
+	const maxY = Math.max(...tables.map((t: any) => t.y));
 
 	return (
 		<StackedTableWrapper
@@ -134,45 +147,62 @@ export const StackedTables = () => {
 					onLayoutChange={handleNewLayout}
 					draggableHandle=".react-grid-drag-handle"
 				>
-					{tables.map((table: any) => (
+					{tables.map((table: any) => {
+						return (
+							<Box
+								data-grid={{
+									x: table?.x || 0,
+									y: table?.y || 0,
+									w: table?.w || 4,
+									h: table?.h || 1,
+									i: table?.name,
+									resizeHandles: ['se', 'sw'],
+								}}
+								key={table.name}
+							>
+								<InspectorContainer
+									flexShrink="0"
+									h="full"
+									w="full"
+									type="table"
+									id={table.name}
+								>
+									<SmartTable
+										height={containerHeight * (table?.h || 1)}
+										tableName={table.name}
+									/>
+								</InspectorContainer>
+							</Box>
+						);
+					})}
+
+					{isPreview ? null : (
 						<Box
 							data-grid={{
-								x: table?.x || 0,
-								y: table?.y || 0,
-								w: table?.w || 4,
-								h: table?.h || 1,
-								i: table?.name,
+								x: 4,
+								y: (maxY || 0) + 1,
+								w: 1,
+								h: 50 / containerHeight,
+								i: NEW_TABLE_ID,
+								isResizable: false,
+								isDraggable: false,
 							}}
-							key={table.name}
+							key={NEW_TABLE_ID}
 						>
-							<InspectorContainer
-								flexShrink="0"
+							<Box
+								ml="auto"
+								borderWidth="1px"
+								borderStyle="dashed"
+								p="2"
 								h="full"
-								w="full"
-								type="table"
-								id={table.name}
+								borderRadius="md"
 							>
-								<SmartTable
-									height={containerHeight * (table?.h || 1)}
-									tableName={table.name}
-								/>
-							</InspectorContainer>
+								<NewTable h="full" w="full" variant="secondary" />
+							</Box>
 						</Box>
-					))}
+					)}
 				</ReactGridLayout>
 			) : null}
-			{isPreview ? null : (
-				<Box
-					ml="auto"
-					borderWidth="1px"
-					borderStyle="dashed"
-					p="2"
-					borderRadius="md"
-					minW="48"
-				>
-					<NewTable w="full" variant="secondary" />
-				</Box>
-			)}
 		</StackedTableWrapper>
 	);
 };
