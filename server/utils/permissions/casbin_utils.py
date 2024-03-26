@@ -197,6 +197,8 @@ def get_all_action_permissions(
     for action in ALLOWED_ACTIONS:
         if enforcer.enforce(str(user_id), "workspace", action):
             permissions_dict["workspace_permissions"][action] = True
+        else:
+            permissions_dict["workspace_permissions"][action] = False
         if app_id not in permissions_dict["app_permissions"]:
             permissions_dict["app_permissions"][action] = False
         if can_use_granular_permissions:
