@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Save, Trash, Zap } from 'react-feather';
 
 import { useParams } from 'react-router-dom';
@@ -9,12 +9,18 @@ import {
 	Skeleton,
 	Tooltip,
 	Button,
+	Center,
+	Menu,
+	MenuButton,
+	MenuItemOption,
+	MenuList,
 	Divider,
 	SimpleGrid,
 	Code,
 	useDisclosure,
 	Collapse,
 	Text,
+	Portal,
 	IconButton,
 	FormLabel,
 } from '@chakra-ui/react';
@@ -251,29 +257,6 @@ const ColumnProperty = ({
 		}
 	};
 
-	const handleDisplayType = (newType: any) => {
-		const newDisplayConfig =
-			allDisplayConfigurations?.find((d: any) => d.name === newType) || {};
-		const newConfigProperties = newDisplayConfig?.properties || {};
-
-		/**
-		 * If config properties is present, set the default values for all fields
-		 */
-		if (newDisplayConfig?.properties) {
-			const configDefaults = Object.keys(newConfigProperties).reduce(
-				(agg: any, prop: any) => ({
-					...agg,
-					[prop]: newConfigProperties?.[prop]?.default,
-				}),
-				{},
-			);
-
-			setValue(`configurations`, configDefaults);
-		} else {
-			setValue('configurations', null);
-		}
-	};
-
 	const onSubmit = (formValues: any) => {
 		handleUpdate(formValues);
 	};
@@ -290,6 +273,17 @@ const ColumnProperty = ({
 		allVisibleFields =
 			columnFields.filter((f: any) => VISIBLE_FIELDS_SCHEMA.includes(f.name)) || [];
 	}
+
+	const [selectedOptionLabel, setSelectedOptionLabel] = useState('');
+	const [optionsList, setOptionsList] = useState([]);
+
+	useEffect(() => {
+		setOptionsList(resolveDisplayTypeOptions(displayType));
+	}, [displayType]);
+
+	const handleSelectChange = (selectedValue: any) => {
+		setSelectedOptionLabel(selectedValue);
+	};
 
 	return (
 		<form onSubmit={methods.handleSubmit(onSubmit)}>
@@ -376,30 +370,76 @@ const ColumnProperty = ({
 							</Box>
 						</Stack>
 					</Stack>
+
 					<Collapse in={isOpen}>
 						<Stack p="3">
+							<Menu>
+								<Stack spacing="0.5">
+									<MenuButton
+										as={Stack}
+										direction="row"
+										alignItems="center"
+										borderWidth="1px"
+										p="1.5"
+										borderRadius="sm"
+										type="button"
+										width="50%"
+										// cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
+									>
+										<Stack
+											w="full"
+											spacing="0"
+											alignItems="center"
+											direction="row"
+										>
+											<Box>
+												<Text fontSize="sm">
+													{selectedOptionLabel ||
+														displayType ||
+														'Select option'}
+												</Text>
+											</Box>
+											<Box ml="auto">
+												<ChevronDown size="14" />
+											</Box>
+										</Stack>
+									</MenuButton>
+								</Stack>
+								<Portal>
+									<MenuList
+										zIndex="popover"
+										// pointerEvents={inputProps?.isDisabled ? 'none' : 'initial'}
+										borderRadius="sm"
+										shadow="sm"
+										p="0"
+										maxH="sm"
+										overflowY="auto"
+									>
+										{optionsList.length === 0 ? (
+											<Center>
+												<Text fontSize="sm">No options present</Text>
+											</Center>
+										) : (
+											optionsList.map((option, index) => (
+												<MenuItemOption
+													fontSize="sm"
+													key={option}
+													value={option}
+													data-cy={`select-option-${index}`}
+													onClick={() => {
+														handleSelectChange(option);
+													}}
+												>
+													{option}
+												</MenuItemOption>
+											))
+										)}
+									</MenuList>
+								</Portal>
+							</Menu>
 							{columnFields
 								.filter((f: any) => editableFields?.includes(f?.name))
 								.map((f: any) => {
-									if (f.name === 'display_type') {
-										return (
-											<FormInput
-												type="custom-select"
-												id={f.name}
-												name={f.title}
-												w="50%"
-												hideClearOption
-												options={resolveDisplayTypeOptions(displayType).map(
-													(option: any) => ({
-														name: option,
-														value: option,
-													}),
-												)}
-												onSelect={handleDisplayType}
-											/>
-										);
-									}
-
 									if (f?.category === 'Events') {
 										return <EventPropertyEditor id={f.name} />;
 									}
@@ -450,7 +490,9 @@ const ColumnProperty = ({
 									);
 								})}
 
-							{Object.keys(configProperties).length > 0 ? (
+							{Object.keys(configProperties).some(
+								(key) => configProperties[key] === selectedOptionLabel,
+							) ? (
 								<SimpleGrid py="2" gap={4} columns={2}>
 									{Object.keys(configProperties)
 										.filter(
@@ -459,6 +501,7 @@ const ColumnProperty = ({
 										)
 										.map((key: any) => {
 											const property = configProperties?.[key];
+
 											const isRequired =
 												displayConfiguration?.required?.includes(key);
 											return (
