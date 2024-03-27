@@ -144,7 +144,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	}
 
 	if (type === 'custom-select') {
-		const selectedValue = selectOptions.find((option: any) => option.value === value);
+		const selectedValue = selectOptions?.find((option: any) => option.value === value);
 
 		const valueLabel = selectedValue?.name;
 		const valueRenderer = selectedValue?.render?.(selectedValue);
