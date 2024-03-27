@@ -24,7 +24,7 @@ import { getErrorMessage } from '@/utils';
 import { previewCodeAtom } from '../../atoms';
 
 import { useSQLCompletion } from '@/components/Editor/hooks/useSQLCompletion';
-import { newPageStateAtom } from '@/features/app-state';
+import { pageStateContextAtom } from '@/features/app-state';
 
 import { databaseSchema } from '@/components/Editor/utils/constants';
 
@@ -119,9 +119,9 @@ export const SQLEditor = ({ name }: any) => {
 		});
 	};
 
-	const newPage = useAtomValue(newPageStateAtom);
+	const newPageStateContext = useAtomValue(pageStateContextAtom);
 
-	useSQLCompletion(databaseSchema, newPage);
+	useSQLCompletion(databaseSchema, newPageStateContext);
 
 	if (isLoading || isLoadingSources) {
 		return (

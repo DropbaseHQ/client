@@ -15,10 +15,10 @@ import { extractTemplateString, getErrorMessage } from '@/utils';
 import { useExecuteAction } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
 import {
-	widgetComponentsAtom,
 	useSyncState,
-	newPageStateAtom,
-	allWidgetsInputAtom,
+	pageStateAtom,
+	pageStateContextAtom,
+	pageContextAtom,
 } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
@@ -49,11 +49,11 @@ export const AppComponent = (props: any) => {
 		...component
 	} = props;
 
-	const pageState = useAtomValue(newPageStateAtom);
-	const allWidgetComponents = useAtomValue(widgetComponentsAtom) as any;
+	const pageState = useAtomValue(pageStateContextAtom);
+	const pageContext = useAtomValue(pageContextAtom) as any;
 	const widgetComponents = useMemo(
-		() => allWidgetComponents[widgetName || '']?.components || {},
-		[allWidgetComponents, widgetName],
+		() => pageContext[widgetName || '']?.components || {},
+		[pageContext, widgetName],
 	);
 
 	const inputState = useMemo(() => widgetComponents?.[name] || {}, [widgetComponents, name]);
@@ -86,7 +86,7 @@ export const AppComponent = (props: any) => {
 		return inputState.options || component?.options;
 	};
 
-	const [inputValues, setInputValues]: any = useAtom(allWidgetsInputAtom);
+	const [inputValues, setInputValues]: any = useAtom(pageStateAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
 
 	const syncState = useSyncState();

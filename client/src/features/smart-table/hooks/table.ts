@@ -8,8 +8,8 @@ import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { useGetPage } from '@/features/page';
 import {
 	APP_STATE_QUERY_KEY,
-	newPageStateAtom,
-	selectedRowAtom,
+	pageStateAtom,
+	pageStateContextAtom,
 	useAppState,
 } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
@@ -78,9 +78,9 @@ const useParsedData: any = (response: any, table: any) =>
 	}, [response, table]);
 
 export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
-	const pageState: any = useAtomValue(newPageStateAtom);
-	const pageStateRef = useRef(pageState);
-	pageStateRef.current = pageState;
+	const pageStateContext: any = useAtomValue(pageStateContextAtom);
+	const pageStateRef = useRef(pageStateContext);
+	pageStateRef.current = pageStateContext;
 
 	const queryKey = [FUNCTION_DATA_QUERY_KEY, fetcher, appName, pageName];
 
@@ -124,11 +124,11 @@ export const useTableData = ({
 
 	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
 
-	const selectRow = useSetAtom(selectedRowAtom);
+	const selectRow = useSetAtom(pageStateAtom);
 
-	const pageState: any = useAtomValue(newPageStateAtom);
-	const pageStateRef = useRef(pageState);
-	pageStateRef.current = pageState;
+	const pageStateContext: any = useAtomValue(pageStateContextAtom);
+	const pageStateRef = useRef(pageStateContext);
+	pageStateRef.current = pageStateContext;
 
 	const table = tables.find((t: any) => t.name === tableName);
 
@@ -145,7 +145,7 @@ export const useTableData = ({
 	const depends = files.find((f: any) => f.name === table?.fetcher)?.depends_on || [];
 	const tablesWithNoSelection = depends.filter((name: any) => !hasSelectedRows[name]);
 
-	const tablesState = pageState?.state?.tables;
+	const tablesState = pageStateContext?.state;
 
 	const dependentTableData = depends.reduce(
 		(agg: any, tName: any) => ({
@@ -193,7 +193,7 @@ export const useTableData = ({
 				table &&
 				appName &&
 				pageName &&
-				Object.keys(pageState?.state?.tables || {}).length > 0 &&
+				Object.keys(pageStateContext?.state || {}).length > 0 &&
 				tablesWithNoSelection.length === 0
 			),
 			staleTime: Infinity,

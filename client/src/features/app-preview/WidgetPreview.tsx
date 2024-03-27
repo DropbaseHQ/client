@@ -7,7 +7,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import useWebSocket from 'react-use-websocket';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
-import { allWidgetStateAtom, nonWidgetContextAtom } from '@/features/app-state';
+import { pageContextAtom, pageStateAtom } from '@/features/app-state';
 import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
@@ -40,10 +40,9 @@ export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 
 	const updateMutation = useUpdatePageData();
 
-	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
+	const setPageContextState = useSetAtom(pageContextAtom);
 
-	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
-	const allWidgetState = widgetData.state;
+	const [allWidgetState, setWidgetData]: any = useAtom(pageStateAtom);
 
 	const { properties } = useGetPage({ appName, pageName });
 
@@ -88,10 +87,7 @@ export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 					return;
 				}
 
-				const { widgets: newWidgetsData, ...rest } = messageContext || {};
-
-				setWidgetData((s: any) => ({ ...s, state: newWidgetsData || {} }));
-				setNonInteractiveState(rest);
+				setPageContextState(messageContext);
 			} catch (e) {
 				//
 			}
@@ -109,8 +105,8 @@ export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 
 	const handleRemoveAlert = () => {
 		setWidgetData((oldData: any) => ({
-			...lodashSet(oldData, `state.${widgetName}.message`, null),
-			...lodashSet(oldData, `state.${widgetName}.message_type`, null),
+			...lodashSet(oldData, `${widgetName}.message`, null),
+			...lodashSet(oldData, `${widgetName}.message_type`, null),
 		}));
 	};
 

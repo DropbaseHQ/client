@@ -13,7 +13,7 @@ import {
 } from '@choc-ui/chakra-autocomplete';
 import { pageAtom } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
-import { allWidgetsInputAtom, tableColumnTypesAtom, tableStateAtom } from '@/features/app-state';
+import { pageStateAtom } from '@/features/app-state';
 
 const NUMBER_TYPES = ['number', 'integer', 'float'];
 const DATETIME_TYPES = ['datetime', 'date', 'time'];
@@ -173,9 +173,9 @@ const compilePathName = (category: string, specificCategory: string, target: str
 
 export const DisplayRulesEditor = ({ name }: any) => {
 	const { widgetName, widgets } = useAtomValue(pageAtom);
-	const widgetsInputs = useAtomValue(allWidgetsInputAtom);
-	const tableState = useAtomValue(tableStateAtom);
-	const tableColumnTypes = useAtomValue(tableColumnTypesAtom);
+	const widgetsInputs = useAtomValue(pageStateAtom);
+	const tableState: any = {}; // useAtomValue(tableStateAtom);
+	const tableColumnTypes = {}; // useAtomValue(tableColumnTypesAtom);
 
 	const currentWidget: { [key: string]: any } =
 		widgetsInputs?.[widgetName as keyof typeof widgetsInputs] || {};

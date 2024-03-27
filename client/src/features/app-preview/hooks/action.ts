@@ -5,7 +5,7 @@ import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { workerAxios } from '@/lib/axios';
 import { fetchJobStatus } from '@/utils/worker-job';
 import { pageAtom } from '@/features/page';
-import { newPageStateAtom, useSyncState } from '@/features/app-state';
+import { pageStateContextAtom, useSyncState } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -38,7 +38,7 @@ export const useEvent = (props?: any) => {
 	const toast = useToast();
 	const [{ pageName, appName, widgetName, widgets }, setPageContext] = useAtom(pageAtom);
 
-	const pageState = useAtomValue(newPageStateAtom);
+	const pageStateContext = useAtomValue(pageStateContextAtom);
 
 	const syncState = useSyncState();
 
@@ -62,7 +62,7 @@ export const useEvent = (props?: any) => {
 			pageName,
 			appName,
 			functionName: actionName,
-			pageState,
+			pageState: pageStateContext,
 		});
 	};
 
