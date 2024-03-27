@@ -22,28 +22,35 @@ import { InputRenderer } from '@/components/FormInput';
 
 const SOURCES_SNIPPET: any = {
 	postgres: `
-SOURCE_PG_MYDB_HOST="YOUR HOST"
-SOURCE_PG_MYDB_DATABASE="YOUR DATABASE"
-SOURCE_PG_MYDB_USERNAME="YOUR USERNAME"
-SOURCE_PG_MYDB_PASSWORD="YOUR PASSWORD"
-SOURCE_PG_MYDB_PORT=5432 # CHANGE TO YOUR PORT`,
+
+[sources.postgres.NICKNAME]
+host = "HOST"
+database = "DATABASE"
+username = "USERNAME"
+password = "PASSWORD"
+port = PORT`,
 	mysql: `
-SOURCE_MYSQL_MYDB_HOST="YOUR HOST"
-SOURCE_MYSQL_MYDB_DATABASE="YOUR DATABASE"
-SOURCE_MYSQL_MYDB_USERNAME="YOUR USERNAME"
-SOURCE_MYSQL_MYDB_PASSWORD="YOUR PASSWORD"
-SOURCE_MYSQL_MYDB_PORT=3306 # CHANGE TO YOUR PORT
-`,
+
+[sources.mysql.NICKNAME]
+host = "HOST"
+database = "DATABASE"
+username = "USERNAME"
+password = "PASSWORD"
+port = PORT`,
 	snowflake: `
-SOURCE_SNOWFLAKE_MYDB_HOST="YOUR HOST"
-SOURCE_SNOWFLAKE_MYDB_DATABASE="YOUR DATABASE"
-SOURCE_SNOWFLAKE_MYDB_USERNAME="YOUR USERNAME"
-SOURCE_SNOWFLAKE_MYDB_PASSWORD="YOUR PASSWORD"
-SOURCE_SNOWFLAKE_MYDB_SCHEMA="YOUR SCHEMA"
-SOURCE_SNOWFLAKE_MYDB_WAREHOUSE="YOUR WAREHOUSE"
-SOURCE_SNOWFLAKE_MYDB_ROLE="YOUR ROLE"`,
+
+[sources.snowflake.NICKNAME]
+host = "HOST"
+database = "DATABASE"
+username = "USERNAME"
+password = "PASSWORD"
+schema = "SCHEMA"
+warehouse = "WAREHOUSE"
+role = "ROLE"`,
 	sqlite: `
-SOURCE_SQLITE_MYDB_HOST="YOUR DB FILE"`,
+
+[sources.sqlite.NICKNAME]
+host = "PATH TO DB FILE"`,
 };
 
 const CodeSnippet = ({ code, file }: any) => {
@@ -104,7 +111,7 @@ export const Setup = () => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { user } = useGetCurrentUser();
 
-	const [source, setSource] = useState('sqlite');
+	const [source, setSource] = useState('');
 
 	const { tokens } = useProxyTokens({ userId: user.id, workspaceId });
 	const firstToken = tokens[0] || { token: '' };
@@ -136,12 +143,28 @@ export const Setup = () => {
 			<ListItem>
 				<Stack>
 					<Text>
-						Create a <Code>.env</Code> at the root directory ( dropbase ) and copy this
+						Create a <Code>config.toml</Code> at the root directory ( dropbase ) and
+						copy this
 					</Text>
 
-					<FormControl maxW="sm">
-						<FormLabel>Select your DB</FormLabel>
+					<CodeSnippet
+						file="config.toml"
+						code={`dropbase_api_url = "https://api.dev.dropbase.io"
+dropbase_token = "${firstToken?.token}"
+redis_host = "redis"
+
+[sources.sqlite.demo]
+host = "files/demo.db"${SOURCES_SNIPPET[source] || ''}
+`}
+					/>
+
+					<FormControl>
+						<FormLabel>
+							To preload <Code>config.toml</Code> with database credentials, select
+							your database type
+						</FormLabel>
 						<InputRenderer
+							maxW="sm"
 							type="custom-select"
 							options={Object.keys(SOURCES_SNIPPET).map((option: any) => ({
 								name: option,
@@ -153,13 +176,6 @@ export const Setup = () => {
 							value={source || ''}
 						/>
 					</FormControl>
-
-					<CodeSnippet
-						file=".env"
-						code={`DROPBASE_TOKEN='${firstToken?.token}'\nDROPBASE_API_URL='https://api.dropbase.io'\nSOURCE_SQLITE_DEMO_HOST="files/demo.db"\n${
-							SOURCES_SNIPPET[source] || ''
-						}`}
-					/>
 				</Stack>
 			</ListItem>
 			<ListItem>

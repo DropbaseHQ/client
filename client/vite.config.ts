@@ -1,7 +1,6 @@
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
-import VitePluginHtmlEnv from 'vite-plugin-html-env';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 const VISUALIZER = false;
