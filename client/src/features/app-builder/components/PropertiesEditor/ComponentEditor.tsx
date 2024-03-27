@@ -30,6 +30,7 @@ import { EventPropertyEditor } from '@/features/app-builder/components/Propertie
 import { LabelContainer } from '@/components/LabelContainer';
 import { SelectDataFetcher } from '../SelectDataFetcher';
 import { useFetcherData } from '@/features/smart-table/hooks';
+import { DashedBorder } from '@/components/DashedBorder';
 
 const TEMPLATE_REGEX = /\{\{(.+?)\}\}/;
 
@@ -558,36 +559,38 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 	};
 
 	return (
-		<Menu>
-			<MenuButton
-				as={Button}
-				variant="ghost"
-				size="sm"
-				flexShrink="0"
-				mr="auto"
-				data-cy="add-component-button"
-				isDisabled={!isConnected}
-				isLoading={mutation.isLoading}
-				{...props}
-			>
-				<Stack alignItems="center" justifyContent="center" direction="row">
-					<Plus size="14" />
-					<Box>Add Component</Box>
-				</Stack>
-			</MenuButton>
-			<MenuList>
-				{['input', 'text', 'select', 'button', 'boolean'].map((c) => (
-					<MenuItem
-						onClick={() => {
-							onSubmit({ type: c });
-						}}
-						key={c}
-						fontSize="md"
-					>
-						{c}
-					</MenuItem>
-				))}
-			</MenuList>
-		</Menu>
+		<DashedBorder>
+			<Menu>
+				<MenuButton
+					as={Button}
+					variant="ghost"
+					size="sm"
+					flexShrink="0"
+					mr="auto"
+					data-cy="add-component-button"
+					isDisabled={!isConnected}
+					isLoading={mutation.isLoading}
+					{...props}
+				>
+					<Stack alignItems="center" justifyContent="center" direction="row">
+						<Plus size="14" />
+						<Box>Add Component</Box>
+					</Stack>
+				</MenuButton>
+				<MenuList>
+					{['input', 'text', 'select', 'button', 'boolean'].map((c) => (
+						<MenuItem
+							onClick={() => {
+								onSubmit({ type: c });
+							}}
+							key={c}
+							fontSize="md"
+						>
+							{c}
+						</MenuItem>
+					))}
+				</MenuList>
+			</Menu>
+		</DashedBorder>
 	);
 };

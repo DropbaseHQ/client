@@ -37,7 +37,10 @@ class GroupController:
             require_group_leader(db, group_id, user)
         group = crud.group.get_object_by_id_or_404(db, id=group_id)
         try:
-            # Are there any existing user_group policies for this user in this workspace IN the policy table?
+            '''
+            Are there any existing user_group policies for this user
+            in this workspace IN the policy table?
+            '''
             existing_group_policy = (
                 db.query(Policy)
                 .filter(

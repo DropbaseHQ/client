@@ -17,6 +17,7 @@ import { appModeAtom, websocketStatusAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
 import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 import { Notification } from '@/features/app-preview/components/Notification';
+import { MirrorTableColumns } from '@/features/app-builder/components/PropertiesEditor/MirrorTableColumnInputs';
 
 export const WidgetPreview = ({ widgetName }: any) => {
 	const { appName, pageName } = useParams();
@@ -258,21 +259,14 @@ export const WidgetPreview = ({ widgetName }: any) => {
 								})}
 								{provided.placeholder}
 								{isDevMode ? (
-									<Box
-										w="full"
-										p="2"
-										bg="white"
-										borderWidth="1px"
-										borderStyle="dashed"
-										borderRadius="md"
-										mt="2"
-									>
+									<Stack mt="2">
 										<NewComponent
 											widgetName={widgetName}
 											w="full"
 											variant="secondary"
 										/>
-									</Box>
+										<MirrorTableColumns widgetName={widgetName} />
+									</Stack>
 								) : null}
 							</Stack>
 						)}

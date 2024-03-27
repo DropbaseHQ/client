@@ -52,7 +52,8 @@ export const useGoogleLogin = (mutationConfig: MutationConfig<typeof loginGoogle
 
 export const useSetAxiosToken = () => {
 	const navigate = useNavigate();
-	const { id: workspaceId } = useAtomValue(workspaceAtom);
+	const selectedWorkspace = useAtomValue(workspaceAtom);
+	const workspaceId = selectedWorkspace?.id;
 	const { pathname } = useLocation();
 
 	const loginRoutes =

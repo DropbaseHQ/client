@@ -1,7 +1,7 @@
 import useWebSocket from 'react-use-websocket';
 import { Badge, Box, Center, Circle, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useSetAtom } from 'jotai';
-import { Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import {
 	useGetWebSocketURL,
 	useSetAxiosToken,
@@ -123,5 +123,13 @@ export const WorkerDashboardRoutes = () => {
 		<DashboardRoutes homeRoute="/apps">
 			<Route element={<ProtectedRoutes />}>{children}</Route>
 		</DashboardRoutes>
+	);
+};
+
+export const WorkerDashboardWrapper = () => {
+	return (
+		<Routes>
+			<Route path="/*" element={<WorkerDashboardRoutes />} />
+		</Routes>
 	);
 };

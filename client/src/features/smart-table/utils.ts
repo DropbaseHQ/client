@@ -87,8 +87,10 @@ export const getTimeStringFromEpoch = (epoch: string) => {
 
 // converts epoch time to string of format yyyy-mm-dd hh:mm:ss AM/PM
 export const formatDateTime = (epoch: string) => {
+	const dateInstance = getDateInstance(epoch);
+
 	try {
-		return format(convertToUTC(epoch), 'yyyy-MM-dd hh:mm:ss a');
+		return format(convertToUTC(dateInstance), 'yyyy-MM-dd hh:mm:ss a');
 	} catch (e) {
 		return epoch;
 	}

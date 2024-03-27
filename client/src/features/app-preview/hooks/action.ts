@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from 'react-query';
-import { useToast } from '@chakra-ui/react';
+
 import { useAtom, useAtomValue } from 'jotai';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { workerAxios } from '@/lib/axios';
@@ -7,6 +7,7 @@ import { fetchJobStatus } from '@/utils/worker-job';
 import { pageAtom } from '@/features/page';
 import { newPageStateAtom, useSyncState } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
+import { useToast } from '@/lib/chakra-ui';
 
 const executeAction = async ({ pageName, appName, pageState, functionName }: any) => {
 	const response = await workerAxios.post(`/function/`, {
