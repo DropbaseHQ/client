@@ -694,8 +694,6 @@ export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 						};
 
 					default: {
-						// console.log("got here4")
-						// console.log(column?.configurations)
 						return {
 							kind: GridCellKind.Number,
 							data: cellValue,
