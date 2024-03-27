@@ -125,9 +125,13 @@ const ColumnProperty = ({
 
 	const displayType = watch('display_type');
 
+	const [selectedOptionLabel, setSelectedOptionLabel] = useState('');
+	const [optionsList, setOptionsList] = useState([]);
+
 	const allDisplayConfigurations = resourceFields?.display_type_configurations || [];
 	const displayConfiguration =
 		allDisplayConfigurations?.find((d: any) => d.name === displayType) || {};
+
 	const configProperties = displayConfiguration?.properties || {};
 
 	const editableFields = VISIBLE_EDITABLE_FIELDS?.[columnField];
@@ -273,9 +277,6 @@ const ColumnProperty = ({
 		allVisibleFields =
 			columnFields.filter((f: any) => VISIBLE_FIELDS_SCHEMA.includes(f.name)) || [];
 	}
-
-	const [selectedOptionLabel, setSelectedOptionLabel] = useState('');
-	const [optionsList, setOptionsList] = useState([]);
 
 	useEffect(() => {
 		setOptionsList(resolveDisplayTypeOptions(displayType));
@@ -476,9 +477,12 @@ const ColumnProperty = ({
 										);
 									}
 
+									if (f.name === 'display_type') {
+										return null;
+									}
+
 									return (
 										<FormInput
-											{...f}
 											id={f.name}
 											name={f.title}
 											options={(f.enum || f.options || []).map((o: any) => ({
@@ -490,31 +494,31 @@ const ColumnProperty = ({
 									);
 								})}
 
-							{Object.keys(configProperties).some(
-								(key) => configProperties[key] === selectedOptionLabel,
-							) ? (
-								<SimpleGrid py="2" gap={4} columns={2}>
-									{Object.keys(configProperties)
-										.filter(
-											(key: any) =>
-												configProperties?.[key]?.category !== 'Internal',
-										)
-										.map((key: any) => {
-											const property = configProperties?.[key];
-
+							{Object.keys(configProperties).length > 0 &&
+							configProperties[selectedOptionLabel] ? (
+								<SimpleGrid gap={4} columns={2}>
+									{Object.entries(
+										configProperties[selectedOptionLabel].properties as Record<
+											string,
+											any
+										>,
+									)
+										.filter(([, value]) => value.category !== 'Internal')
+										.map(([key, property]) => {
 											const isRequired =
 												displayConfiguration?.required?.includes(key);
 											return (
 												<Box
+													key={key}
 													gridColumn={
 														property.type === 'array' ? '1 / -1' : ''
 													}
+													py="2"
 												>
 													<FormInput
-														key={key}
-														type={property?.type}
+														type={property.type}
 														id={`configurations.${key}`}
-														name={property?.title}
+														name={property.title}
 														keys={
 															key === 'options'
 																? ['name', 'value']
@@ -531,9 +535,7 @@ const ColumnProperty = ({
 														required={isRequired}
 														validation={
 															isRequired
-																? {
-																		required: `${key} is required`,
-																  }
+																? { required: `${key} is required` }
 																: {}
 														}
 													/>
