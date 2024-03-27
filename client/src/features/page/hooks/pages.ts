@@ -30,7 +30,7 @@ const fetchPage = async ({ appName, pageName }: any) => {
 	return response.data;
 };
 
-export const useGetPage = ({ appName, pageName }: any) => {
+export const useGetPage = ({ appName, pageName, ...props }: any) => {
 	const queryKey = [PAGE_DATA_QUERY_KEY, appName, pageName];
 	const navigate = useNavigate();
 	const toast = useToast();
@@ -38,6 +38,7 @@ export const useGetPage = ({ appName, pageName }: any) => {
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchPage({ appName, pageName }), {
 		enabled: Boolean(appName && pageName),
 		staleTime: Infinity,
+		...props,
 	});
 
 	const data: any = useMemo(() => {
