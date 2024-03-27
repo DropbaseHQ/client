@@ -85,7 +85,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	});
 
 	const selectColumnsLoading = fetcherData?.status === 'loading';
-	const columns = fetcherData?.header.map((c: any) => c?.name);
+	const columns = fetcherData?.header?.map((c: any) => c?.name);
 
 	useEffect(() => {
 		if (multiple) {

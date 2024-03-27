@@ -246,7 +246,7 @@ export const AppComponent = (props: any) => {
 	let inputType = type;
 
 	if (componentType === 'select') {
-		inputType = 'custom-select';
+		inputType = 'select';
 
 		if (component?.multiple) {
 			inputType = 'multiselect';
