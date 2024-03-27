@@ -36,7 +36,12 @@ export const TableBar = () => {
 	const { onOpen, onClose, isOpen, renderPopoverContent } = useConvertPopover(tableName);
 
 	const { isPreview } = useAtomValue(appModeAtom);
-	const { fetcher, type: tableType, smart: isSmartTable } = useGetTable(tableName || '');
+	const {
+		widget: tableWidget,
+		fetcher,
+		type: tableType,
+		smart: isSmartTable,
+	} = useGetTable(tableName || '');
 
 	const isConvertingTable = useIsMutating({ mutationKey: `${CONVERT_MUTATION}-${tableName}` });
 
@@ -85,7 +90,7 @@ export const TableBar = () => {
 		}
 	};
 
-	if (!false) {
+	if (tableWidget) {
 		return (
 			<Stack
 				bg="white"
@@ -100,7 +105,7 @@ export const TableBar = () => {
 				w="full"
 				justifyContent="space-between"
 			>
-				<WidgetPreview inline widgetName="widget6" />
+				<WidgetPreview inline widgetName={tableWidget} />
 			</Stack>
 		);
 	}
