@@ -297,14 +297,18 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 										page_name: pageName,
 										properties: {
 											...(properties || {}),
-											widgets: widgets.map((w: any) => ({
-												...w,
-												components: w?.components.filter(
-													(c: any) =>
-														c?.name !== component?.name ||
-														w?.name !== widgetName,
-												),
-											})),
+											blocks: (properties.blocks || []).map((w: any) => {
+												if (w.name === widgetName) {
+													return {
+														...w,
+														components: w?.components.filter(
+															(c: any) => c?.name !== component?.name,
+														),
+													};
+												}
+
+												return w;
+											}),
 										},
 									});
 								}}

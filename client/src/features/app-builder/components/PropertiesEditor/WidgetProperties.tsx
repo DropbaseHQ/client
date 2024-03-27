@@ -85,7 +85,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: widgets.map((w: any) =>
+					blocks: (properties.blocks || []).map((w: any) =>
 						w.name === widgetId ? { ...w, name: newName } : w,
 					),
 				},

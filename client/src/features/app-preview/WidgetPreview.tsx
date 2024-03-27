@@ -114,7 +114,7 @@ export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 		const newProps = {
 			...(properties || {}),
 
-			widgets: widgets?.map((w: any) => {
+			blocks: (properties.blocks || [])?.map((w: any) => {
 				if (w.name !== widgetName) {
 					return w;
 				}

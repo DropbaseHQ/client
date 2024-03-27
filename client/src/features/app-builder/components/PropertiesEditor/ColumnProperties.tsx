@@ -212,7 +212,7 @@ const ColumnProperty = ({
 			});
 
 			const currentColumn =
-				(pageProperties?.tables || [])
+				(pageProperties?.blocks || [])
 					.find((t: any) => t.name === tableName)
 					?.columns?.find((c: any) => c.name === defaultName) || {};
 
@@ -232,7 +232,7 @@ const ColumnProperty = ({
 				page_name: pageName,
 				properties: {
 					...(pageProperties || {}),
-					tables: (pageProperties?.tables || []).map((t: any) => {
+					blocks: (pageProperties?.blocks || []).map((t: any) => {
 						if (t.name === tableName) {
 							return {
 								...t,
