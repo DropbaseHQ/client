@@ -5,13 +5,8 @@ import { useDebounce } from 'use-debounce';
 
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
-import { useGetPage } from '@/features/page';
-import {
-	APP_STATE_QUERY_KEY,
-	pageStateAtom,
-	pageStateContextAtom,
-	useAppState,
-} from '@/features/app-state';
+import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
+import { pageStateAtom, pageStateContextAtom } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
@@ -122,8 +117,6 @@ export const useTableData = ({
 
 	const [debouncedFilters] = useDebounce(filters, 1000);
 
-	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
-
 	const selectRow = useSetAtom(pageStateAtom);
 
 	const pageStateContext: any = useAtomValue(pageStateContextAtom);
@@ -187,7 +180,6 @@ export const useTableData = ({
 		{
 			enabled: !!(
 				!isLoadingPage &&
-				!isFetchingAppState &&
 				table?.name in tablesState &&
 				table?.fetcher &&
 				table &&
@@ -295,7 +287,7 @@ export const useSyncDropbaseColumns = (props: any = {}) => {
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 		onError: (error: any) => {
 			toast({

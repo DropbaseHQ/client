@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 
 import { axios } from '@/lib/axios';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
-import { APP_STATE_QUERY_KEY } from '@/features/app-state';
+import { PAGE_DATA_QUERY_KEY } from '@/features/page';
 
 export const COLUMN_PROPERTIES_QUERY_KEY = 'column/properties';
 
@@ -66,7 +66,7 @@ export const useUpdateColumnProperties = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 	});
 };

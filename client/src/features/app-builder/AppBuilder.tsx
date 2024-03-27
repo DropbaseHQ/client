@@ -8,7 +8,7 @@ import { PanelHandle } from '@/components/Panel';
 
 import { AppPreview } from '@/features/app-preview';
 import { StackedTables } from '@/features/smart-table';
-import { useInitPage } from '@/features/page';
+import { useGetPage, useInitPage } from '@/features/page';
 import { Loader } from '@/components/Loader';
 import { AppNavbar } from '@/features/app/components/AppNavbar';
 import { PropertyPane } from '@/features/app-builder';
@@ -17,7 +17,6 @@ import { WorkerDisconnected } from './components/WorkerDisconnected';
 import { inspectedResourceAtom } from './atoms';
 import { BuilderSidebar } from './components/Sidebar';
 import { FileContent } from './components/FilesExplorer/FileContent';
-import { useAppState } from '../app-state';
 
 export const AppBuilder = () => {
 	const { appName, pageName } = useParams();
@@ -26,10 +25,10 @@ export const AppBuilder = () => {
 	const { isLoading } = useInitPage();
 	const theme = useTheme();
 	const setInspectedItem = useSetAtom(inspectedResourceAtom);
-	const { permissions, isLoading: appStateIsLoading } = useAppState(
-		appName || '',
-		pageName || '',
-	);
+	const { permissions, isLoading: appStateIsLoading } = useGetPage({
+		appName,
+		pageName,
+	});
 
 	useEffect(() => {
 		return () => {

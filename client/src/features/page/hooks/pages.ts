@@ -6,7 +6,6 @@ import { useToast } from '@/lib/chakra-ui';
 
 import { workerAxios } from '@/lib/axios';
 import { pageAtom } from '../atoms';
-import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 import { APPS_QUERY_KEY } from '@/features/app-list/hooks/useGetWorkspaceApps';
 
 export const PAGE_DATA_QUERY_KEY = 'pageData';
@@ -137,13 +136,11 @@ export const useUpdatePageData = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 
 			props?.onSettled?.();
 		},
 		onSuccess: (data: any, variables: any) => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 
 			props?.onSuccess?.(data, variables);
 		},

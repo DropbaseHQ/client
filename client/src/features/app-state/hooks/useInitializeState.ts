@@ -1,13 +1,10 @@
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { pageStateAtom, pageContextAtom } from '@/features/app-state';
-import { useAppState } from '@/features/app-state/hooks';
+import { useGetPage } from '@/features/page';
 
 export const useInitializePageState = (appName: string, pageName: string) => {
-	const {
-		state: { context, state },
-		...rest
-	} = useAppState(appName, pageName);
+	const { context, state, ...rest } = useGetPage({ appName, pageName });
 
 	const setPageState = useSetAtom(pageStateAtom);
 	const setPageContext = useSetAtom(pageContextAtom);
