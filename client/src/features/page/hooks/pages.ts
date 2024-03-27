@@ -51,6 +51,7 @@ export const useGetPage = ({ appName, pageName, ...props }: any) => {
 			widgets: allBlocks.filter((b: any) => b.block_type === 'widget') || [],
 			files: response?.state_context?.properties?.files || [],
 			properties: response?.state_context?.properties || {},
+			permissions: response?.permissions || {},
 		};
 	}, [response]);
 
