@@ -64,7 +64,7 @@ export const MirrorTableColumns = ({ widgetName, ...props }: any) => {
 					name: c.name,
 					data_type: 'integer',
 					placeholder: null,
-					default: hasDefault ? `{{state.tables.${table.name}.${c.name}}}` : null,
+					default: hasDefault ? `{{state.${table.name}.${c.name}}}` : null,
 					multiline: false,
 					display_rules: null,
 					component_type: 'input',
@@ -122,7 +122,7 @@ export const MirrorTableColumns = ({ widgetName, ...props }: any) => {
 					...(properties || {}),
 					blocks: [
 						...(properties?.blocks || []).map((w: any) => {
-							if (w.block_type === 'widget' && w.name === widgetName) {
+							if (w.name === widgetName) {
 								return {
 									...w,
 									components: [...(w.components || []), ...columnComponents],

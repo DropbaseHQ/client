@@ -197,7 +197,7 @@ export const FilterButton = () => {
 					...(properties || {}),
 					blocks: [
 						...(properties?.blocks || []).map((t: any) => {
-							if (t.block_type === 'table' && t.name === tableId) {
+							if (t.name === tableId) {
 								return {
 									...t,
 									filters: updatedFilters

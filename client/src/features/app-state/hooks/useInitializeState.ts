@@ -14,6 +14,7 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 
 	useEffect(() => {
 		setPageState(() => {
+			// FIXME: yash take alook again by having a new table
 			// const { tables } = state;
 			// setTableState(tables);
 

@@ -156,7 +156,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const onSubmit = ({ stateInDefault, ...formValues }: any) => {
 		if (stateInDefault && !TEMPLATE_REGEX.test(formValues.default)) {
 			setError('default', {
-				message: `Invalid state value, please make sure you use template like {{state.tables.table1.id}}`,
+				message: `Invalid state value, please make sure you use template like {{state.table1.id}}`,
 			});
 			return;
 		}
@@ -168,7 +168,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 				...(properties || {}),
 				blocks: [
 					...(properties?.blocks || []).map((w: any) => {
-						if (w.block_type === 'widget' && w.name === widgetName) {
+						if (w.name === widgetName) {
 							return {
 								...w,
 								components: (w.components || []).map((c: any) => {
@@ -200,7 +200,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 					...(properties || {}),
 					blocks: [
 						...(properties?.blocks || []).map((w: any) => {
-							if (w.block_type === 'widget' && w.name === widgetName) {
+							if (w.name === widgetName) {
 								return {
 									...w,
 									components: (w.components || []).map((c: any) => {
@@ -264,9 +264,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 								value={id}
 								currentNames={(
 									properties?.blocks.find(
-										(w: any) =>
-											w.block_type === 'widget' &&
-											w.name === (widgetName || ''),
+										(w: any) => w.name === (widgetName || ''),
 									)?.components || []
 								).map((c: any) => c.name)}
 								onUpdate={handleUpdateName}
@@ -489,8 +487,7 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 
 	const onSubmit = async ({ type }: any) => {
 		const currentNames = (
-			properties?.blocks?.find((w: any) => w.block_type === 'widget' && w.name === widgetName)
-				?.components || []
+			properties?.blocks?.find((w: any) => w.name === widgetName)?.components || []
 		)
 			.filter((c: any) => c.component_type === type)
 			.map((c: any) => c.name);
@@ -533,7 +530,7 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 					...(properties || {}),
 					blocks: [
 						...(properties?.blocks || []).map((w: any) => {
-							if (w.block_type === 'widget' && w.name === widgetName) {
+							if (w.name === widgetName) {
 								return {
 									...w,
 									components: [

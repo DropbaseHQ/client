@@ -79,11 +79,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				blocks: [
-					...(properties?.blocks || []).filter(
-						(t: any) => t.block_type === 'table' && t.name !== tableId,
-					),
-				],
+				blocks: [...(properties?.blocks || []).filter((t: any) => t.name !== tableId)],
 			},
 		});
 	};
