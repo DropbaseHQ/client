@@ -87,7 +87,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: properties?.widgets.map((w: any) =>
+					widgets: widgets.map((w: any) =>
 						w.name === widgetId ? { ...w, name: newName } : w,
 					),
 				},
@@ -102,7 +102,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 	};
 
 	const handleDeleteWidget = () => {
-		if (properties?.widgets.length === 1) {
+		if (widgets.length === 1) {
 			toast({
 				status: 'error',
 				title: 'Failed to delete widget',
@@ -145,7 +145,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 
 							<NameEditor
 								value={widgetId}
-								currentNames={(properties?.widgets || []).map((w: any) => w.name)}
+								currentNames={(widgets || []).map((w: any) => w.name)}
 								onUpdate={handleUpdateName}
 								resource="widget"
 							/>

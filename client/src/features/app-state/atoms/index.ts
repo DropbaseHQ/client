@@ -11,6 +11,7 @@ export const nonWidgetContextAtom = atom<any>({});
 
 export const tableStateAtom = atom({});
 export const tableColumnTypesAtom = atom({});
+
 // use to handle widgets part of state
 export const allWidgetStateAtom = atom({
 	selected: null,

@@ -263,8 +263,10 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 							<NameEditor
 								value={id}
 								currentNames={(
-									properties?.widgets.find(
-										(w: any) => w.name === (widgetName || ''),
+									properties?.blocks.find(
+										(w: any) =>
+											w.block_type === 'widget' &&
+											w.name === (widgetName || ''),
 									)?.components || []
 								).map((c: any) => c.name)}
 								onUpdate={handleUpdateName}
@@ -487,7 +489,8 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 
 	const onSubmit = async ({ type }: any) => {
 		const currentNames = (
-			properties?.widgets?.find((w: any) => w.name === widgetName)?.components || []
+			properties?.blocks?.find((w: any) => w.block_type === 'widget' && w.name === widgetName)
+				?.components || []
 		)
 			.filter((c: any) => c.component_type === type)
 			.map((c: any) => c.name);
