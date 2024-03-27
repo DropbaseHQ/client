@@ -25,6 +25,8 @@ export const useURLMappings = () => {
 		() => fetchURLMappings({ workspaceId: workspaceId || '' }),
 		{
 			enabled: !!workspaceId,
+			staleTime: Infinity,
+			cacheTime: Infinity,
 		},
 	);
 	return {

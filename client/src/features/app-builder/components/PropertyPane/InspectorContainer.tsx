@@ -15,7 +15,8 @@ export const InspectorContainer = forwardRef<HTMLDivElement, any>(
 		const isCurrentComponent = id === activeInspect.id && activeInspect.type === type;
 		const activeHover = isOpen || isCurrentComponent;
 
-		const handleInspect = () => {
+		const handleInspect = (e: any) => {
+			e.stopPropagation();
 			setActiveInspect({
 				id,
 				type,
