@@ -283,6 +283,14 @@ const ColumnProperty = ({
 	}, [displayType]);
 
 	const handleSelectChange = (selectedValue: any) => {
+		setValue('configurations', null, { shouldDirty: true });
+
+		if (selectedValue === 'integer') {
+			setValue(`configurations.${selectedValue}.config_type`, 'int', { shouldDirty: true });
+		} else if (selectedValue === 'text') {
+			setValue(`configurations.${selectedValue}.config_type`, 'text', { shouldDirty: true });
+		}
+
 		setSelectedOptionLabel(selectedValue);
 	};
 
@@ -516,8 +524,9 @@ const ColumnProperty = ({
 													py="2"
 												>
 													<FormInput
+														key={key}
 														type={property.type}
-														id={`configurations.${key}`}
+														id={`configurations.${selectedOptionLabel}.${key}`} // this is the important one
 														name={property.title}
 														keys={
 															key === 'options'
