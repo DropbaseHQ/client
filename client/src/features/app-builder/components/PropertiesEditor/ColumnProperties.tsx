@@ -9,18 +9,12 @@ import {
 	Skeleton,
 	Tooltip,
 	Button,
-	Center,
-	Menu,
-	MenuButton,
-	MenuItemOption,
-	MenuList,
 	Divider,
 	SimpleGrid,
 	Code,
 	useDisclosure,
 	Collapse,
 	Text,
-	Portal,
 	IconButton,
 	FormLabel,
 } from '@chakra-ui/react';
@@ -34,6 +28,7 @@ import { getErrorMessage } from '@/utils';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { NewColumn } from '@/features/app-builder/components/PropertiesEditor/NewColumn';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
+import OptionsList from '@/features/app-builder/components/PropertiesEditor/OptionsList';
 
 const DISPLAY_TYPE_ENUM: any = {
 	text: ['text', 'select'],
@@ -382,70 +377,13 @@ const ColumnProperty = ({
 
 					<Collapse in={isOpen}>
 						<Stack p="3">
-							<Menu>
-								<Stack spacing="0.5">
-									<MenuButton
-										as={Stack}
-										direction="row"
-										alignItems="center"
-										borderWidth="1px"
-										p="1.5"
-										borderRadius="sm"
-										type="button"
-										width="50%"
-										// cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
-									>
-										<Stack
-											w="full"
-											spacing="0"
-											alignItems="center"
-											direction="row"
-										>
-											<Box>
-												<Text fontSize="sm">
-													{selectedOptionLabel ||
-														displayType ||
-														'Select option'}
-												</Text>
-											</Box>
-											<Box ml="auto">
-												<ChevronDown size="14" />
-											</Box>
-										</Stack>
-									</MenuButton>
-								</Stack>
-								<Portal>
-									<MenuList
-										zIndex="popover"
-										// pointerEvents={inputProps?.isDisabled ? 'none' : 'initial'}
-										borderRadius="sm"
-										shadow="sm"
-										p="0"
-										maxH="sm"
-										overflowY="auto"
-									>
-										{optionsList.length === 0 ? (
-											<Center>
-												<Text fontSize="sm">No options present</Text>
-											</Center>
-										) : (
-											optionsList.map((option, index) => (
-												<MenuItemOption
-													fontSize="sm"
-													key={option}
-													value={option}
-													data-cy={`select-option-${index}`}
-													onClick={() => {
-														handleSelectChange(option);
-													}}
-												>
-													{option}
-												</MenuItemOption>
-											))
-										)}
-									</MenuList>
-								</Portal>
-							</Menu>
+							<OptionsList
+								selectedOptionLabel={selectedOptionLabel}
+								displayType={displayType}
+								optionsList={optionsList}
+								handleSelectChange={handleSelectChange}
+							/>
+
 							{columnFields
 								.filter((f: any) => editableFields?.includes(f?.name))
 								.map((f: any) => {

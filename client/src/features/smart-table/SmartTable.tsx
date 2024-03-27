@@ -526,8 +526,7 @@ export const SmartTable = ({ tableName, provider, containerHeight }: any) => {
 
 		const currentValue = currentRow?.[column?.name];
 
-		const editedValue = cellEdits.find(
-			(e: any) => e.columnIndex === col && e.rowIndex === row)
+		const editedValue = cellEdits.find((e: any) => e.columnIndex === col && e.rowIndex === row)
 			?.new_value;
 
 		const defaultValue =
