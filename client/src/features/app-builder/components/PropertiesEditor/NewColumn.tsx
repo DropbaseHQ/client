@@ -75,8 +75,8 @@ export const NewColumn = (props: any) => {
 			page_name: pageName,
 			properties: {
 				...(pageProperties || {}),
-				tables: (pageProperties?.tables || []).map((t: any) => {
-					if (t.name === tableName) {
+				blocks: (pageProperties?.blocks || []).map((t: any) => {
+					if (t.block_type === 'table' && t.name === tableName) {
 						return {
 							...t,
 							columns: [

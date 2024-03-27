@@ -26,6 +26,7 @@ import { useGetPage } from '@/features/page';
 
 import { appModeAtom } from '@/features/app/atoms';
 import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
+import { WidgetPreview } from '@/features/app-preview/WidgetPreview';
 
 export const TableBar = () => {
 	const toast = useToast();
@@ -83,6 +84,26 @@ export const TableBar = () => {
 			});
 		}
 	};
+
+	if (!false) {
+		return (
+			<Stack
+				bg="white"
+				borderWidth="1px"
+				borderBottom="0"
+				borderTopLeftRadius="md"
+				borderTopRightRadius="md"
+				direction="row"
+				flexWrap="wrap"
+				alignItems="center"
+				p="4"
+				w="full"
+				justifyContent="space-between"
+			>
+				<WidgetPreview inline widgetName="widget6" />
+			</Stack>
+		);
+	}
 
 	if (tableType === 'sql') {
 		return (

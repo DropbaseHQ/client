@@ -41,11 +41,13 @@ export const useGetPage = ({ appName, pageName }: any) => {
 	});
 
 	const data: any = useMemo(() => {
+		const allBlocks = response?.state_context?.properties?.blocks || [];
+
 		return {
 			state: response?.state_context?.state || {},
 			context: response?.state_context?.context || {},
-			tables: response?.state_context?.properties?.tables || [],
-			widgets: response?.state_context?.properties?.widgets || [],
+			tables: allBlocks.filter((b: any) => b.block_type === 'table') || [],
+			widgets: allBlocks.filter((b: any) => b.block_type === 'widget') || [],
 			files: response?.state_context?.properties?.files || [],
 			properties: response?.state_context?.properties || {},
 		};

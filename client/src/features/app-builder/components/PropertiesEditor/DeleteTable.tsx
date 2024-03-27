@@ -65,7 +65,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 	});
 
 	const onSubmit = () => {
-		if (properties.tables.length === 1) {
+		if (properties.blocks?.filter((b: any) => b.block_type === 'table').length === 1) {
 			toast({
 				status: 'error',
 				title: 'Failed to delete table',
@@ -79,7 +79,11 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				tables: [...(properties?.tables || []).filter((t: any) => t.name !== tableId)],
+				blocks: [
+					...(properties?.blocks || []).filter(
+						(t: any) => t.block_type === 'table' && t.name !== tableId,
+					),
+				],
 			},
 		});
 	};

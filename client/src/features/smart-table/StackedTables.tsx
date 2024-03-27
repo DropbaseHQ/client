@@ -105,11 +105,15 @@ export const StackedTables = () => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					tables: tables.map((t: any) => {
-						return {
-							...t,
-							...(tableLayout?.[t.name] || {}),
-						};
+					blocks: properties?.blocks?.map((t: any) => {
+						if (t.block_type === 'table') {
+							return {
+								...t,
+								...(tableLayout?.[t.name] || {}),
+							};
+						}
+
+						return t;
 					}),
 				},
 			});

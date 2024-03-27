@@ -166,9 +166,9 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				widgets: [
-					...(properties?.widgets || []).map((w: any) => {
-						if (w.name === widgetName) {
+				blocks: [
+					...(properties?.blocks || []).map((w: any) => {
+						if (w.block_type === 'widget' && w.name === widgetName) {
 							return {
 								...w,
 								components: (w.components || []).map((c: any) => {
@@ -198,9 +198,9 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: [
-						...(properties?.widgets || []).map((w: any) => {
-							if (w.name === widgetName) {
+					blocks: [
+						...(properties?.blocks || []).map((w: any) => {
+							if (w.block_type === 'widget' && w.name === widgetName) {
 								return {
 									...w,
 									components: (w.components || []).map((c: any) => {
@@ -528,9 +528,9 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: [
-						...(properties?.widgets || []).map((w: any) => {
-							if (w.name === widgetName) {
+					blocks: [
+						...(properties?.blocks || []).map((w: any) => {
+							if (w.block_type === 'widget' && w.name === widgetName) {
 								return {
 									...w,
 									components: [

@@ -991,9 +991,9 @@ export const SmartTable = ({ tableName, height }: any) => {
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				tables: [
-					...(properties?.tables || []).map((t: any) => {
-						if (t.name === tableName) {
+				blocks: [
+					...(properties?.blocks || []).map((t: any) => {
+						if (t.block_type === 'table' && t.name === tableName) {
 							return {
 								...t,
 								smart: false,

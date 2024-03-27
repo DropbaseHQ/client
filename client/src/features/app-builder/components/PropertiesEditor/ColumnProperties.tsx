@@ -184,8 +184,8 @@ const ColumnProperty = ({
 		try {
 			const newProperties = {
 				...(pageProperties || {}),
-				tables: (pageProperties?.tables || []).map((t: any) => {
-					if (t.name === tableName) {
+				blocks: (pageProperties?.blocks || []).map((t: any) => {
+					if (t.block_type === 'table' && t.name === tableName) {
 						return {
 							...t,
 							columns: (t?.columns || []).map((c: any) => {

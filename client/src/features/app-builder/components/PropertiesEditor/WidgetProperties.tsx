@@ -70,8 +70,10 @@ export const WidgetProperties = ({ widgetId }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: properties?.widgets.map((w: any) =>
-						w.name === widgetId ? { ...w, ...formValues } : w,
+					blocks: properties?.blocks.map((w: any) =>
+						w.block_type === 'widget' && w.name === widgetId
+							? { ...w, ...formValues }
+							: w,
 					),
 				},
 			});
@@ -116,7 +118,9 @@ export const WidgetProperties = ({ widgetId }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: properties?.widgets.filter((w: any) => w.name !== widgetId),
+					blocks: properties?.blocks.filter(
+						(w: any) => w.block_type === 'widget' && w.name !== widgetId,
+					),
 				},
 			});
 		}

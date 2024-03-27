@@ -35,10 +35,10 @@ const sizeMap: any = {
 const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 
 export const AppComponent = (props: any) => {
-	const { sendJsonMessage } = props;
+	const { sendJsonMessage, widgetName, inline } = props;
 
 	const toast = useToast();
-	const [{ pageName, appName, widgetName, widgets }, setPageContext] = useAtom(pageAtom);
+	const [{ pageName, appName, widgets }, setPageContext] = useAtom(pageAtom);
 	const {
 		component_type: componentType,
 		data_type: type,
@@ -246,7 +246,7 @@ export const AppComponent = (props: any) => {
 	let inputType = type;
 
 	if (componentType === 'select') {
-		inputType = 'custom-select';
+		inputType = 'select';
 
 		if (component?.multiple) {
 			inputType = 'multiselect';
@@ -263,7 +263,18 @@ export const AppComponent = (props: any) => {
 
 	return (
 		<Stack spacing="0.5">
-			<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
+			<FormControl
+				{...(inline
+					? {
+							as: Stack,
+							direction: 'row',
+							alignItems: 'center',
+							spacing: '0',
+					  }
+					: {})}
+				key={name}
+				bgColor={grayOutComponent ? 'gray.100' : ''}
+			>
 				{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
 				<InputRenderer
 					placeholder={placeholder}
@@ -315,7 +326,7 @@ export const AppComponent = (props: any) => {
 				) : null}
 			</FormControl>
 
-			{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+			{isPreview || inline ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
 		</Stack>
 	);
 };

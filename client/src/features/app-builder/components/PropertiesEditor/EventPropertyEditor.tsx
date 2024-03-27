@@ -146,9 +146,9 @@ export const EventPropertyEditor = ({ id }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: [
-						...(properties?.widgets || []).map((w: any) => {
-							if (w.name === widgetName) {
+					blocks: [
+						...(properties?.blocks || []).map((w: any) => {
+							if (w.type === 'widget' && w.name === widgetName) {
 								return {
 									...w,
 									components: (w.components || []).map((c: any) => {

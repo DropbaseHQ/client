@@ -165,7 +165,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 						direction="row"
 						alignItems="center"
 						borderWidth="1px"
-						p="1.5"
+						p="2"
 						borderRadius="sm"
 						type="button"
 						onBlur={onBlur}
@@ -175,7 +175,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 						<Stack w="full" spacing="0" alignItems="center" direction="row">
 							<Box>{children}</Box>
 							<Box ml="auto">
-								<ChevronDown size="14" />
+								<ChevronDown size="15" />
 							</Box>
 						</Stack>
 					</MenuButton>

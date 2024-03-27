@@ -19,7 +19,7 @@ import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 import { Notification } from '@/features/app-preview/components/Notification';
 import { MirrorTableColumns } from '@/features/app-builder/components/PropertiesEditor/MirrorTableColumnInputs';
 
-export const WidgetPreview = ({ widgetName }: any) => {
+export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 	const { appName, pageName } = useParams();
 
 	const retryCounter = useRef(0);
@@ -226,12 +226,19 @@ export const WidgetPreview = ({ widgetName }: any) => {
 						{(provided: any) => (
 							<Stack
 								ref={provided.innerRef}
-								p="4"
-								pt="2"
 								h="full"
-								overflow="auto"
+								{...(inline
+									? {
+											direction: 'row',
+											// px: 4,
+											flexWrap: 'wrap',
+											alignItems: 'center',
+											spacing: 5,
+											w: 'full',
+											// divider: <Divider orientation="vertical" h="14" />,
+									  }
+									: { p: 4, pt: 2, spacing: 3, overflow: 'auto' })}
 								data-cy="components-list"
-								spacing="3"
 								{...provided.droppableProps}
 							>
 								{componentsState.map((c: any, index: number) => {
@@ -249,6 +256,8 @@ export const WidgetPreview = ({ widgetName }: any) => {
 												>
 													<AppComponent
 														key={c.name}
+														inline={inline}
+														widgetName={widgetName}
 														sendJsonMessage={sendJsonMessage}
 														{...c}
 													/>
@@ -258,7 +267,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 									);
 								})}
 								{provided.placeholder}
-								{isDevMode ? (
+								{isDevMode && !inline ? (
 									<Stack mt="2">
 										<NewComponent
 											widgetName={widgetName}
