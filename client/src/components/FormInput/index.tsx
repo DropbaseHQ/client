@@ -86,7 +86,9 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							? valueAsString
 							: valueAsNumber;
 
-					onChange?.(type === 'integer' ? valueAsNumber : parsedValue);
+					const integerNumber = Number.isNaN(valueAsNumber) ? null : valueAsNumber;
+
+					onChange?.(type === 'integer' ? integerNumber : parsedValue);
 				}}
 				size="sm"
 				onBlur={() => {
