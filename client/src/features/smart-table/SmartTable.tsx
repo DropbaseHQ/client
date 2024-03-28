@@ -1172,6 +1172,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 										colorScheme="gray"
 										leftIcon={<UploadCloud size="14" />}
 										size="sm"
+										flexShrink="0"
 										onClick={handleCommitColumns}
 										isLoading={mutation.isLoading}
 									>
