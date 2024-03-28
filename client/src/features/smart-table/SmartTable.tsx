@@ -195,11 +195,16 @@ export const SmartTable = ({ tableName, height }: any) => {
 
 	const selectRowAndUpdateState = (row: number) => {
 		const newSelectedRow = { [tableName]: rows[row] || {} } as any;
+		let newState = {};
 
-		setPageState((old: any) => ({
-			...old,
-			...newSelectedRow,
-		}));
+		setPageState((old: any) => {
+			newState = {
+				...old,
+				[tableName]: newSelectedRow[tableName],
+			};
+
+			return { ...old, ...newSelectedRow };
+		});
 
 		setTableRowSelection((curr: any) => ({
 			...curr,
@@ -211,6 +216,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 			...pageStateContext.state,
 			...newSelectedRow,
 		};
+		return newState;
 	};
 
 	const clickColButton = (event: any, col: number, row: number) => {
@@ -927,10 +933,16 @@ export const SmartTable = ({ tableName, height }: any) => {
 			),
 		};
 
-		setPageState((old: any) => ({
-			...old,
-			...newSelectedRow,
-		}));
+		let newState = {};
+
+		setPageState((old: any) => {
+			newState = {
+				...old,
+				[tableName]: newSelectedRow[tableName],
+			};
+
+			return { ...old, ...newSelectedRow };
+		});
 
 		setTableRowSelection((curr: any) => ({
 			...curr,
@@ -940,7 +952,10 @@ export const SmartTable = ({ tableName, height }: any) => {
 		pageStateContext.state = { ...pageStateContext.state, ...newSelectedRow };
 		sendJsonMessage({
 			type: 'display_rule',
-			state_context: pageState,
+			state_context: {
+				...pageStateContext,
+				state: newState,
+			},
 			app_name: appName,
 			page_name: pageName,
 		});
@@ -961,11 +976,14 @@ export const SmartTable = ({ tableName, height }: any) => {
 				current: newSelection.current,
 			});
 
-			selectRowAndUpdateState(currentRow);
+			const newState = selectRowAndUpdateState(currentRow);
 
 			sendJsonMessage({
 				type: 'display_rule',
-				state_context: pageState,
+				state_context: {
+					...pageStateContext,
+					state: newState,
+				},
 				app_name: appName,
 				page_name: pageName,
 			});
