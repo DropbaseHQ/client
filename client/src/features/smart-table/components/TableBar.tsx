@@ -101,7 +101,7 @@ export const TableBar = () => {
 				direction="row"
 				flexWrap="wrap"
 				alignItems="center"
-				p="4"
+				p="2"
 				w="full"
 				justifyContent="space-between"
 			>
