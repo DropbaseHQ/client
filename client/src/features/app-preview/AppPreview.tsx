@@ -1,11 +1,16 @@
 import { Box, Button, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { ChevronDown } from 'react-feather';
 import { useParams } from 'react-router-dom';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
+import lodashSet from 'lodash/set';
 import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
-import { pageStateContextAtom, useInitializeWidgetState } from '@/features/app-state';
+import {
+	pageContextAtom,
+	pageStateContextAtom,
+	useInitializeWidgetState,
+} from '@/features/app-state';
 import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
@@ -16,6 +21,7 @@ import { NewWidget } from '@/features/app-preview/components/NewWidget';
 import { WidgetSwitcher } from '@/features/app-preview/components/WidgetSwitcher';
 import { WidgetPreview } from '@/features/app-preview/WidgetPreview';
 import { LabelContainer } from '@/components/LabelContainer';
+import { Notification } from '@/features/app-preview/components/Notification';
 
 export const AppPreview = () => {
 	const { appName, pageName } = useParams();
@@ -23,6 +29,9 @@ export const AppPreview = () => {
 	const { widgetName, widgets, modals } = useAtomValue(pageAtom);
 
 	const pageStateContext = useAtomValue(pageStateContextAtom);
+
+	const [allBlocksContext, setPageContext] = useAtom(pageContextAtom);
+	const pageContext = (allBlocksContext as any)?.page;
 
 	const widgetLabel = widgets?.find((w) => w.name === widgetName)?.label;
 
@@ -34,6 +43,13 @@ export const AppPreview = () => {
 
 	const { properties } = useGetPage({ appName, pageName });
 	const createMutation = useCreateWidget();
+
+	const handleRemoveAlert = () => {
+		setPageContext((oldData: any) => ({
+			...lodashSet(oldData, `page.message`, null),
+			...lodashSet(oldData, `page.message_type`, null),
+		}));
+	};
 
 	const handleCreateWidget = () => {
 		const { name: wName, label: wLabel } = generateSequentialName({
@@ -166,6 +182,12 @@ export const AppPreview = () => {
 					{widgetsToDisplay.map((wName: string) => (
 						<WidgetPreview key={wName} widgetName={wName} />
 					))}
+
+					<Notification
+						message={pageContext?.message}
+						type={pageContext?.message_type}
+						onClose={handleRemoveAlert}
+					/>
 				</Stack>
 			</Stack>
 		</Loader>
