@@ -148,6 +148,7 @@ export const TableProperties = () => {
 			setInspectedResource({
 				id: newName,
 				type: 'table',
+				meta: null,
 			});
 		} catch (e) {
 			//

@@ -62,6 +62,7 @@ export const NewTable = (props: any) => {
 			setInspectedResource({
 				id: nextName,
 				type: 'table',
+				meta: null,
 			});
 		} catch (e) {
 			//

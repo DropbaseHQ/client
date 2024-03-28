@@ -39,6 +39,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 			setInspectedResource({
 				id: null,
 				type: null,
+				meta: null,
 			});
 		},
 		onError: (error: any) => {
@@ -93,6 +94,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 			setInspectedResource({
 				id: newName,
 				type: 'widget',
+				meta: null,
 			});
 		} catch (e) {
 			//

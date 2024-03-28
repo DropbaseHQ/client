@@ -35,6 +35,7 @@ export const AppBuilder = () => {
 			setInspectedItem({
 				id: null,
 				type: null,
+				meta: null,
 			});
 		};
 	}, [setInspectedItem]);

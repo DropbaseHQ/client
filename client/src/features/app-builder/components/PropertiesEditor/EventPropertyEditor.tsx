@@ -183,6 +183,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 			setInspectedResource({
 				type: 'widget',
 				id: wName,
+				meta: null,
 			});
 		} catch (e) {
 			//

@@ -34,10 +34,12 @@ import { DashedBorder } from '@/components/DashedBorder';
 
 const TEMPLATE_REGEX = /\{\{(.+?)\}\}/;
 
-export const ComponentPropertyEditor = ({ id }: any) => {
+export const ComponentPropertyEditor = ({ id, meta }: any) => {
 	const toast = useToast();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
-	const { widgetName, pageName, appName } = useAtomValue(pageAtom);
+	const { pageName, appName } = useAtomValue(pageAtom);
+
+	const { widget: widgetName } = meta || {};
 
 	const { widgets, isLoading, properties, files } = useGetPage({ appName, pageName });
 	const component = widgets
@@ -132,6 +134,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 			setInspectedResource({
 				id: null,
 				type: null,
+				meta: null,
 			});
 		},
 		onError: (error: any) => {
@@ -225,6 +228,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 			setInspectedResource({
 				id: newName,
 				type: 'component',
+				meta: { widget: widgetName },
 			});
 		} catch (e) {
 			//
@@ -378,7 +382,12 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												property.name === 'display_rules' ||
 												property.type === 'rules'
 											) {
-												return <DisplayRulesEditor name={component.name} />;
+												return (
+													<DisplayRulesEditor
+														widgetName={widgetName}
+														name={component.name}
+													/>
+												);
 											}
 
 											if (
@@ -556,6 +565,7 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 			setInspectedResource({
 				id: newName,
 				type: 'component',
+				meta: { widget: widgetName },
 			});
 		} catch (e) {
 			//

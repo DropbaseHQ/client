@@ -171,8 +171,8 @@ const compilePathName = (category: string, specificCategory: string, target: str
 	return `${category}.${specificCategory}.${target}`;
 };
 
-export const DisplayRulesEditor = ({ name }: any) => {
-	const { widgetName, widgets } = useAtomValue(pageAtom);
+export const DisplayRulesEditor = ({ name, widgetName }: any) => {
+	const { widgets } = useAtomValue(pageAtom);
 	const widgetsInputs = useAtomValue(pageStateAtom);
 	const tableState: any = {}; // useAtomValue(tableStateAtom);
 	const tableColumnTypes = {}; // useAtomValue(tableColumnTypesAtom);

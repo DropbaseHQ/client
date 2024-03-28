@@ -39,6 +39,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 			setDevTab({
 				type: null,
 				id: null,
+				meta: null,
 			});
 		},
 	});
@@ -53,6 +54,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 			setDevTab({
 				type: null,
 				id: null,
+				meta: null,
 			});
 		},
 		onError: (error: any) => {

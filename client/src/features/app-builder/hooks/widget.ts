@@ -77,6 +77,7 @@ export const useCreateWidget = (props: any = {}) => {
 			updateSelectedResource({
 				type: 'widget',
 				id: data?.widget?.id,
+				meta: null,
 			});
 
 			toast({
