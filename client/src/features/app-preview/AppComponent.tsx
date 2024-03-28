@@ -248,14 +248,20 @@ export const AppComponent = (props: any) => {
 					name={name}
 					data-cy={`input-${name}`}
 					type={inputType}
+					onKeyDown={(e: any) => {
+						if (e.key === 'Enter') {
+							console.log('Enter key pressed');
+							handleEvent(component.on_change);
+						}
+					}}
 					onChange={(newValue: any) => {
 						// We need this newWidgetState because the state in pageState
 						// is not up to date with the latest input value
 						const newWidgetState = handleInputValue(name, newValue);
 
-						if (component.on_change) {
-							handleEvent(component.on_change);
-						}
+						// if (component.on_change) {
+						// 	handleEvent(component.on_change);
+						// }
 
 						if (component.on_toggle) {
 							handleEvent(component.on_toggle);

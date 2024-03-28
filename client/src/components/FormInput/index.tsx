@@ -65,6 +65,7 @@ const TemplateEditor = (props: any) => {
 export const InputRenderer = forwardRef((props: any, ref: any) => {
 	const {
 		onChange,
+		onKeyDown,
 		onBlur,
 		value,
 		type,
@@ -468,6 +469,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	return (
 		<Input
 			onBlur={onBlur}
+			onKeyDown={onKeyDown}
 			onChange={(e) => onChange?.(e.target.value)}
 			value={processedValue || ''}
 			size="sm"
