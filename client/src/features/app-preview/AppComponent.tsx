@@ -12,7 +12,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
 import { extractTemplateString, getErrorMessage } from '@/utils';
 
-import { useExecuteAction } from '@/features/app-preview/hooks';
+import { useEvent, useExecuteAction } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
 import {
 	useSyncState,
@@ -38,7 +38,10 @@ export const AppComponent = (props: any) => {
 	const { sendJsonMessage, widgetName, inline } = props;
 
 	const toast = useToast();
-	const [{ pageName, appName, widgets }, setPageContext] = useAtom(pageAtom);
+	const [{ pageName, appName }] = useAtom(pageAtom);
+
+	const handleEvent = useEvent({ widgetName });
+
 	const {
 		component_type: componentType,
 		data_type: type,
@@ -156,43 +159,6 @@ export const AppComponent = (props: any) => {
 			});
 		},
 	});
-
-	const handleAction = (actionName: string) => {
-		actionMutation.mutate({
-			pageName,
-			appName,
-			functionName: actionName,
-			pageState,
-		});
-	};
-
-	const handleEvent = (event: any) => {
-		if (event.type === 'widget') {
-			const widget = widgets?.find((w: any) => w.name === event.value);
-
-			if (widget?.type === 'modal') {
-				setPageContext((oldPage: any) => ({
-					...oldPage,
-					widgetName: event.value,
-					modals: [
-						...oldPage.modals.filter((m: any) => m.name !== event.value),
-						{
-							name: event.value,
-							caller: widgetName,
-						},
-					],
-				}));
-			} else {
-				setPageContext((oldPage: any) => ({
-					...oldPage,
-					modals: [],
-					widgetName: event.value,
-				}));
-			}
-		} else if (event.type === 'function') {
-			handleAction(event.value);
-		}
-	};
 
 	if (!shouldDisplay && !isEditorMode) {
 		return null;

@@ -4,10 +4,11 @@ import { useAtom, useAtomValue } from 'jotai';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { workerAxios } from '@/lib/axios';
 import { fetchJobStatus } from '@/utils/worker-job';
-import { pageAtom } from '@/features/page';
+import { pageAtom, useGetPage } from '@/features/page';
 import { pageStateContextAtom, useSyncState } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
+import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 
 const executeAction = async ({ pageName, appName, pageState, functionName }: any) => {
 	const response = await workerAxios.post(`/function/`, {
@@ -34,9 +35,11 @@ export const useExecuteAction = (props: any = {}) => {
 	});
 };
 
-export const useEvent = (props?: any) => {
+export const useEvent = (props: any) => {
 	const toast = useToast();
-	const [{ pageName, appName, widgetName, widgets }, setPageContext] = useAtom(pageAtom);
+	const queryClient = useQueryClient();
+	const [{ pageName, appName, widgets, widgetName }, setPageContext] = useAtom(pageAtom);
+	const { tables } = useGetPage({ appName, pageName });
 
 	const pageStateContext = useAtomValue(pageStateContextAtom);
 
@@ -67,29 +70,43 @@ export const useEvent = (props?: any) => {
 	};
 
 	const handleEvent = (event: any) => {
-		if (event.type === 'widget') {
-			const widget = widgets?.find((w: any) => w.name === event.value);
+		switch (event.type) {
+			case 'widget': {
+				const widget = widgets?.find((w: any) => w.name === event.value);
 
-			if (widget?.type === 'modal') {
-				setPageContext((oldPage: any) => ({
-					...oldPage,
-					widgetName: event.value,
-					modals: [
-						...oldPage.modals,
-						{
-							name: event.value,
-							caller: widgetName,
-						},
-					],
-				}));
-			} else {
-				setPageContext((oldPage: any) => ({
-					...oldPage,
-					widgetName: event.value,
-				}));
+				if (widget?.type === 'modal') {
+					setPageContext((oldPage: any) => ({
+						...oldPage,
+						widgetName: event.value,
+						modals: [
+							...oldPage.modals.filter((m: any) => m.name !== event.value),
+							{
+								name: event.value,
+								caller: widgetName,
+							},
+						],
+					}));
+				} else {
+					setPageContext((oldPage: any) => ({
+						...oldPage,
+						modals: [],
+						widgetName: event.value,
+					}));
+				}
+				break;
 			}
-		} else if (event.type === 'function') {
-			handleAction(event.value);
+			case 'function': {
+				handleAction(event.value);
+				break;
+			}
+			case 'table': {
+				queryClient.invalidateQueries([
+					TABLE_DATA_QUERY_KEY,
+					tables?.find((t: any) => t.name === event.value)?.fetcher,
+				]);
+				break;
+			}
+			default:
 		}
 	};
 
