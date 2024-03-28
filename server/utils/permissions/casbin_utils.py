@@ -16,11 +16,20 @@ from server.constants import ALLOWED_ACTIONS
 
 adapter = Adapter(SQLALCHEMY_DATABASE_URL, db_class=Policy)
 
+
 casbin_config = ""
 with open(
     str(Path(__file__).parent.absolute().joinpath("./casbin_model.conf")), "r"
 ) as f:
     casbin_config = f.read()
+
+
+def get_can_use_granular_permissions(workspace, workspace_owner):
+    return (
+        workspace.in_trial
+        or workspace_owner.email.endswith("@dropbase.io")
+        or workspace_owner.email.endswith("@castodia.com")
+    )
 
 
 def load_specific_policies(enforcer: casbin.Enforcer, policies):
@@ -72,8 +81,8 @@ def enforce_action(
     enforcer = get_contexted_enforcer(db, workspace_id)
     workspace = crud.workspace.get(db, id=workspace_id)
     workspace_owner = crud.workspace.get_oldest_user(db, workspace_id)
-    can_use_granular_permissions = workspace.in_trial or workspace_owner.email.endswith(
-        "@dropbase.io"
+    can_use_granular_permissions = get_can_use_granular_permissions(
+        workspace, workspace_owner
     )
     try:
         if resource_id:
@@ -170,8 +179,8 @@ def high_level_enforce(
     db: Session, enforcer: casbin.Enforcer, user_id, resource, action, workspace
 ):
     workspace_owner = crud.workspace.get_oldest_user(db, workspace.id)
-    can_use_granular_permissions = workspace.in_trial or workspace_owner.email.endswith(
-        "@dropbase.io"
+    can_use_granular_permissions = get_can_use_granular_permissions(
+        workspace, workspace_owner
     )
     if enforcer.enforce(str(user_id), "workspace", action):
         return True
@@ -188,8 +197,8 @@ def get_all_action_permissions(
     enforcer = get_contexted_enforcer(db, workspace_id)
     workspace = crud.workspace.get_object_by_id_or_404(db, id=workspace_id)
     workspace_owner = crud.workspace.get_oldest_user(db, workspace_id)
-    can_use_granular_permissions = workspace.in_trial or workspace_owner.email.endswith(
-        "@dropbase.io"
+    can_use_granular_permissions = get_can_use_granular_permissions(
+        workspace, workspace_owner
     )
 
     permissions_dict = {"workspace_permissions": {}, "app_permissions": {}}
