@@ -141,7 +141,7 @@ class SyncAppRequest(BaseModel):
 
 
 class CheckAppsPermissionsRequest(BaseModel):
-    apps: list
+    app_ids: list
 
 
 class CreateTestUserRequest(BaseModel):
