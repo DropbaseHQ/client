@@ -79,14 +79,14 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		return (
 			<NumberInput
 				onChange={(valueAsString, valueAsNumber) => {
+					const integerNumber = Number.isNaN(valueAsNumber) ? null : valueAsNumber;
+
 					const parsedValue =
 						valueAsString.endsWith('.') ||
 						valueAsString.endsWith('.0') ||
 						valueAsString.endsWith('.00')
 							? valueAsString
-							: valueAsNumber;
-
-					const integerNumber = Number.isNaN(valueAsNumber) ? null : valueAsNumber;
+							: integerNumber;
 
 					onChange?.(type === 'integer' ? integerNumber : parsedValue);
 				}}
