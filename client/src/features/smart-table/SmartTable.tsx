@@ -1121,7 +1121,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 							spacing="2"
 							flexShrink="0"
 						>
-							{!isPreview ? (
+							{!isPreview && table.type !== 'sql' ? (
 								<Tooltip label="Use inline widget">
 									<AttachWidget />
 								</Tooltip>
