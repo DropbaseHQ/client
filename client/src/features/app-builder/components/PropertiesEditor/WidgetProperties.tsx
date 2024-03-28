@@ -168,7 +168,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 								{fields?.widget?.map((property: any) => {
 									if (
 										property?.name === 'name' ||
-										property.type === 'block_type'
+										property.name === 'block_type'
 									) {
 										return null;
 									}
