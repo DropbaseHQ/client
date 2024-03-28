@@ -32,6 +32,7 @@ import { ErrorMessage } from '@hookform/error-message';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { MonacoEditor } from '@/components/Editor';
+import { formatDateTimeForInput, formatDateForInput } from '@/features/smart-table/utils';
 
 const TemplateEditor = (props: any) => {
 	const [codeHeight, setCodeHeight] = useState(30);
@@ -453,11 +454,19 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		);
 	}
 
+	let processedValue = value;
+
+	if (type === 'datetime' && typeof value === 'number') {
+		processedValue = formatDateTimeForInput(value);
+	} else if (type === 'date' && typeof value === 'number') {
+		processedValue = formatDateForInput(value);
+	}
+
 	return (
 		<Input
 			onBlur={onBlur}
 			onChange={(e) => onChange?.(e.target.value)}
-			value={value || ''}
+			value={processedValue || ''}
 			size="sm"
 			ref={ref}
 			type={type === 'datetime' ? 'datetime-local' : type}
