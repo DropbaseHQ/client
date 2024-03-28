@@ -27,11 +27,13 @@ import { useSQLCompletion } from '@/components/Editor/hooks/useSQLCompletion';
 import { newPageStateAtom } from '@/features/app-state';
 
 import { databaseSchema } from '@/components/Editor/utils/constants';
+import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 
 export const SQLEditor = ({ name }: any) => {
 	const toast = useToast();
 	const { appName, pageName } = useParams();
 	const { files, tables } = useGetPage({ appName, pageName });
+	const { user } = useGetCurrentUser();
 
 	const file = files.find((f: any) => f.name === name);
 	const sqlName = file?.name;
@@ -55,6 +57,18 @@ export const SQLEditor = ({ name }: any) => {
 	const [code, setCode] = useState('');
 
 	const { sources, isLoading: isLoadingSources } = useSources();
+
+	// Small hack to prevent test users on try.dropbase.io to see all sources
+	// This was easier to do than refactoring the backend to deal with it
+	const getFilteredSources = () => {
+		if (
+			window.location.pathname.includes('try.dropbase.io') &&
+			user.email.includes('@try.dropbase.io')
+		) {
+			return sources.filter((s) => s === 'try_dropbase');
+		}
+		return sources;
+	};
 
 	useEffect(() => {
 		setSource(file?.source);
@@ -196,7 +210,7 @@ export const SQLEditor = ({ name }: any) => {
 							type="select"
 							placeholder="Sources"
 							value={selectedSource}
-							options={sources.map((s) => ({ name: s, value: s }))}
+							options={getFilteredSources()?.map((s) => ({ name: s, value: s }))}
 							onChange={(newSelectedSource: any) => {
 								setSource(newSelectedSource);
 							}}
