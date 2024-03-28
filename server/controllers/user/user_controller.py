@@ -644,14 +644,13 @@ def check_apps_permissions(
     db: Session, user: User, request: CheckAppsPermissionsRequest, workspace: Workspace
 ):
     # Checks that a user has permissions to see and use and app
-    apps = request.apps
+    app_ids = request.app_ids
+    permissions = {}
     enforcer = get_contexted_enforcer(db, workspace_id=workspace.id)
 
-    filtered_apps = []
+    for app_id in app_ids:
 
-    for app in apps:
-        app_id = app.get("id")
-        allowed_to_use = high_level_enforce(
+        permissions[app_id] = high_level_enforce(
             db=db,
             enforcer=enforcer,
             user_id=user.id,
@@ -659,10 +658,7 @@ def check_apps_permissions(
             action="use",
             workspace=workspace,
         )
-        if allowed_to_use:
-            filtered_apps.append(app)
-
-    return filtered_apps
+    return permissions
 
 
 def github_auth(db: Session, Authorize: AuthJWT, code: str):
