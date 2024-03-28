@@ -265,10 +265,7 @@ export const AppComponent = (props: any) => {
 							type: 'display_rule',
 							state_context: {
 								...pageState,
-								state: {
-									...(pageState?.state || {}),
-									widgets: newWidgetState,
-								},
+								state: newWidgetState,
 							},
 							app_name: appName,
 							page_name: pageName,
