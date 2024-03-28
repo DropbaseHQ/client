@@ -92,7 +92,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 	useEffect(() => {
 		if (multiple) {
 			if (!Array.isArray(defaultValue)) {
-				setValue('default', [defaultValue], {
+				setValue('default', hasStateInDefault ? defaultValue : [defaultValue], {
 					shouldDirty: false,
 				});
 			}
@@ -101,7 +101,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 				shouldDirty: false,
 			});
 		}
-	}, [setValue, defaultValue, multiple]);
+	}, [setValue, hasStateInDefault, defaultValue, multiple]);
 
 	const getOptions = () => {
 		if (componentType === 'select' && useFetcher) {
@@ -419,6 +419,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 												property.name === 'value_column'
 											) {
 												if (!useFetcher) return null;
+
 												return (
 													<FormInput
 														{...property}
