@@ -8,7 +8,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 
-export const AttachWidget = () => {
+export const AttachWidget = ({ onAttach }: any) => {
 	const [selectedWidget, setWidget] = useState(null);
 	const { appName, pageName } = useParams();
 
@@ -31,6 +31,7 @@ export const AttachWidget = () => {
 				title: 'Attached table widget',
 				status: 'success',
 			});
+			onAttach?.();
 		},
 		onError: (error: any) => {
 			toast({

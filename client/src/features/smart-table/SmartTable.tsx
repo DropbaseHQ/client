@@ -85,8 +85,6 @@ const ALL_CELLS = [
 	SpinnerCell,
 ];
 
-const TABLE_HEADER_HEIGHT = 40;
-
 export const SmartTable = ({ tableName, height }: any) => {
 	const toast = useToast();
 	const theme = useTheme();
@@ -146,6 +144,9 @@ export const SmartTable = ({ tableName, height }: any) => {
 		size,
 		table,
 	} = useGetTable(tableName || '');
+
+	const [tableHeaderHeight, setTableHeaderHeight] = useState<any>();
+	const tableHeaderRef: any = useRef();
 
 	const [tableBarHeight, setTableBarHeight] = useState<any>();
 	const tableBarRef: any = useRef();
@@ -252,11 +253,19 @@ export const SmartTable = ({ tableName, height }: any) => {
 		[setTableColumnWidth, tableName],
 	);
 
-	useEffect(() => {
+	const calculateTableComponentsHeight = useCallback(() => {
 		if (tableBarRef?.current) {
 			setTableBarHeight(tableBarRef?.current?.getBoundingClientRect()?.height);
 		}
+
+		if (tableHeaderRef?.current) {
+			setTableHeaderHeight(tableHeaderRef?.current?.getBoundingClientRect()?.height);
+		}
 	}, []);
+
+	useEffect(() => {
+		calculateTableComponentsHeight();
+	}, [calculateTableComponentsHeight]);
 
 	useEffect(() => {
 		if (currentTableContext && currentTableContext?.reload) {
@@ -1030,22 +1039,28 @@ export const SmartTable = ({ tableName, height }: any) => {
 		});
 	};
 
+	const onAttach = () => {
+		calculateTableComponentsHeight();
+	};
+
 	/**
 	 * containerHeight is height of the canvas available for tables
-	 * TABLE_HEADER_HEIGHT * 2.5 includes Table Header, Pagination, spaces between and the status bar
-	 * tableBarHeight includes table bar including filters, messages
+	 * tableHeaderHeight is for height occupied by table meta
+	 * 40 is for pagination and other spaces
+	 * tableBarHeight includes table bar including filters, messages or widget
 	 *
 	 * 20 is extra space so that we see pagination and a little space below
 	 */
-	const tableHeight = height - TABLE_HEADER_HEIGHT * 2 - tableBarHeight;
+	const tableHeight = height - tableHeaderHeight - 40 - tableBarHeight;
 
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
 			<Stack pos="relative" h="full" spacing="0">
 				<NavLoader isLoading={isLoadingTable}>
 					<Stack
-						height={`${TABLE_HEADER_HEIGHT}px`}
+						height={`${tableHeaderHeight}px`}
 						alignItems="center"
+						ref={tableHeaderRef}
 						pb="3"
 						direction="row"
 						w="full"
@@ -1123,7 +1138,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 						>
 							{!isPreview && table.type !== 'sql' ? (
 								<Tooltip label="Use inline widget">
-									<AttachWidget />
+									<AttachWidget onAttach={onAttach} />
 								</Tooltip>
 							) : null}
 
@@ -1187,7 +1202,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 					</Box>
 
 					<Stack
-						height={tableHeight}
+						height={`${tableHeight}px`}
 						borderWidth="1px"
 						onDoubleClick={() => {
 							if (!table?.smart && table?.type === 'sql') {
