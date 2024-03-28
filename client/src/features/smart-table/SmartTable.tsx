@@ -73,6 +73,7 @@ import { useEvent } from '@/features/app-preview/hooks';
 import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
 import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 import { Notification } from '@/features/app-preview/components/Notification';
+import { AttachWidget } from '@/features/smart-table/components/AttachWidget';
 
 const ALL_CELLS = [
 	DatePickerCell,
@@ -1120,6 +1121,12 @@ export const SmartTable = ({ tableName, height }: any) => {
 							spacing="2"
 							flexShrink="0"
 						>
+							{!isPreview ? (
+								<Tooltip label="Use inline widget">
+									<AttachWidget />
+								</Tooltip>
+							) : null}
+
 							<Tooltip label="Refresh data">
 								<IconButton
 									aria-label="Refresh Data"

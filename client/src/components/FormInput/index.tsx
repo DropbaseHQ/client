@@ -115,10 +115,11 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					onChange?.(e.target.value);
 				}}
 				ref={ref}
+				borderRadius="sm"
 				size="sm"
 				{...inputProps}
 				value={value}
-				placeholder="Select option"
+				placeholder={inputProps?.placeholder || 'Select option'}
 			>
 				{(selectOptions || []).map((option: any) => (
 					<option key={option.name} value={option.value}>
