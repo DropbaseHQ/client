@@ -803,18 +803,9 @@ def generate_membership_level():
 
 
 def create_test_db_table(db: Session, request: CreateTestDBTableRequest):
-
-    db_user_name = f"{request.name}_{request.last_name}_test_user"
     db_table_name = f"{request.name}_{request.last_name}_demo"
     try:
         with try_engine.connect() as connection:
-            connection.execute(
-                f"CREATE ROLE {db_user_name} LOGIN PASSWORD %s", (request.password,)
-            )
-
-            connection.execute(
-                f"REVOKE ALL PRIVILEGES ON DATABASE try_dropbase FROM {db_user_name}"
-            )
 
             connection.execute(
                 f"""
@@ -828,9 +819,7 @@ def create_test_db_table(db: Session, request: CreateTestDBTableRequest):
                 """
             )
 
-            connection.execute(
-                f"GRANT SELECT, UPDATE ON {db_table_name} TO {db_user_name}"
-            )
+            connection.execute(f"GRANT SELECT, UPDATE ON {db_table_name} TO test_user;")
 
             rows = []
             for _ in range(20):
