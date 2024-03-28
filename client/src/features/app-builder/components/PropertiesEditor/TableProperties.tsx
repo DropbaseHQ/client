@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useParams } from 'react-router-dom';
-import { Save, Table } from 'react-feather';
-import { Stack, Text, IconButton, ButtonGroup, Icon, Badge, StackDivider } from '@chakra-ui/react';
+import { Save } from 'react-feather';
+import { Stack, Text, IconButton, ButtonGroup, StackDivider } from '@chakra-ui/react';
 import { useGetTable, useResourceFields } from '@/features/app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { InputLoader } from '@/components/Loader';
@@ -14,6 +14,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { LabelContainer } from '@/components/LabelContainer';
+import { SelectDataFetcher } from '../SelectDataFetcher';
 
 export const TableProperties = () => {
 	const tableId = useAtomValue(selectedTableIdAtom);
@@ -63,7 +64,6 @@ export const TableProperties = () => {
 	} = methods;
 
 	const fetchers = files.filter((f: any) => f.type === 'sql' || f.type === 'data_fetcher');
-
 	const functions = files.filter((f: any) => f.type === 'ui')?.map((f: any) => f?.name);
 
 	const selectedFetcher = watch('fetcher');
@@ -233,61 +233,10 @@ export const TableProperties = () => {
 
 											if (property.name === 'fetcher') {
 												return (
-													<FormInput
-														type="custom-select"
-														id="fetcher"
+													<SelectDataFetcher
 														name={property.title}
-														placeholder="Select data fetcher"
 														onSelect={resetDependsOn}
-														options={(fetchers as any).map(
-															(file: any) => ({
-																name: file.name,
-																value: file.name,
-																icon: null,
-																render: (isSelected: boolean) => {
-																	return (
-																		<Stack
-																			alignItems="center"
-																			direction="row"
-																		>
-																			<Icon
-																				boxSize="5"
-																				as={Table}
-																				flexShrink="0"
-																				color={
-																					isSelected
-																						? 'blue.500'
-																						: ''
-																				}
-																			/>
-																			<Stack spacing="0">
-																				<Text
-																					fontWeight="medium"
-																					fontSize="sm"
-																				>
-																					{file.name}
-																				</Text>
-																			</Stack>
-																			<Badge
-																				textTransform="lowercase"
-																				size="xs"
-																				ml="auto"
-																				colorScheme={
-																					isSelected
-																						? 'blue'
-																						: 'gray'
-																				}
-																			>
-																				.
-																				{file.type === 'sql'
-																					? 'sql'
-																					: 'py'}
-																			</Badge>
-																		</Stack>
-																	);
-																},
-															}),
-														)}
+														fetchers={fetchers}
 													/>
 												);
 											}

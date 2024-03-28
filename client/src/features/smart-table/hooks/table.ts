@@ -18,31 +18,21 @@ import { hasSelectedRowAtom } from '../atoms';
 import { fetchJobStatus } from '@/utils/worker-job';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
+export const FUNCTION_DATA_QUERY_KEY = 'functionData';
 
-const fetchTableData = async ({
-	table,
+const fetchFunctionData = async ({
+	fetcher,
 	appName,
 	pageName,
 	state,
-	filters,
-	sorts,
-	currentPage,
-	pageSize,
+	filter_sort = null,
 }: any) => {
 	const response = await workerAxios.post<any>(`/query/`, {
+		fetcher,
 		app_name: appName,
 		page_name: pageName,
-		table,
 		state: state.state,
-		context: state.context,
-		filter_sort: {
-			filters,
-			sorts,
-			pagination: {
-				page: currentPage || 0,
-				page_size: pageSize || 0,
-			},
-		},
+		filter_sort,
 	});
 
 	if (response.data?.job_id) {
@@ -50,7 +40,73 @@ const fetchTableData = async ({
 		return jobResponse;
 	}
 
-	throw new Error('Failed to fetch table data');
+	throw new Error('Failed to retrieve data from fetcher');
+};
+
+const useParsedData: any = (response: any, table: any) =>
+	useMemo(() => {
+		if (response) {
+			const customColumns = table?.columns?.filter(
+				(c: any) => c.column_type === 'button_column' && !c?.hidden,
+			);
+
+			const header = [...(response?.columns || []), ...(customColumns || [])];
+
+			const rows: any =
+				response?.data?.map((r: any) => {
+					return r.reduce((agg: any, item: any, index: any) => {
+						return {
+							...agg,
+							[header?.[index]?.name]: item,
+						};
+					}, {});
+				}) || [];
+
+			return {
+				rows,
+				header,
+				tableName: response.table_name,
+				tableError: response?.error,
+			};
+		}
+
+		return {
+			rows: [],
+			header: [],
+			tableError: null,
+		};
+	}, [response, table]);
+
+export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
+	const pageState: any = useAtomValue(newPageStateAtom);
+	const pageStateRef = useRef(pageState);
+	pageStateRef.current = pageState;
+
+	const queryKey = [FUNCTION_DATA_QUERY_KEY, fetcher, appName, pageName];
+
+	const { data: response, ...rest } = useQuery(
+		queryKey,
+		() =>
+			fetchFunctionData({
+				fetcher,
+				appName,
+				pageName,
+				state: pageStateRef.current,
+			}),
+		{
+			enabled: true,
+			staleTime: Infinity,
+		},
+	);
+
+	const parsedData = useParsedData(response);
+
+	return {
+		...rest,
+		...parsedData,
+		sqlId: response?.sql_id,
+		queryKey,
+	};
 };
 
 export const useTableData = ({
@@ -114,15 +170,19 @@ export const useTableData = ({
 	const { data: response, ...rest } = useQuery(
 		queryKey,
 		() =>
-			fetchTableData({
+			fetchFunctionData({
 				appName,
 				pageName,
 				state: pageStateRef.current,
-				table,
-				filters,
-				sorts,
-				currentPage,
-				pageSize,
+				fetcher: table?.fetcher,
+				filter_sort: {
+					filters,
+					sorts,
+					pagination: {
+						page: currentPage || 0,
+						page_size: pageSize || 0,
+					},
+				},
 			}),
 		{
 			enabled: !!(
@@ -170,38 +230,7 @@ export const useTableData = ({
 		},
 	);
 
-	const parsedData: any = useMemo(() => {
-		if (response) {
-			const customColumns = table?.columns?.filter(
-				(c: any) => c.column_type === 'button_column' && !c?.hidden,
-			);
-
-			const header = [...(response?.columns || []), ...(customColumns || [])];
-
-			const rows: any =
-				response?.data?.map((r: any) => {
-					return r.reduce((agg: any, item: any, index: any) => {
-						return {
-							...agg,
-							[header?.[index]?.name]: item,
-						};
-					}, {});
-				}) || [];
-
-			return {
-				rows,
-				header,
-				tableName: response.table_name,
-				tableError: response?.error,
-			};
-		}
-
-		return {
-			rows: [],
-			header: [],
-			tableError: null,
-		};
-	}, [response, table]);
+	const parsedData = useParsedData(response, table);
 
 	return {
 		...rest,

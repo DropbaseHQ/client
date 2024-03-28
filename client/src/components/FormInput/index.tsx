@@ -24,6 +24,7 @@ import {
 	Center,
 	Portal,
 	Textarea,
+	Spinner,
 } from '@chakra-ui/react';
 import { forwardRef, useState } from 'react';
 import { ChevronDown, Plus, Trash } from 'react-feather';
@@ -31,6 +32,7 @@ import { ErrorMessage } from '@hookform/error-message';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { MonacoEditor } from '@/components/Editor';
+import { formatDateTimeForInput, formatDateForInput } from '@/features/smart-table/utils';
 
 const TemplateEditor = (props: any) => {
 	const [codeHeight, setCodeHeight] = useState(30);
@@ -143,7 +145,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	}
 
 	if (type === 'custom-select') {
-		const selectedValue = selectOptions.find((option: any) => option.value === value);
+		const selectedValue = selectOptions?.find((option: any) => option.value === value);
 
 		const valueLabel = selectedValue?.name;
 		const valueRenderer = selectedValue?.render?.(selectedValue);
@@ -452,11 +454,19 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		);
 	}
 
+	let processedValue = value;
+
+	if (type === 'datetime' && typeof value === 'number') {
+		processedValue = formatDateTimeForInput(value);
+	} else if (type === 'date' && typeof value === 'number') {
+		processedValue = formatDateForInput(value);
+	}
+
 	return (
 		<Input
 			onBlur={onBlur}
 			onChange={(e) => onChange?.(e.target.value)}
-			value={value || ''}
+			value={processedValue || ''}
 			size="sm"
 			ref={ref}
 			type={type === 'datetime' ? 'datetime-local' : type}
@@ -512,6 +522,17 @@ export const FormInput = ({
 		<FormControl isInvalid={!!errors?.[id]} key={name}>
 			{name && (
 				<FormLabel>
+					{inputProps.isLoading ? (
+						<Spinner
+							thickness="2px"
+							speed="0.65s"
+							emptyColor="gray.200"
+							color="blue.500"
+							size="xs"
+							ml="1"
+							mr="1"
+						/>
+					) : null}
 					{name}{' '}
 					{inputProps?.required && (
 						<Box as="span" color="red.500">

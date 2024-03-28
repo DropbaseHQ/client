@@ -52,6 +52,7 @@ export const NewTable = (props: any) => {
 							label: nextLabel,
 							type: 'sql',
 							columns: [],
+							y: Math.max(...tables.map((t: any) => t.y)),
 						},
 					],
 				},

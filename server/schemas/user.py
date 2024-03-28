@@ -141,4 +141,19 @@ class SyncAppRequest(BaseModel):
 
 
 class CheckAppsPermissionsRequest(BaseModel):
-    app_ids: list
+    apps: list
+
+
+class CreateTestUserRequest(BaseModel):
+    name: str
+    last_name: str
+    company: str
+    email: str
+    password: str
+    workspace_id: str
+
+
+class CreateTestDBTableRequest(BaseModel):
+    name: str
+    last_name: str
+    password: str

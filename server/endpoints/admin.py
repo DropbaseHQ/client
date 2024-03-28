@@ -4,7 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas import CheckPermissionRequest
+from server.schemas import (
+    CheckPermissionRequest,
+    CreateTestUserRequest,
+    CreateTestDBTableRequest,
+)
 from server.controllers import workspace as workspace_controller
 from server.controllers import user as user_controller
 from server.controllers.policy import (
@@ -93,3 +97,15 @@ def remove_user_from_workspace(
     return workspace_controller.remove_user_from_workspace(
         db=db, workspace_id=workspace_id, user_id=user.id
     )
+
+
+@router.post("/create_test_user")
+def create_test_user(request: CreateTestUserRequest, db: Session = Depends(get_db)):
+    return user_controller.create_test_user(db=db, request=request)
+
+
+@router.post("/create_test_db_table")
+def create_test_db_table(
+    request: CreateTestDBTableRequest, db: Session = Depends(get_db)
+):
+    return user_controller.create_test_db_table(db=db, request=request)

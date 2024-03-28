@@ -9,7 +9,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { extractTemplateString, getErrorMessage } from '@/utils';
 
 import { useExecuteAction } from '@/features/app-preview/hooks';
@@ -24,6 +24,7 @@ import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
+import { useFetcherData } from '../smart-table/hooks';
 
 const sizeMap: any = {
 	small: 'sm',
@@ -50,9 +51,40 @@ export const AppComponent = (props: any) => {
 
 	const pageState = useAtomValue(newPageStateAtom);
 	const allWidgetComponents = useAtomValue(widgetComponentsAtom) as any;
-	const widgetComponents = allWidgetComponents[widgetName || '']?.components || {};
+	const widgetComponents = useMemo(
+		() => allWidgetComponents[widgetName || '']?.components || {},
+		[allWidgetComponents, widgetName],
+	);
 
-	const inputState = widgetComponents?.[name] || {};
+	const inputState = useMemo(() => widgetComponents?.[name] || {}, [widgetComponents, name]);
+
+	const fetcher = component?.fetcher;
+
+	const fetcherData = useFetcherData({
+		fetcher,
+		appName,
+		pageName,
+	});
+
+	const getInputOptions = () => {
+		if (componentType === 'select' && component?.use_fetcher) {
+			const nameColumn = component?.name_column;
+			const valueColumn = component?.value_column;
+			const duplicateCheck = new Set();
+			return fetcherData?.rows
+				?.filter((row: any) =>
+					duplicateCheck.has(row?.[nameColumn])
+						? false
+						: duplicateCheck.add(row?.[nameColumn]),
+				)
+				?.map((row: any) => ({
+					name: String(row?.[nameColumn]),
+					value: String(row?.[valueColumn]),
+				}));
+		}
+
+		return inputState.options || component?.options;
+	};
 
 	const [inputValues, setInputValues]: any = useAtom(allWidgetsInputAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
@@ -265,7 +297,7 @@ export const AppComponent = (props: any) => {
 							page_name: pageName,
 						});
 					}}
-					options={inputState.options || component.options}
+					options={getInputOptions()}
 				/>
 
 				{inputState?.message ? (
