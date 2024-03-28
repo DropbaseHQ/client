@@ -15,10 +15,10 @@ import { extractTemplateString, getErrorMessage } from '@/utils';
 import { useExecuteAction } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
 import {
-	widgetComponentsAtom,
 	useSyncState,
-	newPageStateAtom,
-	allWidgetsInputAtom,
+	pageStateAtom,
+	pageStateContextAtom,
+	pageContextAtom,
 } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
@@ -35,10 +35,10 @@ const sizeMap: any = {
 const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 
 export const AppComponent = (props: any) => {
-	const { sendJsonMessage } = props;
+	const { sendJsonMessage, widgetName, inline } = props;
 
 	const toast = useToast();
-	const [{ pageName, appName, widgetName, widgets }, setPageContext] = useAtom(pageAtom);
+	const [{ pageName, appName, widgets }, setPageContext] = useAtom(pageAtom);
 	const {
 		component_type: componentType,
 		data_type: type,
@@ -49,11 +49,11 @@ export const AppComponent = (props: any) => {
 		...component
 	} = props;
 
-	const pageState = useAtomValue(newPageStateAtom);
-	const allWidgetComponents = useAtomValue(widgetComponentsAtom) as any;
+	const pageState = useAtomValue(pageStateContextAtom);
+	const pageContext = useAtomValue(pageContextAtom) as any;
 	const widgetComponents = useMemo(
-		() => allWidgetComponents[widgetName || '']?.components || {},
-		[allWidgetComponents, widgetName],
+		() => pageContext[widgetName || '']?.components || {},
+		[pageContext, widgetName],
 	);
 
 	const inputState = useMemo(() => widgetComponents?.[name] || {}, [widgetComponents, name]);
@@ -86,7 +86,7 @@ export const AppComponent = (props: any) => {
 		return inputState.options || component?.options;
 	};
 
-	const [inputValues, setInputValues]: any = useAtom(allWidgetsInputAtom);
+	const [inputValues, setInputValues]: any = useAtom(pageStateAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
 
 	const syncState = useSyncState();
@@ -263,7 +263,18 @@ export const AppComponent = (props: any) => {
 
 	return (
 		<Stack spacing="0.5">
-			<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
+			<FormControl
+				{...(inline
+					? {
+							as: Stack,
+							direction: 'row',
+							alignItems: 'center',
+							spacing: '0',
+					  }
+					: {})}
+				key={name}
+				bgColor={grayOutComponent ? 'gray.100' : ''}
+			>
 				{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
 				<InputRenderer
 					placeholder={placeholder}
@@ -315,7 +326,7 @@ export const AppComponent = (props: any) => {
 				) : null}
 			</FormControl>
 
-			{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+			{isPreview || inline ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
 		</Stack>
 	);
 };

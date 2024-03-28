@@ -15,7 +15,6 @@ import {
 	usePrevious,
 	useTheme,
 } from '@chakra-ui/react';
-import { CheckCircleIcon, InfoIcon, SpinnerIcon, WarningIcon } from '@chakra-ui/icons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 import { Info, Move, RotateCw, UploadCloud } from 'react-feather';
@@ -47,7 +46,7 @@ import {
 	getTimeStringFromEpoch,
 	getDateInstance,
 } from '@/features/smart-table/utils';
-import { newPageStateAtom, selectedRowAtom, nonWidgetContextAtom } from '@/features/app-state';
+import { pageStateContextAtom, pageContextAtom, pageStateAtom } from '@/features/app-state';
 
 import dropdownCellRenderer from './components/cells/SingleSelect';
 
@@ -74,6 +73,7 @@ import { useEvent } from '@/features/app-preview/hooks';
 import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
 import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 import { Notification } from '@/features/app-preview/components/Notification';
+import { AttachWidget } from '@/features/smart-table/components/AttachWidget';
 
 const ALL_CELLS = [
 	DatePickerCell,
@@ -102,9 +102,11 @@ export const SmartTable = ({ tableName, height }: any) => {
 		share: true,
 	});
 
-	const pageState = useAtomValue(newPageStateAtom);
-	const setPageContext = useSetAtom(nonWidgetContextAtom);
+	const pageStateContext: any = useAtomValue(pageStateContextAtom);
+	const setPageContext = useSetAtom(pageContextAtom);
 	const { isPreview } = useAtomValue(appModeAtom);
+
+	const currentTableContext = pageStateContext?.context?.[tableName];
 
 	const [allTableColumnWidth, setTableColumnWidth] = useAtom(tableColumnWidthAtom);
 	const [tablesRowSelected, setTableRowSelection] = useAtom(hasSelectedRowAtom);
@@ -177,14 +179,12 @@ export const SmartTable = ({ tableName, height }: any) => {
 			});
 		},
 	});
-	const [nonWidgetContext, setNonWidgetContext] = useAtom(nonWidgetContextAtom);
-	const currentTableContext = nonWidgetContext?.tables?.[tableName];
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
 	const cellEdits = allCellEdits?.[tableName] || [];
 
-	const [selectedData, selectRow] = useAtom(selectedRowAtom);
-	const selectedRow = (selectedData as any)?.[tableName];
+	const [pageState, setPageState] = useAtom(pageStateAtom);
+	const selectedRow = (pageState as any)?.[tableName];
 
 	const previousSelectedRow = usePrevious(selectedRow);
 
@@ -193,20 +193,10 @@ export const SmartTable = ({ tableName, height }: any) => {
 
 	const [columnWidth, setColumnWidth] = useState<any>(tableColumnWidth || {});
 
-	const [columnMessage, setColumnMessage] = useState({
-		message: '',
-		icon: <></>,
-		col: -1,
-		x: 0,
-		y: 0,
-		width: 0,
-		height: 0,
-	});
-
 	const selectRowAndUpdateState = (row: number) => {
 		const newSelectedRow = { [tableName]: rows[row] || {} } as any;
 
-		selectRow((old: any) => ({
+		setPageState((old: any) => ({
 			...old,
 			...newSelectedRow,
 		}));
@@ -216,8 +206,9 @@ export const SmartTable = ({ tableName, height }: any) => {
 			[tableName]: true,
 		}));
 
-		pageState.state.tables = {
-			...pageState.state.tables,
+		// FIXME: why ask param?
+		pageStateContext.state = {
+			...pageStateContext.state,
 			...newSelectedRow,
 		};
 	};
@@ -270,18 +261,15 @@ export const SmartTable = ({ tableName, height }: any) => {
 	useEffect(() => {
 		if (currentTableContext && currentTableContext?.reload) {
 			refetch();
-			setNonWidgetContext((old: any) => ({
+			setPageContext((old: any) => ({
 				...old,
-				tables: {
-					...old.tables,
-					[tableName]: {
-						...old.tables[tableName],
-						reload: false,
-					},
+				[tableName]: {
+					...(old?.[tableName] || {}),
+					reload: false,
 				},
 			}));
 		}
-	}, [currentTableContext, setNonWidgetContext, tableName, refetch]);
+	}, [currentTableContext, setPageContext, tableName, refetch]);
 
 	useEffect(() => {
 		const selectedIndex = rows.findIndex(
@@ -310,7 +298,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 			);
 
 			if (columnNotFound) {
-				selectRow((old: any) => ({
+				setPageState((old: any) => ({
 					...old,
 					[tableName]: Object.keys(columnDict).reduce(
 						(acc: { [col: string]: string | null }, curr: string) => ({
@@ -322,7 +310,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 				}));
 			}
 		}
-	}, [selectedRow, columnDict, tableName, currentFetcher, previousFetcher, selectRow]);
+	}, [selectedRow, columnDict, tableName, currentFetcher, previousFetcher, setPageState]);
 
 	useEffect(() => {
 		if (JSON.stringify(previousSelectedRow) !== JSON.stringify(selectedRow)) {
@@ -338,7 +326,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 			);
 
 			if (selectedIndex === -1 && selectedRow && !isEmptyRow) {
-				selectRow((old: any) => ({
+				setPageState((old: any) => ({
 					...old,
 					[tableName]: Object.keys(selectedRow).reduce(
 						(acc: { [col: string]: string | null }, curr: string) => ({
@@ -350,7 +338,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 				}));
 			}
 		}
-	}, [selectedRow, previousSelectedRow, tableName, rows, selectRow]);
+	}, [selectedRow, previousSelectedRow, tableName, rows, setPageState]);
 
 	// only fill column width if the current state is empty
 	useEffect(() => {
@@ -466,7 +454,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 		}
 
 		const messageType =
-			pageState?.context?.tables?.[tableName]?.columns?.[column.name]?.message_type;
+			pageStateContext?.context?.[tableName]?.columns?.[column.name]?.message_type;
 
 		let color = '';
 
@@ -939,7 +927,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 			),
 		};
 
-		selectRow((old: any) => ({
+		setPageState((old: any) => ({
 			...old,
 			...newSelectedRow,
 		}));
@@ -948,7 +936,8 @@ export const SmartTable = ({ tableName, height }: any) => {
 			...curr,
 			[tableName]: false,
 		}));
-		pageState.state.tables = newSelectedRow;
+		// FIXME: why ask param?
+		pageStateContext.state = { ...pageStateContext.state, ...newSelectedRow };
 		sendJsonMessage({
 			type: 'display_rule',
 			state_context: pageState,
@@ -991,8 +980,8 @@ export const SmartTable = ({ tableName, height }: any) => {
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				tables: [
-					...(properties?.tables || []).map((t: any) => {
+				blocks: [
+					...(properties?.blocks || []).map((t: any) => {
 						if (t.name === tableName) {
 							return {
 								...t,
@@ -1032,71 +1021,11 @@ export const SmartTable = ({ tableName, height }: any) => {
 		(name: any) => !tablesRowSelected[name],
 	);
 
-	const drawHeader = (args: any, draw: any) => {
-		// setColumnMessage if header is hovered and columnMessage is not already set
-		if (args.isHovered && columnMessage.col !== args.columnIndex) {
-			const messageInfo = pageState?.context?.tables?.[tableName]?.columns?.[args.column.id];
-			const message = messageInfo?.message;
-			const messageType = messageInfo?.message_type;
-
-			let icon;
-
-			switch (messageType) {
-				case 'info': {
-					icon = <InfoIcon pr={0} color="blue.500" />;
-					break;
-				}
-
-				case 'warning': {
-					icon = <WarningIcon pr={0} color="orange.500" />;
-					break;
-				}
-
-				case 'success': {
-					icon = <CheckCircleIcon pr={0} color="green.500" />;
-					break;
-				}
-
-				case 'error': {
-					icon = <WarningIcon pr={0} color="red.500" />;
-					break;
-				}
-
-				case 'loading': {
-					icon = <SpinnerIcon pr={0} />;
-					break;
-				}
-				default: {
-					icon = <></>;
-					break;
-				}
-			}
-
-			setColumnMessage({
-				message,
-				icon,
-				col: args.columnIndex,
-				...args.rect,
-				height: args.menuBounds.height,
-			});
-		} else if (
-			!args.isHovered &&
-			args.columnIndex === columnMessage.col &&
-			columnMessage.col !== -1
-		) {
-			// clear column message if it is set and isHovered is false
-			setColumnMessage({ message: '', icon: null, col: -1, ...args.rect });
-		}
-
-		draw();
-		return false;
-	};
-
 	const handleRemoveAlert = () => {
 		setPageContext((oldData: any) => {
 			return {
-				...lodashSet(oldData, `tables.${tableName}.message`, null),
-				...lodashSet(oldData, `tables.${tableName}.message_type`, null),
+				...lodashSet(oldData, `${tableName}.message`, null),
+				...lodashSet(oldData, `${tableName}.message_type`, null),
 			};
 		});
 	};
@@ -1192,6 +1121,12 @@ export const SmartTable = ({ tableName, height }: any) => {
 							spacing="2"
 							flexShrink="0"
 						>
+							{!isPreview ? (
+								<Tooltip label="Use inline widget">
+									<AttachWidget />
+								</Tooltip>
+							) : null}
+
 							<Tooltip label="Refresh data">
 								<IconButton
 									aria-label="Refresh Data"
@@ -1296,27 +1231,6 @@ export const SmartTable = ({ tableName, height }: any) => {
 							</Center>
 						) : (
 							<>
-								{columnMessage.message ? (
-									<Stack
-										direction="row"
-										fontSize={12}
-										alignItems="center"
-										borderRadius="md"
-										shadow="xs"
-										borderWidth="1px"
-										bg="white"
-										style={{
-											position: 'absolute',
-											transform: `translate(-50%, -${columnMessage.height}px)`,
-											left: columnMessage.x + columnMessage.width / 2,
-											padding: '5px 10px',
-											zIndex: 1,
-										}}
-									>
-										{columnMessage.icon}
-										<Text>{columnMessage.message}</Text>
-									</Stack>
-								) : null}
 								<DataEditor
 									columns={gridColumns}
 									rows={Math.min(
@@ -1341,7 +1255,6 @@ export const SmartTable = ({ tableName, height }: any) => {
 									keybindings={{ search: true }}
 									onColumnResize={onColumnResize}
 									rowHeight={30}
-									drawHeader={drawHeader}
 									fixedShadowX={false}
 									fixedShadowY={false}
 								/>
@@ -1353,8 +1266,8 @@ export const SmartTable = ({ tableName, height }: any) => {
 				</Stack>
 
 				<Notification
-					message={pageState?.context?.tables?.[tableName]?.message}
-					type={pageState?.context?.tables?.[tableName]?.message_type}
+					message={pageStateContext?.context?.[tableName]?.message}
+					type={pageStateContext?.context?.[tableName]?.message_type}
 					onClose={handleRemoveAlert}
 				/>
 			</Stack>

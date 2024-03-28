@@ -34,10 +34,12 @@ import { DashedBorder } from '@/components/DashedBorder';
 
 const TEMPLATE_REGEX = /\{\{(.+?)\}\}/;
 
-export const ComponentPropertyEditor = ({ id }: any) => {
+export const ComponentPropertyEditor = ({ id, meta }: any) => {
 	const toast = useToast();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
-	const { widgetName, pageName, appName } = useAtomValue(pageAtom);
+	const { pageName, appName } = useAtomValue(pageAtom);
+
+	const { widget: widgetName } = meta || {};
 
 	const { widgets, isLoading, properties, files } = useGetPage({ appName, pageName });
 	const component = widgets
@@ -132,6 +134,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 			setInspectedResource({
 				id: null,
 				type: null,
+				meta: null,
 			});
 		},
 		onError: (error: any) => {
@@ -156,7 +159,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const onSubmit = ({ stateInDefault, ...formValues }: any) => {
 		if (stateInDefault && !TEMPLATE_REGEX.test(formValues.default)) {
 			setError('default', {
-				message: `Invalid state value, please make sure you use template like {{state.tables.table1.id}}`,
+				message: `Invalid state value, please make sure you use template like {{state.table1.id}}`,
 			});
 			return;
 		}
@@ -166,8 +169,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				widgets: [
-					...(properties?.widgets || []).map((w: any) => {
+				blocks: [
+					...(properties?.blocks || []).map((w: any) => {
 						if (w.name === widgetName) {
 							return {
 								...w,
@@ -198,8 +201,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: [
-						...(properties?.widgets || []).map((w: any) => {
+					blocks: [
+						...(properties?.blocks || []).map((w: any) => {
 							if (w.name === widgetName) {
 								return {
 									...w,
@@ -225,6 +228,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 			setInspectedResource({
 				id: newName,
 				type: 'component',
+				meta: { widget: widgetName },
 			});
 		} catch (e) {
 			//
@@ -263,7 +267,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 							<NameEditor
 								value={id}
 								currentNames={(
-									properties?.widgets.find(
+									properties?.blocks.find(
 										(w: any) => w.name === (widgetName || ''),
 									)?.components || []
 								).map((c: any) => c.name)}
@@ -297,14 +301,18 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 										page_name: pageName,
 										properties: {
 											...(properties || {}),
-											widgets: widgets.map((w: any) => ({
-												...w,
-												components: w?.components.filter(
-													(c: any) =>
-														c?.name !== component?.name ||
-														w?.name !== widgetName,
-												),
-											})),
+											blocks: (properties.blocks || []).map((w: any) => {
+												if (w.name === widgetName) {
+													return {
+														...w,
+														components: w?.components.filter(
+															(c: any) => c?.name !== component?.name,
+														),
+													};
+												}
+
+												return w;
+											}),
 										},
 									});
 								}}
@@ -374,7 +382,12 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												property.name === 'display_rules' ||
 												property.type === 'rules'
 											) {
-												return <DisplayRulesEditor name={component.name} />;
+												return (
+													<DisplayRulesEditor
+														widgetName={widgetName}
+														name={component.name}
+													/>
+												);
 											}
 
 											if (
@@ -487,7 +500,7 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 
 	const onSubmit = async ({ type }: any) => {
 		const currentNames = (
-			properties?.widgets?.find((w: any) => w.name === widgetName)?.components || []
+			properties?.blocks?.find((w: any) => w.name === widgetName)?.components || []
 		)
 			.filter((c: any) => c.component_type === type)
 			.map((c: any) => c.name);
@@ -528,8 +541,8 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: [
-						...(properties?.widgets || []).map((w: any) => {
+					blocks: [
+						...(properties?.blocks || []).map((w: any) => {
 							if (w.name === widgetName) {
 								return {
 									...w,
@@ -552,6 +565,7 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 			setInspectedResource({
 				id: newName,
 				type: 'component',
+				meta: { widget: widgetName },
 			});
 		} catch (e) {
 			//

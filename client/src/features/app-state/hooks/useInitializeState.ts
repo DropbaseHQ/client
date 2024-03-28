@@ -1,75 +1,56 @@
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
-import {
-	selectedRowAtom,
-	allWidgetStateAtom,
-	nonWidgetContextAtom,
-	allWidgetsInputAtom,
-	tableStateAtom,
-} from '@/features/app-state';
-import { useAppState } from '@/features/app-state/hooks';
+import { pageStateAtom, pageContextAtom } from '@/features/app-state';
+import { useGetPage } from '@/features/page';
 
 export const useInitializePageState = (appName: string, pageName: string) => {
-	const {
-		state: { context, state },
-		...rest
-	} = useAppState(appName, pageName);
-	const setRowData = useSetAtom(selectedRowAtom);
-	const setWidgetState = useSetAtom(allWidgetStateAtom);
-	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
-	const setWidgetsInputs = useSetAtom(allWidgetsInputAtom);
-	const setTableState = useSetAtom(tableStateAtom);
+	const { context, state, ...rest } = useGetPage({ appName, pageName });
+
+	const setPageState = useSetAtom(pageStateAtom);
+	const setPageContext = useSetAtom(pageContextAtom);
 
 	useEffect(() => {
-		setRowData((oldTables: any) => {
-			const { tables } = state;
-			setTableState(tables);
+		setPageState(() => {
+			// FIXME: yash take alook again by having a new table
+			// const { tables } = state;
+			// setTableState(tables);
 
-			if (oldTables && state.tables) {
-				return Object.keys(tables).reduce((agg: any, tableName: any) => {
-					if (oldTables[tableName]) {
-						return {
-							...agg,
-							[tableName]: Object.keys(tables?.[tableName] || {}).reduce(
-								(acc: any, field) => ({
-									...acc,
-									[field]: oldTables?.[tableName]?.[field],
-								}),
-								{},
-							),
-						};
-					}
+			// if (oldTables && state.tables) {
+			// 	return Object.keys(tables).reduce((agg: any, tableName: any) => {
+			// 		if (oldTables[tableName]) {
+			// 			return {
+			// 				...agg,
+			// 				[tableName]: Object.keys(tables?.[tableName] || {}).reduce(
+			// 					(acc: any, field) => ({
+			// 						...acc,
+			// 						[field]: oldTables?.[tableName]?.[field],
+			// 					}),
+			// 					{},
+			// 				),
+			// 			};
+			// 		}
 
-					return {
-						...agg,
-						[tableName]: tables[tableName] || {},
-					};
-				}, {});
-			}
+			// 		return {
+			// 			...agg,
+			// 			[tableName]: tables[tableName] || {},
+			// 		};
+			// 	}, {});
+			// }
 
-			return tables;
+			return state;
 		});
-
-		setWidgetsInputs(state.widgets);
-	}, [state, setRowData, setTableState, setWidgetsInputs]);
+	}, [state, setPageState]);
 
 	useEffect(() => {
-		const { widgets, ...other } = context || {};
-
-		setWidgetState((s) => ({ ...s, state: widgets || {} }));
-		setNonInteractiveState(other || {});
-	}, [context, setNonInteractiveState, setWidgetState]);
+		setPageContext(context || {});
+	}, [context, setPageContext]);
 
 	useEffect(() => {
 		return () => {
-			setWidgetState({
-				selected: null,
-				state: {},
-			});
-			setNonInteractiveState({});
-			setRowData(null);
+			setPageContext({});
+			setPageState({});
 		};
-	}, [setNonInteractiveState, setRowData, setWidgetState]);
+	}, [setPageContext, setPageState]);
 
 	return rest;
 };

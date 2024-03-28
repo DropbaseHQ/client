@@ -26,6 +26,7 @@ import { useGetPage } from '@/features/page';
 
 import { appModeAtom } from '@/features/app/atoms';
 import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
+import { WidgetPreview } from '@/features/app-preview/WidgetPreview';
 
 export const TableBar = () => {
 	const toast = useToast();
@@ -35,7 +36,12 @@ export const TableBar = () => {
 	const { onOpen, onClose, isOpen, renderPopoverContent } = useConvertPopover(tableName);
 
 	const { isPreview } = useAtomValue(appModeAtom);
-	const { fetcher, type: tableType, smart: isSmartTable } = useGetTable(tableName || '');
+	const {
+		widget: tableWidget,
+		fetcher,
+		type: tableType,
+		smart: isSmartTable,
+	} = useGetTable(tableName || '');
 
 	const isConvertingTable = useIsMutating({ mutationKey: `${CONVERT_MUTATION}-${tableName}` });
 
@@ -83,6 +89,26 @@ export const TableBar = () => {
 			});
 		}
 	};
+
+	if (tableWidget) {
+		return (
+			<Stack
+				bg="white"
+				borderWidth="1px"
+				borderBottom="0"
+				borderTopLeftRadius="md"
+				borderTopRightRadius="md"
+				direction="row"
+				flexWrap="wrap"
+				alignItems="center"
+				p="4"
+				w="full"
+				justifyContent="space-between"
+			>
+				<WidgetPreview inline widgetName={tableWidget} />
+			</Stack>
+		);
+	}
 
 	if (tableType === 'sql') {
 		return (

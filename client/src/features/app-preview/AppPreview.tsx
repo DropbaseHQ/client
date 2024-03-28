@@ -5,7 +5,7 @@ import { useAtomValue } from 'jotai';
 import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
-import { newPageStateAtom, useInitializeWidgetState } from '@/features/app-state';
+import { pageStateContextAtom, useInitializeWidgetState } from '@/features/app-state';
 import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
@@ -22,7 +22,7 @@ export const AppPreview = () => {
 	const { isConnected } = useStatus();
 	const { widgetName, widgets, modals } = useAtomValue(pageAtom);
 
-	const pageState = useAtomValue(newPageStateAtom);
+	const pageStateContext = useAtomValue(pageStateContextAtom);
 
 	const widgetLabel = widgets?.find((w) => w.name === widgetName)?.label;
 
@@ -46,12 +46,13 @@ export const AppPreview = () => {
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				widgets: [
-					...(properties?.widgets || []),
+				blocks: [
+					...(properties?.blocks || []),
 					{
 						name: wName,
 						label: wLabel,
 						type: 'base',
+						block_type: 'widget',
 						menu_item: true,
 						components: [],
 					},
@@ -141,7 +142,7 @@ export const AppPreview = () => {
 										{/* TODO: create a render template data to do this */}
 										{extractTemplateString(
 											widgetLabel || widgetName,
-											pageState,
+											pageStateContext,
 										)}
 									</LabelContainer.Label>
 									{!isPreview && (
@@ -152,7 +153,7 @@ export const AppPreview = () => {
 
 							{widgetDescription ? (
 								<Text fontSize="sm" color="gray.600">
-									{extractTemplateString(widgetDescription, pageState)}
+									{extractTemplateString(widgetDescription, pageStateContext)}
 								</Text>
 							) : null}
 						</Stack>

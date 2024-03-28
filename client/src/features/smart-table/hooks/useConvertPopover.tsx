@@ -19,7 +19,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 
 import { useConvertSmartTable, useGetTable } from '@/features/app-builder/hooks';
-import { newPageStateAtom } from '@/features/app-state';
+import { pageStateContextAtom } from '@/features/app-state';
 
 export const useConvertPopover = (tableName: any) => {
 	const toast = useToast();
@@ -32,10 +32,10 @@ export const useConvertPopover = (tableName: any) => {
 
 	const { appName, pageName } = useParams();
 
-	const pageState = useAtomValue(newPageStateAtom);
+	const pageStateContext = useAtomValue(pageStateContextAtom);
 
-	const pageRef = useRef<any>();
-	pageRef.current = pageState;
+	const pageRef = useRef<any>(pageStateContext);
+	pageRef.current = pageStateContext;
 
 	const convertMutation = useConvertSmartTable({
 		onSuccess: () => {

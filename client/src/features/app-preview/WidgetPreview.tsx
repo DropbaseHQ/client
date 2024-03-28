@@ -7,7 +7,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import useWebSocket from 'react-use-websocket';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
-import { allWidgetStateAtom, nonWidgetContextAtom } from '@/features/app-state';
+import { pageContextAtom, pageStateAtom } from '@/features/app-state';
 import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
@@ -19,7 +19,7 @@ import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 import { Notification } from '@/features/app-preview/components/Notification';
 import { MirrorTableColumns } from '@/features/app-builder/components/PropertiesEditor/MirrorTableColumnInputs';
 
-export const WidgetPreview = ({ widgetName }: any) => {
+export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 	const { appName, pageName } = useParams();
 
 	const retryCounter = useRef(0);
@@ -40,10 +40,9 @@ export const WidgetPreview = ({ widgetName }: any) => {
 
 	const updateMutation = useUpdatePageData();
 
-	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
+	const setPageContextState = useSetAtom(pageContextAtom);
 
-	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
-	const allWidgetState = widgetData.state;
+	const [allWidgetState, setWidgetData]: any = useAtom(pageStateAtom);
 
 	const { properties } = useGetPage({ appName, pageName });
 
@@ -88,10 +87,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 					return;
 				}
 
-				const { widgets: newWidgetsData, ...rest } = messageContext || {};
-
-				setWidgetData((s: any) => ({ ...s, state: newWidgetsData || {} }));
-				setNonInteractiveState(rest);
+				setPageContextState(messageContext);
 			} catch (e) {
 				//
 			}
@@ -109,8 +105,8 @@ export const WidgetPreview = ({ widgetName }: any) => {
 
 	const handleRemoveAlert = () => {
 		setWidgetData((oldData: any) => ({
-			...lodashSet(oldData, `state.${widgetName}.message`, null),
-			...lodashSet(oldData, `state.${widgetName}.message_type`, null),
+			...lodashSet(oldData, `${widgetName}.message`, null),
+			...lodashSet(oldData, `${widgetName}.message_type`, null),
 		}));
 	};
 
@@ -118,7 +114,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 		const newProps = {
 			...(properties || {}),
 
-			widgets: properties?.widgets?.map((w: any) => {
+			blocks: (properties.blocks || [])?.map((w: any) => {
 				if (w.name !== widgetName) {
 					return w;
 				}
@@ -226,12 +222,19 @@ export const WidgetPreview = ({ widgetName }: any) => {
 						{(provided: any) => (
 							<Stack
 								ref={provided.innerRef}
-								p="4"
-								pt="2"
 								h="full"
-								overflow="auto"
+								{...(inline
+									? {
+											direction: 'row',
+											// px: 4,
+											flexWrap: 'wrap',
+											alignItems: 'center',
+											spacing: 5,
+											w: 'full',
+											// divider: <Divider orientation="vertical" h="14" />,
+									  }
+									: { p: 4, pt: 2, spacing: 3, overflow: 'auto' })}
 								data-cy="components-list"
-								spacing="3"
 								{...provided.droppableProps}
 							>
 								{componentsState.map((c: any, index: number) => {
@@ -244,11 +247,14 @@ export const WidgetPreview = ({ widgetName }: any) => {
 													id={c.name}
 													type="component"
 													data-cy={`component-${c.name}-inspector`}
+													meta={{ widget: widgetName }}
 													{...p.draggableProps}
 													{...p.dragHandleProps}
 												>
 													<AppComponent
 														key={c.name}
+														inline={inline}
+														widgetName={widgetName}
 														sendJsonMessage={sendJsonMessage}
 														{...c}
 													/>
@@ -258,7 +264,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 									);
 								})}
 								{provided.placeholder}
-								{isDevMode ? (
+								{isDevMode && !inline ? (
 									<Stack mt="2">
 										<NewComponent
 											widgetName={widgetName}

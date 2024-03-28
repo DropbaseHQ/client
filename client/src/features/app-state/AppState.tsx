@@ -3,7 +3,7 @@ import { useAtomValue } from 'jotai';
 
 import { useInitializePageState } from './hooks';
 import { ObjectRenderer } from '@/components/ObjectRenderer';
-import { newPageStateAtom } from '@/features/app-state';
+import { pageStateContextAtom } from '@/features/app-state';
 import { pageAtom } from '../page';
 
 const DEFAULT_OPEN_PATH = ['user_input', 'state', 'tables'];
@@ -12,7 +12,7 @@ export const AppState = () => {
 	const { pageName, appName } = useAtomValue(pageAtom);
 	const { isLoading } = useInitializePageState(appName || '', pageName || '');
 
-	const pageState = useAtomValue(newPageStateAtom);
+	const pageState = useAtomValue(pageStateContextAtom);
 
 	if (isLoading) {
 		return <Skeleton />;

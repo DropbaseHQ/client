@@ -8,7 +8,7 @@ import { TableConfig } from '../PropertiesEditor/TableConfig';
 import { WidgetProperties } from '@/features/app-builder/components/PropertiesEditor/WidgetProperties';
 
 import './monaco-suggestion-styles.css';
-import { newPageStateAtom } from '@/features/app-state';
+import { pageStateContextAtom } from '@/features/app-state';
 import { useTemplateCompletion } from '@/components/Editor/hooks/useTemplateCompletion';
 
 const EmptyPane = () => {
@@ -53,10 +53,10 @@ const EmptyPane = () => {
 };
 
 export const PropertyPane = () => {
-	const { id, type } = useAtomValue(inspectedResourceAtom);
+	const { id, type, meta } = useAtomValue(inspectedResourceAtom);
 
-	const pageState = useAtomValue(newPageStateAtom);
-	useTemplateCompletion(pageState);
+	const pageStateContext = useAtomValue(pageStateContextAtom);
+	useTemplateCompletion(pageStateContext);
 
 	if (!id || !type) {
 		return <EmptyPane />;
@@ -65,7 +65,7 @@ export const PropertyPane = () => {
 	let component = <EmptyPane />;
 
 	if (type === 'component') {
-		component = <ComponentPropertyEditor id={id} />;
+		component = <ComponentPropertyEditor id={id} meta={meta} />;
 	}
 
 	if (type === 'table') {

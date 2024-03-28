@@ -1,12 +1,12 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { set } from 'lodash';
-import { useAtomValue, useSetAtom } from 'jotai';
+
+import { useAtomValue } from 'jotai';
 import { useTableData } from './table';
 import { filtersAtom, sortsAtom, tablePageInfoAtom } from '@/features/smart-table/atoms';
 import { DEFAULT_PAGE_SIZE } from '../constants';
 import { useGetPage } from '@/features/page';
-import { tableColumnTypesAtom } from '@/features/app-state';
+// import { tableColumnTypesAtom } from '@/features/app-state';
 
 export const CurrentTableContext: any = createContext({ tableName: null });
 
@@ -18,7 +18,7 @@ export const useCurrentTableName = () => {
 
 export const useCurrentTableData = (tableName: any) => {
 	const { pageName, appName } = useParams();
-	const setTableColumnTypes = useSetAtom(tableColumnTypesAtom);
+	// const setTableColumnTypes = useSetAtom(tableColumnTypesAtom);
 
 	const allSorts = useAtomValue(sortsAtom);
 	const sorts = (allSorts[tableName] || []).filter((f: any) => f.column_name);
@@ -59,18 +59,19 @@ export const useCurrentTableData = (tableName: any) => {
 		...pageInfo,
 	});
 
-	setTableColumnTypes((old: any) => {
-		const newColumnTypes: any = {};
-		Object.entries(columnDict || {}).forEach(([key, value]: any) => {
-			if (value?.display_type) {
-				set(newColumnTypes, key, value?.display_type);
-			}
-		});
-		return {
-			...old,
-			[tableName]: newColumnTypes,
-		};
-	});
+	// FIXME: ask jon, also remove it from here, we should do it on useEffect
+	// setTableColumnTypes((old: any) => {
+	// 	const newColumnTypes: any = {};
+	// 	Object.entries(columnDict || {}).forEach(([key, value]: any) => {
+	// 		if (value?.display_type) {
+	// 			set(newColumnTypes, key, value?.display_type);
+	// 		}
+	// 	});
+	// 	return {
+	// 		...old,
+	// 		[tableName]: newColumnTypes,
+	// 	};
+	// });
 
 	return {
 		...tableData,

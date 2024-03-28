@@ -100,8 +100,8 @@ export const TableProperties = () => {
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				tables: [
-					...(properties?.tables || []).map((t: any) => {
+				blocks: [
+					...(properties?.blocks || []).map((t: any) => {
 						if (t.name === tableId) {
 							return {
 								...t,
@@ -130,8 +130,8 @@ export const TableProperties = () => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					tables: [
-						...(properties?.tables || []).map((t: any) => {
+					blocks: [
+						...(properties?.blocks || []).map((t: any) => {
 							if (t.name === tableId) {
 								return {
 									...t,
@@ -148,6 +148,7 @@ export const TableProperties = () => {
 			setInspectedResource({
 				id: newName,
 				type: 'table',
+				meta: null,
 			});
 		} catch (e) {
 			//

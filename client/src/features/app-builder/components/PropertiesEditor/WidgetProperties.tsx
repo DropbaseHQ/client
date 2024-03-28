@@ -39,6 +39,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 			setInspectedResource({
 				id: null,
 				type: null,
+				meta: null,
 			});
 		},
 		onError: (error: any) => {
@@ -70,7 +71,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: properties?.widgets.map((w: any) =>
+					blocks: properties?.blocks.map((w: any) =>
 						w.name === widgetId ? { ...w, ...formValues } : w,
 					),
 				},
@@ -85,7 +86,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: properties?.widgets.map((w: any) =>
+					blocks: (properties.blocks || []).map((w: any) =>
 						w.name === widgetId ? { ...w, name: newName } : w,
 					),
 				},
@@ -93,6 +94,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 			setInspectedResource({
 				id: newName,
 				type: 'widget',
+				meta: null,
 			});
 		} catch (e) {
 			//
@@ -100,23 +102,13 @@ export const WidgetProperties = ({ widgetId }: any) => {
 	};
 
 	const handleDeleteWidget = () => {
-		if (properties?.widgets.length === 1) {
-			toast({
-				status: 'error',
-				title: 'Failed to delete widget',
-				description: 'Your app must have atleast one widget',
-			});
-
-			return;
-		}
-
 		if (widgetId) {
 			deleteMutation.mutate({
 				app_name: appName,
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: properties?.widgets.filter((w: any) => w.name !== widgetId),
+					blocks: properties?.blocks.filter((w: any) => w.name !== widgetId),
 				},
 			});
 		}
@@ -141,7 +133,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 
 							<NameEditor
 								value={widgetId}
-								currentNames={(properties?.widgets || []).map((w: any) => w.name)}
+								currentNames={(widgets || []).map((w: any) => w.name)}
 								onUpdate={handleUpdateName}
 								resource="widget"
 							/>
