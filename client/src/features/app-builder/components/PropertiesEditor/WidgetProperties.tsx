@@ -166,7 +166,10 @@ export const WidgetProperties = ({ widgetId }: any) => {
 						<Stack spacing="3" p="3">
 							<Stack>
 								{fields?.widget?.map((property: any) => {
-									if (property?.name === 'name') {
+									if (
+										property?.name === 'name' ||
+										property.type === 'block_type'
+									) {
 										return null;
 									}
 
