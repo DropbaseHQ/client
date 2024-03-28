@@ -37,7 +37,7 @@ export const TableProperties = () => {
 
 	const currentCategories = ['Default'];
 
-	const { tables, files, properties } = useGetPage({ appName, pageName });
+	const { tables, files, properties, widgets } = useGetPage({ appName, pageName });
 
 	const mutation = useUpdatePageData({
 		onSuccess: () => {
@@ -238,6 +238,26 @@ export const TableProperties = () => {
 														name={property.title}
 														onSelect={resetDependsOn}
 														fetchers={fetchers}
+													/>
+												);
+											}
+
+											if (property.name === 'widget') {
+												return (
+													<FormInput
+														{...property}
+														id={property.name}
+														name={property.title}
+														type="select"
+														options={widgets
+															?.filter(
+																(w: any) => w.type === 'inline',
+															)
+															?.map((w: any) => ({
+																name: w.label,
+																value: w.name,
+															}))}
+														key={property.name}
 													/>
 												);
 											}

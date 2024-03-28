@@ -14,7 +14,10 @@ const fetchComponentFields = async () => {
 export const useResourceFields = () => {
 	const queryKey = ['resource/fields'];
 
-	const { data: response, ...rest } = useQuery(queryKey, () => fetchComponentFields());
+	const { data: response, ...rest } = useQuery(queryKey, () => fetchComponentFields(), {
+		cacheTime: Infinity,
+		staleTime: Infinity,
+	});
 
 	return {
 		...rest,
