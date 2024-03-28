@@ -40,7 +40,7 @@ export const AppComponent = (props: any) => {
 	const toast = useToast();
 	const [{ pageName, appName }] = useAtom(pageAtom);
 
-	const handleEvent = useEvent({ widgetName });
+	const handleEvent = useEvent({});
 
 	const {
 		component_type: componentType,

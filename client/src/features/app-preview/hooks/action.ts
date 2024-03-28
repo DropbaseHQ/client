@@ -48,7 +48,7 @@ export const useEvent = (props: any) => {
 	const actionMutation = useExecuteAction({
 		onSuccess: (data: any) => {
 			syncState(data);
-			props?.onSuccess(data);
+			props?.onSuccess?.(data);
 		},
 		onError: (error: any) => {
 			toast({
@@ -56,7 +56,7 @@ export const useEvent = (props: any) => {
 				title: 'Failed to execute action',
 				description: getErrorMessage(error),
 			});
-			props?.onError();
+			props?.onError?.();
 		},
 	});
 
