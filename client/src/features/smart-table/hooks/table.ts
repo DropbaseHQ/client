@@ -143,7 +143,7 @@ export const useTableData = ({
 	const dependentTableData = depends.reduce(
 		(agg: any, tName: any) => ({
 			...agg,
-			[tableName]: tablesState[tName],
+			[tName]: tablesState[tName],
 		}),
 		{},
 	);
