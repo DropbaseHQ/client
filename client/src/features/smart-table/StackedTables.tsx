@@ -45,6 +45,16 @@ const StackedTableWrapper = styled(Stack)`
 			left: -5px;
 			bottom: 1px;
 		}
+
+		&.react-resizable-handle-nw {
+			left: -5px;
+			top: -10px;
+		}
+
+		&.react-resizable-handle-ne {
+			top: -10px;
+			right: -5px;
+		}
 	}
 `;
 
@@ -160,7 +170,7 @@ export const StackedTables = () => {
 									w: table?.w || 4,
 									h: table?.h || 1,
 									i: table?.name,
-									resizeHandles: ['se', 'sw'],
+									resizeHandles: ['se', 'sw', 'ne', 'nw'],
 								}}
 								key={table.name}
 							>
