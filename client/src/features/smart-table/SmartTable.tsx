@@ -1058,7 +1058,9 @@ export const SmartTable = ({ tableName, height }: any) => {
 	};
 
 	const onAttach = () => {
-		calculateTableComponentsHeight();
+		setTimeout(() => {
+			calculateTableComponentsHeight();
+		}, 500);
 	};
 
 	/**
@@ -1076,9 +1078,9 @@ export const SmartTable = ({ tableName, height }: any) => {
 			<Stack pos="relative" h="full" spacing="0">
 				<NavLoader isLoading={isLoadingTable}>
 					<Stack
-						height={`${tableHeaderHeight}px`}
 						alignItems="center"
 						ref={tableHeaderRef}
+						flexShrink="0"
 						pb="3"
 						direction="row"
 						w="full"
@@ -1154,11 +1156,9 @@ export const SmartTable = ({ tableName, height }: any) => {
 							spacing="2"
 							flexShrink="0"
 						>
-							{!isPreview && table.type !== 'sql' ? (
-								<Tooltip label="Use inline widget">
-									<AttachWidget onAttach={onAttach} />
-								</Tooltip>
-							) : null}
+							<Tooltip label="Use inline widget">
+								<AttachWidget onAttach={onAttach} />
+							</Tooltip>
 
 							<Tooltip label="Refresh data">
 								<IconButton

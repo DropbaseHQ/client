@@ -1,21 +1,27 @@
 import { useEffect, useState } from 'react';
 import { FormControl, Stack } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { useCurrentTableName } from '@/features/smart-table/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
+import { appModeAtom } from '@/features/app/atoms';
 
 export const AttachWidget = ({ onAttach }: any) => {
 	const [selectedWidget, setWidget] = useState(null);
 	const { appName, pageName } = useParams();
 
+	const { isPreview } = useAtomValue(appModeAtom);
+
 	const toast = useToast();
 
 	const { properties } = useGetPage({ appName, pageName });
 	const tableName = useCurrentTableName();
+
+	const { table } = useGetTable(tableName);
 
 	const { widget: tableWidget } = useGetTable(tableName || '');
 
@@ -69,6 +75,10 @@ export const AttachWidget = ({ onAttach }: any) => {
 			//
 		}
 	};
+
+	if (isPreview || table.type === 'sql' || !table.fetcher) {
+		return null;
+	}
 
 	return (
 		<FormControl>
