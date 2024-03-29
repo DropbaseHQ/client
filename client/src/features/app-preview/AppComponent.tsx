@@ -248,6 +248,11 @@ export const AppComponent = (props: any) => {
 					name={name}
 					data-cy={`input-${name}`}
 					type={inputType}
+					onKeyDown={(e: any) => {
+						if (e.key === 'Enter' && component?.on_submit) {
+							handleEvent(component.on_submit);
+						}
+					}}
 					onChange={(newValue: any) => {
 						// We need this newWidgetState because the state in pageState
 						// is not up to date with the latest input value
