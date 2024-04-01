@@ -38,8 +38,8 @@ const fetchFunctionData = async ({
 	throw new Error('Failed to retrieve data from fetcher');
 };
 
-const useParsedData: any = (response: any, table: any) =>
-	useMemo(() => {
+export const useParsedData: any = (response: any, table: any) => {
+	return useMemo(() => {
 		if (response) {
 			const customColumns = table?.columns?.filter(
 				(c: any) => c.column_type === 'button_column' && !c?.hidden,
@@ -71,6 +71,7 @@ const useParsedData: any = (response: any, table: any) =>
 			tableError: null,
 		};
 	}, [response, table]);
+};
 
 export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
 	const pageStateContext: any = useAtomValue(pageStateContextAtom);
@@ -89,7 +90,7 @@ export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
 				state: pageStateRef.current,
 			}),
 		{
-			enabled: true,
+			enabled: !!fetcher,
 			staleTime: Infinity,
 		},
 	);
@@ -237,6 +238,7 @@ const saveEdits = async ({ file, edits }: any) => {
 		file,
 		edits,
 	});
+
 	return response.data;
 };
 
