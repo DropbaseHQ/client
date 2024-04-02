@@ -626,9 +626,10 @@ def check_permissions(
 ):
     workspace_id = None
     app_id = request.app_id
-    app = crud.app.get_object_by_id_or_404(db, id=app_id)
-    if app.workspace_id:
-        workspace_id = app.workspace_id
+    if request.app_id:
+        app = crud.app.get(db=db, id=request.app_id)
+        if app.workspace_id:
+            workspace_id = app.workspace_id
     else:
         # Workspace_from_token
         workspace_id = workspace.id
