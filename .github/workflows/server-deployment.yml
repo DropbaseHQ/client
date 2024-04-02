@@ -14,6 +14,7 @@ env:
   DEV_AWS_REGION: us-east-1
   DEV_ECR_REPO: 890697794097.dkr.ecr.us-east-1.amazonaws.com
   DEV_API_DOMAIN: api.dev.dropbase.io
+  TRY_DROPBASE_DB_NAME: try_dropbase
   PROD_AWS_REGION: us-east-1
   PROD_ECR_REPO: 442766812249.dkr.ecr.us-east-1.amazonaws.com
   PROD_API_DOMAIN: api.dropbase.io
