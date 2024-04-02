@@ -2,29 +2,19 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 
+import { Heading } from '@chakra-ui/react';
+
 const MarkdownEditor = ({ text }: { text: string }) => {
 	return (
 		<ReactMarkdown
 			remarkPlugins={[remarkGfm, remarkBreaks]}
 			components={{
-				h1: (componentProps) => (
-					<div style={{ fontSize: '2em', fontWeight: 'bold' }} {...componentProps} />
-				),
-				h2: (componentProps) => (
-					<div style={{ fontSize: '1.5em', fontWeight: 'bold' }} {...componentProps} />
-				),
-				h3: (componentProps) => (
-					<div style={{ fontSize: '1.17em', fontWeight: 'bold' }} {...componentProps} />
-				),
-				h4: (componentProps) => (
-					<div style={{ fontSize: '1em', fontWeight: 'bold' }} {...componentProps} />
-				),
-				h5: (componentProps) => (
-					<div style={{ fontSize: '0.83em', fontWeight: 'bold' }} {...componentProps} />
-				),
-				h6: (componentProps) => (
-					<div style={{ fontSize: '0.67em', fontWeight: 'bold' }} {...componentProps} />
-				),
+				h1: (componentProps) => <Heading as="h1" size="2xl" {...componentProps} />,
+				h2: (componentProps) => <Heading as="h2" size="xl" {...componentProps} />,
+				h3: (componentProps) => <Heading as="h3" size="lg" {...componentProps} />,
+				h4: (componentProps) => <Heading as="h4" size="md" {...componentProps} />,
+				h5: (componentProps) => <Heading as="h5" size="sm" {...componentProps} />,
+				h6: (componentProps) => <Heading as="h6" size="xs" {...componentProps} />,
 				a: (componentProps) => (
 					<a
 						style={{ color: '#007bff', textDecoration: 'underline' }}
