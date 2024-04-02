@@ -1,43 +1,43 @@
 import { useSetAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { pageStateAtom, pageContextAtom } from '@/features/app-state';
 import { useGetPage } from '@/features/page';
 
 export const useInitializePageState = (appName: string, pageName: string) => {
-	const { context, state, ...rest } = useGetPage({ appName, pageName });
+	const { context, state, tables, ...rest } = useGetPage({ appName, pageName });
+
+	const tablesRef = useRef(tables);
+	tablesRef.current = tables;
 
 	const setPageState = useSetAtom(pageStateAtom);
 	const setPageContext = useSetAtom(pageContextAtom);
 
 	useEffect(() => {
-		setPageState(() => {
-			// FIXME: yash take alook again by having a new table
-			// const { tables } = state;
-			// setTableState(tables);
+		setPageState((currentState: any) => {
+			const oldTables = tablesRef.current;
 
-			// if (oldTables && state.tables) {
-			// 	return Object.keys(tables).reduce((agg: any, tableName: any) => {
-			// 		if (oldTables[tableName]) {
-			// 			return {
-			// 				...agg,
-			// 				[tableName]: Object.keys(tables?.[tableName] || {}).reduce(
-			// 					(acc: any, field) => ({
-			// 						...acc,
-			// 						[field]: oldTables?.[tableName]?.[field],
-			// 					}),
-			// 					{},
-			// 				),
-			// 			};
-			// 		}
+			/**
+			 * when new table is added we get new state and context as we get initially which resets
+			 * the table state
+			 */
+			const tablesState = oldTables.reduce((agg: any, t: any) => {
+				if (t.name in currentState) {
+					return {
+						...agg,
+						[t.name]: {
+							...(state?.[t.name] || {}),
+							...(currentState?.[t.name] || {}),
+						},
+					};
+				}
 
-			// 		return {
-			// 			...agg,
-			// 			[tableName]: tables[tableName] || {},
-			// 		};
-			// 	}, {});
-			// }
+				return agg;
+			}, {});
 
-			return state;
+			return {
+				...state,
+				...tablesState,
+			};
 		});
 	}, [state, setPageState]);
 
