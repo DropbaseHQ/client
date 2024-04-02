@@ -6,10 +6,14 @@ import {
 	FormControl,
 	FormLabel,
 	Stack,
-	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
+
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
+
 import { extractTemplateString, getErrorMessage } from '@/utils';
 
 import { useEvent, useExecuteAction } from '@/features/app-preview/hooks';
@@ -25,12 +29,6 @@ import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
 import { useFetcherData } from '../smart-table/hooks';
-
-const sizeMap: any = {
-	small: 'sm',
-	medium: 'md',
-	large: 'lg',
-};
 
 const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 
@@ -194,15 +192,91 @@ export const AppComponent = (props: any) => {
 
 	if (componentType === 'text') {
 		return (
+			// remarkGfm adds a few more features e.g strikethroughs, tables, checkmarks
 			<Stack spacing="0.5">
-				<Text
-					fontSize={sizeMap[component.size]}
-					color={component.color || `${component.color}.500`}
-					bgColor={grayOutComponent ? 'gray.100' : ''}
+				<ReactMarkdown
+					remarkPlugins={[remarkGfm, remarkBreaks]}
+					components={{
+						h1: (componentProps) => (
+							<div // this defines <h1> styles, has to be div because h1 will raise an eslint error
+								style={{ fontSize: '2em', fontWeight: 'bold' }}
+								{...componentProps}
+							/>
+						),
+						h2: (componentProps) => (
+							<div
+								style={{ fontSize: '1.5em', fontWeight: 'bold' }}
+								{...componentProps}
+							/>
+						),
+						h3: (componentProps) => (
+							<div
+								style={{ fontSize: '1.17em', fontWeight: 'bold' }}
+								{...componentProps}
+							/>
+						),
+						h4: (componentProps) => (
+							<div
+								style={{ fontSize: '1em', fontWeight: 'bold' }}
+								{...componentProps}
+							/>
+						),
+						h5: (componentProps) => (
+							<div
+								style={{ fontSize: '0.83em', fontWeight: 'bold' }}
+								{...componentProps}
+							/>
+						),
+						h6: (componentProps) => (
+							<div
+								style={{ fontSize: '0.67em', fontWeight: 'bold' }}
+								{...componentProps}
+							/>
+						),
+						a: (componentProps) => (
+							<a
+								style={{ color: '#007bff', textDecoration: 'underline' }}
+								{...componentProps}
+							>
+								{componentProps.children}
+							</a>
+						),
+						em: (componentProps) => (
+							<i style={{ fontWeight: 'bold' }} {...componentProps} />
+						),
+						table: (componentProps) => (
+							<table
+								style={{ borderCollapse: 'collapse', width: '100%' }}
+								{...componentProps}
+							/>
+						),
+						th: (componentProps) => (
+							<th
+								style={{
+									border: '1px solid #dddddd',
+									textAlign: 'left',
+									padding: '8px',
+								}}
+								{...componentProps}
+							/>
+						),
+						td: (componentProps) => (
+							<td
+								style={{
+									border: '1px solid #dddddd',
+									textAlign: 'left',
+									padding: '8px',
+								}}
+								{...componentProps}
+							/>
+						),
+						tr: (componentProps) => (
+							<tr style={{ backgroundColor: '#f9f9f9' }} {...componentProps} />
+						),
+					}}
 				>
 					{text}
-				</Text>
-
+				</ReactMarkdown>
 				{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
 			</Stack>
 		);
