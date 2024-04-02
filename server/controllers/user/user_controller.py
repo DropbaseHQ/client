@@ -1,6 +1,5 @@
 import os
 import secrets
-import requests
 import random
 from datetime import datetime, timedelta
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
