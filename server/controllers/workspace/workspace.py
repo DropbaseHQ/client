@@ -279,23 +279,23 @@ def sync_app(db: Session, request: SyncAppRequest, workspace: Workspace):
     )
     db.flush()
     pages_info = []
-
-    for page in request.pages:
-        crud.page.create(
-            db=db,
-            obj_in={
-                "name": page.name,
-                "label": page.label,
-                "app_id": new_app.id,
-            },
-        )
-        db.flush()
-        pages_info.append(
-            {
-                "name": page.name,
-                "id": page.id,
-            }
-        )
+    if request.pages:
+        for page in request.pages:
+            crud.page.create(
+                db=db,
+                obj_in={
+                    "name": page.name,
+                    "label": page.label,
+                    "app_id": new_app.id,
+                },
+            )
+            db.flush()
+            pages_info.append(
+                {
+                    "name": page.name,
+                    "id": page.id,
+                }
+            )
 
     return {"status": "CREATED", "app_id": new_app.id, "pages": pages_info}
 
