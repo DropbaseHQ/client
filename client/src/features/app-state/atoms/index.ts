@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { merge } from 'lodash';
 
 // widget state atom
 export const pageStateAtom = atom({});
@@ -16,23 +17,7 @@ export const pageContextAtom = atom(
 			return;
 		}
 
-		const updatedContext = Object.keys(current).reduce((agg: any, field: any) => {
-			if (field in newContext) {
-				return {
-					...agg,
-					[field]: {
-						...(current?.[field] || {}),
-						...(newContext?.[field] || {}),
-					},
-				};
-			}
-
-			return {
-				...agg,
-				[field]: current[field],
-			};
-		}, {});
-
+		const updatedContext = merge(newContext, current);
 		set(basePageContextAtom, updatedContext);
 	},
 );

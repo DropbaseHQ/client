@@ -1,49 +1,64 @@
+import { useQuery } from 'react-query';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { pageStateAtom, pageContextAtom } from '@/features/app-state';
 import { useGetPage } from '@/features/page';
+import { workerAxios } from '@/lib/axios';
+
+const fetchInitialState = async ({ appName, pageName }: any) => {
+	const response = await workerAxios.get<any>(`/page/${appName}/${pageName}/init`);
+
+	return response.data;
+};
 
 export const useInitializePageState = (appName: string, pageName: string) => {
-	const { context, state, ...rest } = useGetPage({ appName, pageName });
+	const queryKey = ['INITIAL_STATE', appName, pageName];
 
 	const setPageState = useSetAtom(pageStateAtom);
 	const setPageContext = useSetAtom(pageContextAtom);
 
+	const { isLoading: isLoadingInitial } = useQuery(
+		queryKey,
+		() => fetchInitialState({ appName, pageName }),
+		{
+			enabled: Boolean(appName && pageName),
+			staleTime: Infinity,
+			onSuccess: (data: any) => {
+				/**
+				 * Update initial context to set the base
+				 */
+				setPageContext(data?.state_context?.context || {});
+				setPageState(data?.state_context?.state || {});
+			},
+		},
+	);
+
+	const { context, state, ...rest } = useGetPage({
+		appName,
+		pageName,
+		enabled: Boolean(appName && pageName && !isLoadingInitial),
+	});
+
+	/**
+	 * Subsequesnt useEffect's are for updates made to resoruces, like
+	 * adding component, widget or tables
+	 */
 	useEffect(() => {
-		setPageState(() => {
-			// FIXME: yash take alook again by having a new table
-			// const { tables } = state;
-			// setTableState(tables);
-
-			// if (oldTables && state.tables) {
-			// 	return Object.keys(tables).reduce((agg: any, tableName: any) => {
-			// 		if (oldTables[tableName]) {
-			// 			return {
-			// 				...agg,
-			// 				[tableName]: Object.keys(tables?.[tableName] || {}).reduce(
-			// 					(acc: any, field) => ({
-			// 						...acc,
-			// 						[field]: oldTables?.[tableName]?.[field],
-			// 					}),
-			// 					{},
-			// 				),
-			// 			};
-			// 		}
-
-			// 		return {
-			// 			...agg,
-			// 			[tableName]: tables[tableName] || {},
-			// 		};
-			// 	}, {});
-			// }
-
-			return state;
-		});
-	}, [state, setPageState]);
+		if (!isLoadingInitial) {
+			setPageState((current: any) => {
+				return {
+					...current,
+					...state,
+				};
+			});
+		}
+	}, [state, isLoadingInitial, setPageState]);
 
 	useEffect(() => {
-		setPageContext(context || {});
-	}, [context, setPageContext]);
+		if (!isLoadingInitial) {
+			setPageContext(context || {});
+		}
+	}, [context, isLoadingInitial, setPageContext]);
 
 	useEffect(() => {
 		return () => {
@@ -52,7 +67,7 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 		};
 	}, [setPageContext, setPageState]);
 
-	return rest;
+	return { ...rest, isLoading: rest.isLoading || isLoadingInitial };
 };
 
 export const useInitializeWidgetState = ({ appName, pageName }: any) => {
