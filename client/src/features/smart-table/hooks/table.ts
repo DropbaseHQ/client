@@ -6,7 +6,7 @@ import { useDebounce } from 'use-debounce';
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
-import { pageStateAtom, pageStateContextAtom } from '@/features/app-state';
+import { pageStateAtom, pageStateContextAtom, useSyncState } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
@@ -19,6 +19,7 @@ const fetchFunctionData = async ({
 	fetcher,
 	appName,
 	pageName,
+	tableName,
 	state,
 	filter_sort = null,
 }: any) => {
@@ -26,6 +27,7 @@ const fetchFunctionData = async ({
 		fetcher,
 		app_name: appName,
 		page_name: pageName,
+		table_name: tableName,
 		state: state.state,
 		filter_sort,
 	});
@@ -161,12 +163,15 @@ export const useTableData = ({
 		JSON.stringify({ debouncedFilters, sorts, dependentTableData }),
 	];
 
+	const syncState = useSyncState();
+
 	const { data: response, ...rest } = useQuery(
 		queryKey,
 		() =>
 			fetchFunctionData({
 				appName,
 				pageName,
+				tableName,
 				state: pageStateRef.current,
 				fetcher: table?.fetcher,
 				filter_sort: {
@@ -190,6 +195,9 @@ export const useTableData = ({
 				tablesWithNoSelection.length === 0
 			),
 			staleTime: Infinity,
+			onSuccess: (data: any) => {
+				syncState(data);
+			},
 			onError: () => {
 				/**
 				 * Reset selected row of the current table, and all the tables
@@ -223,11 +231,8 @@ export const useTableData = ({
 		},
 	);
 
-	const parsedData = useParsedData(response, table);
-
 	return {
 		...rest,
-		...parsedData,
 		sqlId: response?.sql_id,
 		queryKey,
 	};
