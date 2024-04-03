@@ -106,7 +106,7 @@ export const PermissionsTableRow = ({
 		>
 			<Td borderColor="gray.200">
 				<Flex alignItems="center">
-					{Icon !== undefined ? <Icon size="13" color="gray" /> : null}
+					{Icon ? <Icon size="13" color="gray" /> : null}
 					<Text ml={Icon !== undefined ? 1 : 0}>{name}</Text>
 				</Flex>
 			</Td>
