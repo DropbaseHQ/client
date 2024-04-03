@@ -81,10 +81,12 @@ export const PermissionsTableRow = ({
 	name,
 	initialValue,
 	handleSelect,
+	Icon,
 }: {
 	name: string;
 	initialValue?: string;
 	handleSelect: (value: string) => void;
+	Icon?: ReactFeatherIcon;
 }) => {
 	const { getRootProps, getRadioProps, setValue } = useRadioGroup({
 		onChange: handleSelect,
@@ -102,7 +104,12 @@ export const PermissionsTableRow = ({
 				bg: 'gray.100',
 			}}
 		>
-			<Td borderColor="gray.200">{name}</Td>
+			<Td borderColor="gray.200">
+				<Flex alignItems="center">
+					{Icon !== undefined ? <Icon size="13" color="gray" /> : null}
+					<Text ml={Icon !== undefined ? 1 : 0}>{name}</Text>
+				</Flex>
+			</Td>
 			<Td borderColor="gray.200">
 				<Radio {...getRadioProps({ value: 'none' })} position="relative" />
 			</Td>
