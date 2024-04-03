@@ -2,7 +2,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 
-import { Heading } from '@chakra-ui/react';
+import { Heading, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
 
 const MarkdownEditor = ({ text }: { text: string }) => {
 	return (
@@ -24,27 +24,12 @@ const MarkdownEditor = ({ text }: { text: string }) => {
 					</a>
 				),
 				em: (componentProps) => <i style={{ fontWeight: 'bold' }} {...componentProps} />,
-				table: (componentProps) => (
-					<table
-						style={{ borderCollapse: 'collapse', width: '100%' }}
-						{...componentProps}
-					/>
-				),
-				th: (componentProps) => (
-					<th
-						style={{ border: '1px solid #dddddd', textAlign: 'left', padding: '8px' }}
-						{...componentProps}
-					/>
-				),
-				td: (componentProps) => (
-					<td
-						style={{ border: '1px solid #dddddd', textAlign: 'left', padding: '8px' }}
-						{...componentProps}
-					/>
-				),
-				tr: (componentProps) => (
-					<tr style={{ backgroundColor: '#f9f9f9' }} {...componentProps} />
-				),
+				table: (componentProps) => <Table variant="simple" {...componentProps} />,
+				thead: (componentProps) => <Thead {...componentProps} />,
+				tbody: (componentProps) => <Tbody {...componentProps} />,
+				tr: (componentProps) => <Tr {...componentProps} />,
+				th: (componentProps) => <Th borderWidth="1px" {...componentProps} />,
+				td: (componentProps) => <Td borderWidth="1px" {...componentProps} />,
 			}}
 		>
 			{text}
