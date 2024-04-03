@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Spinner } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
-import { Layout } from 'react-feather';
+import { Layout, User, Users } from 'react-feather';
 import { useGetWorkspaceApps } from '../../../app-list/hooks/useGetWorkspaceApps';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetWorkspaceGroups, useGetWorkspaceUsers } from '../../hooks/workspace';
@@ -40,6 +40,7 @@ const UserTableRow = ({ name, subjectId, appId }: any) => {
 			name={name}
 			initialValue={policy?.action}
 			handleSelect={handleSelect}
+			Icon={User}
 		/>
 	);
 };
@@ -65,6 +66,7 @@ const GroupTableRow = ({ name, subjectId, appId }: any) => {
 			name={name}
 			initialValue={policy?.action}
 			handleSelect={handleSelect}
+			Icon={Users}
 		/>
 	);
 };
