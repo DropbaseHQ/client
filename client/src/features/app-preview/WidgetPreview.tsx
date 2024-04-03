@@ -1,7 +1,6 @@
 import { Box, CloseButton, Progress, Stack } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import useWebSocket from 'react-use-websocket';
@@ -104,10 +103,15 @@ export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 	const widgetContext: any = allWidgetContext[widgetName || ''];
 
 	const handleRemoveAlert = () => {
-		setWidgetContext((oldData: any) => ({
-			...lodashSet(oldData, `${widgetName}.message`, null),
-			...lodashSet(oldData, `${widgetName}.message_type`, null),
-		}));
+		setWidgetContext(
+			{
+				[widgetName]: {
+					message: null,
+					message_type: null,
+				},
+			},
+			true,
+		);
 	};
 
 	const handleReorderComponents = (newCompState: any[]) => {

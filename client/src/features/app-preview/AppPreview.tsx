@@ -2,7 +2,7 @@ import { Box, Button, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { ChevronDown } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
-import lodashSet from 'lodash/set';
+
 import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
@@ -45,10 +45,15 @@ export const AppPreview = () => {
 	const createMutation = useCreateWidget();
 
 	const handleRemoveAlert = () => {
-		setPageContext((oldData: any) => ({
-			...lodashSet(oldData, `page.message`, null),
-			...lodashSet(oldData, `page.message_type`, null),
-		}));
+		setPageContext(
+			{
+				page: {
+					message: null,
+					message_type: null,
+				},
+			},
+			true,
+		);
 	};
 
 	const handleCreateWidget = () => {

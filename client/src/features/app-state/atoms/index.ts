@@ -5,28 +5,30 @@ export const pageStateAtom = atom({});
 
 const basePageContextAtom = atom({});
 
-function non_empty_values(obj: any) {
-	const non_empty: any = {};
-	for (var k in obj) {
+function filterEmptyValues(obj: any) {
+	const nonEmpty: any = {};
+	Object.keys(obj).forEach((k: any) => {
+		// eslint-disable-next-line no-prototype-builtins
 		if (obj.hasOwnProperty(k)) {
 			if (typeof obj[k] === 'object' && obj[k] !== null && !Array.isArray(obj[k])) {
-				var nested = non_empty_values(obj[k]);
+				const nested = filterEmptyValues(obj[k]);
 				if (Object.keys(nested).length !== 0) {
-					non_empty[k] = nested;
+					nonEmpty[k] = nested;
 				}
 			} else if (obj[k]) {
 				// for JavaScript boolean check
-				non_empty[k] = obj[k];
+				nonEmpty[k] = obj[k];
 			}
 		}
-	}
-	return non_empty;
+	});
+
+	return nonEmpty;
 }
 
 // widget context atom
 export const pageContextAtom = atom(
 	(get) => get(basePageContextAtom),
-	(get, set, allContext: any) => {
+	(get, set, allContext: any, disableFilterEmptyValues?: any) => {
 		const current: any = get(basePageContextAtom);
 
 		if (Object.keys(current)?.length === 0) {
@@ -34,10 +36,7 @@ export const pageContextAtom = atom(
 			return;
 		}
 
-		const newContext = non_empty_values(allContext);
-		console.log('newContext', newContext);
-
-		console.log('current', current);
+		const newContext = disableFilterEmptyValues ? allContext : filterEmptyValues(allContext);
 		const updatedContext = Object.keys(current).reduce((agg: any, field: any) => {
 			if (field in newContext) {
 				return {
