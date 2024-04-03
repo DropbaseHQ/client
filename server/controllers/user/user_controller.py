@@ -636,7 +636,7 @@ def check_permissions(
     permissions_dict = get_all_action_permissions(
         db, str(user.id), workspace_id, app_id
     )
-    print("permissions_dict", permissions_dict)
+
     print("permissions_dict", permissions_dict)
     return permissions_dict
 

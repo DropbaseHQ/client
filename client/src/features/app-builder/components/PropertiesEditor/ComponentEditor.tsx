@@ -443,50 +443,6 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 												return null;
 											}
 
-											if (property.name === 'fetcher') {
-												if (!useFetcher) return null;
-												const fetchers = files.filter(
-													(f: any) =>
-														f.type === 'sql' ||
-														f.type === 'data_fetcher',
-												);
-
-												return (
-													<SelectDataFetcher
-														name="Select data fetcher"
-														fetchers={fetchers}
-													/>
-												);
-											}
-
-											if (
-												property.name === 'name_column' ||
-												property.name === 'value_column'
-											) {
-												if (!useFetcher) return null;
-												return (
-													<FormInput
-														{...property}
-														id={property.name}
-														name={property.title}
-														type="select"
-														options={
-															selectColumnsLoading
-																? []
-																: columns.map((o: any) => ({
-																		name: o,
-																		value: o,
-																  }))
-														}
-														isLoading={selectColumnsLoading}
-													/>
-												);
-											}
-
-											if (property.name === 'options' && useFetcher) {
-												return null;
-											}
-
 											const showFunctionList = property.type === 'function';
 
 											return (

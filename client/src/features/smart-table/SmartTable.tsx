@@ -1124,122 +1124,117 @@ export const SmartTable = ({ tableName, height }: any) => {
 						overflow="hidden"
 					>
 						<Stack spacing="0" flexShrink="0">
-							<Stack spacing="0" flexShrink="0">
-								<LabelContainer>
-									{isPreview ? null : (
-										<Box
-											_hover={{
-												color: 'gray.800',
-												borderColor: 'gray.50',
-											}}
-											borderWidth="1px"
-											borderColor="transparent"
-											borderRadius="sm"
-											cursor="grab"
-											className="react-grid-drag-handle"
-										>
-											<Move size="14" />
-										</Box>
-									)}
-									<LabelContainer.Label>
-										{extractTemplateString(
-											table?.label || tableName,
-											pageState,
-										)}
-									</LabelContainer.Label>
-									{isPreview ? null : (
-										<LabelContainer.Code>{tableName}</LabelContainer.Code>
-									)}
-
-									{table?.smart && !isPreview ? (
-										<Box
-											fontSize="xs"
-											px="2"
-											my="1"
-											py="1"
-											borderRadius="sm"
-											borderWidth="1px"
-											borderColor="yellow.400"
-											bg="yellow.50"
-											color="yellow.700"
-											fontWeight="medium"
-											h="fit-content"
-											w="fit-content"
-										>
-											Smart Table
-										</Box>
-									) : null}
-								</LabelContainer>
-
-								{dependantTablesWithNoRowSelection.length > 0 ? (
-									<Stack direction="row" spacing="1" alignItems="center">
-										<Box color="orange.500">
-											<Info size="14" />
-										</Box>
-										<Text fontSize="xs">
-											This table depends on{' '}
-											<Box as="span" px=".5" fontWeight="semibold">
-												{(dependsOn || []).join(', ')}
-											</Box>
-											. No row selection found for{' '}
-											<Box as="span" fontWeight="semibold" color="orange.500">
-												{dependantTablesWithNoRowSelection.join(', ')}
-											</Box>
-										</Text>
-									</Stack>
-								) : null}
-							</Stack>
-
-							<Stack
-								ml="auto"
-								alignItems="center"
-								direction="row"
-								spacing="2"
-								flexShrink="0"
-							>
-								<Tooltip label="Use inline widget">
-									<AttachWidget onAttach={onAttach} />
-								</Tooltip>
-
-								<Tooltip label="Refresh data">
-									<IconButton
-										aria-label="Refresh Data"
-										size="xs"
-										colorScheme="gray"
-										icon={<RotateCw size="14" />}
-										variant="outline"
-										isLoading={isRefetching}
-										onClick={() => {
-											/**
-											 * Remove query because if user refreshes in middle of loading,
-											 * for eg: wrong query and reloads it; we discard the old jobId
-											 * and generate a new one to get fresh data
-											 */
-											if (isLoading) {
-												removeQuery();
-											}
-
-											refetch({ cancelRefetch: true });
+							<LabelContainer>
+								{isPreview ? null : (
+									<Box
+										_hover={{
+											color: 'gray.800',
+											borderColor: 'gray.50',
 										}}
-									/>
-								</Tooltip>
+										borderWidth="1px"
+										borderColor="transparent"
+										borderRadius="sm"
+										cursor="grab"
+										className="react-grid-drag-handle"
+									>
+										<Move size="14" />
+									</Box>
+								)}
+								<LabelContainer.Label>
+									{extractTemplateString(table?.label || tableName, pageState)}
+								</LabelContainer.Label>
+								{isPreview ? null : (
+									<LabelContainer.Code>{tableName}</LabelContainer.Code>
+								)}
 
-								{!isLoading && !isPreview && tableIsUnsynced ? (
-									<Tooltip label="Save columns">
-										<Button
-											variant="outline"
-											colorScheme="gray"
-											leftIcon={<UploadCloud size="14" />}
-											size="sm"
-											flexShrink="0"
-											onClick={handleCommitColumns}
-											isLoading={mutation.isLoading}
-										>
-											Save Columns
-										</Button>
-									</Tooltip>
+								{table?.smart && !isPreview ? (
+									<Box
+										fontSize="xs"
+										px="2"
+										my="1"
+										py="1"
+										borderRadius="sm"
+										borderWidth="1px"
+										borderColor="yellow.400"
+										bg="yellow.50"
+										color="yellow.700"
+										fontWeight="medium"
+										h="fit-content"
+										w="fit-content"
+									>
+										Smart Table
+									</Box>
 								) : null}
-							</Stack>
+							</LabelContainer>
+
+							{dependantTablesWithNoRowSelection.length > 0 ? (
+								<Stack direction="row" spacing="1" alignItems="center">
+									<Box color="orange.500">
+										<Info size="14" />
+									</Box>
+									<Text fontSize="xs">
+										This table depends on{' '}
+										<Box as="span" px=".5" fontWeight="semibold">
+											{(dependsOn || []).join(', ')}
+										</Box>
+										. No row selection found for{' '}
+										<Box as="span" fontWeight="semibold" color="orange.500">
+											{dependantTablesWithNoRowSelection.join(', ')}
+										</Box>
+									</Text>
+								</Stack>
+							) : null}
+						</Stack>
+
+						<Stack
+							ml="auto"
+							alignItems="center"
+							direction="row"
+							spacing="2"
+							flexShrink="0"
+						>
+							<Tooltip label="Use inline widget">
+								<AttachWidget onAttach={onAttach} />
+							</Tooltip>
+
+							<Tooltip label="Refresh data">
+								<IconButton
+									aria-label="Refresh Data"
+									size="xs"
+									colorScheme="gray"
+									icon={<RotateCw size="14" />}
+									variant="outline"
+									isLoading={isRefetching}
+									onClick={() => {
+										/**
+										 * Remove query because if user refreshes in middle of loading,
+										 * for eg: wrong query and reloads it; we discard the old jobId
+										 * and generate a new one to get fresh data
+										 */
+										if (isLoading) {
+											removeQuery();
+										}
+
+										refetch({ cancelRefetch: true });
+									}}
+								/>
+							</Tooltip>
+
+							{!isLoading && !isPreview && tableIsUnsynced ? (
+								<Tooltip label="Save columns">
+									<Button
+										variant="outline"
+										colorScheme="gray"
+										leftIcon={<UploadCloud size="14" />}
+										size="sm"
+										flexShrink="0"
+										onClick={handleCommitColumns}
+										isLoading={mutation.isLoading}
+									>
+										Save Columns
+									</Button>
+								</Tooltip>
+							) : null}
 						</Stack>
 					</Stack>
 				</NavLoader>

@@ -2,10 +2,14 @@ import { useState, useEffect } from 'react';
 import { Box, Progress, Stack } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
+
 import styled from '@emotion/styled';
+
 import RGL, { WidthProvider } from 'react-grid-layout';
+
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { SmartTable } from './SmartTable';
 import { InspectorContainer } from '@/features/app-builder';
