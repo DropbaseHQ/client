@@ -9,7 +9,6 @@ import {
 	COLUMN_PROPERTIES_QUERY_KEY,
 } from '@/features/app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
-import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { fetchJobStatus } from '@/utils/worker-job';
 
@@ -110,7 +109,6 @@ export const useUpdateTableProperties = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 		},
 	});
@@ -143,7 +141,6 @@ export const useConvertSmartTable = (allProps: any = {}) => {
 		mutationKey: `${CONVERT_MUTATION}-${table}`,
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 		},
@@ -161,7 +158,6 @@ export const useDeleteTable = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 		},
 	});
 };

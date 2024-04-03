@@ -6,7 +6,6 @@ import { axios, workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { PAGE_DATA_QUERY_KEY, pageAtom, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
-import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 
@@ -56,7 +55,6 @@ export const useUpdateWidgetProperties = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 	});
@@ -79,6 +77,7 @@ export const useCreateWidget = (props: any = {}) => {
 			updateSelectedResource({
 				type: 'widget',
 				id: data?.widget?.id,
+				meta: null,
 			});
 
 			toast({
@@ -95,7 +94,6 @@ export const useCreateWidget = (props: any = {}) => {
 		},
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 		},
 	});
 
@@ -115,7 +113,6 @@ export const useDeleteWidget = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 		},
 	});
 };

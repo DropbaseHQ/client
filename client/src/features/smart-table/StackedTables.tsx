@@ -2,14 +2,10 @@ import { useState, useEffect } from 'react';
 import { Box, Progress, Stack } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
-
 import styled from '@emotion/styled';
-
 import RGL, { WidthProvider } from 'react-grid-layout';
-
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { SmartTable } from './SmartTable';
 import { InspectorContainer } from '@/features/app-builder';
@@ -44,6 +40,16 @@ const StackedTableWrapper = styled(Stack)`
 		&.react-resizable-handle-sw {
 			left: -5px;
 			bottom: 1px;
+		}
+
+		&.react-resizable-handle-nw {
+			left: -5px;
+			top: -10px;
+		}
+
+		&.react-resizable-handle-ne {
+			top: -10px;
+			right: -5px;
 		}
 	}
 `;
@@ -105,11 +111,15 @@ export const StackedTables = () => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					tables: tables.map((t: any) => {
-						return {
-							...t,
-							...(tableLayout?.[t.name] || {}),
-						};
+					blocks: properties?.blocks?.map((t: any) => {
+						if (t.block_type === 'table') {
+							return {
+								...t,
+								...(tableLayout?.[t.name] || {}),
+							};
+						}
+
+						return t;
 					}),
 				},
 			});
@@ -156,7 +166,7 @@ export const StackedTables = () => {
 									w: table?.w || 4,
 									h: table?.h || 1,
 									i: table?.name,
-									resizeHandles: ['se', 'sw'],
+									resizeHandles: ['se', 'sw', 'ne', 'nw'],
 								}}
 								key={table.name}
 							>

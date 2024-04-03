@@ -37,7 +37,7 @@ export const TableProperties = () => {
 
 	const currentCategories = ['Default'];
 
-	const { tables, files, properties } = useGetPage({ appName, pageName });
+	const { tables, files, properties, widgets } = useGetPage({ appName, pageName });
 
 	const mutation = useUpdatePageData({
 		onSuccess: () => {
@@ -100,8 +100,8 @@ export const TableProperties = () => {
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				tables: [
-					...(properties?.tables || []).map((t: any) => {
+				blocks: [
+					...(properties?.blocks || []).map((t: any) => {
 						if (t.name === tableId) {
 							return {
 								...t,
@@ -130,8 +130,8 @@ export const TableProperties = () => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					tables: [
-						...(properties?.tables || []).map((t: any) => {
+					blocks: [
+						...(properties?.blocks || []).map((t: any) => {
 							if (t.name === tableId) {
 								return {
 									...t,
@@ -148,6 +148,7 @@ export const TableProperties = () => {
 			setInspectedResource({
 				id: newName,
 				type: 'table',
+				meta: null,
 			});
 		} catch (e) {
 			//
@@ -237,6 +238,26 @@ export const TableProperties = () => {
 														name={property.title}
 														onSelect={resetDependsOn}
 														fetchers={fetchers}
+													/>
+												);
+											}
+
+											if (property.name === 'widget') {
+												return (
+													<FormInput
+														{...property}
+														id={property.name}
+														name={property.title}
+														type="select"
+														options={widgets
+															?.filter(
+																(w: any) => w.type === 'inline',
+															)
+															?.map((w: any) => ({
+																name: w.label,
+																value: w.name,
+															}))}
+														key={property.name}
 													/>
 												);
 											}

@@ -1,5 +1,6 @@
 from uuid import UUID
 from pydantic import BaseModel
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
@@ -8,6 +9,7 @@ from server.schemas import (
     CheckPermissionRequest,
     CreateTestUserRequest,
     CreateTestDBTableRequest,
+    UpdateUserRoleRequest,
 )
 from server.controllers import workspace as workspace_controller
 from server.controllers import user as user_controller
@@ -50,9 +52,28 @@ def update_workspace_policy(
     return {"success": True}
 
 
+class PowerUpdateRole(BaseModel):
+    workspace_id: UUID
+    role: str
+
+
+@router.post("/update_role/{user_id}")
+def update_workspace_role(
+    user_id: UUID, request: PowerUpdateRole, db: Session = Depends(get_db)
+):
+    role = crud.role.get_role_by_name(db=db, role_name=request.role)
+
+    workspace_controller.update_user_role_in_workspace(
+        db=db,
+        workspace_id=request.workspace_id,
+        request=UpdateUserRoleRequest(user_id=user_id, role_id=role.id),
+    )
+    return {"success": True}
+
+
 class PowerCheckPermissions(BaseModel):
     user_id: str
-    app_id: str
+    app_id: Optional[str]
 
 
 @router.post("/check_permission/{workspace_id}")

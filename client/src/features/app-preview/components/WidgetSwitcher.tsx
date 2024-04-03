@@ -35,11 +35,12 @@ export const WidgetSwitcher = () => {
 		updateSelectedWidget({
 			type: 'widget',
 			id: newWidgetName,
+			meta: null,
 		});
 	};
 
 	const widgetsToDisplay =
-		widgets?.filter((w: any) => (isPreview ? w.type !== 'modal' && w.in_menu : true)) || [];
+		widgets?.filter((w: any) => (isPreview ? w.type === 'base' && w.in_menu : true)) || [];
 
 	return (
 		<Menu placement="bottom-end" closeOnSelect>
@@ -66,9 +67,11 @@ export const WidgetSwitcher = () => {
 								<Box display="flex" alignItems="end">
 									<Stack direction="row">
 										<Text fontSize="md">{w.label}</Text>
-										{w.type === 'modal' ? (
+										{w.type !== 'base' ? (
 											<Tag size="sm" colorScheme="yellow">
-												<Code bg="transparent">Modal</Code>
+												<Code bg="transparent" textTransform="capitalize">
+													{w.type}
+												</Code>
 											</Tag>
 										) : null}
 									</Stack>

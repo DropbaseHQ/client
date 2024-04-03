@@ -1,19 +1,18 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Trash } from 'react-feather';
 import { Box, Button, FormControl, FormLabel, IconButton, Stack, Text } from '@chakra-ui/react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useAtomValue } from 'jotai';
+import { useParams } from 'react-router-dom';
 import {
 	AutoComplete,
 	AutoCompleteInput,
 	AutoCompleteItem,
 	AutoCompleteList,
-	AutoCompleteGroup,
-	AutoCompleteGroupTitle,
 } from '@choc-ui/chakra-autocomplete';
-import { pageAtom } from '@/features/page';
+import { pageAtom, useGetPage } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
-import { allWidgetsInputAtom, tableColumnTypesAtom, tableStateAtom } from '@/features/app-state';
+import { pageStateAtom } from '@/features/app-state';
 
 const NUMBER_TYPES = ['number', 'integer', 'float'];
 const DATETIME_TYPES = ['datetime', 'date', 'time'];
@@ -61,12 +60,11 @@ const formLabelProps = {
 const TargetSelector = ({
 	rule,
 	onChange,
-	tableTargets,
-	widgetTargets,
 	displayRules,
 	getColType,
 	isInvalid,
 	getComponentProperty,
+	targets,
 }: any) => {
 	const [editTarget, setEditTarget] = useState<string>(rule.target);
 
@@ -74,11 +72,7 @@ const TargetSelector = ({
 		if (!rule.target) {
 			return true;
 		}
-		const [category] = rule.target.split('.');
-		if (category === 'tables') {
-			return tableTargets?.some((t: any) => t.value === rule.target);
-		}
-		return widgetTargets?.some((t: any) => t.value === rule.target);
+		return targets?.flat().some((t: any) => t.value === rule.target);
 	};
 
 	const getTargetType = (target: string) => {
@@ -134,51 +128,24 @@ const TargetSelector = ({
 				)}
 			</FormControl>
 			<AutoCompleteList>
-				<AutoCompleteGroup key="tables" showDivider>
-					<AutoCompleteGroupTitle>Tables</AutoCompleteGroupTitle>
-					{tableTargets?.map((xTable: any) => {
-						return (
-							<AutoCompleteItem
-								key={xTable?.value}
-								value={xTable?.value}
-								fontSize="sm"
-							>
-								{xTable?.label}
-							</AutoCompleteItem>
-						);
-					})}
-				</AutoCompleteGroup>
-				<AutoCompleteGroup key="widgets" showDivider>
-					<AutoCompleteGroupTitle>Widgets</AutoCompleteGroupTitle>
-					{widgetTargets?.map((widgetTarget: any) => {
-						return (
-							<AutoCompleteItem
-								key={widgetTarget.value}
-								value={widgetTarget.value}
-								fontSize="sm"
-							>
-								{widgetTarget.label}
-							</AutoCompleteItem>
-						);
-					})}
-				</AutoCompleteGroup>
+				{targets?.flat().map((target: any) => {
+					return (
+						<AutoCompleteItem key={target?.value} value={target?.value} fontSize="sm">
+							{target?.label}
+						</AutoCompleteItem>
+					);
+				})}
 			</AutoCompleteList>
 		</AutoComplete>
 	);
 };
 
-const compilePathName = (category: string, specificCategory: string, target: string) => {
-	return `${category}.${specificCategory}.${target}`;
-};
-
 export const DisplayRulesEditor = ({ name }: any) => {
 	const { widgetName, widgets } = useAtomValue(pageAtom);
-	const widgetsInputs = useAtomValue(allWidgetsInputAtom);
-	const tableState = useAtomValue(tableStateAtom);
-	const tableColumnTypes = useAtomValue(tableColumnTypesAtom);
-
-	const currentWidget: { [key: string]: any } =
-		widgetsInputs?.[widgetName as keyof typeof widgetsInputs] || {};
+	const pageComponents = useAtomValue(pageStateAtom);
+	const { appName, pageName } = useParams();
+	const { properties } = useGetPage({ appName, pageName });
+	const pageBlocks = properties?.blocks || {};
 
 	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
 
@@ -193,10 +160,9 @@ export const DisplayRulesEditor = ({ name }: any) => {
 					c.component_type === 'boolean'),
 		)
 		.reduce((agg: any, c: any) => ({ ...agg, [c?.name]: c }), {});
-
 	const getComponentProperty = (target: string) => {
 		if (!target) return null;
-		return componentsProperties?.[target.split('.')[2]];
+		return componentsProperties?.[target.split('.')[1]];
 	};
 
 	const getColType = (target: string) => {
@@ -205,9 +171,10 @@ export const DisplayRulesEditor = ({ name }: any) => {
 		const componentProperty = getComponentProperty(target);
 		if (target.includes('widgets')) return componentProperty?.data_type;
 
-		const [, specificCategory, targetName] = target.split('.');
-		const table = tableColumnTypes?.[specificCategory as keyof typeof tableColumnTypes];
-		return table?.[targetName as keyof typeof table];
+		const [specificCategory, targetName] = target.split('.');
+		const tableBlock = pageBlocks?.find((block: any) => block.name === specificCategory);
+		const tableColumn = tableBlock?.columns?.find((col: any) => col.name === targetName);
+		return tableColumn?.display_type;
 	};
 
 	const getInputType = (target?: string) => {
@@ -244,22 +211,14 @@ export const DisplayRulesEditor = ({ name }: any) => {
 		}
 		return null;
 	};
-	const tableTargets = useMemo(() => {
-		return Object.keys(tableState)
-			.map((tableName: any) => {
-				const targetTable: any = tableState?.[tableName as keyof typeof tableState];
-				return Object.keys(targetTable || {})?.map((c: any) => ({
-					label: `${tableName}.${c}`,
-					value: compilePathName('tables', tableName, c),
-				}));
-			})
-			.flat();
-	}, [tableState]);
 
-	const widgetTargets = Object.keys(currentWidget)?.map((c: any) => ({
-		label: `${widgetName}.${c}`,
-		value: compilePathName('widgets', widgetName || '', c),
-	}));
+	const targets = Object.keys(pageComponents).map((componentName) => {
+		const targetComponent: any = pageComponents?.[componentName as keyof typeof pageComponents];
+		return Object.keys(targetComponent || {})?.map((componentAttribute) => ({
+			label: `${componentName}.${componentAttribute}`,
+			value: `${componentName}.${componentAttribute}`,
+		}));
+	});
 
 	return (
 		<FormControl>
@@ -346,8 +305,7 @@ export const DisplayRulesEditor = ({ name }: any) => {
 										<TargetSelector
 											rule={rule}
 											onChange={onChange}
-											tableTargets={tableTargets}
-											widgetTargets={widgetTargets}
+											targets={targets}
 											displayRules={displayRules}
 											getColType={getColType}
 											isInvalid={!isValid && isSubmitted && !rule.target}

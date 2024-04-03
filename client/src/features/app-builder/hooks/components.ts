@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 
 import { axios, workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
-import { APP_STATE_QUERY_KEY } from '@/features/app-state';
+import { PAGE_DATA_QUERY_KEY } from '@/features/page';
 
 const fetchComponentFields = async () => {
 	const response = await workerAxios.get<any>(`/components/properties/all`);
@@ -14,7 +14,10 @@ const fetchComponentFields = async () => {
 export const useResourceFields = () => {
 	const queryKey = ['resource/fields'];
 
-	const { data: response, ...rest } = useQuery(queryKey, () => fetchComponentFields());
+	const { data: response, ...rest } = useQuery(queryKey, () => fetchComponentFields(), {
+		cacheTime: Infinity,
+		staleTime: Infinity,
+	});
 
 	return {
 		...rest,
@@ -87,7 +90,7 @@ export const useSyncComponents = (props: any = {}) => {
 		onSettled: () => {
 			queryClient.invalidateQueries(WIDGET_PROPERTIES_QUERY_KEY);
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 	});
 };
@@ -117,7 +120,7 @@ export const useUpdateComponentProperties = (props: any = {}) => {
 		onSettled: () => {
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 	});
 };
@@ -134,7 +137,7 @@ export const useDeleteComponent = (props: any = {}) => {
 		onSettled: () => {
 			queryClient.invalidateQueries(WIDGET_PROPERTIES_QUERY_KEY);
 			queryClient.invalidateQueries(WIDGET_PREVIEW_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 	});
 };

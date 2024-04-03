@@ -6,7 +6,7 @@ import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { appModeAtom } from '@/features/app/atoms';
 
 export const InspectorContainer = forwardRef<HTMLDivElement, any>(
-	({ children, noPadding, id, type, ...props }, ref) => {
+	({ children, noPadding, id, meta, type, ...props }, ref) => {
 		const { isOpen, onOpen, onClose } = useDisclosure();
 		const [activeInspect, setActiveInspect] = useAtom(inspectedResourceAtom);
 
@@ -15,10 +15,12 @@ export const InspectorContainer = forwardRef<HTMLDivElement, any>(
 		const isCurrentComponent = id === activeInspect.id && activeInspect.type === type;
 		const activeHover = isOpen || isCurrentComponent;
 
-		const handleInspect = () => {
+		const handleInspect = (e: any) => {
+			e.stopPropagation();
 			setActiveInspect({
 				id,
 				type,
+				meta,
 			});
 		};
 

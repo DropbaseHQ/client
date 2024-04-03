@@ -1,6 +1,6 @@
 import os
 import secrets
-import requests
+import random
 from datetime import datetime, timedelta
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 from uuid import UUID
@@ -625,9 +625,10 @@ def check_permissions(
 ):
     workspace_id = None
     app_id = request.app_id
-    app = crud.app.get_object_by_id_or_404(db, id=app_id)
-    if app.workspace_id:
-        workspace_id = app.workspace_id
+    if request.app_id:
+        app = crud.app.get(db=db, id=request.app_id)
+        if app.workspace_id:
+            workspace_id = app.workspace_id
     else:
         # Workspace_from_token
         workspace_id = workspace.id
@@ -636,6 +637,7 @@ def check_permissions(
         db, str(user.id), workspace_id, app_id
     )
     print("permissions_dict", permissions_dict)
+    print("permissions_dict", permissions_dict)
     return permissions_dict
 
 
@@ -643,14 +645,13 @@ def check_apps_permissions(
     db: Session, user: User, request: CheckAppsPermissionsRequest, workspace: Workspace
 ):
     # Checks that a user has permissions to see and use and app
-    apps = request.apps
+    app_ids = request.app_ids
+    permissions = {}
     enforcer = get_contexted_enforcer(db, workspace_id=workspace.id)
 
-    filtered_apps = []
+    for app_id in app_ids:
 
-    for app in apps:
-        app_id = app.get("id")
-        allowed_to_use = high_level_enforce(
+        permissions[app_id] = high_level_enforce(
             db=db,
             enforcer=enforcer,
             user_id=user.id,
@@ -658,10 +659,7 @@ def check_apps_permissions(
             action="use",
             workspace=workspace,
         )
-        if allowed_to_use:
-            filtered_apps.append(app)
-
-    return filtered_apps
+    return permissions
 
 
 def github_auth(db: Session, Authorize: AuthJWT, code: str):
@@ -751,33 +749,87 @@ def create_test_user(db: Session, request: CreateTestUserRequest):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-def create_test_db_table(db: Session, request: CreateTestDBTableRequest):
+def generate_name():
+    first_names = [
+        "Alice",
+        "Bob",
+        "Charlie",
+        "David",
+        "Emma",
+        "Frank",
+        "Grace",
+        "Henry",
+        "Ivy",
+        "Jack",
+    ]
+    last_names = [
+        "Smith",
+        "Johnson",
+        "Williams",
+        "Jones",
+        "Brown",
+        "Davis",
+        "Miller",
+        "Wilson",
+        "Moore",
+        "Taylor",
+    ]
+    return f"{random.choice(first_names)} {random.choice(last_names)}"
 
-    db_user_name = f"{request.name}_{request.last_name}_test_user"
+
+def generate_random_country():
+    # List of 10 well  known countries
+    countries = [
+        "United States",
+        "China",
+        "Japan",
+        "Germany",
+        "United Kingdom",
+        "India",
+        "France",
+        "Italy",
+        "Brazil",
+        "Canada",
+    ]
+    return random.choice(countries)
+
+
+def generate_membership_level():
+    membership_levels = ["Free", "Basic", "Pro", "Enterprise"]
+    return random.choice(membership_levels)
+
+
+def create_test_db_table(db: Session, request: CreateTestDBTableRequest):
     db_table_name = f"{request.name}_{request.last_name}_demo"
     try:
         with try_engine.connect() as connection:
-            connection.execute(
-                f"CREATE ROLE {db_user_name} LOGIN PASSWORD %s", (request.password,)
-            )
-
-            connection.execute(
-                f"REVOKE ALL PRIVILEGES ON DATABASE try_dropbase FROM {db_user_name}"
-            )
 
             connection.execute(
                 f"""
                 CREATE TABLE {db_table_name} (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(50) NOT NULL,
-                    age INT NOT NULL
+                    age INT NOT NULL,
+                    country VARCHAR(50),
+                    membership_level VARCHAR(50)
                 )
                 """
             )
 
-            connection.execute(
-                f"GRANT SELECT, UPDATE ON {db_table_name} TO {db_user_name}"
-            )
+            connection.execute(f"GRANT SELECT, UPDATE ON {db_table_name} TO test_user;")
+
+            rows = []
+            for _ in range(20):
+                name = generate_name()
+                age = random.randint(18, 60)
+                country = generate_random_country()
+                membership_level = generate_membership_level()
+                rows.append((name, age, country, membership_level))
+
+            sql_query = f"INSERT INTO {db_table_name} (name, age, country, membership_level) VALUES (%s, %s, %s, %s)"
+
+            # Execute the query with executemany() and pass the list of tuples as parameters
+            connection.execute(sql_query, rows)
 
     except SQLAlchemyError as e:
         # Handle exceptions here

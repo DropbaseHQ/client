@@ -113,7 +113,7 @@ class OnboardUser(BaseModel):
 
 
 class CheckPermissionRequest(BaseModel):
-    app_id: str
+    app_id: Optional[str]
 
 
 class PageObject(BaseModel):
@@ -141,7 +141,7 @@ class SyncAppRequest(BaseModel):
 
 
 class CheckAppsPermissionsRequest(BaseModel):
-    apps: list
+    app_ids: list
 
 
 class CreateTestUserRequest(BaseModel):

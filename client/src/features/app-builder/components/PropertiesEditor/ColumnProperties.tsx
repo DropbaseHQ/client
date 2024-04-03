@@ -23,7 +23,7 @@ import { FormInput, InputRenderer } from '@/components/FormInput';
 import { useConvertSmartTable, useGetTable, useResourceFields } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
-import { newPageStateAtom } from '@/features/app-state';
+import { pageStateContextAtom } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { NewColumn } from '@/features/app-builder/components/PropertiesEditor/NewColumn';
@@ -189,7 +189,7 @@ const ColumnProperty = ({
 		try {
 			const newProperties = {
 				...(pageProperties || {}),
-				tables: (pageProperties?.tables || []).map((t: any) => {
+				blocks: (pageProperties?.blocks || []).map((t: any) => {
 					if (t.name === tableName) {
 						return {
 							...t,
@@ -217,7 +217,7 @@ const ColumnProperty = ({
 			});
 
 			const currentColumn =
-				(pageProperties?.tables || [])
+				(pageProperties?.blocks || [])
 					.find((t: any) => t.name === tableName)
 					?.columns?.find((c: any) => c.name === defaultName) || {};
 
@@ -237,7 +237,7 @@ const ColumnProperty = ({
 				page_name: pageName,
 				properties: {
 					...(pageProperties || {}),
-					tables: (pageProperties?.tables || []).map((t: any) => {
+					blocks: (pageProperties?.blocks || []).map((t: any) => {
 						if (t.name === tableName) {
 							return {
 								...t,
@@ -564,7 +564,7 @@ export const ColumnsProperties = () => {
 	const { appName, pageName } = useParams();
 
 	const tableId = useAtomValue(selectedTableIdAtom);
-	const pageState = useAtomValue(newPageStateAtom);
+	const pageStateContext = useAtomValue(pageStateContextAtom);
 
 	const { type, columns, isLoading, table } = useGetTable(tableId || '');
 
@@ -588,7 +588,7 @@ export const ColumnsProperties = () => {
 	const handleConvert = () => {
 		convertMutation.mutate({
 			table,
-			state: pageState.state,
+			state: pageStateContext.state,
 			appName,
 			pageName,
 		});

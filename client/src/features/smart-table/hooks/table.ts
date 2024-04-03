@@ -5,13 +5,8 @@ import { useDebounce } from 'use-debounce';
 
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
-import { useGetPage } from '@/features/page';
-import {
-	APP_STATE_QUERY_KEY,
-	newPageStateAtom,
-	selectedRowAtom,
-	useAppState,
-} from '@/features/app-state';
+import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
+import { pageStateAtom, pageStateContextAtom } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
@@ -78,9 +73,9 @@ const useParsedData: any = (response: any, table: any) =>
 	}, [response, table]);
 
 export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
-	const pageState: any = useAtomValue(newPageStateAtom);
-	const pageStateRef = useRef(pageState);
-	pageStateRef.current = pageState;
+	const pageStateContext: any = useAtomValue(pageStateContextAtom);
+	const pageStateRef = useRef(pageStateContext);
+	pageStateRef.current = pageStateContext;
 
 	const queryKey = [FUNCTION_DATA_QUERY_KEY, fetcher, appName, pageName];
 
@@ -122,13 +117,11 @@ export const useTableData = ({
 
 	const [debouncedFilters] = useDebounce(filters, 1000);
 
-	const { isFetching: isFetchingAppState } = useAppState(appName, pageName);
+	const selectRow = useSetAtom(pageStateAtom);
 
-	const selectRow = useSetAtom(selectedRowAtom);
-
-	const pageState: any = useAtomValue(newPageStateAtom);
-	const pageStateRef = useRef(pageState);
-	pageStateRef.current = pageState;
+	const pageStateContext: any = useAtomValue(pageStateContextAtom);
+	const pageStateRef = useRef(pageStateContext);
+	pageStateRef.current = pageStateContext;
 
 	const table = tables.find((t: any) => t.name === tableName);
 
@@ -145,12 +138,12 @@ export const useTableData = ({
 	const depends = files.find((f: any) => f.name === table?.fetcher)?.depends_on || [];
 	const tablesWithNoSelection = depends.filter((name: any) => !hasSelectedRows[name]);
 
-	const tablesState = pageState?.state?.tables;
+	const tablesState = pageStateContext?.state;
 
 	const dependentTableData = depends.reduce(
 		(agg: any, tName: any) => ({
 			...agg,
-			[tableName]: tablesState[tName],
+			[tName]: tablesState[tName],
 		}),
 		{},
 	);
@@ -187,13 +180,12 @@ export const useTableData = ({
 		{
 			enabled: !!(
 				!isLoadingPage &&
-				!isFetchingAppState &&
 				table?.name in tablesState &&
 				table?.fetcher &&
 				table &&
 				appName &&
 				pageName &&
-				Object.keys(pageState?.state?.tables || {}).length > 0 &&
+				Object.keys(pageStateContext?.state || {}).length > 0 &&
 				tablesWithNoSelection.length === 0
 			),
 			staleTime: Infinity,
@@ -295,7 +287,7 @@ export const useSyncDropbaseColumns = (props: any = {}) => {
 			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 		onError: (error: any) => {
 			toast({
