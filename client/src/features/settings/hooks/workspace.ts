@@ -23,7 +23,7 @@ export const useGetWorkspaceGroups = () => {
 	const { data: response, ...rest } = useQuery(
 		queryKey,
 		() => fetchWorkspaceGroups({ workspaceId: currentWorkspaceId }),
-		{ enabled: !!currentWorkspaceId },
+		{ enabled: !!currentWorkspaceId, staleTime: Infinity },
 	);
 	return {
 		groups: response || [],
@@ -53,7 +53,7 @@ export const useGetWorkspaceUsers = () => {
 	const { data: response, ...rest } = useQuery(
 		queryKey,
 		() => fetchWorkspaceUsers({ workspaceId: currentWorkspaceId }),
-		{ enabled: !!currentWorkspaceId },
+		{ enabled: !!currentWorkspaceId, staleTime: Infinity },
 	);
 	return {
 		users: response || [],
