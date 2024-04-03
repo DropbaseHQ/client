@@ -4,7 +4,7 @@ import { atom } from 'jotai';
 export const pageStateAtom = atom({});
 
 // widget context atom
-export const pageContextAtom = atom({});
+export const pageContextAtom = atom<{ [key: string]: any }>({});
 
 export const pageStateContextAtom = atom((get) => {
 	return {

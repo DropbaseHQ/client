@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import {
 	Box,
 	Button,
@@ -85,7 +85,7 @@ const ALL_CELLS = [
 	SpinnerCell,
 ];
 
-export const SmartTable = ({ tableName, height }: any) => {
+export const SmartTable = ({ tableName, height }: { tableName: string; height: number }) => {
 	const toast = useToast();
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
@@ -101,7 +101,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 	});
 
 	const pageStateContext: any = useAtomValue(pageStateContextAtom);
-	const setPageContext = useSetAtom(pageContextAtom);
+	const [pageContext, setPageContext] = useAtom(pageContextAtom);
 	const { isPreview } = useAtomValue(appModeAtom);
 
 	const currentTableContext = pageStateContext?.context?.[tableName];
@@ -423,7 +423,9 @@ export const SmartTable = ({ tableName, height }: any) => {
 			  };
 
 	const visibleColumns = header.filter(
-		(column: any) => !columnDict?.[column?.name] || !columnDict[column?.name]?.hidden,
+		(column: any) =>
+			!pageContext?.[tableName]?.columns?.[column?.name] ||
+			!pageContext?.[tableName]?.columns?.[column?.name]?.hidden,
 	);
 
 	const gridColumns = visibleColumns.map((column: any) => {
