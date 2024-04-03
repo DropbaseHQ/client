@@ -40,7 +40,7 @@ export const useAllPageFunctionNames = ({ pageId }: any) => {
 };
 
 const runPythonFunction = async ({ fileCode, testCode, pageState }: any) => {
-	const response = await workerAxios.post(`query/python_string/`, {
+	const response = await workerAxios.post(`function/string/`, {
 		file_code: fileCode,
 		test_code: testCode,
 		...pageState,

@@ -11,6 +11,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
 import { fetchJobStatus } from '@/utils/worker-job';
+import { executeAction } from '@/features/app-preview/hooks';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 export const FUNCTION_DATA_QUERY_KEY = 'functionData';
@@ -22,22 +23,34 @@ const fetchFunctionData = async ({
 	tableName,
 	state,
 	filter_sort = null,
+	fileType,
 }: any) => {
-	const response = await workerAxios.post<any>(`/query/`, {
-		fetcher,
-		app_name: appName,
-		page_name: pageName,
-		table_name: tableName,
-		state: state.state,
-		filter_sort,
-	});
+	if (fileType === 'sql') {
+		const response = await workerAxios.post<any>(`/query/`, {
+			fetcher,
+			app_name: appName,
+			page_name: pageName,
+			table_name: tableName,
+			state: state.state,
+			filter_sort,
+		});
 
-	if (response.data?.job_id) {
-		const jobResponse = await fetchJobStatus(response.data.job_id);
-		return jobResponse;
+		if (response.data?.job_id) {
+			const jobResponse = await fetchJobStatus(response.data.job_id);
+			return jobResponse;
+		}
+
+		throw new Error('Failed to retrieve data from fetcher');
 	}
 
-	throw new Error('Failed to retrieve data from fetcher');
+	const response = await executeAction({
+		pageName,
+		appName,
+		pageState: state,
+		functionName: fetcher,
+	});
+
+	return response;
 };
 
 export const useParsedData: any = (response: any, table: any) => {
@@ -76,9 +89,16 @@ export const useParsedData: any = (response: any, table: any) => {
 };
 
 export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
+	const { files } = useGetPage({
+		appName,
+		pageName,
+	});
+
 	const pageStateContext: any = useAtomValue(pageStateContextAtom);
 	const pageStateRef = useRef(pageStateContext);
 	pageStateRef.current = pageStateContext;
+
+	const fileType = files.find((f: any) => f.name === fetcher)?.type;
 
 	const queryKey = [FUNCTION_DATA_QUERY_KEY, fetcher, appName, pageName];
 
@@ -90,6 +110,7 @@ export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
 				appName,
 				pageName,
 				state: pageStateRef.current,
+				fileType,
 			}),
 		{
 			enabled: !!fetcher,
@@ -129,6 +150,8 @@ export const useTableData = ({
 	const table = tables.find((t: any) => t.name === tableName);
 
 	const hasSelectedRows = useAtomValue(hasSelectedRowAtom);
+
+	const fileType = files.find((f: any) => f.name === table?.fetcher)?.type;
 
 	const filesWithCurrentTableAsDependency = (files || [])
 		.filter((f: any) => f?.depends_on?.includes(tableName))
@@ -182,6 +205,7 @@ export const useTableData = ({
 						page_size: pageSize || 0,
 					},
 				},
+				fileType,
 			}),
 		{
 			enabled: !!(

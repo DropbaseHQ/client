@@ -10,12 +10,12 @@ import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 
-const executeAction = async ({ pageName, appName, pageState, functionName }: any) => {
+export const executeAction = async ({ pageName, appName, pageState, functionName }: any) => {
 	const response = await workerAxios.post(`/function/`, {
 		page_name: pageName,
 		app_name: appName,
 		function_name: functionName,
-		payload: pageState,
+		state: pageState.state,
 	});
 
 	if (response.data?.job_id) {
