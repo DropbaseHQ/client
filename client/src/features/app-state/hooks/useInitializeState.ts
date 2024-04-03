@@ -27,7 +27,9 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 				/**
 				 * Update initial context to set the base
 				 */
-				setPageContext(data?.state_context?.context || {});
+				setPageContext(data?.state_context?.context || {}, {
+					replace: true,
+				});
 				setPageState(data?.state_context?.state || {});
 			},
 		},
@@ -62,7 +64,12 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 
 	useEffect(() => {
 		return () => {
-			setPageContext({});
+			setPageContext(
+				{},
+				{
+					replace: true,
+				},
+			);
 			setPageState({});
 		};
 	}, [setPageContext, setPageState]);

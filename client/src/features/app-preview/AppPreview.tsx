@@ -52,7 +52,9 @@ export const AppPreview = () => {
 					message_type: null,
 				},
 			},
-			true,
+			{
+				disableEmpty: true,
+			},
 		);
 	};
 

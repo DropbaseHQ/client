@@ -110,7 +110,9 @@ export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 					message_type: null,
 				},
 			},
-			true,
+			{
+				disableEmpty: true,
+			},
 		);
 	};
 

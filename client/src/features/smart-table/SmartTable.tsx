@@ -1055,7 +1055,9 @@ export const SmartTable = ({ tableName, height }: any) => {
 					message_type: null,
 				},
 			},
-			true,
+			{
+				disableEmpty: true,
+			},
 		);
 	};
 

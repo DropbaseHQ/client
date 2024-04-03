@@ -28,15 +28,25 @@ function filterEmptyValues(obj: any) {
 // widget context atom
 export const pageContextAtom = atom(
 	(get) => get(basePageContextAtom),
-	(get, set, allContext: any, disableFilterEmptyValues?: any) => {
+	(
+		get,
+		set,
+		allContext: any,
+		props?: {
+			replace?: boolean;
+			disableEmpty?: boolean;
+		},
+	) => {
+		const { replace, disableEmpty } = props || {};
+
 		const current: any = get(basePageContextAtom);
 
-		if (Object.keys(current)?.length === 0) {
+		if (Object.keys(current)?.length === 0 || replace) {
 			set(basePageContextAtom, allContext);
 			return;
 		}
 
-		const newContext = disableFilterEmptyValues ? allContext : filterEmptyValues(allContext);
+		const newContext = disableEmpty ? allContext : filterEmptyValues(allContext);
 		const updatedContext = Object.keys(current).reduce((agg: any, field: any) => {
 			if (field in newContext) {
 				return {
