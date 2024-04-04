@@ -25,8 +25,10 @@ const mergeContext = ({ newContext, currentContext }: any) => {
 						currentContext: currentField,
 					}),
 				};
-			} else {
+			} else if (newField !== null) {
 				context[key] = newField;
+			} else {
+				context[key] = currentField;
 			}
 		} else {
 			context[key] = newContext[key];

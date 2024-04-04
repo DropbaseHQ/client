@@ -1048,12 +1048,19 @@ export const SmartTable = ({ tableName, height }: any) => {
 	);
 
 	const handleRemoveAlert = () => {
-		setPageContext({
-			[tableName]: {
-				message: null,
-				message_type: null,
+		setPageContext(
+			{
+				...(pageStateContext?.context || {}),
+				[tableName]: {
+					...(pageStateContext?.context?.[tableName] || {}),
+					message: null,
+					message_type: null,
+				},
 			},
-		});
+			{
+				replace: true,
+			},
+		);
 	};
 
 	const onAttach = () => {

@@ -103,12 +103,19 @@ export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 	const widgetContext: any = allWidgetContext[widgetName || ''];
 
 	const handleRemoveAlert = () => {
-		setWidgetContext({
-			[widgetName]: {
-				message: null,
-				message_type: null,
+		setWidgetContext(
+			{
+				...(allWidgetContext || {}),
+				[widgetName]: {
+					...(allWidgetContext?.[widgetName] || {}),
+					message: null,
+					message_type: null,
+				},
 			},
-		});
+			{
+				replace: true,
+			},
+		);
 	};
 
 	const handleReorderComponents = (newCompState: any[]) => {
