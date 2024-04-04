@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useDebounce } from 'use-debounce';
@@ -37,6 +37,7 @@ const fetchFunctionData = async ({
 
 		if (response.data?.job_id) {
 			const jobResponse = await fetchJobStatus(response.data.job_id);
+
 			return jobResponse;
 		}
 
@@ -219,9 +220,6 @@ export const useTableData = ({
 				tablesWithNoSelection.length === 0
 			),
 			staleTime: Infinity,
-			onSuccess: (data: any) => {
-				syncState(data);
-			},
 			onError: () => {
 				/**
 				 * Reset selected row of the current table, and all the tables
@@ -254,6 +252,10 @@ export const useTableData = ({
 			},
 		},
 	);
+
+	useEffect(() => {
+		syncState(response);
+	}, [response, syncState]);
 
 	return {
 		...rest,

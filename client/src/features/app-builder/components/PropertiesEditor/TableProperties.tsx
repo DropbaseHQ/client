@@ -63,8 +63,7 @@ export const TableProperties = () => {
 		setValue,
 	} = methods;
 
-	const fetchers = files.filter((f: any) => f.type === 'sql' || f.type === 'data_fetcher');
-	const functions = files.filter((f: any) => f.type === 'ui')?.map((f: any) => f?.name);
+	const functions = files.filter((f: any) => f.type === 'python')?.map((f: any) => f?.name);
 
 	const selectedFetcher = watch('fetcher');
 	const selectedFile = files.find((f: any) => f.name === selectedFetcher);
@@ -110,7 +109,7 @@ export const TableProperties = () => {
 								depends_on: depends,
 								height,
 								type:
-									fetchers?.find((f: any) => f.name === fetcher)?.type === 'sql'
+									files?.find((f: any) => f.name === fetcher)?.type === 'sql'
 										? 'sql'
 										: 'python',
 							};
@@ -158,7 +157,7 @@ export const TableProperties = () => {
 	const resetDependsOn = (newFileId: any) => {
 		const newFile = files.find((f: any) => f.name === newFileId);
 
-		if (newFile?.type === 'data_fetcher') {
+		if (newFile?.type === 'python') {
 			setValue('depends', null);
 		}
 	};
@@ -237,7 +236,7 @@ export const TableProperties = () => {
 													<SelectDataFetcher
 														name={property.title}
 														onSelect={resetDependsOn}
-														fetchers={fetchers}
+														fetchers={files}
 													/>
 												);
 											}

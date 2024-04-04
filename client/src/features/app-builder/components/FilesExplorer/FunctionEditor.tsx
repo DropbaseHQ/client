@@ -189,9 +189,7 @@ export const FunctionEditor = ({ name }: any) => {
 	const functionDeclarations = findFunctionDeclarations(updatedCode);
 
 	const isNotSameFunctionName =
-		file?.type === 'data_fetcher' || file?.type === 'ui'
-			? !functionDeclarations.find((f) => f.name === file.name)
-			: false;
+		file?.type === 'python' ? !functionDeclarations.find((f) => f.name === file.name) : false;
 
 	return (
 		<Stack h="full" bg="white" spacing="0" divider={<Divider />} w="full">
@@ -240,7 +238,7 @@ export const FunctionEditor = ({ name }: any) => {
 				</Alert>
 			) : null}
 
-			{file?.type === 'data_fetcher' ? (
+			{file?.type === 'python' ? (
 				<Stack p="3" borderBottomWidth="1px" alignItems="start" direction="row">
 					<FormControl>
 						<FormLabel>

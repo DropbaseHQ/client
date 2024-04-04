@@ -39,7 +39,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 	const setPageAtom = useSetAtom(pageAtom);
 
 	const uiFunctions = files
-		.filter((f: any) => f.type === 'ui')
+		.filter((f: any) => f.type === 'python')
 		?.map((f: any) => ({ value: f?.name, type: 'function', label: f?.label }));
 
 	const modalWidgets = widgets

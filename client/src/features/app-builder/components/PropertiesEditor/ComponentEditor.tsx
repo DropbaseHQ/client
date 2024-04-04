@@ -56,7 +56,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 		),
 	];
 
-	const functions = files.filter((f: any) => f.type === 'ui')?.map((f: any) => f?.name);
+	const functions = files.filter((f: any) => f.type === 'python')?.map((f: any) => f?.name);
 
 	const methods = useForm();
 	const {
@@ -400,16 +400,11 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 
 											if (property.name === 'fetcher') {
 												if (!useFetcher) return null;
-												const fetchers = files.filter(
-													(f: any) =>
-														f.type === 'sql' ||
-														f.type === 'data_fetcher',
-												);
 
 												return (
 													<SelectDataFetcher
 														name="Select data fetcher"
-														fetchers={fetchers}
+														fetchers={files}
 													/>
 												);
 											}
