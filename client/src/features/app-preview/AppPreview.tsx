@@ -45,17 +45,12 @@ export const AppPreview = () => {
 	const createMutation = useCreateWidget();
 
 	const handleRemoveAlert = () => {
-		setPageContext(
-			{
-				page: {
-					message: null,
-					message_type: null,
-				},
+		setPageContext({
+			page: {
+				message: null,
+				message_type: null,
 			},
-			{
-				disableEmpty: true,
-			},
-		);
+		});
 	};
 
 	const handleCreateWidget = () => {

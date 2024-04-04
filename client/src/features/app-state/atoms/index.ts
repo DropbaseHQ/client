@@ -45,7 +45,6 @@ export const pageContextAtom = atom(
 		allContext: any,
 		props?: {
 			replace?: boolean;
-			disableEmpty?: boolean;
 		},
 	) => {
 		const { replace } = props || {};
