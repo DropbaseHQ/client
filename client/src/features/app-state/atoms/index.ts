@@ -5,25 +5,36 @@ export const pageStateAtom = atom({});
 
 const basePageContextAtom = atom({});
 
-function filterEmptyValues(obj: any) {
-	const nonEmpty: any = {};
-	Object.keys(obj).forEach((k: any) => {
-		// eslint-disable-next-line no-prototype-builtins
-		if (obj.hasOwnProperty(k)) {
-			if (typeof obj[k] === 'object' && obj[k] !== null && !Array.isArray(obj[k])) {
-				const nested = filterEmptyValues(obj[k]);
-				if (Object.keys(nested).length !== 0) {
-					nonEmpty[k] = nested;
-				}
-			} else if (obj[k]) {
-				// for JavaScript boolean check
-				nonEmpty[k] = obj[k];
+export function isObject(item: any) {
+	return item && typeof item === 'object' && !Array.isArray(item);
+}
+
+const mergeContext = ({ newContext, currentContext }: any) => {
+	const context: any = {};
+
+	Object.keys(newContext || {}).forEach((key: any) => {
+		if (key in currentContext) {
+			const currentField = currentContext[key];
+			const newField = newContext[key];
+
+			if (isObject(newField)) {
+				context[key] = {
+					...(context[key] || {}),
+					...mergeContext({
+						newContext: newField,
+						currentContext: currentField,
+					}),
+				};
+			} else {
+				context[key] = newField;
 			}
+		} else {
+			context[key] = newContext[key];
 		}
 	});
 
-	return nonEmpty;
-}
+	return context;
+};
 
 // widget context atom
 export const pageContextAtom = atom(
@@ -37,7 +48,7 @@ export const pageContextAtom = atom(
 			disableEmpty?: boolean;
 		},
 	) => {
-		const { replace, disableEmpty } = props || {};
+		const { replace } = props || {};
 
 		const current: any = get(basePageContextAtom);
 
@@ -46,23 +57,11 @@ export const pageContextAtom = atom(
 			return;
 		}
 
-		const newContext = disableEmpty ? allContext : filterEmptyValues(allContext);
-		const updatedContext = Object.keys(current).reduce((agg: any, field: any) => {
-			if (field in newContext) {
-				return {
-					...agg,
-					[field]: {
-						...(current?.[field] || {}),
-						...(newContext?.[field] || {}),
-					},
-				};
-			}
-			return {
-				...agg,
-				[field]: current[field],
-			};
-		}, {});
-		// console.log('updatedContext', updatedContext);
+		const updatedContext = mergeContext({
+			newContext: allContext,
+			currentContext: current,
+		});
+
 		set(basePageContextAtom, updatedContext);
 	},
 );
