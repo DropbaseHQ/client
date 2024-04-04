@@ -6,11 +6,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
-import {
-	pageContextAtom,
-	pageStateContextAtom,
-	useInitializeWidgetState,
-} from '@/features/app-state';
+import { pageContextAtom, pageStateContextAtom } from '@/features/app-state';
 import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
@@ -39,7 +35,6 @@ export const AppPreview = () => {
 	const isDevMode = !isPreview;
 
 	const { isLoading, description: widgetDescription } = useGetWidgetPreview(widgetName || '');
-	useInitializeWidgetState({ appName, pageName });
 
 	const { properties } = useGetPage({ appName, pageName });
 	const createMutation = useCreateWidget();

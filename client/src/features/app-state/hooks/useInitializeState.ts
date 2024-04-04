@@ -17,7 +17,7 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 	const setPageState = useSetAtom(pageStateAtom);
 	const setPageContext = useSetAtom(pageContextAtom);
 
-	const { isLoading: isLoadingInitial } = useQuery(
+	const { isLoading: isLoadingInitial, remove } = useQuery(
 		queryKey,
 		() => fetchInitialState({ appName, pageName }),
 		{
@@ -64,6 +64,7 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 
 	useEffect(() => {
 		return () => {
+			remove();
 			setPageContext(
 				{},
 				{
@@ -72,11 +73,7 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 			);
 			setPageState({});
 		};
-	}, [setPageContext, setPageState]);
+	}, [setPageContext, remove, setPageState]);
 
 	return { ...rest, isLoading: rest.isLoading || isLoadingInitial };
-};
-
-export const useInitializeWidgetState = ({ appName, pageName }: any) => {
-	useInitializePageState(appName, pageName);
 };

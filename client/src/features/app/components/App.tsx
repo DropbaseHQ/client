@@ -2,6 +2,7 @@ import { useSetAtom } from 'jotai';
 import { Stack } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
+import { useParams } from 'react-router-dom';
 
 import { useInitPage } from '@/features/page';
 import { PanelHandle } from '@/components/Panel';
@@ -11,10 +12,16 @@ import { Loader } from '@/components/Loader';
 
 import { AppNavbar } from './AppNavbar';
 import { appModeAtom } from '@/features/app/atoms';
+import { useInitializePageState } from '@/features/app-state';
 
 export const App = () => {
 	const updateMode = useSetAtom(appModeAtom);
-	const { isLoading } = useInitPage();
+	const { appName, pageName } = useParams();
+	const { isLoading: isLoadingPage } = useInitPage();
+
+	const { isLoading: isLoadingState } = useInitializePageState(appName || '', pageName || '');
+
+	const isLoading = isLoadingState || isLoadingPage;
 
 	useEffect(() => {
 		updateMode({
