@@ -453,17 +453,6 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 			otherProperty = { type: 'text', label: newLabel };
 		}
 
-		if (type === 'select') {
-			otherProperty = {
-				type: 'select',
-				label: newLabel,
-				use_fetcher: false,
-				fetcher: '',
-				name_column: '',
-				value_column: '',
-			};
-		}
-
 		if (type === 'text') {
 			otherProperty = {
 				text: newName,
