@@ -446,7 +446,11 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 													id={property.name}
 													name={property.title}
 													type={
-														showFunctionList ? 'select' : property.type
+														showFunctionList
+															? 'select'
+															: (property.type === 'string' &&
+																	'markdown') ||
+															  property.type
 													}
 													options={(
 														(showFunctionList

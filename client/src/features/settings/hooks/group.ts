@@ -48,6 +48,7 @@ export const useGetGroupUsers = ({ groupId }: { groupId: any }) => {
 	const queryKey = ['groupUsers', groupId];
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchGroupUsers({ groupId }), {
 		enabled: !!groupId,
+		staleTime: Infinity,
 	});
 	return {
 		users: response || [],

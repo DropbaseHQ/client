@@ -6,10 +6,10 @@ import {
 	FormControl,
 	FormLabel,
 	Stack,
-	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
+
 import { extractTemplateString } from '@/utils';
 
 import { useEvent } from '@/features/app-preview/hooks';
@@ -20,11 +20,7 @@ import { appModeAtom } from '@/features/app/atoms';
 import { LabelContainer } from '@/components/LabelContainer';
 import { useFetcherData } from '../smart-table/hooks';
 
-const sizeMap: any = {
-	small: 'sm',
-	medium: 'md',
-	large: 'lg',
-};
+import MarkdownEditor from '@/components/Editor/MarkdownEditor';
 
 const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 
@@ -171,15 +167,9 @@ export const AppComponent = (props: any) => {
 
 	if (componentType === 'text') {
 		return (
+			// remarkGfm adds a few more features e.g strikethroughs, tables, checkmarks
 			<Stack spacing="0.5">
-				<Text
-					fontSize={sizeMap[component.size]}
-					color={component.color || `${component.color}.500`}
-					bgColor={grayOutComponent ? 'gray.100' : ''}
-				>
-					{text}
-				</Text>
-
+				<MarkdownEditor text={text} />
 				{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
 			</Stack>
 		);
