@@ -9,7 +9,7 @@ import { useParams } from 'react-router-dom';
 
 import { MonacoEditor } from '@/components/Editor';
 import { useRunFunction, useRunSQLQuery } from '@/features/app-builder/hooks';
-import { pageStateContextAtom, useSyncState } from '@/features/app-state';
+import { pageStateAtom, useSyncState } from '@/features/app-state';
 import {
 	MODEL_PATH,
 	MODEL_SCHEME,
@@ -42,7 +42,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 
 	const [testCodeHeight, setTestCodeHeight] = useState(16);
 
-	const pageStateContext = useAtomValue(pageStateContextAtom);
+	const pageState = useAtomValue(pageStateAtom);
 	const syncState = useSyncState();
 
 	const resetRunData = () => {
@@ -136,9 +136,11 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	const handleRunPythonFunction = useCallback(() => {
 		if (testCode) {
 			runPythonMutation.mutate({
-				pageState: pageStateContext,
 				testCode,
 				fileCode: code,
+				pageState: pageState,
+				appName,
+				pageName,
 			});
 		} else {
 			const declarations = findFunctionDeclarations(code);
@@ -147,23 +149,25 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 			setTestCode(defaultTestCode);
 
 			runPythonMutation.mutate({
-				pageState: pageStateContext,
 				testCode: defaultTestCode,
 				fileCode: code,
+				pageState: pageState,
+				appName,
+				pageName,
 			});
 		}
-	}, [code, file, pageStateContext, runPythonMutation, testCode]);
+	}, [code, file, pageState, runPythonMutation, testCode]);
 
 	const handleRunSQLQuery = useCallback(() => {
 		runSQLQueryMutation.mutate({
 			pageName,
 			appName,
-			state: pageStateContext.state,
+			state: pageState,
 			fileName: file?.name,
 			fileContent: code,
 			source,
 		});
-	}, [pageName, appName, pageStateContext, file, code, source, runSQLQueryMutation]);
+	}, [pageName, appName, pageState, file, code, source, runSQLQueryMutation]);
 
 	const executeShortcut = useCallback(() => {
 		if (file && !runPythonMutation.isLoading && !runSQLQueryMutation.isLoading) {
