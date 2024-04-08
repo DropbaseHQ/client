@@ -57,14 +57,8 @@ export const generateSequentialName = ({ currentNames, prefix }: any) => {
 };
 
 export const getErrorMessage = (error: any) => {
-	if (error?.response?.data?.detail) {
-		if (Array.isArray(error?.response?.data?.detail)) {
-			return error?.response?.data?.detail.map((e: any) => e.msg).join(', ');
-		}
-	}
-
-	if (Array.isArray(error?.response?.data?.result)) {
-		return error?.response?.data?.result.join(', ');
+	if (error?.response?.data?.detail && Array.isArray(error?.response?.data?.detail)) {
+		return error?.response?.data?.detail?.join(', ');
 	}
 
 	const errorMessage = error?.response?.data?.detail || '';
