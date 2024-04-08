@@ -1,9 +1,7 @@
 import logging
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, FastAPI, Request
+from fastapi import APIRouter, Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from fastapi_jwt_auth.exceptions import AuthJWTException
 
 from server import endpoints
 from server.endpoints import worker as worker_routers
@@ -58,11 +56,6 @@ app.include_router(endpoints.url_mapping_router)
 app.include_router(endpoints.app_router)
 app.include_router(endpoints.admin_router)
 app.include_router(require_authentication_routes)
-
-
-@app.exception_handler(AuthJWTException)
-def authjwt_exception_handler(_: Request, exc: AuthJWTException):
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
 @app.get("/")

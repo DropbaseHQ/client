@@ -12,7 +12,7 @@ from server.controllers.policy import (
     PolicyUpdater,
     format_permissions_for_highest_action,
 )
-from fastapi import HTTPException, Response, status, Request
+from fastapi import HTTPException, Response, status
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
