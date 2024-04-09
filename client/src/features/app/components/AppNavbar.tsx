@@ -20,6 +20,7 @@ import {
 	Tabs,
 	useDisclosure,
 } from '@chakra-ui/react';
+import { useAtom } from 'jotai';
 import { ArrowLeft, Edit, Eye, Plus, Share } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
@@ -29,11 +30,12 @@ import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useToast } from '@/lib/chakra-ui';
-import { useCreatePage, useGetPage } from '@/features/page';
+import { useCreatePage } from '@/features/page';
 import { getErrorMessage, generateSequentialName } from '@/utils';
 import { PageTab } from './PageTab';
 import { LabelContainer } from '@/components/LabelContainer';
 import { ShareModal } from './ShareModal';
+import { activeURLMappingAtom } from '@/features/settings/atoms';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const toast = useToast();
@@ -41,7 +43,8 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { appName, pageName } = useParams();
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
-	const { permissions } = useGetPage({ appName, pageName });
+	const activeMapping = useAtom(activeURLMappingAtom);
+
 	const { isOpen: shareIsOpen, onOpen: shareOnOpen, onClose: shareOnClose } = useDisclosure();
 
 	const [label, setAppLabel] = useState('');
@@ -130,6 +133,15 @@ export const AppNavbar = ({ isPreview }: any) => {
 				},
 			);
 		}
+	};
+	const getPermission = (action: string) => {
+		if (!activeMapping[0]) {
+			// If there is no active mapping, this means we have default mappings
+			// This means it is local host
+			// In local host, we can do anything, so return true
+			return true;
+		}
+		return activeMapping[0][action];
 	};
 
 	const methods = useForm();
@@ -255,7 +267,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Flex>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				{permissions?.own && (
+				{getPermission('own') && (
 					<Button
 						size="sm"
 						variant="outline"
@@ -265,7 +277,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 						Share
 					</Button>
 				)}
-				{permissions?.edit && (
+				{getPermission('edit') && (
 					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
 						<Button
 							size="sm"

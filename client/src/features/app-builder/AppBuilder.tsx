@@ -2,13 +2,11 @@ import { Box, Stack, useTheme } from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { useEffect } from 'react';
 import { useSetAtom } from 'jotai';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useToast } from '@/lib/chakra-ui';
 import { PanelHandle } from '@/components/Panel';
 
 import { AppPreview } from '@/features/app-preview';
 import { StackedTables } from '@/features/smart-table';
-import { useGetPage, useInitPage } from '@/features/page';
+import { useInitPage } from '@/features/page';
 import { Loader } from '@/components/Loader';
 import { AppNavbar } from '@/features/app/components/AppNavbar';
 import { PropertyPane } from '@/features/app-builder';
@@ -19,16 +17,9 @@ import { BuilderSidebar } from './components/Sidebar';
 import { FileContent } from './components/FilesExplorer/FileContent';
 
 export const AppBuilder = () => {
-	const { appName, pageName } = useParams();
-	const navigate = useNavigate();
-	const toast = useToast();
 	const { isLoading } = useInitPage();
 	const theme = useTheme();
 	const setInspectedItem = useSetAtom(inspectedResourceAtom);
-	const { permissions, isLoading: appStateIsLoading } = useGetPage({
-		appName,
-		pageName,
-	});
 
 	useEffect(() => {
 		return () => {
@@ -39,15 +30,6 @@ export const AppBuilder = () => {
 			});
 		};
 	}, [setInspectedItem]);
-
-	if (!appStateIsLoading && !permissions?.edit) {
-		toast({
-			title: 'Unauthorized',
-			description: 'You do not have permission to edit this page.',
-			status: 'error',
-		});
-		navigate(`/apps/${appName}/${pageName}`);
-	}
 
 	return (
 		<Stack spacing="0" h="full">

@@ -11,21 +11,21 @@ export const workerAxios = Axios.create({
 });
 if (localStorage.getItem('access_token')) {
 	axios.defaults.headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
-	workerAxios.defaults.headers['access-token'] = localStorage.getItem('access_token');
+	// workerAxios.defaults.headers['access-token'] = localStorage.getItem('access_token');
 }
 export const setAxiosToken = (token: string | null) => {
 	axios.defaults.headers.Authorization = token ? `Bearer ${token}` : null;
 };
 
-export const setWorkerAxiosToken = (token: string | null) => {
-	workerAxios.defaults.headers['access-token'] = token;
+export const setWorkerAxiosToken = () => {
+	// workerAxios.defaults.headers['access-token'] = token;
 };
 export const setWorkerAxiosBaseURL = (url: string) => {
 	workerAxios.defaults.baseURL = url;
 };
 
-export const setWorkerAxiosWorkspaceIdHeader = (workspaceId: string) => {
-	workerAxios.defaults.headers['workspace-id'] = workspaceId;
+export const setWorkerAxiosWorkspaceIdHeader = () => {
+	// workerAxios.defaults.headers['workspace-id'] = workspaceId;
 };
 
 const redirectToLogin = () => {
