@@ -1,10 +1,9 @@
-import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Center, Spinner } from '@chakra-ui/react';
 import { Suspense, useEffect } from 'react';
-import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 
 import { lazyImport } from '@/utils/lazy-import';
 
-import { useWorkspaces } from '@/features/workspaces';
 import { GithubAuth } from '@/features/authorization/GithubAuth';
 import { DashboardLayout } from '@/layout';
 import { OnboardingForm } from '@/features/authorization/OnboardingForm';
@@ -40,38 +39,20 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 			link.href = '/favicon-dev.ico';
 		}
 	}, []);
-	const { pathname } = useLocation();
-
-	const loginRoutes =
-		pathname.startsWith('/login') ||
-		pathname.startsWith('/register') ||
-		pathname.startsWith('/reset') ||
-		pathname.startsWith('/email-confirmation') ||
-		pathname.startsWith('/forgot') ||
-		pathname.startsWith('/github_auth');
-	const { isLoading, workspaces } = useWorkspaces();
-	const navigate = useNavigate();
-
-	useEffect(() => {
-		if (!isLoading && workspaces.length === 0 && !loginRoutes && !pathname.includes('/intro')) {
-			navigate('/intro');
-		}
-	});
-
-	if (isLoading) {
-		return (
-			<DashboardLayout>
-				<Center as={Stack} spacing="6" w="full" h="full">
-					<Stack alignItems="center" spacing="0">
-						<Text color="heading" fontSize="lg" fontWeight="medium">
-							Checking user...
-						</Text>
-					</Stack>
-					<Progress minW="sm" size="xs" isIndeterminate />
-				</Center>
-			</DashboardLayout>
-		);
-	}
+	// if (isLoading) {
+	// 	return (
+	// 		<DashboardLayout>
+	// 			<Center as={Stack} spacing="6" w="full" h="full">
+	// 				<Stack alignItems="center" spacing="0">
+	// 					<Text color="heading" fontSize="lg" fontWeight="medium">
+	// 						Checking user...
+	// 					</Text>
+	// 				</Stack>
+	// 				<Progress minW="sm" size="xs" isIndeterminate />
+	// 			</Center>
+	// 		</DashboardLayout>
+	// 	);
+	// }
 
 	return (
 		<Suspense

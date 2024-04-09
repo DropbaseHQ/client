@@ -2,14 +2,9 @@ import useWebSocket from 'react-use-websocket';
 import { Badge, Box, Center, Circle, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useSetAtom } from 'jotai';
 import { Route, Routes } from 'react-router-dom';
-import {
-	useGetWebSocketURL,
-	useSetAxiosToken,
-	useSetWorkerAxiosBaseURL,
-} from '@/features/authorization/hooks/useLogin';
+import { useGetWebSocketURL } from '@/features/authorization/hooks/useLogin';
 import { websocketStatusAtom } from '@/features/app/atoms';
 
-import { useSyncProxyToken } from '@/features/settings/hooks/token';
 import { DashboardRoutes } from './DashboardRoutes';
 
 import { Workspaces } from '@/features/workspaces';
@@ -21,13 +16,12 @@ import { useStatus } from '../layout/StatusBar';
 export const WorkerDashboardRoutes = () => {
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
 
-	useSyncProxyToken();
-	useSetAxiosToken();
-	const { urlSet, isLoading } = useSetWorkerAxiosBaseURL();
+	// useSyncProxyToken();
+	// useSetAxiosToken();
 
-	const { isLoading: isCheckingStatus, status } = useStatus();
+	const { isLoading: isCheckingStatus } = useStatus();
 
-	const workerIsConnected = status === 'success';
+	const workerIsConnected = true;
 
 	const websocketURL = useGetWebSocketURL();
 
@@ -51,19 +45,20 @@ export const WorkerDashboardRoutes = () => {
 	 * state of URL mappings since we want to make sure it was URL set after loading
 	 * mappings
 	 */
-	if (isLoading) {
-		children = (
-			<Route
-				path="*"
-				element={
-					<Center as={Stack}>
-						<Spinner />
-						<Text>Loading User Config...</Text>
-					</Center>
-				}
-			/>
-		);
-	} else if (isCheckingStatus) {
+	// if (isLoading) {
+	// 	children = (
+	// 		<Route
+	// 			path="*"
+	// 			element={
+	// 				<Center as={Stack}>
+	// 					<Spinner />
+	// 					<Text>Loading User Config...</Text>
+	// 				</Center>
+	// 			}
+	// 		/>
+	// 	);
+	// }
+	if (isCheckingStatus) {
 		children = (
 			<Route
 				path="*"
@@ -94,17 +89,6 @@ export const WorkerDashboardRoutes = () => {
 							Worker not connected
 						</Text>
 						<Text fontSize="md">Please make sure your worker is connected</Text>
-					</Center>
-				}
-			/>
-		);
-	} else if (!urlSet) {
-		children = (
-			<Route
-				path="*"
-				element={
-					<Center>
-						<Text>URL Mapping not set</Text>
 					</Center>
 				}
 			/>

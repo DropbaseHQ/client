@@ -1,17 +1,9 @@
 import { useMutation } from 'react-query';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { MutationConfig } from '@/lib/react-query';
-import { workspaceAtom } from '@/features/workspaces';
 import { activeURLMappingAtom } from '@/features/settings/atoms';
-import {
-	axios,
-	setWorkerAxiosWorkspaceIdHeader,
-	setWorkerAxiosToken,
-	setWorkerAxiosBaseURL,
-	setAxiosToken,
-} from '@/lib/axios';
+import { axios, setWorkerAxiosBaseURL } from '@/lib/axios';
 import { getWorkerURL, getWebSocketURL, getLSPURL } from '@/utils/url';
 import { URLMapping, useURLMappings } from '@/features/settings/hooks/urlMappings';
 
@@ -51,43 +43,28 @@ export const useGoogleLogin = (mutationConfig: MutationConfig<typeof loginGoogle
 };
 
 export const useSetAxiosToken = () => {
-	const navigate = useNavigate();
-	const selectedWorkspace = useAtomValue(workspaceAtom);
-	const workspaceId = selectedWorkspace?.id;
-	const { pathname } = useLocation();
-
-	const loginRoutes =
-		pathname.startsWith('/login') ||
-		pathname.startsWith('/register') ||
-		pathname.startsWith('/reset') ||
-		pathname.startsWith('/email-confirmation') ||
-		pathname.startsWith('/forgot') ||
-		pathname.startsWith('/github_auth');
-
-	useEffect(() => {
-		const fetchData = async () => {
-			if (loginRoutes) return;
-
-			if (localStorage.getItem('access_token')) {
-				const savedAccessToken = localStorage.getItem('access_token');
-				setWorkerAxiosToken(savedAccessToken);
-				setAxiosToken(savedAccessToken);
-			} else {
-				try {
-					const response = await axios.post('/user/refresh');
-					const accessToken = response.data.access_token;
-					localStorage.setItem('access_token', accessToken);
-					setWorkerAxiosToken(accessToken);
-					setAxiosToken(accessToken);
-				} catch (error) {
-					navigate('/login');
-				}
-			}
-		};
-
-		fetchData();
-		setWorkerAxiosWorkspaceIdHeader(workspaceId || '');
-	}, [navigate, workspaceId, loginRoutes]);
+	// useEffect(() => {
+	// 	const fetchData = async () => {
+	// 		if (loginRoutes) return;
+	// 		if (localStorage.getItem('access_token')) {
+	// 			const savedAccessToken = localStorage.getItem('access_token');
+	// 			setWorkerAxiosToken(savedAccessToken);
+	// 			setAxiosToken(savedAccessToken);
+	// 		} else {
+	// 			try {
+	// 				const response = await axios.post('/user/refresh');
+	// 				const accessToken = response.data.access_token;
+	// 				localStorage.setItem('access_token', accessToken);
+	// 				setWorkerAxiosToken(accessToken);
+	// 				setAxiosToken(accessToken);
+	// 			} catch (error) {
+	// 				navigate('/login');
+	// 			}
+	// 		}
+	// 	};
+	// 	fetchData();
+	// 	setWorkerAxiosWorkspaceIdHeader(workspaceId || '');
+	// }, [navigate, workspaceId, loginRoutes]);
 };
 
 const urlMatcher = (mapping: URLMapping) =>

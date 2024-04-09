@@ -2,13 +2,12 @@ import { Box, Flex, Stack, Text } from '@chakra-ui/react';
 import { PropsWithChildren } from 'react';
 import { useAtomValue } from 'jotai';
 import { useLocation } from 'react-router-dom';
-import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
+import { workspaceAtom } from '@/features/workspaces';
 import { Navbar } from './Navbar';
 import { StatusBar } from './StatusBar';
 
 export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const { pathname } = useLocation();
-	const { isSuccess } = useWorkspaces();
 	const currentWorkspace = useAtomValue(workspaceAtom);
 
 	const loginRoutes =
@@ -23,7 +22,7 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const shouldNotShowStatusBar =
 		loginRoutes || welcomePage || import.meta.env.VITE_APP_TYPE === 'app';
 
-	const shouldNotDisplayNavbar = pathname.startsWith('/apps/') || loginRoutes || !isSuccess;
+	const shouldNotDisplayNavbar = pathname.startsWith('/apps/') || loginRoutes;
 
 	const shouldDisplayTrialBanner = currentWorkspace?.in_trial && !loginRoutes;
 

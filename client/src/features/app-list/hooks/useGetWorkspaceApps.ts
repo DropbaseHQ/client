@@ -31,7 +31,6 @@ export const useGetWorkspaceApps = () => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const queryKey = [APPS_QUERY_KEY, workspaceId];
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchWorkspaceApps(), {
-		enabled: !!workspaceId,
 		staleTime: 1000 * 60 * 5,
 	});
 	return {

@@ -3,7 +3,6 @@ import {
 	Popover,
 	PopoverTrigger,
 	PopoverContent,
-	PopoverHeader,
 	PopoverBody,
 	PopoverArrow,
 	HStack,
@@ -14,7 +13,6 @@ import {
 import { useAtom } from 'jotai';
 import { Monitor, Check } from 'react-feather';
 import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
-import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 
 const WorkspaceCard = ({ workspace }: any) => {
 	const [currentWorkspace, updateWorkspace] = useAtom(workspaceAtom);
@@ -46,15 +44,11 @@ const WorkspaceCard = ({ workspace }: any) => {
 };
 export const WorkspaceSwitcher = ({ trigger }: any) => {
 	const { workspaces } = useWorkspaces();
-	const { user } = useGetCurrentUser();
 	return (
 		<Popover placement="right">
 			<PopoverTrigger>{trigger}</PopoverTrigger>
 			<PopoverContent>
 				<PopoverArrow />
-				<PopoverHeader borderBottom="0px">
-					<Text fontSize="sm">{user?.email}</Text>
-				</PopoverHeader>
 				<PopoverBody>
 					{workspaces?.map((workspace: any) => (
 						<WorkspaceCard key={workspace?.name} workspace={workspace} />

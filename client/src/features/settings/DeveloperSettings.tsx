@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
 import { Button, Stack, Skeleton, Text, Flex, Table, Thead, Tr, Th, Tbody } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { PageLayout } from '@/layout';
-import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
+import { workspaceAtom } from '@/features/workspaces';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { useCreateProxyToken, useProxyTokens, ProxyToken } from '@/features/settings/hooks/token';
 
@@ -14,13 +13,10 @@ import { useCreateURLMapping, useURLMappings } from './hooks/urlMappings';
 export const DeveloperSettings = () => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const { user } = useGetCurrentUser();
-	const [, setWorkerUrl] = useState('');
 	const { isLoading, tokens } = useProxyTokens({ userId: user.id, workspaceId });
 	const { urlMappings } = useURLMappings();
-	const { workspaces } = useWorkspaces();
 	const createMutation = useCreateProxyToken();
 	const createMappingMutation = useCreateURLMapping();
-	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
 	const handleGenerateToken = async () => {
 		createMutation.mutate({
 			workspaceId: workspaceId || '',
@@ -36,12 +32,6 @@ export const DeveloperSettings = () => {
 			lsp_url: `${hostName}:9095`,
 		});
 	};
-
-	useEffect(() => {
-		if (currentWorkspace) {
-			setWorkerUrl(currentWorkspace?.worker_url);
-		}
-	}, [currentWorkspace]);
 
 	if (isLoading) {
 		return <Skeleton />;

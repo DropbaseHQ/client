@@ -1,20 +1,11 @@
 import { Flex, VStack, Text, Button } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useWorkspaces, useCreateWorkspace } from '../workspaces';
+import { useCreateWorkspace } from '../workspaces';
 
 export const Intro = () => {
-	const navigate = useNavigate();
-	const { workspaces } = useWorkspaces();
 	const createWorkspace = useCreateWorkspace();
 	const handleCreateWorkspace = () => {
 		createWorkspace.mutate({});
 	};
-	useEffect(() => {
-		if (workspaces.length > 0) {
-			navigate('/apps');
-		}
-	});
 	return (
 		<Flex alignItems="center" justifyContent="center" h="full" w="full">
 			<VStack spacing="8">

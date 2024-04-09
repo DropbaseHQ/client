@@ -3,7 +3,6 @@ import { Circle, Link, Stack, Text, Divider } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { workerAxios } from '../lib/axios';
 import { websocketStatusAtom } from '@/features/app/atoms';
-import { useSetWorkerAxiosBaseURL } from '@/features/authorization/hooks/useLogin';
 import { lspStatusAtom } from '@/components/Editor';
 
 export const STATUS_QUERY_KEY = 'allFiles';
@@ -15,12 +14,10 @@ const fetchStatus: any = async () => {
 
 export const useStatus = () => {
 	const queryKey = [STATUS_QUERY_KEY];
-	const { isFetched } = useSetWorkerAxiosBaseURL();
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchStatus(), {
 		refetchInterval: 10 * 1000,
 		refetchIntervalInBackground: true,
-		enabled: isFetched,
 	});
 
 	return {

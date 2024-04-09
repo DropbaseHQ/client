@@ -28,63 +28,46 @@ export const setWorkerAxiosWorkspaceIdHeader = () => {
 	// workerAxios.defaults.headers['workspace-id'] = workspaceId;
 };
 
-const redirectToLogin = () => {
-	if (
-		!(
-			window.location.pathname.includes('/login') ||
-			window.location.pathname.includes('/register') ||
-			window.location.pathname.includes('/email-confirmation') ||
-			window.location.pathname.includes('/forgot') ||
-			window.location.pathname.includes('/reset') ||
-			window.location.pathname.includes('/github_auth')
-		)
-	) {
-		window.location.href = '/login';
-	}
-};
-
 axios.interceptors.response.use(
 	(res) => {
 		return res;
 	},
 	async (err) => {
-		const apiConfig = err.config;
+		// if (
+		// 	apiConfig.url !== '/login' &&
+		// 	apiConfig.url !== '/user/register' &&
+		// 	apiConfig.url !== '/user/refresh' &&
+		// 	err.response
+		// ) {
+		// 	if (err.response.status === 401) {
+		// 		const savedRefreshToken = localStorage.getItem('refresh_token');
 
-		if (
-			apiConfig.url !== '/login' &&
-			apiConfig.url !== '/user/register' &&
-			apiConfig.url !== '/user/refresh' &&
-			err.response
-		) {
-			if (err.response.status === 401) {
-				const savedRefreshToken = localStorage.getItem('refresh_token');
+		// 		if (savedRefreshToken) {
+		// 			// Access Token was expired & refresh token present in local storage
+		// 			if (!apiConfig.retry) {
+		// 				apiConfig.retry = true;
 
-				if (savedRefreshToken) {
-					// Access Token was expired & refresh token present in local storage
-					if (!apiConfig.retry) {
-						apiConfig.retry = true;
+		// 				try {
+		// 					const refreshResponse = await axios.post('/user/refresh', undefined, {
+		// 						headers: {
+		// 							Authorization: `Bearer ${savedRefreshToken}`,
+		// 						},
+		// 					});
+		// 					const accessToken = refreshResponse?.data?.access_token;
+		// 					localStorage.setItem('access_token', accessToken);
+		// 					setAxiosToken(accessToken);
+		// 					setWorkerAxiosToken(accessToken);
 
-						try {
-							const refreshResponse = await axios.post('/user/refresh', undefined, {
-								headers: {
-									Authorization: `Bearer ${savedRefreshToken}`,
-								},
-							});
-							const accessToken = refreshResponse?.data?.access_token;
-							localStorage.setItem('access_token', accessToken);
-							setAxiosToken(accessToken);
-							setWorkerAxiosToken(accessToken);
-
-							return await axios(apiConfig);
-						} catch (_error) {
-							redirectToLogin();
-						}
-					}
-				} else {
-					redirectToLogin();
-				}
-			}
-		}
+		// 					return await axios(apiConfig);
+		// 				} catch (_error) {
+		// 					// redirectToLogin();
+		// 				}
+		// 			}
+		// 		} else {
+		// 			// redirectToLogin();
+		// 		}
+		// 	}
+		// }
 
 		return Promise.reject(err);
 	},
