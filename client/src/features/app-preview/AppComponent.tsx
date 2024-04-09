@@ -24,7 +24,6 @@ import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
-import { useFetcherData } from '../smart-table/hooks';
 
 import MarkdownEditor from '@/components/Editor/MarkdownEditor';
 
@@ -56,34 +55,6 @@ export const AppComponent = (props: any) => {
 	);
 
 	const inputState = useMemo(() => widgetComponents?.[name] || {}, [widgetComponents, name]);
-
-	const fetcher = component?.fetcher;
-
-	const fetcherData = useFetcherData({
-		fetcher,
-		appName,
-		pageName,
-	});
-
-	const getInputOptions = () => {
-		if (componentType === 'select' && component?.use_fetcher) {
-			const nameColumn = component?.name_column;
-			const valueColumn = component?.value_column;
-			const duplicateCheck = new Set();
-			return fetcherData?.rows
-				?.filter((row: any) =>
-					duplicateCheck.has(row?.[nameColumn])
-						? false
-						: duplicateCheck.add(row?.[nameColumn]),
-				)
-				?.map((row: any) => ({
-					name: String(row?.[nameColumn]),
-					value: String(row?.[valueColumn]),
-				}));
-		}
-
-		return inputState.options || component?.options;
-	};
 
 	const [inputValues, setInputValues]: any = useAtom(pageStateAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
@@ -266,7 +237,7 @@ export const AppComponent = (props: any) => {
 							page_name: pageName,
 						});
 					}}
-					options={getInputOptions()}
+					options={inputState?.options || component?.options}
 				/>
 
 				{inputState?.message ? (
