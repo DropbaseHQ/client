@@ -1,6 +1,6 @@
 import { Stack, IconButton, Tooltip, Box } from '@chakra-ui/react';
 
-import { LogOut, Grid, Repeat, Settings } from 'react-feather';
+import { LogOut, Grid, Repeat } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
@@ -53,19 +53,6 @@ export const Navbar = () => {
 					</Tooltip>
 				)}
 				<Stack mt="auto" alignItems="center">
-					{hasWorkspaces && (
-						<Tooltip label="Developer settings" placement="right">
-							<IconButton
-								variant="ghost"
-								as={Link}
-								to="/settings/developer"
-								color={pathname === '/settings/developer' ? 'blue.500' : 'body'}
-								colorScheme={pathname === '/settings/developer' ? 'blue' : 'gray'}
-								aria-label="developer settings"
-								icon={<Settings size="22" />}
-							/>
-						</Tooltip>
-					)}
 					<Tooltip label="Logout" placement="right">
 						<IconButton
 							variant="ghost"
