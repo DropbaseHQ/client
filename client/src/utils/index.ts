@@ -67,7 +67,16 @@ export const getErrorMessage = (error: any) => {
 		return error?.response?.data?.result.join(', ');
 	}
 
-	const errorMessage = error?.response?.data?.detail || '';
+	const errorMessage =
+		error?.response?.data?.error ||
+		error?.response?.data?.message ||
+		error?.response?.data?.result ||
+		error?.response?.data?.detail?.message ||
+		error?.response?.data?.detail?.error ||
+		error?.response?.data?.detail ||
+		error?.response?.data ||
+		error?.message ||
+		'';
 
 	if (typeof errorMessage !== 'string') {
 		return JSON.stringify(errorMessage);
