@@ -7,21 +7,15 @@ import { websocketStatusAtom } from '@/features/app/atoms';
 
 import { DashboardRoutes } from './DashboardRoutes';
 
-import { Workspaces } from '@/features/workspaces';
 import { App } from '@/features/app';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
-import { SettingsRoutes } from '@/features/settings/SettingsRoutes';
 import { useStatus } from '@/features/settings/hooks/workspace';
 
 export const WorkerDashboardRoutes = () => {
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
 
-	// useSyncProxyToken();
-	// useSetAxiosToken();
-
-	const { isLoading: isCheckingStatus } = useStatus();
-
-	const workerIsConnected = true;
+	const { status, isLoading: isCheckingStatus } = useStatus();
+	const workerIsConnected = status === 'success';
 
 	const websocketURL = useGetWebSocketURL();
 
@@ -40,24 +34,6 @@ export const WorkerDashboardRoutes = () => {
 
 	let children = null;
 
-	/**
-	 * Only show worker routes when the correct URL is set and track the Loading
-	 * state of URL mappings since we want to make sure it was URL set after loading
-	 * mappings
-	 */
-	// if (isLoading) {
-	// 	children = (
-	// 		<Route
-	// 			path="*"
-	// 			element={
-	// 				<Center as={Stack}>
-	// 					<Spinner />
-	// 					<Text>Loading User Config...</Text>
-	// 				</Center>
-	// 			}
-	// 		/>
-	// 	);
-	// }
 	if (isCheckingStatus) {
 		children = (
 			<Route
@@ -96,9 +72,7 @@ export const WorkerDashboardRoutes = () => {
 	} else {
 		children = (
 			<>
-				<Route path="workspaces" element={<Workspaces />} />
 				<Route path="apps/*" element={<App />} />
-				<Route path="settings/*" element={<SettingsRoutes />} />
 			</>
 		);
 	}

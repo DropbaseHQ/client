@@ -10,21 +10,13 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const { pathname } = useLocation();
 	const currentWorkspace = useAtomValue(workspaceAtom);
 
-	const loginRoutes =
-		pathname.startsWith('/login') ||
-		pathname.startsWith('/register') ||
-		pathname.startsWith('/reset') ||
-		pathname.startsWith('/email-confirmation') ||
-		pathname.startsWith('/forgot');
-
 	const welcomePage = pathname.startsWith('/welcome');
 
-	const shouldNotShowStatusBar =
-		loginRoutes || welcomePage || import.meta.env.VITE_APP_TYPE === 'app';
+	const shouldNotShowStatusBar = welcomePage || import.meta.env.VITE_APP_TYPE === 'app';
 
-	const shouldNotDisplayNavbar = pathname.startsWith('/apps/') || loginRoutes;
+	const shouldNotDisplayNavbar = pathname.startsWith('/apps/');
 
-	const shouldDisplayTrialBanner = currentWorkspace?.in_trial && !loginRoutes;
+	const shouldDisplayTrialBanner = currentWorkspace?.in_trial;
 
 	const trialEndDate = new Date(currentWorkspace?.trial_end_date || '');
 
@@ -54,11 +46,11 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 					{children}
 				</Box>
 			</Flex>
-			{/* {shouldNotShowStatusBar ? null : (
+			{shouldNotShowStatusBar ? null : (
 				<Box maxH="20px" flexShrink="0">
 					<StatusBar />
 				</Box>
-			)} */}
+			)}
 		</Stack>
 	);
 };

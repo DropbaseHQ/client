@@ -254,7 +254,7 @@ export const AppList = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
-	const { status, isLoading: isCheckingStatus } = useStatus();
+	const { status } = useStatus();
 	const methods = useForm();
 
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
@@ -316,7 +316,7 @@ export const AppList = () => {
 
 	const workerIsConnected = status === 'success';
 
-	if (isCheckingStatus || isLoading) {
+	if (isLoading) {
 		return (
 			<PageLayout title="Your apps">
 				<SimpleGrid spacing={6} pb="4" columns={4}>

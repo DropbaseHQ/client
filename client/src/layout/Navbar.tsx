@@ -1,18 +1,12 @@
 import { Stack, IconButton, Tooltip, Box } from '@chakra-ui/react';
 
-import { LogOut, Grid } from 'react-feather';
+import { Grid } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
-import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
 import { isProductionApp } from '../utils';
 
 export const Navbar = () => {
 	const { pathname } = useLocation();
-	const { mutate: logout } = useLogout();
-
-	const handleLogout = () => {
-		logout();
-	};
 
 	return (
 		<Stack w="14" h="full" bg="white" borderRightWidth="1px" p="3" alignItems="center">
@@ -34,17 +28,6 @@ export const Navbar = () => {
 						/>
 					</Tooltip>
 				)}
-				<Stack mt="auto" alignItems="center">
-					<Tooltip label="Logout" placement="right">
-						<IconButton
-							variant="ghost"
-							onClick={handleLogout}
-							colorScheme="gray"
-							aria-label="Logouts"
-							icon={<LogOut size="22" />}
-						/>
-					</Tooltip>
-				</Stack>
 			</Stack>
 		</Stack>
 	);
