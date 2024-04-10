@@ -19,7 +19,6 @@ import {
 	TabList,
 	Tabs,
 } from '@chakra-ui/react';
-import { useAtom } from 'jotai';
 import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
@@ -33,7 +32,6 @@ import { useCreatePage } from '@/features/page';
 import { getErrorMessage, generateSequentialName } from '@/utils';
 import { PageTab } from './PageTab';
 import { LabelContainer } from '@/components/LabelContainer';
-import { activeURLMappingAtom } from '@/features/settings/atoms';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const toast = useToast();
@@ -41,7 +39,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { appName, pageName } = useParams();
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
-	const activeMapping = useAtom(activeURLMappingAtom);
 
 	const [label, setAppLabel] = useState('');
 
@@ -129,15 +126,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 				},
 			);
 		}
-	};
-	const getPermission = (action: string) => {
-		if (!activeMapping[0]) {
-			// If there is no active mapping, this means we have default mappings
-			// This means it is local host
-			// In local host, we can do anything, so return true
-			return true;
-		}
-		return activeMapping[0][action];
 	};
 
 	const methods = useForm();
@@ -263,24 +251,22 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Flex>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				{getPermission('edit') && (
-					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
-						<Button
-							size="sm"
-							variant="secondary"
-							colorScheme="blue"
-							leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
-							aria-label="Preview"
-							ml="auto"
-							mr="4"
-							as={Link}
-							data-cy="preview-toggle"
-							to={isPreview ? 'studio' : '../'}
-						>
-							{isPreview ? 'Edit' : 'Preview'}
-						</Button>
-					</Tooltip>
-				)}
+				<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
+					<Button
+						size="sm"
+						variant="secondary"
+						colorScheme="blue"
+						leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
+						aria-label="Preview"
+						ml="auto"
+						mr="4"
+						as={Link}
+						data-cy="preview-toggle"
+						to={isPreview ? 'studio' : '../'}
+					>
+						{isPreview ? 'Edit' : 'Preview'}
+					</Button>
+				</Tooltip>
 			</Stack>
 		</Stack>
 	);
