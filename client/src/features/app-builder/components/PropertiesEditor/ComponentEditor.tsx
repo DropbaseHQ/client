@@ -16,7 +16,7 @@ import {
 	StackDivider,
 } from '@chakra-ui/react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useStatus } from '@/layout/StatusBar';
+import { useStatus } from '@/features/settings/hooks/workspace';
 import { FormInput } from '@/components/FormInput';
 import { useResourceFields } from '@/features/app-builder/hooks';
 import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';

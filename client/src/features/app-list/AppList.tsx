@@ -27,7 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import { Layout, MoreVertical, Trash, Plus, PlusCircle } from 'react-feather';
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
-import { useStatus } from '@/layout/StatusBar';
+import { useStatus } from '../settings/hooks/workspace';
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
 import { useCreateAppFlow } from './hooks/useCreateApp';
 import { PageLayout } from '@/layout';
@@ -258,7 +258,6 @@ export const AppList = () => {
 	const methods = useForm();
 
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
-	console.log('apps', apps);
 	const { isOpen, onOpen, onClose } = useDisclosure({
 		onClose: () => {
 			methods.reset();

@@ -1,7 +1,6 @@
-import { useAtomValue } from 'jotai';
 import { useQuery } from 'react-query';
 import { workerAxios } from '@/lib/axios';
-import { workspaceAtom } from '@/features/workspaces';
+import { useStatus } from '@/features/settings/hooks/workspace';
 
 type Page = {
 	name: string;
@@ -28,10 +27,11 @@ const fetchWorkspaceApps = async () => {
 export const APPS_QUERY_KEY = 'workspaceApps';
 
 export const useGetWorkspaceApps = () => {
-	const { id: workspaceId } = useAtomValue(workspaceAtom);
-	const queryKey = [APPS_QUERY_KEY, workspaceId];
+	const { isLoading } = useStatus();
+	const queryKey = [APPS_QUERY_KEY];
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchWorkspaceApps(), {
 		staleTime: 1000 * 60 * 5,
+		enabled: !isLoading,
 	});
 	return {
 		apps: response || [],

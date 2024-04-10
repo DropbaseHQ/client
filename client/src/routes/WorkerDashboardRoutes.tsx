@@ -11,7 +11,7 @@ import { Workspaces } from '@/features/workspaces';
 import { App } from '@/features/app';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
 import { SettingsRoutes } from '@/features/settings/SettingsRoutes';
-import { useStatus } from '../layout/StatusBar';
+import { useStatus } from '@/features/settings/hooks/workspace';
 
 export const WorkerDashboardRoutes = () => {
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);

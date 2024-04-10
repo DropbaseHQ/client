@@ -20,7 +20,7 @@ import { Plus } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useParams } from 'react-router-dom';
 
-import { useStatus } from '@/layout/StatusBar';
+import { useStatus } from '@/features/settings/hooks/workspace';
 import { useGetTable, useResourceFields } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';

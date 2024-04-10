@@ -4,7 +4,7 @@ import { Plus } from 'react-feather';
 import { useParams } from 'react-router-dom';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useStatus } from '@/layout/StatusBar';
+import { useStatus } from '@/features/settings/hooks/workspace';
 import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget } from '@/features/app-builder/hooks';
 import { appModeAtom } from '@/features/app/atoms';

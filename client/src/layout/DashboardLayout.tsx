@@ -54,11 +54,11 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 					{children}
 				</Box>
 			</Flex>
-			{shouldNotShowStatusBar ? null : (
+			{/* {shouldNotShowStatusBar ? null : (
 				<Box maxH="20px" flexShrink="0">
 					<StatusBar />
 				</Box>
-			)}
+			)} */}
 		</Stack>
 	);
 };

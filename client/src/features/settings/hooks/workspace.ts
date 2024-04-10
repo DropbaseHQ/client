@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from 'react-query';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { axios } from '@/lib/axios';
+import { axios, workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 
@@ -173,5 +173,27 @@ export const useGetAppAccess = () => {
 		userAccess: data?.users || [],
 		groupAccess: data?.groups || [],
 		...rest,
+	};
+};
+
+export const STATUS_QUERY_KEY = 'allFiles';
+
+const fetchStatus: any = async () => {
+	const response = await workerAxios.get<any>(`/health/`);
+	return response;
+};
+
+export const useStatus = () => {
+	const queryKey = [STATUS_QUERY_KEY];
+
+	const { data: response, ...rest } = useQuery(queryKey, () => fetchStatus(), {
+		refetchInterval: 10 * 1000,
+		refetchIntervalInBackground: true,
+	});
+
+	return {
+		...rest,
+		isConnected: response?.status === 200,
+		queryKey,
 	};
 };

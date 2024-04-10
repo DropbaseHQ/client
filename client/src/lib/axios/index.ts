@@ -73,17 +73,17 @@ axios.interceptors.response.use(
 	},
 );
 
-workerAxios.interceptors.response.use(
-	(res) => {
-		return res;
-	},
-	async (err) => {
-		const apiConfig = err.config;
-		if (err.response.status === 401 && !apiConfig.retry) {
-			apiConfig.retry = true;
+// workerAxios.interceptors.response.use(
+// 	(res) => {
+// 		return res;
+// 	},
+// 	async (err) => {
+// 		const apiConfig = err.config;
+// 		if (err.response?.status === 401 && !apiConfig.retry) {
+// 			apiConfig.retry = true;
 
-			return axios(apiConfig);
-		}
-		return Promise.reject(err);
-	},
-);
+// 			return axios(apiConfig);
+// 		}
+// 		return Promise.reject(err);
+// 	},
+// );

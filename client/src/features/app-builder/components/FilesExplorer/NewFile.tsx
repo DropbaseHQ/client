@@ -26,7 +26,7 @@ import { useSetAtom } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 
-import { useStatus } from '@/layout/StatusBar';
+import { useStatus } from '@/features/settings/hooks/workspace';
 import { useCreateFile, usePageFiles } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';

@@ -3,7 +3,7 @@ import { ChevronDown } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
 import lodashSet from 'lodash/set';
-import { useStatus } from '@/layout/StatusBar';
+import { useStatus } from '../settings/hooks/workspace';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import {

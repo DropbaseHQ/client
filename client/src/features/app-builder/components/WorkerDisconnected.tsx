@@ -14,7 +14,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { Download, Mail, Tool } from 'react-feather';
-import { useStatus } from '@/layout/StatusBar';
+import { useStatus } from '@/features/settings/hooks/workspace';
 
 const data = [
 	{

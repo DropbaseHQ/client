@@ -6,7 +6,7 @@ import { Plus } from 'react-feather';
 import { useToast } from '@/lib/chakra-ui';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { generateSequentialName, getErrorMessage } from '@/utils';
-import { useStatus } from '@/layout/StatusBar';
+import { useStatus } from '@/features/settings/hooks/workspace';
 import { inspectedResourceAtom } from '../../atoms';
 
 export const NewTable = (props: any) => {

@@ -1,37 +1,13 @@
-import { useQuery } from 'react-query';
 import { Circle, Link, Stack, Text, Divider } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
-import { workerAxios } from '../lib/axios';
 import { websocketStatusAtom } from '@/features/app/atoms';
+import { useStatus } from '@/features/settings/hooks/workspace';
 import { lspStatusAtom } from '@/components/Editor';
-
-export const STATUS_QUERY_KEY = 'allFiles';
-
-const fetchStatus: any = async () => {
-	const response = await workerAxios.get<any>(`/health/`);
-	return response;
-};
-
-export const useStatus = () => {
-	const queryKey = [STATUS_QUERY_KEY];
-
-	const { data: response, ...rest } = useQuery(queryKey, () => fetchStatus(), {
-		refetchInterval: 10 * 1000,
-		refetchIntervalInBackground: true,
-	});
-
-	return {
-		...rest,
-		isConnected: response?.status === 200,
-		queryKey,
-	};
-};
 
 export const StatusBar = () => {
 	const { status } = useStatus();
 	const websocketIsConnected = useAtomValue(websocketStatusAtom);
 	const lspIsConnected = useAtomValue(lspStatusAtom);
-
 	return (
 		<Stack
 			direction="row"
