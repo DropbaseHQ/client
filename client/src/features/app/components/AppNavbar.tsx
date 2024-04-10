@@ -18,10 +18,9 @@ import {
 	FormErrorMessage,
 	TabList,
 	Tabs,
-	useDisclosure,
 } from '@chakra-ui/react';
 import { useAtom } from 'jotai';
-import { ArrowLeft, Edit, Eye, Plus, Share } from 'react-feather';
+import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -34,7 +33,6 @@ import { useCreatePage } from '@/features/page';
 import { getErrorMessage, generateSequentialName } from '@/utils';
 import { PageTab } from './PageTab';
 import { LabelContainer } from '@/components/LabelContainer';
-import { ShareModal } from './ShareModal';
 import { activeURLMappingAtom } from '@/features/settings/atoms';
 
 export const AppNavbar = ({ isPreview }: any) => {
@@ -44,8 +42,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
 	const activeMapping = useAtom(activeURLMappingAtom);
-
-	const { isOpen: shareIsOpen, onOpen: shareOnOpen, onClose: shareOnClose } = useDisclosure();
 
 	const [label, setAppLabel] = useState('');
 
@@ -267,16 +263,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Flex>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				{getPermission('own') && (
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={shareOnOpen}
-						leftIcon={<Share size="14" />}
-					>
-						Share
-					</Button>
-				)}
 				{getPermission('edit') && (
 					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
 						<Button
@@ -296,7 +282,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 					</Tooltip>
 				)}
 			</Stack>
-			<ShareModal isOpen={shareIsOpen} onClose={shareOnClose} />
 		</Stack>
 	);
 };
