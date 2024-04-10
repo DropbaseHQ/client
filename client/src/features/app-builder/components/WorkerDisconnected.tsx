@@ -1,5 +1,6 @@
 import {
 	Box,
+	Button,
 	Circle,
 	Icon,
 	Link,
@@ -53,13 +54,13 @@ const data = [
 ];
 
 export const WorkerDisconnected = () => {
-	const { isConnected, isLoading } = useStatus();
+	const { isConnected, isLoading, refetch, isFetched } = useStatus();
 
 	if (isConnected) {
 		return null;
 	}
 
-	if (isLoading) {
+	if (isLoading || !isFetched) {
 		return (
 			<Modal isCentered size="xl" isOpen onClose={() => {}}>
 				<ModalOverlay />
@@ -101,8 +102,8 @@ export const WorkerDisconnected = () => {
 						</Text>
 					</Stack>
 				</ModalHeader>
-				<ModalBody>
-					<Stack spacing={4}>
+				<ModalBody p="0">
+					<Stack p="5" spacing={4}>
 						<Stack spacing={3}>
 							{data.map((d) => (
 								<Stack key={d.id} alignItems="center" direction="row">
@@ -128,7 +129,17 @@ export const WorkerDisconnected = () => {
 							))}
 						</Stack>
 					</Stack>
-					<ModalFooter />
+					<ModalFooter p="2" borderTopWidth="1px">
+						<Button
+							size="sm"
+							variant="primary"
+							onClick={() => {
+								refetch();
+							}}
+						>
+							Check connection
+						</Button>
+					</ModalFooter>
 				</ModalBody>
 			</ModalContent>
 		</Modal>

@@ -1,5 +1,5 @@
 import useWebSocket from 'react-use-websocket';
-import { Badge, Box, Center, Circle, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Center, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useSetAtom } from 'jotai';
 import { Route, Routes } from 'react-router-dom';
 import { useGetWebSocketURL } from '@/features/authorization/hooks/useLogin';
@@ -9,13 +9,15 @@ import { DashboardRoutes } from './DashboardRoutes';
 
 import { App } from '@/features/app';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
-import { useStatus } from '@/features/settings/hooks/workspace';
+import { SettingsRoutes } from '@/features/settings/SettingsRoutes';
+import { WorkerDisconnected } from '@/features/app-builder/components/WorkerDisconnected';
 
 export const WorkerDashboardRoutes = () => {
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
 
-	const { status, isLoading: isCheckingStatus } = useStatus();
-	const workerIsConnected = status === 'success';
+	useSyncProxyToken();
+	useSetAxiosToken();
+	const { urlSet, isLoading } = useSetWorkerAxiosBaseURL();
 
 	const websocketURL = useGetWebSocketURL();
 
@@ -34,37 +36,30 @@ export const WorkerDashboardRoutes = () => {
 
 	let children = null;
 
-	if (isCheckingStatus) {
+	/**
+	 * Only show worker routes when the correct URL is set and track the Loading
+	 * state of URL mappings since we want to make sure it was URL set after loading
+	 * mappings
+	 */
+	if (isLoading) {
 		children = (
 			<Route
 				path="*"
 				element={
-					<Center h="full" as={Stack}>
+					<Center as={Stack}>
 						<Spinner />
-						<Text>Connecting worker...</Text>
+						<Text>Loading User Config...</Text>
 					</Center>
 				}
 			/>
 		);
-	} else if (!workerIsConnected) {
+	} else if (!urlSet) {
 		children = (
 			<Route
 				path="*"
 				element={
-					<Center as={Stack} h="full">
-						<Badge
-							display="flex"
-							alignItems="center"
-							colorScheme="red"
-							variant="subtle"
-						>
-							<Circle size="8px" bg="red.500" />
-							<Box ml="2">Offline</Box>
-						</Badge>
-						<Text fontSize="xl" fontWeight="semibold">
-							Worker not connected
-						</Text>
-						<Text fontSize="md">Please make sure your worker is connected</Text>
+					<Center>
+						<Text>URL Mapping not set</Text>
 					</Center>
 				}
 			/>
@@ -78,9 +73,12 @@ export const WorkerDashboardRoutes = () => {
 	}
 
 	return (
-		<DashboardRoutes homeRoute="/apps">
-			<Route element={<ProtectedRoutes />}>{children}</Route>
-		</DashboardRoutes>
+		<>
+			<DashboardRoutes homeRoute="/apps">
+				<Route element={<ProtectedRoutes />}>{children}</Route>
+			</DashboardRoutes>
+			<WorkerDisconnected />
+		</>
 	);
 };
 
