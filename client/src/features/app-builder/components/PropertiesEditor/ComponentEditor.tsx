@@ -458,6 +458,16 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 				text: newName,
 			};
 		}
+		if (type === 'select') {
+			otherProperty = {
+				data_type: 'string',
+				use_fetcher: false,
+				fetcher: '',
+				name_column: '',
+				value_column: '',
+				label: newLabel,
+			};
+		}
 
 		try {
 			await mutation.mutateAsync({
