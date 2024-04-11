@@ -40,10 +40,11 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 	const { widget: widgetName } = meta || {};
 
 	const { widgets, isLoading, properties, files } = useGetPage({ appName, pageName });
+
 	const component = widgets
 		.find((w: any) => w.name === widgetName)
 		?.components?.find((c: any) => c.name === id);
-
+	console.log('component', component);
 	const { fields } = useResourceFields();
 
 	const currentCategories = [
@@ -373,6 +374,15 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 												return <EventPropertyEditor id={property.name} />;
 											}
 
+											if (
+												(property.name === 'fetcher' ||
+													property.name === 'name_column' ||
+													property.name === 'value_column') &&
+												!component?.use_fetcher
+											) {
+												return null;
+											}
+
 											const showFunctionList = property.type === 'function';
 
 											return (
@@ -462,9 +472,6 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 			otherProperty = {
 				data_type: 'string',
 				use_fetcher: false,
-				fetcher: '',
-				name_column: '',
-				value_column: '',
 				label: newLabel,
 			};
 		}
