@@ -183,22 +183,6 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 		handleRunSQLQuery,
 	]);
 
-	const handleKeyDown = useCallback(
-		(e: any) => {
-			if (e.key === 'Shift' && e.metaKey) {
-				executeShortcut();
-			}
-		},
-		[executeShortcut],
-	);
-
-	useEffect(() => {
-		window.addEventListener('keydown', handleKeyDown);
-		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
-		};
-	}, [handleKeyDown]);
-
 	useEffect(() => {
 		if (execute) {
 			executeShortcut();
