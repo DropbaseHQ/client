@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
 	Badge,
 	Icon,
@@ -25,6 +26,7 @@ import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget } from '@/features/app-builder/hooks';
 import { generateSequentialName } from '@/utils';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
+import { fetchStateContextFunctions } from '@/features/app-builder/hooks/files';
 
 export const EventPropertyEditor = ({ id }: any) => {
 	const { control } = useFormContext();
@@ -32,15 +34,26 @@ export const EventPropertyEditor = ({ id }: any) => {
 	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
 	const [{ id: componentId }, setInspectedResource] = useAtom(inspectedResourceAtom);
 
-	const { widgets, isLoading, files, properties, tables } = useGetPage({ appName, pageName });
+	const { widgets, isLoading, properties, tables } = useGetPage({ appName, pageName });
+
+	const [functions, setFunctions] = useState([]);
+
+	useEffect(() => {
+		const fetchFunctions = async () => {
+			try {
+				const fetchedFunctions = await fetchStateContextFunctions({ pageName, appName });
+				setFunctions(fetchedFunctions);
+			} catch (error) {
+				setFunctions([]);
+			}
+		};
+
+		fetchFunctions();
+	}, [pageName, appName]);
 
 	const createMutation = useCreateWidget();
 
 	const setPageAtom = useSetAtom(pageAtom);
-
-	const uiFunctions = files
-		.filter((f: any) => f.type === 'python')
-		?.map((f: any) => ({ value: f?.name, type: 'function', label: f?.label }));
 
 	const modalWidgets = widgets
 		.filter((f: any) => f.type === 'modal')
@@ -56,7 +69,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 		label: f?.label,
 	}));
 
-	const allOptions = [...uiFunctions, ...modalWidgets, ...baseWidgets, ...allTables];
+	const allOptions = [...functions, ...modalWidgets, ...baseWidgets, ...allTables];
 
 	const optionValueRenderer = ({ option, showBadge }: any) => {
 		const selectedValue = (allOptions || [])?.find((o: any) => {
@@ -111,7 +124,10 @@ export const EventPropertyEditor = ({ id }: any) => {
 						</Text>
 					) : null}
 					<Code bg="transparent" ml={selectedValue?.label ? '1.5' : '0'}>
-						{selectedValue?.value}
+						{selectedValue?.value}{' '}
+						<Text as="i" fontStyle="italic" fontSize="x-small">
+							{selectedValue?.file}
+						</Text>
 					</Code>
 				</Stack>
 				{showBadge ? (
@@ -222,6 +238,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 						onChange({
 							type: selectedOption.type,
 							value: selectedOption.value,
+							file: selectedOption.file,
 						});
 					};
 
@@ -287,7 +304,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 										type="radio"
 										onChange={handleChange}
 									>
-										{uiFunctions.map((func: any) => {
+										{functions.map((func: any) => {
 											return optionRenderer(func);
 										})}
 									</MenuOptionGroup>

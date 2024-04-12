@@ -10,6 +10,17 @@ import { DATA_FETCHER_QUERY_KEY } from '@/features/app-builder/hooks';
 
 export const ALL_PAGE_FILES_QUERY_KEY = 'allFiles';
 
+export const fetchStateContextFunctions = async ({
+	pageName,
+	appName,
+}: {
+	pageName: any;
+	appName: any;
+}) => {
+	const response = await workerAxios.get<any>(`/files/get_functions/${appName}/${pageName}/`);
+	return response.data;
+};
+
 const fetchAllPageFiles = async ({ pageName, appName }: { pageName: string; appName: string }) => {
 	const response = await workerAxios.get<{ files: string[] }>(
 		`/files/all/${appName}/${pageName}/`,
