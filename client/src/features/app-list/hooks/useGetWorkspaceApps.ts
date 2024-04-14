@@ -11,6 +11,7 @@ type Page = {
 
 export type App = {
 	name: string;
+	status?: string;
 	label: string;
 	workspace_id: string;
 	date: string;

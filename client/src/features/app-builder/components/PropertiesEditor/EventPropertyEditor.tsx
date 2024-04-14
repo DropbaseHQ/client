@@ -18,7 +18,7 @@ import {
 	Button,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { ChevronDown, Box as BoxIcon, Layout, Plus } from 'react-feather';
+import { ChevronDown, Box as BoxIcon, Layout, Plus, Table as TableIcon } from 'react-feather';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { pageAtom, useGetPage } from '@/features/page';
@@ -32,7 +32,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
 	const [{ id: componentId }, setInspectedResource] = useAtom(inspectedResourceAtom);
 
-	const { widgets, isLoading, files, properties } = useGetPage({ appName, pageName });
+	const { widgets, isLoading, files, properties, tables } = useGetPage({ appName, pageName });
 
 	const createMutation = useCreateWidget();
 
@@ -50,7 +50,13 @@ export const EventPropertyEditor = ({ id }: any) => {
 		.filter((f: any) => f.type === 'base')
 		?.map((f: any) => ({ value: f?.name, type: 'widget', label: f?.label }));
 
-	const allOptions = [...uiFunctions, ...modalWidgets, ...baseWidgets];
+	const allTables = tables?.map((f: any) => ({
+		value: f?.name,
+		type: 'table',
+		label: f?.label,
+	}));
+
+	const allOptions = [...uiFunctions, ...modalWidgets, ...baseWidgets, ...allTables];
 
 	const optionValueRenderer = ({ option, showBadge }: any) => {
 		const selectedValue = (allOptions || [])?.find((o: any) => {
@@ -69,6 +75,12 @@ export const EventPropertyEditor = ({ id }: any) => {
 
 		if (selectedValue.type === 'function') {
 			icon = BoxIcon;
+		} else if (selectedValue.type === 'table') {
+			icon = TableIcon;
+			badge = {
+				color: 'blue',
+				children: 'Table',
+			};
 		}
 
 		const isWidget = selectedValue?.type === 'widget';
@@ -146,9 +158,9 @@ export const EventPropertyEditor = ({ id }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: [
-						...(properties?.widgets || []).map((w: any) => {
-							if (w.name === widgetName) {
+					blocks: [
+						...(properties?.blocks || []).map((w: any) => {
+							if (w.type === 'widget' && w.name === widgetName) {
 								return {
 									...w,
 									components: (w.components || []).map((c: any) => {
@@ -183,6 +195,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 			setInspectedResource({
 				type: 'widget',
 				id: wName,
+				meta: null,
 			});
 		} catch (e) {
 			//
@@ -270,7 +283,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 								>
 									<MenuOptionGroup
 										value={valueForMenu}
-										title="UI Functions"
+										title="Trigger Function"
 										type="radio"
 										onChange={handleChange}
 									>
@@ -283,7 +296,20 @@ export const EventPropertyEditor = ({ id }: any) => {
 
 									<MenuOptionGroup
 										value={valueForMenu}
-										title="Show modals"
+										title="Reload Tables"
+										onChange={handleChange}
+										type="radio"
+									>
+										{allTables.map((table: any) => {
+											return optionRenderer(table);
+										})}
+									</MenuOptionGroup>
+
+									<MenuDivider />
+
+									<MenuOptionGroup
+										value={valueForMenu}
+										title="Show Modal"
 										onChange={handleChange}
 										type="radio"
 									>
@@ -307,7 +333,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 
 									<MenuOptionGroup
 										value={valueForMenu}
-										title="Navigate to Widgets"
+										title="Navigate to Widget"
 										onChange={handleChange}
 										type="radio"
 									>

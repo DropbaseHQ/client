@@ -6,38 +6,37 @@ import {
 	FormControl,
 	FormLabel,
 	Stack,
-	Text,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
+
 import { extractTemplateString, getErrorMessage } from '@/utils';
 
-import { useExecuteAction } from '@/features/app-preview/hooks';
+import { useEvent, useExecuteAction } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
 import {
-	widgetComponentsAtom,
 	useSyncState,
-	newPageStateAtom,
-	allWidgetsInputAtom,
+	pageStateAtom,
+	pageStateContextAtom,
+	pageContextAtom,
 } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
 import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
 
-const sizeMap: any = {
-	small: 'sm',
-	medium: 'md',
-	large: 'lg',
-};
+import MarkdownEditor from '@/components/Editor/MarkdownEditor';
 
 const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 
 export const AppComponent = (props: any) => {
-	const { sendJsonMessage } = props;
+	const { sendJsonMessage, widgetName, inline } = props;
 
 	const toast = useToast();
-	const [{ pageName, appName, widgetName, widgets }, setPageContext] = useAtom(pageAtom);
+	const [{ pageName, appName }] = useAtom(pageAtom);
+
+	const handleEvent = useEvent({});
+
 	const {
 		component_type: componentType,
 		data_type: type,
@@ -48,13 +47,16 @@ export const AppComponent = (props: any) => {
 		...component
 	} = props;
 
-	const pageState = useAtomValue(newPageStateAtom);
-	const allWidgetComponents = useAtomValue(widgetComponentsAtom) as any;
-	const widgetComponents = allWidgetComponents[widgetName || '']?.components || {};
+	const pageState = useAtomValue(pageStateContextAtom);
+	const pageContext = useAtomValue(pageContextAtom) as any;
+	const widgetComponents = useMemo(
+		() => pageContext[widgetName || '']?.components || {},
+		[pageContext, widgetName],
+	);
 
-	const inputState = widgetComponents?.[name] || {};
+	const inputState = useMemo(() => widgetComponents?.[name] || {}, [widgetComponents, name]);
 
-	const [inputValues, setInputValues]: any = useAtom(allWidgetsInputAtom);
+	const [inputValues, setInputValues]: any = useAtom(pageStateAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
 
 	const syncState = useSyncState();
@@ -125,43 +127,6 @@ export const AppComponent = (props: any) => {
 		},
 	});
 
-	const handleAction = (actionName: string) => {
-		actionMutation.mutate({
-			pageName,
-			appName,
-			functionName: actionName,
-			pageState,
-		});
-	};
-
-	const handleEvent = (event: any) => {
-		if (event.type === 'widget') {
-			const widget = widgets?.find((w: any) => w.name === event.value);
-
-			if (widget?.type === 'modal') {
-				setPageContext((oldPage: any) => ({
-					...oldPage,
-					widgetName: event.value,
-					modals: [
-						...oldPage.modals.filter((m: any) => m.name !== event.value),
-						{
-							name: event.value,
-							caller: widgetName,
-						},
-					],
-				}));
-			} else {
-				setPageContext((oldPage: any) => ({
-					...oldPage,
-					modals: [],
-					widgetName: event.value,
-				}));
-			}
-		} else if (event.type === 'function') {
-			handleAction(event.value);
-		}
-	};
-
 	if (!shouldDisplay && !isEditorMode) {
 		return null;
 	}
@@ -196,15 +161,9 @@ export const AppComponent = (props: any) => {
 
 	if (componentType === 'text') {
 		return (
-			<Stack spacing="0.5">
-				<Text
-					fontSize={sizeMap[component.size]}
-					color={component.color || `${component.color}.500`}
-					bgColor={grayOutComponent ? 'gray.100' : ''}
-				>
-					{text}
-				</Text>
-
+			// remarkGfm adds a few more features e.g strikethroughs, tables, checkmarks
+			<Stack spacing="0.5" bgColor={grayOutComponent ? 'gray.100' : ''}>
+				<MarkdownEditor text={text} />
 				{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
 			</Stack>
 		);
@@ -231,7 +190,18 @@ export const AppComponent = (props: any) => {
 
 	return (
 		<Stack spacing="0.5">
-			<FormControl key={name} bgColor={grayOutComponent ? 'gray.100' : ''}>
+			<FormControl
+				{...(inline
+					? {
+							as: Stack,
+							direction: 'row',
+							alignItems: 'center',
+							spacing: '0',
+					  }
+					: {})}
+				key={name}
+				bgColor={grayOutComponent ? 'gray.100' : ''}
+			>
 				{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
 				<InputRenderer
 					placeholder={placeholder}
@@ -239,6 +209,11 @@ export const AppComponent = (props: any) => {
 					name={name}
 					data-cy={`input-${name}`}
 					type={inputType}
+					onKeyDown={(e: any) => {
+						if (e.key === 'Enter' && component?.on_submit) {
+							handleEvent(component.on_submit);
+						}
+					}}
 					onChange={(newValue: any) => {
 						// We need this newWidgetState because the state in pageState
 						// is not up to date with the latest input value
@@ -256,16 +231,13 @@ export const AppComponent = (props: any) => {
 							type: 'display_rule',
 							state_context: {
 								...pageState,
-								state: {
-									...(pageState?.state || {}),
-									widgets: newWidgetState,
-								},
+								state: newWidgetState,
 							},
 							app_name: appName,
 							page_name: pageName,
 						});
 					}}
-					options={inputState.options || component.options}
+					options={inputState?.options || component?.options}
 				/>
 
 				{inputState?.message ? (
@@ -283,7 +255,7 @@ export const AppComponent = (props: any) => {
 				) : null}
 			</FormControl>
 
-			{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+			{isPreview || inline ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
 		</Stack>
 	);
 };

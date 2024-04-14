@@ -13,10 +13,10 @@ import {
 	// Divider,
 } from '@chakra-ui/react';
 import { GitHub } from 'react-feather';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
 import { GoogleLogin } from '@react-oauth/google';
 import { useResendConfirmEmail } from './hooks/useResendConfirmationEmail';
@@ -38,6 +38,7 @@ export const Login = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
 	const queryClient = useQueryClient();
+	const [searchParams] = useSearchParams();
 
 	const updateWorkspace = useSetAtom(workspaceAtom);
 	const updateOnboardingStatus = useSetAtom(onboardingAtom);
@@ -49,9 +50,14 @@ export const Login = () => {
 		formState: { errors },
 		handleSubmit,
 		watch,
+		setValue,
 	} = useForm<FormValues>();
 
 	const email = watch('email');
+
+	useEffect(() => {
+		setValue('email', searchParams.get('email') || '');
+	}, [searchParams, setValue]);
 
 	const { mutate: googleMutate } = useGoogleLogin({
 		onError: (error: any) => {

@@ -6,7 +6,6 @@ import { useToast } from '@/lib/chakra-ui';
 
 import { workerAxios } from '@/lib/axios';
 import { pageAtom } from '../atoms';
-import { APP_STATE_QUERY_KEY } from '@/features/app-state';
 import { APPS_QUERY_KEY } from '@/features/app-list/hooks/useGetWorkspaceApps';
 
 export const PAGE_DATA_QUERY_KEY = 'pageData';
@@ -30,7 +29,7 @@ const fetchPage = async ({ appName, pageName }: any) => {
 	return response.data;
 };
 
-export const useGetPage = ({ appName, pageName }: any) => {
+export const useGetPage = ({ appName, pageName, ...props }: any) => {
 	const queryKey = [PAGE_DATA_QUERY_KEY, appName, pageName];
 	const navigate = useNavigate();
 	const toast = useToast();
@@ -38,16 +37,20 @@ export const useGetPage = ({ appName, pageName }: any) => {
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchPage({ appName, pageName }), {
 		enabled: Boolean(appName && pageName),
 		staleTime: Infinity,
+		...props,
 	});
 
 	const data: any = useMemo(() => {
+		const allBlocks = response?.state_context?.properties?.blocks || [];
+
 		return {
 			state: response?.state_context?.state || {},
 			context: response?.state_context?.context || {},
-			tables: response?.state_context?.properties?.tables || [],
-			widgets: response?.state_context?.properties?.widgets || [],
+			tables: allBlocks.filter((b: any) => b.block_type === 'table') || [],
+			widgets: allBlocks.filter((b: any) => b.block_type === 'widget') || [],
 			files: response?.state_context?.properties?.files || [],
 			properties: response?.state_context?.properties || {},
+			permissions: response?.permissions || {},
 		};
 	}, [response]);
 
@@ -133,13 +136,11 @@ export const useUpdatePageData = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 
 			props?.onSettled?.();
 		},
 		onSuccess: (data: any, variables: any) => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(APP_STATE_QUERY_KEY);
 
 			props?.onSuccess?.(data, variables);
 		},

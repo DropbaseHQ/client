@@ -1,17 +1,21 @@
 import os
 import secrets
-import requests
+import random
 from datetime import datetime, timedelta
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 from uuid import UUID
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+from server.utils.connect import try_engine
 from server.controllers.user.github_social_controller import GithubController
-
+from server.controllers.policy import (
+    PolicyUpdater,
+    format_permissions_for_highest_action,
+)
 from fastapi import HTTPException, Response, status, Request
 from fastapi_jwt_auth import AuthJWT
 from sqlalchemy.orm import Session
-
+from sqlalchemy.exc import SQLAlchemyError
 from server import crud
 from server.constants import (
     ACCESS_TOKEN_EXPIRE_SECONDS,
@@ -22,7 +26,9 @@ from server.controllers.policy import (
     PolicyUpdater,
     format_permissions_for_highest_action,
 )
+
 from server.controllers.user.workspace_creator import WorkspaceCreator
+from server.controllers import workspace as workspace_controller
 from server.emails.emailer import send_email
 from server.models import Policy, User, Workspace
 from server.schemas.user import (
@@ -39,6 +45,8 @@ from server.schemas.user import (
     ReadUser,
     ResetPasswordRequest,
     UpdateUserPolicyRequest,
+    CreateTestUserRequest,
+    CreateTestDBTableRequest,
 )
 from server.schemas.workspace import ReadWorkspace
 from server.utils.authentication import (
@@ -258,8 +266,6 @@ def register_user(db: Session, request: CreateUserRequest):
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
-        workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
-        workspace_creator.create()
 
         confirmation_link = (
             f"{CLIENT_URL}/email-confirmation/{confirmation_token}/{user.id}"
@@ -327,8 +333,6 @@ def register_google_user(
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
-        workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
-        workspace_creator.create()
 
         db.commit()
 
@@ -621,9 +625,10 @@ def check_permissions(
 ):
     workspace_id = None
     app_id = request.app_id
-    app = crud.app.get_object_by_id_or_404(db, id=app_id)
-    if app.workspace_id:
-        workspace_id = app.workspace_id
+    if request.app_id:
+        app = crud.app.get(db=db, id=request.app_id)
+        if app.workspace_id:
+            workspace_id = app.workspace_id
     else:
         # Workspace_from_token
         workspace_id = workspace.id
@@ -631,6 +636,7 @@ def check_permissions(
     permissions_dict = get_all_action_permissions(
         db, str(user.id), workspace_id, app_id
     )
+    print("permissions_dict", permissions_dict)
     return permissions_dict
 
 
@@ -638,14 +644,12 @@ def check_apps_permissions(
     db: Session, user: User, request: CheckAppsPermissionsRequest, workspace: Workspace
 ):
     # Checks that a user has permissions to see and use and app
-    print("workspace id", workspace.id)
     app_ids = request.app_ids
     permissions = {}
     enforcer = get_contexted_enforcer(db, workspace_id=workspace.id)
 
     for app_id in app_ids:
-        print("Checking permissions for app", app_id)
-        print("User id", user.id)
+
         permissions[app_id] = high_level_enforce(
             db=db,
             enforcer=enforcer,
@@ -654,7 +658,6 @@ def check_apps_permissions(
             action="use",
             workspace=workspace,
         )
-
     return permissions
 
 
@@ -687,8 +690,6 @@ def github_auth(db: Session, Authorize: AuthJWT, code: str):
         )
         user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
         db.flush()
-        workspace_creator = WorkspaceCreator(db=db, user_id=user.id)
-        workspace_creator.create()
         slack_sign_up(name=user.name, email=user.email)
         db.commit()
     if user.social_login != "github":
@@ -708,28 +709,127 @@ def github_auth(db: Session, Authorize: AuthJWT, code: str):
     }
 
 
-def sync_demo(db: Session, workspace):
-    # app demo page
-    app = crud.app.create(
-        db,
-        obj_in={
-            "name": "demo",
-            "label": "Demo App",
-            "description": "This is a demo app",
-            "workspace_id": workspace.id,
-        },
-    )
-    # add demo app
-    page = crud.page.create(
-        db,
-        obj_in={
-            "name": "page1",
-            "label": "Page1",
-            "description": "Page 1 of the demo app",
-            "app_id": app.id
+def create_test_user(db: Session, request: CreateTestUserRequest):
+    try:
+        hashed_password = get_password_hash(request.password)
+        user_obj = CreateUser(
+            name=request.name,
+            last_name=request.last_name,
+            company=request.company,
+            email=request.email,
+            hashed_password=hashed_password,
+            trial_eligible=True,
+            active=True,
+            onboarded=False,
+        )
+        user = crud.user.create(db, obj_in=user_obj, auto_commit=False)
+        db.flush()
+
+        # Invite user to workspace as Member
+
+        workspace_controller.add_user_to_workspace(
+            db=db,
+            workspace_id=request.workspace_id,
+            user_email=request.email,
+            role_id="00000000-0000-0000-0000-000000000004",
+        )
+
+        response = {
+            "user_id": user.id,
+            "email": user.email,
+            "password": request.password,
+            "permission": "edit",
         }
-    )
-    return {
-        "app_id": app.id,
-        "page_id": page.id
-    }
+
+        return response
+    except Exception as e:
+        print("e", e)
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+def generate_name():
+    first_names = [
+        "Alice",
+        "Bob",
+        "Charlie",
+        "David",
+        "Emma",
+        "Frank",
+        "Grace",
+        "Henry",
+        "Ivy",
+        "Jack",
+    ]
+    last_names = [
+        "Smith",
+        "Johnson",
+        "Williams",
+        "Jones",
+        "Brown",
+        "Davis",
+        "Miller",
+        "Wilson",
+        "Moore",
+        "Taylor",
+    ]
+    return f"{random.choice(first_names)} {random.choice(last_names)}"
+
+
+def generate_random_country():
+    # List of 10 well  known countries
+    countries = [
+        "United States",
+        "China",
+        "Japan",
+        "Germany",
+        "United Kingdom",
+        "India",
+        "France",
+        "Italy",
+        "Brazil",
+        "Canada",
+    ]
+    return random.choice(countries)
+
+
+def generate_membership_level():
+    membership_levels = ["Free", "Basic", "Pro", "Enterprise"]
+    return random.choice(membership_levels)
+
+
+def create_test_db_table(db: Session, request: CreateTestDBTableRequest):
+    db_table_name = f"{request.name}_{request.last_name}_demo"
+    try:
+        with try_engine.connect() as connection:
+
+            connection.execute(
+                f"""
+                CREATE TABLE {db_table_name} (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(50) NOT NULL,
+                    age INT NOT NULL,
+                    country VARCHAR(50),
+                    membership_level VARCHAR(50)
+                )
+                """
+            )
+
+            connection.execute(f"GRANT SELECT, UPDATE ON {db_table_name} TO test_user;")
+
+            rows = []
+            for _ in range(20):
+                name = generate_name()
+                age = random.randint(18, 60)
+                country = generate_random_country()
+                membership_level = generate_membership_level()
+                rows.append((name, age, country, membership_level))
+
+            sql_query = f"INSERT INTO {db_table_name} (name, age, country, membership_level) VALUES (%s, %s, %s, %s)"
+
+            # Execute the query with executemany() and pass the list of tuples as parameters
+            connection.execute(sql_query, rows)
+
+    except SQLAlchemyError as e:
+        # Handle exceptions here
+        print("An error occurred:", e)

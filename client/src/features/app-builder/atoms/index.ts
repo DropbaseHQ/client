@@ -8,6 +8,7 @@ export const developerTabAtom = atom<any>({
 export const inspectedResourceAtom = atom<any>({
 	type: null,
 	id: null,
+	meta: null,
 });
 
 export const selectedTableIdAtom = atom((get) => {

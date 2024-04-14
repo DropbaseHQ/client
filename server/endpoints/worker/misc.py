@@ -1,14 +1,21 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from server.controllers.tables.convert import call_gpt, fill_smart_cols_data
 from server.utils.authorization import get_current_user
 from server.utils.authentication import verify_worker_token
-from server.schemas import CheckPermissionRequest, CheckAppsPermissionsRequest
+from server.schemas import (
+    CheckPermissionRequest,
+    SyncStructureRequest,
+    SyncAppRequest,
+    CheckAppsPermissionsRequest,
+)
 from server.controllers.user import user_controller
+from server.controllers import workspace as workspace_controller
 from server.utils.connect import get_db
 from server.models import User, Workspace
+from server import crud
 
 router = APIRouter()
 
@@ -68,9 +75,21 @@ def get_worker_workspace(workspace: Workspace = Depends(verify_worker_token)):
     }
 
 
-@router.get("/sync_demo")
-def sync_demo(
+@router.post("/sync/structure")
+def sync_structure(
+    request: SyncStructureRequest,
+    db: Session = Depends(get_db),
     workspace: Workspace = Depends(verify_worker_token),
-    db: Session = Depends(get_db)
 ):
-    return user_controller.sync_demo(db, workspace)
+    return workspace_controller.sync_structure(
+        db=db, request=request, workspace=workspace
+    )
+
+
+@router.post("/sync/app")
+def sync_app(
+    request: SyncAppRequest,
+    db: Session = Depends(get_db),
+    workspace: Workspace = Depends(verify_worker_token),
+):
+    return workspace_controller.sync_app(db=db, request=request, workspace=workspace)

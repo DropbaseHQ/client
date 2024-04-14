@@ -28,17 +28,23 @@ import { generateSequentialName, getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { LabelContainer } from '@/components/LabelContainer';
+import { DashedBorder } from '@/components/DashedBorder';
 
-export const ComponentPropertyEditor = ({ id }: any) => {
+const TEMPLATE_REGEX = /\{\{(.+?)\}\}/;
+
+export const ComponentPropertyEditor = ({ id, meta }: any) => {
 	const toast = useToast();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
-	const { widgetName, pageName, appName } = useAtomValue(pageAtom);
+	const { pageName, appName } = useAtomValue(pageAtom);
+
+	const { widget: widgetName } = meta || {};
 
 	const { widgets, isLoading, properties, files } = useGetPage({ appName, pageName });
+
 	const component = widgets
 		.find((w: any) => w.name === widgetName)
 		?.components?.find((c: any) => c.name === id);
-
+	console.log('component', component);
 	const { fields } = useResourceFields();
 
 	const currentCategories = [
@@ -57,6 +63,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 		reset,
 		watch,
 		setValue,
+		clearErrors,
+		setError,
 	} = methods;
 
 	const dataType = watch('data_type');
@@ -65,11 +73,12 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	const options = watch('options');
 	const defaultValue = watch('default');
 	const multiline = watch('multiline');
+	const hasStateInDefault = watch('stateInDefault');
 
 	useEffect(() => {
 		if (multiple) {
 			if (!Array.isArray(defaultValue)) {
-				setValue('default', [defaultValue], {
+				setValue('default', hasStateInDefault ? defaultValue : [defaultValue], {
 					shouldDirty: false,
 				});
 			}
@@ -78,7 +87,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 				shouldDirty: false,
 			});
 		}
-	}, [setValue, defaultValue, multiple]);
+	}, [setValue, hasStateInDefault, defaultValue, multiple]);
 
 	const updateMutation = useUpdatePageData({
 		onSuccess: () => {
@@ -101,6 +110,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 			setInspectedResource({
 				id: null,
 				type: null,
+				meta: null,
 			});
 		},
 		onError: (error: any) => {
@@ -113,20 +123,30 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 	});
 
 	useEffect(() => {
-		reset(component, {
-			keepDirty: false,
-			keepDirtyValues: false,
-		});
+		reset(
+			{ ...component, stateInDefault: TEMPLATE_REGEX.test(component?.default) },
+			{
+				keepDirty: false,
+				keepDirtyValues: false,
+			},
+		);
 	}, [component, reset]);
 
-	const onSubmit = (formValues: any) => {
+	const onSubmit = ({ stateInDefault, ...formValues }: any) => {
+		if (stateInDefault && !TEMPLATE_REGEX.test(formValues.default)) {
+			setError('default', {
+				message: `Invalid state value, please make sure you use template like {{state.table1.id}}`,
+			});
+			return;
+		}
+
 		updateMutation.mutate({
 			app_name: appName,
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				widgets: [
-					...(properties?.widgets || []).map((w: any) => {
+				blocks: [
+					...(properties?.blocks || []).map((w: any) => {
 						if (w.name === widgetName) {
 							return {
 								...w,
@@ -157,8 +177,8 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: [
-						...(properties?.widgets || []).map((w: any) => {
+					blocks: [
+						...(properties?.blocks || []).map((w: any) => {
 							if (w.name === widgetName) {
 								return {
 									...w,
@@ -184,6 +204,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 			setInspectedResource({
 				id: newName,
 				type: 'component',
+				meta: { widget: widgetName },
 			});
 		} catch (e) {
 			//
@@ -222,7 +243,7 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 							<NameEditor
 								value={id}
 								currentNames={(
-									properties?.widgets.find(
+									properties?.blocks.find(
 										(w: any) => w.name === (widgetName || ''),
 									)?.components || []
 								).map((c: any) => c.name)}
@@ -256,14 +277,18 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 										page_name: pageName,
 										properties: {
 											...(properties || {}),
-											widgets: widgets.map((w: any) => ({
-												...w,
-												components: w?.components.filter(
-													(c: any) =>
-														c?.name !== component?.name ||
-														w?.name !== widgetName,
-												),
-											})),
+											blocks: (properties.blocks || []).map((w: any) => {
+												if (w.name === widgetName) {
+													return {
+														...w,
+														components: w?.components.filter(
+															(c: any) => c?.name !== component?.name,
+														),
+													};
+												}
+
+												return w;
+											}),
 										},
 									});
 								}}
@@ -303,13 +328,29 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												}
 
 												return (
-													<FormInput
-														{...property}
-														id={property.name}
-														name={property.title}
-														type={inputType}
-														options={options}
-													/>
+													<Stack>
+														<FormInput
+															{...property}
+															id={property.name}
+															name={property.title}
+															type={
+																hasStateInDefault
+																	? 'template'
+																	: inputType
+															}
+															options={options}
+														/>
+														<FormInput
+															id="stateInDefault"
+															name="Use state in default value"
+															type="boolean"
+															onChange={(value: any) => {
+																setValue('stateInDefault', value);
+																setValue('default', null);
+																clearErrors('default');
+															}}
+														/>
+													</Stack>
 												);
 											}
 
@@ -317,7 +358,12 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												property.name === 'display_rules' ||
 												property.type === 'rules'
 											) {
-												return <DisplayRulesEditor name={component.name} />;
+												return (
+													<DisplayRulesEditor
+														widgetName={widgetName}
+														name={component.name}
+													/>
+												);
 											}
 
 											if (
@@ -328,6 +374,15 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 												return <EventPropertyEditor id={property.name} />;
 											}
 
+											if (
+												(property.name === 'fetcher' ||
+													property.name === 'name_column' ||
+													property.name === 'value_column') &&
+												!component?.use_fetcher
+											) {
+												return null;
+											}
+
 											const showFunctionList = property.type === 'function';
 
 											return (
@@ -336,7 +391,11 @@ export const ComponentPropertyEditor = ({ id }: any) => {
 													id={property.name}
 													name={property.title}
 													type={
-														showFunctionList ? 'select' : property.type
+														showFunctionList
+															? 'select'
+															: (property.type === 'string' &&
+																	'markdown') ||
+															  property.type
 													}
 													options={(
 														(showFunctionList
@@ -386,7 +445,7 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 
 	const onSubmit = async ({ type }: any) => {
 		const currentNames = (
-			properties?.widgets?.find((w: any) => w.name === widgetName)?.components || []
+			properties?.blocks?.find((w: any) => w.name === widgetName)?.components || []
 		)
 			.filter((c: any) => c.component_type === type)
 			.map((c: any) => c.name);
@@ -409,6 +468,13 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 				text: newName,
 			};
 		}
+		if (type === 'select') {
+			otherProperty = {
+				data_type: 'string',
+				use_fetcher: false,
+				label: newLabel,
+			};
+		}
 
 		try {
 			await mutation.mutateAsync({
@@ -416,8 +482,8 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					widgets: [
-						...(properties?.widgets || []).map((w: any) => {
+					blocks: [
+						...(properties?.blocks || []).map((w: any) => {
 							if (w.name === widgetName) {
 								return {
 									...w,
@@ -440,6 +506,7 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 			setInspectedResource({
 				id: newName,
 				type: 'component',
+				meta: { widget: widgetName },
 			});
 		} catch (e) {
 			//
@@ -447,36 +514,38 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 	};
 
 	return (
-		<Menu>
-			<MenuButton
-				as={Button}
-				variant="ghost"
-				size="sm"
-				flexShrink="0"
-				mr="auto"
-				data-cy="add-component-button"
-				isDisabled={!isConnected}
-				isLoading={mutation.isLoading}
-				{...props}
-			>
-				<Stack alignItems="center" justifyContent="center" direction="row">
-					<Plus size="14" />
-					<Box>Add Component</Box>
-				</Stack>
-			</MenuButton>
-			<MenuList>
-				{['input', 'text', 'select', 'button', 'boolean'].map((c) => (
-					<MenuItem
-						onClick={() => {
-							onSubmit({ type: c });
-						}}
-						key={c}
-						fontSize="md"
-					>
-						{c}
-					</MenuItem>
-				))}
-			</MenuList>
-		</Menu>
+		<DashedBorder>
+			<Menu>
+				<MenuButton
+					as={Button}
+					variant="ghost"
+					size="sm"
+					flexShrink="0"
+					mr="auto"
+					data-cy="add-component-button"
+					isDisabled={!isConnected}
+					isLoading={mutation.isLoading}
+					{...props}
+				>
+					<Stack alignItems="center" justifyContent="center" direction="row">
+						<Plus size="14" />
+						<Box>Add Component</Box>
+					</Stack>
+				</MenuButton>
+				<MenuList>
+					{['input', 'text', 'select', 'button', 'boolean'].map((c) => (
+						<MenuItem
+							onClick={() => {
+								onSubmit({ type: c });
+							}}
+							key={c}
+							fontSize="md"
+						>
+							{c}
+						</MenuItem>
+					))}
+				</MenuList>
+			</Menu>
+		</DashedBorder>
 	);
 };

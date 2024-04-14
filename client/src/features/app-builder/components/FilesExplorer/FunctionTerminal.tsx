@@ -9,7 +9,7 @@ import { useParams } from 'react-router-dom';
 
 import { MonacoEditor } from '@/components/Editor';
 import { useRunFunction, useRunSQLQuery } from '@/features/app-builder/hooks';
-import { newPageStateAtom, useSyncState } from '@/features/app-state';
+import { pageStateContextAtom, useSyncState } from '@/features/app-state';
 import {
 	MODEL_PATH,
 	MODEL_SCHEME,
@@ -42,7 +42,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 
 	const [testCodeHeight, setTestCodeHeight] = useState(16);
 
-	const pageState = useAtomValue(newPageStateAtom);
+	const pageStateContext = useAtomValue(pageStateContextAtom);
 	const syncState = useSyncState();
 
 	const resetRunData = () => {
@@ -136,7 +136,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	const handleRunPythonFunction = useCallback(() => {
 		if (testCode) {
 			runPythonMutation.mutate({
-				pageState,
+				pageState: pageStateContext,
 				testCode,
 				fileCode: code,
 			});
@@ -147,23 +147,23 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 			setTestCode(defaultTestCode);
 
 			runPythonMutation.mutate({
-				pageState,
+				pageState: pageStateContext,
 				testCode: defaultTestCode,
 				fileCode: code,
 			});
 		}
-	}, [code, file, pageState, runPythonMutation, testCode]);
+	}, [code, file, pageStateContext, runPythonMutation, testCode]);
 
 	const handleRunSQLQuery = useCallback(() => {
 		runSQLQueryMutation.mutate({
 			pageName,
 			appName,
-			state: pageState.state,
+			state: pageStateContext.state,
 			fileName: file?.name,
 			fileContent: code,
 			source,
 		});
-	}, [pageName, appName, pageState, file, code, source, runSQLQueryMutation]);
+	}, [pageName, appName, pageStateContext, file, code, source, runSQLQueryMutation]);
 
 	const executeShortcut = useCallback(() => {
 		if (file && !runPythonMutation.isLoading && !runSQLQueryMutation.isLoading) {
@@ -182,22 +182,6 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 		handleRunPythonFunction,
 		handleRunSQLQuery,
 	]);
-
-	const handleKeyDown = useCallback(
-		(e: any) => {
-			if (e.key === 'Shift' && e.metaKey) {
-				executeShortcut();
-			}
-		},
-		[executeShortcut],
-	);
-
-	useEffect(() => {
-		window.addEventListener('keydown', handleKeyDown);
-		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
-		};
-	}, [handleKeyDown]);
 
 	useEffect(() => {
 		if (execute) {

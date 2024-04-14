@@ -1,10 +1,16 @@
 from uuid import UUID
 from pydantic import BaseModel
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from server import crud
-from server.schemas import CheckPermissionRequest
+from server.schemas import (
+    CheckPermissionRequest,
+    CreateTestUserRequest,
+    CreateTestDBTableRequest,
+    UpdateUserRoleRequest,
+)
 from server.controllers import workspace as workspace_controller
 from server.controllers import user as user_controller
 from server.controllers.policy import (
@@ -46,9 +52,28 @@ def update_workspace_policy(
     return {"success": True}
 
 
+class PowerUpdateRole(BaseModel):
+    workspace_id: UUID
+    role: str
+
+
+@router.post("/update_role/{user_id}")
+def update_workspace_role(
+    user_id: UUID, request: PowerUpdateRole, db: Session = Depends(get_db)
+):
+    role = crud.role.get_role_by_name(db=db, role_name=request.role)
+
+    workspace_controller.update_user_role_in_workspace(
+        db=db,
+        workspace_id=request.workspace_id,
+        request=UpdateUserRoleRequest(user_id=user_id, role_id=role.id),
+    )
+    return {"success": True}
+
+
 class PowerCheckPermissions(BaseModel):
     user_id: str
-    app_id: str
+    app_id: Optional[str]
 
 
 @router.post("/check_permission/{workspace_id}")
@@ -93,3 +118,15 @@ def remove_user_from_workspace(
     return workspace_controller.remove_user_from_workspace(
         db=db, workspace_id=workspace_id, user_id=user.id
     )
+
+
+@router.post("/create_test_user")
+def create_test_user(request: CreateTestUserRequest, db: Session = Depends(get_db)):
+    return user_controller.create_test_user(db=db, request=request)
+
+
+@router.post("/create_test_db_table")
+def create_test_db_table(
+    request: CreateTestDBTableRequest, db: Session = Depends(get_db)
+):
+    return user_controller.create_test_db_table(db=db, request=request)

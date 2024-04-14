@@ -24,12 +24,12 @@ import { ArrowLeft, Edit, Eye, Plus, Share } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { useAppState } from '@/features/app-state';
+
 import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useToast } from '@/lib/chakra-ui';
-import { useCreatePage } from '@/features/page';
+import { useCreatePage, useGetPage } from '@/features/page';
 import { getErrorMessage, generateSequentialName } from '@/utils';
 import { PageTab } from './PageTab';
 import { LabelContainer } from '@/components/LabelContainer';
@@ -41,7 +41,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { appName, pageName } = useParams();
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
-	const { permissions } = useAppState(appName || '', pageName || '');
+	const { permissions } = useGetPage({ appName, pageName });
 	const { isOpen: shareIsOpen, onOpen: shareOnOpen, onClose: shareOnClose } = useDisclosure();
 
 	const [label, setAppLabel] = useState('');

@@ -24,6 +24,7 @@ import {
 	Center,
 	Portal,
 	Textarea,
+	Spinner,
 } from '@chakra-ui/react';
 import { forwardRef, useState } from 'react';
 import { ChevronDown, Plus, Trash } from 'react-feather';
@@ -31,6 +32,7 @@ import { ErrorMessage } from '@hookform/error-message';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import { MonacoEditor } from '@/components/Editor';
+import { formatDateTimeForInput, formatDateForInput } from '@/features/smart-table/utils';
 
 const TemplateEditor = (props: any) => {
 	const [codeHeight, setCodeHeight] = useState(30);
@@ -77,14 +79,16 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		return (
 			<NumberInput
 				onChange={(valueAsString, valueAsNumber) => {
+					const integerNumber = Number.isNaN(valueAsNumber) ? null : valueAsNumber;
+
 					const parsedValue =
 						valueAsString.endsWith('.') ||
 						valueAsString.endsWith('.0') ||
 						valueAsString.endsWith('.00')
 							? valueAsString
-							: valueAsNumber;
+							: integerNumber;
 
-					onChange?.(type === 'integer' ? valueAsNumber : parsedValue);
+					onChange?.(type === 'integer' ? integerNumber : parsedValue);
 				}}
 				size="sm"
 				onBlur={() => {
@@ -114,10 +118,11 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 					onChange?.(e.target.value);
 				}}
 				ref={ref}
+				borderRadius="sm"
 				size="sm"
 				{...inputProps}
 				value={value}
-				placeholder="Select option"
+				placeholder={inputProps?.placeholder || 'Select option'}
 			>
 				{(selectOptions || []).map((option: any) => (
 					<option key={option.name} value={option.value}>
@@ -143,7 +148,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 	}
 
 	if (type === 'custom-select') {
-		const selectedValue = selectOptions.find((option: any) => option.value === value);
+		const selectedValue = selectOptions?.find((option: any) => option.value === value);
 
 		const valueLabel = selectedValue?.name;
 		const valueRenderer = selectedValue?.render?.(selectedValue);
@@ -164,7 +169,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 						direction="row"
 						alignItems="center"
 						borderWidth="1px"
-						p="1.5"
+						p="2"
 						borderRadius="sm"
 						type="button"
 						onBlur={onBlur}
@@ -174,7 +179,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 						<Stack w="full" spacing="0" alignItems="center" direction="row">
 							<Box>{children}</Box>
 							<Box ml="auto">
-								<ChevronDown size="14" />
+								<ChevronDown size="15" />
 							</Box>
 						</Stack>
 					</MenuButton>
@@ -452,11 +457,32 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		);
 	}
 
+	if (type === 'markdown') {
+		return (
+			<Box w="full" borderWidth="1px" p="1.5" borderRadius="sm">
+				<TemplateEditor
+					language="markdown"
+					{...inputProps}
+					value={value}
+					onChange={onChange}
+				/>
+			</Box>
+		);
+	}
+
+	let processedValue = value;
+
+	if (type === 'datetime' && typeof value === 'number') {
+		processedValue = formatDateTimeForInput(value);
+	} else if (type === 'date' && typeof value === 'number') {
+		processedValue = formatDateForInput(value);
+	}
+
 	return (
 		<Input
 			onBlur={onBlur}
 			onChange={(e) => onChange?.(e.target.value)}
-			value={value || ''}
+			value={processedValue || ''}
 			size="sm"
 			ref={ref}
 			type={type === 'datetime' ? 'datetime-local' : type}
@@ -512,6 +538,17 @@ export const FormInput = ({
 		<FormControl isInvalid={!!errors?.[id]} key={name}>
 			{name && (
 				<FormLabel>
+					{inputProps.isLoading ? (
+						<Spinner
+							thickness="2px"
+							speed="0.65s"
+							emptyColor="gray.200"
+							color="blue.500"
+							size="xs"
+							ml="1"
+							mr="1"
+						/>
+					) : null}
 					{name}{' '}
 					{inputProps?.required && (
 						<Box as="span" color="red.500">

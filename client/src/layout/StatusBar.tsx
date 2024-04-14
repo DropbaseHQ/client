@@ -42,7 +42,7 @@ export const StatusBar = () => {
 	return (
 		<Stack
 			direction="row"
-			spacing="1"
+			spacing="1.5"
 			alignItems="center"
 			fontWeight="medium"
 			p="1"
@@ -56,15 +56,17 @@ export const StatusBar = () => {
 			</Text>
 			<Divider orientation="vertical" />
 
-			<Circle ml="1" size="2" bg={websocketIsConnected ? 'green' : 'red'} />
+			<Circle size="2" bg={websocketIsConnected ? 'green' : 'red'} />
 			<Text noOfLines={1} fontSize="xs">
 				{websocketIsConnected ? 'WS connected' : 'WS not connected'}
 			</Text>
 
+			<Divider orientation="vertical" />
+
 			{/* don't show status if null */}
 			{typeof lspIsConnected === 'boolean' && (
 				<>
-					<Circle ml="1" size="2" bg={lspIsConnected ? 'green' : 'red'} />
+					<Circle size="2" bg={lspIsConnected ? 'green' : 'red'} />
 					<Text noOfLines={1} fontSize="xs">
 						{lspIsConnected ? 'LSP connected' : 'LSP not connected'}
 					</Text>
@@ -88,7 +90,7 @@ export const StatusBar = () => {
 			{!selectedWorkspaceMatchesWorker && !isLoading ? (
 				<>
 					<Divider orientation="vertical" />
-					<Circle ml="1" size="2" bg="red" />
+					<Circle size="2" bg="red" />
 					<Text noOfLines={1} fontSize="xs">
 						The selected workspace does not match the worker workspace.
 					</Text>

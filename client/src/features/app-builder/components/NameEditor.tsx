@@ -39,8 +39,13 @@ export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resourc
 		setName(newName);
 	};
 
-	const handleUpdate = () => {
-		onUpdate(name);
+	const handleUpdate = async (onClose: any) => {
+		try {
+			onUpdate(name);
+			onClose?.();
+		} catch (e) {
+			//
+		}
 	};
 
 	return (
@@ -69,7 +74,7 @@ export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resourc
 									onChange={handleChangeAppName}
 									onKeyDown={(event) => {
 										if (event.key === 'Enter' && invalidMessage === false) {
-											handleUpdate();
+											handleUpdate(onClose);
 											event.preventDefault();
 										}
 									}}
@@ -87,7 +92,7 @@ export const NameEditor = ({ value, currentNames, onUpdate, buttonProps, resourc
 									isDisabled={value === name || !name || !!invalidMessage}
 									colorScheme="gray"
 									variant="outline"
-									onClick={handleUpdate}
+									onClick={() => handleUpdate(onClose)}
 								>
 									Update
 								</Button>

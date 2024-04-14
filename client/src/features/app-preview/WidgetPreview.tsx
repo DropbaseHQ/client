@@ -1,15 +1,5 @@
-import {
-	Alert,
-	AlertDescription,
-	AlertIcon,
-	Box,
-	CloseButton,
-	IconButton,
-	Progress,
-	Stack,
-} from '@chakra-ui/react';
+import { Box, CloseButton, Progress, Stack } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
-import { X } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import lodashSet from 'lodash/set';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
@@ -17,7 +7,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import useWebSocket from 'react-use-websocket';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
-import { allWidgetStateAtom, nonWidgetContextAtom } from '@/features/app-state';
+import { pageContextAtom } from '@/features/app-state';
 import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
@@ -26,10 +16,10 @@ import { NewComponent } from '@/features/app-builder/components/PropertiesEditor
 import { appModeAtom, websocketStatusAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
 import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
+import { Notification } from '@/features/app-preview/components/Notification';
+import { MirrorTableColumns } from '@/features/app-builder/components/PropertiesEditor/MirrorTableColumnInputs';
 
-// websocket
-
-export const WidgetPreview = ({ widgetName }: any) => {
+export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 	const { appName, pageName } = useParams();
 
 	const retryCounter = useRef(0);
@@ -50,10 +40,9 @@ export const WidgetPreview = ({ widgetName }: any) => {
 
 	const updateMutation = useUpdatePageData();
 
-	const setNonInteractiveState = useSetAtom(nonWidgetContextAtom);
+	const setPageContextState = useSetAtom(pageContextAtom);
 
-	const [widgetData, setWidgetData]: any = useAtom(allWidgetStateAtom);
-	const allWidgetState = widgetData.state;
+	const [allWidgetContext, setWidgetContext]: any = useAtom(pageContextAtom);
 
 	const { properties } = useGetPage({ appName, pageName });
 
@@ -98,10 +87,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 					return;
 				}
 
-				const { widgets: newWidgetsData, ...rest } = messageContext || {};
-
-				setWidgetData((s: any) => ({ ...s, state: newWidgetsData || {} }));
-				setNonInteractiveState(rest);
+				setPageContextState(messageContext);
 			} catch (e) {
 				//
 			}
@@ -115,11 +101,12 @@ export const WidgetPreview = ({ widgetName }: any) => {
 
 	const reorderMutation = useReorderComponents();
 
-	const widgetState: any = allWidgetState[widgetName || ''];
+	const widgetContext: any = allWidgetContext[widgetName || ''];
 
 	const handleRemoveAlert = () => {
-		setWidgetData((oldData: any) => ({
-			...lodashSet(oldData, `state.${widgetName}.message`, null),
+		setWidgetContext((oldData: any) => ({
+			...lodashSet(oldData, `${widgetName}.message`, null),
+			...lodashSet(oldData, `${widgetName}.message_type`, null),
 		}));
 	};
 
@@ -127,7 +114,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 		const newProps = {
 			...(properties || {}),
 
-			widgets: properties?.widgets?.map((w: any) => {
+			blocks: (properties.blocks || [])?.map((w: any) => {
 				if (w.name !== widgetName) {
 					return w;
 				}
@@ -235,12 +222,19 @@ export const WidgetPreview = ({ widgetName }: any) => {
 						{(provided: any) => (
 							<Stack
 								ref={provided.innerRef}
-								p="4"
-								pt="2"
 								h="full"
-								overflow="auto"
+								{...(inline
+									? {
+											direction: 'row',
+											// px: 4,
+											flexWrap: 'wrap',
+											alignItems: 'center',
+											spacing: 5,
+											w: 'full',
+											// divider: <Divider orientation="vertical" h="14" />,
+									  }
+									: { p: 4, pt: 2, spacing: 3, overflow: 'auto' })}
 								data-cy="components-list"
-								spacing="3"
 								{...provided.droppableProps}
 							>
 								{componentsState.map((c: any, index: number) => {
@@ -253,11 +247,14 @@ export const WidgetPreview = ({ widgetName }: any) => {
 													id={c.name}
 													type="component"
 													data-cy={`component-${c.name}-inspector`}
+													meta={{ widget: widgetName }}
 													{...p.draggableProps}
 													{...p.dragHandleProps}
 												>
 													<AppComponent
 														key={c.name}
+														inline={inline}
+														widgetName={widgetName}
 														sendJsonMessage={sendJsonMessage}
 														{...c}
 													/>
@@ -267,67 +264,27 @@ export const WidgetPreview = ({ widgetName }: any) => {
 									);
 								})}
 								{provided.placeholder}
-								{isDevMode ? (
-									<Box
-										w="full"
-										p="2"
-										bg="white"
-										borderWidth="1px"
-										borderStyle="dashed"
-										borderRadius="md"
-										mt="2"
-									>
+								{isDevMode && !inline ? (
+									<Stack mt="2">
 										<NewComponent
 											widgetName={widgetName}
 											w="full"
 											variant="secondary"
 										/>
-									</Box>
+										<MirrorTableColumns widgetName={widgetName} />
+									</Stack>
 								) : null}
 							</Stack>
 						)}
 					</Droppable>
 				</DragDropContext>
-				{widgetState?.message ? (
-					<Stack
-						flexShrink="0"
-						pos="sticky"
-						mt="auto"
-						bg="gray.50"
-						bottom="0"
-						w="full"
-						flexGrow="0"
-					>
-						<Alert
-							bg="transparent"
-							status={widgetState?.message_type || 'info'}
-							variant="top-accent"
-							borderTopWidth="3px"
-						>
-							<AlertIcon />
 
-							<AlertDescription>{widgetState?.message}</AlertDescription>
-						</Alert>
-						<IconButton
-							position="absolute"
-							top={-3}
-							h={6}
-							w={6}
-							right={2}
-							alignSelf="start"
-							justifySelf="start"
-							aria-label="Close alert"
-							size="sm"
-							borderRadius="full"
-							icon={<X size="16" />}
-							bg="white"
-							borderColor="blue.500"
-							borderWidth="1px"
-							variant="ghost"
-							onClick={handleRemoveAlert}
-						/>
-					</Stack>
-				) : null}
+				<Notification
+					message={widgetContext?.message}
+					type={widgetContext?.message_type}
+					onClose={handleRemoveAlert}
+				/>
+
 				{reorderMutation.isLoading && <Progress mt="auto" size="xs" isIndeterminate />}
 			</Stack>
 		</Loader>
