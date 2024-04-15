@@ -131,12 +131,14 @@ export const AppComponent = (props: any) => {
 		return null;
 	}
 
+	let componentSize = inline ? 'xs' : 'sm';
+
 	if (componentType === 'button') {
 		return (
 			<Stack spacing="0.5" w="fit-content">
 				<Button
 					my="1.5"
-					size="sm"
+					size={componentSize}
 					isLoading={actionMutation.isLoading}
 					bgColor={grayOutComponent ? 'gray.100' : ''}
 					colorScheme={color || 'blue'}
@@ -181,6 +183,7 @@ export const AppComponent = (props: any) => {
 	}
 
 	if (componentType === 'boolean') {
+		componentSize = 'sm';
 		inputType = 'boolean';
 	}
 
@@ -202,11 +205,17 @@ export const AppComponent = (props: any) => {
 				key={name}
 				bgColor={grayOutComponent ? 'gray.100' : ''}
 			>
-				{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
+				{label ? (
+					<FormLabel mb={inline ? 0 : '1.5'} lineHeight={1}>
+						{label}
+					</FormLabel>
+				) : null}
 				<InputRenderer
 					placeholder={placeholder}
 					value={inputValue}
 					name={name}
+					size={componentSize}
+					inline={inline}
 					data-cy={`input-${name}`}
 					type={inputType}
 					onKeyDown={(e: any) => {
