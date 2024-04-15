@@ -9,8 +9,9 @@ import { getErrorMessage } from '@/utils';
 import { DATA_FETCHER_QUERY_KEY } from '@/features/app-builder/hooks';
 
 export const ALL_PAGE_FILES_QUERY_KEY = 'allFiles';
+export const ALL_FUNCTIONS_QUERY_KEY = 'allFunctions';
 
-export const fetchStateContextFunctions = async ({
+const fetchStateContextFunctions = async ({
 	pageName,
 	appName,
 }: {
@@ -19,6 +20,30 @@ export const fetchStateContextFunctions = async ({
 }) => {
 	const response = await workerAxios.get<any>(`/files/get_functions/${appName}/${pageName}/`);
 	return response.data;
+};
+
+export const useFunctions = ({ pageName, appName }: { pageName: any; appName: any }) => {
+	const queryKey = [ALL_FUNCTIONS_QUERY_KEY, pageName, appName];
+
+	const { data: response, ...rest } = useQuery(
+		queryKey,
+		() => fetchStateContextFunctions({ pageName, appName }),
+		{
+			enabled: Boolean(appName) && Boolean(pageName),
+		},
+	);
+
+	const info = useMemo(() => {
+		return {
+			functions: response || [],
+		};
+	}, [response]);
+
+	return {
+		...rest,
+		queryKey,
+		...info,
+	};
 };
 
 const fetchAllPageFiles = async ({ pageName, appName }: { pageName: string; appName: string }) => {

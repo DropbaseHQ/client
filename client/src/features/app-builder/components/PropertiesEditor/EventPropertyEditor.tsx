@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import {
 	Badge,
 	Icon,
@@ -26,7 +25,7 @@ import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget } from '@/features/app-builder/hooks';
 import { generateSequentialName } from '@/utils';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
-import { fetchStateContextFunctions } from '@/features/app-builder/hooks/files';
+import { useFunctions } from '@/features/app-builder/hooks/files';
 
 export const EventPropertyEditor = ({ id }: any) => {
 	const { control } = useFormContext();
@@ -36,20 +35,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 
 	const { widgets, isLoading, properties, tables } = useGetPage({ appName, pageName });
 
-	const [functions, setFunctions] = useState([]);
-
-	useEffect(() => {
-		const fetchFunctions = async () => {
-			try {
-				const fetchedFunctions = await fetchStateContextFunctions({ pageName, appName });
-				setFunctions(fetchedFunctions);
-			} catch (error) {
-				setFunctions([]);
-			}
-		};
-
-		fetchFunctions();
-	}, [pageName, appName]);
+	const { functions } = useFunctions({ appName, pageName });
 
 	const createMutation = useCreateWidget();
 
