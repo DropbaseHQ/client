@@ -37,7 +37,7 @@ import { findFunctionDeclarations } from '../../utils';
 import { previewCodeAtom } from '../../atoms';
 import { InputRenderer } from '@/components/FormInput';
 
-const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name }: any) => {
+const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name, onSave }: any) => {
 	const [code, setCode] = useState(defaultCode);
 
 	const setPreviewFile = useSetAtom(previewCodeAtom);
@@ -57,6 +57,7 @@ const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name }: any)
 			setCode(newValue);
 			updateCode(newValue);
 		},
+		onSave,
 	});
 
 	return (
@@ -283,6 +284,7 @@ export const FunctionEditor = ({ name }: any) => {
 						updateCode={setCode}
 						filePath={filePath}
 						key={name}
+						onSave={handleSave}
 					/>
 				)}
 			</Box>

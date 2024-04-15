@@ -138,9 +138,10 @@ export type EditorProps = {
 	code?: string;
 	filepath: string;
 	onChange: (value: string) => void;
+	onSave?: (value: string) => void;
 };
 
-export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
+export const usePythonEditor = ({ code, filepath, onChange, onSave }: EditorProps) => {
 	const [isEditorReady, setEditorReady] = useState(false);
 
 	const creatingRef = useRef(false);
@@ -149,6 +150,9 @@ export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
 
 	const onChangeRef = useRef(onChange);
 	onChangeRef.current = onChange;
+
+	const onSaveRef = useRef(onSave);
+	onSaveRef.current = onSave;
 
 	useMonacoTheme(monaco);
 
@@ -202,6 +206,16 @@ export const usePythonEditor = ({ code, filepath, onChange }: EditorProps) => {
 			}
 		}
 	}, [code, isEditorReady, editorInstanceRef]);
+
+	useEffect(() => {
+		if (editorInstanceRef.current && isEditorReady) {
+			const editorInstance = editorInstanceRef.current;
+			// eslint-disable-next-line no-bitwise
+			editorInstance.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+				onSaveRef?.current?.(editorInstance.getValue());
+			});
+		}
+	}, [isEditorReady]);
 
 	return ref;
 };
