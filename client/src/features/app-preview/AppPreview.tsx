@@ -137,7 +137,7 @@ export const AppPreview = () => {
 
 	return (
 		<Loader isLoading={isLoading}>
-			<Stack position="relative" bg="white" h="full">
+			<Stack id="preview-container" position="relative" bg="white" h="full">
 				<Stack
 					alignItems="center"
 					px="4"

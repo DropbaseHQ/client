@@ -13,6 +13,8 @@ import {
 	Tag,
 } from '@chakra-ui/react';
 
+import { useEffect, useState } from 'react';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { ChevronDown } from 'react-feather';
 import { pageAtom } from '@/features/page';
@@ -26,6 +28,16 @@ export const WidgetSwitcher = () => {
 	const setPageAtom = useSetAtom(pageAtom);
 
 	const updateSelectedWidget = useSetAtom(inspectedResourceAtom);
+
+	const [previewWidth, setPreviewWidth] = useState<any>(250);
+
+	useEffect(() => {
+		const width = document.getElementById('preview-container')?.getBoundingClientRect()?.width;
+
+		if (width && !Number.isNaN(width)) {
+			setPreviewWidth(Math.min(width - 20, 300));
+		}
+	}, [isPreview]);
 
 	const handleChooseWidget = (newWidgetName: any) => {
 		setPageAtom((oldPageAtom) => ({
@@ -54,7 +66,7 @@ export const WidgetSwitcher = () => {
 					size="xs"
 				/>
 			</Tooltip>
-			<MenuList minWidth="sm">
+			<MenuList minW={previewWidth}>
 				<MenuOptionGroup
 					value={widgetName || ''}
 					onChange={handleChooseWidget}

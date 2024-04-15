@@ -457,6 +457,19 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		);
 	}
 
+	if (type === 'markdown') {
+		return (
+			<Box w="full" borderWidth="1px" p="1.5" borderRadius="sm">
+				<TemplateEditor
+					language="markdown"
+					{...inputProps}
+					value={value}
+					onChange={onChange}
+				/>
+			</Box>
+		);
+	}
+
 	let processedValue = value;
 
 	if (type === 'datetime' && typeof value === 'number') {

@@ -28,8 +28,6 @@ import { generateSequentialName, getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { LabelContainer } from '@/components/LabelContainer';
-import { SelectDataFetcher } from '../SelectDataFetcher';
-import { useFetcherData } from '@/features/smart-table/hooks';
 import { DashedBorder } from '@/components/DashedBorder';
 
 const TEMPLATE_REGEX = /\{\{(.+?)\}\}/;
@@ -42,10 +40,11 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 	const { widget: widgetName } = meta || {};
 
 	const { widgets, isLoading, properties, files } = useGetPage({ appName, pageName });
+
 	const component = widgets
 		.find((w: any) => w.name === widgetName)
 		?.components?.find((c: any) => c.name === id);
-
+	console.log('component', component);
 	const { fields } = useResourceFields();
 
 	const currentCategories = [
@@ -74,20 +73,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 	const options = watch('options');
 	const defaultValue = watch('default');
 	const multiline = watch('multiline');
-	const fetcher = watch('fetcher');
-	const useFetcher = watch('use_fetcher');
-	const nameColumn = watch('name_column');
-	const valueColumn = watch('value_column');
 	const hasStateInDefault = watch('stateInDefault');
-
-	const fetcherData = useFetcherData({
-		fetcher,
-		appName,
-		pageName,
-	});
-
-	const selectColumnsLoading = fetcherData?.status === 'loading';
-	const columns = fetcherData?.header?.map((c: any) => c?.name);
 
 	useEffect(() => {
 		if (multiple) {
@@ -102,16 +88,6 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 			});
 		}
 	}, [setValue, hasStateInDefault, defaultValue, multiple]);
-
-	const getOptions = () => {
-		if (componentType === 'select' && useFetcher) {
-			return fetcherData?.rows?.map((row: any) => ({
-				name: String(row?.[nameColumn]),
-				value: String(row?.[valueColumn]),
-			}));
-		}
-		return options;
-	};
 
 	const updateMutation = useUpdatePageData({
 		onSuccess: () => {
@@ -362,7 +338,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 																	? 'template'
 																	: inputType
 															}
-															options={getOptions()}
+															options={options}
 														/>
 														<FormInput
 															id="stateInDefault"
@@ -398,48 +374,12 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 												return <EventPropertyEditor id={property.name} />;
 											}
 
-											if (property.name === 'fetcher') {
-												if (!useFetcher) return null;
-												const fetchers = files.filter(
-													(f: any) =>
-														f.type === 'sql' ||
-														f.type === 'data_fetcher',
-												);
-
-												return (
-													<SelectDataFetcher
-														name="Select data fetcher"
-														fetchers={fetchers}
-													/>
-												);
-											}
-
 											if (
-												property.name === 'name_column' ||
-												property.name === 'value_column'
+												(property.name === 'fetcher' ||
+													property.name === 'name_column' ||
+													property.name === 'value_column') &&
+												!component?.use_fetcher
 											) {
-												if (!useFetcher) return null;
-
-												return (
-													<FormInput
-														{...property}
-														id={property.name}
-														name={property.title}
-														type="select"
-														options={
-															selectColumnsLoading
-																? []
-																: columns.map((o: any) => ({
-																		name: o,
-																		value: o,
-																  }))
-														}
-														isLoading={selectColumnsLoading}
-													/>
-												);
-											}
-
-											if (property.name === 'options' && useFetcher) {
 												return null;
 											}
 
@@ -451,7 +391,11 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 													id={property.name}
 													name={property.title}
 													type={
-														showFunctionList ? 'select' : property.type
+														showFunctionList
+															? 'select'
+															: (property.type === 'string' &&
+																	'markdown') ||
+															  property.type
 													}
 													options={(
 														(showFunctionList
@@ -519,20 +463,16 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 			otherProperty = { type: 'text', label: newLabel };
 		}
 
-		if (type === 'select') {
-			otherProperty = {
-				type: 'select',
-				label: newLabel,
-				use_fetcher: false,
-				fetcher: '',
-				name_column: '',
-				value_column: '',
-			};
-		}
-
 		if (type === 'text') {
 			otherProperty = {
 				text: newName,
+			};
+		}
+		if (type === 'select') {
+			otherProperty = {
+				data_type: 'string',
+				use_fetcher: false,
+				label: newLabel,
 			};
 		}
 

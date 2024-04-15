@@ -139,6 +139,14 @@ const ColumnProperty = ({
 			shouldDirty: false,
 			shouldTouch: false,
 		});
+
+		if (defaultConfigurations?.options) {
+			setValue('configurations.options', defaultConfigurations.options, {
+				shouldDirty: false,
+				shouldTouch: false,
+			});
+		}
+
 		setValue('display_type', defaultDisplayType, {
 			shouldTouch: false,
 			shouldDirty: false,
@@ -167,6 +175,7 @@ const ColumnProperty = ({
 		defaultName,
 		defaultColor,
 		setValue,
+		reset,
 	]);
 
 	const updateMutation = useUpdatePageData({

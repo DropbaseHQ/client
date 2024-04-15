@@ -72,38 +72,6 @@ const useParsedData: any = (response: any, table: any) =>
 		};
 	}, [response, table]);
 
-export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
-	const pageStateContext: any = useAtomValue(pageStateContextAtom);
-	const pageStateRef = useRef(pageStateContext);
-	pageStateRef.current = pageStateContext;
-
-	const queryKey = [FUNCTION_DATA_QUERY_KEY, fetcher, appName, pageName];
-
-	const { data: response, ...rest } = useQuery(
-		queryKey,
-		() =>
-			fetchFunctionData({
-				fetcher,
-				appName,
-				pageName,
-				state: pageStateRef.current,
-			}),
-		{
-			enabled: true,
-			staleTime: Infinity,
-		},
-	);
-
-	const parsedData = useParsedData(response);
-
-	return {
-		...rest,
-		...parsedData,
-		sqlId: response?.sql_id,
-		queryKey,
-	};
-};
-
 export const useTableData = ({
 	tableName,
 	filters = [],

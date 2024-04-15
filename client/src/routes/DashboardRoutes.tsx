@@ -23,6 +23,18 @@ const { RequestResetLink } = lazyImport(
 );
 
 export const DashboardRoutes = ({ homeRoute, children }: any) => {
+	const { pathname } = useLocation();
+
+	const loginRoutes =
+		pathname.startsWith('/login') ||
+		pathname.startsWith('/register') ||
+		pathname.startsWith('/reset') ||
+		pathname.startsWith('/email-confirmation') ||
+		pathname.startsWith('/forgot') ||
+		pathname.startsWith('/github_auth');
+	const { isLoading, workspaces } = useWorkspaces();
+	const navigate = useNavigate();
+
 	useEffect(() => {
 		let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
 		if (!link) {
@@ -40,17 +52,6 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 			link.href = '/favicon-dev.ico';
 		}
 	}, []);
-	const { pathname } = useLocation();
-
-	const loginRoutes =
-		pathname.startsWith('/login') ||
-		pathname.startsWith('/register') ||
-		pathname.startsWith('/reset') ||
-		pathname.startsWith('/email-confirmation') ||
-		pathname.startsWith('/forgot') ||
-		pathname.startsWith('/github_auth');
-	const { isLoading, workspaces } = useWorkspaces();
-	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (!isLoading && workspaces.length === 0 && !loginRoutes && !pathname.includes('/intro')) {

@@ -283,7 +283,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 								>
 									<MenuOptionGroup
 										value={valueForMenu}
-										title="UI Functions"
+										title="Trigger Function"
 										type="radio"
 										onChange={handleChange}
 									>
@@ -309,7 +309,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 
 									<MenuOptionGroup
 										value={valueForMenu}
-										title="Show modals"
+										title="Show Modal"
 										onChange={handleChange}
 										type="radio"
 									>
@@ -333,7 +333,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 
 									<MenuOptionGroup
 										value={valueForMenu}
-										title="Navigate to Widgets"
+										title="Navigate to Widget"
 										onChange={handleChange}
 										type="radio"
 									>
