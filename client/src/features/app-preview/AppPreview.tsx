@@ -130,6 +130,11 @@ export const AppPreview = () => {
 					>
 						Build Widget
 					</Button>
+					<Notification
+						message={pageContext?.message}
+						type={pageContext?.message_type}
+						onClose={handleRemoveAlert}
+					/>
 				</Stack>
 			</Stack>
 		);
