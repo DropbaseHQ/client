@@ -19,7 +19,6 @@ import {
 	Box,
 	MenuItem,
 	IconButton,
-	Code,
 	Tooltip,
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -205,10 +204,17 @@ const AppCard = ({ app }: { app: AppType }) => {
 							<ModalCloseButton />
 							<ModalBody py="6">
 								<Text fontSize="sm" mb="2">
-									Write
-									<Code bg="transparent" color="gray.600">
+									Write{' '}
+									<span
+										style={{
+											backgroundColor: '#eee',
+											padding: '.1em .3em',
+											borderRadius: '.2em',
+											fontStyle: 'italic',
+										}}
+									>
 										{app.name}
-									</Code>
+									</span>{' '}
 									to delete the app
 								</Text>
 								<FormInput

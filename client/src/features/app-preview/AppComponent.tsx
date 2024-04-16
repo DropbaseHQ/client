@@ -10,19 +10,13 @@ import {
 import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
 
-import { extractTemplateString, getErrorMessage } from '@/utils';
+import { extractTemplateString } from '@/utils';
 
-import { useEvent, useExecuteAction } from '@/features/app-preview/hooks';
+import { useEvent } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
-import {
-	useSyncState,
-	pageStateAtom,
-	pageStateContextAtom,
-	pageContextAtom,
-} from '@/features/app-state';
+import { pageStateAtom, pageStateContextAtom, pageContextAtom } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
-import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
 
 import MarkdownEditor from '@/components/Editor/MarkdownEditor';
@@ -32,7 +26,6 @@ const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 export const AppComponent = (props: any) => {
 	const { sendJsonMessage, widgetName, inline } = props;
 
-	const toast = useToast();
 	const [{ pageName, appName }] = useAtom(pageAtom);
 
 	const handleEvent = useEvent({});
@@ -58,8 +51,6 @@ export const AppComponent = (props: any) => {
 
 	const [inputValues, setInputValues]: any = useAtom(pageStateAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
-
-	const syncState = useSyncState();
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isEditorMode = !isPreview;
@@ -114,22 +105,11 @@ export const AppComponent = (props: any) => {
 		}
 	}, [defaultValue, name, handleInputValue, setInputValues]);
 
-	const actionMutation = useExecuteAction({
-		onSuccess: (data: any) => {
-			syncState(data);
-		},
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to execute action',
-				description: getErrorMessage(error),
-			});
-		},
-	});
-
 	if (!shouldDisplay && !isEditorMode) {
 		return null;
 	}
+
+	let componentSize = inline ? 'xs' : 'sm';
 
 	if (componentType === 'button') {
 		return (
@@ -137,7 +117,6 @@ export const AppComponent = (props: any) => {
 				<Button
 					my="1.5"
 					size="sm"
-					isLoading={actionMutation.isLoading}
 					bgColor={grayOutComponent ? 'gray.100' : ''}
 					colorScheme={color || 'blue'}
 					onClick={() => {
@@ -181,6 +160,7 @@ export const AppComponent = (props: any) => {
 	}
 
 	if (componentType === 'boolean') {
+		componentSize = 'sm';
 		inputType = 'boolean';
 	}
 
@@ -202,11 +182,17 @@ export const AppComponent = (props: any) => {
 				key={name}
 				bgColor={grayOutComponent ? 'gray.100' : ''}
 			>
-				{label ? <FormLabel lineHeight={1}>{label}</FormLabel> : null}
+				{label ? (
+					<FormLabel mb={inline ? 0 : '1.5'} lineHeight={1}>
+						{label}
+					</FormLabel>
+				) : null}
 				<InputRenderer
 					placeholder={placeholder}
 					value={inputValue}
 					name={name}
+					size={componentSize}
+					inline={inline}
 					data-cy={`input-${name}`}
 					type={inputType}
 					onKeyDown={(e: any) => {

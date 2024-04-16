@@ -1,12 +1,13 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { focusAtom } from 'jotai-optics';
 
 import { useAtomValue } from 'jotai';
-import { useTableData } from './table';
+import { useParsedData, useTableData } from './table';
 import { filtersAtom, sortsAtom, tablePageInfoAtom } from '@/features/smart-table/atoms';
 import { DEFAULT_PAGE_SIZE } from '../constants';
 import { useGetPage } from '@/features/page';
-// import { tableColumnTypesAtom } from '@/features/app-state';
+import { pageContextAtom } from '@/features/app-state';
 
 export const CurrentTableContext: any = createContext({ tableName: null });
 
@@ -18,7 +19,11 @@ export const useCurrentTableName = () => {
 
 export const useCurrentTableData = (tableName: any) => {
 	const { pageName, appName } = useParams();
-	// const setTableColumnTypes = useSetAtom(tableColumnTypesAtom);
+
+	const tableContextAtom = useMemo(() => {
+		return focusAtom(pageContextAtom, (optic: any) => optic.prop(tableName));
+	}, [tableName]);
+	const tableContext: any = useAtomValue(tableContextAtom);
 
 	const allSorts = useAtomValue(sortsAtom);
 	const sorts = (allSorts[tableName] || []).filter((f: any) => f.column_name);
@@ -50,7 +55,7 @@ export const useCurrentTableData = (tableName: any) => {
 			column_type: columnDict[f?.column_name]?.display_type || '',
 		}));
 
-	const tableData = useTableData({
+	const tableMetaInfo = useTableData({
 		tableName,
 		filters,
 		sorts,
@@ -59,23 +64,12 @@ export const useCurrentTableData = (tableName: any) => {
 		...pageInfo,
 	});
 
-	// FIXME: ask jon, also remove it from here, we should do it on useEffect
-	// setTableColumnTypes((old: any) => {
-	// 	const newColumnTypes: any = {};
-	// 	Object.entries(columnDict || {}).forEach(([key, value]: any) => {
-	// 		if (value?.display_type) {
-	// 			set(newColumnTypes, key, value?.display_type);
-	// 		}
-	// 	});
-	// 	return {
-	// 		...old,
-	// 		[tableName]: newColumnTypes,
-	// 	};
-	// });
+	const tableData = useParsedData(tableContext?.data, table);
 
 	return {
+		...tableMetaInfo,
 		...tableData,
-		isLoading: isLoadingPage || tableData.isLoading,
+		isLoading: isLoadingPage || tableMetaInfo.isLoading,
 		columns: table?.columns,
 		columnDict,
 	};

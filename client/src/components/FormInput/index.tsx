@@ -72,10 +72,24 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		options: selectOptions,
 		keys,
 		hideClearOption,
+		inline,
 		...inputProps
 	} = props;
 
 	if (type === 'number' || type === 'integer' || type === 'float') {
+		const stepperSize =
+			inputProps?.size === 'xs'
+				? {
+						h: 3,
+						css: {
+							svg: {
+								width: '10px',
+								height: '10px',
+							},
+						},
+				  }
+				: {};
+
 		return (
 			<NumberInput
 				onChange={(valueAsString, valueAsNumber) => {
@@ -101,10 +115,17 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				step={type === 'integer' ? 1 : 0.01}
 				{...inputProps}
 			>
-				<NumberInputField ref={ref} h="9" />
+				<NumberInputField
+					ref={ref}
+					{...(inputProps?.size === 'xs'
+						? {
+								h: 6,
+						  }
+						: { h: 9 })}
+				/>
 				<NumberInputStepper>
-					<NumberIncrementStepper />
-					<NumberDecrementStepper />
+					<NumberIncrementStepper {...stepperSize} />
+					<NumberDecrementStepper {...stepperSize} />
 				</NumberInputStepper>
 			</NumberInput>
 		);
@@ -337,7 +358,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 							textTransform="none"
 							display="inline-block"
 							key={v}
-							size="sm"
+							size={inputProps?.size || 'sm'}
 						>
 							{allOptions.find((o: any) => o.value === v)?.name || v}
 						</Badge>
@@ -348,7 +369,14 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 
 		return (
 			<Menu>
-				<Stack>
+				<Stack
+					{...(inline
+						? {
+								direction: 'row',
+								alignItems: 'center',
+						  }
+						: {})}
+				>
 					<MenuButton
 						as={Stack}
 						type="button"
@@ -356,6 +384,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 						alignItems="center"
 						borderWidth="1px"
 						borderRadius="sm"
+						h={inputProps?.size === 'xs' ? '6' : 'auto'}
 						p="2"
 						cursor={inputProps?.isDisabled ? 'not-allowed' : 'pointer'}
 						{...inputProps}
@@ -373,7 +402,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 								onChange(null);
 							}}
 							colorScheme="gray"
-							alignSelf="start"
+							alignSelf={inline ? 'center' : 'start'}
 							size="sm"
 							variant="link"
 						>
@@ -395,9 +424,11 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 						</Center>
 					) : (
 						<MenuOptionGroup
-							value={value || []}
-							onChange={(newValue) => {
+							value={(value || []).filter(Boolean)}
+							onChange={(potentialNewValue: any) => {
 								if (!inputProps?.isDisabled) {
+									const newValue = potentialNewValue?.filter(Boolean);
+
 									onChange(newValue);
 									onSelect?.(newValue);
 								}

@@ -37,7 +37,7 @@ import { findFunctionDeclarations } from '../../utils';
 import { previewCodeAtom } from '../../atoms';
 import { InputRenderer } from '@/components/FormInput';
 
-const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name }: any) => {
+const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name, onSave }: any) => {
 	const [code, setCode] = useState(defaultCode);
 
 	const setPreviewFile = useSetAtom(previewCodeAtom);
@@ -57,6 +57,7 @@ const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name }: any)
 			setCode(newValue);
 			updateCode(newValue);
 		},
+		onSave,
 	});
 
 	return (
@@ -189,9 +190,7 @@ export const FunctionEditor = ({ name }: any) => {
 	const functionDeclarations = findFunctionDeclarations(updatedCode);
 
 	const isNotSameFunctionName =
-		file?.type === 'data_fetcher' || file?.type === 'ui'
-			? !functionDeclarations.find((f) => f.name === file.name)
-			: false;
+		file?.type === 'python' ? !functionDeclarations.find((f) => f.name === file.name) : false;
 
 	return (
 		<Stack h="full" bg="white" spacing="0" divider={<Divider />} w="full">
@@ -240,7 +239,7 @@ export const FunctionEditor = ({ name }: any) => {
 				</Alert>
 			) : null}
 
-			{file?.type === 'data_fetcher' ? (
+			{file?.type === 'python' ? (
 				<Stack p="3" borderBottomWidth="1px" alignItems="start" direction="row">
 					<FormControl>
 						<FormLabel>
@@ -283,6 +282,7 @@ export const FunctionEditor = ({ name }: any) => {
 						updateCode={setCode}
 						filePath={filePath}
 						key={name}
+						onSave={handleSave}
 					/>
 				)}
 			</Box>

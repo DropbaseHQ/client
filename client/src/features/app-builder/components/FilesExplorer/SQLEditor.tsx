@@ -10,9 +10,10 @@ import {
 	Text,
 	Tooltip,
 } from '@chakra-ui/react';
+import * as monaco from 'monaco-editor';
 import { Play, Save, Info, RotateCw } from 'react-feather';
 import { useSetAtom, useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { MonacoEditor } from '@/components/Editor';
@@ -109,15 +110,33 @@ export const SQLEditor = ({ name }: any) => {
 	});
 
 	const handleSave = () => {
-		saveSQLMutation.mutate({
-			pageName,
-			appName,
-			fileName: sqlName,
-			code,
-			source: selectedSource,
-			fileType: file?.type,
-		});
+		if (selectedSource && code) {
+			saveSQLMutation.mutate({
+				pageName,
+				appName,
+				fileName: sqlName,
+				code,
+				source: selectedSource,
+				fileType: file?.type,
+			});
+			return;
+		}
+
+		if (!selectedSource) {
+			toast({
+				status: 'error',
+				title: 'Please select a source',
+			});
+		} else if (!code) {
+			toast({
+				status: 'error',
+				title: 'Make sure you have query in sql',
+			});
+		}
 	};
+
+	const onSaveRef = useRef(handleSave);
+	onSaveRef.current = handleSave;
 
 	const newPageStateContext = useAtomValue(pageStateContextAtom);
 
@@ -134,6 +153,13 @@ export const SQLEditor = ({ name }: any) => {
 			</Stack>
 		);
 	}
+
+	const handleMount = (editor: any) => {
+		// eslint-disable-next-line no-bitwise
+		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+			onSaveRef?.current?.();
+		});
+	};
 
 	return (
 		<Stack bg="white" h="full" overflowY="auto" overflowX="hidden" spacing="0">
@@ -244,7 +270,12 @@ export const SQLEditor = ({ name }: any) => {
 					onClick={executeRunCommand}
 				/>
 				<Box h="full" pt="2" w="full" borderLeftWidth="1px">
-					<MonacoEditor value={code} onChange={setCode} language="sql" />
+					<MonacoEditor
+						value={code}
+						onMount={handleMount}
+						onChange={setCode}
+						language="sql"
+					/>
 				</Box>
 			</Stack>
 		</Stack>

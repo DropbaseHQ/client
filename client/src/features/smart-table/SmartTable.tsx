@@ -18,7 +18,6 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 import { Info, Move, RotateCw, UploadCloud } from 'react-feather';
-import lodashSet from 'lodash/set';
 
 import DataEditor, {
 	CompactSelection,
@@ -1076,12 +1075,19 @@ export const SmartTable = ({ tableName, height }: any) => {
 	);
 
 	const handleRemoveAlert = () => {
-		setPageContext((oldData: any) => {
-			return {
-				...lodashSet(oldData, `${tableName}.message`, null),
-				...lodashSet(oldData, `${tableName}.message_type`, null),
-			};
-		});
+		setPageContext(
+			{
+				...(pageStateContext?.context || {}),
+				[tableName]: {
+					...(pageStateContext?.context?.[tableName] || {}),
+					message: null,
+					message_type: null,
+				},
+			},
+			{
+				replace: true,
+			},
+		);
 	};
 
 	const onAttach = () => {

@@ -50,11 +50,10 @@ const FileButton = ({ file }: any) => {
 	let icon = Code;
 
 	switch (file.type) {
-		case 'data_fetcher':
 		case 'sql':
 			icon = Table;
 			break;
-		case 'ui':
+		case 'python':
 			icon = BoxIcon;
 			break;
 		default:
