@@ -127,7 +127,6 @@ const ColumnProperty = ({
 	const allDisplayConfigurations = resourceFields?.display_type_configurations || [];
 	const displayConfiguration =
 		allDisplayConfigurations?.find((d: any) => d.name === displayType) || {};
-
 	const configProperties = displayConfiguration?.properties || {};
 
 	const editableFields = VISIBLE_EDITABLE_FIELDS?.[columnField];
@@ -481,25 +480,24 @@ const ColumnProperty = ({
 												displayConfiguration?.required?.includes(key);
 											return (
 												<Box
-													key={key}
 													gridColumn={
-														property.type === 'array' ? '1 / -1' : ''
+														property?.type === 'array' ? '1 / -1' : ''
 													}
 													py="2"
 												>
 													<FormInput
 														key={key}
-														type={property.type}
+														type={property?.type}
 														id={`configurations.${activeConfigType}.${key}`} // this is the important one
-														name={property.title}
+														name={property?.title}
 														keys={
 															key === 'options'
 																? ['name', 'value']
 																: null
 														}
 														options={(
-															property.enum ||
-															property.options ||
+															property?.enum ||
+															property?.options ||
 															[]
 														).map((o: any) => ({
 															name: o,
@@ -565,12 +563,12 @@ const ColumnProperty = ({
 							<Collapse in={isConfigurationOpen}>
 								<SimpleGrid mt="2" alignItems="center" gap={2}>
 									{allVisibleFields.map((property: any) => (
-										<Stack spacing="0.5" key={property.name} direction="row">
-											<FormLabel width="50%">{property.name}</FormLabel>
+										<Stack spacing="0.5" key={property?.name} direction="row">
+											<FormLabel width="50%">{property?.name}</FormLabel>
 											<Code background="transparent" fontSize="sm">
-												{property.type === 'boolean'
-													? JSON.stringify(properties[property.name])
-													: properties[property.name] || '-'}
+												{property?.type === 'boolean'
+													? JSON.stringify(properties[property?.name])
+													: properties[property?.name] || '-'}
 											</Code>
 										</Stack>
 									))}
