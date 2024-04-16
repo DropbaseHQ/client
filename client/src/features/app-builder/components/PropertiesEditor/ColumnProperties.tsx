@@ -141,7 +141,7 @@ const ColumnProperty = ({
 			shouldTouch: false,
 		});
 
-		if (defaultConfigurations?.options) {
+		if (defaultConfigurations?.select?.options) {
 			setValue('configurations.select.options', defaultConfigurations.select.options, {
 				shouldDirty: false,
 				shouldTouch: false,
