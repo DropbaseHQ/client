@@ -684,16 +684,6 @@ export const SmartTable = ({ tableName, height }: any) => {
 						};
 					}
 
-					case 'int':
-						return {
-							kind: GridCellKind.Number,
-							data: cellValue,
-							allowOverlay: canEdit,
-							displayData: unParsedValue === null ? '' : cellValue,
-							readonly: !canEdit,
-							...themeOverride,
-						};
-
 					default: {
 						return {
 							kind: GridCellKind.Number,
