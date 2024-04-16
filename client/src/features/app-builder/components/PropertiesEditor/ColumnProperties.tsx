@@ -282,35 +282,12 @@ const ColumnProperty = ({
 			columnFields.filter((f: any) => VISIBLE_FIELDS_SCHEMA.includes(f.name)) || [];
 	}
 
-	const handleSelectChange = (selectedValue: any) => {
+	const handleConfigType = (selectedValue: any) => {
 		if (selectedValue !== activeConfigType) {
 			setValue('configurations', null);
-			switch (selectedValue) {
-				case 'integer':
-					setValue(`configurations.${selectedValue}.config_type`, 'integer', {
-						shouldDirty: true,
-					});
-					break;
-				case 'text':
-					setValue(`configurations.${selectedValue}.config_type`, 'text', {
-						shouldDirty: true,
-					});
-					break;
-				case 'currency':
-					setValue(`configurations.${selectedValue}.config_type`, 'currency', {
-						shouldDirty: true,
-					});
-					break;
-				case 'select':
-					setValue(`configurations.${selectedValue}.config_type`, 'select', {
-						shouldDirty: true,
-					});
-					break;
-				default:
-					setValue(`configurations.${selectedValue}.config_type`, 'text', {
-						shouldDirty: true,
-					});
-			}
+			setValue(`configurations.${selectedValue}.config_type`, selectedValue, {
+				shouldDirty: true,
+			});
 		}
 	};
 
@@ -406,7 +383,7 @@ const ColumnProperty = ({
 								selectedOptionLabel={activeConfigType}
 								displayType={displayType}
 								optionsList={resolveDisplayTypeOptions(displayType)}
-								handleSelectChange={handleSelectChange}
+								handleSelectChange={handleConfigType}
 							/>
 
 							{columnFields
@@ -449,6 +426,7 @@ const ColumnProperty = ({
 									}
 
 									if (f.name === 'display_type') {
+										// Prevents display_type from appearing on top of configuration
 										return null;
 									}
 
@@ -488,7 +466,7 @@ const ColumnProperty = ({
 													<FormInput
 														key={key}
 														type={property?.type}
-														id={`configurations.${activeConfigType}.${key}`} // this is the important one
+														id={`configurations.${activeConfigType}.${key}`}
 														name={property?.title}
 														keys={
 															key === 'options'
