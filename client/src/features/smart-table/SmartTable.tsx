@@ -595,20 +595,6 @@ export const SmartTable = ({ tableName, height }: any) => {
 		}
 
 		switch (column?.display_type) {
-			case 'currency': {
-				return {
-					kind: GridCellKind.Number,
-					data: cellValue,
-					allowOverlay: canEdit,
-					displayData:
-						unParsedValue === null
-							? ''
-							: `${column?.configurations?.symbol}${cellValue}`,
-					readonly: !canEdit,
-					...themeOverride,
-				};
-			}
-
 			case 'array': {
 				if (Array.isArray(currentValue)) {
 					if (
@@ -677,81 +663,122 @@ export const SmartTable = ({ tableName, height }: any) => {
 				};
 			}
 
-			case 'select': {
-				if (column?.configurations?.multiple) {
-					const allOptions = [
-						...new Set([
-							...(column?.configurations?.options || []),
-							...cellValue
-								.split(',')
-								.filter((o: any) => {
-									return !(column?.configurations?.options || []).find(
-										(c: any) => c?.value === o?.value,
-									);
-								})
-								.map((o: any) => ({
-									label: o,
-									value: o,
-								})),
-						]),
-					];
-
-					return {
-						kind: GridCellKind.Custom,
-						allowOverlay: canEdit,
-						data: {
-							kind: 'multi-select-cell',
-							values: cellValue?.split(','),
-							options: allOptions.map((option: any) => ({
-								...option,
-								label: option?.name || option?.label,
-								color: 'gray',
-							})),
-
-							allowDuplicates: false,
-							allowCreation: false,
-						},
-						readonly: !canEdit,
-						...themeOverride,
-					};
-				}
-
-				const isElementAlreadyPresent = (column?.configurations?.options || [])?.find(
-					(c: any) => c.value === cellValue,
-				);
-
-				const allOptions = [
-					...(column?.configurations?.options || []),
-					...(isElementAlreadyPresent ? [] : [{ label: cellValue, value: cellValue }]),
-				];
-
-				return {
-					kind: GridCellKind.Custom,
-					allowOverlay: canEdit,
-					data: {
-						kind: 'dropdown-cell',
-						allowedValues: allOptions.map((option: any) => ({
-							...option,
-							label: option?.name || option?.label,
-							color: 'gray',
-						})),
-						value: cellValue,
-					},
-					readonly: !canEdit,
-					...themeOverride,
-				};
-			}
-
 			case 'float':
 			case 'integer': {
-				return {
-					kind: GridCellKind.Number,
-					data: cellValue,
-					allowOverlay: canEdit,
-					displayData: unParsedValue === null ? '' : cellValue,
-					readonly: !canEdit,
-					...themeOverride,
-				};
+				const nonNullConfigurationKey = Object.keys(column?.configurations || {}).find(
+					(key) => column?.configurations[key] !== null,
+				);
+				switch (nonNullConfigurationKey) {
+					case 'currency': {
+						return {
+							kind: GridCellKind.Number,
+							data: cellValue,
+							allowOverlay: canEdit,
+							displayData:
+								unParsedValue === null
+									? ''
+									: `${column?.configurations?.currency?.symbol}${cellValue}`,
+							readonly: !canEdit,
+							...themeOverride,
+						};
+					}
+
+					default: {
+						return {
+							kind: GridCellKind.Number,
+							data: cellValue,
+							allowOverlay: canEdit,
+							displayData: unParsedValue === null ? '' : cellValue.toString(),
+							readonly: !canEdit,
+							...themeOverride,
+						};
+					}
+				}
+			}
+
+			case 'text': {
+				const nonNullConfigurationKey = Object.keys(column?.configurations || {}).find(
+					(key) => column?.configurations[key] !== null,
+				);
+				switch (nonNullConfigurationKey) {
+					case 'select': {
+						if (column?.configurations?.multiple) {
+							const allOptions = [
+								...new Set([
+									...(column?.configurations?.options || []),
+									...cellValue
+										.split(',')
+										.filter((o: any) => {
+											return !(column?.configurations?.options || []).find(
+												(c: any) => c?.value === o?.value,
+											);
+										})
+										.map((o: any) => ({
+											label: o,
+											value: o,
+										})),
+								]),
+							];
+
+							return {
+								kind: GridCellKind.Custom,
+								allowOverlay: canEdit,
+								data: {
+									kind: 'multi-select-cell',
+									values: cellValue?.split(','),
+									options: allOptions.map((option: any) => ({
+										...option,
+										label: option?.name || option?.label,
+										color: 'gray',
+									})),
+
+									allowDuplicates: false,
+									allowCreation: false,
+								},
+								readonly: !canEdit,
+								...themeOverride,
+							};
+						}
+
+						const isElementAlreadyPresent = (
+							column?.configurations?.options || []
+						)?.find((c: any) => c.value === cellValue);
+
+						const allOptions = [
+							...(column?.configurations?.options || []),
+							...(isElementAlreadyPresent
+								? []
+								: [{ label: cellValue, value: cellValue }]),
+						];
+
+						return {
+							kind: GridCellKind.Custom,
+							allowOverlay: canEdit,
+							data: {
+								kind: 'dropdown-cell',
+								allowedValues: allOptions.map((option: any) => ({
+									...option,
+									label: option?.name || option?.label,
+									color: 'gray',
+								})),
+								value: cellValue,
+							},
+							readonly: !canEdit,
+							...themeOverride,
+						};
+					}
+
+					default: {
+						return {
+							kind: GridCellKind.Text,
+							data: cellValue,
+							allowOverlay: true,
+							displayData: String(cellValue),
+							readonly: !canEdit,
+							...themeOverride,
+						};
+					}
+				}
 			}
 
 			case 'boolean': {

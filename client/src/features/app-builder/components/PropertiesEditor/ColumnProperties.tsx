@@ -28,6 +28,7 @@ import { getErrorMessage } from '@/utils';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { NewColumn } from '@/features/app-builder/components/PropertiesEditor/NewColumn';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
+import OptionsList from '@/features/app-builder/components/PropertiesEditor/OptionsList';
 
 const DISPLAY_TYPE_ENUM: any = {
 	text: ['text', 'select'],
@@ -115,9 +116,13 @@ const ColumnProperty = ({
 
 	const columnFields = resourceFields?.[columnField] || [];
 
-	// const allFieldsName = columnFields.map((field: any) => field.name);
-
 	const displayType = watch('display_type');
+	const configurations = watch('configurations');
+
+	const activeConfigType =
+		Object.keys(configurations || {})
+			.map((key) => configurations[key])
+			.find((config) => config !== null)?.config_type || displayType;
 
 	const allDisplayConfigurations = resourceFields?.display_type_configurations || [];
 	const displayConfiguration =
@@ -135,8 +140,8 @@ const ColumnProperty = ({
 			shouldTouch: false,
 		});
 
-		if (defaultConfigurations?.options) {
-			setValue('configurations.options', defaultConfigurations.options, {
+		if (defaultConfigurations?.select?.options) {
+			setValue('configurations.select.options', defaultConfigurations.select.options, {
 				shouldDirty: false,
 				shouldTouch: false,
 			});
@@ -260,29 +265,6 @@ const ColumnProperty = ({
 		}
 	};
 
-	const handleDisplayType = (newType: any) => {
-		const newDisplayConfig =
-			allDisplayConfigurations?.find((d: any) => d.name === newType) || {};
-		const newConfigProperties = newDisplayConfig?.properties || {};
-
-		/**
-		 * If config properties is present, set the default values for all fields
-		 */
-		if (newDisplayConfig?.properties) {
-			const configDefaults = Object.keys(newConfigProperties).reduce(
-				(agg: any, prop: any) => ({
-					...agg,
-					[prop]: newConfigProperties?.[prop]?.default,
-				}),
-				{},
-			);
-
-			setValue(`configurations`, configDefaults);
-		} else {
-			setValue('configurations', null);
-		}
-	};
-
 	const onSubmit = (formValues: any) => {
 		handleUpdate(formValues);
 	};
@@ -299,6 +281,15 @@ const ColumnProperty = ({
 		allVisibleFields =
 			columnFields.filter((f: any) => VISIBLE_FIELDS_SCHEMA.includes(f.name)) || [];
 	}
+
+	const handleConfigType = (selectedValue: any) => {
+		if (selectedValue !== activeConfigType) {
+			setValue('configurations', null);
+			setValue(`configurations.${selectedValue}.config_type`, selectedValue, {
+				shouldDirty: true,
+			});
+		}
+	};
 
 	return (
 		<form onSubmit={methods.handleSubmit(onSubmit)}>
@@ -385,31 +376,19 @@ const ColumnProperty = ({
 							</Box>
 						</Stack>
 					</Stack>
+
 					<Collapse in={isOpen}>
 						<Stack p="3">
+							<OptionsList
+								selectedOptionLabel={activeConfigType}
+								displayType={displayType}
+								optionsList={resolveDisplayTypeOptions(displayType)}
+								handleSelectChange={handleConfigType}
+							/>
+
 							{columnFields
 								.filter((f: any) => editableFields?.includes(f?.name))
 								.map((f: any) => {
-									if (f.name === 'display_type') {
-										return (
-											<FormInput
-												type="custom-select"
-												id={f.name}
-												key={f.name}
-												name={f.title}
-												w="50%"
-												hideClearOption
-												options={resolveDisplayTypeOptions(displayType).map(
-													(option: any) => ({
-														name: option,
-														value: option,
-													}),
-												)}
-												onSelect={handleDisplayType}
-											/>
-										);
-									}
-
 									if (f?.category === 'Events') {
 										return <EventPropertyEditor key={f.name} id={f.name} />;
 									}
@@ -447,9 +426,13 @@ const ColumnProperty = ({
 										);
 									}
 
+									if (f.name === 'display_type') {
+										// Prevents display_type from appearing on top of configuration
+										return null;
+									}
+
 									return (
 										<FormInput
-											{...f}
 											id={f.name}
 											key={f.name}
 											name={f.title}
@@ -461,28 +444,31 @@ const ColumnProperty = ({
 									);
 								})}
 
-							{Object.keys(configProperties).length > 0 ? (
-								<SimpleGrid py="2" gap={4} columns={2}>
-									{Object.keys(configProperties)
-										.filter(
-											(key: any) =>
-												configProperties?.[key]?.category !== 'Internal',
-										)
-										.map((key: any) => {
-											const property = configProperties?.[key];
+							{Object.keys(configProperties).length > 0 &&
+							configProperties[activeConfigType] ? (
+								<SimpleGrid gap={4} columns={2}>
+									{Object.entries(
+										configProperties[activeConfigType].properties as Record<
+											string,
+											any
+										>,
+									)
+										.filter(([, value]) => value.category !== 'Internal')
+										.map(([key, property]) => {
 											const isRequired =
 												displayConfiguration?.required?.includes(key);
 											return (
 												<Box
 													key={key}
 													gridColumn={
-														property.type === 'array' ? '1 / -1' : ''
+														property?.type === 'array' ? '1 / -1' : ''
 													}
+													py="2"
 												>
 													<FormInput
 														key={key}
 														type={property?.type}
-														id={`configurations.${key}`}
+														id={`configurations.${activeConfigType}.${key}`}
 														name={property?.title}
 														keys={
 															key === 'options'
@@ -490,8 +476,8 @@ const ColumnProperty = ({
 																: null
 														}
 														options={(
-															property.enum ||
-															property.options ||
+															property?.enum ||
+															property?.options ||
 															[]
 														).map((o: any) => ({
 															name: o,
@@ -500,9 +486,7 @@ const ColumnProperty = ({
 														required={isRequired}
 														validation={
 															isRequired
-																? {
-																		required: `${key} is required`,
-																  }
+																? { required: `${key} is required` }
 																: {}
 														}
 													/>
@@ -559,12 +543,12 @@ const ColumnProperty = ({
 							<Collapse in={isConfigurationOpen}>
 								<SimpleGrid mt="2" alignItems="center" gap={2}>
 									{allVisibleFields.map((property: any) => (
-										<Stack spacing="0.5" key={property.name} direction="row">
-											<FormLabel width="50%">{property.name}</FormLabel>
+										<Stack spacing="0.5" key={property?.name} direction="row">
+											<FormLabel width="50%">{property?.name}</FormLabel>
 											<Code background="transparent" fontSize="sm">
-												{property.type === 'boolean'
-													? JSON.stringify(properties[property.name])
-													: properties[property.name] || '-'}
+												{property?.type === 'boolean'
+													? JSON.stringify(properties[property?.name])
+													: properties[property?.name] || '-'}
 											</Code>
 										</Stack>
 									))}
