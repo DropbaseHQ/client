@@ -10,11 +10,18 @@ import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 
-export const executeAction = async ({ pageName, appName, pageState, functionName }: any) => {
+export const executeAction = async ({
+	pageName,
+	appName,
+	pageState,
+	functionName,
+	fileName,
+}: any) => {
 	const response = await workerAxios.post(`/function/`, {
 		page_name: pageName,
 		app_name: appName,
 		function_name: functionName,
+		file_name: fileName,
 		state: pageState.state,
 	});
 
@@ -27,6 +34,7 @@ export const executeAction = async ({ pageName, appName, pageState, functionName
 
 export const useExecuteAction = (props: any = {}) => {
 	const queryClient = useQueryClient();
+
 	return useMutation(executeAction, {
 		...props,
 		onSettled: () => {
@@ -60,11 +68,12 @@ export const useEvent = (props: any) => {
 		},
 	});
 
-	const handleAction = (actionName: string) => {
+	const handleAction = (actionName: string, fileName: string) => {
 		actionMutation.mutate({
 			pageName,
 			appName,
 			functionName: actionName,
+			fileName,
 			pageState: pageStateContext,
 		});
 	};
@@ -96,7 +105,7 @@ export const useEvent = (props: any) => {
 				break;
 			}
 			case 'function': {
-				handleAction(event.value);
+				handleAction(event.value, event.file);
 				break;
 			}
 			case 'table': {

@@ -138,7 +138,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 			runPythonMutation.mutate({
 				testCode,
 				fileCode: code,
-				pageState: pageState,
+				pageState,
 				appName,
 				pageName,
 			});
@@ -151,12 +151,12 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 			runPythonMutation.mutate({
 				testCode: defaultTestCode,
 				fileCode: code,
-				pageState: pageState,
+				pageState,
 				appName,
 				pageName,
 			});
 		}
-	}, [code, file, pageState, runPythonMutation, testCode]);
+	}, [code, file, pageState, runPythonMutation, testCode, appName, pageName]);
 
 	const handleRunSQLQuery = useCallback(() => {
 		runSQLQueryMutation.mutate({
