@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { ChevronDown, ChevronRight, Save, Trash, Zap } from 'react-feather';
 
 import { useParams } from 'react-router-dom';
@@ -116,12 +116,13 @@ const ColumnProperty = ({
 
 	const columnFields = resourceFields?.[columnField] || [];
 
-	// const allFieldsName = columnFields.map((field: any) => field.name);
-
 	const displayType = watch('display_type');
+	const configurations = watch('configurations');
 
-	const [selectedOptionLabel, setSelectedOptionLabel] = useState('');
-	const [optionsList, setOptionsList] = useState([]);
+	const activeConfigType =
+		Object.keys(configurations || {})
+			.map((key) => configurations[key])
+			.find((config) => config !== null)?.config_type || displayType;
 
 	const allDisplayConfigurations = resourceFields?.display_type_configurations || [];
 	const displayConfiguration =
@@ -141,7 +142,7 @@ const ColumnProperty = ({
 		});
 
 		if (defaultConfigurations?.options) {
-			setValue('configurations.options', defaultConfigurations.options, {
+			setValue('configurations.select.options', defaultConfigurations.select.options, {
 				shouldDirty: false,
 				shouldTouch: false,
 			});
@@ -282,20 +283,36 @@ const ColumnProperty = ({
 			columnFields.filter((f: any) => VISIBLE_FIELDS_SCHEMA.includes(f.name)) || [];
 	}
 
-	useEffect(() => {
-		setOptionsList(resolveDisplayTypeOptions(displayType));
-	}, [displayType]);
-
 	const handleSelectChange = (selectedValue: any) => {
-		setValue('configurations', null, { shouldDirty: true });
-
-		if (selectedValue === 'integer') {
-			setValue(`configurations.${selectedValue}.config_type`, 'int', { shouldDirty: true });
-		} else if (selectedValue === 'text') {
-			setValue(`configurations.${selectedValue}.config_type`, 'text', { shouldDirty: true });
+		if (selectedValue !== activeConfigType) {
+			setValue('configurations', null);
+			switch (selectedValue) {
+				case 'integer':
+					setValue(`configurations.${selectedValue}.config_type`, 'integer', {
+						shouldDirty: true,
+					});
+					break;
+				case 'text':
+					setValue(`configurations.${selectedValue}.config_type`, 'text', {
+						shouldDirty: true,
+					});
+					break;
+				case 'currency':
+					setValue(`configurations.${selectedValue}.config_type`, 'currency', {
+						shouldDirty: true,
+					});
+					break;
+				case 'select':
+					setValue(`configurations.${selectedValue}.config_type`, 'select', {
+						shouldDirty: true,
+					});
+					break;
+				default:
+					setValue(`configurations.${selectedValue}.config_type`, 'text', {
+						shouldDirty: true,
+					});
+			}
 		}
-
-		setSelectedOptionLabel(selectedValue);
 	};
 
 	return (
@@ -387,9 +404,9 @@ const ColumnProperty = ({
 					<Collapse in={isOpen}>
 						<Stack p="3">
 							<OptionsList
-								selectedOptionLabel={selectedOptionLabel}
+								selectedOptionLabel={activeConfigType}
 								displayType={displayType}
-								optionsList={optionsList}
+								optionsList={resolveDisplayTypeOptions(displayType)}
 								handleSelectChange={handleSelectChange}
 							/>
 
@@ -450,10 +467,10 @@ const ColumnProperty = ({
 								})}
 
 							{Object.keys(configProperties).length > 0 &&
-							configProperties[selectedOptionLabel] ? (
+							configProperties[activeConfigType] ? (
 								<SimpleGrid gap={4} columns={2}>
 									{Object.entries(
-										configProperties[selectedOptionLabel].properties as Record<
+										configProperties[activeConfigType].properties as Record<
 											string,
 											any
 										>,
@@ -473,7 +490,7 @@ const ColumnProperty = ({
 													<FormInput
 														key={key}
 														type={property.type}
-														id={`configurations.${selectedOptionLabel}.${key}`} // this is the important one
+														id={`configurations.${activeConfigType}.${key}`} // this is the important one
 														name={property.title}
 														keys={
 															key === 'options'
