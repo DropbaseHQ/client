@@ -2,15 +2,11 @@ import { Box, Button, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { ChevronDown } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useAtom, useAtomValue } from 'jotai';
-import lodashSet from 'lodash/set';
+
 import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
-import {
-	pageContextAtom,
-	pageStateContextAtom,
-	useInitializeWidgetState,
-} from '@/features/app-state';
+import { pageContextAtom, pageStateContextAtom } from '@/features/app-state';
 import { pageAtom, useGetPage } from '@/features/page';
 import { useCreateWidget } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
@@ -39,16 +35,24 @@ export const AppPreview = () => {
 	const isDevMode = !isPreview;
 
 	const { isLoading, description: widgetDescription } = useGetWidgetPreview(widgetName || '');
-	useInitializeWidgetState({ appName, pageName });
 
 	const { properties } = useGetPage({ appName, pageName });
 	const createMutation = useCreateWidget();
 
 	const handleRemoveAlert = () => {
-		setPageContext((oldData: any) => ({
-			...lodashSet(oldData, `page.message`, null),
-			...lodashSet(oldData, `page.message_type`, null),
-		}));
+		setPageContext(
+			{
+				...allBlocksContext,
+				page: {
+					...(pageContext?.page || {}),
+					message: null,
+					message_type: null,
+				},
+			},
+			{
+				replace: true,
+			},
+		);
 	};
 
 	const handleCreateWidget = () => {

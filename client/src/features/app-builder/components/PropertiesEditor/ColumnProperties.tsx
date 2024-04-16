@@ -395,6 +395,7 @@ const ColumnProperty = ({
 											<FormInput
 												type="custom-select"
 												id={f.name}
+												key={f.name}
 												name={f.title}
 												w="50%"
 												hideClearOption
@@ -410,7 +411,7 @@ const ColumnProperty = ({
 									}
 
 									if (f?.category === 'Events') {
-										return <EventPropertyEditor id={f.name} />;
+										return <EventPropertyEditor key={f.name} id={f.name} />;
 									}
 
 									if (f.name === 'name') {
@@ -418,6 +419,7 @@ const ColumnProperty = ({
 											<FormInput
 												{...f}
 												id={f.name}
+												key={f.name}
 												name={f.title}
 												validation={{
 													required: 'Cannot  be empty',
@@ -449,12 +451,12 @@ const ColumnProperty = ({
 										<FormInput
 											{...f}
 											id={f.name}
+											key={f.name}
 											name={f.title}
 											options={(f.enum || f.options || []).map((o: any) => ({
 												name: o,
 												value: o,
 											}))}
-											key={f.name}
 										/>
 									);
 								})}
@@ -472,6 +474,7 @@ const ColumnProperty = ({
 												displayConfiguration?.required?.includes(key);
 											return (
 												<Box
+													key={key}
 													gridColumn={
 														property.type === 'array' ? '1 / -1' : ''
 													}

@@ -17,12 +17,17 @@ import { WorkerDisconnected } from './components/WorkerDisconnected';
 import { inspectedResourceAtom } from './atoms';
 import { BuilderSidebar } from './components/Sidebar';
 import { FileContent } from './components/FilesExplorer/FileContent';
+import { useInitializePageState } from '@/features/app-state';
 
 export const AppBuilder = () => {
 	const { appName, pageName } = useParams();
 	const navigate = useNavigate();
 	const toast = useToast();
-	const { isLoading } = useInitPage();
+
+	const { isLoading: isLoadingPage } = useInitPage();
+	const { isLoading: isLoadingState } = useInitializePageState(appName || '', pageName || '');
+	const isLoading = isLoadingState || isLoadingPage;
+
 	const theme = useTheme();
 	const setInspectedItem = useSetAtom(inspectedResourceAtom);
 	const { permissions, isLoading: appStateIsLoading } = useGetPage({

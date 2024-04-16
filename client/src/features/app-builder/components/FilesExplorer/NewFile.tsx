@@ -20,7 +20,7 @@ import {
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { Plus, Table, Box as BoxIcon, Code } from 'react-feather';
+import { Plus, Table, Code } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useSetAtom } from 'jotai';
 import { useParams } from 'react-router-dom';
@@ -43,24 +43,10 @@ const fileOptions = [
 		extension: 'sql',
 	},
 	{
-		name: 'Python (Data Fetcher)',
-		value: 'data_fetcher',
-		description: 'Fetch data to tables via Python',
-		icon: Table,
-		extension: 'py',
-	},
-	{
-		name: 'Python (UI)',
-		value: 'ui',
-		icon: BoxIcon,
-		description: 'Modify UI via Python',
-		extension: 'py',
-	},
-	{
-		name: 'Python (Generic)',
+		name: 'Python',
 		value: 'python',
 		icon: Code,
-		description: 'Generic Python scripts',
+		description: 'Python scripts',
 		extension: 'py',
 	},
 ];

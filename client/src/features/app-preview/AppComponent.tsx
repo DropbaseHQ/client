@@ -10,19 +10,13 @@ import {
 import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
 
-import { extractTemplateString, getErrorMessage } from '@/utils';
+import { extractTemplateString } from '@/utils';
 
-import { useEvent, useExecuteAction } from '@/features/app-preview/hooks';
+import { useEvent } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
-import {
-	useSyncState,
-	pageStateAtom,
-	pageStateContextAtom,
-	pageContextAtom,
-} from '@/features/app-state';
+import { pageStateAtom, pageStateContextAtom, pageContextAtom } from '@/features/app-state';
 import { pageAtom } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
-import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
 
 import MarkdownEditor from '@/components/Editor/MarkdownEditor';
@@ -32,7 +26,6 @@ const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 export const AppComponent = (props: any) => {
 	const { sendJsonMessage, widgetName, inline } = props;
 
-	const toast = useToast();
 	const [{ pageName, appName }] = useAtom(pageAtom);
 
 	const handleEvent = useEvent({});
@@ -58,8 +51,6 @@ export const AppComponent = (props: any) => {
 
 	const [inputValues, setInputValues]: any = useAtom(pageStateAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
-
-	const syncState = useSyncState();
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isEditorMode = !isPreview;
@@ -114,19 +105,6 @@ export const AppComponent = (props: any) => {
 		}
 	}, [defaultValue, name, handleInputValue, setInputValues]);
 
-	const actionMutation = useExecuteAction({
-		onSuccess: (data: any) => {
-			syncState(data);
-		},
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to execute action',
-				description: getErrorMessage(error),
-			});
-		},
-	});
-
 	if (!shouldDisplay && !isEditorMode) {
 		return null;
 	}
@@ -138,8 +116,7 @@ export const AppComponent = (props: any) => {
 			<Stack spacing="0.5" w="fit-content">
 				<Button
 					my="1.5"
-					size={componentSize}
-					isLoading={actionMutation.isLoading}
+					size="sm"
 					bgColor={grayOutComponent ? 'gray.100' : ''}
 					colorScheme={color || 'blue'}
 					onClick={() => {

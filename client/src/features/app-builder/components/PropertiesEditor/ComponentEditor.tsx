@@ -28,6 +28,7 @@ import { generateSequentialName, getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { LabelContainer } from '@/components/LabelContainer';
+import { SelectDataFetcher } from '../SelectDataFetcher';
 import { DashedBorder } from '@/components/DashedBorder';
 
 const TEMPLATE_REGEX = /\{\{(.+?)\}\}/;
@@ -55,7 +56,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 		),
 	];
 
-	const functions = files.filter((f: any) => f.type === 'ui')?.map((f: any) => f?.name);
+	const functions = files.filter((f: any) => f.type === 'python')?.map((f: any) => f?.name);
 
 	const methods = useForm();
 	const {
@@ -74,6 +75,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 	const defaultValue = watch('default');
 	const multiline = watch('multiline');
 	const hasStateInDefault = watch('stateInDefault');
+	const useFetcher = watch('use_fetcher');
 
 	useEffect(() => {
 		if (multiple) {
@@ -372,6 +374,17 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 												property.name === 'on_toggle'
 											) {
 												return <EventPropertyEditor id={property.name} />;
+											}
+
+											if (property.name === 'fetcher') {
+												if (!useFetcher) return null;
+
+												return (
+													<SelectDataFetcher
+														name="Select data fetcher"
+														fetchers={files}
+													/>
+												);
 											}
 
 											if (

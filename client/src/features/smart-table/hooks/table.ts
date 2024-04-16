@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useDebounce } from 'use-debounce';
@@ -6,11 +6,12 @@ import { useDebounce } from 'use-debounce';
 import { axios, workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
-import { pageStateAtom, pageStateContextAtom } from '@/features/app-state';
+import { pageStateAtom, pageStateContextAtom, useSyncState } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
 import { fetchJobStatus } from '@/utils/worker-job';
+import { executeAction } from '@/features/app-preview/hooks';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 export const FUNCTION_DATA_QUERY_KEY = 'functionData';
@@ -19,27 +20,42 @@ const fetchFunctionData = async ({
 	fetcher,
 	appName,
 	pageName,
+	tableName,
 	state,
 	filter_sort = null,
+	fileType,
 }: any) => {
-	const response = await workerAxios.post<any>(`/query/`, {
-		fetcher,
-		app_name: appName,
-		page_name: pageName,
-		state: state.state,
-		filter_sort,
-	});
+	if (fileType === 'sql') {
+		const response = await workerAxios.post<any>(`/query/`, {
+			fetcher,
+			app_name: appName,
+			page_name: pageName,
+			table_name: tableName,
+			state: state.state,
+			filter_sort,
+		});
 
-	if (response.data?.job_id) {
-		const jobResponse = await fetchJobStatus(response.data.job_id);
-		return jobResponse;
+		if (response.data?.job_id) {
+			const jobResponse = await fetchJobStatus(response.data.job_id);
+
+			return jobResponse;
+		}
+
+		throw new Error('Failed to retrieve data from fetcher');
 	}
 
-	throw new Error('Failed to retrieve data from fetcher');
+	const response = await executeAction({
+		pageName,
+		appName,
+		pageState: state,
+		functionName: fetcher,
+	});
+
+	return response;
 };
 
-const useParsedData: any = (response: any, table: any) =>
-	useMemo(() => {
+export const useParsedData: any = (response: any, table: any) => {
+	return useMemo(() => {
 		if (response) {
 			const customColumns = table?.columns?.filter(
 				(c: any) => c.column_type === 'button_column' && !c?.hidden,
@@ -71,6 +87,47 @@ const useParsedData: any = (response: any, table: any) =>
 			tableError: null,
 		};
 	}, [response, table]);
+};
+
+export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
+	const { files } = useGetPage({
+		appName,
+		pageName,
+	});
+
+	const pageStateContext: any = useAtomValue(pageStateContextAtom);
+	const pageStateRef = useRef(pageStateContext);
+	pageStateRef.current = pageStateContext;
+
+	const fileType = files.find((f: any) => f.name === fetcher)?.type;
+
+	const queryKey = [FUNCTION_DATA_QUERY_KEY, fetcher, appName, pageName];
+
+	const { data: response, ...rest } = useQuery(
+		queryKey,
+		() =>
+			fetchFunctionData({
+				fetcher,
+				appName,
+				pageName,
+				state: pageStateRef.current,
+				fileType,
+			}),
+		{
+			enabled: !!fetcher,
+			staleTime: Infinity,
+		},
+	);
+
+	const parsedData = useParsedData(response);
+
+	return {
+		...rest,
+		...parsedData,
+		sqlId: response?.sql_id,
+		queryKey,
+	};
+};
 
 export const useTableData = ({
 	tableName,
@@ -94,6 +151,8 @@ export const useTableData = ({
 	const table = tables.find((t: any) => t.name === tableName);
 
 	const hasSelectedRows = useAtomValue(hasSelectedRowAtom);
+
+	const fileType = files.find((f: any) => f.name === table?.fetcher)?.type;
 
 	const filesWithCurrentTableAsDependency = (files || [])
 		.filter((f: any) => f?.depends_on?.includes(tableName))
@@ -128,12 +187,15 @@ export const useTableData = ({
 		JSON.stringify({ debouncedFilters, sorts, dependentTableData }),
 	];
 
+	const syncState = useSyncState();
+
 	const { data: response, ...rest } = useQuery(
 		queryKey,
 		() =>
 			fetchFunctionData({
 				appName,
 				pageName,
+				tableName,
 				state: pageStateRef.current,
 				fetcher: table?.fetcher,
 				filter_sort: {
@@ -144,6 +206,7 @@ export const useTableData = ({
 						page_size: pageSize || 0,
 					},
 				},
+				fileType,
 			}),
 		{
 			enabled: !!(
@@ -190,11 +253,12 @@ export const useTableData = ({
 		},
 	);
 
-	const parsedData = useParsedData(response, table);
+	useEffect(() => {
+		syncState(response);
+	}, [response, syncState]);
 
 	return {
 		...rest,
-		...parsedData,
 		sqlId: response?.sql_id,
 		queryKey,
 	};
@@ -205,6 +269,7 @@ const saveEdits = async ({ file, edits }: any) => {
 		file,
 		edits,
 	});
+
 	return response.data;
 };
 

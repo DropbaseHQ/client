@@ -39,11 +39,13 @@ export const useAllPageFunctionNames = ({ pageId }: any) => {
 	};
 };
 
-const runPythonFunction = async ({ fileCode, testCode, pageState }: any) => {
-	const response = await workerAxios.post(`query/python_string/`, {
+const runPythonFunction = async ({ fileCode, testCode, pageState, appName, pageName }: any) => {
+	const response = await workerAxios.post(`function/string/`, {
 		file_code: fileCode,
 		test_code: testCode,
-		...pageState,
+		app_name: appName,
+		page_name: pageName,
+		state: pageState,
 	});
 
 	if (response.data?.job_id) {
