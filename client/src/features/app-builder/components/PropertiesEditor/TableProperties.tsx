@@ -234,6 +234,7 @@ export const TableProperties = () => {
 											if (property.name === 'fetcher') {
 												return (
 													<SelectDataFetcher
+														id={property.name}
 														name={property.title}
 														onSelect={resetDependsOn}
 														fetchers={files}

@@ -45,7 +45,6 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 	const component = widgets
 		.find((w: any) => w.name === widgetName)
 		?.components?.find((c: any) => c.name === id);
-	console.log('component', component);
 	const { fields } = useResourceFields();
 
 	const currentCategories = [
@@ -398,6 +397,17 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 
 											const showFunctionList = property.type === 'function';
 
+											if (property.name === 'text') {
+												return (
+													<FormInput
+														{...property}
+														id={property.name}
+														name={property.title}
+														type="textarea"
+														key={property.name}
+													/>
+												);
+											}
 											return (
 												<FormInput
 													{...property}
