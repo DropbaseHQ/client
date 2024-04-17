@@ -73,8 +73,15 @@ export const EventPropertyEditor = ({ id, title, showFetchersOnly = false, onSel
 		let icon = Layout;
 		let badge = {
 			color: 'purple',
-			children: 'UI Function',
+			children: 'Function',
 		};
+
+		if (option.type === 'sql') {
+			badge = {
+				color: 'teal',
+				children: 'Sql',
+			};
+		}
 
 		if (selectedValue.type === 'function') {
 			icon = BoxIcon;

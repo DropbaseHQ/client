@@ -109,7 +109,8 @@ export const TableProperties = () => {
 								depends_on: depends,
 								height,
 								type:
-									files?.find((f: any) => f.name === fetcher)?.type === 'sql'
+									files?.find((f: any) => f.name === fetcher?.value)?.type ===
+									'sql'
 										? 'sql'
 										: 'python',
 							};
