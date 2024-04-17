@@ -14,7 +14,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { LabelContainer } from '@/components/LabelContainer';
-import { SelectDataFetcher } from '../SelectDataFetcher';
+import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 
 export const TableProperties = () => {
 	const tableId = useAtomValue(selectedTableIdAtom);
@@ -233,10 +233,11 @@ export const TableProperties = () => {
 
 											if (property.name === 'fetcher') {
 												return (
-													<SelectDataFetcher
-														name={property.title}
+													<EventPropertyEditor
+														id={property.name}
+														title={property.title}
 														onSelect={resetDependsOn}
-														fetchers={files}
+														showFetchersOnly
 													/>
 												);
 											}

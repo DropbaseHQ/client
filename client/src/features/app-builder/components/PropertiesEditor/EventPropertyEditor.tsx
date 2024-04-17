@@ -27,7 +27,7 @@ import { generateSequentialName } from '@/utils';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { useFunctions } from '@/features/app-builder/hooks/files';
 
-export const EventPropertyEditor = ({ id }: any) => {
+export const EventPropertyEditor = ({ id, title, showFetchersOnly = false, onSelect }: any) => {
 	const { control } = useFormContext();
 
 	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
@@ -36,6 +36,10 @@ export const EventPropertyEditor = ({ id }: any) => {
 	const { widgets, isLoading, properties, tables } = useGetPage({ appName, pageName });
 
 	const { functions } = useFunctions({ appName, pageName });
+
+	const functionsToBeRendered = showFetchersOnly
+		? functions
+		: functions.filter((f: any) => f.type !== 'sql');
 
 	const createMutation = useCreateWidget();
 
@@ -55,7 +59,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 		label: f?.label,
 	}));
 
-	const allOptions = [...functions, ...modalWidgets, ...baseWidgets, ...allTables];
+	const allOptions = [...functionsToBeRendered, ...modalWidgets, ...baseWidgets, ...allTables];
 
 	const optionValueRenderer = ({ option, showBadge }: any) => {
 		const selectedValue = (allOptions || [])?.find((o: any) => {
@@ -206,7 +210,7 @@ export const EventPropertyEditor = ({ id }: any) => {
 
 	return (
 		<FormControl>
-			<FormLabel>{id}</FormLabel>
+			<FormLabel>{title || id}</FormLabel>
 
 			<Controller
 				control={control}
@@ -220,6 +224,8 @@ export const EventPropertyEditor = ({ id }: any) => {
 						const selectedOption = allOptions.find(
 							(o: any) => `${o.type}-${o.value}` === newValue,
 						);
+
+						onSelect?.();
 
 						onChange({
 							type: selectedOption.type,
@@ -290,71 +296,75 @@ export const EventPropertyEditor = ({ id }: any) => {
 										type="radio"
 										onChange={handleChange}
 									>
-										{functions.map((func: any) => {
+										{functionsToBeRendered.map((func: any) => {
 											return optionRenderer(func);
 										})}
 									</MenuOptionGroup>
 
-									<MenuDivider />
+									{showFetchersOnly ? null : (
+										<>
+											<MenuDivider />
 
-									<MenuOptionGroup
-										value={valueForMenu}
-										title="Reload Tables"
-										onChange={handleChange}
-										type="radio"
-									>
-										{allTables.map((table: any) => {
-											return optionRenderer(table);
-										})}
-									</MenuOptionGroup>
+											<MenuOptionGroup
+												value={valueForMenu}
+												title="Reload Tables"
+												onChange={handleChange}
+												type="radio"
+											>
+												{allTables.map((table: any) => {
+													return optionRenderer(table);
+												})}
+											</MenuOptionGroup>
 
-									<MenuDivider />
+											<MenuDivider />
 
-									<MenuOptionGroup
-										value={valueForMenu}
-										title="Show Modal"
-										onChange={handleChange}
-										type="radio"
-									>
-										{modalWidgets.map((func: any) => {
-											return optionRenderer(func);
-										})}
+											<MenuOptionGroup
+												value={valueForMenu}
+												title="Show Modal"
+												onChange={handleChange}
+												type="radio"
+											>
+												{modalWidgets.map((func: any) => {
+													return optionRenderer(func);
+												})}
 
-										<MenuItem
-											fontSize="md"
-											value="new_widget"
-											icon={<Plus size="14" />}
-											onClick={() => {
-												handleCreateWidget('modal');
-											}}
-										>
-											Create modal Widget
-										</MenuItem>
-									</MenuOptionGroup>
+												<MenuItem
+													fontSize="md"
+													value="new_widget"
+													icon={<Plus size="14" />}
+													onClick={() => {
+														handleCreateWidget('modal');
+													}}
+												>
+													Create modal Widget
+												</MenuItem>
+											</MenuOptionGroup>
 
-									<MenuDivider />
+											<MenuDivider />
 
-									<MenuOptionGroup
-										value={valueForMenu}
-										title="Navigate to Widget"
-										onChange={handleChange}
-										type="radio"
-									>
-										{baseWidgets.map((func: any) => {
-											return optionRenderer(func);
-										})}
+											<MenuOptionGroup
+												value={valueForMenu}
+												title="Navigate to Widget"
+												onChange={handleChange}
+												type="radio"
+											>
+												{baseWidgets.map((func: any) => {
+													return optionRenderer(func);
+												})}
 
-										<MenuItem
-											fontSize="md"
-											value="new_widget"
-											icon={<Plus size="14" />}
-											onClick={() => {
-												handleCreateWidget('base');
-											}}
-										>
-											Create base Widget
-										</MenuItem>
-									</MenuOptionGroup>
+												<MenuItem
+													fontSize="md"
+													value="new_widget"
+													icon={<Plus size="14" />}
+													onClick={() => {
+														handleCreateWidget('base');
+													}}
+												>
+													Create base Widget
+												</MenuItem>
+											</MenuOptionGroup>
+										</>
+									)}
 								</MenuList>
 							</Portal>
 						</Menu>
