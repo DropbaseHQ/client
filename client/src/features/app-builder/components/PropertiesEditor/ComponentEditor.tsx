@@ -45,7 +45,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 	const component = widgets
 		.find((w: any) => w.name === widgetName)
 		?.components?.find((c: any) => c.name === id);
-	console.log('component', component);
+
 	const { fields } = useResourceFields();
 
 	const currentCategories = [
@@ -85,7 +85,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 				});
 			}
 		} else if (Array.isArray(defaultValue)) {
-			setValue('default', '', {
+			setValue('default', defaultValue?.[0], {
 				shouldDirty: false,
 			});
 		}

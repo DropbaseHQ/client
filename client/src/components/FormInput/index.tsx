@@ -311,7 +311,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 								colorScheme="red"
 								onClick={() => {
 									onChange(
-										optionsToRender.filter((o: any) => o.id !== option.id),
+										optionsToRender?.filter?.((o: any) => o.id !== option.id),
 									);
 								}}
 							/>
@@ -424,10 +424,10 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 						</Center>
 					) : (
 						<MenuOptionGroup
-							value={(value || []).filter(Boolean)}
+							value={(value || [])?.filter?.(Boolean)}
 							onChange={(potentialNewValue: any) => {
 								if (!inputProps?.isDisabled) {
-									const newValue = potentialNewValue?.filter(Boolean);
+									const newValue = potentialNewValue?.filter?.(Boolean);
 
 									onChange(newValue);
 									onSelect?.(newValue);
