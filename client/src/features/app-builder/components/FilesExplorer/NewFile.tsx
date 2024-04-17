@@ -53,8 +53,11 @@ const fileOptions = [
 
 export const NewFile = ({ children, ...props }: any) => {
 	const toast = useToast();
-	const methods = useForm({
+	const methods = useForm<any>({
 		shouldUnregister: true,
+		defaultValues: {
+			type: 'python',
+		},
 	});
 
 	const { appName, pageName } = useParams();

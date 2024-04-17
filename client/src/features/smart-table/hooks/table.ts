@@ -23,11 +23,10 @@ const fetchFunctionData = async ({
 	tableName,
 	state,
 	filter_sort = null,
-	fileType,
 }: any) => {
-	if (fileType === 'sql') {
+	if (fetcher?.type === 'sql') {
 		const response = await workerAxios.post<any>(`/query/`, {
-			fetcher,
+			fetcher: fetcher.value,
 			app_name: appName,
 			page_name: pageName,
 			table_name: tableName,
@@ -48,7 +47,8 @@ const fetchFunctionData = async ({
 		pageName,
 		appName,
 		pageState: state,
-		functionName: fetcher,
+		functionName: fetcher?.value,
+		fileName: fetcher?.file,
 	});
 
 	return response;
@@ -90,16 +90,9 @@ export const useParsedData: any = (response: any, table: any) => {
 };
 
 export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
-	const { files } = useGetPage({
-		appName,
-		pageName,
-	});
-
 	const pageStateContext: any = useAtomValue(pageStateContextAtom);
 	const pageStateRef = useRef(pageStateContext);
 	pageStateRef.current = pageStateContext;
-
-	const fileType = files.find((f: any) => f.name === fetcher)?.type;
 
 	const queryKey = [FUNCTION_DATA_QUERY_KEY, fetcher, appName, pageName];
 
@@ -111,7 +104,6 @@ export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
 				appName,
 				pageName,
 				state: pageStateRef.current,
-				fileType,
 			}),
 		{
 			enabled: !!fetcher,
@@ -151,8 +143,6 @@ export const useTableData = ({
 	const table = tables.find((t: any) => t.name === tableName);
 
 	const hasSelectedRows = useAtomValue(hasSelectedRowAtom);
-
-	const fileType = files.find((f: any) => f.name === table?.fetcher)?.type;
 
 	const filesWithCurrentTableAsDependency = (files || [])
 		.filter((f: any) => f?.depends_on?.includes(tableName))
@@ -206,7 +196,6 @@ export const useTableData = ({
 						page_size: pageSize || 0,
 					},
 				},
-				fileType,
 			}),
 		{
 			enabled: !!(
