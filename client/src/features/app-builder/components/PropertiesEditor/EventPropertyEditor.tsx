@@ -37,6 +37,10 @@ export const EventPropertyEditor = ({ id, title, showFetchersOnly = false, onSel
 
 	const { functions } = useFunctions({ appName, pageName });
 
+	const functionsToBeRendered = showFetchersOnly
+		? functions
+		: functions.filter((f: any) => f.type !== 'sql');
+
 	const createMutation = useCreateWidget();
 
 	const setPageAtom = useSetAtom(pageAtom);
@@ -55,14 +59,7 @@ export const EventPropertyEditor = ({ id, title, showFetchersOnly = false, onSel
 		label: f?.label,
 	}));
 
-	const allOptions = showFetchersOnly
-		? functions
-		: [
-				...functions.filter((f: any) => f.type !== 'sql'),
-				...modalWidgets,
-				...baseWidgets,
-				...allTables,
-		  ];
+	const allOptions = [...functionsToBeRendered, ...modalWidgets, ...baseWidgets, ...allTables];
 
 	const optionValueRenderer = ({ option, showBadge }: any) => {
 		const selectedValue = (allOptions || [])?.find((o: any) => {
@@ -299,7 +296,7 @@ export const EventPropertyEditor = ({ id, title, showFetchersOnly = false, onSel
 										type="radio"
 										onChange={handleChange}
 									>
-										{functions.map((func: any) => {
+										{functionsToBeRendered.map((func: any) => {
 											return optionRenderer(func);
 										})}
 									</MenuOptionGroup>
