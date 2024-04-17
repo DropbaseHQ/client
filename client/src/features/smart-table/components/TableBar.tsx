@@ -47,7 +47,7 @@ export const TableBar = () => {
 
 	const { appName, pageName } = useParams();
 	const { files } = useGetPage({ appName, pageName });
-	const file = files.find((f: any) => f.name === fetcher);
+	const file = files.find((f: any) => f.name === fetcher?.value);
 
 	const { rows, columns } = useCurrentTableData(tableName);
 
