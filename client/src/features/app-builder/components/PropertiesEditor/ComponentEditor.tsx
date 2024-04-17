@@ -28,7 +28,6 @@ import { generateSequentialName, getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { LabelContainer } from '@/components/LabelContainer';
-import { SelectDataFetcher } from '../SelectDataFetcher';
 import { DashedBorder } from '@/components/DashedBorder';
 
 const TEMPLATE_REGEX = /\{\{(.+?)\}\}/;
@@ -368,11 +367,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 												);
 											}
 
-											if (
-												property.name === 'on_click' ||
-												property.name === 'on_change' ||
-												property.name === 'on_toggle'
-											) {
+											if (property.category === 'Events') {
 												return <EventPropertyEditor id={property.name} />;
 											}
 
@@ -380,9 +375,10 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 												if (!useFetcher) return null;
 
 												return (
-													<SelectDataFetcher
-														name="Select data fetcher"
-														fetchers={files}
+													<EventPropertyEditor
+														id="fetcher"
+														title={property.title}
+														showFetchersOnly
 													/>
 												);
 											}
