@@ -79,7 +79,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 			setPreviewDataType(response?.type);
 
 			if (panelRef?.current?.getSize() < 20) {
-				panelRef?.current?.resize(70);
+				panelRef?.current?.resize(50);
 			}
 
 			if (response?.columns) {
