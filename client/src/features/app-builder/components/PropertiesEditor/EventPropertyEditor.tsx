@@ -140,12 +140,12 @@ export const EventPropertyEditor = ({ id, title, showFetchersOnly = false, onSel
 
 	const optionRenderer = (option: any) => {
 		const optionValue = `${option.type}-${option.value}`;
-		const renderedOption = optionValueRenderer({ option });
-		return renderedOption ? (
+
+		return (
 			<MenuItemOption fontSize="sm" key={optionValue} value={optionValue}>
-				{renderedOption}
+				{optionValueRenderer({ option })}
 			</MenuItemOption>
-		) : null;
+		);
 	};
 
 	const handleChooseWidget = (newWidgetName: any) => {
