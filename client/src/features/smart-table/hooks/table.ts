@@ -167,7 +167,7 @@ export const useTableData = ({
 
 	const queryKey = [
 		TABLE_DATA_QUERY_KEY,
-		table?.fetcher,
+		table?.fetcher?.value,
 		tableName,
 		appName,
 		pageName,

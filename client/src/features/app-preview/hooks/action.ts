@@ -111,7 +111,7 @@ export const useEvent = (props: any) => {
 			case 'table': {
 				queryClient.invalidateQueries([
 					TABLE_DATA_QUERY_KEY,
-					tables?.find((t: any) => t.name === event.value)?.fetcher,
+					tables?.find((t: any) => t.name === event.value)?.fetcher?.value,
 				]);
 				break;
 			}
