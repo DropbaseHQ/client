@@ -149,10 +149,10 @@ export const useTableData = ({
 		.map((f: any) => f.name);
 
 	const tablesWhichDependsOnCurrent = tables
-		?.filter((t: any) => filesWithCurrentTableAsDependency?.includes(t?.fetcher))
+		?.filter((t: any) => filesWithCurrentTableAsDependency?.includes(t?.fetcher?.value))
 		?.map((t: any) => t?.name);
 
-	const depends = files.find((f: any) => f.name === table?.fetcher)?.depends_on || [];
+	const depends = files.find((f: any) => f.name === table?.fetcher?.value)?.depends_on || [];
 	const tablesWithNoSelection = depends.filter((name: any) => !hasSelectedRows[name]);
 
 	const tablesState = pageStateContext?.state;
