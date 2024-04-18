@@ -30,6 +30,8 @@ export const useFunctions = ({ pageName, appName }: { pageName: any; appName: an
 		() => fetchStateContextFunctions({ pageName, appName }),
 		{
 			enabled: Boolean(appName) && Boolean(pageName),
+			staleTime: Infinity,
+			cacheTime: Infinity,
 		},
 	);
 

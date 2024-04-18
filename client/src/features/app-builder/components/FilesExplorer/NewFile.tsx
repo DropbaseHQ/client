@@ -27,12 +27,13 @@ import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 
 import { useStatus } from '@/layout/StatusBar';
-import { useCreateFile, usePageFiles } from '@/features/app-builder/hooks';
+import { ALL_FUNCTIONS_QUERY_KEY, useCreateFile, usePageFiles } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
 import { useGetPage } from '@/features/page';
 import { generateSequentialName, getErrorMessage } from '@/utils';
 import { developerTabAtom } from '../../atoms';
+import { queryClient } from '@/lib/react-query';
 
 const fileOptions = [
 	{
@@ -89,6 +90,7 @@ export const NewFile = ({ children, ...props }: any) => {
 				title: 'File created successfully',
 			});
 			refetch();
+			queryClient.invalidateQueries(ALL_FUNCTIONS_QUERY_KEY);
 			onClose();
 		},
 		onError: (error: any) => {
