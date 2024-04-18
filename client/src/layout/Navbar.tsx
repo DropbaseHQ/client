@@ -4,16 +4,17 @@ import { LogOut, Grid, Repeat, Settings } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
-import { isProductionApp } from '../utils';
+import { isFreeApp, isProductionApp } from '../utils';
 import { WorkspaceSwitcher } from '@/features/app/components/WorkspaceSwitcher';
 import { useWorkspaces } from '@/features/workspaces';
+import { RestrictAppContainer } from '@/container/components/RestrictAppContainer';
 
 export const Navbar = () => {
 	const { pathname } = useLocation();
 	const { mutate: logout } = useLogout();
 	const { workspaces } = useWorkspaces();
 
-	const hasWorkspaces = workspaces.length > 0;
+	const hasWorkspaces = isFreeApp() || workspaces.length > 0;
 
 	const handleLogout = () => {
 		logout();
@@ -24,19 +25,21 @@ export const Navbar = () => {
 			<Stack alignItems="center" h="full">
 				<Box mb="8" w="12" as={Link} to="/apps" display="flex" flexDirection="column">
 					<DropbaseLogo />
-					{hasWorkspaces && (
-						<WorkspaceSwitcher
-							trigger={
-								<IconButton
-									size="sm"
-									variant="ghost"
-									color="body"
-									aria-label="Workspace Switcher"
-									icon={<Repeat size="14" />}
-								/>
-							}
-						/>
-					)}
+					<RestrictAppContainer>
+						{hasWorkspaces && (
+							<WorkspaceSwitcher
+								trigger={
+									<IconButton
+										size="sm"
+										variant="ghost"
+										color="body"
+										aria-label="Workspace Switcher"
+										icon={<Repeat size="14" />}
+									/>
+								}
+							/>
+						)}
+					</RestrictAppContainer>
 				</Box>
 
 				{isProductionApp() || !hasWorkspaces ? null : (
@@ -52,30 +55,34 @@ export const Navbar = () => {
 						/>
 					</Tooltip>
 				)}
-				<Stack mt="auto" alignItems="center">
-					{hasWorkspaces && (
-						<Tooltip label="Developer settings" placement="right">
+				<RestrictAppContainer>
+					<Stack mt="auto" alignItems="center">
+						{hasWorkspaces && (
+							<Tooltip label="Developer settings" placement="right">
+								<IconButton
+									variant="ghost"
+									as={Link}
+									to="/settings/developer"
+									color={pathname === '/settings/developer' ? 'blue.500' : 'body'}
+									colorScheme={
+										pathname === '/settings/developer' ? 'blue' : 'gray'
+									}
+									aria-label="developer settings"
+									icon={<Settings size="22" />}
+								/>
+							</Tooltip>
+						)}
+						<Tooltip label="Logout" placement="right">
 							<IconButton
 								variant="ghost"
-								as={Link}
-								to="/settings/developer"
-								color={pathname === '/settings/developer' ? 'blue.500' : 'body'}
-								colorScheme={pathname === '/settings/developer' ? 'blue' : 'gray'}
-								aria-label="developer settings"
-								icon={<Settings size="22" />}
+								onClick={handleLogout}
+								colorScheme="gray"
+								aria-label="Logouts"
+								icon={<LogOut size="22" />}
 							/>
 						</Tooltip>
-					)}
-					<Tooltip label="Logout" placement="right">
-						<IconButton
-							variant="ghost"
-							onClick={handleLogout}
-							colorScheme="gray"
-							aria-label="Logouts"
-							icon={<LogOut size="22" />}
-						/>
-					</Tooltip>
-				</Stack>
+					</Stack>
+				</RestrictAppContainer>
 			</Stack>
 		</Stack>
 	);

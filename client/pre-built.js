@@ -1,6 +1,19 @@
 import fs from 'fs';
 import 'dotenv/config';
 
+const getMainFileName = () => {
+	switch (process.env.VITE_APP_TYPE) {
+		case 'app': {
+			return 'main-app';
+		}
+		case 'free': {
+			return 'main-free';
+		}
+		default:
+			return 'main';
+	}
+};
+
 let data = `<!doctype html>
 <html lang="en">
 	<head>
@@ -56,9 +69,7 @@ let data = `<!doctype html>
 		<div id="root"></div>
 		<div id="portal" style="position: fixed; left: 0; top: 0; z-index: 9999" />
 
-		<script type="module" src="./src/main${
-			process.env.VITE_APP_TYPE === 'app' ? '-app' : ''
-		}.tsx"></script>
+		<script type="module" src="./src/${getMainFileName()}.tsx"></script>
 	</body>
 </html>
 `;

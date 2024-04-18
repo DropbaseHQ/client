@@ -5,6 +5,8 @@ import { useLocation } from 'react-router-dom';
 import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
 import { Navbar } from './Navbar';
 import { StatusBar } from './StatusBar';
+import { RestrictAppContainer } from '@/container/components/RestrictAppContainer';
+import { isFreeApp } from '@/utils';
 
 export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const { pathname } = useLocation();
@@ -23,7 +25,9 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 	const shouldNotShowStatusBar =
 		loginRoutes || welcomePage || import.meta.env.VITE_APP_TYPE === 'app';
 
-	const shouldNotDisplayNavbar = pathname.startsWith('/apps/') || loginRoutes || !isSuccess;
+	const shouldNotDisplayNavbar = isFreeApp()
+		? pathname.startsWith('/apps/')
+		: pathname.startsWith('/apps/') || loginRoutes || !isSuccess;
 
 	const shouldDisplayTrialBanner = currentWorkspace?.in_trial && !loginRoutes;
 
@@ -31,24 +35,26 @@ export const DashboardLayout = ({ children }: PropsWithChildren<any>) => {
 
 	return (
 		<Stack spacing="0" w="100vw" height="100vh" overflow="hidden" position="relative">
-			{shouldDisplayTrialBanner ? (
-				<Box
-					w="full"
-					py="1"
-					display="flex"
-					justifyContent="center"
-					alignItems="center"
-					bgColor="yellow.400"
-				>
-					<Text fontSize="md" fontWeight="medium">
-						{`Your trial expires on ${trialEndDate.toLocaleDateString(undefined, {
-							year: 'numeric',
-							month: 'long',
-							day: 'numeric',
-						})}`}
-					</Text>
-				</Box>
-			) : null}
+			<RestrictAppContainer>
+				{shouldDisplayTrialBanner ? (
+					<Box
+						w="full"
+						py="1"
+						display="flex"
+						justifyContent="center"
+						alignItems="center"
+						bgColor="yellow.400"
+					>
+						<Text fontSize="md" fontWeight="medium">
+							{`Your trial expires on ${trialEndDate.toLocaleDateString(undefined, {
+								year: 'numeric',
+								month: 'long',
+								day: 'numeric',
+							})}`}
+						</Text>
+					</Box>
+				) : null}
+			</RestrictAppContainer>
 			<Flex maxH={shouldNotShowStatusBar ? '100vh' : 'calc(100vh - 20px)'} flex="1">
 				{shouldNotDisplayNavbar ? null : <Navbar />}
 				<Box overflowY="auto" flex="1" p="0">

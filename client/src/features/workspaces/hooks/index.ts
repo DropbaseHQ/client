@@ -5,6 +5,7 @@ import { useAtom } from 'jotai';
 import { axios, workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
 import { useSetWorkerAxiosBaseURL } from '@/features/authorization/hooks/useLogin';
+import { isFreeApp } from '@/utils';
 
 export const WORKSPACE_QUERY = 'workspaces';
 
@@ -76,7 +77,7 @@ export const useWorkspaces = () => {
 		pathname.startsWith('/github_auth');
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchWorkspaces(), {
-		enabled: !loginRoutes,
+		enabled: !loginRoutes && !isFreeApp(),
 		onSuccess: (data: any) => {
 			const workerWorkspace = data?.find(
 				(workspace: Workspace) => workspace.id === workerWorkspaceInfo?.id,

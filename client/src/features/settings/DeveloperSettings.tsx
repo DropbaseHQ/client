@@ -10,6 +10,7 @@ import { TokenModal } from './components/TokenModal/TokenModal';
 import { WorkerTokenRow } from '@/features/settings/components/WorkerTokenRow';
 import { URLMappingRow } from './components/URLMappingRow';
 import { useCreateURLMapping, useURLMappings } from './hooks/urlMappings';
+import { isFreeApp } from '@/utils';
 
 export const DeveloperSettings = () => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
@@ -38,7 +39,7 @@ export const DeveloperSettings = () => {
 	};
 
 	useEffect(() => {
-		if (currentWorkspace) {
+		if (!isFreeApp() && currentWorkspace) {
 			setWorkerUrl(currentWorkspace?.worker_url);
 		}
 	}, [currentWorkspace]);

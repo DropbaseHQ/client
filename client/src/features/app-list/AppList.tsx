@@ -37,6 +37,7 @@ import { SalesModal } from './AppSalesModal';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { useSyncApp } from './hooks/useSyncApp';
+import { RestrictAppContainer } from '@/container/components/RestrictAppContainer';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
@@ -264,7 +265,7 @@ export const AppList = () => {
 	const { workspaces } = useWorkspaces();
 	const { status, isLoading: isCheckingStatus } = useStatus();
 	const methods = useForm();
-	const currentWorkspace = workspaces.find((w: any) => w.id === workspaceId);
+	const currentWorkspace = workspaces?.find((w: any) => w.id === workspaceId);
 
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
 	const { isOpen, onOpen, onClose } = useDisclosure({
@@ -372,7 +373,7 @@ export const AppList = () => {
 					Please connect to a worker to view and create apps.
 				</Text>
 			)}
-			{shouldDisplaySalesModal && <SalesModal />}
+			<RestrictAppContainer>{shouldDisplaySalesModal && <SalesModal />}</RestrictAppContainer>
 
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
