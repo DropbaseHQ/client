@@ -134,15 +134,15 @@ const getWS = () => {
 };
 
 export const useGetWebSocketURL = () => {
-	const { urlMappings } = useURLMappings();
-	const setActiveMapping = useSetAtom(activeURLMappingAtom);
+	// const { urlMappings } = useURLMappings();
+	// const setActiveMapping = useSetAtom(activeURLMappingAtom);
 
-	const matchingURL = urlMappings.find(urlMatcher);
+	// const matchingURL = urlMappings.find(urlMatcher);
 
-	if (matchingURL) {
-		setActiveMapping(matchingURL);
-		return `${getWS()}://${matchingURL.worker_url}/ws`;
-	}
+	// if (matchingURL) {
+	// 	setActiveMapping(matchingURL);
+	// 	return `${getWS()}://${matchingURL.worker_url}/ws`;
+	// }
 
 	return getWebSocketURL();
 };

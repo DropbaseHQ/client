@@ -109,7 +109,7 @@ export const useWorkspaces = () => {
 };
 
 const updateWorkspaceWorkerURL = async ({ workspaceId, workerURL }: any) => {
-	const response = await axios.put<Workspace>(`/workspace/${workspaceId}`, {
+	const response = await axios.put<Workspace>(`/workspace_control/${workspaceId}`, {
 		worker_url: workerURL,
 	});
 
@@ -127,7 +127,7 @@ export const useUpdateWorkspaceWorkerURL = () => {
 
 const createWorkspace = async ({ name = null }: { name?: string | null }) => {
 	const payload = name ? { name } : {};
-	const response = await axios.post<Workspace>(`/workspace`, payload);
+	const response = await axios.post<Workspace>(`/workspace_control`, payload);
 
 	return response.data;
 };

@@ -95,7 +95,7 @@ export const useSyncProxyToken = () => {
 };
 
 const updateWorkspaceProxyToken = async ({ workspaceId, tokenId }: any) => {
-	const response = await axios.put(`/workspace/${workspaceId}/token`, {
+	const response = await axios.put(`/workspace_control/${workspaceId}/token`, {
 		token_id: tokenId,
 	});
 	return response.data;

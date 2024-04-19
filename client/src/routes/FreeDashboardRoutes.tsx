@@ -5,13 +5,11 @@ import { useGetWebSocketURL } from '@/features/authorization/hooks/useLogin';
 import { websocketStatusAtom } from '@/features/app/atoms';
 
 import { App } from '@/features/app';
-import { SettingsRoutes } from '@/features/settings/SettingsRoutes';
 import { WorkerDisconnected } from '@/features/app-builder/components/WorkerDisconnected';
 import { DashboardLayout } from '@/layout';
 
 export const FreeDashboardRoutes = () => {
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
-
 	// FIXME: @jon what will be the value here?
 	const websocketURL = useGetWebSocketURL();
 
@@ -40,7 +38,7 @@ export const FreeDashboardRoutes = () => {
 					}
 				>
 					<Route path="apps/*" element={<App />} />
-					<Route path="settings/*" element={<SettingsRoutes />} />
+					{/* <Route path="settings/*" element={<SettingsRoutes />} /> */}
 					<Route path="*" element={<Navigate to="/apps" />} />
 				</Route>
 			</Routes>

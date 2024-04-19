@@ -12,7 +12,7 @@ export type Group = {
 	date: string;
 };
 const fetchWorkspaceGroups = async ({ workspaceId }: { workspaceId: any }) => {
-	const { data } = await axios.get<Group[]>(`/workspace/${workspaceId}/groups`);
+	const { data } = await axios.get<Group[]>(`/workspace_control/${workspaceId}/groups`);
 	return data;
 };
 
@@ -42,7 +42,7 @@ export type WorkspaceUser = {
 };
 
 const fetchWorkspaceUsers = async ({ workspaceId }: { workspaceId: any }) => {
-	const { data } = await axios.get<WorkspaceUser[]>(`/workspace/${workspaceId}/users`);
+	const { data } = await axios.get<WorkspaceUser[]>(`/workspace_control/${workspaceId}/users`);
 	return data;
 };
 
@@ -70,7 +70,7 @@ const inviteMember = async ({
 	workspaceId: any;
 	roleId: string;
 }) => {
-	const response = await axios.post(`/workspace/${workspaceId}/add_user`, {
+	const response = await axios.post(`/workspace_control/${workspaceId}/add_user`, {
 		user_email: email,
 		role_id: roleId,
 	});
@@ -84,7 +84,7 @@ export const useInviteMember = (mutationConfig?: any) => {
 };
 
 const removeMember = async ({ userId, workspaceId }: { userId: string; workspaceId: any }) => {
-	const response = await axios.post(`/workspace/${workspaceId}/remove_user`, {
+	const response = await axios.post(`/workspace_control/${workspaceId}/remove_user`, {
 		user_id: userId,
 	});
 	return response.data;
@@ -105,7 +105,7 @@ const updateUserRole = async ({
 	roleId: string;
 	workspaceId: any;
 }) => {
-	const response = await axios.put(`/workspace/${workspaceId}/user_role`, {
+	const response = await axios.put(`/workspace_control/${workspaceId}/user_role`, {
 		user_id: userId,
 		role_id: roleId,
 	});
