@@ -90,7 +90,7 @@ export const isProductionApp = () => {
 };
 
 export const isFreeApp = () => {
-	return import.meta.env.VITE_APP_TYPE === 'app';
+	return import.meta.env.VITE_APP_TYPE === 'main-free';
 };
 
 export const invalidResourceName = (
