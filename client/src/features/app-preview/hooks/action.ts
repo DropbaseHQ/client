@@ -119,5 +119,5 @@ export const useEvent = (props: any) => {
 		}
 	};
 
-	return handleEvent;
+	return { handleEvent, mutation: actionMutation };
 };

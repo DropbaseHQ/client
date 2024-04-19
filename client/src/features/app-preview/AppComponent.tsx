@@ -28,7 +28,7 @@ export const AppComponent = (props: any) => {
 
 	const [{ pageName, appName }] = useAtom(pageAtom);
 
-	const handleEvent = useEvent({});
+	const { handleEvent, mutation } = useEvent({});
 
 	const {
 		component_type: componentType,
@@ -119,6 +119,7 @@ export const AppComponent = (props: any) => {
 					size="sm"
 					bgColor={grayOutComponent ? 'gray.100' : ''}
 					colorScheme={color || 'blue'}
+					isLoading={mutation.isLoading}
 					onClick={() => {
 						if (onClick) {
 							handleEvent(onClick);
