@@ -3,6 +3,7 @@ import { useAtomValue } from 'jotai';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
+import { isFreeApp } from '@/utils';
 
 export type URLMapping = {
 	id: string;
@@ -24,7 +25,7 @@ export const useURLMappings = () => {
 		queryKey,
 		() => fetchURLMappings({ workspaceId: workspaceId || '' }),
 		{
-			enabled: !!workspaceId,
+			enabled: !!workspaceId && !isFreeApp(),
 			staleTime: Infinity,
 			cacheTime: Infinity,
 		},
