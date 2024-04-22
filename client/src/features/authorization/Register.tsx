@@ -85,7 +85,6 @@ export const Register = () => {
 			toast({
 				title: 'Registered successfully',
 				status: 'success',
-				// description: 'Please check your mail for the confirmation link.',
 			});
 			setConfirmation(true);
 			navigate('/login');
