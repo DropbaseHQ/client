@@ -49,7 +49,12 @@ import { pageStateContextAtom, pageContextAtom, pageStateAtom } from '@/features
 
 import dropdownCellRenderer from './components/cells/SingleSelect';
 
-import { CurrentTableContext, useCurrentTableData, useTableSyncStatus } from './hooks';
+import {
+	CurrentTableContext,
+	useCurrentTableData,
+	useSaveColumns,
+	useTableSyncStatus,
+} from './hooks';
 
 import {
 	cellEditsAtom,
@@ -65,7 +70,6 @@ import { NavLoader } from '@/components/Loader';
 import { appModeAtom } from '@/features/app/atoms';
 import { Pagination } from './components/Pagination';
 import { DEFAULT_PAGE_SIZE } from './constants';
-import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
 import { useEvent } from '@/features/app-preview/hooks';
@@ -116,8 +120,6 @@ export const SmartTable = ({ tableName, height }: any) => {
 
 	const tableColumnWidth = allTableColumnWidth?.[tableName];
 
-	const { properties } = useGetPage({ appName, pageName });
-
 	const {
 		renderPopoverContent,
 		onOpen: openConvertPopover,
@@ -164,7 +166,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 		},
 	});
 
-	const mutation = useUpdatePageData({
+	const mutation = useSaveColumns({
 		onSuccess: () => {
 			toast({
 				title: 'Commited Columns details',
@@ -1048,27 +1050,13 @@ export const SmartTable = ({ tableName, height }: any) => {
 
 	const handleCommitColumns = () => {
 		mutation.mutate({
-			app_name: appName,
-			page_name: pageName,
-			properties: {
-				...(properties || {}),
-				blocks: [
-					...(properties?.blocks || []).map((t: any) => {
-						if (t.name === tableName) {
-							return {
-								...t,
-								smart: false,
-								columns: header.map((c: any) => ({
-									...(columnDict?.[c] || {}),
-									...c,
-								})),
-							};
-						}
-
-						return t;
-					}),
-				],
-			},
+			appName,
+			pageName,
+			tableName,
+			columns: header.map((c: any) => ({
+				...(columnDict?.[c] || {}),
+				...c,
+			})),
 		});
 	};
 

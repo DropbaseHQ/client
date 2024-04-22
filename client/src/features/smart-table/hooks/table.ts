@@ -11,10 +11,26 @@ import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
 import { fetchJobStatus } from '@/utils/worker-job';
-import { executeAction } from '@/features/app-preview/hooks';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 export const FUNCTION_DATA_QUERY_KEY = 'functionData';
+
+const queryClassData = async ({ pageName, appName, tableName, state }: any) => {
+	const response = await workerAxios.post(`/function/class`, {
+		page_name: pageName,
+		app_name: appName,
+		action: 'get_table_data', // FIXME: create a constant
+		target: tableName,
+		state,
+	});
+
+	if (response.data?.job_id) {
+		const jobResponse = await fetchJobStatus(response.data.job_id);
+		return jobResponse;
+	}
+
+	throw new Error('Failed to run python function');
+};
 
 const fetchFunctionData = async ({
 	fetcher,
@@ -43,12 +59,11 @@ const fetchFunctionData = async ({
 		throw new Error('Failed to retrieve data from fetcher');
 	}
 
-	const response = await executeAction({
+	const response = await queryClassData({
 		pageName,
 		appName,
-		pageState: state,
-		functionName: fetcher?.value,
-		fileName: fetcher?.file,
+		state: state.state,
+		tableName,
 	});
 
 	return response;
@@ -167,7 +182,6 @@ export const useTableData = ({
 
 	const queryKey = [
 		TABLE_DATA_QUERY_KEY,
-		table?.fetcher?.value,
 		tableName,
 		appName,
 		pageName,
@@ -201,7 +215,6 @@ export const useTableData = ({
 			enabled: !!(
 				!isLoadingPage &&
 				table?.name in tablesState &&
-				table?.fetcher &&
 				table &&
 				appName &&
 				pageName &&
@@ -268,6 +281,28 @@ export const useSaveEdits = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+		},
+	});
+};
+
+const saveColumns = async ({ appName, pageName, tableName, columns }: any) => {
+	const response = await workerAxios.post(`/page/save_table_columns/`, {
+		app_name: appName,
+		page_name: pageName,
+		table_name: tableName,
+		columns,
+	});
+
+	return response.data;
+};
+
+export const useSaveColumns = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(saveColumns, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 	});
 };

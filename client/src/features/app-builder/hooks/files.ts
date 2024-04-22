@@ -64,6 +64,8 @@ export const usePageFiles = ({ pageName, appName }: { pageName: string; appName:
 		() => fetchAllPageFiles({ pageName, appName }),
 		{
 			enabled: Boolean(appName) && Boolean(pageName),
+			staleTime: Infinity,
+			cacheTime: Infinity,
 		},
 	);
 

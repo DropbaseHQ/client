@@ -141,64 +141,52 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 			return;
 		}
 
+		const currentWidget = properties[widgetName] || {};
+
 		updateMutation.mutate({
 			app_name: appName,
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				blocks: [
-					...(properties?.blocks || []).map((w: any) => {
-						if (w.name === widgetName) {
+				[widgetName]: {
+					...currentWidget,
+					components: (currentWidget.components || []).map((c: any) => {
+						if (c.name === id) {
 							return {
-								...w,
-								components: (w.components || []).map((c: any) => {
-									if (c.name === id) {
-										return {
-											...c,
-											...formValues,
-										};
-									}
-
-									return c;
-								}),
+								...c,
+								...formValues,
 							};
 						}
 
-						return w;
+						return c;
 					}),
-				],
+				},
 			},
 		});
 	};
 
 	const handleUpdateName = async (newName: any) => {
 		try {
+			const currentWidget = properties[widgetName] || {};
+
 			await updateMutation.mutate({
 				app_name: appName,
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					blocks: [
-						...(properties?.blocks || []).map((w: any) => {
-							if (w.name === widgetName) {
+					[widgetName]: {
+						...currentWidget,
+						components: (currentWidget.components || []).map((c: any) => {
+							if (c.name === id) {
 								return {
-									...w,
-									components: (w.components || []).map((c: any) => {
-										if (c.name === id) {
-											return {
-												...c,
-												name: newName,
-											};
-										}
-
-										return c;
-									}),
+									...c,
+									name: newName,
 								};
 							}
 
-							return w;
+							return c;
 						}),
-					],
+					},
 				},
 			});
 
@@ -243,11 +231,9 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 							</LabelContainer>
 							<NameEditor
 								value={id}
-								currentNames={(
-									properties?.blocks.find(
-										(w: any) => w.name === (widgetName || ''),
-									)?.components || []
-								).map((c: any) => c.name)}
+								currentNames={(properties?.[widgetName]?.components || []).map(
+									(c: any) => c.name,
+								)}
 								onUpdate={handleUpdateName}
 								resource="component"
 							/>
@@ -273,23 +259,20 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 								isLoading={deleteMutation.isLoading}
 								onClick={(e) => {
 									e.stopPropagation();
+
+									const currentWidget = properties[widgetName] || {};
+
 									deleteMutation.mutate({
 										app_name: appName,
 										page_name: pageName,
 										properties: {
 											...(properties || {}),
-											blocks: (properties.blocks || []).map((w: any) => {
-												if (w.name === widgetName) {
-													return {
-														...w,
-														components: w?.components.filter(
-															(c: any) => c?.name !== component?.name,
-														),
-													};
-												}
-
-												return w;
-											}),
+											[widgetName]: {
+												...currentWidget,
+												components: currentWidget?.components.filter(
+													(c: any) => c?.name !== component?.name,
+												),
+											},
 										},
 									});
 								}}
@@ -453,9 +436,7 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 	});
 
 	const onSubmit = async ({ type }: any) => {
-		const currentNames = (
-			properties?.blocks?.find((w: any) => w.name === widgetName)?.components || []
-		)
+		const currentNames = (properties?.[widgetName]?.components || [])
 			.filter((c: any) => c.component_type === type)
 			.map((c: any) => c.name);
 
@@ -486,30 +467,24 @@ export const NewComponent = ({ widgetName, ...props }: any) => {
 		}
 
 		try {
+			const currentWidget = properties[widgetName] || {};
+
 			await mutation.mutateAsync({
 				app_name: appName,
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					blocks: [
-						...(properties?.blocks || []).map((w: any) => {
-							if (w.name === widgetName) {
-								return {
-									...w,
-									components: [
-										...(w.components || []),
-										{
-											name: newName,
-											component_type: type,
-											...otherProperty,
-										},
-									],
-								};
-							}
-
-							return w;
-						}),
-					],
+					[widgetName]: {
+						...currentWidget,
+						components: [
+							...(currentWidget.components || []),
+							{
+								name: newName,
+								component_type: type,
+								...otherProperty,
+							},
+						],
+					},
 				},
 			});
 			setInspectedResource({

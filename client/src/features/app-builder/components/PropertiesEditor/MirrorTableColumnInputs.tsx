@@ -115,23 +115,17 @@ export const MirrorTableColumns = ({ widgetName, ...props }: any) => {
 				};
 			});
 
+			const currentWidget = properties[widgetName] || {};
+
 			await mutation.mutateAsync({
 				app_name: appName,
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					blocks: [
-						...(properties?.blocks || []).map((w: any) => {
-							if (w.name === widgetName) {
-								return {
-									...w,
-									components: [...(w.components || []), ...columnComponents],
-								};
-							}
-
-							return w;
-						}),
-					],
+					[widgetName]: {
+						...currentWidget,
+						components: [...(currentWidget.components || []), ...columnComponents],
+					},
 				},
 			});
 		} catch (e) {

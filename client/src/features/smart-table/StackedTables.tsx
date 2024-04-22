@@ -115,16 +115,16 @@ export const StackedTables = () => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					blocks: properties?.blocks?.map((t: any) => {
-						if (t.block_type === 'table') {
-							return {
+					...tables.reduce(
+						(agg: any, t: any) => ({
+							...agg,
+							[t.name]: {
 								...t,
 								...(tableLayout?.[t.name] || {}),
-							};
-						}
-
-						return t;
-					}),
+							},
+						}),
+						{},
+					),
 				},
 			});
 		}
