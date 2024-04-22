@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai';
 
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
 
 export type URLMapping = {
@@ -13,7 +13,7 @@ export type URLMapping = {
 };
 
 const fetchURLMappings = async ({ workspaceId }: { workspaceId: string }) => {
-	const { data } = await axios.get<URLMapping[]>(`/url_mapping/${workspaceId}`);
+	const { data } = await workerAxios.get<URLMapping[]>(`/url_mapping/${workspaceId}`);
 	return data;
 };
 
@@ -46,7 +46,7 @@ const createURLMapping = async ({
 	lsp_url: string;
 	workspaceId: string;
 }) => {
-	const response = await axios.post('/url_mapping/', {
+	const response = await workerAxios.post('/url_mapping/', {
 		client_url,
 		worker_url,
 		lsp_url,
@@ -65,7 +65,7 @@ export const useCreateURLMapping = () => {
 };
 
 const deleteURLMapping = async ({ id }: { id: string }) => {
-	const response = await axios.delete(`/url_mapping/${id}`);
+	const response = await workerAxios.delete(`/url_mapping/${id}`);
 	return response.data;
 };
 
@@ -89,7 +89,7 @@ const updateURLMapping = async ({
 	worker_url: string;
 	lsp_url: string;
 }) => {
-	const response = await axios.put(`/url_mapping/${id}`, {
+	const response = await workerAxios.put(`/url_mapping/${id}`, {
 		client_url,
 		worker_url,
 		lsp_url,

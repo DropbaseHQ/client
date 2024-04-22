@@ -20,7 +20,7 @@ import { GoogleLogin } from '@react-oauth/google';
 
 import { useGoogleRegister, useRegister } from './hooks/useRegister';
 import { useToast } from '@/lib/chakra-ui';
-import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
+import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setWorkerAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '@/utils';
 import { onboardingAtom } from '@/features/authorization';
 import { showConfirmationAtom } from './atoms';
@@ -57,7 +57,7 @@ export const Register = () => {
 		onSuccess: (data: any) => {
 			queryClient.clear();
 			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-			setAxiosToken(data?.access_token);
+			setWorkerAxiosToken(data?.access_token);
 			localStorage.setItem('access_token', data?.access_token);
 			localStorage.setItem('refresh_token', data?.refresh_token);
 			workerAxios.defaults.headers.common['access-token'] = data?.access_token;

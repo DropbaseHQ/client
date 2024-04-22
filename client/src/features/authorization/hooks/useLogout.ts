@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from 'react-query';
 import { useNavigate } from 'react-router-dom';
-import { axios, setAxiosToken, setWorkerAxiosToken } from '@/lib/axios';
+import { workerAxios, setWorkerAxiosToken } from '@/lib/axios';
 
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 
 const logoutUser = async () => {
-	const response = await axios.delete<any>(`/user/logout`);
+	const response = await workerAxios.delete<any>(`/user/logout`);
 
 	return response.data;
 };
@@ -19,7 +19,7 @@ export const useLogout = () => {
 		onSuccess: () => {
 			queryClient.clear();
 			setWorkerAxiosToken(null);
-			setAxiosToken(null);
+			setWorkerAxiosToken(null);
 			localStorage.removeItem('access_token');
 			localStorage.removeItem('refresh_token');
 			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';

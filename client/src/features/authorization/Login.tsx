@@ -25,7 +25,7 @@ import { useLogin, useGoogleLogin } from './hooks/useLogin';
 import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
 import { onboardingAtom } from '@/features/authorization';
-import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
+import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setWorkerAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '../../utils';
 import { showConfirmationAtom } from './atoms';
 
@@ -73,7 +73,7 @@ export const Login = () => {
 		onSuccess: (data: any) => {
 			queryClient.clear();
 			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-			setAxiosToken(data?.access_token);
+			setWorkerAxiosToken(data?.access_token);
 			localStorage.setItem('access_token', data?.access_token);
 			localStorage.setItem('refresh_token', data?.refresh_token);
 			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
@@ -106,7 +106,7 @@ export const Login = () => {
 				localStorage.removeItem('refresh_token');
 			}
 			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-			setAxiosToken(data?.access_token);
+			setWorkerAxiosToken(data?.access_token);
 			localStorage.setItem('access_token', data?.access_token);
 			localStorage.setItem('refresh_token', data?.refresh_token);
 			workerAxios.defaults.headers.Authorization = `Bearer ${data?.access_token}`;

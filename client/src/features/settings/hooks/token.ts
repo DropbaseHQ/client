@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useEffect, useMemo } from 'react';
 
 import { useAtomValue, useAtom } from 'jotai';
-import { axios, workerAxios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { proxyTokenAtom } from '@/features/settings/atoms';
@@ -18,7 +18,7 @@ export type ProxyToken = {
 	region?: string;
 };
 const fetchProxyTokens = async ({ workspaceId, userId }: any) => {
-	const response = await axios.get<ProxyToken[]>(`/token/${workspaceId}/${userId}`);
+	const response = await workerAxios.get<ProxyToken[]>(`/token/${workspaceId}/${userId}`);
 
 	return response.data;
 };
@@ -48,7 +48,7 @@ export const useProxyTokens = ({ workspaceId, userId }: any) => {
 };
 
 const createProxyToken = async ({ workspaceId, name }: { workspaceId: string; name?: string }) => {
-	const response = await axios.post(`/token/`, {
+	const response = await workerAxios.post(`/token/`, {
 		workspace_id: workspaceId,
 		name,
 	});
@@ -95,7 +95,7 @@ export const useSyncProxyToken = () => {
 };
 
 const updateWorkspaceProxyToken = async ({ workspaceId, tokenId }: any) => {
-	const response = await axios.put(`/workspace_control/${workspaceId}/token`, {
+	const response = await workerAxios.put(`/workspace_control/${workspaceId}/token`, {
 		token_id: tokenId,
 	});
 	return response.data;
@@ -113,7 +113,7 @@ export const useUpdateWorkspaceProxyToken = (props: any = {}) => {
 };
 
 const updateTokenInfo = async ({ tokenId, name, region }: any) => {
-	const response = await axios.put(`/token/${tokenId}`, {
+	const response = await workerAxios.put(`/token/${tokenId}`, {
 		name,
 		region,
 	});
@@ -132,7 +132,7 @@ export const useUpdateTokenInfo = (props: any = {}) => {
 };
 
 const deleteProxyToken = async ({ tokenId }: any) => {
-	const response = await axios.delete(`/token/${tokenId}`);
+	const response = await workerAxios.delete(`/token/${tokenId}`);
 	return response.data;
 };
 

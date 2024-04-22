@@ -4,7 +4,7 @@ import { useSetAtom } from 'jotai';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { onboardingAtom } from '@/features/authorization';
 
 export type GithubAuthResponse = {
@@ -12,7 +12,7 @@ export type GithubAuthResponse = {
 	refresh_token: string;
 };
 const authorizeGithub = async (code: string) => {
-	const response = await axios.get<GithubAuthResponse>(`/user/github_auth/${code}`);
+	const response = await workerAxios.get<GithubAuthResponse>(`/user/github_auth/${code}`);
 
 	return response.data;
 };

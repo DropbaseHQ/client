@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from 'react-query';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 
@@ -12,7 +12,7 @@ export type Group = {
 	date: string;
 };
 const fetchWorkspaceGroups = async ({ workspaceId }: { workspaceId: any }) => {
-	const { data } = await axios.get<Group[]>(`/workspace_control/${workspaceId}/groups`);
+	const { data } = await workerAxios.get<Group[]>(`/workspace_control/${workspaceId}/groups`);
 	return data;
 };
 
@@ -42,7 +42,9 @@ export type WorkspaceUser = {
 };
 
 const fetchWorkspaceUsers = async ({ workspaceId }: { workspaceId: any }) => {
-	const { data } = await axios.get<WorkspaceUser[]>(`/workspace_control/${workspaceId}/users`);
+	const { data } = await workerAxios.get<WorkspaceUser[]>(
+		`/workspace_control/${workspaceId}/users`,
+	);
 	return data;
 };
 
@@ -70,7 +72,7 @@ const inviteMember = async ({
 	workspaceId: any;
 	roleId: string;
 }) => {
-	const response = await axios.post(`/workspace_control/${workspaceId}/add_user`, {
+	const response = await workerAxios.post(`/workspace_control/${workspaceId}/add_user`, {
 		user_email: email,
 		role_id: roleId,
 	});
@@ -84,7 +86,7 @@ export const useInviteMember = (mutationConfig?: any) => {
 };
 
 const removeMember = async ({ userId, workspaceId }: { userId: string; workspaceId: any }) => {
-	const response = await axios.post(`/workspace_control/${workspaceId}/remove_user`, {
+	const response = await workerAxios.post(`/workspace_control/${workspaceId}/remove_user`, {
 		user_id: userId,
 	});
 	return response.data;
@@ -105,7 +107,7 @@ const updateUserRole = async ({
 	roleId: string;
 	workspaceId: any;
 }) => {
-	const response = await axios.put(`/workspace_control/${workspaceId}/user_role`, {
+	const response = await workerAxios.put(`/workspace_control/${workspaceId}/user_role`, {
 		user_id: userId,
 		role_id: roleId,
 	});
@@ -127,7 +129,7 @@ const updateAppPolicy = async ({
 	subjects: string[];
 	action: string;
 }) => {
-	const response = await axios.post(`/app/${appId}/share`, {
+	const response = await workerAxios.post(`/app/${appId}/share`, {
 		subjects,
 		action,
 	});
@@ -152,7 +154,7 @@ type AppAccess = {
 };
 
 const fetchAppAccess = async ({ appId }: { appId: string }) => {
-	const response = await axios.get<AppAccess>(`/app/${appId}/has_access`);
+	const response = await workerAxios.get<AppAccess>(`/app/${appId}/has_access`);
 	return response.data;
 };
 

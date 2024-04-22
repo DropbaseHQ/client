@@ -1,14 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
 
-import { axios, workerAxios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { fetchJobStatus } from '@/utils/worker-job';
 
 export const ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY = 'functionNames';
 
 const fetchAllPageFunctionNames = async ({ pageId }: any) => {
-	const response = await axios.get<any>(`/files/ui_functions/${pageId}/`);
+	const response = await workerAxios.get<any>(`/files/ui_functions/${pageId}/`);
 	return response;
 };
 

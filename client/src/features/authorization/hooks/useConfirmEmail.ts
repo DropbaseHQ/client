@@ -1,8 +1,8 @@
 import { useQuery } from 'react-query';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 
 const confirmEmail = async ({ userId, token }: { userId: string; token: string }) => {
-	const response = await axios.post<{ user: string }>(
+	const response = await workerAxios.post<{ user: string }>(
 		`user/verify?token=${token}&user_id=${userId}`,
 	);
 

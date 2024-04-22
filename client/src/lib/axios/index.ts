@@ -2,39 +2,35 @@ import Axios from 'axios';
 import { getWorkerURL } from '@/utils/url';
 import { isFreeApp } from '@/utils';
 
-export const axios = Axios.create({
-	baseURL: getWorkerURL(),
-});
-
 export const workerAxios = Axios.create({
 	baseURL: getWorkerURL(),
 	withCredentials: true,
 });
 
 if (localStorage.getItem('access_token')) {
-	axios.defaults.headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
+	workerAxios.defaults.headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
 
-	if (!isFreeApp()) {
-		workerAxios.defaults.headers.Authorization = `Bearer ${localStorage.getItem(
-			'access_token',
-		)}`;
-	}
+	// if (!isFreeApp()) {
+	// 	workerAxios.defaults.headers.Authorization = `Bearer ${localStorage.getItem(
+	// 		'access_token',
+	// 	)}`;
+	// }
 }
 
-export const setAxiosToken = (token: string | null) => {
-	axios.defaults.headers.Authorization = token ? `Bearer ${token}` : null;
+export const setWorkerAxiosToken = (token: string | null) => {
+	workerAxios.defaults.headers.Authorization = token ? `Bearer ${token}` : null;
+};
+export const setWorkerAxiosWorkspaceIdHeader = (workspaceId: string) => {
+	workerAxios.defaults.headers['workspace-id'] = workspaceId;
 };
 
-export const setWorkerAxiosToken = (token: string | null) => {
-	workerAxios.defaults.headers['access-token'] = token;
-};
 export const setWorkerAxiosBaseURL = (url: string) => {
 	workerAxios.defaults.baseURL = url;
 };
 
-export const setWorkerAxiosWorkspaceIdHeader = (workspaceId: string) => {
-	workerAxios.defaults.headers['workspace-id'] = workspaceId;
-};
+// export const setWorkerAxiosToken = (token: string | null) => {
+// 	workerAxios.defaults.headers['access-token'] = token;
+// };
 
 const redirectToLogin = () => {
 	if (
@@ -52,7 +48,7 @@ const redirectToLogin = () => {
 };
 
 if (!isFreeApp()) {
-	axios.interceptors.response.use(
+	workerAxios.interceptors.response.use(
 		(res) => {
 			return res;
 		},
@@ -74,7 +70,7 @@ if (!isFreeApp()) {
 							apiConfig.retry = true;
 
 							try {
-								const refreshResponse = await axios.post(
+								const refreshResponse = await workerAxios.post(
 									'/user/refresh',
 									undefined,
 									{
@@ -85,10 +81,9 @@ if (!isFreeApp()) {
 								);
 								const accessToken = refreshResponse?.data?.access_token;
 								localStorage.setItem('access_token', accessToken);
-								setAxiosToken(accessToken);
 								setWorkerAxiosToken(accessToken);
 
-								return await axios(apiConfig);
+								return await workerAxios(apiConfig);
 							} catch (_error) {
 								redirectToLogin();
 							}
@@ -112,7 +107,7 @@ if (!isFreeApp()) {
 			if (err.response.status === 401 && !apiConfig.retry) {
 				apiConfig.retry = true;
 
-				return axios(apiConfig);
+				return workerAxios(apiConfig);
 			}
 			return Promise.reject(err);
 		},

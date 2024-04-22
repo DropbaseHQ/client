@@ -1,9 +1,9 @@
 import { useMutation } from 'react-query';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { MutationConfig } from '@/lib/react-query';
 
 const requestResetPasswordMail = async ({ email }: { email: string }) => {
-	const response = await axios.post<{ user: string }>(`/user/request_reset_password`, {
+	const response = await workerAxios.post<{ user: string }>(`/user/request_reset_password`, {
 		email,
 	});
 
@@ -27,7 +27,7 @@ const resetPassword = async ({
 	password: string;
 	resetToken: string;
 }) => {
-	const response = await axios.post<{ user: string }>(`/user/reset_password`, {
+	const response = await workerAxios.post<{ user: string }>(`/user/reset_password`, {
 		email,
 		new_password: password,
 		reset_token: resetToken,

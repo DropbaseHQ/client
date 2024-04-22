@@ -1,14 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
 
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 import { PAGE_DATA_QUERY_KEY } from '@/features/page';
 
 export const COLUMN_PROPERTIES_QUERY_KEY = 'column/properties';
 
 const fetchTableColumnProperties = async ({ tableId }: { tableId: string }) => {
-	const response = await axios.get<any>(`/columns/table/${tableId}`);
+	const response = await workerAxios.get<any>(`/columns/table/${tableId}`);
 
 	return response.data;
 };
@@ -55,7 +55,7 @@ const updateColumnProperties = async ({
 	columnId: string;
 	type: any;
 }) => {
-	const response = await axios.put(`/columns/${columnId}`, { property: payload, type });
+	const response = await workerAxios.put(`/columns/${columnId}`, { property: payload, type });
 	return response.data;
 };
 
