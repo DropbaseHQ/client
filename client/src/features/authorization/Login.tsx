@@ -109,7 +109,6 @@ export const Login = () => {
 			setWorkerAxiosToken(data?.access_token);
 			localStorage.setItem('access_token', data?.access_token);
 			localStorage.setItem('refresh_token', data?.refresh_token);
-			workerAxios.defaults.headers.Authorization = `Bearer ${data?.access_token}`;
 
 			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
 			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);

@@ -72,7 +72,11 @@ export const useSetAxiosToken = () => {
 				setWorkerAxiosToken(savedAccessToken);
 			} else {
 				try {
-					const response = await workerAxios.post('/user/refresh');
+					const response = await workerAxios.post('/user/refresh', undefined, {
+						headers: {
+							Authorization: `Bearer ${localStorage.getItem('refresh_token')}`,
+						},
+					});
 					const accessToken = response.data.access_token;
 					localStorage.setItem('access_token', accessToken);
 					setWorkerAxiosToken(accessToken);
