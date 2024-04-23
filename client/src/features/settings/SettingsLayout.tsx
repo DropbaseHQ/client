@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue } from 'jotai';
 import { Box, Stack, Text } from '@chakra-ui/react';
-import { Lock, User, Users, Code, Icon as ReactFeatherIcon } from 'react-feather';
+import { Lock, User, Users, Icon as ReactFeatherIcon } from 'react-feather';
 import { PropsWithChildren, useEffect } from 'react';
 import { Link as ReactRouterLink } from 'react-router-dom';
 import { PageLayout } from '@/layout';
@@ -64,12 +64,6 @@ const options = [
 		link: 'permissions',
 		icon: Lock,
 		isGranular: true,
-	},
-	{
-		name: 'Developer',
-		link: 'developer',
-		icon: Code,
-		isGranular: false,
 	},
 ];
 
