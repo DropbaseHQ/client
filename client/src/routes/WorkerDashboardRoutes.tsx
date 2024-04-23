@@ -1,12 +1,7 @@
 import useWebSocket from 'react-use-websocket';
-import { Center, Spinner, Stack, Text } from '@chakra-ui/react';
 import { useSetAtom } from 'jotai';
 import { Route, Routes } from 'react-router-dom';
-import {
-	useGetWebSocketURL,
-	useSetAxiosToken,
-	useSetWorkerAxiosBaseURL,
-} from '@/features/authorization/hooks/useLogin';
+import { useGetWebSocketURL, useSetAxiosToken } from '@/features/authorization/hooks/useLogin';
 import { websocketStatusAtom } from '@/features/app/atoms';
 
 import { useSyncProxyToken } from '@/features/settings/hooks/token';
@@ -23,7 +18,6 @@ export const WorkerDashboardRoutes = () => {
 
 	useSyncProxyToken();
 	useSetAxiosToken();
-	const { urlSet, isLoading } = useSetWorkerAxiosBaseURL();
 
 	const websocketURL = useGetWebSocketURL();
 
@@ -40,45 +34,13 @@ export const WorkerDashboardRoutes = () => {
 		},
 	});
 
-	let children = null;
-
-	/**
-	 * Only show worker routes when the correct URL is set and track the Loading
-	 * state of URL mappings since we want to make sure it was URL set after loading
-	 * mappings
-	 */
-	if (isLoading) {
-		children = (
-			<Route
-				path="*"
-				element={
-					<Center as={Stack}>
-						<Spinner />
-						<Text>Loading User Config...</Text>
-					</Center>
-				}
-			/>
-		);
-	} else if (!urlSet) {
-		children = (
-			<Route
-				path="*"
-				element={
-					<Center>
-						<Text>URL Mapping not set</Text>
-					</Center>
-				}
-			/>
-		);
-	} else {
-		children = (
-			<>
-				<Route path="workspaces" element={<Workspaces />} />
-				<Route path="apps/*" element={<App />} />
-				<Route path="settings/*" element={<SettingsRoutes />} />
-			</>
-		);
-	}
+	const children = (
+		<>
+			<Route path="workspaces" element={<Workspaces />} />
+			<Route path="apps/*" element={<App />} />
+			<Route path="settings/*" element={<SettingsRoutes />} />
+		</>
+	);
 
 	return (
 		<>
