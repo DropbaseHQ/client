@@ -229,16 +229,6 @@ export const FunctionEditor = ({ name }: any) => {
 				</Stack>
 			</Stack>
 
-			{!isLoadingWorkerFiles && updatedCode && isNotSameFunctionName ? (
-				<Alert flexShrink="0" status="error">
-					<AlertIcon />
-
-					<AlertDescription>
-						Please make sure function name matches with the file name
-					</AlertDescription>
-				</Alert>
-			) : null}
-
 			{file?.type === 'python' ? (
 				<Stack p="3" borderBottomWidth="1px" alignItems="start" direction="row">
 					<FormControl>

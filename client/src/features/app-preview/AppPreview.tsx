@@ -66,17 +66,14 @@ export const AppPreview = () => {
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				blocks: [
-					...(properties?.blocks || []),
-					{
-						name: wName,
-						label: wLabel,
-						type: 'base',
-						block_type: 'widget',
-						menu_item: true,
-						components: [],
-					},
-				],
+				[wName]: {
+					name: wName,
+					label: wLabel,
+					type: 'base',
+					block_type: 'widget',
+					menu_item: true,
+					components: [],
+				},
 			},
 		});
 	};

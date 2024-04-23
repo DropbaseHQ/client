@@ -190,28 +190,22 @@ export const FilterButton = () => {
 		}));
 
 		if (!isPreview) {
+			const currentTable = properties[tableId];
+
 			mutation.mutate({
 				app_name: appName,
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					blocks: [
-						...(properties?.blocks || []).map((t: any) => {
-							if (t.name === tableId) {
-								return {
-									...t,
-									filters: updatedFilters
-										.filter((f: any) => f.pinned)
-										.map((f: any) => ({
-											column_name: f.column_name,
-											condition: f.condition,
-										})),
-								};
-							}
-
-							return t;
-						}),
-					],
+					[tableId]: {
+						...currentTable,
+						filters: updatedFilters
+							.filter((f: any) => f.pinned)
+							.map((f: any) => ({
+								column_name: f.column_name,
+								condition: f.condition,
+							})),
+					},
 				},
 			});
 		}

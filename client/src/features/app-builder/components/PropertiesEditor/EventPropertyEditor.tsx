@@ -166,42 +166,36 @@ export const EventPropertyEditor = ({ id, title, showFetchersOnly = false, onSel
 		});
 
 		try {
+			const currentWidget = properties[widgetName as string];
 			await createMutation.mutateAsync({
 				app_name: appName,
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					blocks: [
-						...(properties?.blocks || []).map((w: any) => {
-							if (w.type === 'widget' && w.name === widgetName) {
+					[widgetName as string]: {
+						...currentWidget,
+						components: (currentWidget.components || []).map((c: any) => {
+							if (c.name === componentId) {
 								return {
-									...w,
-									components: (w.components || []).map((c: any) => {
-										if (c.name === componentId) {
-											return {
-												...c,
-												on_click: {
-													type: 'widget',
-													value: wName,
-												},
-											};
-										}
-
-										return c;
-									}),
+									...c,
+									on_click: {
+										type: 'widget',
+										value: wName,
+									},
 								};
 							}
 
-							return w;
+							return c;
 						}),
-						{
-							name: wName,
-							label: wLabel,
-							type: widgetType,
-							menu_item: true,
-							components: [],
-						},
-					],
+					},
+					[wName]: {
+						name: wName,
+						label: wLabel,
+						type: widgetType,
+						menu_item: true,
+						block_type: 'widget',
+						components: [],
+					},
 				},
 			});
 			handleChooseWidget(wName);

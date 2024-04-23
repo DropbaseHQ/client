@@ -144,8 +144,9 @@ export const DisplayRulesEditor = ({ name }: any) => {
 	const { widgetName, widgets } = useAtomValue(pageAtom);
 	const pageComponents = useAtomValue(pageStateAtom);
 	const { appName, pageName } = useParams();
-	const { properties } = useGetPage({ appName, pageName });
-	const pageBlocks = properties?.blocks || {};
+	const { tables, widgets: allWidgets } = useGetPage({ appName, pageName });
+	// TODO: ask @jon if this change is correct
+	const pageBlocks = [...tables, ...allWidgets];
 
 	const components = widgets?.find((w: any) => w.name === widgetName)?.components || [];
 

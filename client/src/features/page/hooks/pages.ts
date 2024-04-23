@@ -11,11 +11,10 @@ import { APPS_QUERY_KEY } from '@/features/app-list/hooks/useGetWorkspaceApps';
 export const PAGE_DATA_QUERY_KEY = 'pageData';
 
 export type FetchPageResponse = {
-	state_context: {
-		state: any;
-		context: any;
-		properties: any;
-	};
+	state: any;
+	context: any;
+	properties: any;
+
 	permissions: {
 		use: boolean;
 		edit: boolean;
@@ -41,16 +40,29 @@ export const useGetPage = ({ appName, pageName, ...props }: any) => {
 	});
 
 	const data: any = useMemo(() => {
-		const allBlocks = response?.state_context?.properties?.blocks || [];
+		const allProperties = response?.properties || {};
+		const allBlocks: any = Object.keys(allProperties);
 
 		return {
-			state: response?.state_context?.state || {},
-			context: response?.state_context?.context || {},
-			tables: allBlocks.filter((b: any) => b.block_type === 'table') || [],
-			widgets: allBlocks.filter((b: any) => b.block_type === 'widget') || [],
-			files: response?.state_context?.properties?.files || [],
-			properties: response?.state_context?.properties || {},
-			permissions: response?.permissions || {},
+			state: response?.state || {},
+			context: response?.context || {},
+			tables: allBlocks
+				.filter((b: any) => allProperties[b]?.block_type === 'table')
+				.map((b: any) => allProperties[b]),
+			widgets: allBlocks
+				.filter((b: any) => allProperties[b].block_type === 'widget')
+				.map((b: any) => allProperties[b]),
+			files: response?.properties?.files || [
+				{
+					name: 'main',
+					type: 'python',
+				},
+			],
+			properties: allProperties,
+			permissions: response?.permissions || {
+				edit: true,
+				own: true,
+			},
 		};
 	}, [response]);
 

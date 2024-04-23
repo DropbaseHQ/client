@@ -66,14 +66,17 @@ export const WidgetProperties = ({ widgetId }: any) => {
 
 	const onSubmit = (formValues: any) => {
 		if (widgetId) {
+			const currentWidget = properties[widgetId] || {};
+
 			mutation.mutate({
 				app_name: appName,
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					blocks: properties?.blocks.map((w: any) =>
-						w.name === widgetId ? { ...w, ...formValues } : w,
-					),
+					[widgetId]: {
+						...currentWidget,
+						...formValues,
+					},
 				},
 			});
 		}
@@ -81,14 +84,17 @@ export const WidgetProperties = ({ widgetId }: any) => {
 
 	const handleUpdateName = async (newName: any) => {
 		try {
+			const currentWidget = properties[widgetId] || {};
+
 			await mutation.mutateAsync({
 				app_name: appName,
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					blocks: (properties.blocks || []).map((w: any) =>
-						w.name === widgetId ? { ...w, name: newName } : w,
-					),
+					[widgetId]: {
+						...currentWidget,
+						name: newName,
+					},
 				},
 			});
 			setInspectedResource({
@@ -103,13 +109,12 @@ export const WidgetProperties = ({ widgetId }: any) => {
 
 	const handleDeleteWidget = () => {
 		if (widgetId) {
+			const { [widgetId]: deletedWidget, ...rest } = properties;
+
 			deleteMutation.mutate({
 				app_name: appName,
 				page_name: pageName,
-				properties: {
-					...(properties || {}),
-					blocks: properties?.blocks.filter((w: any) => w.name !== widgetId),
-				},
+				properties: rest,
 			});
 		}
 	};
