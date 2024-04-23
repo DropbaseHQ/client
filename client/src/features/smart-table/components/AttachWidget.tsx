@@ -50,23 +50,17 @@ export const AttachWidget = ({ onAttach }: any) => {
 
 	const onChange = async (newWidget: any) => {
 		try {
+			const currentTable = properties[tableName] || {};
+
 			await mutation.mutateAsync({
 				app_name: appName,
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					blocks: [
-						...(properties?.blocks || []).map((t: any) => {
-							if (t.name === tableName) {
-								return {
-									...t,
-									widget: newWidget || null,
-								};
-							}
-
-							return t;
-						}),
-					],
+					[tableName]: {
+						...currentTable,
+						widget: newWidget || null,
+					},
 				},
 			});
 

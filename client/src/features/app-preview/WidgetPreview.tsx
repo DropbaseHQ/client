@@ -119,24 +119,18 @@ export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 	};
 
 	const handleReorderComponents = (newCompState: any[]) => {
-		const newProps = {
-			...(properties || {}),
+		const currentWidget = properties[widgetName] || {};
 
-			blocks: (properties.blocks || [])?.map((w: any) => {
-				if (w.name !== widgetName) {
-					return w;
-				}
-
-				return {
-					...w,
-					components: newCompState,
-				};
-			}),
-		};
 		updateMutation.mutate({
 			app_name: appName,
 			page_name: pageName,
-			properties: newProps,
+			properties: {
+				...(properties || {}),
+				[widgetName]: {
+					...currentWidget,
+					components: newCompState,
+				},
+			},
 		});
 	};
 

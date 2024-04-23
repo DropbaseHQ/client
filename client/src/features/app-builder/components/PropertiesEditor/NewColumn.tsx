@@ -70,24 +70,20 @@ export const NewColumn = (props: any) => {
 	});
 
 	const onSubmit = (formValues: any) => {
+		const currentTable = pageProperties[tableName] || {};
+
 		mutation.mutate({
 			app_name: appName,
 			page_name: pageName,
 			properties: {
 				...(pageProperties || {}),
-				blocks: (pageProperties?.blocks || []).map((t: any) => {
-					if (t.name === tableName) {
-						return {
-							...t,
-							columns: [
-								...(t?.columns || []),
-								{ ...formValues, column_type: 'button_column' },
-							],
-						};
-					}
-
-					return t;
-				}),
+				[tableName]: {
+					...currentTable,
+					columns: [
+						...(currentTable?.columns || []),
+						{ ...formValues, column_type: 'button_column' },
+					],
+				},
 			},
 		});
 	};

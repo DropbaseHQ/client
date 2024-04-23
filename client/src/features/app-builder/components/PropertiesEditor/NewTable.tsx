@@ -45,17 +45,13 @@ export const NewTable = (props: any) => {
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					blocks: [
-						...(properties?.blocks || []),
-						{
-							name: nextName,
-							label: nextLabel,
-							type: 'sql',
-							block_type: 'table',
-							columns: [],
-							y: Math.max(...tables.map((t: any) => t.y)),
-						},
-					],
+					[nextName]: {
+						name: nextName,
+						label: nextLabel,
+						block_type: 'table',
+						columns: [],
+						y: Math.max(...tables.map((t: any) => t.y)),
+					},
 				},
 			});
 

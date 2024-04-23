@@ -32,7 +32,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 	const toast = useToast();
 	const setDevTab = useSetAtom(inspectedResourceAtom);
 
-	const { properties } = useGetPage({ appName, pageName });
+	const { properties, tables } = useGetPage({ appName, pageName });
 
 	const { isOpen, onToggle, onClose } = useDisclosure({
 		onClose: () => {
@@ -67,7 +67,7 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 	});
 
 	const onSubmit = () => {
-		if (properties.blocks?.filter((b: any) => b.block_type === 'table').length === 1) {
+		if (tables.length === 1) {
 			toast({
 				status: 'error',
 				title: 'Failed to delete table',
@@ -76,13 +76,12 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 			return;
 		}
 
+		const { [tableName]: deletedTable, ...otherProperties } = properties || {};
+
 		mutation.mutate({
 			app_name: appName,
 			page_name: pageName,
-			properties: {
-				...(properties || {}),
-				blocks: [...(properties?.blocks || []).filter((t: any) => t.name !== tableId)],
-			},
+			properties: otherProperties,
 		});
 	};
 

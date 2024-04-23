@@ -196,29 +196,27 @@ const ColumnProperty = ({
 
 	const handleUpdate = async (partialValues: any) => {
 		try {
+			const currentTable = pageProperties[tableName] || {};
+
 			const newProperties = {
 				...(pageProperties || {}),
-				blocks: (pageProperties?.blocks || []).map((t: any) => {
-					if (t.name === tableName) {
-						return {
-							...t,
-							columns: (t?.columns || []).map((c: any) => {
-								if (c.name === defaultName) {
-									return {
-										...c,
-										...properties,
-										...partialValues,
-									};
-								}
 
-								return c;
-							}),
-						};
-					}
+				[tableName]: {
+					...currentTable,
+					columns: (currentTable?.columns || []).map((c: any) => {
+						if (c.name === defaultName) {
+							return {
+								...c,
+								...properties,
+								...partialValues,
+							};
+						}
 
-					return t;
-				}),
+						return c;
+					}),
+				},
 			};
+
 			await updateMutation.mutateAsync({
 				app_name: appName,
 				page_name: pageName,
@@ -226,9 +224,7 @@ const ColumnProperty = ({
 			});
 
 			const currentColumn =
-				(pageProperties?.blocks || [])
-					.find((t: any) => t.name === tableName)
-					?.columns?.find((c: any) => c.name === defaultName) || {};
+				currentTable?.columns?.find((c: any) => c.name === defaultName) || {};
 
 			reset(currentColumn, {
 				keepDirty: false,
@@ -241,23 +237,20 @@ const ColumnProperty = ({
 
 	const handleDelete = async (columnId: any) => {
 		try {
+			const currentTable = pageProperties[tableName] || {};
+
 			await updateMutation.mutateAsync({
 				app_name: appName,
 				page_name: pageName,
+
 				properties: {
 					...(pageProperties || {}),
-					blocks: (pageProperties?.blocks || []).map((t: any) => {
-						if (t.name === tableName) {
-							return {
-								...t,
-								columns: (t?.columns || []).filter((c: any) => {
-									return c.name !== columnId;
-								}),
-							};
-						}
-
-						return t;
-					}),
+					[tableName]: {
+						...currentTable,
+						columns: (currentTable?.columns || []).filter((c: any) => {
+							return c.name !== columnId;
+						}),
+					},
 				},
 			});
 		} catch (e) {

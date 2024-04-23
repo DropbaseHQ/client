@@ -94,54 +94,41 @@ export const TableProperties = () => {
 	]);
 
 	const onSubmit = ({ fetcher, height, depends, ...rest }: any) => {
+		const currentTable = properties[tableId] || {};
+
 		mutation.mutate({
 			app_name: appName,
 			page_name: pageName,
 			properties: {
 				...(properties || {}),
-				blocks: [
-					...(properties?.blocks || []).map((t: any) => {
-						if (t.name === tableId) {
-							return {
-								...t,
-								...rest,
-								fetcher,
-								depends_on: depends,
-								height,
-								type:
-									files?.find((f: any) => f.name === fetcher?.value)?.type ===
-									'sql'
-										? 'sql'
-										: 'python',
-							};
-						}
-
-						return t;
-					}),
-				],
+				[tableId]: {
+					...currentTable,
+					...rest,
+					fetcher,
+					depends_on: depends,
+					height,
+					type:
+						files?.find((f: any) => f.name === fetcher?.value)?.type === 'sql'
+							? 'sql'
+							: 'python',
+				},
 			},
 		});
 	};
 
 	const handleUpdateName = async (newName: any) => {
+		const currentTable = properties[tableId] || {};
+
 		try {
 			await mutation.mutateAsync({
 				app_name: appName,
 				page_name: pageName,
 				properties: {
 					...(properties || {}),
-					blocks: [
-						...(properties?.blocks || []).map((t: any) => {
-							if (t.name === tableId) {
-								return {
-									...t,
-									name: newName,
-								};
-							}
-
-							return t;
-						}),
-					],
+					[tableId]: {
+						...currentTable,
+						name: newName,
+					},
 				},
 			});
 
