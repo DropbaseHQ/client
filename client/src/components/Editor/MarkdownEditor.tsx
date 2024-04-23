@@ -2,29 +2,44 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 
-import { Heading, Table, Thead, Tbody, Tr, Th, Td } from '@chakra-ui/react';
+import { Heading, Table, Thead, Tbody, Tr, Th, Td, Box, Text } from '@chakra-ui/react';
 
-const MarkdownEditor = ({ text }: { text: string }) => {
+const MarkdownEditor = ({ text, color }: { text: string; color: any }) => {
+	const finalColor = color || `${color}.500`;
+
 	return (
 		<ReactMarkdown
+			// remarkGfm adds a few more features e.g strikethroughs, tables, checkmarks
 			remarkPlugins={[remarkGfm, remarkBreaks]}
 			components={{
-				h1: (componentProps) => <Heading as="h1" size="2xl" {...componentProps} />,
-				h2: (componentProps) => <Heading as="h2" size="xl" {...componentProps} />,
-				h3: (componentProps) => <Heading as="h3" size="lg" {...componentProps} />,
-				h4: (componentProps) => <Heading as="h4" size="md" {...componentProps} />,
-				h5: (componentProps) => <Heading as="h5" size="sm" {...componentProps} />,
-				h6: (componentProps) => <Heading as="h6" size="xs" {...componentProps} />,
-				a: (componentProps) => (
-					<a
-						style={{ color: '#007bff', textDecoration: 'underline' }}
-						{...componentProps}
-					>
-						{componentProps.children}
-					</a>
+				h1: (componentProps) => (
+					<Heading color={finalColor} as="h1" size="2xl" {...componentProps} />
 				),
+				h2: (componentProps) => (
+					<Heading color={finalColor} as="h2" size="xl" {...componentProps} />
+				),
+				h3: (componentProps) => (
+					<Heading color={finalColor} as="h3" size="lg" {...componentProps} />
+				),
+				h4: (componentProps) => (
+					<Heading color={finalColor} as="h4" size="md" {...componentProps} />
+				),
+				h5: (componentProps) => (
+					<Heading color={finalColor} as="h5" size="sm" {...componentProps} />
+				),
+				h6: (componentProps) => (
+					<Heading color={finalColor} as="h6" size="xs" {...componentProps} />
+				),
+				a: (componentProps) => (
+					<Box as="a" color="blue.500" textDecoration="underline" {...componentProps}>
+						{componentProps.children}
+					</Box>
+				),
+				p: (componentProps) => <Text color={finalColor} {...componentProps} />,
 				em: (componentProps) => <i style={{ fontWeight: 'bold' }} {...componentProps} />,
-				table: (componentProps) => <Table variant="simple" {...componentProps} />,
+				table: (componentProps) => (
+					<Table color={finalColor} variant="simple" {...componentProps} />
+				),
 				thead: (componentProps) => <Thead {...componentProps} />,
 				tbody: (componentProps) => <Tbody {...componentProps} />,
 				tr: (componentProps) => <Tr {...componentProps} />,
