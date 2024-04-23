@@ -1,8 +1,8 @@
 import { atom } from 'jotai';
 
 export const developerTabAtom = atom<any>({
-	type: null,
-	id: null,
+	type: 'function',
+	id: 'main',
 });
 
 export const inspectedResourceAtom = atom<any>({
