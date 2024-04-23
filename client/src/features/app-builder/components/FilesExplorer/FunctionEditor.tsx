@@ -1,7 +1,4 @@
 import {
-	Alert,
-	AlertDescription,
-	AlertIcon,
 	Box,
 	Button,
 	Divider,
@@ -33,7 +30,7 @@ import { useGetPage } from '@/features/page';
 
 import { getErrorMessage } from '@/utils';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
-import { findFunctionDeclarations } from '../../utils';
+
 import { previewCodeAtom } from '../../atoms';
 import { InputRenderer } from '@/components/FormInput';
 
@@ -187,10 +184,10 @@ export const FunctionEditor = ({ name }: any) => {
 		);
 	}
 
-	const functionDeclarations = findFunctionDeclarations(updatedCode);
+	// const functionDeclarations = findFunctionDeclarations(updatedCode);
 
-	const isNotSameFunctionName =
-		file?.type === 'python' ? !functionDeclarations.find((f) => f.name === file.name) : false;
+	// const isNotSameFunctionName =
+	// 	file?.type === 'python' ? !functionDeclarations.find((f) => f.name === file.name) : false;
 
 	return (
 		<Stack h="full" bg="white" spacing="0" divider={<Divider />} w="full">

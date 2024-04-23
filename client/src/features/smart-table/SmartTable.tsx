@@ -379,7 +379,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 			...old,
 			[tableName]: {
 				currentPage: 0,
-				pageSize: size,
+				pageSize: size || 20,
 			},
 		}));
 	}, [tableName, size, setPageInfo]);

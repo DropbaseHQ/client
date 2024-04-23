@@ -141,9 +141,8 @@ export const AppComponent = (props: any) => {
 
 	if (componentType === 'text') {
 		return (
-			// remarkGfm adds a few more features e.g strikethroughs, tables, checkmarks
 			<Stack spacing="0.5" bgColor={grayOutComponent ? 'gray.100' : ''}>
-				<MarkdownEditor text={text} />
+				<MarkdownEditor color={color} text={text} />
 				{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
 			</Stack>
 		);

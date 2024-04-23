@@ -35,12 +35,12 @@ import { MonacoEditor } from '@/components/Editor';
 import { formatDateTimeForInput, formatDateForInput } from '@/features/smart-table/utils';
 
 const TemplateEditor = (props: any) => {
-	const [codeHeight, setCodeHeight] = useState(30);
+	const [codeHeight, setCodeHeight] = useState(100);
 
 	const handleCodeMount = (editor: any) => {
 		editor.onDidContentSizeChange((event: any) => {
 			const editorHeight = event.contentHeight;
-			setCodeHeight(editorHeight); // Dynamically adjust height based on content
+			setCodeHeight(Math.max(60, editorHeight)); // Dynamically adjust height based on content
 			editor.layout();
 		});
 	};
