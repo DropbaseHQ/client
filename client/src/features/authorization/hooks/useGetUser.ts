@@ -1,9 +1,9 @@
 import { useQuery } from 'react-query';
 import { useLocation } from 'react-router-dom';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 
 const fetchCurrentUser = async () => {
-	const { data } = await axios.get(`/user`);
+	const { data } = await workerAxios.get(`/user`);
 	return data;
 };
 

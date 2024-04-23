@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from 'react-query';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { useToast } from '@/lib/chakra-ui';
 
 export type GroupResponse = {
@@ -16,7 +16,7 @@ export type GroupResponse = {
 };
 
 const fetchGroup = async ({ groupId }: { groupId: string }) => {
-	const { data } = await axios.get<GroupResponse>(`/group/${groupId}`);
+	const { data } = await workerAxios.get<GroupResponse>(`/group/${groupId}`);
 	return data;
 };
 
@@ -40,7 +40,7 @@ export type GroupUsers = {
 };
 
 const fetchGroupUsers = async ({ groupId }: { groupId: string }) => {
-	const { data } = await axios.get<GroupUsers[]>(`/group/${groupId}/users`);
+	const { data } = await workerAxios.get<GroupUsers[]>(`/group/${groupId}/users`);
 	return data;
 };
 
@@ -57,7 +57,7 @@ export const useGetGroupUsers = ({ groupId }: { groupId: any }) => {
 };
 
 const createGroup = async ({ name, workspaceId }: { name: string; workspaceId: any }) => {
-	const response = await axios.post('/group/', { name, workspace_id: workspaceId });
+	const response = await workerAxios.post('/group/', { name, workspace_id: workspaceId });
 	return response.data;
 };
 
@@ -68,7 +68,7 @@ export const useCreateGroup = (mutationConfig?: any) => {
 };
 
 const deleteGroup = async ({ groupId }: { groupId: string }) => {
-	const response = await axios.delete(`/group/${groupId}`);
+	const response = await workerAxios.delete(`/group/${groupId}`);
 	return response.data;
 };
 
@@ -79,7 +79,7 @@ export const useDeleteGroup = (mutationConfig?: any) => {
 };
 
 const addUserToGroup = async ({ groupId, userId }: { groupId: string; userId: string }) => {
-	const response = await axios.post(`/group/add_user/${groupId}`, { user_id: userId });
+	const response = await workerAxios.post(`/group/add_user/${groupId}`, { user_id: userId });
 	return response.data;
 };
 
@@ -90,7 +90,7 @@ export const useAddUserToGroup = (mutationConfig?: any) => {
 };
 
 const removeUserToGroup = async ({ groupId, userId }: { groupId: string; userId: string }) => {
-	const response = await axios.post(`/group/remove_user/${groupId}`, { user_id: userId });
+	const response = await workerAxios.post(`/group/remove_user/${groupId}`, { user_id: userId });
 	return response.data;
 };
 
@@ -109,7 +109,7 @@ const updateGroupPolicy = async ({
 	resource: string;
 	action: string;
 }) => {
-	const response = await axios.post(`/group/update_policy/${groupId}`, {
+	const response = await workerAxios.post(`/group/update_policy/${groupId}`, {
 		resource,
 		action,
 	});

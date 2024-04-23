@@ -6,11 +6,10 @@ import { MutationConfig } from '@/lib/react-query';
 import { workspaceAtom } from '@/features/workspaces';
 import { activeURLMappingAtom } from '@/features/settings/atoms';
 import {
-	axios,
+	workerAxios,
 	setWorkerAxiosWorkspaceIdHeader,
-	setWorkerAxiosToken,
 	setWorkerAxiosBaseURL,
-	setAxiosToken,
+	setWorkerAxiosToken,
 } from '@/lib/axios';
 import { getWorkerURL, getWebSocketURL, getLSPURL } from '@/utils/url';
 import { URLMapping, useURLMappings } from '@/features/settings/hooks/urlMappings';
@@ -22,7 +21,7 @@ export type LoginResponse = {
 	refresh_token?: string;
 };
 const loginUser = async ({ email, password }: { email: string; password: string }) => {
-	const response = await axios.post<LoginResponse>(`/user/login`, {
+	const response = await workerAxios.post<LoginResponse>(`/user/login`, {
 		email,
 		password,
 	});
@@ -31,7 +30,7 @@ const loginUser = async ({ email, password }: { email: string; password: string 
 };
 
 const loginGoogleUser = async ({ credential }: { credential: string }) => {
-	const response = await axios.post<LoginResponse>(`/user/loginGoogle`, {
+	const response = await workerAxios.post<LoginResponse>(`/user/loginGoogle`, {
 		credential,
 	});
 
@@ -71,14 +70,16 @@ export const useSetAxiosToken = () => {
 			if (localStorage.getItem('access_token')) {
 				const savedAccessToken = localStorage.getItem('access_token');
 				setWorkerAxiosToken(savedAccessToken);
-				setAxiosToken(savedAccessToken);
 			} else {
 				try {
-					const response = await axios.post('/user/refresh');
+					const response = await workerAxios.post('/user/refresh', undefined, {
+						headers: {
+							Authorization: `Bearer ${localStorage.getItem('refresh_token')}`,
+						},
+					});
 					const accessToken = response.data.access_token;
 					localStorage.setItem('access_token', accessToken);
 					setWorkerAxiosToken(accessToken);
-					setAxiosToken(accessToken);
 				} catch (error) {
 					navigate('/login');
 				}
@@ -134,15 +135,15 @@ const getWS = () => {
 };
 
 export const useGetWebSocketURL = () => {
-	const { urlMappings } = useURLMappings();
-	const setActiveMapping = useSetAtom(activeURLMappingAtom);
+	// const { urlMappings } = useURLMappings();
+	// const setActiveMapping = useSetAtom(activeURLMappingAtom);
 
-	const matchingURL = urlMappings.find(urlMatcher);
+	// const matchingURL = urlMappings.find(urlMatcher);
 
-	if (matchingURL) {
-		setActiveMapping(matchingURL);
-		return `${getWS()}://${matchingURL.worker_url}/ws`;
-	}
+	// if (matchingURL) {
+	// 	setActiveMapping(matchingURL);
+	// 	return `${getWS()}://${matchingURL.worker_url}/ws`;
+	// }
 
 	return getWebSocketURL();
 };

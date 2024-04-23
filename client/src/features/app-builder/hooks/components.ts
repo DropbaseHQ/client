@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
 
-import { axios, workerAxios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { PAGE_DATA_QUERY_KEY } from '@/features/page';
 
@@ -29,7 +29,7 @@ export const useResourceFields = () => {
 export const WIDGET_PROPERTIES_QUERY_KEY = 'widget/properties';
 
 const fetchTableColumnProperties = async ({ widgetId }: { widgetId: string }) => {
-	const response = await axios.get<any>(`/components/widget/${widgetId}`);
+	const response = await workerAxios.get<any>(`/components/widget/${widgetId}`);
 
 	return response.data;
 };
@@ -143,7 +143,7 @@ export const useDeleteComponent = (props: any = {}) => {
 };
 
 const reorderComponents = async ({ widgetId, components }: any) => {
-	const response = await axios.post(`/components/reorder`, {
+	const response = await workerAxios.post(`/components/reorder`, {
 		widget_id: widgetId,
 		components,
 	});

@@ -1,9 +1,9 @@
 import { useMutation } from 'react-query';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { MutationConfig } from '@/lib/react-query';
 
 const resendConfirmEmail = async ({ email }: { email: string }) => {
-	const response = await axios.post<{ user: string }>(`/user/resend_confirmation_email`, {
+	const response = await workerAxios.post<{ user: string }>(`/user/resend_confirmation_email`, {
 		email,
 	});
 

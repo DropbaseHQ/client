@@ -1,6 +1,5 @@
 import {
 	Box,
-	Flex,
 	Button,
 	Container,
 	FormControl,
@@ -13,21 +12,19 @@ import {
 	// Divider,
 } from '@chakra-ui/react';
 import { GitHub } from 'react-feather';
-import { useEffect, useState } from 'react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
 import { GoogleLogin } from '@react-oauth/google';
-import { useResendConfirmEmail } from './hooks/useResendConfirmationEmail';
 import { useLogin, useGoogleLogin } from './hooks/useLogin';
 
 import { useToast } from '@/lib/chakra-ui';
 import { workspaceAtom } from '@/features/workspaces';
 import { onboardingAtom } from '@/features/authorization';
-import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setAxiosToken } from '@/lib/axios';
+import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setWorkerAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '../../utils';
-import { showConfirmationAtom } from './atoms';
 
 type FormValues = {
 	email: string;
@@ -42,18 +39,13 @@ export const Login = () => {
 
 	const updateWorkspace = useSetAtom(workspaceAtom);
 	const updateOnboardingStatus = useSetAtom(onboardingAtom);
-	const showConfirmation = useAtomValue(showConfirmationAtom);
 
-	const [displayEmailConfirmation, setDisplayEmailConfirmation] = useState(showConfirmation);
 	const {
 		register,
 		formState: { errors },
 		handleSubmit,
-		watch,
 		setValue,
 	} = useForm<FormValues>();
-
-	const email = watch('email');
 
 	useEffect(() => {
 		setValue('email', searchParams.get('email') || '');
@@ -66,21 +58,17 @@ export const Login = () => {
 				status: 'error',
 				description: getErrorMessage(error),
 			});
-			if (error.response?.status === 403) {
-				setDisplayEmailConfirmation(true);
-			}
 		},
 		onSuccess: (data: any) => {
 			queryClient.clear();
 			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-			setAxiosToken(data?.access_token);
+			setWorkerAxiosToken(data?.access_token);
 			localStorage.setItem('access_token', data?.access_token);
 			localStorage.setItem('refresh_token', data?.refresh_token);
 			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
 
 			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
 			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
-			setDisplayEmailConfirmation(false);
 			updateOnboardingStatus(data?.onboarding || false);
 			navigate('/apps');
 		},
@@ -93,9 +81,6 @@ export const Login = () => {
 				status: 'error',
 				description: getErrorMessage(error),
 			});
-			if (error.response?.status === 403) {
-				setDisplayEmailConfirmation(true);
-			}
 		},
 		onSuccess: (data: any) => {
 			queryClient.clear();
@@ -106,31 +91,20 @@ export const Login = () => {
 				localStorage.removeItem('refresh_token');
 			}
 			document.cookie = 'worker_sl_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-			setAxiosToken(data?.access_token);
+			setWorkerAxiosToken(data?.access_token);
 			localStorage.setItem('access_token', data?.access_token);
 			localStorage.setItem('refresh_token', data?.refresh_token);
-			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
 
 			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
 			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
-			setDisplayEmailConfirmation(false);
 			updateOnboardingStatus(data?.onboarding || false);
 			navigate('/apps');
 		},
 	});
-	const {
-		mutate: resendConfirmEmail,
-		isLoading: resendIsLoading,
-		isSuccess: resendIsSuccess,
-	} = useResendConfirmEmail();
 
 	const onSubmit = handleSubmit((data) => {
 		mutate(data);
 	});
-
-	const onResendConfirmEmail = () => {
-		resendConfirmEmail({ email });
-	};
 
 	const onGoogleSuccess = (response: any) => {
 		googleMutate(response);
@@ -240,24 +214,6 @@ export const Login = () => {
 							</Stack>
 						</Stack>
 					</form>
-					{displayEmailConfirmation && (
-						<Flex mt="6" direction="column">
-							<Text color="orange.500" fontSize="md" align="center">
-								Please confirm your email before logging in.
-							</Text>
-							<Text color="gray.500" fontSize="md" align="center">
-								Make sure to check your spam folder.
-							</Text>
-							<Button
-								marginTop="4"
-								onClick={onResendConfirmEmail}
-								isLoading={resendIsLoading}
-								isDisabled={resendIsSuccess}
-							>
-								{resendIsSuccess ? 'Email sent' : 'Resend Confirmation Email'}
-							</Button>
-						</Flex>
-					)}
 				</Box>
 			</Stack>
 		</Container>

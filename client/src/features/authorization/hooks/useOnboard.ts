@@ -1,6 +1,6 @@
 import { useMutation } from 'react-query';
 import { MutationConfig } from '@/lib/react-query';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 
 export type OnboardResponse = {
 	successful: boolean;
@@ -14,7 +14,7 @@ const onboard = async ({
 	last_name: string;
 	company: string;
 }) => {
-	const response = await axios.post<OnboardResponse>(`/user/onboard`, {
+	const response = await workerAxios.post<OnboardResponse>(`/user/onboard`, {
 		name,
 		last_name,
 		company,

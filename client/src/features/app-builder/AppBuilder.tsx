@@ -18,6 +18,7 @@ import { inspectedResourceAtom } from './atoms';
 import { BuilderSidebar } from './components/Sidebar';
 import { FileContent } from './components/FilesExplorer/FileContent';
 import { useInitializePageState } from '@/features/app-state';
+import { isFreeApp } from '@/utils';
 
 export const AppBuilder = () => {
 	const { appName, pageName } = useParams();
@@ -45,14 +46,16 @@ export const AppBuilder = () => {
 		};
 	}, [setInspectedItem]);
 
-	if (!appStateIsLoading && !permissions?.edit) {
-		toast({
-			title: 'Unauthorized',
-			description: 'You do not have permission to edit this page.',
-			status: 'error',
-		});
-		navigate(`/apps/${appName}/${pageName}`);
-	}
+	useEffect(() => {
+		if (!isFreeApp() && !appStateIsLoading && !permissions?.edit) {
+			toast({
+				title: 'Unauthorized',
+				description: 'You do not have permission to edit this page.',
+				status: 'error',
+			});
+			navigate(`/apps/${appName}/${pageName}`);
+		}
+	}, [appStateIsLoading, permissions, appName, navigate, pageName, toast]);
 
 	return (
 		<Stack spacing="0" h="full">

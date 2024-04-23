@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from 'react-query';
 import { useAtomValue } from 'jotai';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -23,7 +23,7 @@ export type UserResponse = {
 };
 
 const fetchUser = async ({ userId, workspaceId }: { userId: string; workspaceId: any }) => {
-	const { data } = await axios.get<UserResponse>(`/user/${userId}/details/${workspaceId}`);
+	const { data } = await workerAxios.get<UserResponse>(`/user/${userId}/details/${workspaceId}`);
 	return data;
 };
 
@@ -55,7 +55,7 @@ const updateUserPolicy = async ({
 	action: string;
 	workspaceId: string;
 }) => {
-	const response = await axios.post(`/user/update_policy/${userId}`, {
+	const response = await workerAxios.post(`/user/update_policy/${userId}`, {
 		resource,
 		action,
 		workspace_id: workspaceId,

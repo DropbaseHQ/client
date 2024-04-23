@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useSetAtom } from 'jotai';
 import { useMemo } from 'react';
 
-import { axios, workerAxios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { PAGE_DATA_QUERY_KEY, pageAtom, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
@@ -12,7 +12,7 @@ import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 export const WIDGET_QUERY_KEY = 'widget';
 
 const fetchWidgetInfo = async ({ widgetId }: { widgetId: string }) => {
-	const response = await axios.get<any>(`/widget/${widgetId}`);
+	const response = await workerAxios.get<any>(`/widget/${widgetId}`);
 
 	return response.data;
 };

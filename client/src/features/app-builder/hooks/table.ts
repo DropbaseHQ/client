@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { axios, workerAxios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 import {
 	ALL_PAGE_FILES_QUERY_KEY,
@@ -45,7 +45,7 @@ export const useGetTable = (tableName: string): any => {
 export const DATA_FETCHER_QUERY_KEY = 'dataFetchers';
 
 const fetchDataFetchers = async ({ pageId }: any) => {
-	const response = await axios.get<any>(`/files/data_fetchers/${pageId}/`);
+	const response = await workerAxios.get<any>(`/files/data_fetchers/${pageId}/`);
 
 	return response.data;
 };

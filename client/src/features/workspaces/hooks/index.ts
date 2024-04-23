@@ -2,9 +2,10 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAtom } from 'jotai';
-import { axios, workerAxios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { workspaceAtom } from '@/features/workspaces';
 import { useSetWorkerAxiosBaseURL } from '@/features/authorization/hooks/useLogin';
+import { isFreeApp } from '@/utils';
 
 export const WORKSPACE_QUERY = 'workspaces';
 
@@ -19,7 +20,7 @@ export type Workspace = {
 };
 
 const fetchWorkspaces = async () => {
-	const response = await axios.get<Workspace[]>(`/user/workspaces`);
+	const response = await workerAxios.get<Workspace[]>(`/user/workspaces`);
 
 	return response.data;
 };
@@ -76,7 +77,7 @@ export const useWorkspaces = () => {
 		pathname.startsWith('/github_auth');
 
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchWorkspaces(), {
-		enabled: !loginRoutes,
+		enabled: !loginRoutes && !isFreeApp(),
 		onSuccess: (data: any) => {
 			const workerWorkspace = data?.find(
 				(workspace: Workspace) => workspace.id === workerWorkspaceInfo?.id,
@@ -108,7 +109,7 @@ export const useWorkspaces = () => {
 };
 
 const updateWorkspaceWorkerURL = async ({ workspaceId, workerURL }: any) => {
-	const response = await axios.put<Workspace>(`/workspace/${workspaceId}`, {
+	const response = await workerAxios.put<Workspace>(`/workspace_control/${workspaceId}`, {
 		worker_url: workerURL,
 	});
 
@@ -126,7 +127,7 @@ export const useUpdateWorkspaceWorkerURL = () => {
 
 const createWorkspace = async ({ name = null }: { name?: string | null }) => {
 	const payload = name ? { name } : {};
-	const response = await axios.post<Workspace>(`/workspace`, payload);
+	const response = await workerAxios.post<Workspace>(`/workspace_control`, payload);
 
 	return response.data;
 };

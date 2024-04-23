@@ -1,9 +1,9 @@
 import { useMutation } from 'react-query';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 import { MutationConfig } from '@/lib/react-query';
 
 const registerUser = async ({ email, password }: { email: string; password: string }) => {
-	const response = await axios.post<{ user: string }>(`/user/register`, {
+	const response = await workerAxios.post<{ user: string }>(`/user/register`, {
 		email,
 		password,
 	});
@@ -12,7 +12,7 @@ const registerUser = async ({ email, password }: { email: string; password: stri
 };
 
 const registerGoogleUser = async ({ credential }: { credential: string }) => {
-	const response = await axios.post<{ user: string }>(`/user/registerGoogle`, {
+	const response = await workerAxios.post<{ user: string }>(`/user/registerGoogle`, {
 		credential,
 	});
 

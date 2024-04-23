@@ -30,10 +30,12 @@ import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceAp
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useToast } from '@/lib/chakra-ui';
 import { useCreatePage, useGetPage } from '@/features/page';
-import { getErrorMessage, generateSequentialName } from '@/utils';
+import { getErrorMessage, generateSequentialName, isFreeApp } from '@/utils';
 import { PageTab } from './PageTab';
 import { LabelContainer } from '@/components/LabelContainer';
 import { ShareModal } from './ShareModal';
+import { PermissionContainer } from '@/container/components/PermissionContainer';
+import { RestrictAppContainer } from '@/container/components/RestrictAppContainer';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const toast = useToast();
@@ -255,17 +257,20 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Flex>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				{permissions?.own && (
-					<Button
-						size="sm"
-						variant="outline"
-						onClick={shareOnOpen}
-						leftIcon={<Share size="14" />}
-					>
-						Share
-					</Button>
-				)}
-				{permissions?.edit && (
+				<RestrictAppContainer>
+					<PermissionContainer isAllowed={permissions?.own}>
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={shareOnOpen}
+							leftIcon={<Share size="14" />}
+						>
+							Share
+						</Button>
+					</PermissionContainer>
+				</RestrictAppContainer>
+
+				{permissions?.edit || isFreeApp() ? (
 					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
 						<Button
 							size="sm"
@@ -282,9 +287,11 @@ export const AppNavbar = ({ isPreview }: any) => {
 							{isPreview ? 'Edit' : 'Preview'}
 						</Button>
 					</Tooltip>
-				)}
+				) : null}
 			</Stack>
-			<ShareModal isOpen={shareIsOpen} onClose={shareOnClose} />
+			<RestrictAppContainer>
+				<ShareModal isOpen={shareIsOpen} onClose={shareOnClose} />
+			</RestrictAppContainer>
 		</Stack>
 	);
 };

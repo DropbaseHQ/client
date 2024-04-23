@@ -1,6 +1,6 @@
 import { Center, Progress, Spinner, Stack, Text } from '@chakra-ui/react';
 import { Suspense, useEffect } from 'react';
-import { Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 
 import { lazyImport } from '@/utils/lazy-import';
 
@@ -23,17 +23,7 @@ const { RequestResetLink } = lazyImport(
 );
 
 export const DashboardRoutes = ({ homeRoute, children }: any) => {
-	const { pathname } = useLocation();
-
-	const loginRoutes =
-		pathname.startsWith('/login') ||
-		pathname.startsWith('/register') ||
-		pathname.startsWith('/reset') ||
-		pathname.startsWith('/email-confirmation') ||
-		pathname.startsWith('/forgot') ||
-		pathname.startsWith('/github_auth');
-	const { isLoading, workspaces } = useWorkspaces();
-	const navigate = useNavigate();
+	const { isLoading } = useWorkspaces();
 
 	useEffect(() => {
 		let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
@@ -53,11 +43,11 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 		}
 	}, []);
 
-	useEffect(() => {
-		if (!isLoading && workspaces.length === 0 && !loginRoutes && !pathname.includes('/intro')) {
-			navigate('/intro');
-		}
-	});
+	// useEffect(() => {
+	// 	if (!isLoading && workspaces.length === 0 && !loginRoutes && !pathname.includes('/intro')) {
+	// 		navigate('/intro');
+	// 	}
+	// });
 
 	if (isLoading) {
 		return (

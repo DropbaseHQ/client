@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query';
-import { axios } from '@/lib/axios';
+import { workerAxios } from '@/lib/axios';
 
 export type Pages = {
 	name: string;
@@ -9,7 +9,7 @@ export type Pages = {
 };
 
 const fetchAppPages = async ({ appId }: { appId: string }) => {
-	const { data } = await axios.get<Pages[]>(`/app/${appId}/pages`);
+	const { data } = await workerAxios.get<Pages[]>(`/app/${appId}/pages`);
 	return data;
 };
 

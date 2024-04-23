@@ -6,6 +6,8 @@ import { useWorkerWorkspace, workspaceAtom } from '@/features/workspaces';
 import { websocketStatusAtom } from '@/features/app/atoms';
 import { useSetWorkerAxiosBaseURL } from '@/features/authorization/hooks/useLogin';
 import { lspStatusAtom } from '@/components/Editor';
+import { RestrictAppContainer } from '@/container/components/RestrictAppContainer';
+import { isFreeApp } from '@/utils';
 
 export const STATUS_QUERY_KEY = 'allFiles';
 
@@ -21,7 +23,7 @@ export const useStatus = () => {
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchStatus(), {
 		refetchInterval: 10 * 1000,
 		refetchIntervalInBackground: true,
-		enabled: isFetched,
+		enabled: isFreeApp() ? true : isFetched,
 	});
 
 	return {
@@ -87,15 +89,17 @@ export const StatusBar = () => {
 				</Link>
 			) : null}
 
-			{!selectedWorkspaceMatchesWorker && !isLoading ? (
-				<>
-					<Divider orientation="vertical" />
-					<Circle size="2" bg="red" />
-					<Text noOfLines={1} fontSize="xs">
-						The selected workspace does not match the worker workspace.
-					</Text>
-				</>
-			) : null}
+			<RestrictAppContainer>
+				{!selectedWorkspaceMatchesWorker && !isLoading ? (
+					<>
+						<Divider orientation="vertical" />
+						<Circle size="2" bg="red" />
+						<Text noOfLines={1} fontSize="xs">
+							The selected workspace does not match the worker workspace.
+						</Text>
+					</>
+				) : null}
+			</RestrictAppContainer>
 		</Stack>
 	);
 };
