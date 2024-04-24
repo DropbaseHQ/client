@@ -109,9 +109,10 @@ export const useInitPage = () => {
 	useEffect(() => {
 		if (!ref.current && !isLoading && !isRefetching) {
 			const selectedWidgetIdExists = widgets?.some((w: any) => w.name === context.widgetName);
+			const baseWidgets = widgets?.filter((w: any) => w.type === 'base');
 			const firstWidgetName = selectedWidgetIdExists
 				? context?.widgetName
-				: widgets?.[0]?.name;
+				: baseWidgets?.[0]?.name;
 
 			if (appName && pageName) {
 				setPageContext({
