@@ -121,9 +121,8 @@ export const AppComponent = (props: any) => {
 					colorScheme={color || 'blue'}
 					isLoading={mutation.isLoading}
 					onClick={() => {
-						if (onClick) {
-							handleEvent(onClick);
-						}
+						handleEvent();
+
 						sendJsonMessage({
 							type: 'display_rule',
 							state_context: pageState,
@@ -197,7 +196,7 @@ export const AppComponent = (props: any) => {
 					type={inputType}
 					onKeyDown={(e: any) => {
 						if (e.key === 'Enter' && component?.on_submit) {
-							handleEvent(component.on_submit);
+							handleEvent();
 						}
 					}}
 					onChange={(newValue: any) => {
@@ -206,11 +205,11 @@ export const AppComponent = (props: any) => {
 						const newWidgetState = handleInputValue(name, newValue);
 
 						if (component.on_change) {
-							handleEvent(component.on_change);
+							handleEvent();
 						}
 
 						if (component.on_toggle) {
-							handleEvent(component.on_toggle);
+							handleEvent();
 						}
 
 						sendJsonMessage({

@@ -1,18 +1,11 @@
 import { useMutation } from 'react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+import { useAtomValue } from 'jotai';
 import { MutationConfig } from '@/lib/react-query';
 import { workspaceAtom } from '@/features/workspaces';
-import { activeURLMappingAtom } from '@/features/settings/atoms';
-import {
-	workerAxios,
-	setWorkerAxiosWorkspaceIdHeader,
-	setWorkerAxiosBaseURL,
-	setWorkerAxiosToken,
-} from '@/lib/axios';
-import { getWorkerURL, getWebSocketURL, getLSPURL } from '@/utils/url';
-import { URLMapping, useURLMappings } from '@/features/settings/hooks/urlMappings';
+import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setWorkerAxiosToken } from '@/lib/axios';
+import { getWebSocketURL, getLSPURL } from '@/utils/url';
 
 export type LoginResponse = {
 	user: any;
@@ -91,49 +84,6 @@ export const useSetAxiosToken = () => {
 	}, [navigate, workspaceId, loginRoutes]);
 };
 
-const urlMatcher = (mapping: URLMapping) =>
-	!!mapping?.client_url && window.location.href.includes(mapping.client_url);
-
-export const useSetWorkerAxiosBaseURL = () => {
-	// Track whether the URL was set successfully or not
-	const [urlSet, setWorkerURL] = useState(false);
-	const { urlMappings, isLoading, isFetched } = useURLMappings();
-
-	const setActiveMapping = useSetAtom(activeURLMappingAtom);
-	const matchingURL = urlMappings.find(urlMatcher);
-	const getHTTP = () => {
-		if (window.location.protocol === 'https:') {
-			return 'https';
-		}
-		return 'http';
-	};
-
-	useEffect(() => {
-		if (!isLoading && isFetched) {
-			if (matchingURL) {
-				setWorkerAxiosBaseURL(`${getHTTP()}://${matchingURL.worker_url}`);
-				setActiveMapping(matchingURL);
-			} else {
-				setWorkerAxiosBaseURL(getWorkerURL());
-			}
-			setWorkerURL(true);
-		}
-	}, [matchingURL, isLoading, setActiveMapping, urlMappings, isFetched]);
-
-	return {
-		urlSet,
-		isLoading,
-		isFetched,
-	};
-};
-
-const getWS = () => {
-	if (window.location.protocol === 'https:') {
-		return 'wss';
-	}
-	return 'ws';
-};
-
 export const useGetWebSocketURL = () => {
 	// const { urlMappings } = useURLMappings();
 	// const setActiveMapping = useSetAtom(activeURLMappingAtom);
@@ -149,15 +99,5 @@ export const useGetWebSocketURL = () => {
 };
 
 export const useGetLSPURL = () => {
-	const { urlMappings } = useURLMappings();
-	const setActiveMapping = useSetAtom(activeURLMappingAtom);
-
-	const matchingURL = urlMappings.find(urlMatcher);
-
-	if (matchingURL) {
-		setActiveMapping(matchingURL);
-		return `${getWS()}://${matchingURL.lsp_url}/lsp`;
-	}
-
 	return getLSPURL();
 };
