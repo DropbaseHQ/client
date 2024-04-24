@@ -1,11 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 
-import { useAtomValue, useAtom } from 'jotai';
 import { workerAxios } from '@/lib/axios';
-import { workspaceAtom } from '@/features/workspaces';
-import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
-import { proxyTokenAtom } from '@/features/settings/atoms';
 
 export const PROXY_TOKENS_QUERY_KEY = 'proxyTokens';
 
@@ -64,34 +60,6 @@ export const useCreateProxyToken = (props: any = {}) => {
 			queryClient.invalidateQueries(PROXY_TOKENS_QUERY_KEY);
 		},
 	});
-};
-
-export const useSyncProxyToken = () => {
-	const selectedWorkspace = useAtomValue(workspaceAtom);
-	const workspaceId = selectedWorkspace?.id;
-	const { user, isLoading: isLoadingUser } = useGetCurrentUser();
-
-	const [token, setToken] = useAtom(proxyTokenAtom);
-
-	const { isLoading, isFetched, tokens } = useProxyTokens({ userId: user.id, workspaceId });
-
-	const isValid = token && tokens.find((t) => t.token === token);
-	const hasTokens = tokens.length > 0;
-
-	useEffect(() => {
-		const selectedToken = tokens.find((t) => t.is_selected);
-		if (selectedToken) {
-			setToken(selectedToken.token);
-		} else if (isFetched && tokens.length <= 0) {
-			setToken(null);
-		}
-	}, [tokens, workspaceId, isFetched, setToken]);
-
-	useEffect(() => {
-		workerAxios.defaults.headers['dropbase-proxy-token'] = token;
-	}, [token]);
-
-	return { token, isLoading: isLoadingUser || isLoading, isValid, hasTokens };
 };
 
 const updateWorkspaceProxyToken = async ({ workspaceId, tokenId }: any) => {

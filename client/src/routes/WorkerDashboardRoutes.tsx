@@ -4,7 +4,6 @@ import { Route, Routes } from 'react-router-dom';
 import { useGetWebSocketURL, useSetAxiosToken } from '@/features/authorization/hooks/useLogin';
 import { websocketStatusAtom } from '@/features/app/atoms';
 
-import { useSyncProxyToken } from '@/features/settings/hooks/token';
 import { DashboardRoutes } from './DashboardRoutes';
 
 import { Workspaces } from '@/features/workspaces';
@@ -16,7 +15,6 @@ import { WorkerDisconnected } from '@/features/app-builder/components/WorkerDisc
 export const WorkerDashboardRoutes = () => {
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
 
-	useSyncProxyToken();
 	useSetAxiosToken();
 
 	const websocketURL = useGetWebSocketURL();
