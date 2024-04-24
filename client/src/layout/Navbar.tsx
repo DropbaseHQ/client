@@ -1,11 +1,10 @@
 import { Stack, IconButton, Tooltip, Box } from '@chakra-ui/react';
 
-import { LogOut, Grid, Repeat, Settings } from 'react-feather';
+import { LogOut, Grid, Settings } from 'react-feather';
 import { Link, useLocation } from 'react-router-dom';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
 import { isFreeApp, isProductionApp } from '../utils';
-import { WorkspaceSwitcher } from '@/features/app/components/WorkspaceSwitcher';
 import { useWorkspaces } from '@/features/workspaces';
 import { RestrictAppContainer } from '@/container/components/RestrictAppContainer';
 
@@ -25,21 +24,6 @@ export const Navbar = () => {
 			<Stack alignItems="center" h="full">
 				<Box mb="8" w="12" as={Link} to="/apps" display="flex" flexDirection="column">
 					<DropbaseLogo />
-					<RestrictAppContainer>
-						{hasWorkspaces && (
-							<WorkspaceSwitcher
-								trigger={
-									<IconButton
-										size="sm"
-										variant="ghost"
-										color="body"
-										aria-label="Workspace Switcher"
-										icon={<Repeat size="14" />}
-									/>
-								}
-							/>
-						)}
-					</RestrictAppContainer>
 				</Box>
 
 				{isProductionApp() || !hasWorkspaces ? null : (
