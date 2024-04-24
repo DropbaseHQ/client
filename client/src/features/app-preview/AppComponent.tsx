@@ -15,7 +15,7 @@ import { extractTemplateString } from '@/utils';
 import { useEvent } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
 import { pageStateAtom, pageStateContextAtom, pageContextAtom } from '@/features/app-state';
-import { pageAtom } from '@/features/page';
+import { pageAtom, useGetPage } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
 import { LabelContainer } from '@/components/LabelContainer';
 
@@ -51,6 +51,9 @@ export const AppComponent = (props: any) => {
 
 	const [inputValues, setInputValues]: any = useAtom(pageStateAtom);
 	const inputValue = inputValues?.[widgetName || '']?.[name];
+
+	const { availableMethods: allResourceMethods } = useGetPage({ appName, pageName });
+	const availableMethods = allResourceMethods?.[widgetName]?.[name] || [];
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isEditorMode = !isPreview;
@@ -121,11 +124,13 @@ export const AppComponent = (props: any) => {
 					colorScheme={color || 'blue'}
 					isLoading={mutation.isLoading}
 					onClick={() => {
-						handleEvent({
-							action: ACTIONS.CLICK,
-							resource: widgetName,
-							component: name,
-						});
+						if (availableMethods?.includes(ACTIONS.CLICK)) {
+							handleEvent({
+								action: ACTIONS.CLICK,
+								resource: widgetName,
+								component: name,
+							});
+						}
 
 						sendJsonMessage({
 							type: 'display_rule',
@@ -199,7 +204,7 @@ export const AppComponent = (props: any) => {
 					data-cy={`input-${name}`}
 					type={inputType}
 					onKeyDown={(e: any) => {
-						if (e.key === 'Enter' && component.on_submit) {
+						if (e.key === 'Enter' && availableMethods?.includes(ACTIONS.SUBMIT)) {
 							handleEvent({
 								action: ACTIONS.SUBMIT,
 								resource: widgetName,
@@ -212,7 +217,7 @@ export const AppComponent = (props: any) => {
 						// is not up to date with the latest input value
 						const newWidgetState = handleInputValue(name, newValue);
 
-						if (component.on_change) {
+						if (availableMethods?.includes(ACTIONS.CHANGE)) {
 							handleEvent({
 								action: ACTIONS.CHANGE,
 								resource: widgetName,
@@ -220,7 +225,7 @@ export const AppComponent = (props: any) => {
 							});
 						}
 
-						if (component.on_toggle) {
+						if (availableMethods?.includes(ACTIONS.TOGGLE)) {
 							handleEvent({
 								action: ACTIONS.TOGGLE,
 								resource: widgetName,

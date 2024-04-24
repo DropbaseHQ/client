@@ -63,38 +63,6 @@ export const useParsedData: any = (response: any, table: any) => {
 	}, [response, table]);
 };
 
-export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
-	const pageState: any = useAtomValue(pageStateAtom);
-	const pageStateRef = useRef(pageState);
-	pageStateRef.current = pageState;
-
-	const queryKey = [FUNCTION_DATA_QUERY_KEY, fetcher, appName, pageName];
-
-	const { data: response, ...rest } = useQuery(
-		queryKey,
-		() =>
-			fetchFunctionData({
-				fetcher,
-				appName,
-				pageName,
-				state: pageStateRef.current,
-			}),
-		{
-			enabled: !!fetcher,
-			staleTime: Infinity,
-		},
-	);
-
-	const parsedData = useParsedData(response);
-
-	return {
-		...rest,
-		...parsedData,
-		sqlId: response?.sql_id,
-		queryKey,
-	};
-};
-
 export const useTableData = ({
 	tableName,
 	filters = [],
@@ -104,7 +72,14 @@ export const useTableData = ({
 	currentPage,
 	pageSize,
 }: any) => {
-	const { tables, files, isFetching: isLoadingPage } = useGetPage({ appName, pageName });
+	const {
+		tables,
+		files,
+		isFetching: isLoadingPage,
+		availableMethods: allResourceMethods,
+	} = useGetPage({ appName, pageName });
+
+	const tableMethods = allResourceMethods?.[tableName]?.methods || [];
 
 	const [debouncedFilters] = useDebounce(filters, 1000);
 
@@ -171,6 +146,7 @@ export const useTableData = ({
 		{
 			enabled: !!(
 				!isLoadingPage &&
+				tableMethods?.includes(ACTIONS.GET_DATA) &&
 				table?.name in pageState &&
 				table &&
 				appName &&

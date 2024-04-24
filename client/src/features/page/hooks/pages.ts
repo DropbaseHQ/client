@@ -20,6 +20,10 @@ export type FetchPageResponse = {
 		edit: boolean;
 		own: boolean;
 	};
+
+	methods?: {
+		[key: string]: any;
+	};
 };
 
 const fetchPage = async ({ appName, pageName }: any) => {
@@ -63,6 +67,7 @@ export const useGetPage = ({ appName, pageName, ...props }: any) => {
 				edit: true,
 				own: true,
 			},
+			availableMethods: response?.methods || {},
 		};
 	}, [response]);
 
