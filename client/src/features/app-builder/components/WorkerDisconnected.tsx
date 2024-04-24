@@ -54,6 +54,8 @@ const data = [
 ];
 
 export const WorkerDisconnected = () => {
+	// TODO: REMOVE ME
+	return null;
 	const { isConnected, isLoading, refetch, isFetched } = useStatus();
 
 	if (isConnected) {
