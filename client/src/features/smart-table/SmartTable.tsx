@@ -77,6 +77,7 @@ import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopove
 import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 import { Notification } from '@/features/app-preview/components/Notification';
 import { AttachWidget } from '@/features/smart-table/components/AttachWidget';
+import { ACTIONS } from '@/constant';
 
 const ALL_CELLS = [
 	DatePickerCell,
@@ -242,7 +243,10 @@ export const SmartTable = ({ tableName, height }: any) => {
 		if (event?.type === 'function') {
 			setButtonTrigger(JSON.stringify([row, col]));
 		}
-		handleEvent(event);
+		handleEvent({
+			action: ACTIONS.CLICK,
+			resource: tableName,
+		});
 	};
 
 	const onColumnResize = useCallback(

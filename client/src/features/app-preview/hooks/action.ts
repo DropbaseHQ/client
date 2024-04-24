@@ -4,31 +4,33 @@ import { useAtom, useAtomValue } from 'jotai';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { workerAxios } from '@/lib/axios';
 import { fetchJobStatus } from '@/utils/worker-job';
-import { pageAtom, useGetPage } from '@/features/page';
-import { pageStateContextAtom, useSyncState } from '@/features/app-state';
+import { pageAtom } from '@/features/page';
+import { pageStateAtom, useSyncState } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
-import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 
 export const executeAction = async ({
 	pageName,
 	appName,
 	pageState,
-	functionName,
-	fileName,
+	action,
+	resource,
+	component,
 }: any) => {
-	const response = await workerAxios.post(`/function/`, {
+	const response = await workerAxios.post(`/function/class`, {
 		page_name: pageName,
 		app_name: appName,
-		function_name: functionName,
-		file_name: fileName,
-		state: pageState.state,
+		state: pageState,
+		action,
+		resource,
+		component,
 	});
 
 	if (response.data?.job_id) {
 		const jobResponse = await fetchJobStatus(response.data.job_id);
 		return jobResponse;
 	}
+
 	throw new Error('Failed to run python function');
 };
 
@@ -45,11 +47,9 @@ export const useExecuteAction = (props: any = {}) => {
 
 export const useEvent = (props: any) => {
 	const toast = useToast();
-	const queryClient = useQueryClient();
-	const [{ pageName, appName, widgets, widgetName }, setPageContext] = useAtom(pageAtom);
-	const { tables } = useGetPage({ appName, pageName });
+	const [{ pageName, appName }] = useAtom(pageAtom);
 
-	const pageStateContext = useAtomValue(pageStateContextAtom);
+	const pageState = useAtomValue(pageStateAtom);
 
 	const syncState = useSyncState();
 
@@ -68,56 +68,24 @@ export const useEvent = (props: any) => {
 		},
 	});
 
-	const handleAction = (actionName: string, fileName: string) => {
+	const handleAction = ({
+		action,
+		resource,
+		component,
+	}: {
+		action: any;
+		resource: any;
+		component?: any;
+	}) => {
 		actionMutation.mutate({
 			pageName,
 			appName,
-			functionName: actionName,
-			fileName,
-			pageState: pageStateContext,
+			action,
+			resource,
+			component,
+			state: pageState,
 		});
 	};
 
-	const handleEvent = (event: any) => {
-		switch (event.type) {
-			case 'widget': {
-				const widget = widgets?.find((w: any) => w.name === event.value);
-
-				if (widget?.type === 'modal') {
-					setPageContext((oldPage: any) => ({
-						...oldPage,
-						widgetName: event.value,
-						modals: [
-							...oldPage.modals.filter((m: any) => m.name !== event.value),
-							{
-								name: event.value,
-								caller: widgetName,
-							},
-						],
-					}));
-				} else {
-					setPageContext((oldPage: any) => ({
-						...oldPage,
-						modals: [],
-						widgetName: event.value,
-					}));
-				}
-				break;
-			}
-			case 'function': {
-				handleAction(event.value, event.file);
-				break;
-			}
-			case 'table': {
-				queryClient.invalidateQueries([
-					TABLE_DATA_QUERY_KEY,
-					tables?.find((t: any) => t.name === event.value)?.fetcher?.value,
-				]);
-				break;
-			}
-			default:
-		}
-	};
-
-	return { handleEvent, mutation: actionMutation };
+	return { handleEvent: handleAction, mutation: actionMutation };
 };

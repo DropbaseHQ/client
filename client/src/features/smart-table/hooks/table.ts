@@ -6,64 +6,23 @@ import { useDebounce } from 'use-debounce';
 import { workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
-import { pageStateAtom, pageStateContextAtom, useSyncState } from '@/features/app-state';
+import { pageStateAtom, useSyncState } from '@/features/app-state';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
-import { fetchJobStatus } from '@/utils/worker-job';
+import { executeAction } from '@/features/app-preview/hooks';
+import { ACTIONS } from '@/constant';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 export const FUNCTION_DATA_QUERY_KEY = 'functionData';
 
-const queryClassData = async ({ pageName, appName, tableName, state }: any) => {
-	const response = await workerAxios.post(`/function/class`, {
-		page_name: pageName,
-		app_name: appName,
-		action: 'get_table_data', // FIXME: create a constant
-		target: tableName,
-		state,
-	});
-
-	if (response.data?.job_id) {
-		const jobResponse = await fetchJobStatus(response.data.job_id);
-		return jobResponse;
-	}
-
-	throw new Error('Failed to run python function');
-};
-
-const fetchFunctionData = async ({
-	fetcher,
-	appName,
-	pageName,
-	tableName,
-	state,
-	filter_sort = null,
-}: any) => {
-	if (fetcher?.type === 'sql') {
-		const response = await workerAxios.post<any>(`/query/`, {
-			fetcher: fetcher.value,
-			app_name: appName,
-			page_name: pageName,
-			table_name: tableName,
-			state: state.state,
-			filter_sort,
-		});
-
-		if (response.data?.job_id) {
-			const jobResponse = await fetchJobStatus(response.data.job_id);
-
-			return jobResponse;
-		}
-
-		throw new Error('Failed to retrieve data from fetcher');
-	}
-
-	const response = await queryClassData({
+const fetchFunctionData = async ({ appName, pageName, tableName, state }: any) => {
+	const response = await executeAction({
 		pageName,
 		appName,
-		state: state.state,
-		tableName,
+		pageState: state,
+		action: ACTIONS.GET_DATA,
+		resource: tableName,
 	});
 
 	return response;
@@ -105,9 +64,9 @@ export const useParsedData: any = (response: any, table: any) => {
 };
 
 export const useFetcherData = ({ fetcher, appName, pageName }: any) => {
-	const pageStateContext: any = useAtomValue(pageStateContextAtom);
-	const pageStateRef = useRef(pageStateContext);
-	pageStateRef.current = pageStateContext;
+	const pageState: any = useAtomValue(pageStateAtom);
+	const pageStateRef = useRef(pageState);
+	pageStateRef.current = pageState;
 
 	const queryKey = [FUNCTION_DATA_QUERY_KEY, fetcher, appName, pageName];
 
@@ -151,9 +110,9 @@ export const useTableData = ({
 
 	const selectRow = useSetAtom(pageStateAtom);
 
-	const pageStateContext: any = useAtomValue(pageStateContextAtom);
-	const pageStateRef = useRef(pageStateContext);
-	pageStateRef.current = pageStateContext;
+	const pageState: any = useAtomValue(pageStateAtom);
+	const pageStateRef = useRef(pageState);
+	pageStateRef.current = pageState;
 
 	const table = tables.find((t: any) => t.name === tableName);
 
@@ -170,12 +129,10 @@ export const useTableData = ({
 	const depends = files.find((f: any) => f.name === table?.fetcher?.value)?.depends_on || [];
 	const tablesWithNoSelection = depends.filter((name: any) => !hasSelectedRows[name]);
 
-	const tablesState = pageStateContext?.state;
-
 	const dependentTableData = depends.reduce(
 		(agg: any, tName: any) => ({
 			...agg,
-			[tName]: tablesState[tName],
+			[tName]: pageState[tName],
 		}),
 		{},
 	);
@@ -214,11 +171,11 @@ export const useTableData = ({
 		{
 			enabled: !!(
 				!isLoadingPage &&
-				table?.name in tablesState &&
+				table?.name in pageState &&
 				table &&
 				appName &&
 				pageName &&
-				Object.keys(pageStateContext?.state || {}).length > 0 &&
+				Object.keys(pageState || {}).length > 0 &&
 				tablesWithNoSelection.length === 0
 			),
 			staleTime: Infinity,
