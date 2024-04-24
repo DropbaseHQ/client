@@ -228,12 +228,10 @@ export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 								{...(inline
 									? {
 											direction: 'row',
-											// px: 4,
 											flexWrap: 'wrap',
 											alignItems: 'center',
-											spacing: 5,
+											spacing: 8,
 											w: 'full',
-											// divider: <Divider orientation="vertical" h="14" />,
 									  }
 									: { p: 4, pt: 2, spacing: 3, overflow: 'auto' })}
 								data-cy="components-list"

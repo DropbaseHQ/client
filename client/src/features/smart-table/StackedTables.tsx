@@ -154,6 +154,7 @@ export const StackedTables = () => {
 					cols={4}
 					rowHeight={containerHeight}
 					preventCollision={false}
+					margin={[0, 16]}
 					isDraggable={!isPreview}
 					isResizable={!isPreview}
 					onDragStart={handleDragStart}

@@ -116,7 +116,7 @@ export const AppComponent = (props: any) => {
 			<Stack spacing="0.5" w="fit-content">
 				<Button
 					my="1.5"
-					size="sm"
+					size={inline ? 'xs' : 'sm'}
 					bgColor={grayOutComponent ? 'gray.100' : ''}
 					colorScheme={color || 'blue'}
 					isLoading={mutation.isLoading}
@@ -241,7 +241,7 @@ export const AppComponent = (props: any) => {
 				) : null}
 			</FormControl>
 
-			{isPreview || inline ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+			{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
 		</Stack>
 	);
 };

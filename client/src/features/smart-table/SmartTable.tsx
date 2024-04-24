@@ -152,6 +152,9 @@ export const SmartTable = ({ tableName, height }: any) => {
 	const [tableBarHeight, setTableBarHeight] = useState<any>();
 	const tableBarRef: any = useRef();
 
+	const pageBarRef: any = useRef();
+	const [pageBarHeight, setPageBarHeight] = useState<any>();
+
 	const tableIsUnsynced = useTableSyncStatus(tableName);
 
 	const currentFetcher = table?.fetcher;
@@ -268,10 +271,19 @@ export const SmartTable = ({ tableName, height }: any) => {
 		if (tableHeaderRef?.current) {
 			setTableHeaderHeight(tableHeaderRef?.current?.getBoundingClientRect()?.height);
 		}
+
+		if (pageBarRef?.current) {
+			setPageBarHeight(pageBarRef?.current?.getBoundingClientRect()?.height);
+		}
 	}, []);
 
 	useEffect(() => {
-		calculateTableComponentsHeight();
+		/**
+		 * Let all components render before calculating heights
+		 */
+		setTimeout(() => {
+			calculateTableComponentsHeight();
+		}, 150);
 	}, [calculateTableComponentsHeight]);
 
 	useEffect(() => {
@@ -1106,12 +1118,12 @@ export const SmartTable = ({ tableName, height }: any) => {
 	/**
 	 * containerHeight is height of the canvas available for tables
 	 * tableHeaderHeight is for height occupied by table meta
-	 * 40 is for pagination and other spaces
+	 * pageBarHeight is for pagination
 	 * tableBarHeight includes table bar including filters, messages or widget
 	 *
-	 * 20 is extra space so that we see pagination and a little space below
+	 * 6 is for other spaces
 	 */
-	const tableHeight = height - tableHeaderHeight - 40 - tableBarHeight;
+	const tableHeight = height - tableHeaderHeight - pageBarHeight - tableBarHeight - 6;
 
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
@@ -1336,7 +1348,9 @@ export const SmartTable = ({ tableName, height }: any) => {
 						)}
 					</Stack>
 
-					<Pagination />
+					<Box ref={pageBarRef}>
+						<Pagination />
+					</Box>
 				</Stack>
 
 				<Notification

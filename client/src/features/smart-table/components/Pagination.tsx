@@ -44,8 +44,8 @@ export const Pagination = () => {
 			borderBottomLeftRadius="md"
 			borderTop="0"
 			borderWidth="1px"
-			py="1"
-			px="2"
+			py="2"
+			px="3"
 			direction="row"
 		>
 			<FormControl>
