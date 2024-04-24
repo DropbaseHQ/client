@@ -20,6 +20,7 @@ import { appModeAtom } from '@/features/app/atoms';
 import { LabelContainer } from '@/components/LabelContainer';
 
 import MarkdownEditor from '@/components/Editor/MarkdownEditor';
+import { ACTIONS } from '@/constant';
 
 const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 
@@ -36,7 +37,6 @@ export const AppComponent = (props: any) => {
 		name,
 		display_rules: displayRules,
 		color,
-		on_click: onClick,
 		...component
 	} = props;
 
@@ -121,9 +121,14 @@ export const AppComponent = (props: any) => {
 					colorScheme={color || 'blue'}
 					isLoading={mutation.isLoading}
 					onClick={() => {
-						if (onClick) {
-							handleEvent(onClick);
+						if (component.on_click) {
+							handleEvent({
+								action: ACTIONS.CLICK,
+								resource: widgetName,
+								component: name,
+							});
 						}
+
 						sendJsonMessage({
 							type: 'display_rule',
 							state_context: pageState,
@@ -196,8 +201,12 @@ export const AppComponent = (props: any) => {
 					data-cy={`input-${name}`}
 					type={inputType}
 					onKeyDown={(e: any) => {
-						if (e.key === 'Enter' && component?.on_submit) {
-							handleEvent(component.on_submit);
+						if (e.key === 'Enter' && component.on_submit) {
+							handleEvent({
+								action: ACTIONS.SUBMIT,
+								resource: widgetName,
+								component: name,
+							});
 						}
 					}}
 					onChange={(newValue: any) => {
@@ -206,11 +215,19 @@ export const AppComponent = (props: any) => {
 						const newWidgetState = handleInputValue(name, newValue);
 
 						if (component.on_change) {
-							handleEvent(component.on_change);
+							handleEvent({
+								action: ACTIONS.CHANGE,
+								resource: widgetName,
+								component: name,
+							});
 						}
 
 						if (component.on_toggle) {
-							handleEvent(component.on_toggle);
+							handleEvent({
+								action: ACTIONS.TOGGLE,
+								resource: widgetName,
+								component: name,
+							});
 						}
 
 						sendJsonMessage({
