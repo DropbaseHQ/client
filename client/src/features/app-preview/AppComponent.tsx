@@ -216,12 +216,21 @@ export const AppComponent = (props: any) => {
 						// We need this newWidgetState because the state in pageState
 						// is not up to date with the latest input value
 						const newWidgetState = handleInputValue(name, newValue);
+						if (availableMethods?.includes(ACTIONS.SELECT)) {
+							handleEvent({
+								action: ACTIONS.SELECT,
+								resource: widgetName,
+								component: name,
+								newState: newWidgetState,
+							});
+						}
 
 						if (availableMethods?.includes(ACTIONS.CHANGE)) {
 							handleEvent({
 								action: ACTIONS.CHANGE,
 								resource: widgetName,
 								component: name,
+								newState: newWidgetState,
 							});
 						}
 
@@ -230,6 +239,7 @@ export const AppComponent = (props: any) => {
 								action: ACTIONS.TOGGLE,
 								resource: widgetName,
 								component: name,
+								newState: newWidgetState,
 							});
 						}
 

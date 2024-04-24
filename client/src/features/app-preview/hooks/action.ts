@@ -72,10 +72,12 @@ export const useEvent = (props: any) => {
 		action,
 		resource,
 		component,
+		newState,
 	}: {
 		action: any;
 		resource: any;
 		component?: any;
+		newState?: any;
 	}) => {
 		actionMutation.mutate({
 			pageName,
@@ -83,7 +85,7 @@ export const useEvent = (props: any) => {
 			action,
 			resource,
 			component,
-			pageState,
+			pageState: newState || pageState,
 		});
 	};
 
