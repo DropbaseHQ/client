@@ -121,13 +121,11 @@ export const AppComponent = (props: any) => {
 					colorScheme={color || 'blue'}
 					isLoading={mutation.isLoading}
 					onClick={() => {
-						if (component.on_click) {
-							handleEvent({
-								action: ACTIONS.CLICK,
-								resource: widgetName,
-								component: name,
-							});
-						}
+						handleEvent({
+							action: ACTIONS.CLICK,
+							resource: widgetName,
+							component: name,
+						});
 
 						sendJsonMessage({
 							type: 'display_rule',

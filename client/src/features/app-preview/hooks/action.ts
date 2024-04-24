@@ -83,7 +83,7 @@ export const useEvent = (props: any) => {
 			action,
 			resource,
 			component,
-			state: pageState,
+			pageState,
 		});
 	};
 
