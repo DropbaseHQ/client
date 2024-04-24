@@ -1,12 +1,13 @@
 import { useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@/lib/chakra-ui';
 
 import { workerAxios } from '@/lib/axios';
 import { pageAtom } from '../atoms';
 import { APPS_QUERY_KEY } from '@/features/app-list/hooks/useGetWorkspaceApps';
+import { appModeAtom } from '@/features/app/atoms';
 
 export const PAGE_DATA_QUERY_KEY = 'pageData';
 
@@ -95,6 +96,8 @@ export const useInitPage = () => {
 	const { appName, pageName } = useParams();
 	const [context, setPageContext] = useAtom(pageAtom);
 
+	const { isPreview } = useAtomValue(appModeAtom);
+
 	const ref = useRef(false);
 
 	const { widgets, isLoading, isRefetching, ...rest } = useGetPage({
@@ -109,7 +112,9 @@ export const useInitPage = () => {
 	useEffect(() => {
 		if (!ref.current && !isLoading && !isRefetching) {
 			const selectedWidgetIdExists = widgets?.some((w: any) => w.name === context.widgetName);
-			const baseWidgets = widgets?.filter((w: any) => w.type === 'base');
+			const baseWidgets = isPreview
+				? widgets?.filter((w: any) => w.type === 'base')
+				: widgets;
 			const firstWidgetName = selectedWidgetIdExists
 				? context?.widgetName
 				: baseWidgets?.[0]?.name;
@@ -125,7 +130,7 @@ export const useInitPage = () => {
 				ref.current = true;
 			}
 		}
-	}, [isLoading, isRefetching, appName, widgets, pageName, context, setPageContext]);
+	}, [isLoading, isRefetching, appName, widgets, pageName, context, isPreview, setPageContext]);
 
 	useEffect(() => {
 		return () => {
