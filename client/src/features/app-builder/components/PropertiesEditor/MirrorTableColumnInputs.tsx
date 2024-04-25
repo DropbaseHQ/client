@@ -147,12 +147,12 @@ export const MirrorTableColumns = ({ widgetName, ...props }: any) => {
 						leftIcon={<Copy size="14" />}
 						{...props}
 					>
-						Mirror Components from Table Row
+						Mirror Table Row
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent zIndex="popover">
 					<PopoverHeader pt={4} fontWeight="bold" fontSize="md" border="0">
-						Mirror components for table
+						Mirror Components from Table Row
 					</PopoverHeader>
 					<PopoverBody>
 						<Stack>
