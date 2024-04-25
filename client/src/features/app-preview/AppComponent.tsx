@@ -196,66 +196,69 @@ export const AppComponent = (props: any) => {
 						{label}
 					</FormLabel>
 				) : null}
-				<InputRenderer
-					placeholder={placeholder}
-					value={inputValue}
-					name={name}
-					size={componentSize}
-					inline={inline}
-					data-cy={`input-${name}`}
-					type={inputType}
-					onKeyDown={(e: any) => {
-						if (e.key === 'Enter' && availableMethods?.includes(ACTIONS.SUBMIT)) {
-							handleEvent({
-								action: ACTIONS.SUBMIT,
-								resource: widgetName,
-								component: name,
-							});
-						}
-					}}
-					onChange={(newValue: any) => {
-						// We need this newWidgetState because the state in pageState
-						// is not up to date with the latest input value
-						const newWidgetState = handleInputValue(name, newValue);
-						if (availableMethods?.includes(ACTIONS.SELECT)) {
-							handleEvent({
-								action: ACTIONS.SELECT,
-								resource: widgetName,
-								component: name,
-								newState: newWidgetState,
-							});
-						}
+				<Stack spacing="0">
+					<InputRenderer
+						placeholder={placeholder}
+						value={inputValue}
+						name={name}
+						size={componentSize}
+						inline={inline}
+						data-cy={`input-${name}`}
+						type={inputType}
+						onKeyDown={(e: any) => {
+							if (e.key === 'Enter' && availableMethods?.includes(ACTIONS.SUBMIT)) {
+								handleEvent({
+									action: ACTIONS.SUBMIT,
+									resource: widgetName,
+									component: name,
+								});
+							}
+						}}
+						onChange={(newValue: any) => {
+							// We need this newWidgetState because the state in pageState
+							// is not up to date with the latest input value
+							const newWidgetState = handleInputValue(name, newValue);
+							if (availableMethods?.includes(ACTIONS.SELECT)) {
+								handleEvent({
+									action: ACTIONS.SELECT,
+									resource: widgetName,
+									component: name,
+									newState: newWidgetState,
+								});
+							}
 
-						if (availableMethods?.includes(ACTIONS.CHANGE)) {
-							handleEvent({
-								action: ACTIONS.CHANGE,
-								resource: widgetName,
-								component: name,
-								newState: newWidgetState,
-							});
-						}
+							if (availableMethods?.includes(ACTIONS.CHANGE)) {
+								handleEvent({
+									action: ACTIONS.CHANGE,
+									resource: widgetName,
+									component: name,
+									newState: newWidgetState,
+								});
+							}
 
-						if (availableMethods?.includes(ACTIONS.TOGGLE)) {
-							handleEvent({
-								action: ACTIONS.TOGGLE,
-								resource: widgetName,
-								component: name,
-								newState: newWidgetState,
-							});
-						}
+							if (availableMethods?.includes(ACTIONS.TOGGLE)) {
+								handleEvent({
+									action: ACTIONS.TOGGLE,
+									resource: widgetName,
+									component: name,
+									newState: newWidgetState,
+								});
+							}
 
-						sendJsonMessage({
-							type: 'display_rule',
-							state_context: {
-								...pageState,
-								state: newWidgetState,
-							},
-							app_name: appName,
-							page_name: pageName,
-						});
-					}}
-					options={inputState?.options || component?.options}
-				/>
+							sendJsonMessage({
+								type: 'display_rule',
+								state_context: {
+									...pageState,
+									state: newWidgetState,
+								},
+								app_name: appName,
+								page_name: pageName,
+							});
+						}}
+						options={inputState?.options || component?.options}
+					/>
+					{mutation.isLoading ? <Progress isIndeterminate isAnimated size="xs" /> : null}
+				</Stack>
 
 				{inputState?.message ? (
 					<div>
@@ -270,8 +273,6 @@ export const AppComponent = (props: any) => {
 						</Alert>
 					</div>
 				) : null}
-
-				{mutation.isLoading ? <Progress isIndeterminate isAnimated size="xs" /> : null}
 			</FormControl>
 
 			{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
