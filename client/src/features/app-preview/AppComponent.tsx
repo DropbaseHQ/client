@@ -5,6 +5,7 @@ import {
 	Button,
 	FormControl,
 	FormLabel,
+	Progress,
 	Stack,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
@@ -269,6 +270,8 @@ export const AppComponent = (props: any) => {
 						</Alert>
 					</div>
 				) : null}
+
+				{mutation.isLoading ? <Progress isIndeterminate isAnimated size="xs" /> : null}
 			</FormControl>
 
 			{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
