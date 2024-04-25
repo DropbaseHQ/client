@@ -136,7 +136,7 @@ export const StackedTables = () => {
 		<StackedTableWrapper
 			bg="white"
 			spacing="2"
-			px="4"
+			px="2"
 			py="2"
 			h="full"
 			overflowY="auto"
@@ -154,7 +154,7 @@ export const StackedTables = () => {
 					cols={4}
 					rowHeight={containerHeight}
 					preventCollision={false}
-					margin={[0, 16]}
+					margin={[16, 16]}
 					isDraggable={!isPreview}
 					isResizable={!isPreview}
 					onDragStart={handleDragStart}
