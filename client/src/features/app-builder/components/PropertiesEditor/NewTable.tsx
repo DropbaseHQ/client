@@ -50,6 +50,8 @@ export const NewTable = (props: any) => {
 						label: nextLabel,
 						block_type: 'table',
 						columns: [],
+						header: [],
+						footer: [],
 						y: Math.max(...tables.map((t: any) => t.y)),
 					},
 				},
