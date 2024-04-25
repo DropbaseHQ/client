@@ -207,7 +207,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 				...old,
 				[tableName]: {
 					...(old?.[tableName] || {}),
-					row: newSelectedRow[tableName],
+					columns: newSelectedRow[tableName],
 				},
 			};
 
@@ -336,7 +336,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 					...old,
 					[tableName]: {
 						...(old?.[tableName] || {}),
-						row: Object.keys(columnDict).reduce(
+						columns: Object.keys(columnDict).reduce(
 							(acc: { [col: string]: string | null }, curr: string) => ({
 								...acc,
 								[curr]: null,
@@ -367,7 +367,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 					...old,
 					[tableName]: {
 						...(old?.[tableName] || {}),
-						row: Object.keys(selectedRow).reduce(
+						columns: Object.keys(selectedRow).reduce(
 							(acc: { [col: string]: string | null }, curr: string) => ({
 								...acc,
 								[curr]: null,
