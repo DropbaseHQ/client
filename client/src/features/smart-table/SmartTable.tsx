@@ -62,13 +62,11 @@ import {
 	tableColumnWidthAtom,
 	tablePageInfoAtom,
 } from './atoms';
-import { TableBar } from './components';
 import { extractTemplateString, getErrorMessage } from '@/utils';
 import { useGetTable } from '@/features/app-builder/hooks';
 import { NavLoader } from '@/components/Loader';
 
 import { appModeAtom } from '@/features/app/atoms';
-import { Pagination } from './components/Pagination';
 import { DEFAULT_PAGE_SIZE } from './constants';
 import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
@@ -78,6 +76,7 @@ import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 import { Notification } from '@/features/app-preview/components/Notification';
 import { AttachWidget } from '@/features/smart-table/components/AttachWidget';
 import { ACTIONS } from '@/constant';
+import { ComponentsPreview } from '@/features/smart-table/components/ComponentsPreview';
 
 const ALL_CELLS = [
 	DatePickerCell,
@@ -206,7 +205,10 @@ export const SmartTable = ({ tableName, height }: any) => {
 		setPageState((old: any) => {
 			newState = {
 				...old,
-				[tableName]: newSelectedRow[tableName],
+				[tableName]: {
+					...(old?.[tableName] || {}),
+					row: newSelectedRow[tableName],
+				},
 			};
 
 			return { ...old, ...newSelectedRow };
@@ -332,13 +334,16 @@ export const SmartTable = ({ tableName, height }: any) => {
 			if (columnNotFound) {
 				setPageState((old: any) => ({
 					...old,
-					[tableName]: Object.keys(columnDict).reduce(
-						(acc: { [col: string]: string | null }, curr: string) => ({
-							...acc,
-							[curr]: null,
-						}),
-						{},
-					),
+					[tableName]: {
+						...(old?.[tableName] || {}),
+						row: Object.keys(columnDict).reduce(
+							(acc: { [col: string]: string | null }, curr: string) => ({
+								...acc,
+								[curr]: null,
+							}),
+							{},
+						),
+					},
 				}));
 			}
 		}
@@ -360,13 +365,16 @@ export const SmartTable = ({ tableName, height }: any) => {
 			if (selectedIndex === -1 && selectedRow && !isEmptyRow) {
 				setPageState((old: any) => ({
 					...old,
-					[tableName]: Object.keys(selectedRow).reduce(
-						(acc: { [col: string]: string | null }, curr: string) => ({
-							...acc,
-							[curr]: null,
-						}),
-						{},
-					),
+					[tableName]: {
+						...(old?.[tableName] || {}),
+						row: Object.keys(selectedRow).reduce(
+							(acc: { [col: string]: string | null }, curr: string) => ({
+								...acc,
+								[curr]: null,
+							}),
+							{},
+						),
+					},
 				}));
 			}
 		}
@@ -1010,7 +1018,10 @@ export const SmartTable = ({ tableName, height }: any) => {
 		setPageState((old: any) => {
 			newState = {
 				...old,
-				[tableName]: newSelectedRow[tableName],
+				[tableName]: {
+					...(old?.[tableName] || {}),
+					row: newSelectedRow[tableName],
+				},
 			};
 
 			return { ...old, ...newSelectedRow };
@@ -1273,7 +1284,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 					</Popover>
 
 					<Box ref={tableBarRef}>
-						<TableBar />
+						<ComponentsPreview type="header" tableName={tableName} />
 					</Box>
 
 					<Stack
@@ -1353,7 +1364,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 					</Stack>
 
 					<Box ref={pageBarRef}>
-						<Pagination />
+						<ComponentsPreview type="footer" tableName={tableName} />
 					</Box>
 				</Stack>
 

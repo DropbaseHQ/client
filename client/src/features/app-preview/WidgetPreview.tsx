@@ -1,9 +1,7 @@
 import { Box, CloseButton, Progress, Stack } from '@chakra-ui/react';
-import { useEffect, useRef, useState } from 'react';
+
 import { useParams } from 'react-router-dom';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import useWebSocket from 'react-use-websocket';
+import { useAtom } from 'jotai';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import { pageContextAtom } from '@/features/app-state';
@@ -12,91 +10,27 @@ import { useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
-import { appModeAtom, websocketStatusAtom } from '@/features/app/atoms';
 import { AppComponent } from './AppComponent';
-import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 import { Notification } from '@/features/app-preview/components/Notification';
 import { MirrorTableColumns } from '@/features/app-builder/components/PropertiesEditor/MirrorTableColumnInputs';
+import { ComponentsList } from '@/features/app-preview/ComponentsList';
 
-export const WidgetPreview = ({ widgetName, inline = false }: any) => {
+export const WidgetPreview = ({ widgetName }: any) => {
 	const { appName, pageName } = useParams();
 
-	const retryCounter = useRef(0);
-	const failedData = useRef<any>(null);
-
 	const [{ widgets, modals }, setPageContext] = useAtom(pageAtom);
-
-	const { isPreview } = useAtomValue(appModeAtom);
-	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
-	const isDevMode = !isPreview;
 
 	const widget = widgets?.find((w) => w.name === widgetName);
 
 	const isModal = widget?.type === 'modal';
 
 	const { isLoading, components } = useGetWidgetPreview(widgetName || '');
-	const [componentsState, setComponentsState] = useState(components);
 
 	const updateMutation = useUpdatePageData();
-
-	const setPageContextState = useSetAtom(pageContextAtom);
 
 	const [allWidgetContext, setWidgetContext]: any = useAtom(pageContextAtom);
 
 	const { properties } = useGetPage({ appName, pageName });
-
-	const websocketURL = useGetWebSocketURL();
-
-	const { sendJsonMessage } = useWebSocket(websocketURL, {
-		onOpen: () => {
-			setWebsocketIsAlive(true);
-
-			sendJsonMessage({
-				type: 'auth',
-				access_token: localStorage.getItem('worker_access_token'),
-			});
-		},
-		onMessage: async (message) => {
-			try {
-				const messageData: {
-					authenticated?: boolean;
-					context?: any;
-					failed_data?: any;
-					type?: string;
-				} = JSON.parse(message?.data);
-				if (messageData?.type === 'auth_error' && retryCounter.current < 3) {
-					const accessToken = localStorage.getItem('access_token');
-
-					sendJsonMessage({
-						type: 'auth',
-						access_token: accessToken,
-					});
-					retryCounter.current += 1;
-					failedData.current = messageData?.failed_data;
-				}
-				if (messageData?.authenticated === true) {
-					if (failedData.current) {
-						sendJsonMessage(failedData.current);
-						failedData.current = null;
-					}
-				}
-
-				const messageContext = messageData?.context;
-				if (!messageContext) {
-					return;
-				}
-
-				setPageContextState(messageContext);
-			} catch (e) {
-				//
-			}
-		},
-		onClose: () => {
-			setWebsocketIsAlive(false);
-		},
-
-		share: true,
-	});
 
 	const reorderMutation = useReorderComponents();
 
@@ -133,27 +67,6 @@ export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 			},
 		});
 	};
-
-	const handleOnDragEnd = (result: any) => {
-		const { destination, source } = result;
-		if (!destination) {
-			return;
-		}
-
-		if (destination.droppableId === source.droppableId && destination.index === source.index) {
-			return;
-		}
-
-		const newComponentState = Array.from(componentsState);
-		const movedEl = newComponentState.splice(source.index, 1);
-		newComponentState.splice(destination.index, 0, movedEl[0]);
-		setComponentsState(newComponentState);
-		handleReorderComponents(newComponentState);
-	};
-
-	useEffect(() => {
-		setComponentsState(components);
-	}, [components]);
 
 	const disableModal = () => {
 		setPageContext((oldPage: any) => {
@@ -219,65 +132,43 @@ export const WidgetPreview = ({ widgetName, inline = false }: any) => {
 						onClick={disableModal}
 					/>
 				) : null}
-				<DragDropContext onDragEnd={handleOnDragEnd}>
-					<Droppable droppableId={`widget-${widgetName}-drop-area`}>
-						{(provided: any) => (
-							<Stack
-								ref={provided.innerRef}
-								h="full"
-								{...(inline
-									? {
-											direction: 'row',
-											flexWrap: 'wrap',
-											alignItems: 'center',
-											spacing: 8,
-											w: 'full',
-									  }
-									: { p: 4, pt: 2, spacing: 3, overflow: 'auto' })}
-								data-cy="components-list"
-								{...provided.droppableProps}
-							>
-								{componentsState.map((c: any, index: number) => {
-									return (
-										<Draggable key={c.name} draggableId={c.name} index={index}>
-											{(p: any) => (
-												<InspectorContainer
-													ref={p.innerRef}
-													key={c.name}
-													id={c.name}
-													type="component"
-													data-cy={`component-${c.name}-inspector`}
-													meta={{ widget: widgetName }}
-													{...p.draggableProps}
-													{...p.dragHandleProps}
-												>
-													<AppComponent
-														key={c.name}
-														inline={inline}
-														widgetName={widgetName}
-														sendJsonMessage={sendJsonMessage}
-														{...c}
-													/>
-												</InspectorContainer>
-											)}
-										</Draggable>
-									);
-								})}
-								{provided.placeholder}
-								{isDevMode && !inline ? (
-									<Stack mt="2">
-										<NewComponent
-											widgetName={widgetName}
-											w="full"
-											variant="secondary"
-										/>
-										<MirrorTableColumns widgetName={widgetName} />
-									</Stack>
-								) : null}
+
+				<ComponentsList
+					renderNewComponent={() => {
+						return (
+							<Stack mt="2">
+								<NewComponent
+									widgetName={widgetName}
+									w="full"
+									variant="secondary"
+								/>
+								<MirrorTableColumns widgetName={widgetName} />
 							</Stack>
-						)}
-					</Droppable>
-				</DragDropContext>
+						);
+					}}
+					reorderComponents={handleReorderComponents}
+					components={components}
+					id={widgetName}
+				>
+					{({ containerProps, component, sendJsonMessage }: any) => (
+						<InspectorContainer
+							key={component.name}
+							id={component.name}
+							type="widget-component"
+							data-cy={`component-${component.name}-inspector`}
+							meta={{ widget: widgetName, resource: 'widget' }}
+							{...containerProps}
+						>
+							<AppComponent
+								key={component.name}
+								resource="widget"
+								widgetName={widgetName}
+								sendJsonMessage={sendJsonMessage}
+								{...component}
+							/>
+						</InspectorContainer>
+					)}
+				</ComponentsList>
 
 				<Notification
 					message={widgetContext?.message}

@@ -53,7 +53,7 @@ const EmptyPane = () => {
 };
 
 export const PropertyPane = () => {
-	const { id, type, meta } = useAtomValue(inspectedResourceAtom);
+	const { id, type } = useAtomValue(inspectedResourceAtom);
 
 	const pageStateContext = useAtomValue(pageStateContextAtom);
 	useTemplateCompletion(pageStateContext);
@@ -64,8 +64,8 @@ export const PropertyPane = () => {
 
 	let component = <EmptyPane />;
 
-	if (type === 'component') {
-		component = <ComponentPropertyEditor id={id} meta={meta} />;
+	if (type === 'table-component' || type === 'widget-component') {
+		component = <ComponentPropertyEditor />;
 	}
 
 	if (type === 'table') {

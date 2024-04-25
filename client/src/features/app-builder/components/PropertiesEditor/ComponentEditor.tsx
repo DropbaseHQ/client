@@ -15,7 +15,7 @@ import {
 	Skeleton,
 	StackDivider,
 } from '@chakra-ui/react';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useStatus } from '@/layout/StatusBar';
 import { FormInput } from '@/components/FormInput';
 import { useResourceFields } from '@/features/app-builder/hooks';
@@ -31,18 +31,24 @@ import { LabelContainer } from '@/components/LabelContainer';
 
 const TEMPLATE_REGEX = /\{\{(.+?)\}\}/;
 
-export const ComponentPropertyEditor = ({ id, meta }: any) => {
+export const ComponentPropertyEditor = () => {
 	const toast = useToast();
-	const setInspectedResource = useSetAtom(inspectedResourceAtom);
+	const [{ id, meta, type: inspectedResourceType }, setInspectedResource] =
+		useAtom(inspectedResourceAtom);
 	const { pageName, appName } = useAtomValue(pageAtom);
 
-	const { widget: widgetName } = meta || {};
+	const { widget: widgetName, table: tableName, resource } = meta || {};
 
-	const { widgets, isLoading, properties, files } = useGetPage({ appName, pageName });
+	const { widgets, isLoading, tables, properties, files } = useGetPage({ appName, pageName });
 
-	const component = widgets
-		.find((w: any) => w.name === widgetName)
-		?.components?.find((c: any) => c.name === id);
+	const component =
+		resource === 'widget'
+			? widgets
+					.find((w: any) => w.name === widgetName)
+					?.components?.find((c: any) => c.name === id)
+			: tables
+					.find((w: any) => w.name === tableName)
+					?.[resource]?.find((c: any) => c.name === id);
 
 	const { fields } = useResourceFields();
 
@@ -132,7 +138,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 		);
 	}, [component, reset]);
 
-	const onSubmit = ({ stateInDefault, ...formValues }: any) => {
+	const onSubmit = async ({ stateInDefault, ...formValues }: any) => {
 		if (stateInDefault && !TEMPLATE_REGEX.test(formValues.default)) {
 			setError('default', {
 				message: `Invalid state value, please make sure you use template like {{state.table1.id}}`,
@@ -140,35 +146,10 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 			return;
 		}
 
-		const currentWidget = properties[widgetName] || {};
-
-		updateMutation.mutate({
-			app_name: appName,
-			page_name: pageName,
-			properties: {
-				...(properties || {}),
-				[widgetName]: {
-					...currentWidget,
-					components: (currentWidget.components || []).map((c: any) => {
-						if (c.name === id) {
-							return {
-								...c,
-								...formValues,
-							};
-						}
-
-						return c;
-					}),
-				},
-			},
-		});
-	};
-
-	const handleUpdateName = async (newName: any) => {
-		try {
+		if (resource === 'widget') {
 			const currentWidget = properties[widgetName] || {};
 
-			await updateMutation.mutate({
+			await updateMutation.mutateAsync({
 				app_name: appName,
 				page_name: pageName,
 				properties: {
@@ -179,7 +160,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 							if (c.name === id) {
 								return {
 									...c,
-									name: newName,
+									...formValues,
 								};
 							}
 
@@ -188,11 +169,42 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 					},
 				},
 			});
+		} else if (tableName) {
+			const currentTable = properties[tableName] || {};
+
+			await updateMutation.mutateAsync({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(properties || {}),
+					[tableName]: {
+						...currentTable,
+						[resource]: (currentTable?.[resource] || []).map((c: any) => {
+							if (c.name === id) {
+								return {
+									...c,
+									...formValues,
+								};
+							}
+
+							return c;
+						}),
+					},
+				},
+			});
+		}
+	};
+
+	const handleUpdateName = async (newName: any) => {
+		try {
+			await onSubmit({
+				name: newName,
+			});
 
 			setInspectedResource({
 				id: newName,
-				type: 'component',
-				meta: { widget: widgetName },
+				type: inspectedResourceType,
+				meta,
 			});
 		} catch (e) {
 			//

@@ -107,7 +107,7 @@ export const useTableData = ({
 	const dependentTableData = depends.reduce(
 		(agg: any, tName: any) => ({
 			...agg,
-			[tName]: pageState[tName],
+			[tName]: pageState[tName]?.row || {},
 		}),
 		{},
 	);
@@ -168,13 +168,16 @@ export const useTableData = ({
 						].reduce((agg: any, tName: any) => {
 							return {
 								...agg,
-								[tName]: Object.keys(old?.[tName] || {}).reduce(
-									(acc: { [col: string]: string | null }, curr: string) => ({
-										...acc,
-										[curr]: null,
-									}),
-									{},
-								),
+								[tName]: {
+									...(agg?.[tName] || {}),
+									row: Object.keys(old?.[tName] || {}).reduce(
+										(acc: { [col: string]: string | null }, curr: string) => ({
+											...acc,
+											[curr]: null,
+										}),
+										{},
+									),
+								},
 							};
 						}, {});
 
