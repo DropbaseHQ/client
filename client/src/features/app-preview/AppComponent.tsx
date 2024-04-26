@@ -128,9 +128,10 @@ export const AppComponent = (props: any) => {
 		if (availableMethods.includes(action)) {
 			handleEvent({
 				action,
-				resource: widgetName,
+				resource: resource === 'widget' ? widgetName : tableName,
 				component: name,
 				newState: state,
+				section: resource === 'widget' ? 'components' : resource,
 			});
 		}
 	};

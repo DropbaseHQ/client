@@ -248,6 +248,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 		handleEvent({
 			action: ACTIONS.CLICK,
 			resource: tableName,
+			section: 'columns',
 		});
 	};
 
