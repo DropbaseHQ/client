@@ -8,6 +8,7 @@ import { InspectorContainer } from '@/features/app-builder';
 
 import { ComponentsList } from '@/features/app-preview/ComponentsList';
 import { AppComponent } from '@/features/app-preview/AppComponent';
+import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/NewComponent';
 
 export const ComponentsPreview = ({ type, tableName }: any) => {
 	const { appName, pageName } = useParams();
@@ -54,10 +55,14 @@ export const ComponentsPreview = ({ type, tableName }: any) => {
 			<ComponentsList
 				renderNewComponent={() => {
 					return (
-						<Stack mt="2">
-							{/* <NewComponent widgetName={widgetName} w="full" variant="secondary" />
-							<MirrorTableColumns widgetName={widgetName} /> */}
-						</Stack>
+						<NewComponent
+							tableName={tableName}
+							resource={type}
+							w="fit-content"
+							ml="auto"
+							variant="secondary"
+							placement="right"
+						/>
 					);
 				}}
 				reorderComponents={handleReorderComponents}
