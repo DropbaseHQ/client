@@ -26,7 +26,7 @@ import { ACTIONS } from '@/constant';
 const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 
 export const AppComponent = (props: any) => {
-	const { sendJsonMessage, widgetName, inline } = props;
+	const { sendJsonMessage, tableName, widgetName, resource } = props;
 
 	const [{ pageName, appName }] = useAtom(pageAtom);
 
@@ -43,24 +43,34 @@ export const AppComponent = (props: any) => {
 
 	const pageState = useAtomValue(pageStateContextAtom);
 	const pageContext = useAtomValue(pageContextAtom) as any;
-	const widgetComponents = useMemo(
-		() => pageContext[widgetName || '']?.components || {},
-		[pageContext, widgetName],
-	);
 
-	const inputState = useMemo(() => widgetComponents?.[name] || {}, [widgetComponents, name]);
+	const components = useMemo(() => {
+		if (resource === 'widget') {
+			return pageContext[widgetName || '']?.components || {};
+		}
+
+		return pageContext[tableName || '']?.[resource] || {};
+	}, [pageContext, resource, tableName, widgetName]);
+
+	const inputState = useMemo(() => components?.[name] || {}, [components, name]);
 
 	const [inputValues, setInputValues]: any = useAtom(pageStateAtom);
-	const inputValue = inputValues?.[widgetName || '']?.[name];
+
+	const inputValue =
+		resource === 'widget'
+			? inputValues?.[widgetName || '']?.components?.[name]
+			: inputValues?.[tableName]?.[resource]?.[name];
 
 	const { availableMethods: allResourceMethods } = useGetPage({ appName, pageName });
-	const availableMethods = allResourceMethods?.[widgetName]?.[name] || [];
+	const availableMethods =
+		resource === 'widget'
+			? allResourceMethods?.[widgetName]?.[name] || []
+			: allResourceMethods?.[tableName]?.[resource]?.[name] || [];
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isEditorMode = !isPreview;
 
-	const shouldDisplay =
-		widgetComponents?.[name]?.visible || widgetComponents?.[name]?.visible === null;
+	const shouldDisplay = components?.[name]?.visible || components?.[name]?.visible === null;
 	const grayOutComponent = !shouldDisplay && isEditorMode;
 
 	const {
@@ -78,14 +88,35 @@ export const AppComponent = (props: any) => {
 
 	const handleInputValue = useCallback(
 		(inputName: any, newInputValue: any) => {
-			if (widgetName) {
+			if (resource === 'widget' && widgetName) {
 				let newWidgetState = {};
 				setInputValues((old: any) => {
 					newWidgetState = {
 						...old,
 						[widgetName]: {
 							...(old[widgetName] || {}),
-							[inputName]: newInputValue,
+							components: {
+								...(old[widgetName]?.components || {}),
+								[inputName]: newInputValue,
+							},
+						},
+					};
+					return newWidgetState;
+				});
+				return newWidgetState;
+			}
+
+			if (tableName && resource) {
+				let newWidgetState = {};
+				setInputValues((old: any) => {
+					newWidgetState = {
+						...old,
+						[tableName]: {
+							...(old?.[tableName] || {}),
+							[resource]: {
+								...(old?.[tableName]?.[resource] || {}),
+								[inputName]: newInputValue,
+							},
 						},
 					};
 					return newWidgetState;
@@ -94,8 +125,20 @@ export const AppComponent = (props: any) => {
 			}
 			return {};
 		},
-		[widgetName, setInputValues],
+		[widgetName, resource, tableName, setInputValues],
 	);
+
+	const handleComponentMethod = ({ action, state }: any) => {
+		if (availableMethods.includes(action)) {
+			handleEvent({
+				action,
+				resource: resource === 'widget' ? widgetName : tableName,
+				component: name,
+				newState: state,
+				section: resource === 'widget' ? 'components' : resource,
+			});
+		}
+	};
 
 	useEffect(() => {
 		/**
@@ -113,25 +156,22 @@ export const AppComponent = (props: any) => {
 		return null;
 	}
 
-	let componentSize = inline ? 'xs' : 'sm';
+	const isTableComponent = resource !== 'widget';
+	let componentSize = isTableComponent ? 'xs' : 'sm';
 
 	if (componentType === 'button') {
 		return (
 			<Stack spacing="0.5" w="fit-content">
 				<Button
 					my="1.5"
-					size={inline ? 'xs' : 'sm'}
+					size={componentSize}
 					bgColor={grayOutComponent ? 'gray.100' : ''}
 					colorScheme={color || 'blue'}
 					isLoading={mutation.isLoading}
 					onClick={() => {
-						if (availableMethods?.includes(ACTIONS.CLICK)) {
-							handleEvent({
-								action: ACTIONS.CLICK,
-								resource: widgetName,
-								component: name,
-							});
-						}
+						handleComponentMethod({
+							action: ACTIONS.CLICK,
+						});
 
 						sendJsonMessage({
 							type: 'display_rule',
@@ -180,7 +220,7 @@ export const AppComponent = (props: any) => {
 	return (
 		<Stack spacing="0.5">
 			<FormControl
-				{...(inline
+				{...(isTableComponent
 					? {
 							as: Stack,
 							direction: 'row',
@@ -192,7 +232,7 @@ export const AppComponent = (props: any) => {
 				bgColor={grayOutComponent ? 'gray.100' : ''}
 			>
 				{label ? (
-					<FormLabel mb={inline ? 0 : '1.5'} lineHeight={1}>
+					<FormLabel mb={isTableComponent ? 0 : '1.5'} lineHeight={1}>
 						{label}
 					</FormLabel>
 				) : null}
@@ -202,15 +242,13 @@ export const AppComponent = (props: any) => {
 						value={inputValue}
 						name={name}
 						size={componentSize}
-						inline={inline}
+						isTableComponent={isTableComponent}
 						data-cy={`input-${name}`}
 						type={inputType}
 						onKeyDown={(e: any) => {
-							if (e.key === 'Enter' && availableMethods?.includes(ACTIONS.SUBMIT)) {
-								handleEvent({
+							if (e.key === 'Enter') {
+								handleComponentMethod({
 									action: ACTIONS.SUBMIT,
-									resource: widgetName,
-									component: name,
 								});
 							}
 						}}
@@ -218,32 +256,21 @@ export const AppComponent = (props: any) => {
 							// We need this newWidgetState because the state in pageState
 							// is not up to date with the latest input value
 							const newWidgetState = handleInputValue(name, newValue);
-							if (availableMethods?.includes(ACTIONS.SELECT)) {
-								handleEvent({
-									action: ACTIONS.SELECT,
-									resource: widgetName,
-									component: name,
-									newState: newWidgetState,
-								});
-							}
 
-							if (availableMethods?.includes(ACTIONS.CHANGE)) {
-								handleEvent({
-									action: ACTIONS.CHANGE,
-									resource: widgetName,
-									component: name,
-									newState: newWidgetState,
-								});
-							}
+							handleComponentMethod({
+								action: ACTIONS.SELECT,
+								state: newWidgetState,
+							});
 
-							if (availableMethods?.includes(ACTIONS.TOGGLE)) {
-								handleEvent({
-									action: ACTIONS.TOGGLE,
-									resource: widgetName,
-									component: name,
-									newState: newWidgetState,
-								});
-							}
+							handleComponentMethod({
+								action: ACTIONS.CHANGE,
+								state: newWidgetState,
+							});
+
+							handleComponentMethod({
+								action: ACTIONS.TOGGLE,
+								state: newWidgetState,
+							});
 
 							sendJsonMessage({
 								type: 'display_rule',
