@@ -13,7 +13,7 @@ import {
 	Center,
 	Link,
 } from '@chakra-ui/react';
-import { Code, Table, Box as BoxIcon, Edit2, Check, X, Plus } from 'react-feather';
+import { Code, Table, Box as BoxIcon, Check, X, Plus } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -22,7 +22,7 @@ import { useMonacoLoader } from '@/components/Editor';
 import { developerTabAtom } from '@/features/app-builder/atoms';
 
 import { useGetPage } from '@/features/page';
-import { DeleteFile } from './DeleteFile';
+// import { DeleteFile } from './DeleteFile';
 import { useUpdateFile } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
@@ -40,7 +40,7 @@ const FileButton = ({ file }: any) => {
 	const { isOpen: isEdit, onClose: onEditClose, onOpen: onEditOpen } = useDisclosure();
 
 	const isSQLFile = file.type === 'sql';
-	const fileName = `${file.name}${isSQLFile ? '.sql' : '.py'}`;
+	// const fileName = `${file.name}${isSQLFile ? '.sql' : '.py'}`;
 	const isActive = file.name === devTab.id;
 
 	const [newFileName, setNewFileName] = useState(file.name);
@@ -206,7 +206,7 @@ const FileButton = ({ file }: any) => {
 
 					<Spacer />
 
-					{isActive ? (
+					{/* {isActive ? (
 						<Stack direction="row" justify="flex-end">
 							<IconButton
 								aria-label="Rename function"
@@ -236,7 +236,7 @@ const FileButton = ({ file }: any) => {
 								displayName={fileName}
 							/>
 						</Stack>
-					) : null}
+					) : null} */}
 				</Stack>
 			)}
 		</Stack>
