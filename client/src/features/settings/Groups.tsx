@@ -47,7 +47,6 @@ import {
 	useGetWorkspaceUsers,
 } from './hooks/workspace';
 import { useAddUserToGroup, useCreateGroup, useGetGroupUsers } from './hooks/group';
-import { canUseGranularPermissionsAtom } from './atoms';
 
 const GroupMemberRow = (item: any) => {
 	const { user } = item;
@@ -75,7 +74,6 @@ const GroupMemberRow = (item: any) => {
 export const Groups = () => {
 	const { groups } = useGetWorkspaceGroups();
 	const { users } = useGetWorkspaceUsers();
-	const canUseGranularPermissions = useAtomValue(canUseGranularPermissionsAtom);
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const [selectedGroup, setSelectedGroup] = useState('');
 	const [newGroupName, setNewGroupName] = useState('' as string);
@@ -137,16 +135,6 @@ export const Groups = () => {
 		// }
 		return true;
 	});
-
-	if (!canUseGranularPermissions) {
-		return (
-			<PageLayout title="Permissions Manager">
-				<Text fontSize="lg" color="gray.500">
-					Granular permissions are not available for your current plan.
-				</Text>
-			</PageLayout>
-		);
-	}
 
 	return (
 		<PageLayout title="Workspace Groups" pageProps={{ pb: '0' }}>
