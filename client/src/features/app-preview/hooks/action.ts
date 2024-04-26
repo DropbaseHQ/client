@@ -16,6 +16,7 @@ export const executeAction = async ({
 	action,
 	resource,
 	component,
+	edits,
 }: any) => {
 	const response = await workerAxios.post(`/function/class`, {
 		page_name: pageName,
@@ -24,6 +25,7 @@ export const executeAction = async ({
 		action,
 		resource,
 		component,
+		edits,
 	});
 
 	if (response.data?.job_id) {
@@ -72,12 +74,10 @@ export const useEvent = (props: any) => {
 		action,
 		resource,
 		component,
-		newState,
 	}: {
 		action: any;
 		resource: any;
 		component?: any;
-		newState?: any;
 	}) => {
 		actionMutation.mutate({
 			pageName,
@@ -85,7 +85,7 @@ export const useEvent = (props: any) => {
 			action,
 			resource,
 			component,
-			pageState: newState || pageState,
+			pageState,
 		});
 	};
 

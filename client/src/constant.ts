@@ -3,6 +3,7 @@ export const ACTIONS = {
 	SELECT: 'on_select_',
 	ADD_ROW: 'add',
 	GET_DATA: 'get_data',
+	UPDATE: 'update',
 	SUBMIT: 'on_submit_',
 	CHANGE: 'on_change_',
 	TOGGLE: 'on_toggle_',

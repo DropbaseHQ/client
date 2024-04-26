@@ -262,8 +262,6 @@ const ColumnProperty = ({
 		handleUpdate(formValues);
 	};
 
-	const hasNoEditKeys = edit_keys?.length === 0;
-
 	let allVisibleFields;
 	if (properties?.column_type === 'postgres' || properties?.column_type === 'snowflake') {
 		allVisibleFields =
@@ -323,15 +321,11 @@ const ColumnProperty = ({
 						{isCustomColumn ? (
 							<Box width="20%" />
 						) : (
-							<Tooltip label={hasNoEditKeys ? 'Not editable' : ''}>
+							<Tooltip>
 								<Stack direction="row" width="20%">
 									<InputRenderer
 										type="boolean"
-										isDisabled={
-											tableType !== 'sql' ||
-											hasNoEditKeys ||
-											updateMutation.isLoading
-										}
+										isDisabled={updateMutation.isLoading}
 										id="editable"
 										value={properties.editable}
 										onChange={(newValue: any) => {

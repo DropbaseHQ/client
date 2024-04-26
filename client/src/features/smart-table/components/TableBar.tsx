@@ -8,6 +8,7 @@ import {
 	Tooltip,
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
+import { useRef } from 'react';
 
 import { useIsMutating } from 'react-query';
 
@@ -15,15 +16,15 @@ import { Save } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useCurrentTableData, useCurrentTableName, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
-import { cellEditsAtom } from '@/features/smart-table/atoms';
 import { getErrorMessage } from '@/utils';
 
 import { FilterButton } from './Filters';
 import { SortButton } from './Sorts';
 import { PinnedFilters } from './PinnedFilters';
 import { CONVERT_MUTATION, useGetTable } from '@/features/app-builder/hooks';
-import { useGetPage } from '@/features/page';
 
+import { pageStateAtom } from '@/features/app-state';
+import { cellEditsAtom } from '@/features/smart-table/atoms';
 import { appModeAtom } from '@/features/app/atoms';
 import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
 import { WidgetPreview } from '@/features/app-preview/WidgetPreview';
@@ -46,8 +47,6 @@ export const TableBar = () => {
 	const isConvertingTable = useIsMutating({ mutationKey: `${CONVERT_MUTATION}-${tableName}` });
 
 	const { appName, pageName } = useParams();
-	const { files } = useGetPage({ appName, pageName });
-	const file = files.find((f: any) => f.name === fetcher?.value);
 
 	const { rows, columns } = useCurrentTableData(tableName);
 
@@ -74,20 +73,26 @@ export const TableBar = () => {
 		},
 	});
 
+	const pageState: any = useAtomValue(pageStateAtom);
+	const pageStateRef = useRef(pageState);
+
+	pageStateRef.current = pageState;
+
 	const handleCellEdits = () => {
-		if (tableType === 'sql') {
-			saveEditsMutation.mutate({
-				file,
-				edits: cellEdits.map((edit: any) => ({
-					row: rows[edit.rowIndex],
-					column_name: edit.column_name,
-					columns: columns.filter((c: any) => c?.column_type !== 'button_column'),
-					data_type: edit.data_type,
-					old_value: edit.old_value,
-					new_value: edit.new_value,
-				})),
-			});
-		}
+		saveEditsMutation.mutate({
+			appName,
+			pageName,
+			resource: tableName,
+			state: pageStateRef,
+			edits: cellEdits.map((edit: any) => ({
+				row: rows[edit.rowIndex],
+				column_name: edit.column_name,
+				columns: columns.filter((c: any) => c?.column_type !== 'button_column'),
+				data_type: edit.data_type,
+				old_value: edit.old_value,
+				new_value: edit.new_value,
+			})),
+		});
 	};
 
 	if (tableWidget) {
@@ -111,72 +116,68 @@ export const TableBar = () => {
 		);
 	}
 
-	if (tableType === 'sql') {
-		return (
-			<Stack
-				bg="white"
-				borderWidth="1px"
-				borderBottom="0"
-				borderTopLeftRadius="md"
-				borderTopRightRadius="md"
-				direction="row"
-				py="2"
-				px="3"
-				alignItems="center"
-				justifyContent="space-between"
-			>
-				{tableType === 'sql' ? (
-					<Stack spacing="0" alignItems="center" direction="row">
-						<Box onMouseLeave={onClose}>
-							<Popover
-								returnFocusOnClose={false}
-								isOpen={!isPreview && !isSmartTable && fetcher && isOpen}
-								onClose={onClose}
-								placement="bottom-end"
-								closeOnBlur={false}
-							>
-								<PopoverTrigger>
-									<Stack
-										onMouseOver={onOpen}
-										onMouseEnter={onOpen}
-										direction="row"
-										mr="3"
-									>
-										<FilterButton />
-										<SortButton />
-									</Stack>
-								</PopoverTrigger>
-								{renderPopoverContent()}
-							</Popover>
-						</Box>
+	return (
+		<Stack
+			bg="white"
+			borderWidth="1px"
+			borderBottom="0"
+			borderTopLeftRadius="md"
+			borderTopRightRadius="md"
+			direction="row"
+			py="2"
+			px="3"
+			alignItems="center"
+			justifyContent="space-between"
+		>
+			{tableType === 'sql' ? (
+				<Stack spacing="0" alignItems="center" direction="row">
+					<Box onMouseLeave={onClose}>
+						<Popover
+							returnFocusOnClose={false}
+							isOpen={!isPreview && !isSmartTable && fetcher && isOpen}
+							onClose={onClose}
+							placement="bottom-end"
+							closeOnBlur={false}
+						>
+							<PopoverTrigger>
+								<Stack
+									onMouseOver={onOpen}
+									onMouseEnter={onOpen}
+									direction="row"
+									mr="3"
+								>
+									<FilterButton />
+									<SortButton />
+								</Stack>
+							</PopoverTrigger>
+							{renderPopoverContent()}
+						</Popover>
+					</Box>
 
-						<PinnedFilters />
-					</Stack>
-				) : null}
-
-				<Stack direction="row">
-					{isConvertingTable ? (
-						<Tooltip label="Converting to Smart Table">
-							<Spinner mr="2" emptyColor="gray.200" color="yellow.500" size="sm" />
-						</Tooltip>
-					) : null}
-					{cellEdits.length > 0 ? (
-						<Tooltip label="Update">
-							<IconButton
-								aria-label="Save Cell edits"
-								icon={<Save size="14" />}
-								variant="outline"
-								colorScheme="blue"
-								size="sm"
-								onClick={handleCellEdits}
-								isLoading={saveEditsMutation.isLoading}
-							/>
-						</Tooltip>
-					) : null}
+					<PinnedFilters />
 				</Stack>
-			</Stack>
-		);
-	}
+			) : null}
 
-	return null;
+			<Stack direction="row">
+				{isConvertingTable ? (
+					<Tooltip label="Converting to Smart Table">
+						<Spinner mr="2" emptyColor="gray.200" color="yellow.500" size="sm" />
+					</Tooltip>
+				) : null}
+				{cellEdits.length > 0 ? (
+					<Tooltip label="Update">
+						<IconButton
+							aria-label="Save Cell edits"
+							icon={<Save size="14" />}
+							variant="outline"
+							colorScheme="blue"
+							size="sm"
+							onClick={handleCellEdits}
+							isLoading={saveEditsMutation.isLoading}
+						/>
+					</Tooltip>
+				) : null}
+			</Stack>
+		</Stack>
+	);
 };
