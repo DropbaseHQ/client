@@ -9,11 +9,11 @@ import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
-import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/ComponentEditor';
 import { AppComponent } from './AppComponent';
 import { Notification } from '@/features/app-preview/components/Notification';
 import { MirrorTableColumns } from '@/features/app-builder/components/PropertiesEditor/MirrorTableColumnInputs';
 import { ComponentsList } from '@/features/app-preview/ComponentsList';
+import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/NewComponent';
 
 export const WidgetPreview = ({ widgetName }: any) => {
 	const { appName, pageName } = useParams();
@@ -140,6 +140,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 								<NewComponent
 									widgetName={widgetName}
 									w="full"
+									resource="widget"
 									variant="secondary"
 								/>
 								<MirrorTableColumns widgetName={widgetName} />

@@ -1,22 +1,8 @@
 import { useEffect } from 'react';
-import { Plus, Save, Trash } from 'react-feather';
+import { Save, Trash } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
-import {
-	Stack,
-	IconButton,
-	MenuButton,
-	Menu,
-	MenuList,
-	MenuItem,
-	Text,
-	Button,
-	ButtonGroup,
-	Box,
-	Skeleton,
-	StackDivider,
-} from '@chakra-ui/react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useStatus } from '@/layout/StatusBar';
+import { Stack, IconButton, Text, ButtonGroup, Skeleton, StackDivider } from '@chakra-ui/react';
+import { useAtom, useAtomValue } from 'jotai';
 import { FormInput } from '@/components/FormInput';
 import { useResourceFields } from '@/features/app-builder/hooks';
 import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
@@ -24,7 +10,7 @@ import { useToast } from '@/lib/chakra-ui';
 import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
-import { generateSequentialName, getErrorMessage } from '@/utils';
+import { getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { LabelContainer } from '@/components/LabelContainer';
@@ -420,125 +406,5 @@ export const ComponentPropertyEditor = () => {
 				</FormProvider>
 			</form>
 		</Stack>
-	);
-};
-
-export const NewComponent = ({ widgetName, ...props }: any) => {
-	const toast = useToast();
-	const { isConnected } = useStatus();
-	const { appName, pageName } = useAtomValue(pageAtom);
-	const { properties } = useGetPage({ appName, pageName });
-	const setInspectedResource = useSetAtom(inspectedResourceAtom);
-
-	const mutation = useUpdatePageData({
-		onSuccess: () => {
-			toast({
-				status: 'success',
-				title: 'Component added',
-			});
-		},
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to create component',
-				description: getErrorMessage(error),
-			});
-		},
-	});
-
-	const onSubmit = async ({ type }: any) => {
-		const currentNames = (properties?.[widgetName]?.components || [])
-			.filter((c: any) => c.component_type === type)
-			.map((c: any) => c.name);
-
-		const { name: newName, label: newLabel } = generateSequentialName({
-			currentNames,
-			prefix: type,
-		});
-
-		let otherProperty: any = {
-			label: newLabel,
-		};
-
-		if (type === 'input') {
-			otherProperty = { type: 'text', label: newLabel };
-		}
-
-		if (type === 'text') {
-			otherProperty = {
-				text: newName,
-			};
-		}
-		if (type === 'select') {
-			otherProperty = {
-				data_type: 'string',
-				use_fetcher: false,
-				label: newLabel,
-			};
-		}
-
-		try {
-			const currentWidget = properties[widgetName] || {};
-
-			await mutation.mutateAsync({
-				app_name: appName,
-				page_name: pageName,
-				properties: {
-					...(properties || {}),
-					[widgetName]: {
-						...currentWidget,
-						components: [
-							...(currentWidget.components || []),
-							{
-								name: newName,
-								component_type: type,
-								...otherProperty,
-							},
-						],
-					},
-				},
-			});
-			setInspectedResource({
-				id: newName,
-				type: 'component',
-				meta: { widget: widgetName },
-			});
-		} catch (e) {
-			//
-		}
-	};
-
-	return (
-		<Menu>
-			<MenuButton
-				as={Button}
-				variant="ghost"
-				size="sm"
-				flexShrink="0"
-				mr="auto"
-				data-cy="add-component-button"
-				isDisabled={!isConnected}
-				isLoading={mutation.isLoading}
-				{...props}
-			>
-				<Stack alignItems="center" justifyContent="center" direction="row">
-					<Plus size="14" />
-					<Box>Add Component</Box>
-				</Stack>
-			</MenuButton>
-			<MenuList>
-				{['input', 'text', 'select', 'button', 'boolean'].map((c) => (
-					<MenuItem
-						onClick={() => {
-							onSubmit({ type: c });
-						}}
-						key={c}
-						fontSize="md"
-					>
-						{c}
-					</MenuItem>
-				))}
-			</MenuList>
-		</Menu>
 	);
 };
