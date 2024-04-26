@@ -199,14 +199,14 @@ export const useTableData = ({
 	};
 };
 
-const saveEdits = async ({ appName, pageName, resource, state, edits }: any) => {
+const saveEdits = async ({ appName, pageName, resource, state, rowEdits }: any) => {
 	const response = await executeAction({
 		appName,
 		pageName,
 		resource,
 		action: ACTIONS.UPDATE,
 		pageState: state,
-		edits,
+		rowEdits,
 	});
 
 	return response.data;

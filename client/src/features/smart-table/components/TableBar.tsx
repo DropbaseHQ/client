@@ -48,7 +48,7 @@ export const TableBar = () => {
 
 	const { appName, pageName } = useParams();
 
-	const { rows, columns } = useCurrentTableData(tableName);
+	const { rows } = useCurrentTableData(tableName);
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
 	const cellEdits = allCellEdits[tableName] || [];
@@ -79,19 +79,27 @@ export const TableBar = () => {
 	pageStateRef.current = pageState;
 
 	const handleCellEdits = () => {
+		const groupedEdits: Record<number, any> = {};
+
+		cellEdits.forEach((edit: any) => {
+			const { rowIndex, column_name: columnName, new_value: newValue } = edit;
+			if (!groupedEdits[rowIndex]) {
+				groupedEdits[rowIndex] = {
+					old: { ...rows[rowIndex] },
+					new: { ...rows[rowIndex] },
+				};
+			}
+			groupedEdits[rowIndex].new[columnName] = newValue;
+		});
+
+		const editsToSend: any[] = Object.values(groupedEdits);
+
 		saveEditsMutation.mutate({
 			appName,
 			pageName,
 			resource: tableName,
 			state: pageStateRef,
-			edits: cellEdits.map((edit: any) => ({
-				row: rows[edit.rowIndex],
-				column_name: edit.column_name,
-				columns: columns.filter((c: any) => c?.column_type !== 'button_column'),
-				data_type: edit.data_type,
-				old_value: edit.old_value,
-				new_value: edit.new_value,
-			})),
+			rowEdits: editsToSend,
 		});
 	};
 
