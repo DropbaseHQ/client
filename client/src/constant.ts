@@ -1,10 +1,10 @@
 export const ACTIONS = {
-	CLICK: 'on_click_',
-	SELECT: 'on_select_',
+	CLICK: 'on_click',
+	SELECT: 'on_select',
 	ADD_ROW: 'add',
 	GET_DATA: 'get_data',
 	UPDATE: 'update',
-	SUBMIT: 'on_submit_',
-	CHANGE: 'on_change_',
-	TOGGLE: 'on_toggle_',
+	SUBMIT: 'on_submit',
+	CHANGE: 'on_change',
+	TOGGLE: 'on_toggle',
 };

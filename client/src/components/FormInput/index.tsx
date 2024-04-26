@@ -476,7 +476,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		return (
 			<Switch
 				size="sm"
-				mx="auto"
+				mx="0"
 				isChecked={!!value}
 				onBlur={onBlur}
 				onChange={(e) => {

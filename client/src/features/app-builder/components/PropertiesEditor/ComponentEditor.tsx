@@ -1,22 +1,8 @@
 import { useEffect } from 'react';
-import { Plus, Save, Trash } from 'react-feather';
+import { Save, Trash } from 'react-feather';
 import { FormProvider, useForm } from 'react-hook-form';
-import {
-	Stack,
-	IconButton,
-	MenuButton,
-	Menu,
-	MenuList,
-	MenuItem,
-	Text,
-	Button,
-	ButtonGroup,
-	Box,
-	Skeleton,
-	StackDivider,
-} from '@chakra-ui/react';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useStatus } from '@/layout/StatusBar';
+import { Stack, IconButton, Text, ButtonGroup, Skeleton, StackDivider } from '@chakra-ui/react';
+import { useAtom, useAtomValue } from 'jotai';
 import { FormInput } from '@/components/FormInput';
 import { useResourceFields } from '@/features/app-builder/hooks';
 import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
@@ -24,25 +10,31 @@ import { useToast } from '@/lib/chakra-ui';
 import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
-import { generateSequentialName, getErrorMessage } from '@/utils';
+import { getErrorMessage } from '@/utils';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { LabelContainer } from '@/components/LabelContainer';
 
 const TEMPLATE_REGEX = /\{\{(.+?)\}\}/;
 
-export const ComponentPropertyEditor = ({ id, meta }: any) => {
+export const ComponentPropertyEditor = () => {
 	const toast = useToast();
-	const setInspectedResource = useSetAtom(inspectedResourceAtom);
+	const [{ id, meta, type: inspectedResourceType }, setInspectedResource] =
+		useAtom(inspectedResourceAtom);
 	const { pageName, appName } = useAtomValue(pageAtom);
 
-	const { widget: widgetName } = meta || {};
+	const { widget: widgetName, table: tableName, resource } = meta || {};
 
-	const { widgets, isLoading, properties, files } = useGetPage({ appName, pageName });
+	const { widgets, isLoading, tables, properties, files } = useGetPage({ appName, pageName });
 
-	const component = widgets
-		.find((w: any) => w.name === widgetName)
-		?.components?.find((c: any) => c.name === id);
+	const component =
+		resource === 'widget'
+			? widgets
+					.find((w: any) => w.name === widgetName)
+					?.components?.find((c: any) => c.name === id)
+			: tables
+					.find((w: any) => w.name === tableName)
+					?.[resource]?.find((c: any) => c.name === id);
 
 	const { fields } = useResourceFields();
 
@@ -132,7 +124,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 		);
 	}, [component, reset]);
 
-	const onSubmit = ({ stateInDefault, ...formValues }: any) => {
+	const onSubmit = async ({ stateInDefault, ...formValues }: any) => {
 		if (stateInDefault && !TEMPLATE_REGEX.test(formValues.default)) {
 			setError('default', {
 				message: `Invalid state value, please make sure you use template like {{state.table1.id}}`,
@@ -140,35 +132,10 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 			return;
 		}
 
-		const currentWidget = properties[widgetName] || {};
-
-		updateMutation.mutate({
-			app_name: appName,
-			page_name: pageName,
-			properties: {
-				...(properties || {}),
-				[widgetName]: {
-					...currentWidget,
-					components: (currentWidget.components || []).map((c: any) => {
-						if (c.name === id) {
-							return {
-								...c,
-								...formValues,
-							};
-						}
-
-						return c;
-					}),
-				},
-			},
-		});
-	};
-
-	const handleUpdateName = async (newName: any) => {
-		try {
+		if (resource === 'widget') {
 			const currentWidget = properties[widgetName] || {};
 
-			await updateMutation.mutate({
+			await updateMutation.mutateAsync({
 				app_name: appName,
 				page_name: pageName,
 				properties: {
@@ -179,7 +146,7 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 							if (c.name === id) {
 								return {
 									...c,
-									name: newName,
+									...formValues,
 								};
 							}
 
@@ -188,11 +155,42 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 					},
 				},
 			});
+		} else if (tableName) {
+			const currentTable = properties[tableName] || {};
+
+			await updateMutation.mutateAsync({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(properties || {}),
+					[tableName]: {
+						...currentTable,
+						[resource]: (currentTable?.[resource] || []).map((c: any) => {
+							if (c.name === id) {
+								return {
+									...c,
+									...formValues,
+								};
+							}
+
+							return c;
+						}),
+					},
+				},
+			});
+		}
+	};
+
+	const handleUpdateName = async (newName: any) => {
+		try {
+			await onSubmit({
+				name: newName,
+			});
 
 			setInspectedResource({
 				id: newName,
-				type: 'component',
-				meta: { widget: widgetName },
+				type: inspectedResourceType,
+				meta,
 			});
 		} catch (e) {
 			//
@@ -408,125 +406,5 @@ export const ComponentPropertyEditor = ({ id, meta }: any) => {
 				</FormProvider>
 			</form>
 		</Stack>
-	);
-};
-
-export const NewComponent = ({ widgetName, ...props }: any) => {
-	const toast = useToast();
-	const { isConnected } = useStatus();
-	const { appName, pageName } = useAtomValue(pageAtom);
-	const { properties } = useGetPage({ appName, pageName });
-	const setInspectedResource = useSetAtom(inspectedResourceAtom);
-
-	const mutation = useUpdatePageData({
-		onSuccess: () => {
-			toast({
-				status: 'success',
-				title: 'Component added',
-			});
-		},
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to create component',
-				description: getErrorMessage(error),
-			});
-		},
-	});
-
-	const onSubmit = async ({ type }: any) => {
-		const currentNames = (properties?.[widgetName]?.components || [])
-			.filter((c: any) => c.component_type === type)
-			.map((c: any) => c.name);
-
-		const { name: newName, label: newLabel } = generateSequentialName({
-			currentNames,
-			prefix: type,
-		});
-
-		let otherProperty: any = {
-			label: newLabel,
-		};
-
-		if (type === 'input') {
-			otherProperty = { type: 'text', label: newLabel };
-		}
-
-		if (type === 'text') {
-			otherProperty = {
-				text: newName,
-			};
-		}
-		if (type === 'select') {
-			otherProperty = {
-				data_type: 'string',
-				use_fetcher: false,
-				label: newLabel,
-			};
-		}
-
-		try {
-			const currentWidget = properties[widgetName] || {};
-
-			await mutation.mutateAsync({
-				app_name: appName,
-				page_name: pageName,
-				properties: {
-					...(properties || {}),
-					[widgetName]: {
-						...currentWidget,
-						components: [
-							...(currentWidget.components || []),
-							{
-								name: newName,
-								component_type: type,
-								...otherProperty,
-							},
-						],
-					},
-				},
-			});
-			setInspectedResource({
-				id: newName,
-				type: 'component',
-				meta: { widget: widgetName },
-			});
-		} catch (e) {
-			//
-		}
-	};
-
-	return (
-		<Menu>
-			<MenuButton
-				as={Button}
-				variant="ghost"
-				size="sm"
-				flexShrink="0"
-				mr="auto"
-				data-cy="add-component-button"
-				isDisabled={!isConnected}
-				isLoading={mutation.isLoading}
-				{...props}
-			>
-				<Stack alignItems="center" justifyContent="center" direction="row">
-					<Plus size="14" />
-					<Box>Add Component</Box>
-				</Stack>
-			</MenuButton>
-			<MenuList>
-				{['input', 'text', 'select', 'button', 'boolean'].map((c) => (
-					<MenuItem
-						onClick={() => {
-							onSubmit({ type: c });
-						}}
-						key={c}
-						fontSize="md"
-					>
-						{c}
-					</MenuItem>
-				))}
-			</MenuList>
-		</Menu>
 	);
 };

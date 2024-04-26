@@ -67,12 +67,11 @@ const TargetSelector = ({
 	targets,
 }: any) => {
 	const [editTarget, setEditTarget] = useState<string>(rule.target);
-
 	const targetExists = () => {
 		if (!rule.target) {
 			return true;
 		}
-		return targets?.flat().some((t: any) => t.value === rule.target);
+		return targets?.flat(2).some((t: any) => t.value === rule.target);
 	};
 
 	const getTargetType = (target: string) => {
@@ -128,7 +127,7 @@ const TargetSelector = ({
 				)}
 			</FormControl>
 			<AutoCompleteList>
-				{targets?.flat().map((target: any) => {
+				{targets?.flat(2).map((target: any) => {
 					return (
 						<AutoCompleteItem key={target?.value} value={target?.value} fontSize="sm">
 							{target?.label}
@@ -215,10 +214,14 @@ export const DisplayRulesEditor = ({ name }: any) => {
 
 	const targets = Object.keys(pageComponents).map((componentName) => {
 		const targetComponent: any = pageComponents?.[componentName as keyof typeof pageComponents];
-		return Object.keys(targetComponent || {})?.map((componentAttribute) => ({
-			label: `${componentName}.${componentAttribute}`,
-			value: `${componentName}.${componentAttribute}`,
-		}));
+		return Object.keys(targetComponent || {})?.map((componentAttribute) => {
+			return Object.keys(targetComponent[componentAttribute] || {})?.map((attribute) => {
+				return {
+					label: `${componentName}.${componentAttribute}.${attribute}`,
+					value: `${componentName}.${componentAttribute}.${attribute}`,
+				};
+			});
+		});
 	});
 
 	return (
