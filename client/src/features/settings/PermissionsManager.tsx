@@ -50,7 +50,6 @@ import {
 	useGetWorkspaceUsers,
 	GET_WORKSPACE_GROUPS_QUERY_KEY,
 } from './hooks/workspace';
-import { useGetCurrentUser } from '@/features/authorization/hooks/useGetUser';
 import { useGetWorkspaceApps, App } from '../app-list/hooks/useGetWorkspaceApps';
 import { UserPolicySelector, GroupPolicySelector } from './components/PolicySelector';
 import { GroupCard } from './GroupCard';
@@ -184,9 +183,8 @@ export const Permissions = () => {
 	const [newGroupName, setNewGroupName] = useState('' as string);
 	const [resourceType, setResourceType] = useState('groups' as string);
 	const [invitedMember, setInviteMember] = useState('' as string);
-	const { user: userInfo } = useGetCurrentUser();
 
-	const { id: workspaceId, in_trial: inTrial } = useAtomValue(workspaceAtom);
+	const { id: workspaceId } = useAtomValue(workspaceAtom);
 	const queryClient = useQueryClient();
 	const {
 		isOpen: createGroupIsOpen,
@@ -240,18 +238,6 @@ export const Permissions = () => {
 		});
 		inviteMemberOnClose();
 	};
-
-	const canUseGranularPermissions = inTrial || userInfo?.email?.endsWith('dropbase.io');
-
-	if (!canUseGranularPermissions) {
-		return (
-			<PageLayout title="Permissions Manager">
-				<Text fontSize="lg" color="gray.500">
-					Granular permissions are not available for your current plan.
-				</Text>
-			</PageLayout>
-		);
-	}
 
 	return (
 		<PageLayout

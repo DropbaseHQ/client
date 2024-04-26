@@ -49,7 +49,6 @@ import { workspaceAtom } from '@/features/workspaces';
 import { PageLayout } from '@/layout';
 import { useToast } from '@/lib/chakra-ui';
 import { PermissionsFilter } from './components/Permissions/PermissionsComponents';
-import { canUseGranularPermissionsAtom } from './atoms';
 
 // Will get this from the server later
 const ADMIN_UUID = '00000000-0000-0000-0000-000000000001';
@@ -197,7 +196,6 @@ const UserRow = (item: any) => {
 
 export const Users = () => {
 	const { id: workspaceId } = useAtomValue(workspaceAtom);
-	const canUseGranularPermissions = useAtomValue(canUseGranularPermissionsAtom);
 
 	const [newMemberEmail, setNewMemberEmail] = useState('');
 	const [newMemberRole, setNewMemberRole] = useState(MEMBER_UUID);
@@ -244,14 +242,6 @@ export const Users = () => {
 			: true;
 		return emailMatch && roleMatch && groupMatch;
 	});
-
-	if (!canUseGranularPermissions) {
-		return (
-			<PageLayout title="Workspace Members">
-				<Text> Granular permissions are not available for your current plan.</Text>
-			</PageLayout>
-		);
-	}
 
 	return (
 		<Box w="60vw">
