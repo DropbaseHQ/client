@@ -55,9 +55,10 @@ export const AppComponent = (props: any) => {
 	const inputState = useMemo(() => components?.[name] || {}, [components, name]);
 
 	const [inputValues, setInputValues]: any = useAtom(pageStateAtom);
+
 	const inputValue =
 		resource === 'widget'
-			? inputValues?.[widgetName || '']?.[name]
+			? inputValues?.[widgetName || '']?.components?.[name]
 			: inputValues?.[tableName]?.[resource]?.[name];
 
 	const { availableMethods: allResourceMethods } = useGetPage({ appName, pageName });
@@ -94,7 +95,10 @@ export const AppComponent = (props: any) => {
 						...old,
 						[widgetName]: {
 							...(old[widgetName] || {}),
-							[inputName]: newInputValue,
+							components: {
+								...(old[widgetName]?.components || {}),
+								[inputName]: newInputValue,
+							},
 						},
 					};
 					return newWidgetState;
