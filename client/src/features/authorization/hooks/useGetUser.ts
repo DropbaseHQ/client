@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { workerAxios } from '@/lib/axios';
 
 const fetchCurrentUser = async () => {
-	const { data } = await workerAxios.get(`/user`);
+	const { data } = await workerAxios.get(`/user/`);
 	return data;
 };
 
