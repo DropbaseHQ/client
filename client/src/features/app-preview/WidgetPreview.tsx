@@ -151,7 +151,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 					components={components}
 					id={widgetName}
 				>
-					{({ containerProps, component, sendJsonMessage }: any) => (
+					{({ containerProps, component, sendJsonMessage, inline }: any) => (
 						<InspectorContainer
 							key={component.name}
 							id={component.name}
@@ -159,6 +159,7 @@ export const WidgetPreview = ({ widgetName }: any) => {
 							data-cy={`component-${component.name}-inspector`}
 							meta={{ widget: widgetName, resource: 'widget' }}
 							{...containerProps}
+							top={inline ? 'auto !important' : undefined}
 						>
 							<AppComponent
 								key={component.name}

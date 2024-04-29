@@ -137,6 +137,7 @@ export const ComponentsList = ({
 											},
 											component: c,
 											sendJsonMessage,
+											inline,
 										})
 									}
 								</Draggable>

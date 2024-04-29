@@ -72,7 +72,7 @@ export const ComponentsPreview = ({ type, tableName, onUpdate }: any) => {
 				id={`${tableName}-${type}`}
 				inline
 			>
-				{({ containerProps, component, sendJsonMessage }: any) => (
+				{({ containerProps, component, sendJsonMessage, inline }: any) => (
 					<InspectorContainer
 						key={component.name}
 						id={component.name}
@@ -80,6 +80,7 @@ export const ComponentsPreview = ({ type, tableName, onUpdate }: any) => {
 						data-cy={`component-${component.name}-inspector`}
 						meta={{ table: tableName, resource: type }}
 						{...containerProps}
+						top={inline ? 'auto !important' : undefined}
 					>
 						<AppComponent
 							key={component.name}
