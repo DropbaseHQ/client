@@ -295,7 +295,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 
 	useEffect(() => {
 		if (currentTableContext && currentTableContext?.reload) {
-			refetch();
+			refetch({ cancelRefetch: true });
 			setPageContext((old: any) => ({
 				...old,
 				[tableName]: {
