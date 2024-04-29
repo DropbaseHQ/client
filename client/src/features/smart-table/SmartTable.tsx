@@ -74,7 +74,6 @@ import { useEvent } from '@/features/app-preview/hooks';
 import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
 import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 import { Notification } from '@/features/app-preview/components/Notification';
-import { AttachWidget } from '@/features/smart-table/components/AttachWidget';
 import { ACTIONS } from '@/constant';
 import { ComponentsPreview } from '@/features/smart-table/components/ComponentsPreview';
 
@@ -1132,10 +1131,10 @@ export const SmartTable = ({ tableName, height }: any) => {
 		);
 	};
 
-	const onAttach = () => {
+	const onComponentsUpdate = () => {
 		setTimeout(() => {
 			calculateTableComponentsHeight();
-		}, 500);
+		}, 1000);
 	};
 
 	/**
@@ -1231,10 +1230,6 @@ export const SmartTable = ({ tableName, height }: any) => {
 							spacing="2"
 							flexShrink="0"
 						>
-							<Tooltip label="Use inline widget">
-								<AttachWidget onAttach={onAttach} />
-							</Tooltip>
-
 							<Tooltip label="Refresh data">
 								<IconButton
 									aria-label="Refresh Data"
@@ -1292,7 +1287,11 @@ export const SmartTable = ({ tableName, height }: any) => {
 					</Popover>
 
 					<Box ref={tableBarRef}>
-						<ComponentsPreview type="header" tableName={tableName} />
+						<ComponentsPreview
+							type="header"
+							tableName={tableName}
+							onUpdate={onComponentsUpdate}
+						/>
 					</Box>
 
 					<Stack
@@ -1372,7 +1371,11 @@ export const SmartTable = ({ tableName, height }: any) => {
 					</Stack>
 
 					<Box ref={pageBarRef}>
-						<ComponentsPreview type="footer" tableName={tableName} />
+						<ComponentsPreview
+							type="footer"
+							tableName={tableName}
+							onUpdate={onComponentsUpdate}
+						/>
 					</Box>
 				</Stack>
 

@@ -6,7 +6,7 @@ import { ObjectRenderer } from '@/components/ObjectRenderer';
 import { pageStateContextAtom } from '@/features/app-state';
 import { pageAtom } from '../page';
 
-const DEFAULT_OPEN_PATH = ['user_input', 'state', 'tables'];
+const DEFAULT_OPEN_PATH = ['state', 'context'];
 
 export const AppState = () => {
 	const { pageName, appName } = useAtomValue(pageAtom);

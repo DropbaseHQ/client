@@ -10,12 +10,14 @@ import { ComponentsList } from '@/features/app-preview/ComponentsList';
 import { AppComponent } from '@/features/app-preview/AppComponent';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/NewComponent';
 
-export const ComponentsPreview = ({ type, tableName }: any) => {
+export const ComponentsPreview = ({ type, tableName, onUpdate }: any) => {
 	const { appName, pageName } = useParams();
 
 	const { [type]: components } = useGetTable(tableName);
 
-	const updateMutation = useUpdatePageData();
+	const updateMutation = useUpdatePageData({
+		onSuccess: onUpdate,
+	});
 
 	const { properties } = useGetPage({ appName, pageName });
 

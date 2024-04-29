@@ -608,7 +608,7 @@ export const ColumnsProperties = () => {
 
 	return (
 		<Stack h="full" overflowY="auto">
-			<Text fontSize="md" px="3" pt="3" pb="0" fontWeight="semibold">
+			<Text fontSize="md" px="3" pt="1" pb="0" fontWeight="semibold">
 				Columns
 			</Text>
 			{type === 'sql' && !table?.smart ? (

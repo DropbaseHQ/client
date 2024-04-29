@@ -11,7 +11,6 @@ import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { getErrorMessage } from '@/utils';
-import { NameEditor } from '@/features/app-builder/components/NameEditor';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { LabelContainer } from '@/components/LabelContainer';
 
@@ -181,6 +180,7 @@ export const ComponentPropertyEditor = () => {
 		}
 	};
 
+	// eslint-disable-next-line
 	const handleUpdateName = async (newName: any) => {
 		try {
 			await onSubmit({
@@ -226,14 +226,14 @@ export const ComponentPropertyEditor = () => {
 							<LabelContainer>
 								<LabelContainer.Code>{id}</LabelContainer.Code>
 							</LabelContainer>
-							<NameEditor
+							{/* <NameEditor
 								value={id}
 								currentNames={(properties?.[widgetName]?.components || []).map(
 									(c: any) => c.name,
 								)}
 								onUpdate={handleUpdateName}
 								resource="component"
-							/>
+							/> */}
 						</Stack>
 
 						<ButtonGroup ml="auto" size="xs">

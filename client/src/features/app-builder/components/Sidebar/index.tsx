@@ -37,7 +37,14 @@ export const BuilderSidebar = () => {
 							flex="1"
 						>
 							<AccordionTitle>Files</AccordionTitle>
-							<NewFile variant="outline" size="2xs" ml="auto" colorScheme="gray" />
+							{false ? (
+								<NewFile
+									variant="outline"
+									size="2xs"
+									ml="auto"
+									colorScheme="gray"
+								/>
+							) : null}
 						</AccordionButton>
 						<AccordionPanel p={2}>
 							<FilesExplorer />

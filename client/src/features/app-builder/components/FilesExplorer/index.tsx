@@ -206,7 +206,7 @@ const FileButton = ({ file }: any) => {
 
 					<Spacer />
 
-					{isActive ? (
+					{isActive && false ? (
 						<Stack direction="row" justify="flex-end">
 							<IconButton
 								aria-label="Rename function"

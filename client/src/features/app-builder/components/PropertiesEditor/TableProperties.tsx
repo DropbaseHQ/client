@@ -12,7 +12,7 @@ import { DeleteTable } from '@/features/app-builder/components/PropertiesEditor/
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
-import { NameEditor } from '@/features/app-builder/components/NameEditor';
+
 import { LabelContainer } from '@/components/LabelContainer';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 
@@ -116,6 +116,7 @@ export const TableProperties = () => {
 		});
 	};
 
+	// eslint-disable-next-line
 	const handleUpdateName = async (newName: any) => {
 		const currentTable = properties[tableId] || {};
 
@@ -176,12 +177,12 @@ export const TableProperties = () => {
 							<LabelContainer>
 								<LabelContainer.Code>{tableId}</LabelContainer.Code>
 							</LabelContainer>
-							<NameEditor
+							{/* <NameEditor
 								value={tableId}
 								currentNames={(properties?.tables || []).map((t: any) => t.name)}
 								onUpdate={handleUpdateName}
 								resource="table"
-							/>
+							/> */}
 						</Stack>
 						<ButtonGroup ml="auto" size="xs">
 							{isDirty ? (
@@ -210,12 +211,12 @@ export const TableProperties = () => {
 										.map((property: any) => {
 											if (
 												property.name === 'filters' ||
-												property.name === 'type'
+												property.name === 'type' ||
+												property.name === 'header' ||
+												property.name === 'footer' ||
+												property.name === 'name' ||
+												property.name === 'columns'
 											) {
-												return null;
-											}
-
-											if (property.name === 'name') {
 												return null;
 											}
 
