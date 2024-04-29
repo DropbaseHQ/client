@@ -13,7 +13,6 @@ const fetchInitialState = async ({ appName, pageName }: any) => {
 
 export const useInitializePageState = (appName: string, pageName: string) => {
 	const queryKey = ['INITIAL_STATE', appName, pageName];
-
 	const setPageState = useSetAtom(pageStateAtom);
 	const setPageContext = useSetAtom(pageContextAtom);
 
@@ -27,10 +26,10 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 				/**
 				 * Update initial context to set the base
 				 */
-				setPageContext(data?.state_context?.context || {}, {
+				setPageContext(data?.context || {}, {
 					replace: true,
 				});
-				setPageState(data?.state_context?.state || {});
+				setPageState(data?.state || {});
 			},
 		},
 	);
