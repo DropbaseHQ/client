@@ -295,6 +295,13 @@ export const SmartTable = ({ tableName, height }: any) => {
 
 	useEffect(() => {
 		if (currentTableContext && currentTableContext?.reload) {
+			/**
+			 * Remove query because if user refreshes in middle of loading,
+			 * for eg: wrong query and reloads it; we discard the old jobId
+			 * and generate a new one to get fresh data
+			 */
+			removeQuery();
+
 			refetch({ cancelRefetch: true });
 			setPageContext((old: any) => ({
 				...old,
@@ -304,7 +311,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 				},
 			}));
 		}
-	}, [currentTableContext, setPageContext, tableName, refetch]);
+	}, [currentTableContext, removeQuery, setPageContext, tableName, refetch]);
 
 	useEffect(() => {
 		const selectedIndex = rows.findIndex(
