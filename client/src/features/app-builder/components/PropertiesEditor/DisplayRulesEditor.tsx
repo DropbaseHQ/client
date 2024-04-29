@@ -139,8 +139,8 @@ const TargetSelector = ({
 	);
 };
 
-export const DisplayRulesEditor = ({ name }: any) => {
-	const { widgetName, widgets } = useAtomValue(pageAtom);
+export const DisplayRulesEditor = ({ name, widgetName }: any) => {
+	const { widgets } = useAtomValue(pageAtom);
 	const pageComponents = useAtomValue(pageStateAtom);
 	const { appName, pageName } = useParams();
 	const { tables, widgets: allWidgets } = useGetPage({ appName, pageName });

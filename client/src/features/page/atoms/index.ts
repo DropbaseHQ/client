@@ -1,7 +1,6 @@
 import { atom } from 'jotai';
 
 export const pageAtom = atom<{
-	widgetName: string | null;
 	appName: string | null;
 	pageName: string | null;
 	widgets:
@@ -18,7 +17,6 @@ export const pageAtom = atom<{
 		caller: string;
 	}[];
 }>({
-	widgetName: null,
 	appName: null,
 	pageName: null,
 	widgets: [],

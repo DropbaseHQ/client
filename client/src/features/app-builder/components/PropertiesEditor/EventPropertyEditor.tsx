@@ -17,7 +17,7 @@ import {
 	Code,
 	Button,
 } from '@chakra-ui/react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { ChevronDown, Box as BoxIcon, Layout, Plus, Table as TableIcon } from 'react-feather';
 import { Controller, useFormContext } from 'react-hook-form';
 
@@ -26,11 +26,18 @@ import { useCreateWidget } from '@/features/app-builder/hooks';
 import { generateSequentialName } from '@/utils';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { useFunctions } from '@/features/app-builder/hooks/files';
+import { pageContextAtom } from '@/features/app-state';
 
-export const EventPropertyEditor = ({ id, title, showFetchersOnly = false, onSelect }: any) => {
+export const EventPropertyEditor = ({
+	id,
+	title,
+	showFetchersOnly = false,
+	onSelect,
+	widgetName,
+}: any) => {
 	const { control } = useFormContext();
 
-	const { pageName, appName, widgetName } = useAtomValue(pageAtom);
+	const { pageName, appName } = useAtomValue(pageAtom);
 	const [{ id: componentId }, setInspectedResource] = useAtom(inspectedResourceAtom);
 
 	const { widgets, isLoading, properties, tables } = useGetPage({ appName, pageName });
@@ -43,7 +50,7 @@ export const EventPropertyEditor = ({ id, title, showFetchersOnly = false, onSel
 
 	const createMutation = useCreateWidget();
 
-	const setPageAtom = useSetAtom(pageAtom);
+	const [context, setPageContext] = useAtom(pageContextAtom);
 
 	const modalWidgets = widgets
 		.filter((f: any) => f.type === 'modal')
@@ -153,10 +160,26 @@ export const EventPropertyEditor = ({ id, title, showFetchersOnly = false, onSel
 	};
 
 	const handleChooseWidget = (newWidgetName: any) => {
-		setPageAtom((oldPageAtom) => ({
-			...oldPageAtom,
-			widgetName: newWidgetName,
-		}));
+		const widgetsContext = widgets?.reduce(
+			(agg: any, w: any) => ({
+				...agg,
+				[w?.name]: {
+					...((context as any)?.[w?.name] || {}),
+					visible: newWidgetName === w?.name,
+				},
+			}),
+			{},
+		);
+
+		setPageContext(
+			{
+				...context,
+				...widgetsContext,
+			},
+			{
+				replace: true,
+			},
+		);
 	};
 
 	const handleCreateWidget = async (widgetType: any) => {

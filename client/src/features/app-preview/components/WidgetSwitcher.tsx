@@ -15,17 +15,20 @@ import {
 
 import { useEffect, useState } from 'react';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ChevronDown } from 'react-feather';
 import { pageAtom } from '@/features/page';
 
 import { appModeAtom } from '@/features/app/atoms';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
+import { pageContextAtom } from '@/features/app-state';
 
 export const WidgetSwitcher = () => {
-	const { widgetName, widgets } = useAtomValue(pageAtom);
+	const [context, setPageContext] = useAtom(pageContextAtom);
+	const { widgets } = useAtomValue(pageAtom);
 	const { isPreview } = useAtomValue(appModeAtom);
-	const setPageAtom = useSetAtom(pageAtom);
+
+	const widgetName = widgets?.find((w: any) => (context as any)?.[w.name]?.visible)?.name;
 
 	const updateSelectedWidget = useSetAtom(inspectedResourceAtom);
 
@@ -40,10 +43,27 @@ export const WidgetSwitcher = () => {
 	}, [isPreview]);
 
 	const handleChooseWidget = (newWidgetName: any) => {
-		setPageAtom((oldPageAtom) => ({
-			...oldPageAtom,
-			widgetName: newWidgetName,
-		}));
+		const widgetsContext = widgets?.reduce(
+			(agg: any, w: any) => ({
+				...agg,
+				[w?.name]: {
+					...((context as any)?.[w?.name] || {}),
+					visible: newWidgetName === w?.name,
+				},
+			}),
+			{},
+		);
+
+		setPageContext(
+			{
+				...context,
+				...widgetsContext,
+			},
+			{
+				replace: true,
+			},
+		);
+
 		updateSelectedWidget({
 			type: 'widget',
 			id: newWidgetName,

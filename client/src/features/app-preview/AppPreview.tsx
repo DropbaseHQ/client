@@ -22,19 +22,22 @@ import { Notification } from '@/features/app-preview/components/Notification';
 export const AppPreview = () => {
 	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
-	const { widgetName, widgets, modals } = useAtomValue(pageAtom);
+	const { widgets, modals } = useAtomValue(pageAtom);
 
 	const pageStateContext = useAtomValue(pageStateContextAtom);
 
 	const [allBlocksContext, setPageContext] = useAtom(pageContextAtom);
 	const pageContext = (allBlocksContext as any)?.page;
 
-	const widgetLabel = widgets?.find((w) => w.name === widgetName)?.label;
+	const visibleWidget =
+		widgets?.find((w: any) => (allBlocksContext as any)?.[w.name]?.visible)?.name || null;
+
+	const widgetLabel = widgets?.find((w) => w.name === visibleWidget)?.label;
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isDevMode = !isPreview;
 
-	const { isLoading, description: widgetDescription } = useGetWidgetPreview(widgetName || '');
+	const { isLoading, description: widgetDescription } = useGetWidgetPreview(visibleWidget || '');
 
 	const { properties } = useGetPage({ appName, pageName });
 	const createMutation = useCreateWidget();
@@ -78,7 +81,7 @@ export const AppPreview = () => {
 		});
 	};
 
-	if (!widgetName) {
+	if (!visibleWidget && widgets?.length === 0) {
 		if (!isDevMode) {
 			return null;
 		}
@@ -137,9 +140,9 @@ export const AppPreview = () => {
 		);
 	}
 
-	const widgetsToDisplay = [...new Set([widgetName, ...modals.map((m: any) => m.name)])].filter(
-		Boolean,
-	);
+	const widgetsToDisplay = [
+		...new Set([visibleWidget, ...modals.map((m: any) => m.name)]),
+	].filter(Boolean);
 
 	return (
 		<Loader isLoading={isLoading}>
@@ -152,7 +155,7 @@ export const AppPreview = () => {
 					borderBottomWidth="1px"
 					direction="row"
 				>
-					<InspectorContainer flex="1" type="widget" id={widgetName}>
+					<InspectorContainer flex="1" type="widget" id={visibleWidget}>
 						<Stack overflow="hidden" spacing="0">
 							<Stack direction="row" display="flex" alignItems="center">
 								<LabelContainer>
@@ -163,12 +166,12 @@ export const AppPreview = () => {
 									>
 										{/* TODO: create a render template data to do this */}
 										{extractTemplateString(
-											widgetLabel || widgetName,
+											widgetLabel || visibleWidget,
 											pageStateContext,
 										)}
 									</LabelContainer.Label>
 									{!isPreview && (
-										<LabelContainer.Code>{widgetName}</LabelContainer.Code>
+										<LabelContainer.Code>{visibleWidget}</LabelContainer.Code>
 									)}
 								</LabelContainer>
 							</Stack>
