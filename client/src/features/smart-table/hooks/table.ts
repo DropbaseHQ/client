@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useDebounce } from 'use-debounce';
-
 import { workerAxios } from '@/lib/axios';
 import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
@@ -12,6 +11,7 @@ import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
 import { executeAction } from '@/features/app-preview/hooks';
 import { ACTIONS } from '@/constant';
+import { appModeAtom } from '@/features/app/atoms';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 export const FUNCTION_DATA_QUERY_KEY = 'functionData';
@@ -78,6 +78,7 @@ export const useTableData = ({
 		isFetching: isLoadingPage,
 		availableMethods: allResourceMethods,
 	} = useGetPage({ appName, pageName });
+	const appMode = useAtomValue(appModeAtom);
 
 	const tableMethods = allResourceMethods?.[tableName]?.methods || [];
 
@@ -117,6 +118,7 @@ export const useTableData = ({
 		tableName,
 		appName,
 		pageName,
+		appMode.isPreview ? 'preview' : 'edit',
 		table?.type,
 		currentPage,
 		pageSize,
@@ -188,12 +190,11 @@ export const useTableData = ({
 					});
 				}
 			},
+			onSuccess: (data: any) => {
+				syncState(data);
+			},
 		},
 	);
-
-	useEffect(() => {
-		syncState(response);
-	}, [response, syncState]);
 
 	return {
 		...rest,
