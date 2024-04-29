@@ -203,10 +203,14 @@ export const useTableData = ({
 	};
 };
 
-const saveEdits = async ({ file, edits }: any) => {
-	const response = await workerAxios.post(`/edit_cell/edit_sql_table/`, {
-		file,
-		edits,
+const saveEdits = async ({ appName, pageName, resource, state, rowEdits }: any) => {
+	const response = await executeAction({
+		appName,
+		pageName,
+		resource,
+		action: ACTIONS.UPDATE,
+		pageState: state,
+		rowEdits,
 	});
 
 	return response.data;

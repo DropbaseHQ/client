@@ -964,7 +964,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 			newValue = editedCell.data;
 		}
 
-		if (column?.edit_keys?.length > 0) {
+		if (column) {
 			setCellEdits((old: any) => {
 				const hasCellEdit = (old?.[tableName] || []).find(
 					(cellEdit: any) =>

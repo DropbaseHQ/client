@@ -16,6 +16,7 @@ export const executeAction = async ({
 	action,
 	resource,
 	component,
+	rowEdits,
 	section,
 }: any) => {
 	const response = await workerAxios.post(`/function/class`, {
@@ -25,6 +26,7 @@ export const executeAction = async ({
 		action,
 		resource,
 		component,
+		row_edits: rowEdits,
 		section,
 	});
 
