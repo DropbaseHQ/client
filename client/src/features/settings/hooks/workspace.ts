@@ -43,7 +43,7 @@ export type WorkspaceUser = {
 
 const fetchWorkspaceUsers = async ({ workspaceId }: { workspaceId: any }) => {
 	const { data } = await workerAxios.get<WorkspaceUser[]>(
-		`/workspace_control/${workspaceId}/users`,
+		`/workspace_control/${workspaceId}/users/`,
 	);
 	return data;
 };
