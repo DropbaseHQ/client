@@ -65,7 +65,7 @@ export const AppComponent = (props: any) => {
 	const { availableMethods: allResourceMethods } = useGetPage({ appName, pageName });
 	const availableMethods =
 		resource === 'widget'
-			? allResourceMethods?.[widgetName]?.[name] || []
+			? allResourceMethods?.[widgetName]?.components?.[name] || []
 			: allResourceMethods?.[tableName]?.[resource]?.[name] || [];
 
 	const { isPreview } = useAtomValue(appModeAtom);
