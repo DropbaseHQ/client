@@ -15,6 +15,7 @@ import { getErrorMessage } from '@/utils';
 
 import { LabelContainer } from '@/components/LabelContainer';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
+import { NameEditor } from '@/features/app-builder/components/NameEditor';
 
 export const TableProperties = () => {
 	const tableId = useAtomValue(selectedTableIdAtom);
@@ -116,7 +117,6 @@ export const TableProperties = () => {
 		});
 	};
 
-	// eslint-disable-next-line
 	const handleUpdateName = async (newName: any) => {
 		const currentTable = properties[tableId] || {};
 
@@ -177,12 +177,16 @@ export const TableProperties = () => {
 							<LabelContainer>
 								<LabelContainer.Code>{tableId}</LabelContainer.Code>
 							</LabelContainer>
-							{/* <NameEditor
-								value={tableId}
-								currentNames={(properties?.tables || []).map((t: any) => t.name)}
-								onUpdate={handleUpdateName}
-								resource="table"
-							/> */}
+							{false ? (
+								<NameEditor
+									value={tableId}
+									currentNames={(properties?.tables || []).map(
+										(t: any) => t.name,
+									)}
+									onUpdate={handleUpdateName}
+									resource="table"
+								/>
+							) : null}
 						</Stack>
 						<ButtonGroup ml="auto" size="xs">
 							{isDirty ? (

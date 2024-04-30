@@ -111,17 +111,8 @@ export const useInitPage = () => {
 
 	useEffect(() => {
 		if (!ref.current && !isLoading && !isRefetching) {
-			const selectedWidgetIdExists = widgets?.some((w: any) => w.name === context.widgetName);
-			const baseWidgets = isPreview
-				? widgets?.filter((w: any) => w.type === 'base')
-				: widgets;
-			const firstWidgetName = selectedWidgetIdExists
-				? context?.widgetName
-				: baseWidgets?.[0]?.name;
-
 			if (appName && pageName) {
 				setPageContext({
-					widgetName: firstWidgetName || null,
 					pageName,
 					appName,
 					widgets,
@@ -135,7 +126,6 @@ export const useInitPage = () => {
 	useEffect(() => {
 		return () => {
 			setPageContext({
-				widgetName: null,
 				pageName: null,
 				appName: null,
 				widgets: null,

@@ -10,6 +10,7 @@ import { getErrorMessage } from '@/utils';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
 import { LabelContainer } from '@/components/LabelContainer';
+import { NameEditor } from '@/features/app-builder/components/NameEditor';
 
 export const WidgetProperties = ({ widgetId }: any) => {
 	const toast = useToast();
@@ -81,7 +82,6 @@ export const WidgetProperties = ({ widgetId }: any) => {
 		}
 	};
 
-	// eslint-disable-next-line
 	const handleUpdateName = async (newName: any) => {
 		try {
 			const currentWidget = properties[widgetId] || {};
@@ -136,12 +136,14 @@ export const WidgetProperties = ({ widgetId }: any) => {
 								<LabelContainer.Code>{widgetId}</LabelContainer.Code>
 							</LabelContainer>
 
-							{/* <NameEditor
-								value={widgetId}
-								currentNames={(widgets || []).map((w: any) => w.name)}
-								onUpdate={handleUpdateName}
-								resource="widget"
-							/> */}
+							{false ? (
+								<NameEditor
+									value={widgetId}
+									currentNames={(widgets || []).map((w: any) => w.name)}
+									onUpdate={handleUpdateName}
+									resource="widget"
+								/>
+							) : null}
 						</Stack>
 
 						<ButtonGroup ml="auto" size="xs">
