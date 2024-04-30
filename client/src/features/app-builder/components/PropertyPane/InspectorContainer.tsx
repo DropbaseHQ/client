@@ -12,7 +12,10 @@ export const InspectorContainer = forwardRef<HTMLDivElement, any>(
 
 		const { isPreview } = useAtomValue(appModeAtom);
 
-		const isCurrentComponent = id === activeInspect.id && activeInspect.type === type;
+		const isCurrentComponent =
+			id === activeInspect.id &&
+			activeInspect.type === type &&
+			JSON.stringify(meta) === JSON.stringify(activeInspect.meta);
 		const activeHover = isOpen || isCurrentComponent;
 
 		const handleInspect = (e: any) => {
