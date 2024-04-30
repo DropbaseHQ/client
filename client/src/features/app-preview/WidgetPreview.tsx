@@ -72,17 +72,16 @@ export const WidgetPreview = ({ widgetName }: any) => {
 	};
 
 	const disableModal = () => {
-		// setPageContext((oldPage: any) => {
-		// 	const currentModal = oldPage.modals.find((m: any) => m.name === widgetName);
-		// 	return {
-		// 		...oldPage,
-		// 		widgetName: currentModal.caller,
-		// 		modals: oldPage.modals.filter((m: any) => m.name !== widgetName),
-		// 	};
-		// });
+		setWidgetContext({
+			...allWidgetContext,
+			[widgetName]: {
+				...(allWidgetContext?.[widgetName] || {}),
+				visible: false,
+			},
+		});
 	};
 
-	const modals: any = [];
+	const modals: any = widgets?.filter((w: any) => w.type === 'modal');
 	const modalIndex = isModal ? modals.findIndex((m: any) => m.name === widgetName) : -1;
 
 	const showModalStyles = isModal && modals.map((m: any) => m.name).includes(widgetName);

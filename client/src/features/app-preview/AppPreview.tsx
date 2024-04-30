@@ -143,9 +143,7 @@ export const AppPreview = () => {
 		);
 	}
 
-	const widgetsToDisplay = [...new Set([visibleWidget, ...[].map((m: any) => m.name)])].filter(
-		Boolean,
-	);
+	const widgetsToDisplay = widgets.filter((w: any) => w.visible).map((w: any) => w.name);
 
 	return (
 		<Loader isLoading={isLoading}>
