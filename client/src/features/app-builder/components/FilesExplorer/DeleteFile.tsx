@@ -13,20 +13,21 @@ import {
 	Portal,
 	useDisclosure,
 } from '@chakra-ui/react';
+import { useParams } from 'react-router-dom';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 
 import { Trash } from 'react-feather';
 
 import { useToast } from '@/lib/chakra-ui';
 import { developerTabAtom } from '@/features/app-builder/atoms';
 import { useDeleteFile } from '@/features/app-builder/hooks';
-import { pageAtom } from '@/features/page';
+
 import { getErrorMessage } from '@/utils';
 
 export const DeleteFile = ({ name, id, type, displayName, ...props }: any) => {
 	const toast = useToast();
-	const { appName, pageName } = useAtomValue(pageAtom);
+	const { appName, pageName } = useParams();
 
 	const setDevTab = useSetAtom(developerTabAtom);
 

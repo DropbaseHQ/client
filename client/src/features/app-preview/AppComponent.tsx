@@ -10,13 +10,14 @@ import {
 } from '@chakra-ui/react';
 import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { extractTemplateString } from '@/utils';
 
 import { useEvent } from '@/features/app-preview/hooks';
 import { InputRenderer } from '@/components/FormInput';
 import { pageStateAtom, pageStateContextAtom, pageContextAtom } from '@/features/app-state';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { appModeAtom } from '@/features/app/atoms';
 import { LabelContainer } from '@/components/LabelContainer';
 
@@ -28,7 +29,7 @@ const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 export const AppComponent = (props: any) => {
 	const { sendJsonMessage, tableName, widgetName, resource } = props;
 
-	const [{ pageName, appName }] = useAtom(pageAtom);
+	const { pageName, appName } = useParams();
 
 	const { handleEvent, mutation } = useEvent({});
 

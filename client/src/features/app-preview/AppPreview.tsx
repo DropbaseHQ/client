@@ -7,7 +7,7 @@ import { useStatus } from '@/layout/StatusBar';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import { pageContextAtom, pageStateContextAtom } from '@/features/app-state';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { useCreateWidget } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
@@ -22,7 +22,10 @@ import { Notification } from '@/features/app-preview/components/Notification';
 export const AppPreview = () => {
 	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
-	const { widgets, modals } = useAtomValue(pageAtom);
+	const { widgets } = useGetPage({
+		appName,
+		pageName,
+	});
 
 	const pageStateContext = useAtomValue(pageStateContextAtom);
 
@@ -32,7 +35,7 @@ export const AppPreview = () => {
 	const visibleWidget =
 		widgets?.find((w: any) => (allBlocksContext as any)?.[w.name]?.visible)?.name || null;
 
-	const widgetLabel = widgets?.find((w) => w.name === visibleWidget)?.label;
+	const widgetLabel = widgets?.find((w: any) => w.name === visibleWidget)?.label;
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isDevMode = !isPreview;
@@ -140,9 +143,9 @@ export const AppPreview = () => {
 		);
 	}
 
-	const widgetsToDisplay = [
-		...new Set([visibleWidget, ...modals.map((m: any) => m.name)]),
-	].filter(Boolean);
+	const widgetsToDisplay = [...new Set([visibleWidget, ...[].map((m: any) => m.name)])].filter(
+		Boolean,
+	);
 
 	return (
 		<Loader isLoading={isLoading}>

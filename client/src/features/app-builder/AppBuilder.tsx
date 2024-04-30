@@ -8,7 +8,7 @@ import { PanelHandle } from '@/components/Panel';
 
 import { AppPreview } from '@/features/app-preview';
 import { StackedTables } from '@/features/smart-table';
-import { useGetPage, useInitPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { Loader } from '@/components/Loader';
 import { AppNavbar } from '@/features/app/components/AppNavbar';
 import { PropertyPane } from '@/features/app-builder';
@@ -25,16 +25,17 @@ export const AppBuilder = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
 
-	const { isLoading: isLoadingPage } = useInitPage();
 	const { isLoading: isLoadingState } = useInitializePageState(appName || '', pageName || '');
-	const isLoading = isLoadingState || isLoadingPage;
 
 	const theme = useTheme();
 	const setInspectedItem = useSetAtom(inspectedResourceAtom);
 	const { permissions, isLoading: appStateIsLoading } = useGetPage({
 		appName,
 		pageName,
+		enabled: !isLoadingState,
 	});
+
+	const isLoading = isLoadingState || appStateIsLoading;
 
 	useEffect(() => {
 		return () => {

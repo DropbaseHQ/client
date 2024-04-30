@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { Save, Trash } from 'react-feather';
+import { useParams } from 'react-router-dom';
 import { Stack, IconButton, ButtonGroup, StackDivider } from '@chakra-ui/react';
 import { useResourceFields } from '@/features/app-builder/hooks';
 import { FormInput } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
-import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 import { LabelContainer } from '@/components/LabelContainer';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 
@@ -17,7 +18,7 @@ export const WidgetProperties = ({ widgetId }: any) => {
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 	const { fields } = useResourceFields();
 
-	const { pageName, appName } = useAtomValue(pageAtom);
+	const { pageName, appName } = useParams();
 	const { widgets, properties, refetch } = useGetPage({ appName, pageName });
 
 	const widget = widgets.find((w: any) => w.name === widgetId);

@@ -12,12 +12,13 @@ import {
 	Stack,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { useAtomValue } from 'jotai';
+
 import { Copy } from 'react-feather';
+import { useParams } from 'react-router-dom';
 
 import { useState } from 'react';
 import { DashedBorder } from '@/components/DashedBorder';
-import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 import { getErrorMessage } from '@/utils';
 import { InputRenderer } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
@@ -30,7 +31,7 @@ export const MirrorTableColumns = ({ widgetName, ...props }: any) => {
 	const [selectedTable, setTable] = useState(null);
 	const [hasDefault, setDefault] = useState(false);
 
-	const { appName, pageName } = useAtomValue(pageAtom);
+	const { appName, pageName } = useParams();
 	const { properties, tables } = useGetPage({ appName, pageName });
 
 	const mutation = useUpdatePageData({

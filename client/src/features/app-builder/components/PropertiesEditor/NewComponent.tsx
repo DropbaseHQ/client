@@ -1,9 +1,10 @@
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { Plus } from 'react-feather';
 import { Box, Button, Menu, MenuButton, MenuItem, MenuList, Stack } from '@chakra-ui/react';
+import { useParams } from 'react-router-dom';
 
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
-import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useStatus } from '@/layout/StatusBar';
 import { useToast } from '@/lib/chakra-ui';
 import { generateSequentialName, getErrorMessage } from '@/utils';
@@ -11,7 +12,7 @@ import { generateSequentialName, getErrorMessage } from '@/utils';
 export const NewComponent = ({ resource, widgetName, tableName, children, ...props }: any) => {
 	const toast = useToast();
 	const { isConnected } = useStatus();
-	const { appName, pageName } = useAtomValue(pageAtom);
+	const { appName, pageName } = useParams();
 	const { properties } = useGetPage({ appName, pageName });
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
 

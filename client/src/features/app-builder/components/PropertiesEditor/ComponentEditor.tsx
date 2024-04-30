@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { Save, Trash } from 'react-feather';
+import { useParams } from 'react-router-dom';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Stack, IconButton, Text, ButtonGroup, Skeleton, StackDivider } from '@chakra-ui/react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { FormInput } from '@/components/FormInput';
 import { useResourceFields } from '@/features/app-builder/hooks';
-import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useToast } from '@/lib/chakra-ui';
 import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
@@ -21,7 +22,7 @@ export const ComponentPropertyEditor = () => {
 	const toast = useToast();
 	const [{ id, meta, type: inspectedResourceType }, setInspectedResource] =
 		useAtom(inspectedResourceAtom);
-	const { pageName, appName } = useAtomValue(pageAtom);
+	const { pageName, appName } = useParams();
 
 	const { widget: widgetName, table: tableName, resource } = meta || {};
 

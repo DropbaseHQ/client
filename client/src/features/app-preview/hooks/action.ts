@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from 'react-query';
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai';
+import { useParams } from 'react-router-dom';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { workerAxios } from '@/lib/axios';
 import { fetchJobStatus } from '@/utils/worker-job';
-import { pageAtom } from '@/features/page';
 import { pageStateAtom, useSyncState } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
@@ -51,7 +51,7 @@ export const useExecuteAction = (props: any = {}) => {
 
 export const useEvent = (props: any) => {
 	const toast = useToast();
-	const [{ pageName, appName }] = useAtom(pageAtom);
+	const { pageName, appName } = useParams();
 
 	const pageState = useAtomValue(pageStateAtom);
 

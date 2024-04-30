@@ -1,13 +1,11 @@
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { useAtom, useAtomValue } from 'jotai';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/lib/chakra-ui';
 
 import { workerAxios } from '@/lib/axios';
-import { pageAtom } from '../atoms';
+
 import { APPS_QUERY_KEY } from '@/features/app-list/hooks/useGetWorkspaceApps';
-import { appModeAtom } from '@/features/app/atoms';
 
 export const PAGE_DATA_QUERY_KEY = 'pageData';
 
@@ -90,51 +88,6 @@ export const useGetPage = ({ appName, pageName, ...props }: any) => {
 		queryKey,
 		...data,
 	};
-};
-
-export const useInitPage = () => {
-	const { appName, pageName } = useParams();
-	const [context, setPageContext] = useAtom(pageAtom);
-
-	const { isPreview } = useAtomValue(appModeAtom);
-
-	const ref = useRef(false);
-
-	const { widgets, isLoading, isRefetching, ...rest } = useGetPage({
-		appName,
-		pageName,
-	});
-
-	useEffect(() => {
-		ref.current = false;
-	}, [appName, pageName, isRefetching]);
-
-	useEffect(() => {
-		if (!ref.current && !isLoading && !isRefetching) {
-			if (appName && pageName) {
-				setPageContext({
-					pageName,
-					appName,
-					widgets,
-					modals: [],
-				});
-				ref.current = true;
-			}
-		}
-	}, [isLoading, isRefetching, appName, widgets, pageName, context, isPreview, setPageContext]);
-
-	useEffect(() => {
-		return () => {
-			setPageContext({
-				pageName: null,
-				appName: null,
-				widgets: null,
-				modals: [],
-			});
-		};
-	}, [setPageContext]);
-
-	return { isLoading, ...rest };
 };
 
 const updatePageData = async (data: any) => {

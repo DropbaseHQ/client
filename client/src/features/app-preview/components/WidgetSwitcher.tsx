@@ -14,18 +14,24 @@ import {
 } from '@chakra-ui/react';
 
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { ChevronDown } from 'react-feather';
-import { pageAtom } from '@/features/page';
 
 import { appModeAtom } from '@/features/app/atoms';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { pageContextAtom } from '@/features/app-state';
+import { useGetPage } from '@/features/page';
 
 export const WidgetSwitcher = () => {
 	const [context, setPageContext] = useAtom(pageContextAtom);
-	const { widgets } = useAtomValue(pageAtom);
+	const { appName, pageName } = useParams();
+
+	const { widgets } = useGetPage({
+		appName,
+		pageName,
+	});
 	const { isPreview } = useAtomValue(appModeAtom);
 
 	const widgetName = widgets?.find((w: any) => (context as any)?.[w.name]?.visible)?.name;

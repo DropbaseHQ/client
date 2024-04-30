@@ -10,7 +10,7 @@ import {
 	AutoCompleteItem,
 	AutoCompleteList,
 } from '@choc-ui/chakra-autocomplete';
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { InputRenderer } from '@/components/FormInput';
 import { pageStateAtom } from '@/features/app-state';
 
@@ -140,9 +140,12 @@ const TargetSelector = ({
 };
 
 export const DisplayRulesEditor = ({ name, widgetName }: any) => {
-	const { widgets } = useAtomValue(pageAtom);
-	const pageComponents = useAtomValue(pageStateAtom);
 	const { appName, pageName } = useParams();
+
+	const { widgets } = useGetPage({ appName, pageName });
+
+	const pageComponents = useAtomValue(pageStateAtom);
+
 	const { tables, widgets: allWidgets } = useGetPage({ appName, pageName });
 	// TODO: ask @jon if this change is correct
 	const pageBlocks = [...tables, ...allWidgets];

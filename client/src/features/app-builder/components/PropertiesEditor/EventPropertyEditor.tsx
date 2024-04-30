@@ -17,11 +17,12 @@ import {
 	Code,
 	Button,
 } from '@chakra-ui/react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { ChevronDown, Box as BoxIcon, Layout, Plus, Table as TableIcon } from 'react-feather';
 import { Controller, useFormContext } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
 
-import { pageAtom, useGetPage } from '@/features/page';
+import { useGetPage } from '@/features/page';
 import { useCreateWidget } from '@/features/app-builder/hooks';
 import { generateSequentialName } from '@/utils';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
@@ -37,7 +38,7 @@ export const EventPropertyEditor = ({
 }: any) => {
 	const { control } = useFormContext();
 
-	const { pageName, appName } = useAtomValue(pageAtom);
+	const { pageName, appName } = useParams();
 	const [{ id: componentId }, setInspectedResource] = useAtom(inspectedResourceAtom);
 
 	const { widgets, isLoading, properties, tables } = useGetPage({ appName, pageName });

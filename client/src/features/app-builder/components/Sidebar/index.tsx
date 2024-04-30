@@ -7,10 +7,10 @@ import {
 	IconButton,
 	Tooltip,
 } from '@chakra-ui/react';
+import { useParams } from 'react-router-dom';
+
 import { RotateCw } from 'react-feather';
-import { useAtomValue } from 'jotai';
 import { AppState, useInitializePageState } from '@/features/app-state';
-import { pageAtom } from '@/features/page';
 import { FilesExplorer } from '../FilesExplorer';
 import { NewFile } from '../FilesExplorer/NewFile';
 
@@ -23,7 +23,7 @@ const AccordionTitle = ({ children }: any) => {
 };
 
 export const BuilderSidebar = () => {
-	const { pageName, appName } = useAtomValue(pageAtom);
+	const { pageName, appName } = useParams();
 	const { isRefetching, refetch } = useInitializePageState(appName || '', pageName || '');
 
 	return (

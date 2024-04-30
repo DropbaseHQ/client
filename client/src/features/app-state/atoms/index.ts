@@ -53,6 +53,10 @@ export const pageContextAtom = atom(
 
 		const current: any = get(basePageContextAtom);
 
+		if (Object.keys(allContext || {}).length === 0) {
+			return;
+		}
+
 		if (Object.keys(current)?.length === 0 || replace) {
 			set(basePageContextAtom, allContext);
 			return;

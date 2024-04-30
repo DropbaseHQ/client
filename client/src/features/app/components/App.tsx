@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { useParams } from 'react-router-dom';
 
-import { useInitPage } from '@/features/page';
 import { PanelHandle } from '@/components/Panel';
 import { AppPreview } from '@/features/app-preview';
 import { StackedTables } from '@/features/smart-table';
@@ -17,11 +16,10 @@ import { useInitializePageState } from '@/features/app-state';
 export const App = () => {
 	const updateMode = useSetAtom(appModeAtom);
 	const { appName, pageName } = useParams();
-	const { isLoading: isLoadingPage } = useInitPage();
 
 	const { isLoading: isLoadingState } = useInitializePageState(appName || '', pageName || '');
 
-	const isLoading = isLoadingState || isLoadingPage;
+	const isLoading = isLoadingState;
 
 	useEffect(() => {
 		updateMode({

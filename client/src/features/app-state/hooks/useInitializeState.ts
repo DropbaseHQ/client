@@ -16,28 +16,28 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 	const setPageState = useSetAtom(pageStateAtom);
 	const setPageContext = useSetAtom(pageContextAtom);
 
-	const { isLoading: isLoadingInitial, remove } = useQuery(
-		queryKey,
-		() => fetchInitialState({ appName, pageName }),
-		{
-			enabled: Boolean(appName && pageName),
-			staleTime: Infinity,
-			onSuccess: (data: any) => {
-				/**
-				 * Update initial context to set the base
-				 */
-				setPageContext(data?.context || {}, {
-					replace: true,
-				});
-				setPageState(data?.state || {});
-			},
+	const {
+		isLoading: isLoadingInitial,
+		remove,
+		isFetched,
+	} = useQuery(queryKey, () => fetchInitialState({ appName, pageName }), {
+		enabled: Boolean(appName && pageName),
+		staleTime: Infinity,
+		onSuccess: (data: any) => {
+			/**
+			 * Update initial context to set the base
+			 */
+			setPageContext(data?.context || {}, {
+				replace: true,
+			});
+			setPageState(data?.state || {});
 		},
-	);
+	});
 
 	const { context, state, ...rest } = useGetPage({
 		appName,
 		pageName,
-		enabled: Boolean(appName && pageName && !isLoadingInitial),
+		enabled: Boolean(appName && pageName && isFetched),
 	});
 
 	/**

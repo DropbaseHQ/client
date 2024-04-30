@@ -302,13 +302,16 @@ export const SmartTable = ({ tableName, height }: any) => {
 			removeQuery();
 
 			refetch({ cancelRefetch: true });
-			setPageContext((old: any) => ({
-				...old,
-				[tableName]: {
-					...(old?.[tableName] || {}),
-					reload: false,
+			setPageContext(
+				{
+					...currentTableContext,
+					[tableName]: {
+						...(currentTableContext?.[tableName] || {}),
+						reload: false,
+					},
 				},
-			}));
+				{ replace: true },
+			);
 		}
 	}, [currentTableContext, removeQuery, setPageContext, tableName, refetch]);
 

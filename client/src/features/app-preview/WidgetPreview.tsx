@@ -5,7 +5,7 @@ import { useAtom } from 'jotai';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import { pageContextAtom } from '@/features/app-state';
-import { pageAtom, useGetPage, useUpdatePageData } from '@/features/page';
+import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
@@ -18,9 +18,12 @@ import { NewComponent } from '@/features/app-builder/components/PropertiesEditor
 export const WidgetPreview = ({ widgetName }: any) => {
 	const { appName, pageName } = useParams();
 
-	const [{ widgets, modals }, setPageContext] = useAtom(pageAtom);
+	const { widgets } = useGetPage({
+		appName,
+		pageName,
+	});
 
-	const widget = widgets?.find((w) => w.name === widgetName);
+	const widget = widgets?.find((w: any) => w.name === widgetName);
 
 	const isModal = widget?.type === 'modal';
 
@@ -69,17 +72,17 @@ export const WidgetPreview = ({ widgetName }: any) => {
 	};
 
 	const disableModal = () => {
-		setPageContext((oldPage: any) => {
-			const currentModal = oldPage.modals.find((m: any) => m.name === widgetName);
-
-			return {
-				...oldPage,
-				widgetName: currentModal.caller,
-				modals: oldPage.modals.filter((m: any) => m.name !== widgetName),
-			};
-		});
+		// setPageContext((oldPage: any) => {
+		// 	const currentModal = oldPage.modals.find((m: any) => m.name === widgetName);
+		// 	return {
+		// 		...oldPage,
+		// 		widgetName: currentModal.caller,
+		// 		modals: oldPage.modals.filter((m: any) => m.name !== widgetName),
+		// 	};
+		// });
 	};
 
+	const modals: any = [];
 	const modalIndex = isModal ? modals.findIndex((m: any) => m.name === widgetName) : -1;
 
 	const showModalStyles = isModal && modals.map((m: any) => m.name).includes(widgetName);

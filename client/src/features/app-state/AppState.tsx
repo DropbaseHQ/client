@@ -1,15 +1,15 @@
 import { Box, Skeleton } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
+import { useParams } from 'react-router-dom';
 
 import { useInitializePageState } from './hooks';
 import { ObjectRenderer } from '@/components/ObjectRenderer';
 import { pageStateContextAtom } from '@/features/app-state';
-import { pageAtom } from '../page';
 
 const DEFAULT_OPEN_PATH = ['state', 'context'];
 
 export const AppState = () => {
-	const { pageName, appName } = useAtomValue(pageAtom);
+	const { pageName, appName } = useParams();
 	const { isLoading } = useInitializePageState(appName || '', pageName || '');
 
 	const pageState = useAtomValue(pageStateContextAtom);
