@@ -73,6 +73,7 @@ export const useDataFetchers = (pageId: any) => {
 	};
 };
 
+// TODO: REMOVE, LEGACY
 const updateTableProperties = async ({
 	tableId,
 	appName,
@@ -114,6 +115,7 @@ export const useUpdateTableProperties = (props: any = {}) => {
 	});
 };
 
+// TODO: REMOVE, LEGACY
 const convertToSmartTable = async ({ table, state, appName, pageName }: any) => {
 	const response = await workerAxios.post(`/tables/convert/`, {
 		table,
@@ -147,6 +149,7 @@ export const useConvertSmartTable = (allProps: any = {}) => {
 	});
 };
 
+// TODO: REMOVE, LEGACY
 const deleteTable = async ({ tableId }: any) => {
 	const response = await workerAxios.delete(`/tables/${tableId}`);
 	return response.data;
@@ -162,6 +165,7 @@ export const useDeleteTable = (props: any = {}) => {
 	});
 };
 
+// TODO: REMOVE, LEGACY
 const runTableQuery = async ({ appName, pageName, pageState, type, fileName }: any) => {
 	const response = await workerAxios.post(`/query/run_python/`, {
 		app_name: appName,
@@ -186,6 +190,7 @@ export const useRunTableQuery = (props: any = {}) => {
 	});
 };
 
+// TODO: REMOVE, LEGACY
 const runSQLQuery = async ({ appName, pageName, state, source, fileContent }: any) => {
 	const response = await workerAxios.post(`/query/string/`, {
 		app_name: appName,

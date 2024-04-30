@@ -248,6 +248,7 @@ export const useSaveColumns = (props: any = {}) => {
 	});
 };
 
+// TODO: REMOVE, LEGACY
 const pinFilters = async ({ filters, tableName }: { filters: any; tableName: any }) => {
 	const response = await workerAxios.post(`/tables/pin_filters`, {
 		table_id: tableName,
@@ -300,6 +301,7 @@ export const useSyncDropbaseColumns = (props: any = {}) => {
 	});
 };
 
+// TODO: REMOVE, LEGACY
 const handleReorderTables = async ({ pageId, tables }: any) => {
 	const response = await workerAxios.post(`/tables/reorder`, {
 		page_id: pageId,
