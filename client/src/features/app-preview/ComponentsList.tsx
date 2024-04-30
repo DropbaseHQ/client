@@ -106,6 +106,7 @@ export const ComponentsList = ({
 	return (
 		<DragDropContext onDragEnd={handleOnDragEnd}>
 			<Droppable
+				isDropDisabled={isPreview}
 				direction={inline ? 'horizontal' : 'vertical'}
 				droppableId={`${id}-drop-area`}
 			>

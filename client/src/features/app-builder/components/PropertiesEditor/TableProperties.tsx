@@ -203,7 +203,7 @@ export const TableProperties = () => {
 					{/* FIXME: create a categorized section component */}
 					<Stack spacing="0" h="full" overflowY="auto" divider={<StackDivider />}>
 						{currentCategories.map((category: any) => (
-							<Stack spacing="3" p="3">
+							<Stack key={category} spacing="3" p="3">
 								{category.toLowerCase() === 'default' ? null : (
 									<Text fontSize="md" fontWeight="semibold">
 										{category}
