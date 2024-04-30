@@ -119,7 +119,7 @@ export const NewComponent = ({ resource, widgetName, tableName, children, ...pro
 
 				setInspectedResource({
 					id: newName,
-					type: 'table-component',
+					type: `${resource}-component`,
 					meta: { table: tableName, resource },
 				});
 			}

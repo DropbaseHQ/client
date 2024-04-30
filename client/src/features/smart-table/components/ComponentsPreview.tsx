@@ -76,7 +76,7 @@ export const ComponentsPreview = ({ type, tableName, onUpdate }: any) => {
 					<InspectorContainer
 						key={component.name}
 						id={component.name}
-						type="table-component"
+						type={`${type}-component`}
 						data-cy={`component-${component.name}-inspector`}
 						meta={{ table: tableName, resource: type }}
 						{...containerProps}

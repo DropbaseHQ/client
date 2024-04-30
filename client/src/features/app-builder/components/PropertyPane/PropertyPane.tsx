@@ -64,7 +64,7 @@ export const PropertyPane = () => {
 
 	let component = <EmptyPane />;
 
-	if (type === 'table-component' || type === 'widget-component') {
+	if (type === 'header-component' || type === 'footer-component' || type === 'widget-component') {
 		component = <ComponentPropertyEditor />;
 	}
 
