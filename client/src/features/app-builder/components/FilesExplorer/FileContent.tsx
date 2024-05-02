@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useAtom } from 'jotai';
 import { Box, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
@@ -27,16 +27,7 @@ export const FileContent = () => {
 
 	const isReady = useMonacoLoader();
 
-	const [devTab, setDevTab] = useAtom(developerTabAtom);
-
-	useEffect(() => {
-		return () => {
-			setDevTab({
-				type: null,
-				id: null,
-			});
-		};
-	}, [setDevTab]);
+	const [devTab] = useAtom(developerTabAtom);
 
 	if (!isReady || isLoading) {
 		return (
