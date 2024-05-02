@@ -49,7 +49,7 @@ export const useExecuteAction = (props: any = {}) => {
 	});
 };
 
-export const useEvent = (props: any) => {
+export const useEvent = (props?: any) => {
 	const toast = useToast();
 	const { pageName, appName } = useParams();
 

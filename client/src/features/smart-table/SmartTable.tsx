@@ -77,6 +77,7 @@ import { Notification } from '@/features/app-preview/components/Notification';
 import { ACTIONS } from '@/constant';
 import { ComponentsPreview } from '@/features/smart-table/components/ComponentsPreview';
 import { SaveEditsButton } from '@/features/smart-table/components/SaveEditsButton';
+import { useGetPage } from '@/features/page';
 
 const ALL_CELLS = [
 	DatePickerCell,
@@ -145,6 +146,8 @@ export const SmartTable = ({ tableName, height }: any) => {
 		size,
 		table,
 	} = useGetTable(tableName || '');
+
+	const { availableMethods } = useGetPage({ appName, pageName });
 
 	const [tableHeaderHeight, setTableHeaderHeight] = useState<any>();
 	const tableHeaderRef: any = useRef();
@@ -1071,6 +1074,16 @@ export const SmartTable = ({ tableName, height }: any) => {
 			});
 
 			const newState = selectRowAndUpdateState(currentRow);
+
+			if (availableMethods?.[tableName]?.methods.includes(ACTIONS.ROW_CHANGE)) {
+				handleEvent({
+					action: ACTIONS.ROW_CHANGE,
+					resource: tableName,
+					component: tableName,
+					newState,
+					section: 'table',
+				});
+			}
 
 			sendJsonMessage({
 				type: 'display_rule',
