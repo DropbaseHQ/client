@@ -78,6 +78,7 @@ import { ACTIONS } from '@/constant';
 import { ComponentsPreview } from '@/features/smart-table/components/ComponentsPreview';
 import { SaveEditsButton } from '@/features/smart-table/components/SaveEditsButton';
 import { useGetPage } from '@/features/page';
+import { DeleteRowButton } from '@/features/smart-table/components/DeleteRowButton';
 
 const ALL_CELLS = [
 	DatePickerCell,
@@ -1247,6 +1248,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 							spacing="2"
 							flexShrink="0"
 						>
+							<DeleteRowButton row={selection?.rows?.toArray()?.[0]} />
 							<SaveEditsButton />
 							<Tooltip label="Refresh data">
 								<IconButton
