@@ -143,7 +143,9 @@ export const AppPreview = () => {
 		);
 	}
 
-	const widgetsToDisplay = widgets.filter((w: any) => w.visible).map((w: any) => w.name);
+	const widgetsToDisplay = widgets
+		.filter((w: any) => (allBlocksContext as any)?.[w?.name]?.visible)
+		.map((w: any) => w.name);
 
 	return (
 		<Loader isLoading={isLoading}>
