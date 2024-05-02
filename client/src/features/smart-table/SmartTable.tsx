@@ -76,6 +76,7 @@ import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 import { Notification } from '@/features/app-preview/components/Notification';
 import { ACTIONS } from '@/constant';
 import { ComponentsPreview } from '@/features/smart-table/components/ComponentsPreview';
+import { SaveEditsButton } from '@/features/smart-table/components/SaveEditsButton';
 
 const ALL_CELLS = [
 	DatePickerCell,
@@ -1233,6 +1234,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 							spacing="2"
 							flexShrink="0"
 						>
+							<SaveEditsButton />
 							<Tooltip label="Refresh data">
 								<IconButton
 									aria-label="Refresh Data"
