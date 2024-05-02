@@ -45,6 +45,9 @@ const MarkdownEditor = ({ text, color }: { text: string; color: any }) => {
 				tr: (componentProps) => <Tr {...componentProps} />,
 				th: (componentProps) => <Th borderWidth="1px" {...componentProps} />,
 				td: (componentProps) => <Td borderWidth="1px" {...componentProps} />,
+				li: (componentProps) => <Box as="li" {...componentProps} />,
+				ol: (componentProps) => <Box as="ol" px="4" ml="2" {...componentProps} />,
+				ul: (componentProps) => <Box as="ul" px="4" ml="2" {...componentProps} />,
 			}}
 		>
 			{text}
