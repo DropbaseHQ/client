@@ -79,6 +79,7 @@ import { ComponentsPreview } from '@/features/smart-table/components/ComponentsP
 import { SaveEditsButton } from '@/features/smart-table/components/SaveEditsButton';
 import { useGetPage } from '@/features/page';
 import { DeleteRowButton } from '@/features/smart-table/components/DeleteRowButton';
+import { useRenderAddRowModal } from '@/features/smart-table/hooks/useRenderAddRowModal';
 
 const ALL_CELLS = [
 	DatePickerCell,
@@ -466,6 +467,11 @@ export const SmartTable = ({ tableName, height }: any) => {
 		(column: any) => !columnDict?.[column?.name] || !columnDict[column?.name]?.hidden,
 	);
 
+	const { renderAddRowModal, onOpen } = useRenderAddRowModal({
+		columns: Object.values(columnDict || {}),
+		table: tableName,
+	});
+
 	const gridColumns = visibleColumns.map((column: any) => {
 		const col = columnDict[column?.name] || column;
 
@@ -741,16 +747,18 @@ export const SmartTable = ({ tableName, height }: any) => {
 				const nonNullConfigurationKey = Object.keys(column?.configurations || {}).find(
 					(key) => column?.configurations[key] !== null,
 				);
+				const configurations =
+					column?.configurations?.[nonNullConfigurationKey || ''] || {};
 				switch (nonNullConfigurationKey) {
 					case 'select': {
-						if (column?.configurations?.multiple) {
+						if (configurations?.multiple) {
 							const allOptions = [
 								...new Set([
-									...(column?.configurations?.options || []),
+									...(configurations?.options || []),
 									...cellValue
 										.split(',')
 										.filter((o: any) => {
-											return !(column?.configurations?.options || []).find(
+											return !(configurations?.options || []).find(
 												(c: any) => c?.value === o?.value,
 											);
 										})
@@ -781,12 +789,12 @@ export const SmartTable = ({ tableName, height }: any) => {
 							};
 						}
 
-						const isElementAlreadyPresent = (
-							column?.configurations?.options || []
-						)?.find((c: any) => c.value === cellValue);
+						const isElementAlreadyPresent = (configurations?.options || [])?.find(
+							(c: any) => c.value === cellValue,
+						);
 
 						const allOptions = [
-							...(column?.configurations?.options || []),
+							...(configurations?.options || []),
 							...(isElementAlreadyPresent
 								? []
 								: [{ label: cellValue, value: cellValue }]),
@@ -1385,6 +1393,12 @@ export const SmartTable = ({ tableName, height }: any) => {
 									rowHeight={30}
 									fixedShadowX={false}
 									fixedShadowY={false}
+									onRowAppended={onOpen}
+									trailingRowOptions={{
+										sticky: true,
+										tint: true,
+										hint: 'New row...',
+									}}
 								/>
 							</>
 						)}
@@ -1404,6 +1418,8 @@ export const SmartTable = ({ tableName, height }: any) => {
 					type={pageStateContext?.context?.[tableName]?.message_type}
 					onClose={handleRemoveAlert}
 				/>
+
+				{renderAddRowModal()}
 			</Stack>
 		</CurrentTableContext.Provider>
 	);

@@ -3,11 +3,8 @@ import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useDebounce } from 'use-debounce';
 import { workerAxios } from '@/lib/axios';
-import { COLUMN_PROPERTIES_QUERY_KEY } from '@/features/app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
 import { pageStateAtom, useSyncState } from '@/features/app-state';
-import { useToast } from '@/lib/chakra-ui';
-import { getErrorMessage } from '@/utils';
 import { hasSelectedRowAtom } from '../atoms';
 import { executeAction } from '@/features/app-preview/hooks';
 import { ACTIONS } from '@/constant';
@@ -226,6 +223,29 @@ export const useSaveEdits = (props: any = {}) => {
 	});
 };
 
+const addRow = async ({ appName, pageName, resource, state, row }: any) => {
+	const response = await executeAction({
+		appName,
+		pageName,
+		resource,
+		action: ACTIONS.ADD_ROW,
+		pageState: state,
+		row,
+	});
+
+	return response.data;
+};
+
+export const useAddRow = (props: any = {}) => {
+	const queryClient = useQueryClient();
+	return useMutation(addRow, {
+		...props,
+		onSettled: () => {
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
+		},
+	});
+};
+
 const saveColumns = async ({ appName, pageName, tableName, columns }: any) => {
 	const response = await workerAxios.post(`/page/save_table_columns/`, {
 		app_name: appName,
@@ -244,78 +264,6 @@ export const useSaveColumns = (props: any = {}) => {
 		onSettled: () => {
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-		},
-	});
-};
-
-// TODO: REMOVE, LEGACY
-const pinFilters = async ({ filters, tableName }: { filters: any; tableName: any }) => {
-	const response = await workerAxios.post(`/tables/pin_filters`, {
-		table_id: tableName,
-		filters,
-	});
-	return response.data;
-};
-
-export const usePinFilters = (props: any = {}) => {
-	const queryClient = useQueryClient();
-	return useMutation(pinFilters, {
-		...props,
-		onSettled: () => {
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
-		},
-	});
-};
-
-// TODO: @yash-dropbase please review, removed from backend
-const syncDropbaseColumns = async ({ appName, pageName, table, file, state }: any) => {
-	const response = await workerAxios.post(`/sync/columns/`, {
-		app_name: appName,
-		page_name: pageName,
-		table,
-		file,
-		state,
-	});
-	return response.data;
-};
-
-export const useSyncDropbaseColumns = (props: any = {}) => {
-	const toast = useToast();
-	const queryClient = useQueryClient();
-	return useMutation(syncDropbaseColumns, {
-		...props,
-		onSettled: () => {
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-		},
-		onError: (error: any) => {
-			toast({
-				title: 'Failed to sync',
-				status: 'error',
-				description: getErrorMessage(error),
-			});
-		},
-	});
-};
-
-// TODO: REMOVE, LEGACY
-const handleReorderTables = async ({ pageId, tables }: any) => {
-	const response = await workerAxios.post(`/tables/reorder`, {
-		page_id: pageId,
-		tables,
-	});
-	return response.data;
-};
-
-export const useReorderTables = (props: any = {}) => {
-	const queryClient = useQueryClient();
-	return useMutation(handleReorderTables, {
-		...props,
-		onSettled: () => {
-			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 		},
 	});
 };

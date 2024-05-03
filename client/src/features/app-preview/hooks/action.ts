@@ -18,6 +18,7 @@ export const executeAction = async ({
 	component,
 	rowEdits,
 	section,
+	row,
 }: any) => {
 	const response = await workerAxios.post(`/function/class`, {
 		page_name: pageName,
@@ -28,6 +29,7 @@ export const executeAction = async ({
 		component,
 		edits: rowEdits,
 		section,
+		row,
 	});
 
 	if (response.data?.job_id) {
