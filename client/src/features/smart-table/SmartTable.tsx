@@ -150,6 +150,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 	} = useGetTable(tableName || '');
 
 	const { availableMethods } = useGetPage({ appName, pageName });
+	const tableMethods = availableMethods?.[tableName]?.methods;
 
 	const [tableHeaderHeight, setTableHeaderHeight] = useState<any>();
 	const tableHeaderRef: any = useRef();
@@ -1084,7 +1085,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 
 			const newState = selectRowAndUpdateState(currentRow);
 
-			if (availableMethods?.[tableName]?.methods.includes(ACTIONS.ROW_CHANGE)) {
+			if (tableMethods?.includes(ACTIONS.ROW_CHANGE)) {
 				handleEvent({
 					action: ACTIONS.ROW_CHANGE,
 					resource: tableName,
@@ -1393,12 +1394,16 @@ export const SmartTable = ({ tableName, height }: any) => {
 									rowHeight={30}
 									fixedShadowX={false}
 									fixedShadowY={false}
-									onRowAppended={onOpen}
-									trailingRowOptions={{
-										sticky: true,
-										tint: true,
-										hint: 'New row...',
-									}}
+									{...(tableMethods?.includes(ACTIONS.ADD_ROW)
+										? {
+												onRowAppended: onOpen,
+												trailingRowOptions: {
+													sticky: true,
+													tint: true,
+													hint: 'New row...',
+												},
+										  }
+										: {})}
 								/>
 							</>
 						)}
