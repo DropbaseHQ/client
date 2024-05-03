@@ -68,7 +68,7 @@ export const SaveEditsButton = () => {
 			appName,
 			pageName,
 			resource: tableName,
-			state: pageStateRef,
+			state: pageStateRef.current,
 			rowEdits: editsToSend,
 		});
 	};

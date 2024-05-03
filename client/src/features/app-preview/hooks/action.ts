@@ -26,7 +26,7 @@ export const executeAction = async ({
 		action,
 		resource,
 		component,
-		row_edits: rowEdits,
+		edits: rowEdits,
 		section,
 	});
 

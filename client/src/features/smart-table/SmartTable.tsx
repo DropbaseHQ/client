@@ -215,7 +215,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 				},
 			};
 
-			return { ...old, ...newSelectedRow };
+			return newState;
 		});
 
 		setTableRowSelection((curr: any) => ({
@@ -1035,7 +1035,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 				...old,
 				[tableName]: {
 					...(old?.[tableName] || {}),
-					row: newSelectedRow[tableName],
+					columns: newSelectedRow[tableName],
 				},
 			};
 

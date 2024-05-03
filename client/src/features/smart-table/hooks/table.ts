@@ -208,7 +208,7 @@ const saveEdits = async ({ appName, pageName, resource, state, rowEdits }: any) 
 		appName,
 		pageName,
 		resource,
-		action: ACTIONS.UPDATE,
+		action: ACTIONS.UPDATE_ROW,
 		pageState: state,
 		rowEdits,
 	});

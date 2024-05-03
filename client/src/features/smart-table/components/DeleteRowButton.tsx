@@ -9,7 +9,6 @@ import {
 	PopoverHeader,
 	PopoverTrigger,
 	useDisclosure,
-	useToast,
 } from '@chakra-ui/react';
 import { Trash } from 'react-feather';
 import { useParams } from 'react-router-dom';
@@ -17,6 +16,7 @@ import { useCurrentTableName } from '@/features/smart-table/hooks';
 import { useEvent } from '@/features/app-preview/hooks';
 import { useGetPage } from '@/features/page';
 import { ACTIONS } from '@/constant';
+import { useToast } from '@/lib/chakra-ui';
 
 export const DeleteRowButton = ({ row }: any) => {
 	const { appName, pageName } = useParams();
@@ -26,7 +26,9 @@ export const DeleteRowButton = ({ row }: any) => {
 
 	const { availableMethods } = useGetPage({ appName, pageName });
 
-	const isDeleteRowMethodPresent = availableMethods?.[tableName]?.methods?.[ACTIONS.DELETE_ROW];
+	const isDeleteRowMethodPresent = availableMethods?.[tableName]?.methods?.includes(
+		ACTIONS.DELETE_ROW,
+	);
 
 	const { handleEvent, mutation } = useEvent({
 		onSuccess: () => {
@@ -73,10 +75,19 @@ export const DeleteRowButton = ({ row }: any) => {
 					<PopoverBody>Are you sure you want to continue with your action?</PopoverBody>
 					<PopoverFooter display="flex" justifyContent="flex-end">
 						<ButtonGroup size="sm">
-							<Button colorScheme="gray" onClick={onClose} variant="outline">
+							<Button
+								isDisabled={mutation.isLoading}
+								colorScheme="gray"
+								onClick={onClose}
+								variant="outline"
+							>
 								Cancel
 							</Button>
-							<Button onClick={handleDelete} colorScheme="red">
+							<Button
+								isLoading={mutation.isLoading}
+								onClick={handleDelete}
+								colorScheme="red"
+							>
 								Delete
 							</Button>
 						</ButtonGroup>
