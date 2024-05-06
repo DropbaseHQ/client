@@ -29,6 +29,7 @@ import { useGetPage, useUpdatePageData } from '@/features/page';
 import { NewColumn } from '@/features/app-builder/components/PropertiesEditor/NewColumn';
 import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import OptionsList from '@/features/app-builder/components/PropertiesEditor/OptionsList';
+import { ACTIONS } from '@/constant';
 
 const DISPLAY_TYPE_ENUM: any = {
 	text: ['text', 'select'],
@@ -90,9 +91,11 @@ const ColumnProperty = ({
 		reset,
 	} = methods;
 
-	const { properties: pageProperties } = useGetPage({ appName, pageName });
+	const { properties: pageProperties, availableMethods } = useGetPage({ appName, pageName });
 
 	const tableId = useAtomValue(selectedTableIdAtom);
+
+	const tableMethodsPresent = availableMethods?.[tableId]?.methods;
 
 	const { columns } = useGetTable(tableId || '');
 
@@ -325,7 +328,10 @@ const ColumnProperty = ({
 								<Stack direction="row" width="20%">
 									<InputRenderer
 										type="boolean"
-										isDisabled={updateMutation.isLoading}
+										isDisabled={
+											updateMutation.isLoading ||
+											!tableMethodsPresent?.includes(ACTIONS.UPDATE_ROW)
+										}
 										id="editable"
 										value={properties.editable}
 										onChange={(newValue: any) => {
