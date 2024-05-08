@@ -1,5 +1,6 @@
 import { Progress, Stack } from '@chakra-ui/react';
 
+import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 
 import { useGetPage, useUpdatePageData } from '@/features/page';
@@ -9,15 +10,16 @@ import { InspectorContainer } from '@/features/app-builder';
 import { ComponentsList } from '@/features/app-preview/ComponentsList';
 import { AppComponent } from '@/features/app-preview/AppComponent';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/NewComponent';
+import { appModeAtom } from '@/features/app/atoms';
 
-export const ComponentsPreview = ({ type, tableName, onUpdate }: any) => {
+export const ComponentsPreview = ({ type, tableName }: any) => {
 	const { appName, pageName } = useParams();
+
+	const { isPreview } = useAtomValue(appModeAtom);
 
 	const { [type]: components } = useGetTable(tableName);
 
-	const updateMutation = useUpdatePageData({
-		onSuccess: onUpdate,
-	});
+	const updateMutation = useUpdatePageData();
 
 	const { properties } = useGetPage({ appName, pageName });
 
@@ -51,6 +53,10 @@ export const ComponentsPreview = ({ type, tableName, onUpdate }: any) => {
 			borderBottomRightRadius: 'md',
 		},
 	};
+
+	if (isPreview && components.length === 0) {
+		return null;
+	}
 
 	return (
 		<Stack borderWidth="1px" {...borderStyles[type]} px="3" py="2" h="full" bg="white">

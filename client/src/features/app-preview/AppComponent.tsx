@@ -180,6 +180,12 @@ export const AppComponent = (props: any) => {
 				<Button
 					my="1.5"
 					size={componentSize}
+					{...(isTableComponent
+						? {
+								borderRadius: '4px',
+								height: '20px',
+						  }
+						: {})}
 					bgColor={grayOutComponent ? 'gray.100' : ''}
 					colorScheme={color || 'blue'}
 					isLoading={mutation.isLoading}

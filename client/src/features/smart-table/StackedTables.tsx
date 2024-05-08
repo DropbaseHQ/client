@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Box, Progress, Stack } from '@chakra-ui/react';
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
@@ -10,7 +10,7 @@ import RGL, { WidthProvider } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
-import { useGetPage, useUpdatePageData } from '@/features/page';
+import { useGetPage, useOnPageResponse, useUpdatePageData } from '@/features/page';
 import { SmartTable } from './SmartTable';
 import { InspectorContainer } from '@/features/app-builder';
 import { appModeAtom } from '@/features/app/atoms';
@@ -70,12 +70,22 @@ export const StackedTables = () => {
 
 	const updateMutation = useUpdatePageData();
 
-	useEffect(() => {
+	const calculateTableHeights = useCallback(() => {
 		const potentialContainerHeight =
 			document.getElementById('table-container')?.getBoundingClientRect()?.height || 1000;
 
 		setContainerHeight((potentialContainerHeight < 600 ? 600 : potentialContainerHeight) / 2);
-	}, [isPreview]);
+	}, []);
+
+	useOnPageResponse(() => {
+		setTimeout(() => {
+			calculateTableHeights();
+		}, 200);
+	});
+
+	useEffect(() => {
+		calculateTableHeights();
+	}, [isPreview, calculateTableHeights]);
 
 	const handleDragStart = () => {
 		document.body.style.userSelect = 'none';

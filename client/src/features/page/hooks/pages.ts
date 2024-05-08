@@ -1,11 +1,13 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/lib/chakra-ui';
 
 import { workerAxios } from '@/lib/axios';
 
 import { APPS_QUERY_KEY } from '@/features/app-list/hooks/useGetWorkspaceApps';
+import { pageFetchedAtom } from '@/features/page/atoms';
 
 export const PAGE_DATA_QUERY_KEY = 'pageData';
 
@@ -32,6 +34,7 @@ const fetchPage = async ({ appName, pageName }: any) => {
 };
 
 export const useGetPage = ({ appName, pageName, ...props }: any) => {
+	const setPageFetched = useSetAtom(pageFetchedAtom);
 	const queryKey = [PAGE_DATA_QUERY_KEY, appName, pageName];
 	const navigate = useNavigate();
 	const toast = useToast();
@@ -41,6 +44,10 @@ export const useGetPage = ({ appName, pageName, ...props }: any) => {
 		staleTime: Infinity,
 		...props,
 	});
+
+	useEffect(() => {
+		setPageFetched(Date.now());
+	}, [response, setPageFetched]);
 
 	const data: any = useMemo(() => {
 		const allProperties = response?.properties || {};
@@ -162,4 +169,16 @@ export const useDeletePage = () => {
 			queryClient.invalidateQueries(APPS_QUERY_KEY);
 		},
 	});
+};
+
+export const useOnPageResponse = (f: any) => {
+	const pageFetched = useAtomValue(pageFetchedAtom);
+	const functionRef = useRef(f);
+	functionRef.current = f;
+
+	useEffect(() => {
+		if (functionRef.current) {
+			functionRef.current?.();
+		}
+	}, [pageFetched]);
 };

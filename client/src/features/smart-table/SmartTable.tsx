@@ -77,7 +77,7 @@ import { Notification } from '@/features/app-preview/components/Notification';
 import { ACTIONS } from '@/constant';
 import { ComponentsPreview } from '@/features/smart-table/components/ComponentsPreview';
 import { SaveEditsButton } from '@/features/smart-table/components/SaveEditsButton';
-import { useGetPage } from '@/features/page';
+import { useGetPage, useOnPageResponse } from '@/features/page';
 import { DeleteRowButton } from '@/features/smart-table/components/DeleteRowButton';
 import { useRenderAddRowModal } from '@/features/smart-table/hooks/useRenderAddRowModal';
 
@@ -158,8 +158,8 @@ export const SmartTable = ({ tableName, height }: any) => {
 	const [tableBarHeight, setTableBarHeight] = useState<any>();
 	const tableBarRef: any = useRef();
 
-	const pageBarRef: any = useRef();
-	const [pageBarHeight, setPageBarHeight] = useState<any>();
+	const footerBarRef: any = useRef();
+	const [footerBarHeight, setFooterBarHeight] = useState<any>();
 
 	const tableIsUnsynced = useTableSyncStatus(tableName);
 
@@ -285,10 +285,16 @@ export const SmartTable = ({ tableName, height }: any) => {
 			setTableHeaderHeight(tableHeaderRef?.current?.getBoundingClientRect()?.height);
 		}
 
-		if (pageBarRef?.current) {
-			setPageBarHeight(pageBarRef?.current?.getBoundingClientRect()?.height);
+		if (footerBarRef?.current) {
+			setFooterBarHeight(footerBarRef?.current?.getBoundingClientRect()?.height);
 		}
 	}, []);
+
+	useOnPageResponse(() => {
+		setTimeout(() => {
+			calculateTableComponentsHeight();
+		}, 200);
+	});
 
 	useEffect(() => {
 		/**
@@ -1158,21 +1164,15 @@ export const SmartTable = ({ tableName, height }: any) => {
 		);
 	};
 
-	const onComponentsUpdate = () => {
-		setTimeout(() => {
-			calculateTableComponentsHeight();
-		}, 1000);
-	};
-
 	/**
 	 * containerHeight is height of the canvas available for tables
 	 * tableHeaderHeight is for height occupied by table meta
-	 * pageBarHeight is for pagination
+	 * footerBarHeight is for pagination
 	 * tableBarHeight includes table bar including filters, messages or widget
 	 *
 	 * 6 is for other spaces
 	 */
-	const tableHeight = height - tableHeaderHeight - pageBarHeight - tableBarHeight - 6;
+	const tableHeight = height - tableHeaderHeight - footerBarHeight - tableBarHeight - 6;
 
 	return (
 		<CurrentTableContext.Provider value={memoizedContext}>
@@ -1316,11 +1316,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 					</Popover>
 
 					<Box ref={tableBarRef}>
-						<ComponentsPreview
-							type="header"
-							tableName={tableName}
-							onUpdate={onComponentsUpdate}
-						/>
+						<ComponentsPreview type="header" tableName={tableName} />
 					</Box>
 
 					<Stack
@@ -1409,12 +1405,8 @@ export const SmartTable = ({ tableName, height }: any) => {
 						)}
 					</Stack>
 
-					<Box ref={pageBarRef}>
-						<ComponentsPreview
-							type="footer"
-							tableName={tableName}
-							onUpdate={onComponentsUpdate}
-						/>
+					<Box ref={footerBarRef}>
+						<ComponentsPreview type="footer" tableName={tableName} />
 					</Box>
 				</Stack>
 
