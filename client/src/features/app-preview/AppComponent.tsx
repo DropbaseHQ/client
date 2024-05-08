@@ -11,6 +11,7 @@ import {
 import { useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { debounce } from 'lodash';
 
 import { extractTemplateString } from '@/utils';
 
@@ -85,6 +86,19 @@ export const AppComponent = (props: any) => {
 			[field]: extractTemplateString(component?.[field], pageState),
 		}),
 		{},
+	);
+
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const sendDelayedWSEvent = useCallback(
+		debounce((newState: any) => {
+			sendJsonMessage({
+				type: 'display_rule',
+				state_context: newState,
+				app_name: appName,
+				page_name: pageName,
+			});
+		}, 1000),
+		[appName, pageName, sendJsonMessage], // will be created only once initially
 	);
 
 	const handleInputValue = useCallback(
@@ -273,14 +287,9 @@ export const AppComponent = (props: any) => {
 								state: newWidgetState,
 							});
 
-							sendJsonMessage({
-								type: 'display_rule',
-								state_context: {
-									...pageState,
-									state: newWidgetState,
-								},
-								app_name: appName,
-								page_name: pageName,
+							sendDelayedWSEvent({
+								...pageState,
+								state: newWidgetState,
 							});
 						}}
 						options={inputState?.options || component?.options}
