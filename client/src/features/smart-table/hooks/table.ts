@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useDebounce } from 'use-debounce';
@@ -187,11 +187,13 @@ export const useTableData = ({
 					});
 				}
 			},
-			onSuccess: (data: any) => {
-				syncState(data);
-			},
 		},
 	);
+
+	// TODO: watch out for reseting of context
+	useEffect(() => {
+		syncState(response);
+	}, [response, syncState]);
 
 	return {
 		...rest,
