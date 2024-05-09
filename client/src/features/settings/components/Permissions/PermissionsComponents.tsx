@@ -1,7 +1,6 @@
 import {
 	Flex,
 	Box,
-	VStack,
 	Table,
 	Thead,
 	Tbody,
@@ -36,32 +35,38 @@ export const PermissionsSubjectRow = ({
 		onClick(id);
 	};
 	return (
-		<Box
+		<Stack
 			w="full"
-			borderRadius="sm"
-			bgColor={isSelected ? 'gray.100' : ''}
 			px="5"
 			py="2"
-			_hover={{ bgColor: 'gray.100', cursor: 'pointer' }}
-			display="flex"
+			direction="row"
 			alignItems="center"
 			onClick={handleClick}
+			borderWidth={isSelected ? '1px' : '0'}
+			as="button"
+			bg={isSelected ? 'gray.50' : 'white'}
+			borderRadius="sm"
+			_hover={{
+				bg: 'gray.50',
+				color: 'gray.800',
+			}}
+			color={isSelected ? 'gray.900' : 'gray.700'}
 		>
 			<Box mr="2">
 				<Icon size="13" color="gray" />
 			</Box>
 			<Text fontSize="md">{name}</Text>
-		</Box>
+		</Stack>
 	);
 };
 
 export const PermissionsSubLayout = ({ list, table, selectedName }: any) => {
 	return (
 		<Flex w="full" h="100%">
-			<Box w="15vw" borderRight="1px" borderColor="gray.100" overflow="auto" h="100%">
-				<VStack py="4" spacing="0" maxH="82vh">
+			<Box w="15vw" borderRight="1px" borderColor="gray.100" h="100%">
+				<Stack p="2" spacing="0" h="full" overflow="auto">
 					{list}
-				</VStack>
+				</Stack>
 			</Box>
 
 			<Flex flexGrow="6" p="6" direction="column">
@@ -138,7 +143,16 @@ export const PermissionsFilter = ({
 	onChange: (e: any) => void;
 }) => {
 	return (
-		<Flex fontSize="sm" borderWidth="1px" borderRadius="sm" justifyContent="center">
+		<Stack
+			direction="row"
+			alignItems="center"
+			fontSize="xs"
+			spacing="0"
+			borderWidth="1px"
+			h="full"
+			borderRadius="xs"
+			justifyContent="center"
+		>
 			<Box h="full" py="1" px="3" display="flex" alignItems="center" borderRightWidth="1px">
 				{name}
 			</Box>
@@ -149,28 +163,18 @@ export const PermissionsFilter = ({
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
 				placeholder="Search"
-				size="sm"
+				size="xs"
 				colorScheme="blue"
 				borderWidth="0"
 			/>
-		</Flex>
+		</Stack>
 	);
 };
 
 export const PermissionsFilterRow = ({ children }: any) => {
 	return (
-		<Stack
-			bg="white"
-			borderWidth="1px"
-			borderRadius="sm"
-			direction="row"
-			p="1.5"
-			alignItems="center"
-			w="25vw"
-		>
-			<Stack direction="row" borderRadius="sm" spacing="6" flex="1" overflow="auto" w="full">
-				{children}
-			</Stack>
+		<Stack bg="white" direction="row" spacing="4" alignItems="center" w="25vw">
+			{children}
 		</Stack>
 	);
 };
@@ -194,14 +198,15 @@ export const PermissionsTable = ({ subjectName, tableRows }: any) => {
 	return (
 		<Box
 			mt="2"
-			border="1px"
+			borderRightWidth="1px"
+			borderLeftWidth="1px"
 			overflowY="auto"
 			w="25vw"
 			minW="470px"
 			borderColor="gray.200"
 			maxHeight="65vh"
 		>
-			<Table variant="unstyled">
+			<Table variant="simple">
 				<Thead position="sticky" bgColor="white" top="-1" zIndex="1000">
 					<Tr>
 						<Th>{subjectName}</Th>

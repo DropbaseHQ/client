@@ -1,5 +1,5 @@
 import { Users } from 'react-feather';
-import { Spinner } from '@chakra-ui/react';
+import { Skeleton, Stack } from '@chakra-ui/react';
 import { useState, useCallback } from 'react';
 import { useGetWorkspaceApps } from '../../../app-list/hooks/useGetWorkspaceApps';
 import {
@@ -48,7 +48,12 @@ const GroupList = ({
 	const { isLoading, groups } = useGetWorkspaceGroups();
 
 	if (isLoading) {
-		return <Spinner />;
+		return (
+			<Stack w="full" h="full">
+				<Skeleton w="full" h="24px" />
+				<Skeleton w="full" h="24px" />
+			</Stack>
+		);
 	}
 
 	return groups?.map((group) => (

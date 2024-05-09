@@ -3,7 +3,6 @@ import { Trash } from 'react-feather';
 import {
 	Button,
 	IconButton,
-	Box,
 	Text,
 	Popover,
 	PopoverTrigger,
@@ -14,6 +13,7 @@ import {
 	PopoverArrow,
 	PopoverCloseButton,
 	ButtonGroup,
+	Stack,
 } from '@chakra-ui/react';
 import { useQueryClient } from 'react-query';
 
@@ -51,19 +51,27 @@ export const GroupCard = ({
 			groupId: group.id,
 		});
 	};
+
+	const isActive = selectedGroup === group.id;
+
 	return (
-		<Box
+		<Stack
 			key={group.id}
+			onClick={() => setSelectedGroup(group.id)}
+			direction="row"
+			alignItems="center"
 			px="2"
 			py="1"
-			bgColor={selectedGroup === group.id ? 'gray.100' : ''}
-			_hover={{ cursor: 'pointer', bg: 'gray.100' }}
-			borderColor={selectedGroup === group.id ? 'blue.500' : 'gray.200'}
-			onClick={() => setSelectedGroup(group.id)}
-			display="flex"
-			alignItems="center"
-			w="full"
+			borderWidth={isActive ? '1px' : '0'}
 			justifyContent="space-between"
+			as="button"
+			bg={isActive ? 'gray.50' : 'white'}
+			borderRadius="sm"
+			_hover={{
+				bg: 'gray.50',
+				color: 'gray.800',
+			}}
+			color={isActive ? 'gray.900' : 'gray.700'}
 		>
 			<Text fontSize="md">{group.name}</Text>
 			<Popover
@@ -79,11 +87,11 @@ export const GroupCard = ({
 						size="xs"
 						icon={<Trash size="14" />}
 						variant="ghost"
-						color="red"
+						colorScheme="red"
 						onClick={openDeletePopover}
 					/>
 				</PopoverTrigger>
-				<PopoverContent>
+				<PopoverContent textAlign="left">
 					<PopoverArrow />
 					<PopoverCloseButton />
 					<PopoverHeader fontSize="md">Confirm Delete</PopoverHeader>
@@ -92,6 +100,9 @@ export const GroupCard = ({
 					</PopoverBody>
 					<PopoverFooter display="flex" justifyContent="flex-end">
 						<ButtonGroup>
+							<Button variant="secondary" size="sm" onClick={closeDeletePopover}>
+								Cancel
+							</Button>
 							<Button
 								colorScheme="red"
 								size="sm"
@@ -100,13 +111,10 @@ export const GroupCard = ({
 							>
 								Delete
 							</Button>
-							<Button variant="ghost" size="sm" onClick={closeDeletePopover}>
-								Cancel
-							</Button>
 						</ButtonGroup>
 					</PopoverFooter>
 				</PopoverContent>
 			</Popover>
-		</Box>
+		</Stack>
 	);
 };

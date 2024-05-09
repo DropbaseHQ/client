@@ -1,88 +1,36 @@
-import { useState } from 'react';
-import { Flex, Box, Text, HStack } from '@chakra-ui/react';
-import { User, Users, Layout, Icon as ReactFeatherIcon } from 'react-feather';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
 import { GroupPermissions } from './components/Permissions/GroupPermissions';
 import { MemberPermissions } from './components/Permissions/MemberPermissions';
 import { AppPermissions } from './components/Permissions/AppPermissions';
+import { PageLayout } from '@/layout';
 
-const PermissionsTab = ({
-	name,
-	value,
-	onClick,
-	isSelected,
-	Icon,
-}: {
-	name: string;
-	value: string;
-	onClick: (value: string) => void;
-	isSelected: boolean;
-	Icon?: ReactFeatherIcon;
-}) => {
-	return (
-		<Box
-			_hover={{
-				bgColor: 'gray.100',
-				cursor: 'pointer',
-			}}
-			bgColor={isSelected ? 'gray.100' : ''}
-			p="3"
-			display="flex"
-			alignItems="center"
-			onClick={() => onClick(value)}
-		>
-			<Box mr="3">{Icon ? <Icon size="13" color="gray" /> : null}</Box>
-			<Text fontSize="md">{name}</Text>
-		</Box>
-	);
+const panelProps = {
+	p: 0,
+	h: 'full',
 };
 
 export const Permissions = () => {
-	const [mode, setMode] = useState('groups');
-	const getPermissionsLayout = () => {
-		if (mode === 'groups') {
-			return <GroupPermissions />;
-		}
-		if (mode === 'members') {
-			return <MemberPermissions />;
-		}
-		if (mode === 'apps') {
-			return <AppPermissions />;
-		}
-
-		return null;
-	};
 	return (
-		<Flex direction="column" h="100%" w="full" border="1px" borderColor="gray.100">
-			<Text pt="6" pl="6" fontWeight="bold" fontSize="xl">
-				Permissions
-			</Text>
-			<Flex pl="2" mt="4" w="full" border="1px" borderColor="gray.100">
-				<HStack spacing="10">
-					<PermissionsTab
-						name="Groups"
-						value="groups"
-						Icon={Users}
-						onClick={setMode}
-						isSelected={mode === 'groups'}
-					/>
-					<PermissionsTab
-						name="Members"
-						value="members"
-						Icon={User}
-						onClick={setMode}
-						isSelected={mode === 'members'}
-					/>
-					<PermissionsTab
-						name="Apps"
-						value="apps"
-						Icon={Layout}
-						onClick={setMode}
-						isSelected={mode === 'apps'}
-					/>
-				</HStack>
-			</Flex>
+		<PageLayout title="Permissions" pageProps={{ px: '0', pb: 0 }} titleProps={{ px: 6 }}>
+			<Tabs flex="1" borderTopWidth="1px" defaultIndex={0}>
+				<TabList h="32px" borderBottomWidth="1px">
+					<Tab>Groups</Tab>
+					<Tab>Members</Tab>
+					<Tab>Apps</Tab>
+				</TabList>
 
-			{getPermissionsLayout()}
-		</Flex>
+				<TabPanels h="calc(100% - 32px)" borderWidth="0">
+					<TabPanel {...panelProps}>
+						<GroupPermissions />
+					</TabPanel>
+					<TabPanel {...panelProps}>
+						<MemberPermissions />
+					</TabPanel>
+					<TabPanel {...panelProps}>
+						<AppPermissions />
+					</TabPanel>
+				</TabPanels>
+			</Tabs>
+		</PageLayout>
 	);
 };

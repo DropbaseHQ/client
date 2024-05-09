@@ -34,6 +34,8 @@ import {
 	HStack,
 	Select,
 	Stack,
+	FormControl,
+	FormLabel,
 } from '@chakra-ui/react';
 import { UserMinus } from 'react-feather';
 import { useAtomValue } from 'jotai';
@@ -260,40 +262,31 @@ export const Users = () => {
 				}
 			>
 				<Stack
-					bg="white"
-					borderWidth="1px"
-					borderRadius="sm"
 					direction="row"
-					p="1.5"
-					alignItems="center"
+					borderRadius="sm"
+					spacing="2"
+					flex="1"
+					overflow="auto"
+					w="full"
 				>
-					<Stack
-						direction="row"
-						borderRadius="sm"
-						spacing="6"
-						flex="1"
-						overflow="auto"
-						w="full"
-					>
-						<PermissionsFilter
-							name="Email"
-							operator="="
-							value={emailFilter}
-							onChange={setEmailFilter}
-						/>
-						<PermissionsFilter
-							name="Role"
-							operator="="
-							value={roleFilter}
-							onChange={setRoleFilter}
-						/>
-						<PermissionsFilter
-							name="Group"
-							operator="="
-							value={groupFilter}
-							onChange={setGroupFilter}
-						/>
-					</Stack>
+					<PermissionsFilter
+						name="Email"
+						operator="="
+						value={emailFilter}
+						onChange={setEmailFilter}
+					/>
+					<PermissionsFilter
+						name="Role"
+						operator="="
+						value={roleFilter}
+						onChange={setRoleFilter}
+					/>
+					<PermissionsFilter
+						name="Group"
+						operator="="
+						value={groupFilter}
+						onChange={setGroupFilter}
+					/>
 				</Stack>
 
 				<Table variant="unstyled" layout="fixed">
@@ -320,47 +313,57 @@ export const Users = () => {
 				<Modal isOpen={inviteMemberIsOpen} onClose={inviteMemberOnClose}>
 					<ModalOverlay />
 					<ModalContent>
-						<ModalHeader>Invite a member</ModalHeader>
+						<ModalHeader borderBottomWidth="1px">Invite a member</ModalHeader>
 						<ModalCloseButton />
-						<ModalBody>
+						<ModalBody p="4">
 							<VStack spacing="3">
-								<Input
-									placeholder="Member Email"
-									value={newMemberEmail}
-									data-cy="new-member-email"
-									onChange={(e) => {
-										setNewMemberEmail(e.target.value);
-									}}
-								/>
-								<Select
-									placeholder="Select role"
-									value={newMemberRole}
-									data-cy="new-member-role"
-									onChange={(e) => {
-										setNewMemberRole(e.target.value);
-									}}
-								>
-									<option value={ADMIN_UUID}>Admin</option>
-									<option value={DEV_UUID}>Dev</option>
-									<option value={USER_UUID}>User</option>
-									<option value={MEMBER_UUID}>Member</option>
-								</Select>
+								<FormControl>
+									<FormLabel>Member Email</FormLabel>
+									<Input
+										size="sm"
+										placeholder="Enter Email"
+										value={newMemberEmail}
+										data-cy="new-member-email"
+										onChange={(e) => {
+											setNewMemberEmail(e.target.value);
+										}}
+									/>
+								</FormControl>
+								<FormControl>
+									<FormLabel>Member Role</FormLabel>
+									<Select
+										placeholder="Select role"
+										value={newMemberRole}
+										size="sm"
+										data-cy="new-member-role"
+										onChange={(e) => {
+											setNewMemberRole(e.target.value);
+										}}
+									>
+										<option value={ADMIN_UUID}>Admin</option>
+										<option value={DEV_UUID}>Dev</option>
+										<option value={USER_UUID}>User</option>
+										<option value={MEMBER_UUID}>Member</option>
+									</Select>
+								</FormControl>
 							</VStack>
 						</ModalBody>
 
-						<ModalFooter>
-							<Button
-								colorScheme="blue"
-								mr={3}
-								data-cy="invite-member"
-								onClick={handleInviteMember}
-								isLoading={inviteMemberMutation.isLoading}
-							>
-								Invite
-							</Button>
-							<Button variant="ghost" onClick={inviteMemberOnClose}>
-								Cancel
-							</Button>
+						<ModalFooter borderTopWidth="1px">
+							<ButtonGroup size="sm">
+								<Button size="sm" variant="secondary" onClick={inviteMemberOnClose}>
+									Cancel
+								</Button>
+								<Button
+									colorScheme="blue"
+									size="sm"
+									data-cy="invite-member"
+									onClick={handleInviteMember}
+									isLoading={inviteMemberMutation.isLoading}
+								>
+									Invite
+								</Button>
+							</ButtonGroup>
 						</ModalFooter>
 					</ModalContent>
 				</Modal>
