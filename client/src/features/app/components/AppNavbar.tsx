@@ -249,6 +249,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 								aria-label="Create page"
 								onClick={handleCreatePage}
 								variant="ghost"
+								isLoading={createPageMutation.isLoading}
 								icon={<Plus size="14" />}
 							/>
 						)}

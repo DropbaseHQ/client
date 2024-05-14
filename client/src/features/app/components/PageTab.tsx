@@ -19,7 +19,6 @@ import {
 	Tab,
 	Flex,
 	useDisclosure,
-	Code,
 } from '@chakra-ui/react';
 import { MoreVertical } from 'react-feather';
 import { useState } from 'react';
@@ -144,12 +143,7 @@ export const PageTab = (props: any) => {
 			}}
 		>
 			<Flex align="center" justifyContent="center" h="24px">
-				<Box fontWeight="semibold">{page?.label}</Box>
-				{!isPreview && (
-					<Code fontSize="xs" bg="transparent" ml="3">
-						{page?.name}
-					</Code>
-				)}
+				<Box fontWeight="semibold">{page?.name}</Box>
 				{!isPreview ? (
 					<Menu
 						closeOnSelect={false}
