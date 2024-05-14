@@ -19,9 +19,15 @@ export type Workspace = {
 };
 
 const fetchWorkspaces = async () => {
-	const response = await workerAxios.get<Workspace[]>(`/user/workspaces`);
-
-	return response.data;
+	// @Yash: This is a mock response, we need to remove workspace id dependency from the client
+	return [
+		{
+			id: '00000000-0000-0000-0000-000000000000',
+			name: 'dropbase',
+			oldest_user: '00000000-0000-0000-0000-000000000000',
+			role_name: 'owner',
+		},
+	];
 };
 
 type WorkerWorkspace = {
