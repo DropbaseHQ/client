@@ -10,7 +10,7 @@ const getMainFileName = () => {
 			return 'main-free';
 		}
 		default:
-			return 'main';
+			return 'main-free';
 	}
 };
 
