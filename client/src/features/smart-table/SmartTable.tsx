@@ -150,7 +150,9 @@ export const SmartTable = ({ tableName, height }: any) => {
 	} = useGetTable(tableName || '');
 
 	const { availableMethods } = useGetPage({ appName, pageName });
-	const tableMethods = availableMethods?.[tableName]?.methods;
+	const allMethods = availableMethods?.[tableName];
+	const tableMethods = allMethods?.methods;
+	const allColumnMethods = allMethods?.columns;
 
 	const [tableHeaderHeight, setTableHeaderHeight] = useState<any>();
 	const tableHeaderRef: any = useRef();
@@ -233,29 +235,34 @@ export const SmartTable = ({ tableName, height }: any) => {
 		return newState;
 	};
 
-	const clickColButton = (event: any, col: number, row: number) => {
-		setSelection((old: any) => {
-			return {
-				...old,
-				current: {
-					cell: [col, row],
-					range: { x: col, y: row, width: 1, height: 1 },
-					rangeStack: [],
-				},
-				rows: CompactSelection.fromSingleSelection([row, row + 1]),
-			};
-		});
+	const clickColButton = (column: any, col: number, row: number) => {
+		if (column?.name) {
+			const hasClickMethod = allColumnMethods?.[column.name]?.includes(ACTIONS.CLICK);
 
-		selectRowAndUpdateState(row);
+			if (hasClickMethod) {
+				setSelection((old: any) => {
+					return {
+						...old,
+						current: {
+							cell: [col, row],
+							range: { x: col, y: row, width: 1, height: 1 },
+							rangeStack: [],
+						},
+						rows: CompactSelection.fromSingleSelection([row, row + 1]),
+					};
+				});
 
-		if (event?.type === 'function') {
-			setButtonTrigger(JSON.stringify([row, col]));
+				selectRowAndUpdateState(row);
+
+				setButtonTrigger(JSON.stringify([row, col]));
+
+				handleEvent({
+					action: ACTIONS.CLICK,
+					resource: tableName,
+					section: 'columns',
+				});
+			}
 		}
-		handleEvent({
-			action: ACTIONS.CLICK,
-			resource: tableName,
-			section: 'columns',
-		});
 	};
 
 	const onColumnResize = useCallback(
@@ -642,7 +649,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 					borderColor: columnColor?.[500],
 					borderRadius: 2,
 					title: column.label,
-					onClick: () => clickColButton(column?.on_click, col, row),
+					onClick: () => clickColButton(column, col, row),
 				},
 				...themeOverride,
 			};

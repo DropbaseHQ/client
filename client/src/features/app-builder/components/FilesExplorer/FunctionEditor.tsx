@@ -2,20 +2,17 @@ import {
 	Box,
 	Button,
 	Divider,
-	FormControl,
-	FormLabel,
 	IconButton,
 	Skeleton,
 	SkeletonCircle,
 	Stack,
 	Text,
-	Tooltip,
 } from '@chakra-ui/react';
 
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Info, Play, RotateCw, Save } from 'react-feather';
+import { Play, RotateCw, Save } from 'react-feather';
 import { useQueryClient } from 'react-query';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -32,7 +29,6 @@ import { getErrorMessage } from '@/utils';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 
 import { previewCodeAtom } from '../../atoms';
-import { InputRenderer } from '@/components/FormInput';
 
 const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name, onSave }: any) => {
 	const [code, setCode] = useState(defaultCode);
@@ -89,7 +85,7 @@ export const FunctionEditor = ({ name }: any) => {
 	const queryClient = useQueryClient();
 	const toast = useToast();
 	const { appName, pageName } = useParams();
-	const { files, tables } = useGetPage({ appName, pageName });
+	const { files } = useGetPage({ appName, pageName });
 
 	const { files: workerFiles, isLoading: isLoadingWorkerFiles } = usePageFiles({
 		pageName: pageName || '',
@@ -110,7 +106,6 @@ export const FunctionEditor = ({ name }: any) => {
 	});
 
 	const [updatedCode, setCode] = useState(code || '');
-	const [depends, setDepends] = useState([]);
 
 	const savePythonMutation = useSaveCode({
 		onSuccess: () => {
@@ -136,17 +131,13 @@ export const FunctionEditor = ({ name }: any) => {
 			fileName: name,
 			code: updatedCode,
 			fileType: file?.type,
-			depends,
+			depends: [],
 		});
 	};
 
 	useEffect(() => {
 		setCode(code);
 	}, [name, code]);
-
-	useEffect(() => {
-		setDepends(file?.depends_on);
-	}, [file]);
 
 	useEffect(() => {
 		setPreviewFile({
@@ -215,49 +206,13 @@ export const FunctionEditor = ({ name }: any) => {
 						variant="outline"
 						colorScheme="gray"
 						size="sm"
-						isDisabled={
-							code === updatedCode &&
-							JSON.stringify(depends) === JSON.stringify(file?.depends_on)
-						}
+						isDisabled={code === updatedCode}
 						leftIcon={<Save size="14" />}
 					>
 						Update
 					</Button>
 				</Stack>
 			</Stack>
-
-			{file?.type === 'python' ? (
-				<Stack p="3" borderBottomWidth="1px" alignItems="start" direction="row">
-					<FormControl>
-						<FormLabel>
-							<Stack direction="row" alignItems="center">
-								<Text>Refetch on row change in table…</Text>
-								<Tooltip
-									label="Select table for which a row change triggers this function to refetch"
-									fontSize="sm"
-								>
-									<Info size="10" />
-								</Tooltip>
-							</Stack>
-						</FormLabel>
-						<InputRenderer
-							type="multiselect"
-							id="depends"
-							maxW="lg"
-							name="Depends on"
-							placeholder="Select table(s)"
-							options={tables.map((t: any) => ({
-								name: t.name,
-								value: t.name,
-							}))}
-							value={depends}
-							onChange={(newDepends: any) => {
-								setDepends(newDepends);
-							}}
-						/>
-					</FormControl>
-				</Stack>
-			) : null}
 
 			<Box overflowY="auto" h="full">
 				{isRefetching ? (

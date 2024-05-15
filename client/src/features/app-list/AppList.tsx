@@ -23,7 +23,7 @@ import {
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Layout, MoreVertical, Trash, Plus, PlusCircle } from 'react-feather';
+import { Layout, MoreVertical, Trash, PlusCircle } from 'react-feather';
 import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 import { useStatus } from '@/layout/StatusBar';
@@ -165,19 +165,7 @@ const AppCard = ({ app }: { app: AppType }) => {
 							<Box>Delete App</Box>
 						</Stack>
 					</MenuItem>
-					{app?.status !== 'SYNCED' && (
-						<MenuItem
-							onClick={(e) => {
-								e.stopPropagation();
-								handleSyncApp(true);
-							}}
-						>
-							<Stack alignItems="center" direction="row" fontSize="md">
-								<Plus size="14" />
-								<Box>Sync a New App</Box>
-							</Stack>
-						</MenuItem>
-					)}
+
 					{app?.status === 'ID_NOT_FOUND_BUT_NAME_FOUND' && (
 						<MenuItem
 							onClick={(e) => {

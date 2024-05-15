@@ -102,18 +102,20 @@ const ColumnProperty = ({
 	const { isOpen, onToggle } = useDisclosure();
 	const { isOpen: isConfigurationOpen, onToggle: onToggleConfigurations } = useDisclosure();
 
+	const columnType = properties?.column_type;
+
 	const { fields: resourceFields } = useResourceFields();
 	let columnField = '';
 
-	if (properties?.column_type === 'button_column') {
+	if (columnType === 'button_column') {
 		columnField = 'button_column';
-	} else if (properties?.column_type === 'postgres') {
+	} else if (columnType === 'postgres') {
 		columnField = 'pgcolumn';
-	} else if (properties?.column_type === 'snowflake') {
+	} else if (columnType === 'snowflake') {
 		columnField = 'snowflakecolumn';
-	} else if (properties?.column_type === 'mysql') {
+	} else if (columnType === 'mysql') {
 		columnField = 'mysqlcolumn';
-	} else if (properties?.column_type === 'sqlite') {
+	} else if (columnType === 'sqlite') {
 		columnField = 'sqlitecolumn';
 	}
 
@@ -372,12 +374,14 @@ const ColumnProperty = ({
 
 					<Collapse in={isOpen}>
 						<Stack p="3">
-							<OptionsList
-								selectedOptionLabel={activeConfigType}
-								displayType={displayType}
-								optionsList={resolveDisplayTypeOptions(displayType)}
-								handleSelectChange={handleConfigType}
-							/>
+							{columnType !== 'button_column' ? (
+								<OptionsList
+									selectedOptionLabel={activeConfigType}
+									displayType={displayType}
+									optionsList={resolveDisplayTypeOptions(displayType)}
+									handleSelectChange={handleConfigType}
+								/>
+							) : null}
 
 							{columnFields
 								.filter((f: any) => editableFields?.includes(f?.name))
