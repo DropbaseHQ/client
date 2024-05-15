@@ -8,7 +8,7 @@ export const ACTIONS = {
 
 	// Table Based Actions
 	ADD_ROW: 'add',
-	GET_DATA: 'get_data',
+	GET_DATA: 'get',
 	UPDATE_ROW: 'update',
 	ROW_CHANGE: 'on_row_change',
 	DELETE_ROW: 'delete',
