@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useDebounce } from 'use-debounce';
+
 import { workerAxios } from '@/lib/axios';
 import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
 import { pageStateAtom, useSyncState } from '@/features/app-state';
@@ -60,15 +60,7 @@ export const useParsedData: any = (response: any, table: any) => {
 	}, [response, table]);
 };
 
-export const useTableData = ({
-	tableName,
-	filters = [],
-	sorts = [],
-	appName,
-	pageName,
-	currentPage,
-	pageSize,
-}: any) => {
+export const useTableData = ({ tableName, appName, pageName, currentPage, pageSize }: any) => {
 	const {
 		tables,
 		files,
@@ -78,8 +70,6 @@ export const useTableData = ({
 	const appMode = useAtomValue(appModeAtom);
 
 	const tableMethods = allResourceMethods?.[tableName]?.methods || [];
-
-	const [debouncedFilters] = useDebounce(filters, 1000);
 
 	const selectRow = useSetAtom(pageStateAtom);
 
@@ -102,14 +92,6 @@ export const useTableData = ({
 	const depends = files.find((f: any) => f.name === table?.fetcher?.value)?.depends_on || [];
 	const tablesWithNoSelection = depends.filter((name: any) => !hasSelectedRows[name]);
 
-	const dependentTableData = depends.reduce(
-		(agg: any, tName: any) => ({
-			...agg,
-			[tName]: pageState[tName]?.columns || {},
-		}),
-		{},
-	);
-
 	const queryKey = [
 		TABLE_DATA_QUERY_KEY,
 		tableName,
@@ -119,7 +101,6 @@ export const useTableData = ({
 		table?.type,
 		currentPage,
 		pageSize,
-		JSON.stringify({ debouncedFilters, sorts, dependentTableData }),
 	];
 
 	const syncState = useSyncState();
@@ -134,8 +115,6 @@ export const useTableData = ({
 				state: pageStateRef.current,
 				fetcher: table?.fetcher,
 				filter_sort: {
-					filters,
-					sorts,
 					pagination: {
 						page: currentPage || 0,
 						page_size: pageSize || 0,
@@ -154,6 +133,9 @@ export const useTableData = ({
 				tablesWithNoSelection.length === 0
 			),
 			staleTime: Infinity,
+			onSuccess: (data: any) => {
+				syncState(data);
+			},
 			onError: () => {
 				/**
 				 * Reset selected row of the current table, and all the tables

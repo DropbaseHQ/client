@@ -6,6 +6,9 @@ const getMainFileName = () => {
 		case 'app': {
 			return 'main-app';
 		}
+		case 'worker': {
+			return 'main';
+		}
 		case 'free': {
 			return 'main-free';
 		}
