@@ -5,7 +5,6 @@ import { focusAtom } from 'jotai-optics';
 import { useAtomValue } from 'jotai';
 import { useParsedData, useTableData } from './table';
 import { tablePageInfoAtom } from '@/features/smart-table/atoms';
-import { DEFAULT_PAGE_SIZE } from '../constants';
 import { useGetPage } from '@/features/page';
 import { pageContextAtom } from '@/features/app-state';
 
@@ -25,10 +24,7 @@ export const useCurrentTableData = (tableName: any) => {
 	}, [tableName]);
 	const tableContext: any = useAtomValue(tableContextAtom);
 
-	const pageInfo = useAtomValue(tablePageInfoAtom)?.[tableName] || {
-		currentPage: 0,
-		pageSize: DEFAULT_PAGE_SIZE,
-	};
+	const pageInfo = useAtomValue(tablePageInfoAtom)?.[tableName];
 
 	const { tables, isLoading: isLoadingPage } = useGetPage({ appName, pageName });
 

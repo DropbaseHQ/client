@@ -9,6 +9,7 @@ import { hasSelectedRowAtom } from '../atoms';
 import { executeAction } from '@/features/app-preview/hooks';
 import { ACTIONS } from '@/constant';
 import { appModeAtom } from '@/features/app/atoms';
+import { DEFAULT_PAGE_SIZE } from '@/features/smart-table/constants';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 export const FUNCTION_DATA_QUERY_KEY = 'functionData';
@@ -60,7 +61,13 @@ export const useParsedData: any = (response: any, table: any) => {
 	}, [response, table]);
 };
 
-export const useTableData = ({ tableName, appName, pageName, currentPage, pageSize }: any) => {
+export const useTableData = ({
+	tableName,
+	appName,
+	pageName,
+	currentPage = 0,
+	pageSize = DEFAULT_PAGE_SIZE,
+}: any) => {
 	const {
 		tables,
 		files,
