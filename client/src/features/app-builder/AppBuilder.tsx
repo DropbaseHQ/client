@@ -19,6 +19,7 @@ import { BuilderSidebar } from './components/Sidebar';
 import { FileContent } from './components/FilesExplorer/FileContent';
 import { useInitializePageState } from '@/features/app-state';
 import { isFreeApp } from '@/utils';
+import { PromptModal } from '@/features/ai';
 
 export const AppBuilder = () => {
 	const { appName, pageName } = useParams();
@@ -117,6 +118,7 @@ export const AppBuilder = () => {
 				</PanelGroup>
 			</Box>
 			<WorkerDisconnected />
+			<PromptModal />
 		</Stack>
 	);
 };
