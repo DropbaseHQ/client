@@ -40,6 +40,11 @@ export const PromptModal = () => {
 	const [tabIndex, setTabIndex] = useState(0);
 	const [updatedCode, setUpdatedCode] = useState('');
 
+	const methods = useForm();
+
+	const { watch } = methods;
+	const prompt = watch('prompt');
+
 	const [{ resource, name, block }, setPromptMeta] = useAtom(promptAtom);
 
 	const isUIPrompt = resource === 'ui';
@@ -50,6 +55,18 @@ export const PromptModal = () => {
 		fileName: 'main.py',
 	});
 
+	const handleCloseModal = () => {
+		setPromptMeta({
+			name: null,
+			resource: null,
+			block: null,
+		});
+		methods.reset({
+			method: '',
+			prompt: '',
+		});
+	};
+
 	const savePythonMutation = useSaveCode({
 		onSuccess: () => {
 			toast({
@@ -57,6 +74,7 @@ export const PromptModal = () => {
 				title: 'Updated code',
 			});
 			refetch();
+			handleCloseModal();
 		},
 		onError: (error: any) => {
 			toast({
@@ -79,19 +97,6 @@ export const PromptModal = () => {
 			}
 		},
 	});
-
-	const methods = useForm();
-
-	const { watch } = methods;
-	const prompt = watch('prompt');
-
-	const handleCloseModal = () => {
-		setPromptMeta({
-			name: null,
-			resource: null,
-			block: null,
-		});
-	};
 
 	const events = useMemo(() => {
 		if (resource === 'table') {
@@ -148,11 +153,7 @@ export const PromptModal = () => {
 			});
 
 			if (isUIPrompt) {
-				setPromptMeta({
-					name: null,
-					resource: null,
-					block: null,
-				});
+				handleCloseModal();
 			} else if (tabIndex === 0) {
 				setTabIndex(1);
 			}
