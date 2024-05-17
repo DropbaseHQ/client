@@ -1,9 +1,11 @@
 import { IconButton } from '@chakra-ui/react';
 import { Aperture } from 'react-feather';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { PromptType, promptAtom } from '@/features/ai/atoms';
+import { appModeAtom } from '@/features/app/atoms';
 
 export const PromptButton = ({ resource, name, block }: Omit<PromptType, 'prompt'>) => {
+	const { isPreview } = useAtomValue(appModeAtom);
 	const setPrompt = useSetAtom(promptAtom);
 
 	const handleClick = () => {
@@ -13,6 +15,10 @@ export const PromptButton = ({ resource, name, block }: Omit<PromptType, 'prompt
 			block,
 		});
 	};
+
+	if (isPreview) {
+		return null;
+	}
 
 	return (
 		<IconButton

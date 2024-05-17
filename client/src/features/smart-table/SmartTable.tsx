@@ -1227,7 +1227,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 									</Stack>
 
 									{isPreview ? null : (
-										<PromptButton name={tableName} resource="table" />
+										<PromptButton block={tableName} resource="table" />
 									)}
 								</Stack>
 

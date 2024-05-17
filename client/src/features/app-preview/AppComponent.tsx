@@ -24,6 +24,7 @@ import { LabelContainer } from '@/components/LabelContainer';
 
 import MarkdownEditor from '@/components/Editor/MarkdownEditor';
 import { ACTIONS } from '@/constant';
+import { PromptButton } from '../ai';
 
 const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 
@@ -46,8 +47,10 @@ export const AppComponent = (props: any) => {
 	const pageState = useAtomValue(pageStateContextAtom);
 	const pageContext = useAtomValue(pageContextAtom) as any;
 
+	const isWidget = resource === 'widget';
+
 	const components = useMemo(() => {
-		if (resource === 'widget') {
+		if (isWidget) {
 			return pageContext[widgetName || '']?.components || {};
 		}
 
@@ -58,16 +61,14 @@ export const AppComponent = (props: any) => {
 
 	const [inputValues, setInputValues]: any = useAtom(pageStateAtom);
 
-	const inputValue =
-		resource === 'widget'
-			? inputValues?.[widgetName || '']?.components?.[name]
-			: inputValues?.[tableName]?.[resource]?.[name];
+	const inputValue = isWidget
+		? inputValues?.[widgetName || '']?.components?.[name]
+		: inputValues?.[tableName]?.[resource]?.[name];
 
 	const { availableMethods: allResourceMethods } = useGetPage({ appName, pageName });
-	const availableMethods =
-		resource === 'widget'
-			? allResourceMethods?.[widgetName]?.components?.[name] || []
-			: allResourceMethods?.[tableName]?.[resource]?.[name] || [];
+	const availableMethods = isWidget
+		? allResourceMethods?.[widgetName]?.components?.[name] || []
+		: allResourceMethods?.[tableName]?.[resource]?.[name] || [];
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const isEditorMode = !isPreview;
@@ -103,7 +104,7 @@ export const AppComponent = (props: any) => {
 
 	const handleInputValue = useCallback(
 		(inputName: any, newInputValue: any) => {
-			if (resource === 'widget' && widgetName) {
+			if (isWidget && widgetName) {
 				let newWidgetState = {};
 				setInputValues((old: any) => {
 					newWidgetState = {
@@ -147,10 +148,10 @@ export const AppComponent = (props: any) => {
 		if (availableMethods.includes(action)) {
 			handleEvent({
 				action,
-				resource: resource === 'widget' ? widgetName : tableName,
+				resource: isWidget ? widgetName : tableName,
 				component: name,
 				newState: state,
-				section: resource === 'widget' ? 'components' : resource,
+				section: isWidget ? 'components' : resource,
 			});
 		}
 	};
@@ -176,35 +177,41 @@ export const AppComponent = (props: any) => {
 
 	if (componentType === 'button') {
 		return (
-			<Stack spacing="0.5" w="fit-content">
-				<Button
-					my="1.5"
-					size={componentSize}
-					{...(isTableComponent
-						? {
-								borderRadius: '4px',
-								height: '20px',
-						  }
-						: {})}
-					bgColor={grayOutComponent ? 'gray.100' : ''}
-					colorScheme={color || 'blue'}
-					isLoading={mutation.isLoading}
-					onClick={() => {
-						handleComponentMethod({
-							action: ACTIONS.CLICK,
-						});
+			<Stack my="1.5" direction="row">
+				<Stack spacing="0.5" w="fit-content">
+					<Button
+						size={componentSize}
+						{...(isTableComponent
+							? {
+									borderRadius: '4px',
+									height: '20px',
+							  }
+							: {})}
+						bgColor={grayOutComponent ? 'gray.100' : ''}
+						colorScheme={color || 'blue'}
+						isLoading={mutation.isLoading}
+						onClick={() => {
+							handleComponentMethod({
+								action: ACTIONS.CLICK,
+							});
 
-						sendJsonMessage({
-							type: 'display_rule',
-							state_context: pageState,
-							app_name: appName,
-							page_name: pageName,
-						});
-					}}
-				>
-					{label}
-				</Button>
-				{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+							sendJsonMessage({
+								type: 'display_rule',
+								state_context: pageState,
+								app_name: appName,
+								page_name: pageName,
+							});
+						}}
+					>
+						{label}
+					</Button>
+					{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
+				</Stack>
+				<PromptButton
+					block={isWidget ? widgetName : tableName}
+					name={name}
+					resource={resource}
+				/>
 			</Stack>
 		);
 	}
