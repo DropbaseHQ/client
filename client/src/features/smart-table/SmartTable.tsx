@@ -80,6 +80,7 @@ import { SaveEditsButton } from '@/features/smart-table/components/SaveEditsButt
 import { useGetPage, useOnPageResponse } from '@/features/page';
 import { DeleteRowButton } from '@/features/smart-table/components/DeleteRowButton';
 import { useRenderAddRowModal } from '@/features/smart-table/hooks/useRenderAddRowModal';
+import { PromptButton } from '@/features/ai';
 
 const ALL_CELLS = [
 	DatePickerCell,
@@ -1211,12 +1212,24 @@ export const SmartTable = ({ tableName, height }: any) => {
 										<Move size="14" />
 									</Box>
 								)}
-								<LabelContainer.Label>
-									{extractTemplateString(table?.label || tableName, pageState)}
-								</LabelContainer.Label>
-								{isPreview ? null : (
-									<LabelContainer.Code>{tableName}</LabelContainer.Code>
-								)}
+								<Stack direction="row">
+									<Stack spacing="0">
+										<LabelContainer.Label>
+											{extractTemplateString(
+												table?.label || tableName,
+												pageState,
+											)}
+										</LabelContainer.Label>
+
+										{isPreview ? null : (
+											<LabelContainer.Code>{tableName}</LabelContainer.Code>
+										)}
+									</Stack>
+
+									{isPreview ? null : (
+										<PromptButton name={tableName} resource="table" />
+									)}
+								</Stack>
 
 								{table?.smart && !isPreview ? (
 									<Box
