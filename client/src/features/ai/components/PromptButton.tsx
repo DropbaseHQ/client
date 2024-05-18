@@ -27,7 +27,7 @@ export const PromptButton = ({ resource, name, block }: Omit<PromptType, 'prompt
 			size="xs"
 			flexGrow="0"
 			variant="outline"
-			colorScheme="yellow"
+			colorScheme={resource === 'function' ? 'blue' : 'yellow'}
 			onClick={handleClick}
 		/>
 	);

@@ -24,7 +24,6 @@ import { LabelContainer } from '@/components/LabelContainer';
 
 import MarkdownEditor from '@/components/Editor/MarkdownEditor';
 import { ACTIONS } from '@/constant';
-import { PromptButton } from '../ai';
 
 const potentialTemplatesField = ['label', 'text', 'placeholder', 'default'];
 
@@ -207,11 +206,6 @@ export const AppComponent = (props: any) => {
 					</Button>
 					{isPreview ? null : <LabelContainer.Code>{name}</LabelContainer.Code>}
 				</Stack>
-				<PromptButton
-					block={isWidget ? widgetName : tableName}
-					name={name}
-					resource={resource}
-				/>
 			</Stack>
 		);
 	}

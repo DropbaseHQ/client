@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 
 export type PromptType = {
-	resource: 'header' | 'footer' | 'widget' | 'table' | 'ui' | null;
+	resource: 'header' | 'footer' | 'widget' | 'table' | 'ui' | 'function' | null;
 	name?: string | null;
 	block?: string | null;
 };
