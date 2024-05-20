@@ -260,6 +260,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 					action: ACTIONS.CLICK,
 					resource: tableName,
 					section: 'columns',
+					component: column.name,
 				});
 			}
 		}
