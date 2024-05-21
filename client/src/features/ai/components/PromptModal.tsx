@@ -16,6 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 
+import { useQueryClient } from 'react-query';
 import { DiffEditor as MonacoDiffEditor, useMonaco } from '@monaco-editor/react';
 
 import { useParams } from 'react-router-dom';
@@ -24,7 +25,7 @@ import { useAtom } from 'jotai';
 import { promptAtom } from '@/features/ai/atoms';
 import { FormInput } from '@/components/FormInput';
 import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
-import { useFile, useSaveCode } from '@/features/app-builder/hooks';
+import { PAGE_FILE_QUERY_KEY, useFile, useSaveCode } from '@/features/app-builder/hooks';
 import { useSubmitPrompt } from '@/features/ai/hooks';
 import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
@@ -32,6 +33,8 @@ import { useToast } from '@/lib/chakra-ui';
 export const PromptModal = () => {
 	const toast = useToast();
 	const { pageName, appName } = useParams();
+
+	const queryClient = useQueryClient();
 
 	const monaco = useMonaco();
 	useMonacoTheme(monaco);
@@ -74,6 +77,7 @@ export const PromptModal = () => {
 				title: 'Updated code',
 			});
 			refetch();
+			queryClient.invalidateQueries(PAGE_FILE_QUERY_KEY);
 			handleCloseModal();
 		},
 		onError: (error: any) => {
@@ -121,6 +125,9 @@ export const PromptModal = () => {
 
 			if (isUIPrompt) {
 				handleCloseModal();
+
+				refetch();
+				queryClient.invalidateQueries(PAGE_FILE_QUERY_KEY);
 			} else if (tabIndex === 0) {
 				setTabIndex(1);
 			}

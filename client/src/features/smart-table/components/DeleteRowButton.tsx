@@ -12,7 +12,8 @@ import {
 } from '@chakra-ui/react';
 import { Trash } from 'react-feather';
 import { useParams } from 'react-router-dom';
-import { useCurrentTableName } from '@/features/smart-table/hooks';
+import { useQueryClient } from 'react-query';
+import { TABLE_DATA_QUERY_KEY, useCurrentTableName } from '@/features/smart-table/hooks';
 import { useEvent } from '@/features/app-preview/hooks';
 import { useGetPage } from '@/features/page';
 import { ACTIONS } from '@/constant';
@@ -23,6 +24,8 @@ export const DeleteRowButton = ({ row }: any) => {
 	const toast = useToast();
 	const { isOpen, onClose, onToggle } = useDisclosure();
 	const tableName = useCurrentTableName();
+
+	const queryClient = useQueryClient();
 
 	const { availableMethods } = useGetPage({ appName, pageName });
 
@@ -36,6 +39,7 @@ export const DeleteRowButton = ({ row }: any) => {
 				status: 'success',
 				title: 'Row deleted',
 			});
+			queryClient.invalidateQueries([TABLE_DATA_QUERY_KEY, tableName]);
 			onClose();
 		},
 	});
