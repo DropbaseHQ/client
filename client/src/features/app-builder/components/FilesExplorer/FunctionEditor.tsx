@@ -13,6 +13,7 @@ import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Play, RotateCw, Save } from 'react-feather';
+import { debounce } from 'lodash';
 import { useQueryClient } from 'react-query';
 import { useToast } from '@/lib/chakra-ui';
 
@@ -123,6 +124,20 @@ export const FunctionEditor = ({ name }: any) => {
 			});
 		},
 	});
+
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const refetchCode = useCallback(
+		debounce(() => {
+			refetch();
+		}, 2500),
+		[refetch],
+	);
+
+	useEffect(() => {
+		if (code !== updatedCode) {
+			refetchCode();
+		}
+	}, [refetchCode, updatedCode, code]);
 
 	const handleSave = () => {
 		savePythonMutation.mutate({
