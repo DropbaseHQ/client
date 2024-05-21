@@ -91,8 +91,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const handleUpdate = () => {
 		if (app) {
 			updateMutation.mutate({
-				// FIXME: fix appId
-				appId: app.id,
+				appName,
 				newLabel: label,
 			});
 		}
