@@ -182,6 +182,43 @@ export const ComponentPropertyEditor = () => {
 		}
 	};
 
+	const onDelete = async (e: any) => {
+		e.stopPropagation();
+		if (resource === 'widget') {
+			const currentWidget = properties[widgetName] || {};
+
+			deleteMutation.mutate({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(properties || {}),
+					[widgetName]: {
+						...currentWidget,
+						components: currentWidget?.components.filter(
+							(c: any) => c?.name !== component?.name,
+						),
+					},
+				},
+			});
+		} else if (tableName) {
+			const currentTable = properties[tableName] || {};
+
+			deleteMutation.mutate({
+				app_name: appName,
+				page_name: pageName,
+				properties: {
+					...(properties || {}),
+					[tableName]: {
+						...currentTable,
+						[resource]: (currentTable?.[resource] || []).filter(
+							(c: any) => c?.name !== component?.name,
+						),
+					},
+				},
+			});
+		}
+	};
+
 	const handleUpdateName = async (newName: any) => {
 		try {
 			await onSubmit({
@@ -257,25 +294,7 @@ export const ComponentPropertyEditor = () => {
 								variant="ghost"
 								colorScheme="red"
 								isLoading={deleteMutation.isLoading}
-								onClick={(e) => {
-									e.stopPropagation();
-
-									const currentWidget = properties[widgetName] || {};
-
-									deleteMutation.mutate({
-										app_name: appName,
-										page_name: pageName,
-										properties: {
-											...(properties || {}),
-											[widgetName]: {
-												...currentWidget,
-												components: currentWidget?.components.filter(
-													(c: any) => c?.name !== component?.name,
-												),
-											},
-										},
-									});
-								}}
+								onClick={onDelete}
 								icon={<Trash size="14" />}
 							/>
 						</ButtonGroup>

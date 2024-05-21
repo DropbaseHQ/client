@@ -38,6 +38,7 @@ export const useRenderAddRowModal = ({ columns, table }: any) => {
 				title: 'Cell edits saved',
 			});
 			setRow({});
+			onClose();
 		},
 		onError: (error: any) => {
 			toast({

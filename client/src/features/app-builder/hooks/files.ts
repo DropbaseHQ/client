@@ -90,7 +90,7 @@ const fetchFile = async ({ fileName, appName, pageName }: any) => {
 	return response.data;
 };
 
-const PAGE_FILE_QUERY_KEY = 'file';
+export const PAGE_FILE_QUERY_KEY = 'file';
 
 export const useFile = ({ fileName, appName, pageName }: any) => {
 	const queryKey = [PAGE_FILE_QUERY_KEY, fileName, appName, pageName];

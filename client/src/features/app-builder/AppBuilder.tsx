@@ -1,4 +1,13 @@
-import { Box, Stack, useTheme } from '@chakra-ui/react';
+import {
+	Alert,
+	AlertDescription,
+	AlertIcon,
+	AlertTitle,
+	Box,
+	Center,
+	Stack,
+	useTheme,
+} from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { useEffect } from 'react';
 import { useSetAtom } from 'jotai';
@@ -18,8 +27,9 @@ import { inspectedResourceAtom } from './atoms';
 import { BuilderSidebar } from './components/Sidebar';
 import { FileContent } from './components/FilesExplorer/FileContent';
 import { useInitializePageState } from '@/features/app-state';
-import { isFreeApp } from '@/utils';
+
 import { PromptModal } from '@/features/ai';
+import { getErrorMessage, isFreeApp } from '@/utils';
 
 export const AppBuilder = () => {
 	const { appName, pageName } = useParams();
@@ -30,10 +40,13 @@ export const AppBuilder = () => {
 
 	const theme = useTheme();
 	const setInspectedItem = useSetAtom(inspectedResourceAtom);
-	const { permissions, isLoading: appStateIsLoading } = useGetPage({
+	const {
+		permissions,
+		isLoading: appStateIsLoading,
+		error,
+	} = useGetPage({
 		appName,
 		pageName,
-		enabled: !isLoadingState,
 	});
 
 	const isLoading = isLoadingState || appStateIsLoading;
@@ -58,6 +71,31 @@ export const AppBuilder = () => {
 			navigate(`/apps/${appName}/${pageName}`);
 		}
 	}, [appStateIsLoading, permissions, appName, navigate, pageName, toast]);
+
+	if (error) {
+		return (
+			<Stack spacing="0" h="full">
+				<AppNavbar />
+				<Center bg="gray.50" h="full">
+					<Alert
+						status="error"
+						variant="subtle"
+						flexDirection="column"
+						alignItems="center"
+						justifyContent="center"
+						textAlign="center"
+						maxW="container.sm"
+					>
+						<AlertIcon boxSize="30px" mr={0} />
+						<AlertTitle mt={4} mb={1} fontSize="xl">
+							Something went wrong!
+						</AlertTitle>
+						<AlertDescription maxWidth="sm">{getErrorMessage(error)}</AlertDescription>
+					</Alert>
+				</Center>
+			</Stack>
+		);
+	}
 
 	return (
 		<Stack spacing="0" h="full">

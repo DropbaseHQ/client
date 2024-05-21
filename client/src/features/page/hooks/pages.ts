@@ -8,6 +8,7 @@ import { workerAxios } from '@/lib/axios';
 
 import { APPS_QUERY_KEY } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { pageFetchedAtom } from '@/features/page/atoms';
+import { PAGE_FILE_QUERY_KEY } from '@/features/app-builder/hooks';
 
 export const PAGE_DATA_QUERY_KEY = 'pageData';
 
@@ -42,6 +43,7 @@ export const useGetPage = ({ appName, pageName, ...props }: any) => {
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchPage({ appName, pageName }), {
 		enabled: Boolean(appName && pageName),
 		staleTime: Infinity,
+		retry: false,
 		...props,
 	});
 
@@ -109,6 +111,7 @@ export const useUpdatePageData = (props: any = {}) => {
 		...props,
 		onSettled: () => {
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
+			queryClient.invalidateQueries(PAGE_FILE_QUERY_KEY);
 
 			props?.onSettled?.();
 		},
