@@ -80,7 +80,6 @@ import { SaveEditsButton } from '@/features/smart-table/components/SaveEditsButt
 import { useGetPage, useOnPageResponse } from '@/features/page';
 import { DeleteRowButton } from '@/features/smart-table/components/DeleteRowButton';
 import { useRenderAddRowModal } from '@/features/smart-table/hooks/useRenderAddRowModal';
-import { PromptButton } from '@/features/ai';
 
 const ALL_CELLS = [
 	DatePickerCell,
@@ -261,6 +260,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 					action: ACTIONS.CLICK,
 					resource: tableName,
 					section: 'columns',
+					component: column.name,
 				});
 			}
 		}
@@ -1225,10 +1225,6 @@ export const SmartTable = ({ tableName, height }: any) => {
 											<LabelContainer.Code>{tableName}</LabelContainer.Code>
 										)}
 									</Stack>
-
-									{isPreview ? null : (
-										<PromptButton name={tableName} resource="table" />
-									)}
 								</Stack>
 
 								{table?.smart && !isPreview ? (

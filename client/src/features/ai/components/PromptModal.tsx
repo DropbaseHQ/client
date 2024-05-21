@@ -14,7 +14,7 @@ import {
 	Tabs,
 	Text,
 } from '@chakra-ui/react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { useQueryClient } from 'react-query';
 import { DiffEditor as MonacoDiffEditor, useMonaco } from '@monaco-editor/react';
@@ -24,7 +24,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useAtom } from 'jotai';
 import { promptAtom } from '@/features/ai/atoms';
 import { FormInput } from '@/components/FormInput';
-import { ACTIONS } from '@/constant';
 import { useMonacoTheme } from '@/components/Editor/hooks/useMonacoTheme';
 import { PAGE_FILE_QUERY_KEY, useFile, useSaveCode } from '@/features/app-builder/hooks';
 import { useSubmitPrompt } from '@/features/ai/hooks';
@@ -59,13 +58,14 @@ export const PromptModal = () => {
 	});
 
 	const handleCloseModal = () => {
+		setTabIndex(0);
 		setPromptMeta({
 			name: null,
 			resource: null,
 			block: null,
 		});
 		methods.reset({
-			method: '',
+			action: '',
 			prompt: '',
 		});
 	};
@@ -102,43 +102,13 @@ export const PromptModal = () => {
 		},
 	});
 
-	const events = useMemo(() => {
-		if (resource === 'table') {
-			return [
-				{
-					name: ACTIONS.GET_DATA,
-					value: ACTIONS.GET_DATA,
-				},
-			];
-		}
-
-		if (name?.startsWith?.('input')) {
-			return [
-				{
-					name: ACTIONS.CHANGE,
-					value: ACTIONS.CHANGE,
-				},
-			];
-		}
-		if (name?.startsWith?.('button')) {
-			return [
-				{
-					name: ACTIONS.CLICK,
-					value: ACTIONS.CLICK,
-				},
-			];
-		}
-
-		return [];
-	}, [resource, name]);
-
 	const onSubmit = async (formValues: any) => {
 		try {
 			if (tabIndex === 1 && !isUIPrompt) {
 				savePythonMutation.mutate({
 					pageName,
 					appName,
-					fileName: 'main.py',
+					fileName: 'main',
 					code: updatedCode,
 					fileType: 'python',
 					depends: [],
@@ -148,12 +118,9 @@ export const PromptModal = () => {
 
 			await mutation.mutateAsync({
 				prompt: formValues.prompt,
-				app_name: appName,
-				page_name: pageName,
+				appName,
+				pageName,
 				type: isUIPrompt ? 'ui' : 'function',
-				block,
-				component: name,
-				method: formValues.method,
 			});
 
 			if (isUIPrompt) {
@@ -173,113 +140,105 @@ export const PromptModal = () => {
 		setTabIndex(0);
 	};
 
-	if (!resource && !name) {
-		return null;
-	}
+	if ((resource === 'ui') | (resource === 'function')) {
+		return (
+			<Modal isCentered size="5xl" isOpen onClose={handleCloseModal}>
+				<ModalOverlay />
+				<ModalContent>
+					<form onSubmit={methods.handleSubmit(onSubmit)}>
+						<FormProvider {...methods}>
+							<ModalHeader borderBottomWidth="1px">
+								<Stack spacing="0">
+									<Text fontSize="xl">Generate code for {name}</Text>
+								</Stack>
+							</ModalHeader>
+							<ModalBody p="0">
+								<Tabs index={tabIndex}>
+									<TabList>
+										<Tab>Prompt Info</Tab>
+										{isUIPrompt ? null : (
+											<Tab isDisabled={!prompt}>Code Review</Tab>
+										)}
+									</TabList>
 
-	return (
-		<Modal isCentered size="5xl" isOpen onClose={handleCloseModal}>
-			<ModalOverlay />
-			<ModalContent>
-				<form onSubmit={methods.handleSubmit(onSubmit)}>
-					<FormProvider {...methods}>
-						<ModalHeader borderBottomWidth="1px">
-							<Stack spacing="0">
-								<Text fontSize="xl">Generate code for {name}</Text>
-							</Stack>
-						</ModalHeader>
-						<ModalBody p="0">
-							<Tabs index={tabIndex}>
-								<TabList>
-									<Tab>Prompt Info</Tab>
-									{isUIPrompt ? null : (
-										<Tab isDisabled={!prompt}>Code Review</Tab>
-									)}
-								</TabList>
+									<TabPanels p="0">
+										<TabPanel>
+											<Stack spacing="4">
+												<FormInput
+													name="Write prompt"
+													id="prompt"
+													type="textarea"
+												/>
+											</Stack>
+										</TabPanel>
 
-								<TabPanels p="0">
-									<TabPanel>
-										<Stack spacing="4">
-											<FormInput
-												maxW="50%"
-												name="Select Method"
-												id="method"
-												type="select"
-												options={events}
-												validation={{
-													required: 'Cannot be empty',
+										<TabPanel p="0">
+											<MonacoDiffEditor
+												height="400px"
+												original={originalCode}
+												modified={updatedCode}
+												language="python"
+												options={{
+													lineNumbers: 'off',
+
+													glyphMargin: false,
+													lightbulb: {
+														enabled: true,
+													},
+													overviewRulerBorder: false,
+													overviewRulerLanes: 0,
+													automaticLayout: true,
+													scrollBeyondLastLine: false,
+													minimap: {
+														enabled: false,
+													},
+													fontFamily: 'Fira Code',
+													fontSize: 12,
+													scrollbar: {
+														verticalHasArrows: true,
+														alwaysConsumeMouseWheel: false,
+														vertical: 'auto',
+														horizontal: 'auto',
+													},
 												}}
 											/>
+										</TabPanel>
+									</TabPanels>
+								</Tabs>
 
-											<FormInput
-												name="Write prompt"
-												id="prompt"
-												type="textarea"
-											/>
-										</Stack>
-									</TabPanel>
+								<ModalFooter p="2" borderTopWidth="1px">
+									<Stack direction="row">
+										{tabIndex === 1 ? (
+											<Button
+												size="sm"
+												onClick={handleBack}
+												variant="outline"
+												colorScheme="gray"
+											>
+												Back
+											</Button>
+										) : null}
 
-									<TabPanel p="0">
-										<MonacoDiffEditor
-											height="400px"
-											original={originalCode}
-											modified={updatedCode}
-											language="python"
-											options={{
-												lineNumbers: 'off',
-
-												glyphMargin: false,
-												lightbulb: {
-													enabled: true,
-												},
-												overviewRulerBorder: false,
-												overviewRulerLanes: 0,
-												automaticLayout: true,
-												scrollBeyondLastLine: false,
-												minimap: {
-													enabled: false,
-												},
-												fontFamily: 'Fira Code',
-												fontSize: 12,
-												scrollbar: {
-													verticalHasArrows: true,
-													alwaysConsumeMouseWheel: false,
-													vertical: 'auto',
-													horizontal: 'auto',
-												},
-											}}
-										/>
-									</TabPanel>
-								</TabPanels>
-							</Tabs>
-
-							<ModalFooter p="2" borderTopWidth="1px">
-								<Stack direction="row">
-									{tabIndex === 1 ? (
 										<Button
+											isDisabled={!prompt}
 											size="sm"
-											onClick={handleBack}
-											variant="outline"
-											colorScheme="gray"
+											isLoading={
+												mutation.isLoading || savePythonMutation.isLoading
+											}
+											colorScheme="blue"
+											type="submit"
 										>
-											Back
+											{tabIndex === 1 ? 'Approve Changes' : 'Generate'}
 										</Button>
-									) : null}
+									</Stack>
+								</ModalFooter>
+							</ModalBody>
+						</FormProvider>
+					</form>
+				</ModalContent>
+			</Modal>
+		);
+	}
 
-									<Button
-										isDisabled={!prompt}
-										size="sm"
-										colorScheme="blue"
-										type="submit"
-									>
-										{tabIndex === 1 ? 'Approve Changes' : 'Generate'}
-									</Button>
-								</Stack>
-							</ModalFooter>
-						</ModalBody>
-					</FormProvider>
-				</form>
-			</ModalContent>
-		</Modal>
-	);
+	return null;
 };

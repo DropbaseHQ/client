@@ -1,9 +1,11 @@
 import { IconButton } from '@chakra-ui/react';
 import { Aperture } from 'react-feather';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { PromptType, promptAtom } from '@/features/ai/atoms';
+import { appModeAtom } from '@/features/app/atoms';
 
 export const PromptButton = ({ resource, name, block }: Omit<PromptType, 'prompt'>) => {
+	const { isPreview } = useAtomValue(appModeAtom);
 	const setPrompt = useSetAtom(promptAtom);
 
 	const handleClick = () => {
@@ -14,6 +16,10 @@ export const PromptButton = ({ resource, name, block }: Omit<PromptType, 'prompt
 		});
 	};
 
+	if (isPreview) {
+		return null;
+	}
+
 	return (
 		<IconButton
 			aria-label="Open AI Prompt"
@@ -21,7 +27,7 @@ export const PromptButton = ({ resource, name, block }: Omit<PromptType, 'prompt
 			size="xs"
 			flexGrow="0"
 			variant="outline"
-			colorScheme="yellow"
+			colorScheme={resource === 'function' ? 'blue' : 'yellow'}
 			onClick={handleClick}
 		/>
 	);
