@@ -24,7 +24,7 @@ import {
 	usePageFiles,
 	useSaveCode,
 } from '@/features/app-builder/hooks';
-import { useGetPage } from '@/features/page';
+import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
 
 import { getErrorMessage } from '@/utils';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
@@ -126,18 +126,18 @@ export const FunctionEditor = ({ name }: any) => {
 	});
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const refetchCode = useCallback(
+	const refetchMethods = useCallback(
 		debounce(() => {
-			refetch();
+			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		}, 2500),
-		[refetch],
+		[],
 	);
 
 	useEffect(() => {
 		if (code !== updatedCode) {
-			refetchCode();
+			refetchMethods();
 		}
-	}, [refetchCode, updatedCode, code]);
+	}, [refetchMethods, updatedCode, code]);
 
 	const handleSave = () => {
 		savePythonMutation.mutate({
