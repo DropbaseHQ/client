@@ -8,7 +8,6 @@ import { pageStateAtom, useSyncState } from '@/features/app-state';
 import { hasSelectedRowAtom } from '../atoms';
 import { executeAction } from '@/features/app-preview/hooks';
 import { ACTIONS } from '@/constant';
-import { appModeAtom } from '@/features/app/atoms';
 import { DEFAULT_PAGE_SIZE } from '@/features/smart-table/constants';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
@@ -74,7 +73,6 @@ export const useTableData = ({
 		isFetching: isLoadingPage,
 		availableMethods: allResourceMethods,
 	} = useGetPage({ appName, pageName });
-	const appMode = useAtomValue(appModeAtom);
 
 	const tableMethods = allResourceMethods?.[tableName]?.methods || [];
 
@@ -104,7 +102,6 @@ export const useTableData = ({
 		tableName,
 		appName,
 		pageName,
-		appMode.isPreview ? 'preview' : 'edit',
 		table?.type,
 		currentPage,
 		pageSize,

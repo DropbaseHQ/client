@@ -1,14 +1,28 @@
-import { Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { Center, Progress, Stack, Text } from '@chakra-ui/react';
 
+import { useEffect } from 'react';
+import { useSetAtom } from 'jotai';
 import { AppBuilder } from '@/features/app-builder';
-import { App } from '../components';
+
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
+import { appModeAtom } from '@/features/app/atoms';
 
 export const AppRoutes = () => {
 	const { appName } = useParams();
 
+	const updateMode = useSetAtom(appModeAtom);
+	const { pathname } = useLocation();
+
 	const { apps, isFetching: isFetchingApps } = useGetWorkspaceApps();
+
+	useEffect(() => {
+		const isEditor = pathname.endsWith('studio');
+
+		updateMode({
+			isPreview: !isEditor,
+		});
+	}, [pathname, updateMode]);
 
 	if (isFetchingApps) {
 		return (
@@ -30,7 +44,7 @@ export const AppRoutes = () => {
 
 	return (
 		<Routes>
-			<Route index element={<App />} />
+			<Route index element={<AppBuilder />} />
 			<Route path="studio" element={<AppBuilder />} />
 			<Route path="preview" element={<Navigate to=".." />} />
 			<Route path="editor" element={<Navigate to="../studio" />} />
