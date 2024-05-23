@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { useEffect } from 'react';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@/lib/chakra-ui';
 import { PanelHandle } from '@/components/Panel';
@@ -30,11 +30,14 @@ import { useInitializePageState } from '@/features/app-state';
 
 import { PromptModal } from '@/features/ai';
 import { getErrorMessage, isFreeApp } from '@/utils';
+import { appModeAtom } from '@/features/app/atoms';
 
 export const AppBuilder = () => {
 	const { appName, pageName } = useParams();
 	const navigate = useNavigate();
 	const toast = useToast();
+
+	const { isPreview } = useAtomValue(appModeAtom);
 
 	const { isLoading: isLoadingState } = useInitializePageState(appName || '', pageName || '');
 
@@ -93,6 +96,27 @@ export const AppBuilder = () => {
 						<AlertDescription maxWidth="sm">{getErrorMessage(error)}</AlertDescription>
 					</Alert>
 				</Center>
+			</Stack>
+		);
+	}
+
+	if (isPreview) {
+		return (
+			<Stack spacing="0" h="full">
+				<AppNavbar isPreview />
+				<PanelGroup direction="horizontal">
+					<Panel defaultSize={80} minSize={10}>
+						<Loader isLoading={isLoading}>
+							<StackedTables />
+						</Loader>
+					</Panel>
+					<PanelHandle direction="vertical" />
+					<Panel minSize={10}>
+						<Loader isLoading={isLoading}>
+							<AppPreview />
+						</Loader>
+					</Panel>
+				</PanelGroup>
 			</Stack>
 		);
 	}
