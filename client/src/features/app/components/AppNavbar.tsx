@@ -271,8 +271,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 					</PermissionContainer>
 				</RestrictAppContainer>
 
-				{!isPreview ? <PromptButton resource="ui" /> : null}
-				{!isPreview ? <PromptButton resource="function" /> : null}
+				{!isPreview ? <PromptButton /> : null}
 
 				{permissions?.edit || isFreeApp() ? (
 					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>

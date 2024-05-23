@@ -1,5 +1,6 @@
 import {
 	Button,
+	ButtonGroup,
 	Modal,
 	ModalBody,
 	ModalContent,
@@ -7,11 +8,6 @@ import {
 	ModalHeader,
 	ModalOverlay,
 	Stack,
-	Tab,
-	TabList,
-	TabPanel,
-	TabPanels,
-	Tabs,
 	Text,
 } from '@chakra-ui/react';
 import { useState } from 'react';
@@ -29,6 +25,7 @@ import { PAGE_FILE_QUERY_KEY, useFile, useSaveCode } from '@/features/app-builde
 import { useSubmitPrompt } from '@/features/ai/hooks';
 import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
+import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 
 export const PromptModal = () => {
 	const toast = useToast();
@@ -40,16 +37,19 @@ export const PromptModal = () => {
 	useMonacoTheme(monaco);
 
 	const [tabIndex, setTabIndex] = useState(0);
-	const [updatedCode, setUpdatedCode] = useState('');
+	const [updatedCode, setUpdatedCode] = useState({
+		code: '',
+		prompt: '',
+	});
 
 	const methods = useForm();
 
 	const { watch } = methods;
 	const prompt = watch('prompt');
 
-	const [{ resource, name, block }, setPromptMeta] = useAtom(promptAtom);
+	const isUIPrompt = tabIndex === 0;
 
-	const isUIPrompt = resource === 'ui';
+	const [{ isOpen }, setPromptMeta] = useAtom(promptAtom);
 
 	const { code: originalCode, refetch } = useFile({
 		pageName,
@@ -57,17 +57,22 @@ export const PromptModal = () => {
 		fileName: 'main.py',
 	});
 
-	const handleCloseModal = () => {
-		setTabIndex(0);
+	const handleCloseModal = (reset?: any) => {
 		setPromptMeta({
-			name: null,
-			resource: null,
-			block: null,
+			isOpen: false,
 		});
-		methods.reset({
-			action: '',
-			prompt: '',
-		});
+
+		if (reset) {
+			setUpdatedCode({
+				code: '',
+				prompt: '',
+			});
+
+			methods.reset({
+				action: '',
+				prompt: '',
+			});
+		}
 	};
 
 	const savePythonMutation = useSaveCode({
@@ -78,6 +83,7 @@ export const PromptModal = () => {
 			});
 			refetch();
 			queryClient.invalidateQueries(PAGE_FILE_QUERY_KEY);
+			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 			handleCloseModal();
 		},
 		onError: (error: any) => {
@@ -97,25 +103,24 @@ export const PromptModal = () => {
 					title: 'Updated UI',
 				});
 			} else {
-				setUpdatedCode(data);
+				setUpdatedCode({ code: data, prompt });
 			}
 		},
 	});
 
+	const onSaveFile = () => {
+		savePythonMutation.mutate({
+			pageName,
+			appName,
+			fileName: 'main',
+			code: updatedCode.code,
+			fileType: 'python',
+			depends: [],
+		});
+	};
+
 	const onSubmit = async (formValues: any) => {
 		try {
-			if (tabIndex === 1 && !isUIPrompt) {
-				savePythonMutation.mutate({
-					pageName,
-					appName,
-					fileName: 'main',
-					code: updatedCode,
-					fileType: 'python',
-					depends: [],
-				});
-				return;
-			}
-
 			await mutation.mutateAsync({
 				prompt: formValues.prompt,
 				appName,
@@ -124,121 +129,131 @@ export const PromptModal = () => {
 			});
 
 			if (isUIPrompt) {
-				handleCloseModal();
-
-				refetch();
+				handleCloseModal(true);
 				queryClient.invalidateQueries(PAGE_FILE_QUERY_KEY);
-			} else if (tabIndex === 0) {
-				setTabIndex(1);
 			}
 		} catch (e) {
 			//
 		}
 	};
 
-	const handleBack = () => {
-		setTabIndex(0);
+	const handleEditorDidMount = (editor: any): any => {
+		const ed = editor.getModel().modified;
+		ed.onDidChangeContent(() => {
+			console.log(ed.getValue());
+			setUpdatedCode((old) => ({
+				...old,
+				code: ed.getValue(),
+			}));
+		});
 	};
 
-	if ((resource === 'ui') | (resource === 'function')) {
-		return (
-			<Modal isCentered size="5xl" isOpen onClose={handleCloseModal}>
-				<ModalOverlay />
-				<ModalContent>
-					<form onSubmit={methods.handleSubmit(onSubmit)}>
-						<FormProvider {...methods}>
-							<ModalHeader borderBottomWidth="1px">
-								<Stack spacing="0">
-									<Text fontSize="xl">Generate code for {name}</Text>
+	return (
+		<Modal size="5xl" isOpen={isOpen} onClose={handleCloseModal}>
+			<ModalOverlay />
+			<ModalContent>
+				<form onSubmit={methods.handleSubmit(onSubmit)}>
+					<FormProvider {...methods}>
+						<ModalHeader borderBottomWidth="1px">
+							<Stack spacing="0">
+								<Text fontSize="xl">Generate code</Text>
+							</Stack>
+						</ModalHeader>
+						<ModalBody p="0">
+							<Stack p="6" spacing="4">
+								<ButtonGroup isAttached size="sm" variant="outline">
+									<Button
+										onClick={() => {
+											setTabIndex(0);
+										}}
+										variant={isUIPrompt ? 'solid' : 'outline'}
+									>
+										UI
+									</Button>
+									<Button
+										onClick={() => {
+											setTabIndex(1);
+										}}
+										variant={!isUIPrompt ? 'solid' : 'outline'}
+									>
+										Function
+									</Button>
+								</ButtonGroup>
+
+								<Stack spacing="4">
+									<FormInput
+										autoFocus
+										name="Write prompt"
+										id="prompt"
+										type="textarea"
+									/>
 								</Stack>
-							</ModalHeader>
-							<ModalBody p="0">
-								<Tabs index={tabIndex}>
-									<TabList>
-										<Tab>Prompt Info</Tab>
-										{isUIPrompt ? null : (
-											<Tab isDisabled={!prompt}>Code Review</Tab>
-										)}
-									</TabList>
 
-									<TabPanels p="0">
-										<TabPanel>
-											<Stack spacing="4">
-												<FormInput
-													name="Write prompt"
-													id="prompt"
-													type="textarea"
-												/>
-											</Stack>
-										</TabPanel>
+								{updatedCode.prompt && updatedCode.code ? (
+									<MonacoDiffEditor
+										height="400px"
+										original={originalCode}
+										modified={updatedCode.code}
+										language="python"
+										onMount={handleEditorDidMount}
+										options={{
+											lineNumbers: 'off',
 
-										<TabPanel p="0">
-											<MonacoDiffEditor
-												height="400px"
-												original={originalCode}
-												modified={updatedCode}
-												language="python"
-												options={{
-													lineNumbers: 'off',
-
-													glyphMargin: false,
-													lightbulb: {
-														enabled: true,
-													},
-													overviewRulerBorder: false,
-													overviewRulerLanes: 0,
-													automaticLayout: true,
-													scrollBeyondLastLine: false,
-													minimap: {
-														enabled: false,
-													},
-													fontFamily: 'Fira Code',
-													fontSize: 12,
-													scrollbar: {
-														verticalHasArrows: true,
-														alwaysConsumeMouseWheel: false,
-														vertical: 'auto',
-														horizontal: 'auto',
-													},
-												}}
-											/>
-										</TabPanel>
-									</TabPanels>
-								</Tabs>
-
-								<ModalFooter p="2" borderTopWidth="1px">
-									<Stack direction="row">
-										{tabIndex === 1 ? (
-											<Button
-												size="sm"
-												onClick={handleBack}
-												variant="outline"
-												colorScheme="gray"
-											>
-												Back
-											</Button>
-										) : null}
-
+											glyphMargin: false,
+											lightbulb: {
+												enabled: true,
+											},
+											overviewRulerBorder: false,
+											overviewRulerLanes: 0,
+											automaticLayout: true,
+											scrollBeyondLastLine: false,
+											minimap: {
+												enabled: false,
+											},
+											fontFamily: 'Fira Code',
+											fontSize: 12,
+											scrollbar: {
+												verticalHasArrows: true,
+												alwaysConsumeMouseWheel: false,
+												vertical: 'auto',
+												horizontal: 'auto',
+											},
+										}}
+									/>
+								) : null}
+							</Stack>
+							<ModalFooter mt="2" borderTopWidth="1px" px="6">
+								<Stack direction="row">
+									{updatedCode.prompt === prompt ? (
+										<Button
+											size="sm"
+											isLoading={savePythonMutation.isLoading}
+											colorScheme="blue"
+											onClick={onSaveFile}
+										>
+											Approve Changes
+										</Button>
+									) : (
 										<Button
 											isDisabled={!prompt}
 											size="sm"
-											isLoading={
-												mutation.isLoading || savePythonMutation.isLoading
-											}
+											isLoading={mutation.isLoading}
 											colorScheme="blue"
 											type="submit"
 										>
-											{tabIndex === 1 ? 'Approve Changes' : 'Generate'}
+											{prompt &&
+											updatedCode.code &&
+											updatedCode.prompt !== prompt
+												? 'Regenerate'
+												: 'Generate'}
 										</Button>
-									</Stack>
-								</ModalFooter>
-							</ModalBody>
-						</FormProvider>
-					</form>
-				</ModalContent>
-			</Modal>
-		);
-	}
-
-	return null;
+									)}
+								</Stack>
+							</ModalFooter>
+						</ModalBody>
+					</FormProvider>
+				</form>
+			</ModalContent>
+		</Modal>
+	);
 };

@@ -1,13 +1,9 @@
 import { atom } from 'jotai';
 
 export type PromptType = {
-	resource: 'header' | 'footer' | 'widget' | 'table' | 'ui' | 'function' | null;
-	name?: string | null;
-	block?: string | null;
+	isOpen: boolean;
 };
 
 export const promptAtom = atom<PromptType>({
-	resource: null,
-	name: null,
-	block: null,
+	isOpen: false,
 });

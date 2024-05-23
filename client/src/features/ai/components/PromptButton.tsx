@@ -1,20 +1,21 @@
 import { IconButton } from '@chakra-ui/react';
 import { Aperture } from 'react-feather';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { PromptType, promptAtom } from '@/features/ai/atoms';
+import { promptAtom } from '@/features/ai/atoms';
 import { appModeAtom } from '@/features/app/atoms';
 
-export const PromptButton = ({ resource, name, block }: Omit<PromptType, 'prompt'>) => {
+export const PromptButton = () => {
 	const { isPreview } = useAtomValue(appModeAtom);
 	const setPrompt = useSetAtom(promptAtom);
 
 	const handleClick = () => {
 		setPrompt({
-			resource,
-			name,
-			block,
+			isOpen: true,
 		});
 	};
+
+	useHotkeys('ctrl+k, meta+k', handleClick);
 
 	if (isPreview) {
 		return null;
@@ -27,7 +28,7 @@ export const PromptButton = ({ resource, name, block }: Omit<PromptType, 'prompt
 			size="xs"
 			flexGrow="0"
 			variant="outline"
-			colorScheme={resource === 'function' ? 'blue' : 'yellow'}
+			colorScheme="yellow"
 			onClick={handleClick}
 		/>
 	);

@@ -54,7 +54,7 @@ export const AppComponent = (props: any) => {
 		}
 
 		return pageContext[tableName || '']?.[resource] || {};
-	}, [pageContext, resource, tableName, widgetName]);
+	}, [pageContext, resource, tableName, isWidget, widgetName]);
 
 	const inputState = useMemo(() => components?.[name] || {}, [components, name]);
 
@@ -140,7 +140,7 @@ export const AppComponent = (props: any) => {
 			}
 			return {};
 		},
-		[widgetName, resource, tableName, setInputValues],
+		[widgetName, resource, isWidget, tableName, setInputValues],
 	);
 
 	const handleComponentMethod = ({ action, state }: any) => {
