@@ -37,6 +37,7 @@ export const FreeDashboardRoutes = () => {
 						</DashboardLayout>
 					}
 				>
+					<Route index element={<Navigate to="/apps" />} />
 					<Route path="apps/*" element={<App />} />
 					{/* <Route path="settings/*" element={<SettingsRoutes />} /> */}
 					<Route path="*" element={<Navigate to="/apps" />} />

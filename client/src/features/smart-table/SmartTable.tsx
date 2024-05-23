@@ -260,6 +260,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 					action: ACTIONS.CLICK,
 					resource: tableName,
 					section: 'columns',
+					component: column.name,
 				});
 			}
 		}
@@ -1211,12 +1212,20 @@ export const SmartTable = ({ tableName, height }: any) => {
 										<Move size="14" />
 									</Box>
 								)}
-								<LabelContainer.Label>
-									{extractTemplateString(table?.label || tableName, pageState)}
-								</LabelContainer.Label>
-								{isPreview ? null : (
-									<LabelContainer.Code>{tableName}</LabelContainer.Code>
-								)}
+								<Stack direction="row">
+									<Stack spacing="0">
+										<LabelContainer.Label>
+											{extractTemplateString(
+												table?.label || tableName,
+												pageState,
+											)}
+										</LabelContainer.Label>
+
+										{isPreview ? null : (
+											<LabelContainer.Code>{tableName}</LabelContainer.Code>
+										)}
+									</Stack>
+								</Stack>
 
 								{table?.smart && !isPreview ? (
 									<Box

@@ -36,6 +36,7 @@ import { LabelContainer } from '@/components/LabelContainer';
 import { ShareModal } from './ShareModal';
 import { PermissionContainer } from '@/container/components/PermissionContainer';
 import { RestrictAppContainer } from '@/container/components/RestrictAppContainer';
+import { PromptButton } from '@/features/ai';
 
 export const AppNavbar = ({ isPreview }: any) => {
 	const toast = useToast();
@@ -90,8 +91,7 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const handleUpdate = () => {
 		if (app) {
 			updateMutation.mutate({
-				// FIXME: fix appId
-				appId: app.id,
+				appName,
 				newLabel: label,
 			});
 		}
@@ -270,6 +270,8 @@ export const AppNavbar = ({ isPreview }: any) => {
 						</Button>
 					</PermissionContainer>
 				</RestrictAppContainer>
+
+				{!isPreview ? <PromptButton /> : null}
 
 				{permissions?.edit || isFreeApp() ? (
 					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>

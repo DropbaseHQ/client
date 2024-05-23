@@ -27,6 +27,8 @@ import { inspectedResourceAtom } from './atoms';
 import { BuilderSidebar } from './components/Sidebar';
 import { FileContent } from './components/FilesExplorer/FileContent';
 import { useInitializePageState } from '@/features/app-state';
+
+import { PromptModal } from '@/features/ai';
 import { getErrorMessage, isFreeApp } from '@/utils';
 import { appModeAtom } from '@/features/app/atoms';
 
@@ -178,6 +180,7 @@ export const AppBuilder = () => {
 				</PanelGroup>
 			</Box>
 			<WorkerDisconnected />
+			<PromptModal />
 		</Stack>
 	);
 };

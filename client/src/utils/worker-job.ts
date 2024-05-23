@@ -7,7 +7,7 @@ export const fetchJobStatus = async (jobId: any) => {
 	while (true) {
 		if (counter) {
 			// eslint-disable-next-line no-await-in-loop
-			await wait(getDelayInterval(counter) * 1000);
+			await wait(getDelayInterval(counter) * 100);
 		}
 		// eslint-disable-next-line no-await-in-loop
 		const previewResponse = await workerAxios.get<any>(`/status/${jobId}`);
