@@ -218,15 +218,12 @@ export const useRunSQLQuery = (props: any = {}) => {
 	});
 };
 
-const saveSql = async ({ pageName, appName, fileType, fileName, code, source, depends }: any) => {
-	const response = await workerAxios.put(`files/${fileName}`, {
+const saveCode = async ({ pageName, appName, fileType, fileName, code }: any) => {
+	const response = await workerAxios.put(`files/main/`, {
 		page_name: pageName,
 		app_name: appName,
-		file_name: fileName,
+		file_name: `${fileName}.${fileType === 'python' ? 'py' : fileType}`,
 		code,
-		source,
-		type: fileType,
-		depends_on: depends,
 	});
 
 	return response.data;
@@ -234,7 +231,7 @@ const saveSql = async ({ pageName, appName, fileType, fileName, code, source, de
 
 export const useSaveCode = (props: any = {}) => {
 	const queryClient = useQueryClient();
-	return useMutation(saveSql, {
+	return useMutation(saveCode, {
 		onSettled: (_, __, variables: any) => {
 			queryClient.invalidateQueries(TABLE_QUERY_KEY);
 			queryClient.invalidateQueries([TABLE_DATA_QUERY_KEY, variables?.fileName]);

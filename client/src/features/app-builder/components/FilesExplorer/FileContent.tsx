@@ -9,14 +9,13 @@ import { useMonacoLoader } from '@/components/Editor';
 import { developerTabAtom } from '@/features/app-builder/atoms';
 
 import { FunctionEditor } from './FunctionEditor';
-import { SQLEditor } from './SQLEditor';
+import { CodeEditor } from './CodeEditor';
 import { useGetPage } from '@/features/page';
 import { FunctionTerminal } from './FunctionTerminal';
 import { PanelHandle } from '@/components/Panel';
 
 const componentsMap: any = {
-	function: FunctionEditor,
-	sql: SQLEditor,
+	python: FunctionEditor,
 };
 
 export const FileContent = () => {
@@ -41,7 +40,7 @@ export const FileContent = () => {
 		);
 	}
 
-	const Component = componentsMap[devTab.type];
+	const Component = componentsMap[devTab.type] || CodeEditor;
 
 	return (
 		<PanelGroup direction="vertical">

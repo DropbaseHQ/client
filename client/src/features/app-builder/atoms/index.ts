@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 
 export const developerTabAtom = atom<any>({
-	type: 'function',
+	type: 'python',
 	id: 'main',
 });
 
