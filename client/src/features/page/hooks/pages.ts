@@ -69,6 +69,10 @@ export const useGetPage = ({ appName, pageName, ...props }: any) => {
 					name: 'main',
 					type: 'python',
 				},
+				{
+					name: 'properties',
+					type: 'json',
+				},
 			],
 			properties: allProperties,
 			permissions: response?.permissions || {

@@ -1376,7 +1376,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 								<Text color="red.500" fontWeight="medium" fontSize="lg">
 									Failed to load data
 								</Text>
-								<Text fontSize="md">{getErrorMessage(errorMessage)}</Text>
+								<Text fontSize="md">{errorMessage}</Text>
 							</Center>
 						) : (
 							<>

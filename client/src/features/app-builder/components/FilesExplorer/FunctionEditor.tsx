@@ -146,7 +146,6 @@ export const FunctionEditor = ({ name }: any) => {
 			fileName: name,
 			code: updatedCode,
 			fileType: file?.type,
-			depends: [],
 		});
 	};
 
@@ -219,6 +218,7 @@ export const FunctionEditor = ({ name }: any) => {
 						w="fit-content"
 						onClick={refetchColumns}
 						variant="outline"
+						isLoading={savePythonMutation.isLoading}
 						colorScheme="gray"
 						size="sm"
 						isDisabled={code === updatedCode}

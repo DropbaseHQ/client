@@ -13,7 +13,7 @@ import {
 	Center,
 	Link,
 } from '@chakra-ui/react';
-import { Code, Table, Box as BoxIcon, Edit2, Check, X, Plus } from 'react-feather';
+import { Code, Table, Box as BoxIcon, Edit2, Check, X, Plus, FileText } from 'react-feather';
 import { useParams } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -39,13 +39,13 @@ const FileButton = ({ file }: any) => {
 
 	const { isOpen: isEdit, onClose: onEditClose, onOpen: onEditOpen } = useDisclosure();
 
-	const isSQLFile = file.type === 'sql';
-	const fileName = `${file.name}${isSQLFile ? '.sql' : '.py'}`;
+	const isPythonFile = file.type === 'python';
+	const fileName = `${file.name}${isPythonFile ? '.py' : `${file.type}`}`;
 	const isActive = file.name === devTab.id;
 
 	const [newFileName, setNewFileName] = useState(file.name);
 
-	const colorScheme = isSQLFile ? 'teal' : 'purple';
+	const colorScheme = isPythonFile ? 'purple' : 'teal';
 
 	let icon = Code;
 
@@ -53,6 +53,11 @@ const FileButton = ({ file }: any) => {
 		case 'sql':
 			icon = Table;
 			break;
+
+		case 'json':
+			icon = FileText;
+			break;
+
 		case 'python':
 			icon = BoxIcon;
 			break;
@@ -136,7 +141,7 @@ const FileButton = ({ file }: any) => {
 			color={isActive ? 'gray.900' : 'gray.700'}
 			onClick={() => {
 				setDevTab({
-					type: isSQLFile ? 'sql' : 'function',
+					type: file.type,
 					id: file.name,
 				});
 			}}
@@ -201,7 +206,7 @@ const FileButton = ({ file }: any) => {
 						{file.name}
 					</Box>
 					<Box fontSize="2xs" px="1" borderRadius="sm" bg={`${colorScheme}.200`}>
-						{isSQLFile ? '.sql' : '.py'}
+						{isPythonFile ? '.py' : file.type}
 					</Box>
 
 					<Spacer />

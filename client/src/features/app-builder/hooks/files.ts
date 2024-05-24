@@ -84,7 +84,7 @@ export const usePageFiles = ({ pageName, appName }: { pageName: string; appName:
 
 const fetchFile = async ({ fileName, appName, pageName }: any) => {
 	const response = await workerAxios.get<string>(
-		`/workspace/${appName}/${pageName}/scripts/${fileName}/`,
+		`/workspace/${appName}/${pageName}/${fileName}/`,
 	);
 
 	return response.data;
