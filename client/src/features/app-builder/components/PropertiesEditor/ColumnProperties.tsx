@@ -469,7 +469,7 @@ const ColumnProperty = ({
 														name={property?.title}
 														keys={
 															key === 'options'
-																? ['name', 'value']
+																? ['label', 'value']
 																: null
 														}
 														options={(
@@ -477,7 +477,7 @@ const ColumnProperty = ({
 															property?.options ||
 															[]
 														).map((o: any) => ({
-															name: o,
+															label: o,
 															value: o,
 														}))}
 														required={isRequired}

@@ -137,7 +137,6 @@ export const SmartTable = ({ tableName, height }: any) => {
 		header,
 		refetch,
 		isRefetching,
-		tableError,
 		error,
 		remove: removeQuery,
 	} = useCurrentTableData(tableName);

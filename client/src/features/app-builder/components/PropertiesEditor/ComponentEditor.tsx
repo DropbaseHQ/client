@@ -415,6 +415,7 @@ export const ComponentPropertyEditor = () => {
 														[]
 													).map((o: any) => ({
 														name: o,
+														label: o,
 														value: o,
 													}))}
 													key={property.name}

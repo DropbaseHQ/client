@@ -146,8 +146,8 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 				placeholder={inputProps?.placeholder || 'Select option'}
 			>
 				{(selectOptions || []).map((option: any) => (
-					<option key={option.name} value={option.value}>
-						{option.name}
+					<option key={option.name || option.label} value={option.value}>
+						{option.name || option.label}
 					</option>
 				))}
 			</Select>
@@ -264,7 +264,7 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 
 	if (type === 'array') {
 		const optionsToRender = value || [];
-		const keysToRender = keys || ['name', 'value'];
+		const keysToRender = keys || ['label', 'value'];
 
 		return (
 			<Stack spacing="2">

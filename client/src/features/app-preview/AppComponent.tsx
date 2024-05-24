@@ -299,7 +299,7 @@ export const AppComponent = (props: any) => {
 								state: newWidgetState,
 							});
 						}}
-						options={inputState?.options || component?.options}
+						options={inputState?.options || component?.options || []}
 					/>
 					{mutation.isLoading ? <Progress isIndeterminate isAnimated size="xs" /> : null}
 				</Stack>
