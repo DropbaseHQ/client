@@ -9,6 +9,8 @@ import { hasSelectedRowAtom } from '../atoms';
 import { executeAction } from '@/features/app-preview/hooks';
 import { ACTIONS } from '@/constant';
 import { DEFAULT_PAGE_SIZE } from '@/features/smart-table/constants';
+import { useToast } from '@/lib/chakra-ui';
+import { getErrorMessage } from '@/utils';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 export const FUNCTION_DATA_QUERY_KEY = 'functionData';
@@ -108,6 +110,7 @@ export const useTableData = ({
 	];
 
 	const syncState = useSyncState();
+	const toast = useToast();
 
 	const { data: response, ...rest } = useQuery(
 		queryKey,
@@ -140,7 +143,12 @@ export const useTableData = ({
 			onSuccess: (data: any) => {
 				syncState(data);
 			},
-			onError: () => {
+			onError: (error: any) => {
+				toast({
+					status: 'error',
+					title: getErrorMessage(error),
+					description: error?.response?.data?.traceback,
+				});
 				/**
 				 * Reset selected row of the current table, and all the tables
 				 * which depends on the current table.
