@@ -17,6 +17,7 @@ import { DiffEditor as MonacoDiffEditor, useMonaco } from '@monaco-editor/react'
 
 import { useParams } from 'react-router-dom';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { useAtom } from 'jotai';
 import { promptAtom } from '@/features/ai/atoms';
 import { FormInput } from '@/components/FormInput';
@@ -119,10 +120,10 @@ export const PromptModal = () => {
 		});
 	};
 
-	const onSubmit = async (formValues: any) => {
+	const onSubmit = async () => {
 		try {
 			await mutation.mutateAsync({
-				prompt: formValues.prompt,
+				prompt,
 				appName,
 				pageName,
 				type: isUIPrompt ? 'ui' : 'function',
@@ -140,13 +141,14 @@ export const PromptModal = () => {
 	const handleEditorDidMount = (editor: any): any => {
 		const ed = editor.getModel().modified;
 		ed.onDidChangeContent(() => {
-			console.log(ed.getValue());
 			setUpdatedCode((old) => ({
 				...old,
 				code: ed.getValue(),
 			}));
 		});
 	};
+
+	useHotkeys('ctrl+enter, meta+enter', onSubmit);
 
 	return (
 		<Modal size="5xl" isOpen={isOpen} onClose={handleCloseModal}>
