@@ -65,7 +65,7 @@ export const DeleteRowButton = ({ row }: any) => {
 					<Button
 						isLoading={mutation.isLoading}
 						leftIcon={<Trash size="14" />}
-						size="sm"
+						size="xs"
 						variant="outline"
 						colorScheme="red"
 						onClick={onToggle}
