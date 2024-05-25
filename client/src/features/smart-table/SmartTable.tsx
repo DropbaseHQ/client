@@ -336,6 +336,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 	}, [currentTableContext, removeQuery, setPageContext, tableName, refetch]);
 
 	useEffect(() => {
+		console.log('selected row!');
 		const selectedIndex = rows.findIndex(
 			(r: any) => JSON.stringify(r) === JSON.stringify(selectedRow),
 		);
@@ -1053,6 +1054,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 		let newState = {};
 
 		setPageState((old: any) => {
+			console.log('resetting selected row');
 			newState = {
 				...old,
 				[tableName]: {
@@ -1061,7 +1063,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 				},
 			};
 
-			return { ...old, ...newSelectedRow };
+			return newState;
 		});
 
 		setTableRowSelection((curr: any) => ({
