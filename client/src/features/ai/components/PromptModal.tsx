@@ -110,7 +110,7 @@ export const PromptModal = () => {
 		},
 	});
 
-	const onSaveFile = (newCode: any) => {
+	const onSaveFile = (newCode?: any) => {
 		savePythonMutation.mutate({
 			pageName,
 			appName,
@@ -248,7 +248,7 @@ export const PromptModal = () => {
 											size="sm"
 											isLoading={savePythonMutation.isLoading}
 											colorScheme="blue"
-											onClick={onSaveFile}
+											onClick={() => onSaveFile()}
 										>
 											Approve Changes
 										</Button>
