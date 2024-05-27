@@ -179,6 +179,10 @@ export const PromptModal = () => {
 									<Button
 										onClick={() => {
 											setTabIndex(0);
+											setUpdatedCode({
+												code: '',
+												prompt: '',
+											});
 										}}
 										variant={isUIPrompt ? 'solid' : 'outline'}
 									>
@@ -204,7 +208,7 @@ export const PromptModal = () => {
 									/>
 								</Stack>
 
-								{updatedCode.prompt && updatedCode.code ? (
+								{updatedCode.prompt && updatedCode.code && !isUIPrompt ? (
 									<MonacoDiffEditor
 										height="400px"
 										original={originalCode}
