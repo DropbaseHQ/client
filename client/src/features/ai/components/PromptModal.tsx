@@ -11,6 +11,7 @@ import {
 	Text,
 } from '@chakra-ui/react';
 import { useState } from 'react';
+import * as monacoLib from 'monaco-editor';
 
 import { useQueryClient } from 'react-query';
 import { DiffEditor as MonacoDiffEditor, useMonaco } from '@monaco-editor/react';
@@ -109,12 +110,12 @@ export const PromptModal = () => {
 		},
 	});
 
-	const onSaveFile = () => {
+	const onSaveFile = (newCode: any) => {
 		savePythonMutation.mutate({
 			pageName,
 			appName,
 			fileName: 'main',
-			code: updatedCode.code,
+			code: newCode || updatedCode.code,
 			fileType: 'python',
 			depends: [],
 		});
@@ -138,6 +139,12 @@ export const PromptModal = () => {
 		}
 	};
 
+	const handleKeyDown = (e: any) => {
+		if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+			onSubmit();
+		}
+	};
+
 	const handleEditorDidMount = (editor: any): any => {
 		const ed = editor.getModel().modified;
 		ed.onDidChangeContent(() => {
@@ -145,6 +152,11 @@ export const PromptModal = () => {
 				...old,
 				code: ed.getValue(),
 			}));
+		});
+
+		// eslint-disable-next-line
+		editor.addCommand(monacoLib.KeyMod.CtrlCmd | monacoLib.KeyCode.Enter, () => {
+			onSaveFile(ed.getValue());
 		});
 	};
 
@@ -187,6 +199,7 @@ export const PromptModal = () => {
 										autoFocus
 										name="Write prompt"
 										id="prompt"
+										onKeyDown={handleKeyDown}
 										type="textarea"
 									/>
 								</Stack>
