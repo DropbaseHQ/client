@@ -9,12 +9,6 @@ export const workerAxios = Axios.create({
 
 if (localStorage.getItem('access_token')) {
 	workerAxios.defaults.headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
-
-	// if (!isFreeApp()) {
-	// 	workerAxios.defaults.headers.Authorization = `Bearer ${localStorage.getItem(
-	// 		'access_token',
-	// 	)}`;
-	// }
 }
 
 export const setWorkerAxiosToken = (token: string | null) => {
@@ -24,10 +18,6 @@ export const setWorkerAxiosToken = (token: string | null) => {
 export const setWorkerAxiosBaseURL = (url: string) => {
 	workerAxios.defaults.baseURL = url;
 };
-
-// export const setWorkerAxiosToken = (token: string | null) => {
-// 	workerAxios.defaults.headers['access-token'] = token;
-// };
 
 const redirectToLogin = () => {
 	if (

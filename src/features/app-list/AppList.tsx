@@ -23,7 +23,7 @@ import {
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Layout, MoreVertical, Trash, PlusCircle } from 'react-feather';
+import { Layout, MoreVertical, Trash } from 'react-feather';
 import { useEffect } from 'react';
 import { useStatus } from '@/layout/StatusBar';
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
@@ -33,28 +33,12 @@ import { FormInput } from '@/components/FormInput';
 import { useDeleteApp } from '@/features/app-list/hooks/useDeleteApp';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
-import { useSyncApp } from './hooks/useSyncApp';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const methods = useForm();
 	const navigate = useNavigate();
-	const syncAppMutation = useSyncApp({
-		onSuccess: () => {
-			toast({
-				status: 'success',
-				title: 'App synced',
-			});
-		},
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to sync app',
-				description: getErrorMessage(error),
-			});
-		},
-	});
 
 	const deleteMutation = useDeleteApp({
 		onSuccess: () => {
@@ -75,9 +59,6 @@ const AppCard = ({ app }: { app: AppType }) => {
 
 	const handleClick = () => {
 		navigate(`/apps/${app.name}/${app?.pages?.[0]?.name}`);
-	};
-	const handleSyncApp = (generateNew: boolean) => {
-		syncAppMutation.mutate({ appName: app.name, generateNew });
 	};
 
 	const onSubmit = () => {
@@ -161,20 +142,6 @@ const AppCard = ({ app }: { app: AppType }) => {
 							<Box>Delete App</Box>
 						</Stack>
 					</MenuItem>
-
-					{app?.status === 'ID_NOT_FOUND_BUT_NAME_FOUND' && (
-						<MenuItem
-							onClick={(e) => {
-								e.stopPropagation();
-								handleSyncApp(false);
-							}}
-						>
-							<Stack alignItems="center" direction="row" fontSize="md">
-								<PlusCircle size="14" />
-								<Box>Sync an Existing App</Box>
-							</Stack>
-						</MenuItem>
-					)}
 				</MenuList>
 			</Menu>
 

@@ -1,7 +1,7 @@
 import useWebSocket from 'react-use-websocket';
 import { useSetAtom } from 'jotai';
 import { Route, Routes } from 'react-router-dom';
-import { useGetWebSocketURL, useSetAxiosToken } from '@/features/authorization/hooks/useLogin';
+import { useGetWebSocketURL } from '@/features/authorization/hooks/useLogin';
 import { websocketStatusAtom } from '@/features/app/atoms';
 
 import { DashboardRoutes } from './DashboardRoutes';
@@ -13,8 +13,6 @@ import { WorkerDisconnected } from '@/features/app-builder/components/WorkerDisc
 
 export const WorkerDashboardRoutes = () => {
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
-
-	useSetAxiosToken();
 
 	const websocketURL = useGetWebSocketURL();
 
