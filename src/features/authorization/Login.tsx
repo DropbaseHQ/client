@@ -21,9 +21,8 @@ import { GoogleLogin } from '@react-oauth/google';
 import { useLogin, useGoogleLogin } from './hooks/useLogin';
 
 import { useToast } from '@/lib/chakra-ui';
-import { workspaceAtom } from '@/features/workspaces';
 import { onboardingAtom } from '@/features/authorization';
-import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setWorkerAxiosToken } from '@/lib/axios';
+import { workerAxios, setWorkerAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '../../utils';
 
 type FormValues = {
@@ -37,7 +36,6 @@ export const Login = () => {
 	const queryClient = useQueryClient();
 	const [searchParams] = useSearchParams();
 
-	const updateWorkspace = useSetAtom(workspaceAtom);
 	const updateOnboardingStatus = useSetAtom(onboardingAtom);
 
 	const {
@@ -66,9 +64,6 @@ export const Login = () => {
 			localStorage.setItem('access_token', data?.access_token);
 			localStorage.setItem('refresh_token', data?.refresh_token);
 			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
-
-			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
-			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
 			updateOnboardingStatus(data?.onboarding || false);
 			navigate('/apps');
 		},
@@ -95,8 +90,6 @@ export const Login = () => {
 			localStorage.setItem('access_token', data?.access_token);
 			localStorage.setItem('refresh_token', data?.refresh_token);
 
-			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
-			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
 			updateOnboardingStatus(data?.onboarding || false);
 			navigate('/apps');
 		},

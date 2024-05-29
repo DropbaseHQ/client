@@ -20,9 +20,6 @@ if (localStorage.getItem('access_token')) {
 export const setWorkerAxiosToken = (token: string | null) => {
 	workerAxios.defaults.headers.Authorization = token ? `Bearer ${token}` : null;
 };
-export const setWorkerAxiosWorkspaceIdHeader = (workspaceId: string) => {
-	workerAxios.defaults.headers['workspace-id'] = workspaceId;
-};
 
 export const setWorkerAxiosBaseURL = (url: string) => {
 	workerAxios.defaults.baseURL = url;

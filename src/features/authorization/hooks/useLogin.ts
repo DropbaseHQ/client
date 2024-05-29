@@ -1,10 +1,8 @@
 import { useMutation } from 'react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useAtomValue } from 'jotai';
 import { MutationConfig } from '@/lib/react-query';
-import { workspaceAtom } from '@/features/workspaces';
-import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setWorkerAxiosToken } from '@/lib/axios';
+import { workerAxios, setWorkerAxiosToken } from '@/lib/axios';
 import { getWebSocketURL, getLSPURL } from '@/utils/url';
 
 export type LoginResponse = {
@@ -44,8 +42,6 @@ export const useGoogleLogin = (mutationConfig: MutationConfig<typeof loginGoogle
 
 export const useSetAxiosToken = () => {
 	const navigate = useNavigate();
-	const selectedWorkspace = useAtomValue(workspaceAtom);
-	const workspaceId = selectedWorkspace?.id;
 	const { pathname } = useLocation();
 
 	const loginRoutes =
@@ -80,21 +76,10 @@ export const useSetAxiosToken = () => {
 		};
 
 		fetchData();
-		setWorkerAxiosWorkspaceIdHeader(workspaceId || '');
-	}, [navigate, workspaceId, loginRoutes]);
+	}, [navigate, loginRoutes]);
 };
 
 export const useGetWebSocketURL = () => {
-	// const { urlMappings } = useURLMappings();
-	// const setActiveMapping = useSetAtom(activeURLMappingAtom);
-
-	// const matchingURL = urlMappings.find(urlMatcher);
-
-	// if (matchingURL) {
-	// 	setActiveMapping(matchingURL);
-	// 	return `${getWS()}://${matchingURL.worker_url}/ws`;
-	// }
-
 	return getWebSocketURL();
 };
 

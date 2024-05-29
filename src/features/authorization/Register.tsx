@@ -20,11 +20,10 @@ import { GoogleLogin } from '@react-oauth/google';
 
 import { useGoogleRegister, useRegister } from './hooks/useRegister';
 import { useToast } from '@/lib/chakra-ui';
-import { workerAxios, setWorkerAxiosWorkspaceIdHeader, setWorkerAxiosToken } from '@/lib/axios';
+import { workerAxios, setWorkerAxiosToken } from '@/lib/axios';
 import { getErrorMessage } from '@/utils';
 import { onboardingAtom } from '@/features/authorization';
 import { showConfirmationAtom } from './atoms';
-import { workspaceAtom } from '@/features/workspaces';
 
 type FormValues = {
 	email: string;
@@ -43,7 +42,6 @@ export const Register = () => {
 	const queryClient = useQueryClient();
 
 	const toast = useToast();
-	const updateWorkspace = useSetAtom(workspaceAtom);
 	const updateOnboardingStatus = useSetAtom(onboardingAtom);
 
 	const { mutate: googleMutate } = useGoogleRegister({
@@ -62,8 +60,6 @@ export const Register = () => {
 			localStorage.setItem('refresh_token', data?.refresh_token);
 			workerAxios.defaults.headers.common['access-token'] = data?.access_token;
 
-			updateWorkspace((prev) => ({ ...prev, id: data?.workspace?.id }));
-			setWorkerAxiosWorkspaceIdHeader(data?.workspace?.id);
 			toast({
 				title: 'Registered successfully',
 				status: 'success',

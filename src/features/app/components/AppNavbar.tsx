@@ -33,7 +33,6 @@ import { useCreatePage, useGetPage } from '@/features/page';
 import { getErrorMessage, generateSequentialName, isFreeApp } from '@/utils';
 import { PageTab } from './PageTab';
 import { LabelContainer } from '@/components/LabelContainer';
-import { ShareModal } from './ShareModal';
 import { PermissionContainer } from '@/container/components/PermissionContainer';
 import { RestrictAppContainer } from '@/container/components/RestrictAppContainer';
 import { PromptButton } from '@/features/ai';
@@ -292,9 +291,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 					</Tooltip>
 				) : null}
 			</Stack>
-			<RestrictAppContainer>
-				<ShareModal isOpen={shareIsOpen} onClose={shareOnClose} />
-			</RestrictAppContainer>
 		</Stack>
 	);
 };

@@ -5,15 +5,13 @@ import { Link, useLocation } from 'react-router-dom';
 import { useLogout } from '@/features/authorization/hooks/useLogout';
 import { DropbaseLogo } from '@/components/Logo';
 import { isFreeApp, isProductionApp } from '../utils';
-import { useWorkspaces } from '@/features/workspaces';
 import { RestrictAppContainer } from '@/container/components/RestrictAppContainer';
 
 export const Navbar = () => {
 	const { pathname } = useLocation();
 	const { mutate: logout } = useLogout();
-	const { workspaces } = useWorkspaces();
 
-	const hasWorkspaces = isFreeApp() || workspaces.length > 0;
+	const hasWorkspaces = isFreeApp();
 
 	const handleLogout = () => {
 		logout();

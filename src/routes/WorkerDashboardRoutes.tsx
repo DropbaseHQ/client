@@ -6,7 +6,6 @@ import { websocketStatusAtom } from '@/features/app/atoms';
 
 import { DashboardRoutes } from './DashboardRoutes';
 
-import { Workspaces } from '@/features/workspaces';
 import { App } from '@/features/app';
 import { ProtectedRoutes } from '@/features/authorization/AuthContainer';
 import { SettingsRoutes } from '@/features/settings/SettingsRoutes';
@@ -34,7 +33,6 @@ export const WorkerDashboardRoutes = () => {
 
 	const children = (
 		<>
-			<Route path="workspaces" element={<Workspaces />} />
 			<Route path="apps/*" element={<App />} />
 			<Route path="settings/*" element={<SettingsRoutes />} />
 		</>
