@@ -302,7 +302,6 @@ export const SmartTable = ({ tableName, height }: any) => {
 			toast({
 				status: 'error',
 				title: getErrorMessage(error),
-				description: error?.response?.data?.traceback,
 			});
 		}
 	}, [error, toast]);

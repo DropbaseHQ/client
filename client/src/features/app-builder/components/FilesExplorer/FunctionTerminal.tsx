@@ -188,50 +188,54 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 
 	return (
 		<Stack w="full" h="full" spacing="1">
-			<Stack bg="gray.50" px="2" py="1" borderBottomWidth="1px">
-				<Text fontWeight="medium" fontSize="sm">
-					Test Code
-				</Text>
-			</Stack>
-			<Stack
-				borderBottomWidth="1px"
-				bg="white"
-				pb="3"
-				spacing="0"
-				alignItems="start"
-				direction="row"
-				mb={0}
-			>
-				<IconButton
-					icon={<Play size="12" />}
-					mx="1"
-					aria-label="Run function"
-					size="2xs"
-					mt="2"
-					flexShrink="0"
-					colorScheme="gray"
-					variant="outline"
-					borderRadius="md"
-					isLoading={isLoading}
-					onClick={handleRunPythonFunction}
-					isDisabled={file?.type === 'sql' ? !(code && source) : !testCode}
-				/>
+			{file?.type === 'python' ? (
+				<>
+					<Stack bg="gray.50" px="2" py="1" borderBottomWidth="1px">
+						<Text fontWeight="medium" fontSize="sm">
+							Test Code
+						</Text>
+					</Stack>
+					<Stack
+						borderBottomWidth="1px"
+						bg="white"
+						pb="3"
+						spacing="0"
+						alignItems="start"
+						direction="row"
+						mb={0}
+					>
+						<IconButton
+							icon={<Play size="12" />}
+							mx="1"
+							aria-label="Run function"
+							size="2xs"
+							mt="2"
+							flexShrink="0"
+							colorScheme="gray"
+							variant="outline"
+							borderRadius="md"
+							isLoading={isLoading}
+							onClick={handleRunPythonFunction}
+							isDisabled={file?.type === 'sql' ? !(code && source) : !testCode}
+						/>
 
-				{file?.type === 'sql' ? (
-					<Text py="1" px="4" color="gray.700" fontSize="sm" mt="2">
-						Click play to see query results
-					</Text>
-				) : (
-					<MonacoEditor
-						value={testCode}
-						onChange={setTestCode}
-						language="python"
-						path={`${MODEL_SCHEME}:${MODEL_PATH}`}
-						onMount={handleTestCodeMount}
-						height={testCodeHeight}
-					/>
-				)}
-			</Stack>
+						{file?.type === 'sql' ? (
+							<Text py="1" px="4" color="gray.700" fontSize="sm" mt="2">
+								Click play to see query results
+							</Text>
+						) : (
+							<MonacoEditor
+								value={testCode}
+								onChange={setTestCode}
+								language="python"
+								path={`${MODEL_SCHEME}:${MODEL_PATH}`}
+								onMount={handleTestCodeMount}
+								height={testCodeHeight}
+							/>
+						)}
+					</Stack>
+				</>
+			) : null}
 
 			<Stack h="full" overflowY="auto">
 				{log ? (
