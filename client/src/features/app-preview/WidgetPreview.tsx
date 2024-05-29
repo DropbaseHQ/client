@@ -1,10 +1,11 @@
 import { Box, CloseButton, Progress, Stack } from '@chakra-ui/react';
 
+import { Move } from 'react-feather';
 import { useParams } from 'react-router-dom';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
-import { pageContextAtom } from '@/features/app-state';
+import { pageContextAtom, pageStateContextAtom } from '@/features/app-state';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
@@ -14,6 +15,9 @@ import { Notification } from '@/features/app-preview/components/Notification';
 import { MirrorTableColumns } from '@/features/app-builder/components/PropertiesEditor/MirrorTableColumnInputs';
 import { ComponentsList } from '@/features/app-preview/ComponentsList';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/NewComponent';
+import { LabelContainer } from '@/components/LabelContainer';
+import { appModeAtom } from '@/features/app/atoms';
+import { extractTemplateString } from '@/utils';
 
 export const WidgetPreview = ({ widgetName }: any) => {
 	const { appName, pageName } = useParams();
@@ -23,17 +27,19 @@ export const WidgetPreview = ({ widgetName }: any) => {
 		pageName,
 	});
 
-	const widget = widgets?.find((w: any) => w.name === widgetName);
+	const { properties } = useGetPage({ appName, pageName });
 
+	const { isPreview } = useAtomValue(appModeAtom);
+
+	const widget = widgets?.find((w: any) => w.name === widgetName);
 	const isModal = widget?.type === 'modal';
 
 	const { isLoading, components } = useGetWidgetPreview(widgetName || '');
-
 	const updateMutation = useUpdatePageData();
 
-	const [allWidgetContext, setWidgetContext]: any = useAtom(pageContextAtom);
+	const pageStateContext = useAtomValue(pageStateContextAtom);
 
-	const { properties } = useGetPage({ appName, pageName });
+	const [allWidgetContext, setWidgetContext]: any = useAtom(pageContextAtom);
 
 	const reorderMutation = useReorderComponents();
 
@@ -123,6 +129,38 @@ export const WidgetPreview = ({ widgetName }: any) => {
 				{...containerStyles}
 				bg="white"
 			>
+				<LabelContainer>
+					{isPreview ? null : (
+						<Box
+							_hover={{
+								color: 'gray.800',
+								borderColor: 'gray.50',
+							}}
+							borderWidth="1px"
+							borderColor="transparent"
+							borderRadius="sm"
+							cursor="grab"
+							className="react-grid-drag-handle"
+						>
+							<Move size="14" />
+						</Box>
+					)}
+					<Stack direction="row">
+						<Stack spacing="0">
+							<LabelContainer.Label>
+								{extractTemplateString(
+									widget.label || widgetName,
+									pageStateContext,
+								)}
+							</LabelContainer.Label>
+
+							{isPreview ? null : (
+								<LabelContainer.Code>{widgetName}</LabelContainer.Code>
+							)}
+						</Stack>
+					</Stack>
+				</LabelContainer>
+
 				{showModalStyles ? (
 					<CloseButton
 						bg="white"

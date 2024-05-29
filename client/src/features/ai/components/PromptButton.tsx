@@ -25,7 +25,7 @@ export const PromptButton = () => {
 		<IconButton
 			aria-label="Open AI Prompt"
 			icon={<Aperture size="16" />}
-			size="xs"
+			size="sm"
 			flexGrow="0"
 			variant="outline"
 			colorScheme="yellow"
