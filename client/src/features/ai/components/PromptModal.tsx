@@ -87,6 +87,7 @@ export const PromptModal = () => {
 			queryClient.invalidateQueries(PAGE_FILE_QUERY_KEY);
 			queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
 			handleCloseModal();
+			setUpdatedCode((old) => ({ ...old, code: '' }));
 		},
 		onError: (error: any) => {
 			toast({
@@ -243,7 +244,10 @@ export const PromptModal = () => {
 							</Stack>
 							<ModalFooter mt="2" borderTopWidth="1px" px="6">
 								<Stack direction="row">
-									{updatedCode.prompt === prompt ? (
+									{!isUIPrompt &&
+									updatedCode.code &&
+									updatedCode.prompt &&
+									updatedCode.prompt === prompt ? (
 										<Button
 											size="sm"
 											isLoading={savePythonMutation.isLoading}
@@ -260,8 +264,8 @@ export const PromptModal = () => {
 											colorScheme="blue"
 											type="submit"
 										>
-											{prompt &&
-											updatedCode.code &&
+											{!isUIPrompt &&
+											updatedCode.prompt &&
 											updatedCode.prompt !== prompt
 												? 'Regenerate'
 												: 'Generate'}

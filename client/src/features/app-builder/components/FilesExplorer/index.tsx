@@ -203,10 +203,10 @@ const FileButton = ({ file }: any) => {
 						overflow="hidden"
 						whiteSpace="nowrap"
 					>
-						{file.name}
+						{file.title}
 					</Box>
 					<Box fontSize="2xs" px="1" borderRadius="sm" bg={`${colorScheme}.200`}>
-						{isPythonFile ? '.py' : file.type}
+						{file.name}.{isPythonFile ? 'py' : file.type}
 					</Box>
 
 					<Spacer />

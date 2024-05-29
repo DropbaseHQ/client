@@ -124,7 +124,8 @@ export const CodeEditor = ({ name }: any) => {
 					justifyContent="space-between"
 				>
 					<Text fontSize="md" fontWeight="semibold">
-						{fullFileName}
+						{/* TODO: AZ style these better */}
+						{file.title} ({fullFileName})
 					</Text>
 					<Stack alignItems="center" direction="row">
 						<IconButton

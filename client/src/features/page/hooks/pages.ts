@@ -66,10 +66,12 @@ export const useGetPage = ({ appName, pageName, ...props }: any) => {
 				.map((b: any) => allProperties[b]),
 			files: response?.properties?.files || [
 				{
+					title: 'function',
 					name: 'main',
 					type: 'python',
 				},
 				{
+					title: 'ui',
 					name: 'properties',
 					type: 'json',
 				},

@@ -198,7 +198,8 @@ export const FunctionEditor = ({ name }: any) => {
 		<Stack h="full" bg="white" spacing="0" divider={<Divider />} w="full">
 			<Stack p="2" direction="row" alignItems="center" justifyContent="space-between">
 				<Text fontSize="md" fontWeight="semibold">
-					{fileName}
+					{/* TODO: AZ style these better */}
+					{file.title} ({fileName})
 				</Text>
 
 				<Stack alignItems="center" direction="row">
