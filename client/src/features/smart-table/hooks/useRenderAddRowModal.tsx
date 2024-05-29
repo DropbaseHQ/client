@@ -61,13 +61,7 @@ export const useRenderAddRowModal = ({ columns, table }: any) => {
 
 	const renderAddRowModal = () => {
 		return (
-			<Modal
-				closeOnOverlayClick={false}
-				size="xl"
-				isCentered
-				isOpen={isOpen}
-				onClose={onClose}
-			>
+			<Modal size="xl" isCentered isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />
 				<ModalContent>
 					<ModalHeader borderBottomWidth="1px">Add Row</ModalHeader>
