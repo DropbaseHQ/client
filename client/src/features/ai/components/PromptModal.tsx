@@ -180,10 +180,6 @@ export const PromptModal = () => {
 									<Button
 										onClick={() => {
 											setTabIndex(0);
-											setUpdatedCode({
-												code: '',
-												prompt: '',
-											});
 										}}
 										variant={isUIPrompt ? 'solid' : 'outline'}
 									>
