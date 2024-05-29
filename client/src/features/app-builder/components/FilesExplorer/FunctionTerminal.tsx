@@ -136,11 +136,9 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	const handleRunPythonFunction = useCallback(() => {
 		if (testCode) {
 			runPythonMutation.mutate({
-				testCode,
-				fileCode: code,
+				test: testCode,
+				code,
 				pageState,
-				appName,
-				pageName,
 			});
 		} else {
 			const declarations = findFunctionDeclarations(code);
@@ -158,34 +156,12 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 		}
 	}, [code, file, pageState, runPythonMutation, testCode, appName, pageName]);
 
-	const handleRunSQLQuery = useCallback(() => {
-		runSQLQueryMutation.mutate({
-			pageName,
-			appName,
-			state: pageState,
-			fileName: file?.name,
-			fileContent: code,
-			source,
-		});
-	}, [pageName, appName, pageState, file, code, source, runSQLQueryMutation]);
-
 	const executeShortcut = useCallback(() => {
 		if (file && !runPythonMutation.isLoading && !runSQLQueryMutation.isLoading) {
 			setPreviewCode((old: any) => ({ ...old, execute: false }));
-			if (file?.type === 'sql') {
-				handleRunSQLQuery();
-			} else {
-				handleRunPythonFunction();
-			}
+			handleRunPythonFunction();
 		}
-	}, [
-		file,
-		setPreviewCode,
-		runPythonMutation,
-		runSQLQueryMutation,
-		handleRunPythonFunction,
-		handleRunSQLQuery,
-	]);
+	}, [file, setPreviewCode, runPythonMutation, runSQLQueryMutation, handleRunPythonFunction]);
 
 	useEffect(() => {
 		if (execute) {
@@ -237,7 +213,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 					variant="outline"
 					borderRadius="md"
 					isLoading={isLoading}
-					onClick={file?.type === 'sql' ? handleRunSQLQuery : handleRunPythonFunction}
+					onClick={handleRunPythonFunction}
 					isDisabled={file?.type === 'sql' ? !(code && source) : !testCode}
 				/>
 
