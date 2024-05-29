@@ -1,4 +1,4 @@
-import { IconButton, Tooltip } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 
 import { Plus } from 'react-feather';
 import { useParams } from 'react-router-dom';
@@ -14,7 +14,7 @@ import { generateSequentialName } from '@/utils';
 export const NewWidget = (props: any) => {
 	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
-	const { widgets } = useGetPage({ appName, pageName });
+	const { widgets, allBlocks } = useGetPage({ appName, pageName });
 
 	const { isPreview } = useAtomValue(appModeAtom);
 
@@ -40,6 +40,9 @@ export const NewWidget = (props: any) => {
 						block_type: 'widget',
 						menu_item: true,
 						components: [],
+						w: 1,
+						y: Math.max(...allBlocks.map((t: any) => t.y)),
+						x: Math.max(...allBlocks.map((t: any) => t.x)),
 					},
 				},
 			});
@@ -53,18 +56,15 @@ export const NewWidget = (props: any) => {
 	}
 
 	return (
-		<Tooltip label="Add Widget">
-			<IconButton
-				aria-label="Add Widget"
-				icon={<Plus size="14" />}
-				variant="outline"
-				size="xs"
-				colorScheme="gray"
-				isLoading={createMutation.isLoading}
-				onClick={handleCreateWidget}
-				isDisabled={!isConnected}
-				{...props}
-			/>
-		</Tooltip>
+		<Button
+			aria-label="Add Widget"
+			leftIcon={<Plus size="14" />}
+			isLoading={createMutation.isLoading}
+			onClick={handleCreateWidget}
+			isDisabled={!isConnected}
+			{...props}
+		>
+			New Widget
+		</Button>
 	);
 };

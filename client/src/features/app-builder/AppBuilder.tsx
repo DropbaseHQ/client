@@ -15,8 +15,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@/lib/chakra-ui';
 import { PanelHandle } from '@/components/Panel';
 
-import { AppPreview } from '@/features/app-preview';
-import { StackedTables } from '@/features/smart-table';
 import { useGetPage } from '@/features/page';
 import { Loader } from '@/components/Loader';
 import { AppNavbar } from '@/features/app/components/AppNavbar';
@@ -31,6 +29,7 @@ import { useInitializePageState } from '@/features/app-state';
 import { PromptModal } from '@/features/ai';
 import { getErrorMessage, isFreeApp } from '@/utils';
 import { appModeAtom } from '@/features/app/atoms';
+import { BlocksRenderer } from '@/features/app-builder/components/BlocksRenderer';
 
 export const AppBuilder = () => {
 	const { appName, pageName } = useParams();
@@ -104,19 +103,7 @@ export const AppBuilder = () => {
 		return (
 			<Stack spacing="0" h="full">
 				<AppNavbar isPreview />
-				<PanelGroup direction="horizontal">
-					<Panel defaultSize={80} minSize={10}>
-						<Loader isLoading={isLoading}>
-							<StackedTables />
-						</Loader>
-					</Panel>
-					<PanelHandle direction="vertical" />
-					<Panel minSize={10}>
-						<Loader isLoading={isLoading}>
-							<AppPreview />
-						</Loader>
-					</Panel>
-				</PanelGroup>
+				<BlocksRenderer />
 			</Stack>
 		);
 	}
@@ -125,29 +112,20 @@ export const AppBuilder = () => {
 		<Stack spacing="0" h="full">
 			<AppNavbar />
 			<Box h="full" w="full" overflowY="auto">
-				<PanelGroup direction="horizontal">
+				<PanelGroup autoSaveId="main-panel" direction="horizontal">
 					<Panel>
-						<PanelGroup autoSaveId="main-panel" direction="vertical">
-							<Box as={Panel} p={4} bg="gray.50" defaultSize={45}>
+						<PanelGroup direction="vertical">
+							<Box p="4" bg="gray.50" as={Panel}>
 								<Box
-									as={PanelGroup}
+									p="1"
 									borderWidth="1px"
-									borderRadius="lg"
-									autoSaveId="data-panel"
+									borderRadius="md"
+									bg="white"
+									h="full"
+									overflowY="auto"
 									boxShadow={`0 0px 5px ${theme.colors.blackAlpha[300]}`}
-									direction="horizontal"
 								>
-									<Panel defaultSize={80} minSize={10}>
-										<Loader isLoading={isLoading}>
-											<StackedTables />
-										</Loader>
-									</Panel>
-									<PanelHandle direction="vertical" />
-									<Panel minSize={10}>
-										<Loader isLoading={isLoading}>
-											<AppPreview />
-										</Loader>
-									</Panel>
+									<BlocksRenderer />
 								</Box>
 							</Box>
 

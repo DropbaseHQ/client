@@ -12,7 +12,7 @@ import { inspectedResourceAtom } from '../../atoms';
 export const NewTable = (props: any) => {
 	const { appName, pageName } = useParams();
 	const { isConnected } = useStatus();
-	const { tables, properties } = useGetPage({ appName, pageName });
+	const { tables, allBlocks, properties } = useGetPage({ appName, pageName });
 	const toast = useToast();
 
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
@@ -52,7 +52,7 @@ export const NewTable = (props: any) => {
 						columns: [],
 						header: [],
 						footer: [],
-						y: Math.max(...tables.map((t: any) => t.y)),
+						y: Math.max(...allBlocks.map((t: any) => t.y)),
 					},
 				},
 			});

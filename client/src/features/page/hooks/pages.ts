@@ -76,6 +76,7 @@ export const useGetPage = ({ appName, pageName, ...props }: any) => {
 					type: 'json',
 				},
 			],
+			allBlocks: allBlocks.map((b: any) => allProperties[b]),
 			properties: allProperties,
 			permissions: response?.permissions || {
 				edit: true,
