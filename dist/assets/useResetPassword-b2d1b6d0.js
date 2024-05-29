@@ -1,0 +1,1 @@
+import{v as r}from"./vendor-332432be.js";import{a as t}from"./index-5b71d1bd.js";const o=async({email:s})=>(await t.post("/user/request_reset_password",{email:s})).data,d=s=>r(o,{...s||{}}),n=async({email:s,password:e,resetToken:a})=>(await t.post("/user/reset_password",{email:s,new_password:e,reset_token:a})).data,c=s=>r(n,{...s||{}});export{d as a,c as u};

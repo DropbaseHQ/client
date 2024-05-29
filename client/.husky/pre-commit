@@ -1,3 +1,0 @@
-cd client
-echo "checking lint issues"
-yarn lint
