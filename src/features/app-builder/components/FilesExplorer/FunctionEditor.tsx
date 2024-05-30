@@ -189,11 +189,6 @@ export const FunctionEditor = ({ name }: any) => {
 		);
 	}
 
-	// const functionDeclarations = findFunctionDeclarations(updatedCode);
-
-	// const isNotSameFunctionName =
-	// 	file?.type === 'python' ? !functionDeclarations.find((f) => f.name === file.name) : false;
-
 	return (
 		<Stack h="full" bg="white" spacing="0" divider={<Divider />} w="full">
 			<Stack p="2" direction="row" alignItems="center" justifyContent="space-between">

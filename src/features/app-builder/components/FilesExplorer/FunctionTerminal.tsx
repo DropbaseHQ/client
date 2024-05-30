@@ -24,7 +24,7 @@ import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 
 export const FunctionTerminal = ({ panelRef }: any) => {
-	const [{ code, name, source, execute }, setPreviewCode] = useAtom(previewCodeAtom);
+	const [{ code, name, execute }, setPreviewCode] = useAtom(previewCodeAtom);
 
 	const toast = useToast();
 
@@ -50,19 +50,6 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 		setPreviewData(null);
 		setPreviewDataType(null);
 	};
-
-	useEffect(() => {
-		resetRunData();
-
-		const fileKey = `${appName}_${pageName}_${name}`;
-
-		const savedCode = sessionStorage.getItem(fileKey);
-		if (savedCode !== null) {
-			setTestCode(savedCode);
-		} else {
-			setTestCode('');
-		}
-	}, [name, appName, pageName]);
 
 	useEffect(() => {
 		if (name && testCode !== null) {
@@ -188,54 +175,50 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 
 	return (
 		<Stack w="full" h="full" spacing="1">
-			{file?.type === 'python' ? (
-				<>
-					<Stack bg="gray.50" px="2" py="1" borderBottomWidth="1px">
-						<Text fontWeight="medium" fontSize="sm">
-							Test Code
-						</Text>
-					</Stack>
-					<Stack
-						borderBottomWidth="1px"
-						bg="white"
-						pb="3"
-						spacing="0"
-						alignItems="start"
-						direction="row"
-						mb={0}
-					>
-						<IconButton
-							icon={<Play size="12" />}
-							mx="1"
-							aria-label="Run function"
-							size="2xs"
-							mt="2"
-							flexShrink="0"
-							colorScheme="gray"
-							variant="outline"
-							borderRadius="md"
-							isLoading={isLoading}
-							onClick={handleRunPythonFunction}
-							isDisabled={file?.type === 'sql' ? !(code && source) : !testCode}
-						/>
+			<Stack bg="gray.50" px="2" py="1" borderBottomWidth="1px">
+				<Text fontWeight="medium" fontSize="sm">
+					Test Code
+				</Text>
+			</Stack>
+			<Stack
+				borderBottomWidth="1px"
+				bg="white"
+				pb="3"
+				spacing="0"
+				alignItems="start"
+				direction="row"
+				mb={0}
+			>
+				<IconButton
+					icon={<Play size="12" />}
+					mx="1"
+					aria-label="Run function"
+					size="2xs"
+					mt="2"
+					flexShrink="0"
+					colorScheme="gray"
+					variant="outline"
+					borderRadius="md"
+					isLoading={isLoading}
+					onClick={handleRunPythonFunction}
+					isDisabled={file?.type !== 'python' || !testCode}
+				/>
 
-						{file?.type === 'sql' ? (
-							<Text py="1" px="4" color="gray.700" fontSize="sm" mt="2">
-								Click play to see query results
-							</Text>
-						) : (
-							<MonacoEditor
-								value={testCode}
-								onChange={setTestCode}
-								language="python"
-								path={`${MODEL_SCHEME}:${MODEL_PATH}`}
-								onMount={handleTestCodeMount}
-								height={testCodeHeight}
-							/>
-						)}
-					</Stack>
-				</>
-			) : null}
+				{file?.type === 'python' ? (
+					<MonacoEditor
+						value={testCode}
+						onChange={setTestCode}
+						language="python"
+						path={`${MODEL_SCHEME}:${MODEL_PATH}`}
+						onMount={handleTestCodeMount}
+						height={testCodeHeight}
+					/>
+				) : (
+					<Text py="1" px="4" color="gray.700" fontSize="sm" mt="2">
+						Cannot test this file type
+					</Text>
+				)}
+			</Stack>
 
 			<Stack h="full" overflowY="auto">
 				{log ? (
