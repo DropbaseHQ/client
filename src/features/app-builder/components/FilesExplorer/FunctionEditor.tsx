@@ -1,13 +1,4 @@
-import {
-	Box,
-	Button,
-	Divider,
-	IconButton,
-	Skeleton,
-	SkeletonCircle,
-	Stack,
-	Text,
-} from '@chakra-ui/react';
+import { Box, Button, Divider, IconButton, Skeleton, Stack, Text } from '@chakra-ui/react';
 
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
@@ -18,12 +9,7 @@ import { useQueryClient } from 'react-query';
 import { useToast } from '@/lib/chakra-ui';
 
 import { usePythonEditor } from '@/components/Editor';
-import {
-	COLUMN_PROPERTIES_QUERY_KEY,
-	useFile,
-	usePageFiles,
-	useSaveCode,
-} from '@/features/app-builder/hooks';
+import { COLUMN_PROPERTIES_QUERY_KEY, useFile, useSaveCode } from '@/features/app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
 
 import { getErrorMessage } from '@/utils';
@@ -88,19 +74,13 @@ export const FunctionEditor = ({ name }: any) => {
 	const { appName, pageName } = useParams();
 	const { files } = useGetPage({ appName, pageName });
 
-	const { files: workerFiles, isLoading: isLoadingWorkerFiles } = usePageFiles({
-		pageName: pageName || '',
-		appName: appName || '',
-	});
-
 	const file = files.find((f: any) => f.name === name);
 	const fileName = file ? `${file?.name}${file?.type === 'sql' ? '.sql' : '.py'}` : null;
 
 	const setPreviewFile = useSetAtom(previewCodeAtom);
 
 	// ⚠️ check using / else will take files which ends with the same keywords like activate.py & deactivate.py
-	const filePath = workerFiles.find((f: any) => f.endsWith(`/${fileName}`));
-	const { isLoading, code, refetch, isRefetching } = useFile({
+	const { code, refetch, isRefetching } = useFile({
 		pageName,
 		appName,
 		fileName,
@@ -177,18 +157,6 @@ export const FunctionEditor = ({ name }: any) => {
 		queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 	};
 
-	if (isLoading || isLoadingWorkerFiles) {
-		return (
-			<Stack p="3" spacing="2">
-				<Skeleton startColor="gray.200" endColor="gray.300" h="32" />
-				<Stack direction="row">
-					<SkeletonCircle h="10" w="10" />
-					<Skeleton startColor="gray.200" w="full" endColor="gray.300" h="10" />
-				</Stack>
-			</Stack>
-		);
-	}
-
 	return (
 		<Stack h="full" bg="white" spacing="0" divider={<Divider />} w="full">
 			<Stack p="2" direction="row" alignItems="center" justifyContent="space-between">
@@ -233,7 +201,6 @@ export const FunctionEditor = ({ name }: any) => {
 						code={code}
 						name={name}
 						updateCode={setCode}
-						filePath={filePath}
 						key={name}
 						onSave={handleSave}
 					/>

@@ -42,40 +42,6 @@ export const useFunctions = ({ pageName, appName }: { pageName: any; appName: an
 	};
 };
 
-const fetchAllPageFiles = async ({ pageName, appName }: { pageName: string; appName: string }) => {
-	const response = await workerAxios.get<{ files: string[] }>(
-		`/files/all/${appName}/${pageName}/`,
-	);
-
-	return response.data;
-};
-
-export const usePageFiles = ({ pageName, appName }: { pageName: string; appName: string }) => {
-	const queryKey = [ALL_PAGE_FILES_QUERY_KEY, pageName, appName];
-
-	const { data: response, ...rest } = useQuery(
-		queryKey,
-		() => fetchAllPageFiles({ pageName, appName }),
-		{
-			enabled: Boolean(appName) && Boolean(pageName),
-			staleTime: Infinity,
-			cacheTime: Infinity,
-		},
-	);
-
-	const info = useMemo(() => {
-		return {
-			files: response?.files || [],
-		};
-	}, [response]);
-
-	return {
-		...rest,
-		queryKey,
-		...info,
-	};
-};
-
 const fetchFile = async ({ fileName, appName, pageName }: any) => {
 	const response = await workerAxios.get<string>(
 		`/workspace/${appName}/${pageName}/${fileName}/`,
