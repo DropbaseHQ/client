@@ -12,7 +12,6 @@ import { useParams } from 'react-router-dom';
 import { RotateCw } from 'react-feather';
 import { AppState, useInitializePageState } from '@/features/app-state';
 import { FilesExplorer } from '../FilesExplorer';
-import { NewFile } from '../FilesExplorer/NewFile';
 
 const AccordionTitle = ({ children }: any) => {
 	return (
@@ -37,14 +36,6 @@ export const BuilderSidebar = () => {
 							flex="1"
 						>
 							<AccordionTitle>Files</AccordionTitle>
-							{false ? (
-								<NewFile
-									variant="outline"
-									size="2xs"
-									ml="auto"
-									colorScheme="gray"
-								/>
-							) : null}
 						</AccordionButton>
 						<AccordionPanel p={2}>
 							<FilesExplorer />

@@ -219,7 +219,7 @@ export const useRunSQLQuery = (props: any = {}) => {
 };
 
 const saveCode = async ({ pageName, appName, fileType, fileName, code }: any) => {
-	const response = await workerAxios.put(`files/main/`, {
+	const response = await workerAxios.put(`files/`, {
 		page_name: pageName,
 		app_name: appName,
 		file_name: `${fileName}.${fileType === 'python' ? 'py' : fileType}`,

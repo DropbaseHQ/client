@@ -1,12 +1,6 @@
 import { useMemo } from 'react';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useQuery } from 'react-query';
 import { workerAxios } from '@/lib/axios';
-
-import { PAGE_DATA_QUERY_KEY } from '@/features/page';
-import { ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY } from './functions';
-import { useToast } from '@/lib/chakra-ui';
-import { getErrorMessage } from '@/utils';
-import { DATA_FETCHER_QUERY_KEY } from '@/features/app-builder/hooks';
 
 export const ALL_PAGE_FILES_QUERY_KEY = 'allFiles';
 export const ALL_FUNCTIONS_QUERY_KEY = 'allFunctions';
@@ -116,88 +110,4 @@ export const useFile = ({ fileName, appName, pageName }: any) => {
 		queryKey,
 		...info,
 	};
-};
-
-const createFile = async ({ pageName, fileName, appName, pageId, type }: any) => {
-	const response = await workerAxios.post(`/files/`, {
-		name: fileName,
-		page_id: pageId,
-		app_name: appName,
-		page_name: pageName,
-		type,
-		source: null,
-		depends_on: [],
-	});
-
-	return response.data;
-};
-
-export const useCreateFile = (props: any = {}) => {
-	const queryClient = useQueryClient();
-	return useMutation(createFile, {
-		...props,
-		onSettled: () => {
-			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
-			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(DATA_FETCHER_QUERY_KEY);
-			queryClient.invalidateQueries(ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY);
-		},
-	});
-};
-
-const deleteFile = async ({ pageName, fileType, fileName, appName }: any) => {
-	const response = await workerAxios.delete(`/files/`, {
-		data: {
-			app_name: appName,
-			page_name: pageName,
-			file_name: fileName,
-			type: fileType,
-		},
-	});
-	return response.data;
-};
-
-export const useDeleteFile = (props: any = {}) => {
-	const queryClient = useQueryClient();
-	return useMutation(deleteFile, {
-		...props,
-		onSettled: () => {
-			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
-			queryClient.refetchQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(DATA_FETCHER_QUERY_KEY);
-		},
-	});
-};
-
-const updateFile = async ({ pageName, pageId, fileName, fileType, appName, newFileName }: any) => {
-	const response = await workerAxios.put(`/files/rename`, {
-		app_name: appName,
-		page_name: pageName,
-		old_name: fileName,
-		new_name: newFileName,
-		type: fileType,
-		page_id: pageId,
-	});
-	return response.data;
-};
-
-export const useUpdateFile = (props: any = {}) => {
-	const toast = useToast();
-	const queryClient = useQueryClient();
-	return useMutation(updateFile, {
-		...props,
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to update function',
-				description: getErrorMessage(error),
-			});
-		},
-		onSettled: () => {
-			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
-			queryClient.refetchQueries(PAGE_DATA_QUERY_KEY);
-			queryClient.invalidateQueries(DATA_FETCHER_QUERY_KEY);
-			queryClient.invalidateQueries(ALL_PAGE_FUNCTIONS_NAMES_QUERY_KEY);
-		},
-	});
 };

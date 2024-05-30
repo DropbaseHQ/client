@@ -143,7 +143,7 @@ export const PageTab = (props: any) => {
 			}}
 		>
 			<Flex align="center" justifyContent="center" h="24px">
-				<Box fontWeight="semibold">{page?.name}</Box>
+				<Box fontWeight="semibold">{page?.label}</Box>
 				{!isPreview ? (
 					<Menu
 						closeOnSelect={false}
@@ -174,7 +174,7 @@ export const PageTab = (props: any) => {
 								closeOnBlur={false}
 							>
 								<PopoverTrigger>
-									<MenuItem data-db-id="rename-page">Edit</MenuItem>
+									<MenuItem data-db-id="rename-page">Rename</MenuItem>
 								</PopoverTrigger>
 								<PopoverContent
 									textColor="black"
@@ -192,7 +192,7 @@ export const PageTab = (props: any) => {
 									<PopoverArrow />
 									<PopoverBody>
 										<FormControl isInvalid={Boolean(invalidMessage)}>
-											<FormLabel>Edit Page name</FormLabel>
+											<FormLabel>Edit page name</FormLabel>
 											<Input
 												size="sm"
 												placeholder="Page name"

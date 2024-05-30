@@ -150,8 +150,10 @@ export const useCreatePage = () => {
 };
 
 const renamePage = async ({ appName, pageName, newPageLabel }: any) => {
-	const response = await workerAxios.put(`/page/${appName}/${pageName}`, {
-		new_page_label: newPageLabel,
+	const response = await workerAxios.put(`/page/rename/`, {
+		app_name: appName,
+		page_name: pageName,
+		page_label: newPageLabel,
 	});
 	return response.data;
 };
