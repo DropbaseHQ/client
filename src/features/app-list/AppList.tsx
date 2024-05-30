@@ -23,8 +23,7 @@ import {
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Layout, MoreVertical, Trash, PlusCircle } from 'react-feather';
-import { useAtomValue } from 'jotai';
+import { Layout, MoreVertical, Trash } from 'react-feather';
 import { useEffect } from 'react';
 import { useStatus } from '@/layout/StatusBar';
 import { useGetWorkspaceApps, App as AppType } from './hooks/useGetWorkspaceApps';
@@ -32,33 +31,14 @@ import { useCreateAppFlow } from './hooks/useCreateApp';
 import { PageLayout } from '@/layout';
 import { FormInput } from '@/components/FormInput';
 import { useDeleteApp } from '@/features/app-list/hooks/useDeleteApp';
-import { useWorkspaces, workspaceAtom } from '@/features/workspaces';
-import { SalesModal } from './AppSalesModal';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
-import { useSyncApp } from './hooks/useSyncApp';
-import { RestrictAppContainer } from '@/container/components/RestrictAppContainer';
 
 const AppCard = ({ app }: { app: AppType }) => {
 	const toast = useToast();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const methods = useForm();
 	const navigate = useNavigate();
-	const syncAppMutation = useSyncApp({
-		onSuccess: () => {
-			toast({
-				status: 'success',
-				title: 'App synced',
-			});
-		},
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to sync app',
-				description: getErrorMessage(error),
-			});
-		},
-	});
 
 	const deleteMutation = useDeleteApp({
 		onSuccess: () => {
@@ -79,9 +59,6 @@ const AppCard = ({ app }: { app: AppType }) => {
 
 	const handleClick = () => {
 		navigate(`/apps/${app.name}/${app?.pages?.[0]?.name}`);
-	};
-	const handleSyncApp = (generateNew: boolean) => {
-		syncAppMutation.mutate({ appName: app.name, generateNew });
 	};
 
 	const onSubmit = () => {
@@ -165,20 +142,6 @@ const AppCard = ({ app }: { app: AppType }) => {
 							<Box>Delete App</Box>
 						</Stack>
 					</MenuItem>
-
-					{app?.status === 'ID_NOT_FOUND_BUT_NAME_FOUND' && (
-						<MenuItem
-							onClick={(e) => {
-								e.stopPropagation();
-								handleSyncApp(false);
-							}}
-						>
-							<Stack alignItems="center" direction="row" fontSize="md">
-								<PlusCircle size="14" />
-								<Box>Sync an Existing App</Box>
-							</Stack>
-						</MenuItem>
-					)}
 				</MenuList>
 			</Menu>
 
@@ -249,11 +212,8 @@ const AppCard = ({ app }: { app: AppType }) => {
 export const AppList = () => {
 	const navigate = useNavigate();
 	const toast = useToast();
-	const { id: workspaceId } = useAtomValue(workspaceAtom);
-	const { workspaces } = useWorkspaces();
 	const { status, isLoading: isCheckingStatus } = useStatus();
 	const methods = useForm();
-	const currentWorkspace = workspaces?.find((w: any) => w.id === workspaceId);
 
 	const { apps, refetch, isLoading } = useGetWorkspaceApps();
 	const { isOpen, onOpen, onClose } = useDisclosure({
@@ -301,7 +261,6 @@ export const AppList = () => {
 		await handleCreateAppFlow({
 			name: appName,
 			label: appLabel,
-			workspaceId: workspaceId as string,
 		});
 	};
 	const appLabel = methods.watch('label');
@@ -313,12 +272,6 @@ export const AppList = () => {
 	}, [methods, appLabel]);
 
 	const workerIsConnected = status === 'success';
-	const workspaceHasWorkspaceURL = !!currentWorkspace?.workspaceUrl;
-	const isDeployed = window.location.hostname.endsWith('dropbase.io');
-
-	const shouldDisplaySalesModal = isDeployed
-		? !workspaceHasWorkspaceURL && !workerIsConnected
-		: false;
 
 	if (isCheckingStatus || isLoading) {
 		return (
@@ -361,7 +314,6 @@ export const AppList = () => {
 					Please connect to a worker to view and create apps.
 				</Text>
 			)}
-			<RestrictAppContainer>{shouldDisplaySalesModal && <SalesModal />}</RestrictAppContainer>
 
 			<Modal isOpen={isOpen} onClose={onClose}>
 				<ModalOverlay />

@@ -18,9 +18,8 @@ import {
 	FormErrorMessage,
 	TabList,
 	Tabs,
-	useDisclosure,
 } from '@chakra-ui/react';
-import { ArrowLeft, Edit, Eye, Plus, Share } from 'react-feather';
+import { ArrowLeft, Edit, Eye, Plus } from 'react-feather';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -33,9 +32,6 @@ import { useCreatePage, useGetPage } from '@/features/page';
 import { getErrorMessage, generateSequentialName, isFreeApp } from '@/utils';
 import { PageTab } from './PageTab';
 import { LabelContainer } from '@/components/LabelContainer';
-import { ShareModal } from './ShareModal';
-import { PermissionContainer } from '@/container/components/PermissionContainer';
-import { RestrictAppContainer } from '@/container/components/RestrictAppContainer';
 import { PromptButton } from '@/features/ai';
 
 export const AppNavbar = ({ isPreview }: any) => {
@@ -45,7 +41,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
 	const { permissions } = useGetPage({ appName, pageName });
-	const { isOpen: shareIsOpen, onOpen: shareOnOpen, onClose: shareOnClose } = useDisclosure();
 
 	const [label, setAppLabel] = useState('');
 
@@ -258,19 +253,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 			</Flex>
 
 			<Stack direction="row" spacing="2" ml="auto">
-				<RestrictAppContainer>
-					<PermissionContainer isAllowed={permissions?.own}>
-						<Button
-							size="sm"
-							variant="outline"
-							onClick={shareOnOpen}
-							leftIcon={<Share size="14" />}
-						>
-							Share
-						</Button>
-					</PermissionContainer>
-				</RestrictAppContainer>
-
 				{!isPreview ? <PromptButton /> : null}
 
 				{permissions?.edit || isFreeApp() ? (
@@ -292,9 +274,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 					</Tooltip>
 				) : null}
 			</Stack>
-			<RestrictAppContainer>
-				<ShareModal isOpen={shareIsOpen} onClose={shareOnClose} />
-			</RestrictAppContainer>
 		</Stack>
 	);
 };

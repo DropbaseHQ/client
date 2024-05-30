@@ -12,19 +12,10 @@ export const useCreateApp = (mutationConfig?: any) => {
 	});
 };
 
-const createWorkerApp = async ({
-	appLabel,
-	appName,
-	workspaceId,
-}: {
-	appLabel: string;
-	appName: string;
-	workspaceId: string;
-}) => {
+const createWorkerApp = async ({ appLabel, appName }: { appLabel: string; appName: string }) => {
 	const response = await workerAxios.post('/app/', {
 		app_label: appLabel,
 		app_name: appName,
-		workspace_id: workspaceId,
 	});
 	return response.data;
 };
@@ -32,19 +23,10 @@ const createWorkerApp = async ({
 export const useCreateAppFlow = (mutationConfig?: any) => {
 	const useCreateWorkerAppMutation = useMutation(createWorkerApp, { ...(mutationConfig || {}) });
 
-	const handleCreateApp = async ({
-		name,
-		label,
-		workspaceId,
-	}: {
-		label: string;
-		name: string;
-		workspaceId: string;
-	}) => {
+	const handleCreateApp = async ({ name, label }: { label: string; name: string }) => {
 		const { data: workerData } = await useCreateWorkerAppMutation.mutateAsync({
 			appName: name,
 			appLabel: label,
-			workspaceId,
 		});
 
 		return workerData;
