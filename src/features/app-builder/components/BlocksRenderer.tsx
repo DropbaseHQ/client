@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Progress, Stack } from '@chakra-ui/react';
-import { useAtomValue } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 
 import styled from '@emotion/styled';
@@ -18,6 +18,8 @@ import { NewTable } from '@/features/app-builder/components/PropertiesEditor/New
 import { SmartTable } from '@/features/smart-table/SmartTable';
 import { WidgetPreview } from '@/features/app-preview/WidgetPreview';
 import { NewWidget } from '@/features/app-preview/components/NewWidget';
+import { Notification } from '@/features/app-preview/components/Notification';
+import { pageContextAtom } from '@/features/app-state';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -69,6 +71,25 @@ export const BlocksRenderer = () => {
 
 	const { isPreview } = useAtomValue(appModeAtom);
 	const { allBlocks, properties } = useGetPage({ appName, pageName });
+
+	const [allBlocksContext, setPageContext] = useAtom(pageContextAtom);
+	const pageContext = (allBlocksContext as any)?.page;
+
+	const handleRemoveAlert = () => {
+		setPageContext(
+			{
+				...allBlocksContext,
+				page: {
+					...(pageContext?.page || {}),
+					message: null,
+					message_type: null,
+				},
+			},
+			{
+				replace: true,
+			},
+		);
+	};
 
 	const [containerHeight, setContainerHeight] = useState<number | null>(null);
 
@@ -249,6 +270,12 @@ export const BlocksRenderer = () => {
 					)}
 				</ReactGridLayout>
 			) : null}
+
+			<Notification
+				message={pageContext?.message}
+				type={pageContext?.message_type}
+				onClose={handleRemoveAlert}
+			/>
 		</GridWrapper>
 	);
 };
