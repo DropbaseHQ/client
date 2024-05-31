@@ -141,16 +141,6 @@ export const FunctionEditor = ({ name }: any) => {
 		});
 	}, [updatedCode, name, setPreviewFile]);
 
-	useEffect(() => {
-		return () => {
-			setPreviewFile({
-				name: null,
-				code: null,
-				execute: false,
-			});
-		};
-	}, [name, code, setPreviewFile]);
-
 	const refetchColumns = () => {
 		handleSave();
 		queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);

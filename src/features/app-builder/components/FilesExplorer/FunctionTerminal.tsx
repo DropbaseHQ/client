@@ -1,5 +1,14 @@
-import { Box, IconButton, Skeleton, SkeletonCircle, Stack, Text } from '@chakra-ui/react';
-import { Play, X } from 'react-feather';
+import {
+	Box,
+	Code,
+	Divider,
+	IconButton,
+	Skeleton,
+	SkeletonCircle,
+	Stack,
+	Text,
+} from '@chakra-ui/react';
+import { Play, FileText } from 'react-feather';
 import * as monacoLib from 'monaco-editor';
 import { useAtom, useAtomValue } from 'jotai';
 
@@ -19,12 +28,14 @@ import {
 } from '@/features/app-builder/utils';
 import { useGetPage } from '@/features/page';
 import { ChakraTable } from '@/components/Table';
-import { previewCodeAtom } from '../../atoms';
+import { logsAtom, previewCodeAtom } from '../../atoms';
 import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 
 export const FunctionTerminal = ({ panelRef }: any) => {
 	const [{ code, name, execute }, setPreviewCode] = useAtom(previewCodeAtom);
+
+	const [{ logs }, setLogs] = useAtom(logsAtom);
 
 	const toast = useToast();
 
@@ -36,9 +47,6 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	const monaco = useMonaco();
 
 	const [testCode, setTestCode] = useState('');
-	const [log, setLog] = useState<any>(null);
-	const [previewData, setPreviewData] = useState<any>(null);
-	const [previewDataType, setPreviewDataType] = useState<any>(null);
 
 	const [testCodeHeight, setTestCodeHeight] = useState(16);
 
@@ -46,9 +54,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	const syncState = useSyncState();
 
 	const resetRunData = () => {
-		setLog(null);
-		setPreviewData(null);
-		setPreviewDataType(null);
+		//
 	};
 
 	useEffect(() => {
@@ -59,21 +65,24 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	}, [testCode, name, appName, pageName]);
 
 	const runHandlers = {
-		onSuccess: (response: any) => {
+		onSuccess: (response: any, variables: any) => {
 			syncState(response);
-			setLog(logBuilder(response));
 
-			setPreviewDataType(response?.type);
+			setLogs({
+				log: logBuilder(response),
+				preview: {
+					rows: response?.data || [],
+					columns: response?.columns || [],
+					type: response?.type,
+				},
+				meta: {
+					type: 'test',
+					...variables,
+				},
+			});
 
 			if (panelRef?.current?.getSize() < 20) {
 				panelRef?.current?.resize(50);
-			}
-
-			if (response?.columns) {
-				setPreviewData({
-					rows: response?.data || [],
-					columns: response?.columns || [],
-				});
 			}
 		},
 		onMutate: () => {
@@ -174,104 +183,119 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	}
 
 	return (
-		<Stack w="full" h="full" spacing="1">
-			<Stack bg="gray.50" px="2" py="1" borderBottomWidth="1px">
-				<Text fontWeight="medium" fontSize="sm">
-					Test Code
-				</Text>
-			</Stack>
-			<Stack
-				borderBottomWidth="1px"
-				bg="white"
-				pb="3"
-				spacing="0"
-				alignItems="start"
-				direction="row"
-				mb={0}
-			>
-				<IconButton
-					icon={<Play size="12" />}
-					mx="1"
-					aria-label="Run function"
-					size="2xs"
-					mt="2"
-					flexShrink="0"
-					colorScheme="gray"
-					variant="outline"
-					borderRadius="md"
-					isLoading={isLoading}
-					onClick={handleRunPythonFunction}
-					isDisabled={file?.type !== 'python' || !testCode}
-				/>
-
-				{file?.type === 'python' ? (
-					<MonacoEditor
-						value={testCode}
-						onChange={setTestCode}
-						language="python"
-						path={`${MODEL_SCHEME}:${MODEL_PATH}`}
-						onMount={handleTestCodeMount}
-						height={testCodeHeight}
-					/>
-				) : (
-					<Text py="1" px="4" color="gray.700" fontSize="sm" mt="2">
-						Cannot test this file type
-					</Text>
-				)}
-			</Stack>
-
-			<Stack h="full" overflowY="auto">
-				{log ? (
+		<Stack w="full" h="full" spacing="0">
+			{file?.type === 'python' ? (
+				<>
+					<Stack bg="gray.50" px="2" py="1" borderBottomWidth="1px">
+						<Text fontWeight="medium" fontSize="sm">
+							Test Code
+						</Text>
+					</Stack>
 					<Stack
 						borderBottomWidth="1px"
 						bg="white"
-						p="2"
-						w="full"
-						h="full"
-						borderRadius="sm"
+						pb="3"
+						spacing="0"
+						alignItems="start"
+						direction="row"
+						mb={0}
 					>
-						<Stack h="full" direction="row" alignItems="start">
-							<IconButton
-								aria-label="Close output"
-								size="xs"
-								colorScheme="gray"
-								variant="outline"
-								borderRadius="full"
-								icon={<X size={14} />}
-								onClick={() => setLog(null)}
-							/>
-
-							<Stack w="full" h="full">
-								<Text fontSize="sm" letterSpacing="wide" fontWeight="medium">
-									Output
-								</Text>
-								<Box
-									borderWidth="1px"
-									borderColor="blackAlpha.100"
-									borderRadius="sm"
-									h="full"
-								>
-									<MonacoEditor
-										value={log}
-										language="shell"
-										options={{ lineNumbers: 'off', readOnly: true }}
-									/>
-								</Box>
-							</Stack>
-						</Stack>
-					</Stack>
-				) : null}
-
-				{previewDataType === 'table' && previewData?.columns?.length > 0 ? (
-					<Box px="3" w="full" mt="3" pb="3" borderBottomWidth="1px">
-						<ChakraTable
-							{...previewData}
-							columns={previewData?.columns?.map((c: any) => c.name)}
-							maxH="md"
-							borderRadius="sm"
+						<IconButton
+							icon={<Play size="12" />}
+							mx="1"
+							aria-label="Run function"
+							size="2xs"
+							mt="2"
+							flexShrink="0"
+							colorScheme="gray"
+							variant="outline"
+							borderRadius="md"
+							isLoading={isLoading}
+							onClick={handleRunPythonFunction}
+							isDisabled={!testCode}
 						/>
-					</Box>
-				) : null}
+
+						<MonacoEditor
+							value={testCode}
+							onChange={setTestCode}
+							language="python"
+							path={`${MODEL_SCHEME}:${MODEL_PATH}`}
+							onMount={handleTestCodeMount}
+							height={testCodeHeight}
+						/>
+					</Stack>
+				</>
+			) : null}
+
+			<Stack bg="white" spacing="0" h="full">
+				<Stack
+					bg="gray.50"
+					px="2"
+					py="1"
+					borderBottomWidth="1px"
+					direction="row"
+					alignItems="center"
+				>
+					<FileText size="12" />
+					<Text fontWeight="medium" fontSize="sm">
+						Logs & Traceback
+					</Text>
+				</Stack>
+
+				<Stack h="full" overflowY="auto" spacing="0">
+					{logs.map((log) => {
+						return (
+							<Stack
+								flexGrow="0"
+								spacing="0"
+								divider={<Divider orientation="vertical" />}
+								direction="row"
+								key={JSON.stringify(log)}
+								borderBottomWidth="1px"
+							>
+								<Stack p="2" flex="1">
+									<Code bg="transparent">{new Date(log.time).toString()}</Code>
+								</Stack>
+								<Stack flex="3" w="full">
+									<Box
+										minH="40px"
+										h={`${Math.min(log.log.split('\n').length, 15) * 12}px`}
+									>
+										<MonacoEditor
+											value={log.log}
+											language="shell"
+											options={{
+												lineNumbers: 'off',
+												readOnly: true,
+												renderLineHighlight: 'none',
+												scrollbar: {
+													verticalHasArrows: false,
+													alwaysConsumeMouseWheel: false,
+													vertical: 'auto',
+													horizontal: 'auto',
+												},
+											}}
+										/>
+									</Box>
+
+									{log?.preview?.type === 'table' &&
+									log?.preview?.columns?.length > 0 ? (
+										<Box px="3" w="full" mt="3" pb="3" borderBottomWidth="1px">
+											<ChakraTable
+												{...log?.preview}
+												columns={log?.preview?.columns?.map(
+													(c: any) => c.name,
+												)}
+												maxH="md"
+												borderRadius="sm"
+											/>
+										</Box>
+									) : null}
+								</Stack>
+							</Stack>
+						);
+					})}
+				</Stack>
 			</Stack>
 		</Stack>
 	);
