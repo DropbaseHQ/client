@@ -15,7 +15,7 @@ import {
 	usePrevious,
 	useTheme,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
 import { Info, Move, RotateCw, UploadCloud } from 'react-feather';
 
@@ -49,12 +49,7 @@ import { pageStateContextAtom, pageContextAtom, pageStateAtom } from '@/features
 
 import dropdownCellRenderer from './components/cells/SingleSelect';
 
-import {
-	CurrentTableContext,
-	useCurrentTableData,
-	useSaveColumns,
-	useTableSyncStatus,
-} from './hooks';
+import { CurrentTableContext, useCurrentTableData, useSaveColumns } from './hooks';
 
 import {
 	cellEditsAtom,
@@ -91,7 +86,7 @@ const ALL_CELLS = [
 	SpinnerCell,
 ];
 
-export const SmartTable = ({ tableName, height }: any) => {
+const UnMemoizedSmartTable = ({ tableName, height }: any) => {
 	const toast = useToast();
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
@@ -139,6 +134,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 		isRefetching,
 		error,
 		remove: removeQuery,
+		isSynced: tableIsSynced,
 	} = useCurrentTableData(tableName);
 
 	const {
@@ -161,8 +157,6 @@ export const SmartTable = ({ tableName, height }: any) => {
 
 	const footerBarRef: any = useRef();
 	const [footerBarHeight, setFooterBarHeight] = useState<any>();
-
-	const tableIsUnsynced = useTableSyncStatus(tableName);
 
 	const currentFetcher = table?.fetcher;
 	const previousFetcher = usePrevious(currentFetcher);
@@ -296,15 +290,6 @@ export const SmartTable = ({ tableName, height }: any) => {
 			setFooterBarHeight(footerBarRef?.current?.getBoundingClientRect()?.height);
 		}
 	}, []);
-
-	useEffect(() => {
-		if (error) {
-			toast({
-				status: 'error',
-				title: getErrorMessage(error),
-			});
-		}
-	}, [error, toast]);
 
 	useOnPageResponse(() => {
 		setTimeout(() => {
@@ -1283,7 +1268,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 						>
 							<DeleteRowButton row={selection?.rows?.toArray()?.[0]} />
 
-							<SaveEditsButton />
+							<SaveEditsButton rows={rows} />
 
 							<Tooltip label="Refresh data">
 								<IconButton
@@ -1308,7 +1293,7 @@ export const SmartTable = ({ tableName, height }: any) => {
 								/>
 							</Tooltip>
 
-							{!isLoading && !isPreview && tableIsUnsynced ? (
+							{!isLoading && !isRefetching && !isPreview && !tableIsSynced ? (
 								<Tooltip label="Save columns">
 									<Button
 										variant="outline"
@@ -1447,3 +1432,6 @@ export const SmartTable = ({ tableName, height }: any) => {
 		</CurrentTableContext.Provider>
 	);
 };
+
+export const SmartTable = memo(UnMemoizedSmartTable);
+SmartTable.displayName = 'SmartTable(memoized)';

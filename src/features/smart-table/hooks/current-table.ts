@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { focusAtom } from 'jotai-optics';
 
@@ -50,29 +50,25 @@ export const useCurrentTableData = (tableName: any) => {
 
 	const tableData = useParsedData(tableContext?.data, table);
 
+	const { header } = tableData;
+
+	const { columns: storedColumns } = table;
+
+	const isSynced =
+		header.every((c: any) => {
+			if ((columnDict as any)[c?.name]) {
+				return columnDict[c?.name]?.data_type === c?.data_type;
+			}
+
+			return false;
+		}) && header.length === storedColumns?.length;
+
 	return {
 		...tableMetaInfo,
 		...tableData,
 		isLoading: isLoadingPage || tableMetaInfo.isLoading,
 		columns: table?.columns,
 		columnDict,
+		isSynced,
 	};
-};
-
-export const useTableSyncStatus = (tableName: any) => {
-	const { header, columns, isLoading, isRefetching, columnDict } = useCurrentTableData(tableName);
-
-	const [needsSync, setNeedSync] = useState(false);
-
-	useEffect(() => {
-		if (!isLoading || !isRefetching) {
-			const isSynced =
-				header.every((c: any) => (columnDict as any)[c?.name]) &&
-				header.length === columns?.length;
-
-			setNeedSync(!isSynced);
-		}
-	}, [header, isLoading, isRefetching, columns, columnDict, tableName]);
-
-	return header.length > 0 ? needsSync : false;
 };

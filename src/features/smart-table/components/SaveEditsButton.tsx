@@ -4,21 +4,19 @@ import { useRef } from 'react';
 
 import { Save } from 'react-feather';
 import { useParams } from 'react-router-dom';
-import { useCurrentTableData, useCurrentTableName, useSaveEdits } from '../hooks';
+import { useCurrentTableName, useSaveEdits } from '../hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 
 import { pageStateAtom } from '@/features/app-state';
 import { cellEditsAtom } from '@/features/smart-table/atoms';
 
-export const SaveEditsButton = () => {
+export const SaveEditsButton = ({ rows }: any) => {
 	const toast = useToast();
 
 	const tableName = useCurrentTableName();
 
 	const { appName, pageName } = useParams();
-
-	const { rows } = useCurrentTableData(tableName);
 
 	const [allCellEdits, setCellEdits] = useAtom(cellEditsAtom);
 	const cellEdits = allCellEdits[tableName] || [];
