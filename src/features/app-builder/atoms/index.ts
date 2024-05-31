@@ -46,6 +46,6 @@ export const logsAtom = atom(
 	(get, set, log: Log) => {
 		const currentLogs = get(readWriteLogsAtom).logs;
 
-		set(readWriteLogsAtom, { logs: [...currentLogs, { ...log, time: Date.now() }] });
+		set(readWriteLogsAtom, { logs: [{ ...log, time: Date.now() }, ...currentLogs] });
 	},
 );

@@ -250,7 +250,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 								spacing="0"
 								divider={<Divider orientation="vertical" />}
 								direction="row"
-								key={JSON.stringify(log)}
+								key={log?.time}
 								borderBottomWidth="1px"
 							>
 								<Stack p="2" flex="1">
