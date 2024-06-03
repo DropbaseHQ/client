@@ -9,12 +9,10 @@
 !vars.env
 
 # client
-client/.DS_Store
-client/node_modules/
-client/index.html
-client/chunks-report.html
+.DS_Store
+node_modules/
+# dist/
+index.html
+chunks-report.html
 
 .venv
-.venvlsp
-.test
-notebooks/
