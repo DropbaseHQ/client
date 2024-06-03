@@ -58,6 +58,9 @@ export const FunctionLogs = () => {
 										{log?.meta?.component ? (
 											<Code bg="transparent">{log?.meta?.component}</Code>
 										) : null}
+										{log?.meta?.section ? (
+											<Code bg="transparent">{log?.meta?.section}</Code>
+										) : null}
 										<Code bg="transparent">{log?.meta?.resource}</Code>
 									</Stack>
 								)}
@@ -79,7 +82,7 @@ export const FunctionLogs = () => {
 								</Stack>
 							</Stack>
 							<Stack borderLeftWidth="1px" w="full">
-								<Accordion allowToggle allowMultiple>
+								<Accordion allowToggle allowMultiple defaultIndex={0}>
 									{['message', 'stdout', 'traceback'].map((type, index) => {
 										if (log?.[type as keyof Log]) {
 											let message = log[type as keyof Log];

@@ -3,7 +3,7 @@ import { Box, Button, Divider, IconButton, Skeleton, Stack, Text } from '@chakra
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Play, RotateCw, Save } from 'react-feather';
+import { RotateCw, Save } from 'react-feather';
 import { debounce } from 'lodash';
 import { useQueryClient } from 'react-query';
 import { useToast } from '@/lib/chakra-ui';
@@ -20,16 +20,6 @@ import { previewCodeAtom } from '../../atoms';
 const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name, onSave }: any) => {
 	const [code, setCode] = useState(defaultCode);
 
-	const setPreviewFile = useSetAtom(previewCodeAtom);
-
-	const executeRunCommand = useCallback(() => {
-		setPreviewFile({
-			name,
-			code,
-			execute: true,
-		});
-	}, [code, name, setPreviewFile]);
-
 	const editorRef = usePythonEditor({
 		filepath: filePath,
 		code,
@@ -42,18 +32,6 @@ const PythonEditorLSP = ({ code: defaultCode, filePath, updateCode, name, onSave
 
 	return (
 		<Stack h="full" spacing="0" direction="row">
-			<IconButton
-				mx="1"
-				aria-label="Run function"
-				size="2xs"
-				mt="2"
-				flexShrink="0"
-				colorScheme="gray"
-				variant="outline"
-				borderRadius="md"
-				icon={<Play size={12} />}
-				onClick={executeRunCommand}
-			/>
 			<Box
 				data-cy={`code-editor-${name}`}
 				ref={editorRef}

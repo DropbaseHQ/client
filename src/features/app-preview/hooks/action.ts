@@ -73,6 +73,7 @@ export const useEvent = (props?: any) => {
 					resource: variables?.resource,
 					component: variables?.component,
 					state: variables.pageState,
+					section: variables?.section,
 				},
 			});
 			props?.onSuccess?.(data);
@@ -86,6 +87,7 @@ export const useEvent = (props?: any) => {
 					resource: variables?.resource,
 					component: variables?.component,
 					state: variables.pageState,
+					section: variables?.section,
 				},
 			});
 
