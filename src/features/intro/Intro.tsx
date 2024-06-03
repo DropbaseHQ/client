@@ -1,20 +1,6 @@
-import { Flex, VStack, Text, Button } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
-import { useWorkspaces, useCreateWorkspace } from '../workspaces';
+import { Flex, VStack, Text } from '@chakra-ui/react';
 
 export const Intro = () => {
-	const navigate = useNavigate();
-	const { workspaces } = useWorkspaces();
-	const createWorkspace = useCreateWorkspace();
-	const handleCreateWorkspace = () => {
-		createWorkspace.mutate({});
-	};
-	useEffect(() => {
-		if (workspaces.length > 0) {
-			navigate('/apps');
-		}
-	});
 	return (
 		<Flex alignItems="center" justifyContent="center" h="full" w="full">
 			<VStack spacing="8">
@@ -28,9 +14,6 @@ export const Intro = () => {
 						skip creating a workspace and wait for them to invite you.
 					</Text>
 				</VStack>
-				<Button colorScheme="blue" size="lg" onClick={handleCreateWorkspace}>
-					Create Workspace
-				</Button>
 			</VStack>
 		</Flex>
 	);

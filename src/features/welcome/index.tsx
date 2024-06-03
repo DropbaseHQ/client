@@ -1,5 +1,4 @@
 import { Book } from 'react-feather';
-import { useState } from 'react';
 import {
 	Box,
 	Button,
@@ -13,11 +12,8 @@ import {
 } from '@chakra-ui/react';
 import { VideoList } from './components/VideoList';
 import { PageLayout } from '@/layout';
-import { Setup } from './components/Setup';
-import { SalesModal } from '../app-list/AppSalesModal';
 
 export const Welcome = () => {
-	const [modalIsOpen, setModalIsOpen] = useState(false);
 	return (
 		<PageLayout
 			title="Welcome to Dropbase!"
@@ -39,14 +35,6 @@ export const Welcome = () => {
 			<Stack spacing="4">
 				<VideoList />
 				<Flex p="4" direction="row" justifyContent="space-between">
-					<Stack flex="3">
-						<Text fontWeight="semibold" fontSize="lg">
-							Setup Instructions:
-						</Text>
-						<Box p="2">
-							<Setup />
-						</Box>
-					</Stack>
 					<Divider orientation="vertical" mx="4" />
 					<Box flex="3" p="2">
 						<Text fontWeight="semibold" fontSize="lg">
@@ -90,17 +78,6 @@ export const Welcome = () => {
 							<Text fontWeight="semibold" fontSize="lg" mt="4">
 								Want to use Dropbase{`'`}s Hosted Client?
 							</Text>
-							<Button
-								onClick={() => {
-									setModalIsOpen((prev) => !prev);
-								}}
-								w="fit-content"
-							>
-								Request Access
-							</Button>
-							{modalIsOpen && (
-								<SalesModal isOpen={modalIsOpen} setIsOpen={setModalIsOpen} />
-							)}
 						</Stack>
 					</Box>
 				</Flex>

@@ -11,6 +11,7 @@
 # client
 .DS_Store
 node_modules/
+# dist/
 index.html
 chunks-report.html
 
