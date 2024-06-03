@@ -9,8 +9,9 @@ import { hasSelectedRowAtom } from '../atoms';
 import { executeAction } from '@/features/app-preview/hooks';
 import { ACTIONS } from '@/constant';
 import { DEFAULT_PAGE_SIZE } from '@/features/smart-table/constants';
-import { getErrorMessage } from '@/utils';
+import { getErrorMessage, getLogInfo } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
+import { logsAtom } from '@/features/app-builder/atoms';
 
 export const TABLE_DATA_QUERY_KEY = 'tableData';
 export const FUNCTION_DATA_QUERY_KEY = 'functionData';
@@ -78,6 +79,8 @@ export const useTableData = ({
 
 	const toast = useToast();
 
+	const setLogs = useSetAtom(logsAtom);
+
 	const tableMethods = allResourceMethods?.[tableName]?.methods || [];
 
 	const selectRow = useSetAtom(pageStateAtom);
@@ -143,6 +146,16 @@ export const useTableData = ({
 			staleTime: Infinity,
 			onSuccess: (data: any) => {
 				syncState(data);
+
+				setLogs({
+					...getLogInfo({ info: data }),
+					meta: {
+						type: 'table',
+						action: 'get',
+						resource: tableName,
+						state: pageStateRef.current,
+					},
+				});
 			},
 			retry: false,
 			onError: (error: any) => {
@@ -152,6 +165,16 @@ export const useTableData = ({
 						title: getErrorMessage(error),
 					});
 				}
+
+				setLogs({
+					...getLogInfo({ info: error, isError: true }),
+					meta: {
+						type: 'table',
+						action: 'get',
+						resource: tableName,
+						state: pageStateRef.current,
+					},
+				});
 
 				/**
 				 * Reset selected row of the current table, and all the tables

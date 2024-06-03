@@ -1,14 +1,5 @@
-import {
-	Box,
-	Code,
-	Divider,
-	IconButton,
-	Skeleton,
-	SkeletonCircle,
-	Stack,
-	Text,
-} from '@chakra-ui/react';
-import { Play, FileText } from 'react-feather';
+import { IconButton, Skeleton, SkeletonCircle, Stack, Text } from '@chakra-ui/react';
+import { Play } from 'react-feather';
 import * as monacoLib from 'monaco-editor';
 import { useAtom, useAtomValue } from 'jotai';
 
@@ -24,18 +15,16 @@ import {
 	MODEL_SCHEME,
 	findFunctionDeclarations,
 	generateFunctionCallSuggestions,
-	logBuilder,
 } from '@/features/app-builder/utils';
 import { useGetPage } from '@/features/page';
-import { ChakraTable } from '@/components/Table';
 import { logsAtom, previewCodeAtom } from '../../atoms';
-import { getErrorMessage } from '@/utils';
+import { getErrorMessage, getLogInfo } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 
 export const FunctionTerminal = ({ panelRef }: any) => {
 	const [{ code, name, execute }, setPreviewCode] = useAtom(previewCodeAtom);
 
-	const [{ logs }, setLogs] = useAtom(logsAtom);
+	const [, setLogs] = useAtom(logsAtom);
 
 	const toast = useToast();
 
@@ -69,15 +58,10 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 			syncState(response);
 
 			setLogs({
-				log: logBuilder(response),
-				preview: {
-					rows: response?.data || [],
-					columns: response?.columns || [],
-					type: response?.type,
-				},
+				...getLogInfo({ info: response }),
 				meta: {
 					type: 'test',
-					...variables,
+					state: variables?.pageState,
 				},
 			});
 
@@ -183,7 +167,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	}
 
 	return (
-		<Stack w="full" h="full" spacing="0">
+		<Stack w="full" spacing="0">
 			{file?.type === 'python' ? (
 				<>
 					<Stack bg="gray.50" px="2" py="1" borderBottomWidth="1px">
@@ -226,77 +210,6 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 					</Stack>
 				</>
 			) : null}
-
-			<Stack bg="white" spacing="0" h="full">
-				<Stack
-					bg="gray.50"
-					px="2"
-					py="1"
-					borderBottomWidth="1px"
-					direction="row"
-					alignItems="center"
-				>
-					<FileText size="12" />
-					<Text fontWeight="medium" fontSize="sm">
-						Logs & Traceback
-					</Text>
-				</Stack>
-
-				<Stack h="full" overflowY="auto" spacing="0">
-					{logs.map((log) => {
-						return (
-							<Stack
-								flexGrow="0"
-								spacing="0"
-								divider={<Divider orientation="vertical" />}
-								direction="row"
-								key={log?.time}
-								borderBottomWidth="1px"
-							>
-								<Stack p="2" flex="1">
-									<Code bg="transparent">{new Date(log.time).toString()}</Code>
-								</Stack>
-								<Stack flex="3" w="full">
-									<Box
-										minH="40px"
-										h={`${Math.min(log.log.split('\n').length, 15) * 12}px`}
-									>
-										<MonacoEditor
-											value={log.log}
-											language="shell"
-											options={{
-												lineNumbers: 'off',
-												readOnly: true,
-												renderLineHighlight: 'none',
-												scrollbar: {
-													verticalHasArrows: false,
-													alwaysConsumeMouseWheel: false,
-													vertical: 'auto',
-													horizontal: 'auto',
-												},
-											}}
-										/>
-									</Box>
-
-									{log?.preview?.type === 'table' &&
-									log?.preview?.columns?.length > 0 ? (
-										<Box px="3" w="full" mt="3" pb="3" borderBottomWidth="1px">
-											<ChakraTable
-												{...log?.preview}
-												columns={log?.preview?.columns?.map(
-													(c: any) => c.name,
-												)}
-												maxH="md"
-												borderRadius="sm"
-											/>
-										</Box>
-									) : null}
-								</Stack>
-							</Stack>
-						);
-					})}
-				</Stack>
-			</Stack>
 		</Stack>
 	);
 };

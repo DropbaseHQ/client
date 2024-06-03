@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+import { Log } from '@/features/app-builder/atoms';
 
 export const PG_COLUMN_BASE_TYPE: any = {
 	TEXT: 'text',
@@ -153,4 +154,20 @@ export const extractTemplateString = (value: any, state: any) => {
 	} catch (e) {
 		return value;
 	}
+};
+
+export const getLogInfo = ({ info, isError }: any): Log => {
+	const response = isError ? info?.response?.data : info;
+
+	return {
+		message: response?.message,
+		stdout: response?.stdout,
+		traceback: response?.traceback,
+		type: isError ? 'failed' : 'success',
+		preview: {
+			rows: response?.data || [],
+			columns: response?.columns || [],
+			type: response?.type,
+		},
+	};
 };

@@ -1,13 +1,14 @@
 import { useMutation, useQueryClient } from 'react-query';
 
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useParams } from 'react-router-dom';
 import { WIDGET_PREVIEW_QUERY_KEY } from '@/features/app-preview/hooks';
 import { workerAxios } from '@/lib/axios';
 import { fetchJobStatus } from '@/utils/worker-job';
 import { pageStateAtom, useSyncState } from '@/features/app-state';
-import { getErrorMessage } from '@/utils';
+import { getErrorMessage, getLogInfo } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
+import { logsAtom } from '@/features/app-builder/atoms';
 
 export const executeAction = async ({
 	pageName,
@@ -57,14 +58,37 @@ export const useEvent = (props?: any) => {
 
 	const pageState = useAtomValue(pageStateAtom);
 
+	const setLogs = useSetAtom(logsAtom);
+
 	const syncState = useSyncState();
 
 	const actionMutation = useExecuteAction({
-		onSuccess: (data: any) => {
+		onSuccess: (data: any, variables: any) => {
 			syncState(data);
+			setLogs({
+				...getLogInfo({ info: data }),
+				meta: {
+					type: 'ui_event',
+					action: variables?.action,
+					resource: variables?.resource,
+					component: variables?.component,
+					state: variables.pageState,
+				},
+			});
 			props?.onSuccess?.(data);
 		},
-		onError: (error: any) => {
+		onError: (error: any, variables: any) => {
+			setLogs({
+				...getLogInfo({ info: error, isError: true }),
+				meta: {
+					type: 'ui_event',
+					action: variables?.action,
+					resource: variables?.resource,
+					component: variables?.component,
+					state: variables.pageState,
+				},
+			});
+
 			toast({
 				status: 'error',
 				title: 'Failed to execute action',

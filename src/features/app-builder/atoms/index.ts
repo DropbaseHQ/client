@@ -22,15 +22,19 @@ export const previewCodeAtom = atom<any>({
 	code: null,
 });
 
-type Log = {
+export type Log = {
 	meta?: { [key: string]: any };
-	log: string;
+	message: string;
+	stdout: string;
+	traceback: string;
+	type?: string;
+	time?: any;
+
 	preview?: {
 		rows: any;
 		columns: any;
 		type: any;
 	};
-	time?: any;
 };
 
 type Logs = {

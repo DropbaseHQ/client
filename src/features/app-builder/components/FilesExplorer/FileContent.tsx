@@ -13,6 +13,7 @@ import { CodeEditor } from './CodeEditor';
 import { useGetPage } from '@/features/page';
 import { FunctionTerminal } from './FunctionTerminal';
 import { PanelHandle } from '@/components/Panel';
+import { FunctionLogs } from './FunctionLogs';
 
 const componentsMap: any = {
 	python: FunctionEditor,
@@ -43,7 +44,7 @@ export const FileContent = () => {
 	const Component = componentsMap[devTab.type] || CodeEditor;
 
 	return (
-		<PanelGroup direction="vertical">
+		<PanelGroup autoSaveId="dev-content" direction="vertical">
 			<Panel>
 				<Box h="full" overflowX="hidden" overflowY="auto">
 					{Component ? (
@@ -59,7 +60,15 @@ export const FileContent = () => {
 			</Panel>
 			<PanelHandle direction="horizontal" />
 			<Panel ref={panelRef} defaultSize={11} maxSize={75} minSize={10}>
-				<FunctionTerminal panelRef={panelRef} />
+				<PanelGroup autoSaveId="test-content" direction="vertical">
+					<Panel minSize={15}>
+						<FunctionTerminal panelRef={panelRef} />
+					</Panel>
+					<PanelHandle direction="horizontal" />
+					<Panel minSize={15}>
+						<FunctionLogs />
+					</Panel>
+				</PanelGroup>
 			</Panel>
 		</PanelGroup>
 	);
