@@ -8,6 +8,7 @@ import {
 	PopoverFooter,
 	PopoverHeader,
 	PopoverTrigger,
+	Portal,
 	useDisclosure,
 } from '@chakra-ui/react';
 import { Trash } from 'react-feather';
@@ -73,30 +74,34 @@ export const DeleteRowButton = ({ row }: any) => {
 						Delete Row
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent>
-					<PopoverHeader>Confirm Deleting Row</PopoverHeader>
-					<PopoverCloseButton />
-					<PopoverBody>Are you sure you want to continue with your action?</PopoverBody>
-					<PopoverFooter display="flex" justifyContent="flex-end">
-						<ButtonGroup size="sm">
-							<Button
-								isDisabled={mutation.isLoading}
-								colorScheme="gray"
-								onClick={onClose}
-								variant="outline"
-							>
-								Cancel
-							</Button>
-							<Button
-								isLoading={mutation.isLoading}
-								onClick={handleDelete}
-								colorScheme="red"
-							>
-								Delete
-							</Button>
-						</ButtonGroup>
-					</PopoverFooter>
-				</PopoverContent>
+				<Portal>
+					<PopoverContent>
+						<PopoverHeader>Confirm Deleting Row</PopoverHeader>
+						<PopoverCloseButton />
+						<PopoverBody>
+							Are you sure you want to continue with your action?
+						</PopoverBody>
+						<PopoverFooter display="flex" justifyContent="flex-end">
+							<ButtonGroup size="sm">
+								<Button
+									isDisabled={mutation.isLoading}
+									colorScheme="gray"
+									onClick={onClose}
+									variant="outline"
+								>
+									Cancel
+								</Button>
+								<Button
+									isLoading={mutation.isLoading}
+									onClick={handleDelete}
+									colorScheme="red"
+								>
+									Delete
+								</Button>
+							</ButtonGroup>
+						</PopoverFooter>
+					</PopoverContent>
+				</Portal>
 			</Popover>
 		);
 	}
