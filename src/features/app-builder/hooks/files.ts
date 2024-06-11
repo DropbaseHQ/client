@@ -5,43 +5,6 @@ import { workerAxios } from '@/lib/axios';
 export const ALL_PAGE_FILES_QUERY_KEY = 'allFiles';
 export const ALL_FUNCTIONS_QUERY_KEY = 'allFunctions';
 
-const fetchStateContextFunctions = async ({
-	pageName,
-	appName,
-}: {
-	pageName: any;
-	appName: any;
-}) => {
-	const response = await workerAxios.get<any>(`/files/get_functions/${appName}/${pageName}/`);
-	return response.data;
-};
-
-export const useFunctions = ({ pageName, appName }: { pageName: any; appName: any }) => {
-	const queryKey = [ALL_FUNCTIONS_QUERY_KEY, pageName, appName];
-
-	const { data: response, ...rest } = useQuery(
-		queryKey,
-		() => fetchStateContextFunctions({ pageName, appName }),
-		{
-			enabled: Boolean(appName) && Boolean(pageName),
-			staleTime: Infinity,
-			cacheTime: Infinity,
-		},
-	);
-
-	const info = useMemo(() => {
-		return {
-			functions: response || [],
-		};
-	}, [response]);
-
-	return {
-		...rest,
-		queryKey,
-		...info,
-	};
-};
-
 const fetchFile = async ({ fileName, appName, pageName }: any) => {
 	const response = await workerAxios.get<string>(
 		`/workspace/${appName}/${pageName}/${fileName}/`,

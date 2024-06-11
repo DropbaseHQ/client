@@ -14,7 +14,6 @@ import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 
 import { LabelContainer } from '@/components/LabelContainer';
-import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 
 export const TableProperties = () => {
@@ -222,17 +221,6 @@ export const TableProperties = () => {
 												property.name === 'columns'
 											) {
 												return null;
-											}
-
-											if (property.name === 'fetcher') {
-												return (
-													<EventPropertyEditor
-														id={property.name}
-														title={property.title}
-														onSelect={resetDependsOn}
-														showFetchersOnly
-													/>
-												);
 											}
 
 											if (property.name === 'widget') {

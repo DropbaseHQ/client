@@ -12,7 +12,6 @@ import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { getErrorMessage } from '@/utils';
-import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { LabelContainer } from '@/components/LabelContainer';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 
@@ -365,22 +364,6 @@ export const ComponentPropertyEditor = () => {
 													<DisplayRulesEditor
 														widgetName={widgetName}
 														name={component.name}
-													/>
-												);
-											}
-
-											if (property.category === 'Events') {
-												return <EventPropertyEditor id={property.name} />;
-											}
-
-											if (property.name === 'fetcher') {
-												if (!useFetcher) return null;
-
-												return (
-													<EventPropertyEditor
-														id="fetcher"
-														title={property.title}
-														showFetchersOnly
 													/>
 												);
 											}

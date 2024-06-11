@@ -27,7 +27,6 @@ import { pageStateContextAtom } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { NewColumn } from '@/features/app-builder/components/PropertiesEditor/NewColumn';
-import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import OptionsList from '@/features/app-builder/components/PropertiesEditor/OptionsList';
 import { ACTIONS } from '@/constant';
 
@@ -386,10 +385,6 @@ const ColumnProperty = ({
 							{columnFields
 								.filter((f: any) => editableFields?.includes(f?.name))
 								.map((f: any) => {
-									if (f?.category === 'Events') {
-										return <EventPropertyEditor key={f.name} id={f.name} />;
-									}
-
 									if (f.name === 'name') {
 										return (
 											<FormInput
