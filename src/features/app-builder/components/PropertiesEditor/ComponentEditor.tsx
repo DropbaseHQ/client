@@ -25,7 +25,7 @@ export const ComponentPropertyEditor = () => {
 
 	const { widget: widgetName, table: tableName, resource } = meta || {};
 
-	const { widgets, isLoading, tables, properties, files } = useGetPage({ appName, pageName });
+	const { widgets, isLoading, tables, properties } = useGetPage({ appName, pageName });
 
 	const component =
 		resource === 'widget'
@@ -46,7 +46,6 @@ export const ComponentPropertyEditor = () => {
 		),
 	];
 
-	const functions = files.filter((f: any) => f.type === 'python')?.map((f: any) => f?.name);
 
 	const methods = useForm();
 	const {
@@ -367,33 +366,18 @@ export const ComponentPropertyEditor = () => {
 												);
 											}
 
-											if (
-												(property.name === 'fetcher' ||
-													property.name === 'name_column' ||
-													property.name === 'value_column') &&
-												!component?.use_fetcher
-											) {
-												return null;
-											}
-
-											const showFunctionList = property.type === 'function';
 
 											return (
 												<FormInput
 													{...property}
 													id={property.name}
 													name={property.title}
-													type={
-														showFunctionList
-															? 'select'
-															: (property.type === 'string' &&
+													type={(property.type === 'string' &&
 																	'markdown') ||
 															  property.type
 													}
 													options={(
-														(showFunctionList
-															? functions
-															: property.enum || property.options) ||
+														(property.enum || property.options) ||
 														[]
 													).map((o: any) => ({
 														name: o,

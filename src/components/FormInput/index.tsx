@@ -451,13 +451,6 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		);
 	}
 
-	if (type === 'sql') {
-		return (
-			<Box w="full" borderWidth="1px" borderColor="gray.300" borderRadius="sm" p="0.5">
-				<MonacoEditor language="sql" value={value} onChange={onChange} />
-			</Box>
-		);
-	}
 
 	if (type === 'template') {
 		return (
