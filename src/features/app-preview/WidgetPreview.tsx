@@ -1,4 +1,4 @@
-import { Box, CloseButton, Progress, Stack } from '@chakra-ui/react';
+import { Box, CloseButton, Stack } from '@chakra-ui/react';
 
 import { Move } from 'react-feather';
 import { useParams } from 'react-router-dom';
@@ -7,7 +7,6 @@ import { useAtom, useAtomValue } from 'jotai';
 import { useGetWidgetPreview } from '@/features/app-preview/hooks';
 import { pageContextAtom, pageStateContextAtom } from '@/features/app-state';
 import { useGetPage, useUpdatePageData } from '@/features/page';
-import { useReorderComponents } from '@/features/app-builder/hooks';
 import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
 import { AppComponent } from './AppComponent';
@@ -40,8 +39,6 @@ export const WidgetPreview = ({ widgetName }: any) => {
 	const pageStateContext = useAtomValue(pageStateContextAtom);
 
 	const [allWidgetContext, setWidgetContext]: any = useAtom(pageContextAtom);
-
-	const reorderMutation = useReorderComponents();
 
 	const widgetContext: any = allWidgetContext[widgetName || ''];
 
@@ -217,8 +214,6 @@ export const WidgetPreview = ({ widgetName }: any) => {
 					type={widgetContext?.message_type}
 					onClose={handleRemoveAlert}
 				/>
-
-				{reorderMutation.isLoading && <Progress mt="auto" size="xs" isIndeterminate />}
 			</Stack>
 		</Loader>
 	);

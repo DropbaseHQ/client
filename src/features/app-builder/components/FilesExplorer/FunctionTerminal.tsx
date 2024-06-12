@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { MonacoEditor } from '@/components/Editor';
-import { useRunFunction, useRunSQLQuery } from '@/features/app-builder/hooks';
+import { useRunFunction } from '@/features/app-builder/hooks';
 import { pageStateAtom, useSyncState } from '@/features/app-state';
 import {
 	MODEL_PATH,
@@ -85,10 +85,6 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 		...runHandlers,
 	});
 
-	const runSQLQueryMutation = useRunSQLQuery({
-		...runHandlers,
-	});
-
 	useEffect(() => {
 		if (!monaco || file?.type === 'sql') {
 			return () => {};
@@ -137,11 +133,11 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 	}, [code, file, pageState, runPythonMutation, testCode, appName, pageName]);
 
 	const executeShortcut = useCallback(() => {
-		if (file && !runPythonMutation.isLoading && !runSQLQueryMutation.isLoading) {
+		if (file && !runPythonMutation.isLoading) {
 			setPreviewCode((old: any) => ({ ...old, execute: false }));
 			handleRunPythonFunction();
 		}
-	}, [file, setPreviewCode, runPythonMutation, runSQLQueryMutation, handleRunPythonFunction]);
+	}, [file, setPreviewCode, runPythonMutation, handleRunPythonFunction]);
 
 	useEffect(() => {
 		if (execute) {
@@ -149,7 +145,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 		}
 	}, [execute, executeShortcut]);
 
-	const isLoading = runPythonMutation.isLoading || runSQLQueryMutation.isLoading;
+	const isLoading = runPythonMutation.isLoading;
 
 	const handleTestCodeMount = (editor: any) => {
 		editor.onDidContentSizeChange((event: any) => {

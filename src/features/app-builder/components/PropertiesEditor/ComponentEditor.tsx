@@ -65,7 +65,6 @@ export const ComponentPropertyEditor = () => {
 	const defaultValue = watch('default');
 	const multiline = watch('multiline');
 	const hasStateInDefault = watch('stateInDefault');
-	const useFetcher = watch('use_fetcher');
 
 	useEffect(() => {
 		if (multiple) {
