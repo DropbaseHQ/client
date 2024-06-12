@@ -21,7 +21,7 @@ export const executeAction = async ({
 	section,
 	row,
 }: any) => {
-	const response = await workerAxios.post(`/function/class`, {
+	const response = await workerAxios.post(`/function/class/`, {
 		page_name: pageName,
 		app_name: appName,
 		state: pageState,

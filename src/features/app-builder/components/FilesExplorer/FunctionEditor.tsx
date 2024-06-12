@@ -9,7 +9,7 @@ import { useQueryClient } from 'react-query';
 import { useToast } from '@/lib/chakra-ui';
 
 import { usePythonEditor } from '@/components/Editor';
-import { COLUMN_PROPERTIES_QUERY_KEY, useFile, useSaveCode } from '@/features/app-builder/hooks';
+import { useFile, useSaveCode } from '@/features/app-builder/hooks';
 import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
 
 import { getErrorMessage } from '@/utils';
@@ -122,7 +122,6 @@ export const FunctionEditor = ({ name }: any) => {
 	const refetchColumns = () => {
 		handleSave();
 		queryClient.invalidateQueries(TABLE_DATA_QUERY_KEY);
-		queryClient.invalidateQueries(COLUMN_PROPERTIES_QUERY_KEY);
 	};
 
 	return (
