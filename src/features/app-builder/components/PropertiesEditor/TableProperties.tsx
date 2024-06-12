@@ -60,7 +60,6 @@ export const TableProperties = () => {
 		reset,
 		formState: { isDirty },
 		watch,
-		setValue,
 	} = methods;
 
 	const functions = files.filter((f: any) => f.type === 'python')?.map((f: any) => f?.name);
@@ -139,14 +138,6 @@ export const TableProperties = () => {
 			});
 		} catch (e) {
 			//
-		}
-	};
-
-	const resetDependsOn = (newFileId: any) => {
-		const newFile = files.find((f: any) => f.name === newFileId);
-
-		if (newFile?.type === 'python') {
-			setValue('depends', null);
 		}
 	};
 
