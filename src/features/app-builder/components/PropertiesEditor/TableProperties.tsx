@@ -37,7 +37,7 @@ export const TableProperties = () => {
 
 	const currentCategories = ['Default'];
 
-	const { tables, files, properties, widgets } = useGetPage({ appName, pageName });
+	const { files, properties} = useGetPage({ appName, pageName });
 
 	const mutation = useUpdatePageData({
 		onSuccess: () => {
@@ -59,13 +59,8 @@ export const TableProperties = () => {
 	const {
 		reset,
 		formState: { isDirty },
-		watch,
 	} = methods;
 
-	const functions = files.filter((f: any) => f.type === 'python')?.map((f: any) => f?.name);
-
-	const selectedFetcher = watch('fetcher');
-	const selectedFile = files.find((f: any) => f.name === selectedFetcher);
 
 	useEffect(() => {
 		reset(
@@ -156,7 +151,7 @@ export const TableProperties = () => {
 			<FormProvider {...methods}>
 				<Stack key={tableId}>
 					<Stack
-						py="1.5"
+						py="2"
 						px="4"
 						borderBottomWidth="1px"
 						flex="1"
@@ -167,6 +162,7 @@ export const TableProperties = () => {
 							<LabelContainer>
 								<LabelContainer.Code>{tableId}</LabelContainer.Code>
 							</LabelContainer>
+
 							{false ? (
 								<NameEditor
 									value={tableId}
@@ -214,100 +210,21 @@ export const TableProperties = () => {
 												return null;
 											}
 
-											if (property.name === 'widget') {
-												return (
-													<FormInput
-														{...property}
-														id={property.name}
-														name={property.title}
-														type="select"
-														options={widgets
-															?.filter(
-																(w: any) => w.type === 'inline',
-															)
-															?.map((w: any) => ({
-																name: w.label,
-																value: w.name,
-															}))}
-														key={property.name}
-													/>
-												);
-											}
-
-											if (property.name === 'height') {
-												return (
-													<FormInput
-														type="select"
-														id="height"
-														name={property.title}
-														placeholder="Select table height"
-														options={['1/3', '1/2', 'full'].map(
-															(size: any) => ({
-																name: size,
-																value: size,
-															}),
-														)}
-													/>
-												);
-											}
-
-											if (property.name === 'size') {
-												return (
-													<FormInput
-														type="select"
-														id="size"
-														name={property.title}
-														placeholder="Select table size"
-														options={[1, 10, 20, 50, 100].map(
-															(size: any) => ({
-																name: size,
-																value: size,
-															}),
-														)}
-													/>
-												);
-											}
-
-											if (property.name === 'depends_on') {
-												return (
-													<FormInput
-														type="multiselect"
-														id="depends"
-														isDisabled={selectedFile?.type === 'sql'}
-														name={property.title}
-														placeholder="Select the table which it depends on"
-														options={tables
-															.filter((t: any) => t.name !== tableId)
-															.map((t: any) => ({
-																name: t.name,
-																value: t.name,
-															}))}
-													/>
-												);
-											}
-
-											const showFunctionList =
-												property.type === 'on_row_change' ||
-												property.name === 'on_row_select';
 
 											return (
 												<FormInput
 													{...property}
 													id={property.name}
 													name={property.title}
-													type={
-														showFunctionList ? 'select' : property.type
-													}
+													type={property.type}
+													key={property.name}
 													options={(
-														(showFunctionList
-															? functions
-															: property.enum || property.options) ||
+														(property.enum || property.options) ||
 														[]
 													).map((o: any) => ({
 														name: o,
 														value: o,
 													}))}
-													key={property.name}
 												/>
 											);
 										})}
