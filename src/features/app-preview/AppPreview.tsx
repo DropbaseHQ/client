@@ -14,7 +14,6 @@ import { InspectorContainer } from '@/features/app-builder';
 import { appModeAtom } from '@/features/app/atoms';
 import { extractTemplateString, generateSequentialName } from '@/utils';
 import { NewWidget } from '@/features/app-preview/components/NewWidget';
-import { WidgetSwitcher } from '@/features/app-preview/components/WidgetSwitcher';
 import { WidgetPreview } from '@/features/app-preview/WidgetPreview';
 import { LabelContainer } from '@/components/LabelContainer';
 import { Notification } from '@/features/app-preview/components/Notification';
@@ -188,7 +187,6 @@ export const AppPreview = () => {
 					</InspectorContainer>
 
 					<NewWidget />
-					<WidgetSwitcher />
 				</Stack>
 				<Stack overflowX="hidden" h="full">
 					{widgetsToDisplay.map((wName: string) => (

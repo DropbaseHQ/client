@@ -95,7 +95,6 @@ export const DeleteTable = ({ tableId, tableName, ...props }: any) => {
 					onClick={isSmartTable ? onToggle : onSubmit}
 					type="button"
 					isLoading={mutation.isLoading}
-					size="sm"
 					{...props}
 					icon={<Trash size="14" />}
 				/>

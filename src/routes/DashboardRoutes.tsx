@@ -2,8 +2,6 @@ import { Center, Spinner } from '@chakra-ui/react';
 import { Suspense, useEffect } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { DashboardLayout } from '@/layout';
-import { OnboardingForm } from '@/features/authorization/OnboardingForm';
-import { Intro } from '@/features/intro';
 
 export const DashboardRoutes = ({ homeRoute, children }: any) => {
 	useEffect(() => {
@@ -44,12 +42,10 @@ export const DashboardRoutes = ({ homeRoute, children }: any) => {
 					element={
 						<DashboardLayout>
 							<Outlet />
-							<OnboardingForm />
 						</DashboardLayout>
 					}
 				>
 					<Route index element={<Navigate to={homeRoute} />} />
-					<Route path="intro" element={<Intro />} />
 					{children}
 					<Route path="*" element={<Navigate to={homeRoute} />} />
 				</Route>
