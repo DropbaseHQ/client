@@ -164,9 +164,9 @@ export const PromptModal = () => {
 	useHotkeys('ctrl+enter, meta+enter', onSubmit);
 
 	return (
-		<Modal size="5xl" isOpen={isOpen} onClose={handleCloseModal}>
+		<Modal size="6xl" isOpen={isOpen} onClose={handleCloseModal}>
 			<ModalOverlay />
-			<ModalContent>
+			<ModalContent minW={updatedCode.prompt && updatedCode.code && !isUIPrompt ? "80%" : "10%"}>
 				<form onSubmit={methods.handleSubmit(onSubmit)}>
 					<FormProvider {...methods}>
 						<ModalHeader borderBottomWidth="1px">
