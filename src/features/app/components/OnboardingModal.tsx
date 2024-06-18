@@ -137,23 +137,22 @@ export const OnboardingModal = () => {
 									fontSize="sm"
 									onClick={() => handleInfoToggle()}
 								>
-									What happens when you complete this form?
+									What happens when I complete this form?
 								</Text>
 								<Stack display={showInfo ? 'contents' : 'none'}>
 									<OrderedList fontSize="sm">
 										<ListItem>
-											Complete your local setup. We'll mark you as onboarded
-											in the workspace properties.json file so you're not
-											asked to complete this form again
+											Local setup is completed. The workspace's
+											properties.json file is updated with owner information,
+											and this form will not be prompted again.
 										</ListItem>
 										<ListItem>
-											Add your contact info to our mailing list so we can send
-											you updates, beta invites, and access to Slack/Discord,
-											etc.
+											Your contact info is added to our mailing list so we can
+											send you updates, beta invites, and access to
+											Slack/Discord, etc.
 										</ListItem>
 										<ListItem>
-											If you fill up the use case field, your feedback is sent
-											to our Slack channel
+											Your feedback is sent to our Slack channel.
 										</ListItem>
 									</OrderedList>
 								</Stack>
