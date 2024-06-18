@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useAtom } from 'jotai';
-import { Box, Center, Skeleton, Stack, Text } from '@chakra-ui/react';
+import { Box, Skeleton, Stack } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { Panel, PanelGroup } from 'react-resizable-panels';
 
@@ -21,7 +21,7 @@ const componentsMap: any = {
 
 export const FileContent = () => {
 	const { appName, pageName } = useParams();
-	const { files, isLoading } = useGetPage({ appName, pageName });
+	const { isLoading } = useGetPage({ appName, pageName });
 
 	const panelRef = useRef<any>(null);
 
@@ -47,23 +47,13 @@ export const FileContent = () => {
 		<PanelGroup autoSaveId="dev-content" direction="vertical">
 			<Panel>
 				<Box h="full" overflowX="hidden" overflowY="auto">
-					{Component ? (
-						<Component name={devTab.id} />
-					) : (
-						<Center p="4" h="full">
-							<Text fontSize="md" fontWeight="medium">
-								{files.length > 0 ? 'Select a file' : 'Create a File'}
-							</Text>
-						</Center>
-					)}
+					<Component name={devTab.id} />
+					<FunctionTerminal panelRef={panelRef} />
 				</Box>
 			</Panel>
 			<PanelHandle direction="horizontal" />
 			<Panel ref={panelRef} defaultSize={11} maxSize={75} minSize={10}>
 				<PanelGroup autoSaveId="test-content" direction="vertical">
-					<Panel minSize={15}>
-						<FunctionTerminal panelRef={panelRef} />
-					</Panel>
 					<PanelHandle direction="horizontal" />
 					<Panel minSize={15}>
 						<FunctionLogs />
