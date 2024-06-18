@@ -25,13 +25,13 @@ let data = `<!doctype html>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta
 			name="title"
-			content="Dropbase | Build internal apps with SQL and Python in minutes"
+			content="Dropbase | The AI Internal Tools Builder"
 		/>
-		<title>Dropbase | Build internal apps with SQL and Python in minutes</title>
+		<title>Dropbase | The AI Internal Tools Builder</title>
 
 		<!-- Open Graph / Facebook -->
 		<meta
-			content="Dropbase | Build internal apps with SQL and Python in minutes"
+			content="Dropbase | The AI Internal Tools Builder"
 			property="og:title"
 		/>
 		<meta
@@ -47,7 +47,7 @@ let data = `<!doctype html>
 
 		<!-- Twitter -->
 		<meta
-			content="Dropbase | Build internal apps with SQL and Python in minutes"
+			content="Dropbase | The AI Internal Tools Builder"
 			property="twitter:title"
 		/>
 		<meta
