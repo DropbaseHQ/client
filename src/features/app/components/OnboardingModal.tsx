@@ -8,6 +8,9 @@ import {
 	ModalFooter,
 	ModalBody,
 	useDisclosure,
+	ListItem,
+	OrderedList,
+	Text,
 } from '@chakra-ui/react';
 import { useMutation } from 'react-query';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -18,6 +21,7 @@ import { FormInput } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
+import { useState } from 'react';
 
 const onboard = async (data: any) => {
 	const response = await workerAxios.post<any>(`/workspaces/onboarding`, data);
@@ -29,6 +33,8 @@ export const OnboardingModal = () => {
 	const toast = useToast();
 
 	const methods = useForm();
+
+	const [showInfo, setShowInfo] = useState(false);
 
 	const { isOpen, onClose, onToggle } = useDisclosure();
 
@@ -61,79 +67,97 @@ export const OnboardingModal = () => {
 		mutate(data);
 	};
 
+	const handleInfoToggle = () => {
+		setShowInfo(!showInfo);
+	};
+
 	return (
 		<Modal isOpen={isOpen} size="xl" isCentered onClose={() => null}>
 			<ModalOverlay />
-			<ModalContent>
+			<ModalContent py="5">
 				<FormProvider {...methods}>
 					<form onSubmit={methods.handleSubmit(onSubmit)}>
-						<ModalHeader borderBottomWidth="1px">Welcome to Dropbase!</ModalHeader>
+						<ModalHeader borderBottomWidth="1px">
+							Get access to betas and help us improve Dropbase!
+						</ModalHeader>
 						<ModalBody py="6">
 							<Stack spacing="3">
-								<FormInput
-									name="Email"
-									id="email"
-									type="email"
-									placeholder="Please enter your email"
-									validation={{
-										required: 'Cannot  be empty',
-									}}
-								/>
+								<Stack direction="row">
+									<FormInput
+										name="Email *"
+										id="email"
+										type="email"
+										validation={{
+											required: 'Email is required',
+										}}
+									/>
+									<FormInput name="Company" id="company" />
+								</Stack>
 
 								<Stack direction="row">
 									<FormInput
-										name="First Name"
+										name="First Name *"
 										id="first_name"
-										placeholder="Please enter your first name"
 										validation={{
-											required: 'Cannot  be empty',
+											required: 'First name is required',
 										}}
 									/>
-
 									<FormInput
-										name="Last Name"
+										name="Last Name *"
 										id="last_name"
-										placeholder="Please enter your last name"
+										validation={{
+											required: 'Last name is required',
+										}}
 									/>
 								</Stack>
 
 								<FormInput
-									name="Usecase"
+									name="What are you looking to use Dropbase for? (user case)"
 									id="use_case"
-									placeholder="Please select your usecase"
-									type="custom-select"
-									options={[
-										{
-											name: 'Research',
-											value: 'research',
-										},
-										{
-											name: 'Internal Tools',
-											value: 'internal_tools',
-										},
-									]}
-									validation={{
-										required: 'Cannot  be empty',
-									}}
-								/>
-
-								<FormInput
-									name="Additional Notes"
-									id="notes"
-									placeholder="Please mention additional notes"
 									type="textarea"
 								/>
 							</Stack>
+							<Stack align="center" pt="5">
+								<Button
+									width="100px"
+									colorScheme="blue"
+									isLoading={onboardLoading}
+									type="submit"
+									size="sm"
+								>
+									Complete
+								</Button>
+							</Stack>
 						</ModalBody>
 						<ModalFooter borderTopWidth="1px">
-							<Button
-								colorScheme="blue"
-								isLoading={onboardLoading}
-								type="submit"
-								size="sm"
-							>
-								Finish
-							</Button>
+							<Stack direction="column" spacing="3" width="full">
+								<Text
+									textDecoration="underline"
+									cursor="pointer"
+									fontSize="sm"
+									onClick={() => handleInfoToggle()}
+								>
+									What happens when you complete this form?
+								</Text>
+								<Stack display={showInfo ? 'contents' : 'none'}>
+									<OrderedList fontSize="sm">
+										<ListItem>
+											Complete your local setup. We'll mark you as onboarded
+											in the workspace properties.json file so you're not
+											asked to complete this form again
+										</ListItem>
+										<ListItem>
+											Add your contact info to our mailing list so we can send
+											you updates, beta invites, and access to Slack/Discord,
+											etc.
+										</ListItem>
+										<ListItem>
+											If you fill up the use case field, your feedback is sent
+											to our Slack channel
+										</ListItem>
+									</OrderedList>
+								</Stack>
+							</Stack>
 						</ModalFooter>
 					</form>
 				</FormProvider>
