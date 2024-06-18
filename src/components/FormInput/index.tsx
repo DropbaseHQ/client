@@ -451,7 +451,6 @@ export const InputRenderer = forwardRef((props: any, ref: any) => {
 		);
 	}
 
-
 	if (type === 'template') {
 		return (
 			<Box w="full" borderWidth="1px" p="1.5" borderRadius="sm">
