@@ -1,36 +1,33 @@
+import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { workerAxios } from '@/lib/axios';
 
-type Page = {
-	name: string;
-	label: string;
-	id: string;
-};
-
-export type App = {
-	name: string;
-	status?: string;
-	label: string;
-	date: string;
-	id: string;
-	pages: Page[];
-	editable: boolean;
-};
-
 const fetchWorkspaceApps = async () => {
-	const { data } = await workerAxios.get<App[]>(`/app/list/`);
+	const { data } = await workerAxios.get<any>(`/workspaces/`);
 	return data;
 };
 
 export const APPS_QUERY_KEY = 'workspaceApps';
 
-export const useGetWorkspaceApps = () => {
+export const useGetWorkspaceApps = (props?: any) => {
 	const queryKey = [APPS_QUERY_KEY];
 	const { data: response, ...rest } = useQuery(queryKey, () => fetchWorkspaceApps(), {
 		staleTime: 1000 * 60 * 5,
+		...(props || {}),
 	});
+
+	const data = useMemo(() => {
+		return {
+			apps: Object.keys(response?.apps || {}).map((appKey) => ({
+				name: appKey,
+				...(response?.apps?.[appKey] || {}),
+			})),
+			owner: response?.owner,
+		};
+	}, [response]);
+
 	return {
-		apps: response || [],
 		...rest,
+		...data,
 	};
 };
