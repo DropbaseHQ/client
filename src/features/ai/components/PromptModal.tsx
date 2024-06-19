@@ -1,6 +1,7 @@
 import {
 	Button,
 	ButtonGroup,
+	Center,
 	Modal,
 	ModalBody,
 	ModalContent,
@@ -8,7 +9,6 @@ import {
 	ModalHeader,
 	ModalOverlay,
 	Stack,
-	Text,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import * as monacoLib from 'monaco-editor';
@@ -28,6 +28,20 @@ import { useSubmitPrompt } from '@/features/ai/hooks';
 import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
+import { Zap } from 'react-feather';
+
+// TODO: move to a place where it can be reused
+const GradientIcon = () => (
+	<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<defs>
+			<linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+				<stop offset="0%" style={{ stopColor: '#06f', stopOpacity: 1 }} />
+				<stop offset="100%" style={{ stopColor: '#3ccf91', stopOpacity: 1 }} />
+			</linearGradient>
+		</defs>
+		<Zap stroke="url(#gradient1)" />
+	</svg>
+);
 
 export const PromptModal = () => {
 	const toast = useToast();
@@ -163,15 +177,29 @@ export const PromptModal = () => {
 
 	useHotkeys('ctrl+enter, meta+enter', onSubmit);
 
+	// TODO: move to css to reuse
+	const gradientStyle = {
+		background: 'linear-gradient(90deg, #06f, #3ccf91)',
+		WebkitBackgroundClip: 'text',
+		color: 'transparent',
+		size: 'sm',
+		marginLeft: '.3em',
+	};
+
 	return (
 		<Modal size="6xl" isOpen={isOpen} onClose={handleCloseModal}>
 			<ModalOverlay />
-			<ModalContent minW={updatedCode.prompt && updatedCode.code && !isUIPrompt ? "80%" : "10%"}>
+			<ModalContent
+				minW={updatedCode.prompt && updatedCode.code && !isUIPrompt ? '80%' : '10%'}
+			>
 				<form onSubmit={methods.handleSubmit(onSubmit)}>
 					<FormProvider {...methods}>
 						<ModalHeader borderBottomWidth="1px">
-							<Stack spacing="0">
-								<Text fontSize="xl">Generate code</Text>
+							<Stack spacing="0" direction="row">
+								<Center>
+									<GradientIcon />
+									<h3 style={gradientStyle}>AI Dev Prompt</h3>
+								</Center>
 							</Stack>
 						</ModalHeader>
 						<ModalBody p="0">
@@ -198,7 +226,6 @@ export const PromptModal = () => {
 								<Stack spacing="4">
 									<FormInput
 										autoFocus
-										name="Write prompt"
 										id="prompt"
 										onKeyDown={handleKeyDown}
 										type="textarea"
@@ -263,8 +290,8 @@ export const PromptModal = () => {
 											{!isUIPrompt &&
 											updatedCode.prompt &&
 											updatedCode.prompt !== prompt
-												? 'Regenerate'
-												: 'Generate'}
+												? 'Regenerate Code'
+												: 'Generate Code'}
 										</Button>
 									)}
 								</Stack>

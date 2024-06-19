@@ -40,7 +40,7 @@ export const PromptButton = () => {
 	}
 
 	return (
-		<Tooltip label="App Developer">
+		<Tooltip label="AI Dev">
 			<Button
 				size="sm"
 				variant="secondary"
@@ -49,6 +49,7 @@ export const PromptButton = () => {
 				aria-label="Preview"
 				ml="auto"
 				mr="2"
+				onClick={handleClick}
 			>
 				<p style={gradientStyle}>AI Dev</p>
 			</Button>
