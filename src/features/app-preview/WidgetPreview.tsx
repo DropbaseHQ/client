@@ -11,7 +11,6 @@ import { Loader } from '@/components/Loader';
 import { InspectorContainer } from '@/features/app-builder';
 import { AppComponent } from './AppComponent';
 import { Notification } from '@/features/app-preview/components/Notification';
-import { MirrorTableColumns } from '@/features/app-builder/components/PropertiesEditor/MirrorTableColumnInputs';
 import { ComponentsList } from '@/features/app-preview/ComponentsList';
 import { NewComponent } from '@/features/app-builder/components/PropertiesEditor/NewComponent';
 import { LabelContainer } from '@/components/LabelContainer';
@@ -180,7 +179,6 @@ export const WidgetPreview = ({ widgetName }: any) => {
 									resource="widget"
 									variant="secondary"
 								/>
-								<MirrorTableColumns widgetName={widgetName} />
 							</Stack>
 						);
 					}}
