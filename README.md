@@ -49,4 +49,4 @@ We welcome contributions to improve Dropbase. To contribute, please fork the rep
 
 ## License
 
-This project is licensed under the [DROPBASE SOFTWARE LICENSE (DSL)](LICENSE). At the high level, the DSL grants you the right to use and modify the software for free as long as it's for non-commercial use.
+This project is licensed under the DROPBASE SOFTWARE LICENSE (DSL) - see the [LICENSE.md](LICENSE.md) file for details. At the high level, the DSL grants you the right to use and modify the software for free as long as it's for non-commercial use.
