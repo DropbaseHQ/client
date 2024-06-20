@@ -12,7 +12,6 @@ import { NavLoader } from '@/components/Loader';
 import { DisplayRulesEditor } from './DisplayRulesEditor';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { getErrorMessage } from '@/utils';
-import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { LabelContainer } from '@/components/LabelContainer';
 import { NameEditor } from '@/features/app-builder/components/NameEditor';
 
@@ -26,7 +25,7 @@ export const ComponentPropertyEditor = () => {
 
 	const { widget: widgetName, table: tableName, resource } = meta || {};
 
-	const { widgets, isLoading, tables, properties, files } = useGetPage({ appName, pageName });
+	const { widgets, isLoading, tables, properties } = useGetPage({ appName, pageName });
 
 	const component =
 		resource === 'widget'
@@ -47,7 +46,6 @@ export const ComponentPropertyEditor = () => {
 		),
 	];
 
-	const functions = files.filter((f: any) => f.type === 'python')?.map((f: any) => f?.name);
 
 	const methods = useForm();
 	const {
@@ -66,7 +64,6 @@ export const ComponentPropertyEditor = () => {
 	const defaultValue = watch('default');
 	const multiline = watch('multiline');
 	const hasStateInDefault = watch('stateInDefault');
-	const useFetcher = watch('use_fetcher');
 
 	useEffect(() => {
 		if (multiple) {
@@ -369,49 +366,18 @@ export const ComponentPropertyEditor = () => {
 												);
 											}
 
-											if (property.category === 'Events') {
-												return <EventPropertyEditor id={property.name} />;
-											}
-
-											if (property.name === 'fetcher') {
-												if (!useFetcher) return null;
-
-												return (
-													<EventPropertyEditor
-														id="fetcher"
-														title={property.title}
-														showFetchersOnly
-													/>
-												);
-											}
-
-											if (
-												(property.name === 'fetcher' ||
-													property.name === 'name_column' ||
-													property.name === 'value_column') &&
-												!component?.use_fetcher
-											) {
-												return null;
-											}
-
-											const showFunctionList = property.type === 'function';
 
 											return (
 												<FormInput
 													{...property}
 													id={property.name}
 													name={property.title}
-													type={
-														showFunctionList
-															? 'select'
-															: (property.type === 'string' &&
+													type={(property.type === 'string' &&
 																	'markdown') ||
 															  property.type
 													}
 													options={(
-														(showFunctionList
-															? functions
-															: property.enum || property.options) ||
+														(property.enum || property.options) ||
 														[]
 													).map((o: any) => ({
 														name: o,

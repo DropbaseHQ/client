@@ -3,11 +3,11 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useSetAtom } from 'jotai';
 import { Save, Trash } from 'react-feather';
 import { useParams } from 'react-router-dom';
-import { Stack, IconButton, ButtonGroup, StackDivider } from '@chakra-ui/react';
-import { useResourceFields } from '@/features/app-builder/hooks';
+import { Stack, IconButton, Text, ButtonGroup, StackDivider } from '@chakra-ui/react';
 import { FormInput } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
+import { useResourceFields } from '@/features/app-builder/hooks';
 import { inspectedResourceAtom } from '@/features/app-builder/atoms';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { LabelContainer } from '@/components/LabelContainer';
@@ -16,7 +16,9 @@ import { NameEditor } from '@/features/app-builder/components/NameEditor';
 export const WidgetProperties = ({ widgetId }: any) => {
 	const toast = useToast();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
+	
 	const { fields } = useResourceFields();
+	const currentCategories = ['Default'];
 
 	const { pageName, appName } = useParams();
 	const { widgets, properties, refetch } = useGetPage({ appName, pageName });
@@ -121,9 +123,9 @@ export const WidgetProperties = ({ widgetId }: any) => {
 	};
 
 	return (
-		<Stack h="full" overflowY="auto" w="full" bg="white">
 			<form onSubmit={methods.handleSubmit(onSubmit)}>
 				<FormProvider {...methods}>
+				<Stack key={widgetId}>
 					<Stack
 						py="2"
 						px="4"
@@ -170,38 +172,50 @@ export const WidgetProperties = ({ widgetId }: any) => {
 							/>
 						</ButtonGroup>
 					</Stack>
-					<Stack spacing="0" divider={<StackDivider />}>
-						<Stack spacing="3" p="3">
-							<Stack>
-								{fields?.widget?.map((property: any) => {
-									if (
-										property?.name === 'name' ||
-										property.name === 'block_type' ||
-										property.name === 'components'
-									) {
-										return null;
-									}
 
-									return (
-										<FormInput
-											{...property}
-											id={property.name}
-											type={property.type}
-											key={property.name}
-											options={(property.enum || property.options || []).map(
-												(o: any) => ({
-													name: o,
-													value: o,
-												}),
-											)}
-										/>
-									);
-								})}
+					<Stack spacing="0" h="full" overflowY="auto" divider={<StackDivider />}>
+						{currentCategories.map((category: any) => (
+							<Stack key={category} spacing="3" p="3">
+								{category.toLowerCase() === 'default' ? null : (
+									<Text fontSize="md" fontWeight="semibold">
+										{category}
+									</Text>
+								)}
+								<Stack spacing="3">
+								{fields?.widget
+									?.filter((property: any) => property.category === category)
+									.map((property: any) => {
+										if (
+											property?.name === 'name' ||
+											property.name === 'block_type' ||
+											property.name === 'components'
+										) {
+											return null;
+										}
+
+										return (
+											<FormInput
+												{...property}
+												id={property.name}
+												type={property.type}
+												key={property.name}
+												name={property.title}
+												options={(property.enum || property.options || []).map(
+													(o: any) => ({
+														name: o,
+														value: o,
+													}),
+												)}
+											/>
+										);
+									})}
+								</Stack>
 							</Stack>
-						</Stack>
+						))}
 					</Stack>
+				</Stack>
+
 				</FormProvider>
 			</form>
-		</Stack>
 	);
 };

@@ -66,7 +66,6 @@ import { DEFAULT_PAGE_SIZE } from './constants';
 import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
 import { useEvent } from '@/features/app-preview/hooks';
-import { useConvertPopover } from '@/features/smart-table/hooks/useConvertPopover';
 import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
 import { Notification } from '@/features/app-preview/components/Notification';
 import { ACTIONS } from '@/constant';
@@ -117,13 +116,6 @@ const UnMemoizedSmartTable = ({ tableName, height }: any) => {
 	});
 
 	const tableColumnWidth = allTableColumnWidth?.[tableName];
-
-	const {
-		renderPopoverContent,
-		onOpen: openConvertPopover,
-		onClose: closeConvertPopover,
-		isOpen: convertPopoverOpen,
-	} = useConvertPopover(tableName);
 
 	const {
 		isLoading,
@@ -1315,30 +1307,20 @@ const UnMemoizedSmartTable = ({ tableName, height }: any) => {
 				<Stack position="relative" spacing="0">
 					<Popover
 						returnFocusOnClose={false}
-						isOpen={!isPreview && !table?.smart && table?.fetcher && convertPopoverOpen}
-						onClose={closeConvertPopover}
+						isOpen={!isPreview && !table?.smart && table?.fetcher}
 						placement="top-end"
 						closeOnBlur={false}
 					>
 						<PopoverTrigger>
 							<Box />
 						</PopoverTrigger>
-						{renderPopoverContent()}
 					</Popover>
 
 					<Box ref={tableBarRef}>
 						<ComponentsPreview type="header" tableName={tableName} />
 					</Box>
 
-					<Stack
-						height={`${tableHeight}px`}
-						borderWidth="1px"
-						onDoubleClick={() => {
-							if (!table?.smart && table?.type === 'sql') {
-								openConvertPopover();
-							}
-						}}
-					>
+					<Stack height={`${tableHeight}px`} borderWidth="1px">
 						{isLoading || isRefetching ? (
 							<>
 								{isRefetching ? (

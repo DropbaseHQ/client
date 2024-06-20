@@ -1,71 +1,52 @@
-# React + TypeScript + Vite
+# Dropbase Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository contains the client codebase for [Dropbase](https://github.com/DropbaseHQ/dropbase).
 
-Currently, two official plugins are available:
+## Getting Started
 
--   [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
--   [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-## Expanding the ESLint configuration
+### Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+Ensure you have the following installed on your machine:
 
--   Configure the top-level `parserOptions` property like this:
+-   [Node.js](https://nodejs.org/)
+-   [Yarn](https://yarnpkg.com/)
 
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
+## Installation
+
+Clone the repository to your local machine:
+
+```sh
+git clone https://github.com/DropbaseHQ/client.git
+cd client
 ```
 
--   Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
--   Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
--   Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+Install the project dependencies:
 
-## Deploying to Cloudflare Pages
+```sh
+yarn install
+```
 
-The deployment happens automatically when there are changes in `./client` directory.
-See [client-deployment-dev.yml](../.github/workflows/client-deployment-dev.yml) for pipeline definition.
+## Running the Application
 
-## Publish image to Docker Hub
+To start the application, run:
 
-- Any new commit on the `main` branch will trigger the build of Docker image with `latest` tag. The image will be pushed to DockerHub afterward.
-- When there is a GitHub tag created in semver (e.g. `v1.2.3`), a corresponding Docker tag will be built and pushed to DockerHub
+```sh
+yarn start
+```
 
-## Cypress Testing
+This will launch the app in development mode. Open [http://localhost:3030](http://localhost:3030) to view it in the browser.
 
-### Setting Up Testing Accounts
-As of now, the tests are set up with my test accounts (me being Jon). If you wish to run tests locally, you will have to change the test accounts to your accounts.
+## Contributing
 
-Test account details can be changed in the `cypress.config.ts` file:
-- ADMIN_EMAIL: The email of the admin account who owns the workspace that you'll be testing on
-- USER_EMAIL: The email of the user who was invited to the admin's workspace
-- MEMBER_EMAIL: The email of the member who was invited to the admin's workspace
-- NON_MEMBER_EMAIL: The email of the user who was not invited to the admin's workspace
-- MEMBER_TO_INVITE_EMAIL: The email of the user who will be invited to the admin's workspace
-- TEST_PASSWORD: The password for all the test accounts
+We welcome contributions to improve Dropbase. To contribute, please fork the repository, create a branch for your feature or bug fix, and submit a pull request.
 
-**NOTE:** When you setup your worker/dropbase-dev, make sure that the DROPBASE_TOKEN variable in the `.env` file is set to the token of the admin account. This is because the tests are set up to use the admin account to create the test apps.
+1. Create a feature branch
+2. Commit your changes
+3. Push to the branch
+4. Open a pull request
 
-### Setting up local environment
-1. Make sure you have Cypress installed. If not, run `yarn add cypress --dev` to install it.
-2. Run platform server locally. Cypress will expect the server to be running on `http://localhost:9000`
-3. Run dropbase worker locally. Cypress will expect the worker to be running on `http://localhost:9090`
-4. Run the client locally as well. Use `yarn start:dev` to start the client on `http://localhost:3000`
-5. Run `yarn cypress open` to open the Cypress Test Runner. You can then run the tests from the runner.
+## License
 
-### Navigating through Cypress
-1.  Once the Cypress Test Runner is open, click on "E2E Testing"
-2.  Click Chrome and then click on "E2E testing with Chrome"
-3.  You will now see a list of "specs" that you can run. Click on any of the specs to run the tests.
-4.
-
-### Known Issues
-- There may be an origin issue preventing the client from connecting to the worker. You might want to play around with the allowed origins in the worker's `main.py` file.
-- When a test fails, the test app will not be deleted. You will have to manually delete the test app before running the tests again. You can do this by going to the "Apps" tab in the client and deleting the app with the name "cypresstestapp1" etc.
-- When a test fails in the auth section, if a user is given a specific permission and the test fails after that, the user will still have that permission. You will have to manually remove the permission from the user in the client or the database
-
+This project is licensed under the DROPBASE SOFTWARE LICENSE (DSL) - see the [LICENSE.md](LICENSE.md) file for details. At the high level, the DSL grants you the right to use and modify the software for free as long as it's for non-commercial use.

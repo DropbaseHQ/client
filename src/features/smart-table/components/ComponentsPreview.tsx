@@ -1,10 +1,10 @@
-import { Progress, Stack } from '@chakra-ui/react';
+import { Stack } from '@chakra-ui/react';
 
 import { useAtomValue } from 'jotai';
 import { useParams } from 'react-router-dom';
 
 import { useGetPage, useUpdatePageData } from '@/features/page';
-import { useGetTable, useReorderComponents } from '@/features/app-builder/hooks';
+import { useGetTable } from '@/features/app-builder/hooks';
 import { InspectorContainer } from '@/features/app-builder';
 
 import { ComponentsList } from '@/features/app-preview/ComponentsList';
@@ -22,8 +22,6 @@ export const ComponentsPreview = ({ type, tableName }: any) => {
 	const updateMutation = useUpdatePageData();
 
 	const { properties } = useGetPage({ appName, pageName });
-
-	const reorderMutation = useReorderComponents();
 
 	const handleReorderComponents = (newCompState: any[]) => {
 		const currentTable = properties[tableName] || {};
@@ -98,8 +96,6 @@ export const ComponentsPreview = ({ type, tableName }: any) => {
 					</InspectorContainer>
 				)}
 			</ComponentsList>
-
-			{reorderMutation.isLoading && <Progress mt="auto" size="xs" isIndeterminate />}
 		</Stack>
 	);
 };

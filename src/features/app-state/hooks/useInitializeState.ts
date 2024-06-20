@@ -16,23 +16,23 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 	const setPageState = useSetAtom(pageStateAtom);
 	const setPageContext = useSetAtom(pageContextAtom);
 
-	const {
-		isLoading: isLoadingInitial,
-		remove,
-		isFetched,
-	} = useQuery(queryKey, () => fetchInitialState({ appName, pageName }), {
-		enabled: Boolean(appName && pageName),
-		staleTime: Infinity,
-		onSuccess: (data: any) => {
-			/**
-			 * Update initial context to set the base
-			 */
-			setPageContext(data?.context || {}, {
-				replace: true,
-			});
-			setPageState(data?.state || {});
+	const { isLoading: isLoadingInitial, isFetched } = useQuery(
+		queryKey,
+		() => fetchInitialState({ appName, pageName }),
+		{
+			enabled: Boolean(appName && pageName),
+			staleTime: Infinity,
+			onSuccess: (data: any) => {
+				/**
+				 * Update initial context to set the base
+				 */
+				setPageContext(data?.context || {}, {
+					replace: true,
+				});
+				setPageState(data?.state || {});
+			},
 		},
-	});
+	);
 
 	const { context, state, ...rest } = useGetPage({
 		appName,
@@ -60,19 +60,6 @@ export const useInitializePageState = (appName: string, pageName: string) => {
 			setPageContext(context || {});
 		}
 	}, [context, isLoadingInitial, setPageContext]);
-
-	useEffect(() => {
-		return () => {
-			remove();
-			setPageContext(
-				{},
-				{
-					replace: true,
-				},
-			);
-			setPageState({});
-		};
-	}, [setPageContext, remove, setPageState]);
 
 	return { ...rest, isLoading: rest.isLoading || isLoadingInitial };
 };

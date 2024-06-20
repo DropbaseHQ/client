@@ -25,8 +25,6 @@ import { useGetTable, useResourceFields } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { FormInput } from '@/components/FormInput';
 import { getErrorMessage } from '@/utils';
-
-import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
 
@@ -167,17 +165,6 @@ export const NewColumn = (props: any) => {
 																		},
 																	},
 																}}
-															/>
-														);
-													}
-
-													if (
-														property.name === 'on_click' ||
-														property.name === 'on_change'
-													) {
-														return (
-															<EventPropertyEditor
-																id={property.name}
 															/>
 														);
 													}

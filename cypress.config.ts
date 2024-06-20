@@ -30,11 +30,7 @@ export default defineConfig({
 		},
 		env: {
 			// add environment variables here
-			ADMIN_EMAIL: 'jon+110@dropbase.io',
-			USER_EMAIL: 'jon+113@dropbase.io',
-			MEMBER_EMAIL: 'jon+103@dropbase.io',
-			NON_MEMBER_EMAIL: 'jon+100@dropbase.io',
-			MEMBER_TO_INVITE_EMAIL: 'jon+105@dropbase.io',
+			ADMIN_EMAIL: 'test@dropbase.io',
 			TEST_PASSWORD: 'Password1',
 		},
 	},

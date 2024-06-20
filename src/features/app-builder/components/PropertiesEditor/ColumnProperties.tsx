@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ChevronDown, ChevronRight, Save, Trash, Zap } from 'react-feather';
+import { ChevronDown, ChevronRight, Save, Trash } from 'react-feather';
 
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
@@ -20,14 +20,12 @@ import {
 } from '@chakra-ui/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { FormInput, InputRenderer } from '@/components/FormInput';
-import { useConvertSmartTable, useGetTable, useResourceFields } from '@/features/app-builder/hooks';
+import { useGetTable, useResourceFields } from '@/features/app-builder/hooks';
 import { useToast } from '@/lib/chakra-ui';
 import { selectedTableIdAtom } from '@/features/app-builder/atoms';
-import { pageStateContextAtom } from '@/features/app-state';
 import { getErrorMessage } from '@/utils';
 import { useGetPage, useUpdatePageData } from '@/features/page';
 import { NewColumn } from '@/features/app-builder/components/PropertiesEditor/NewColumn';
-import { EventPropertyEditor } from '@/features/app-builder/components/PropertiesEditor/EventPropertyEditor';
 import OptionsList from '@/features/app-builder/components/PropertiesEditor/OptionsList';
 import { ACTIONS } from '@/constant';
 
@@ -386,10 +384,6 @@ const ColumnProperty = ({
 							{columnFields
 								.filter((f: any) => editableFields?.includes(f?.name))
 								.map((f: any) => {
-									if (f?.category === 'Events') {
-										return <EventPropertyEditor key={f.name} id={f.name} />;
-									}
-
 									if (f.name === 'name') {
 										return (
 											<FormInput
@@ -560,40 +554,9 @@ const ColumnProperty = ({
 };
 
 export const ColumnsProperties = () => {
-	const toast = useToast();
-
-	const { appName, pageName } = useParams();
-
 	const tableId = useAtomValue(selectedTableIdAtom);
-	const pageStateContext = useAtomValue(pageStateContextAtom);
 
-	const { type, columns, isLoading, table } = useGetTable(tableId || '');
-
-	const convertMutation = useConvertSmartTable({
-		onSuccess: () => {
-			toast({
-				status: 'success',
-				title: 'SmartTable converted',
-			});
-		},
-		onError: (error: any) => {
-			toast({
-				status: 'error',
-				title: 'Failed to convert table',
-				description: getErrorMessage(error),
-			});
-		},
-		table: tableId,
-	});
-
-	const handleConvert = () => {
-		convertMutation.mutate({
-			table,
-			state: pageStateContext.state,
-			appName,
-			pageName,
-		});
-	};
+	const { type, columns, isLoading } = useGetTable(tableId || '');
 
 	if (isLoading) {
 		return (
@@ -615,22 +578,7 @@ export const ColumnsProperties = () => {
 			<Text fontSize="md" px="3" pt="1" pb="0" fontWeight="semibold">
 				Columns
 			</Text>
-			{type === 'sql' && !table?.smart ? (
-				<Button
-					leftIcon={<Zap size="14" />}
-					size="sm"
-					colorScheme="yellow"
-					onClick={handleConvert}
-					isLoading={
-						convertMutation.isLoading &&
-						convertMutation.variables?.table?.name === tableId
-					}
-					ml="2"
-					variant="ghost"
-				>
-					Convert to Smart Table
-				</Button>
-			) : null}
+
 			<Stack spacing="0">
 				<Stack px="3" py="1" direction="row" fontWeight="medium" fontSize="sm">
 					<Text width="50%">Column</Text>
