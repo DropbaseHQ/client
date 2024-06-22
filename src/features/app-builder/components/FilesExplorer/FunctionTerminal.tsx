@@ -21,7 +21,7 @@ import { logsAtom, previewCodeAtom } from '../../atoms';
 import { getErrorMessage, getLogInfo } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 
-export const FunctionTerminal = ({ panelRef }: any) => {
+export const FunctionTerminal = () => {
 	const [{ code, name, execute }, setPreviewCode] = useAtom(previewCodeAtom);
 
 	const [, setLogs] = useAtom(logsAtom);
@@ -64,10 +64,6 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 					state: variables?.pageState,
 				},
 			});
-
-			if (panelRef?.current?.getSize() < 20) {
-				panelRef?.current?.resize(50);
-			}
 		},
 		onMutate: () => {
 			resetRunData();
@@ -166,7 +162,7 @@ export const FunctionTerminal = ({ panelRef }: any) => {
 		<Stack w="full" spacing="0">
 			{file?.type === 'python' ? (
 				<>
-					<Stack bg="gray.50" px="2" py="1" borderBottomWidth="1px">
+					<Stack bg="gray.50" px="2" py="1" borderBottomWidth="1px" borderTopWidth="1px">
 						<Text fontWeight="medium" fontSize="sm">
 							Test Code
 						</Text>
