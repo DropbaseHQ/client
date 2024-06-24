@@ -124,9 +124,8 @@ const createPythonEditor = async (config: { htmlElement: HTMLElement; filepath: 
 		fontFamily: 'Fira Code',
 		fontSize: 12,
 		scrollbar: {
-			verticalHasArrows: true,
 			alwaysConsumeMouseWheel: false,
-			vertical: 'auto',
+			vertical: 'hidden',
 			horizontal: 'auto',
 		},
 	});

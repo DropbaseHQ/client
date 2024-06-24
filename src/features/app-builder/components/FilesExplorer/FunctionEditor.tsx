@@ -14,6 +14,7 @@ import { PAGE_DATA_QUERY_KEY, useGetPage } from '@/features/page';
 
 import { getErrorMessage } from '@/utils';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
+import { FunctionTerminal } from './FunctionTerminal';
 
 import { previewCodeAtom } from '../../atoms';
 
@@ -53,7 +54,7 @@ export const FunctionEditor = ({ name }: any) => {
 	const { files } = useGetPage({ appName, pageName });
 
 	const file = files.find((f: any) => f.name === name);
-	const fileName = file ? `${file?.name}${file?.type === 'sql' ? '.sql' : '.py'}` : null;
+	const fileName = file ? `${file?.name}.py` : null;
 
 	const setPreviewFile = useSetAtom(previewCodeAtom);
 
@@ -164,13 +165,17 @@ export const FunctionEditor = ({ name }: any) => {
 				{isRefetching ? (
 					<Skeleton startColor="gray.100" endColor="gray.400" h="full" />
 				) : (
-					<PythonEditorLSP
-						code={code}
-						name={name}
-						updateCode={setCode}
-						key={name}
-						onSave={handleSave}
-					/>
+					<>
+						<PythonEditorLSP
+							code={code}
+							name={name}
+							updateCode={setCode}
+							key={name}
+							onSave={handleSave}
+						/>
+
+						<FunctionTerminal />
+					</>
 				)}
 			</Box>
 		</Stack>

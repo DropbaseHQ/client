@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { useAtom } from 'jotai';
 import { Box, Skeleton, Stack } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
@@ -11,19 +10,17 @@ import { developerTabAtom } from '@/features/app-builder/atoms';
 import { FunctionEditor } from './FunctionEditor';
 import { CodeEditor } from './CodeEditor';
 import { useGetPage } from '@/features/page';
-import { FunctionTerminal } from './FunctionTerminal';
 import { PanelHandle } from '@/components/Panel';
 import { FunctionLogs } from './FunctionLogs';
 
 const componentsMap: any = {
 	python: FunctionEditor,
+	json: CodeEditor,
 };
 
 export const FileContent = () => {
 	const { appName, pageName } = useParams();
 	const { isLoading } = useGetPage({ appName, pageName });
-
-	const panelRef = useRef<any>(null);
 
 	const isReady = useMonacoLoader();
 
@@ -41,18 +38,17 @@ export const FileContent = () => {
 		);
 	}
 
-	const Component = componentsMap[devTab.type] || CodeEditor;
+	const Component = componentsMap[devTab.type];
 
 	return (
 		<PanelGroup autoSaveId="dev-content" direction="vertical">
 			<Panel>
 				<Box h="full" overflowX="hidden" overflowY="auto">
 					<Component name={devTab.id} />
-					<FunctionTerminal panelRef={panelRef} />
 				</Box>
 			</Panel>
 			<PanelHandle direction="horizontal" />
-			<Panel ref={panelRef} defaultSize={11} maxSize={75} minSize={10}>
+			<Panel defaultSize={11} maxSize={75} minSize={10}>
 				<PanelGroup autoSaveId="test-content" direction="vertical">
 					<PanelHandle direction="horizontal" />
 					<Panel minSize={15}>
