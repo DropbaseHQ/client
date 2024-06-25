@@ -35,7 +35,7 @@ const EmptyPane = () => {
 						color="gray.500"
 						fontSize="sm"
 					>
-						Enter your input.....
+						Your input.....
 					</Box>
 				</Box>
 				<MousePointer
@@ -57,10 +57,6 @@ export const PropertyPane = () => {
 
 	const pageStateContext = useAtomValue(pageStateContextAtom);
 	useTemplateCompletion(pageStateContext);
-
-	if (!id || !type) {
-		return <EmptyPane />;
-	}
 
 	let component = <EmptyPane />;
 
