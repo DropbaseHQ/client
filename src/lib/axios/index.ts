@@ -1,7 +1,7 @@
 import Axios from 'axios';
-import { getWorkerURL } from '@/utils/url';
+import { WORKER_URL } from '@/utils/url';
 
 export const workerAxios = Axios.create({
-	baseURL: getWorkerURL(),
+	baseURL: WORKER_URL,
 	withCredentials: true,
 });

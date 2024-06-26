@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useSetAtom } from 'jotai';
 import { initializeLanguageServices, lspStatusAtom } from '@/components/Editor';
-import { useGetLSPURL } from '@/features/authorization/hooks/useLogin';
+import { LSP_URL } from '@/utils/url';
 
 export const useMonacoLoader = () => {
 	const [isMonacoReady, setReady] = useState(false);
-	const lspURL = useGetLSPURL();
 	const setLspStatus = useSetAtom(lspStatusAtom);
 
 	useEffect(() => {
@@ -16,7 +15,7 @@ export const useMonacoLoader = () => {
 			setReady(false);
 			try {
 				await initializeLanguageServices({
-					url: lspURL,
+					url: LSP_URL,
 					onOpen: setLspStatusTrue,
 					onClose: setLspStatusFalse,
 				});
@@ -26,7 +25,7 @@ export const useMonacoLoader = () => {
 				setReady(true);
 			}
 		})();
-	}, [lspURL, setLspStatus]);
+	}, [LSP_URL, setLspStatus]);
 
 	return isMonacoReady;
 };

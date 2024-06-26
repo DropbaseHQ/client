@@ -7,14 +7,12 @@ import { DashboardRoutes } from './DashboardRoutes';
 
 import { App } from '@/features/app';
 import { WorkerDisconnected } from '@/features/app-builder/components/WorkerDisconnected';
-import { useGetWebSocketURL } from '@/features/authorization/hooks/useLogin';
+import { WEBSOCKET_URL } from '@/utils/url';
 
 export const WorkerDashboardRoutes = () => {
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
 
-	const websocketURL = useGetWebSocketURL();
-
-	useWebSocket(websocketURL, {
+	useWebSocket(WEBSOCKET_URL, {
 		share: true,
 		shouldReconnect: () => true,
 		reconnectAttempts: 3,

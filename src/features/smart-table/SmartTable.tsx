@@ -66,7 +66,7 @@ import { DEFAULT_PAGE_SIZE } from './constants';
 import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
 import { useEvent } from '@/features/app-preview/hooks';
-import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
+import { WEBSOCKET_URL } from '@/utils/url';
 import { Notification } from '@/features/app-preview/components/Notification';
 import { ACTIONS } from '@/constant';
 import { ComponentsPreview } from '@/features/smart-table/components/ComponentsPreview';
@@ -94,9 +94,7 @@ const UnMemoizedSmartTable = ({ tableName, height }: any) => {
 
 	const { appName, pageName } = useParams();
 
-	const websocketURL = useGetWebSocketURL();
-
-	const { sendJsonMessage } = useWebSocket(websocketURL, {
+	const { sendJsonMessage } = useWebSocket(WEBSOCKET_URL, {
 		share: true,
 	});
 

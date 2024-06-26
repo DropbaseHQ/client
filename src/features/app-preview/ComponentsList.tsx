@@ -6,7 +6,7 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 import { appModeAtom, websocketStatusAtom } from '@/features/app/atoms';
 import { pageContextAtom } from '@/features/app-state';
-import { useGetWebSocketURL } from '@/features/authorization/hooks/useLogin';
+import { WEBSOCKET_URL } from '@/utils/url';
 
 export const ComponentsList = ({
 	components,
@@ -27,9 +27,7 @@ export const ComponentsList = ({
 
 	const setPageContextState = useSetAtom(pageContextAtom);
 
-	const websocketURL = useGetWebSocketURL();
-
-	const { sendJsonMessage } = useWebSocket(websocketURL, {
+	const { sendJsonMessage } = useWebSocket(WEBSOCKET_URL, {
 		onOpen: () => {
 			setWebsocketIsAlive(true);
 

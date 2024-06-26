@@ -1,7 +1,7 @@
 import useWebSocket from 'react-use-websocket';
 import { useSetAtom } from 'jotai';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
-import { useGetWebSocketURL } from '@/features/authorization/hooks/useLogin';
+import { WEBSOCKET_URL } from '@/utils/url';
 import { websocketStatusAtom } from '@/features/app/atoms';
 
 import { App } from '@/features/app';
@@ -10,10 +10,8 @@ import { DashboardLayout } from '@/layout';
 
 export const FreeDashboardRoutes = () => {
 	const setWebsocketIsAlive = useSetAtom(websocketStatusAtom);
-	// FIXME: @jon what will be the value here?
-	const websocketURL = useGetWebSocketURL();
 
-	useWebSocket(websocketURL, {
+	useWebSocket(WEBSOCKET_URL, {
 		share: true,
 		shouldReconnect: () => true,
 		reconnectAttempts: 3,
