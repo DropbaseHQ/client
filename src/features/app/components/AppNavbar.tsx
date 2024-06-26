@@ -28,8 +28,8 @@ import { DropbaseIcon } from '@/components/Logo';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
 import { useUpdateApp } from '@/features/app-list/hooks/useUpdateApp';
 import { useToast } from '@/lib/chakra-ui';
-import { useCreatePage, useGetPage } from '@/features/page';
-import { getErrorMessage, generateSequentialName, isFreeApp } from '@/utils';
+import { useCreatePage } from '@/features/page';
+import { getErrorMessage, generateSequentialName } from '@/utils';
 import { PageTab } from './PageTab';
 import { LabelContainer } from '@/components/LabelContainer';
 import { PromptButton } from '@/features/ai';
@@ -40,7 +40,6 @@ export const AppNavbar = ({ isPreview }: any) => {
 	const { appName, pageName } = useParams();
 	const { apps } = useGetWorkspaceApps();
 	const [tabIndex, setTabIndex] = useState(0);
-	const { permissions } = useGetPage({ appName, pageName });
 
 	const [label, setAppLabel] = useState('');
 
@@ -255,24 +254,22 @@ export const AppNavbar = ({ isPreview }: any) => {
 			<Stack direction="row" spacing="2" ml="auto">
 				{!isPreview ? <PromptButton /> : null}
 
-				{permissions?.edit || isFreeApp() ? (
-					<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
-						<Button
-							size="sm"
-							variant="secondary"
-							colorScheme="blue"
-							leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
-							aria-label="Preview"
-							ml="auto"
-							mr="4"
-							as={Link}
-							data-cy="preview-toggle"
-							to={isPreview ? 'studio' : '../'}
-						>
-							{isPreview ? 'Edit' : 'Preview'}
-						</Button>
-					</Tooltip>
-				) : null}
+				<Tooltip label={isPreview ? 'App Studio' : 'App Preview'}>
+					<Button
+						size="sm"
+						variant="secondary"
+						colorScheme="blue"
+						leftIcon={isPreview ? <Edit size="14" /> : <Eye size="14" />}
+						aria-label="Preview"
+						ml="auto"
+						mr="4"
+						as={Link}
+						data-cy="preview-toggle"
+						to={isPreview ? 'studio' : '../'}
+					>
+						{isPreview ? 'Edit' : 'Preview'}
+					</Button>
+				</Tooltip>
 			</Stack>
 		</Stack>
 	);
