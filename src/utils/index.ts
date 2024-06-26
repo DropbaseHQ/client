@@ -68,6 +68,7 @@ export const getErrorMessage = (error: any) => {
 		return error?.response?.data?.result.join(', ');
 	}
 
+	// AZ: fix me
 	const errorMessage =
 		error?.response?.data?.error ||
 		error?.response?.data?.message ||

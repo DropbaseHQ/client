@@ -25,7 +25,7 @@ export const useMonacoLoader = () => {
 				setReady(true);
 			}
 		})();
-	}, [LSP_URL, setLspStatus]);
+	}, [setLspStatus]);
 
 	return isMonacoReady;
 };
