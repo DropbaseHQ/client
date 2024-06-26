@@ -46,7 +46,6 @@ export const ComponentPropertyEditor = () => {
 		),
 	];
 
-
 	const methods = useForm();
 	const {
 		formState: { isDirty },
@@ -366,18 +365,19 @@ export const ComponentPropertyEditor = () => {
 												);
 											}
 
-
 											return (
 												<FormInput
 													{...property}
 													id={property.name}
 													name={property.title}
-													type={(property.type === 'string' &&
-																	'markdown') ||
-															  property.type
+													type={
+														(property.type === 'string' &&
+															'markdown') ||
+														property.type
 													}
 													options={(
-														(property.enum || property.options) ||
+														property.enum ||
+														property.options ||
 														[]
 													).map((o: any) => ({
 														name: o,

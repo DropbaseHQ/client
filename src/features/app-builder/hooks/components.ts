@@ -4,7 +4,6 @@ import { workerAxios } from '@/lib/axios';
 
 const fetchComponentFields = async () => {
 	const response = await workerAxios.get<any>(`/components/properties/all`);
-
 	return response.data;
 };
 

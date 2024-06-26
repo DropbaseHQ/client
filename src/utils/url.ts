@@ -1,11 +1,5 @@
-export const getWorkerURL = () => {
-	return `${window.location.protocol}//${window.location.hostname}:9090`;
-};
+export const WORKER_URL = `${window.location.protocol}//${window.location.hostname}:9090`;
 
-export const getWebSocketURL = () => {
-	return `ws://${window.location.hostname}:9090/ws`;
-};
+export const WEBSOCKET_URL = `ws://${window.location.hostname}:9090/ws`;
 
-export const getLSPURL = () => {
-	return `ws://${window.location.hostname}:9095/lsp`;
-};
+export const LSP_URL = `ws://${window.location.hostname}:9095/lsp`;

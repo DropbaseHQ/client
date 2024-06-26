@@ -141,7 +141,7 @@ export const FunctionTerminal = () => {
 		}
 	}, [execute, executeShortcut]);
 
-	const isLoading = runPythonMutation.isLoading;
+	const { isLoading } = runPythonMutation;
 
 	const handleTestCodeMount = (editor: any) => {
 		editor.onDidContentSizeChange((event: any) => {

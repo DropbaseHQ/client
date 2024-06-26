@@ -16,7 +16,7 @@ import { NameEditor } from '@/features/app-builder/components/NameEditor';
 export const WidgetProperties = ({ widgetId }: any) => {
 	const toast = useToast();
 	const setInspectedResource = useSetAtom(inspectedResourceAtom);
-	
+
 	const { fields } = useResourceFields();
 	const currentCategories = ['Default'];
 
@@ -123,8 +123,8 @@ export const WidgetProperties = ({ widgetId }: any) => {
 	};
 
 	return (
-			<form onSubmit={methods.handleSubmit(onSubmit)}>
-				<FormProvider {...methods}>
+		<form onSubmit={methods.handleSubmit(onSubmit)}>
+			<FormProvider {...methods}>
 				<Stack key={widgetId}>
 					<Stack
 						py="2"
@@ -182,40 +182,41 @@ export const WidgetProperties = ({ widgetId }: any) => {
 									</Text>
 								)}
 								<Stack spacing="3">
-								{fields?.widget
-									?.filter((property: any) => property.category === category)
-									.map((property: any) => {
-										if (
-											property?.name === 'name' ||
-											property.name === 'block_type' ||
-											property.name === 'components'
-										) {
-											return null;
-										}
+									{fields?.widget
+										?.filter((property: any) => property.category === category)
+										.map((property: any) => {
+											if (
+												property?.name === 'name' ||
+												property.name === 'block_type' ||
+												property.name === 'components'
+											) {
+												return null;
+											}
 
-										return (
-											<FormInput
-												{...property}
-												id={property.name}
-												type={property.type}
-												key={property.name}
-												name={property.title}
-												options={(property.enum || property.options || []).map(
-													(o: any) => ({
+											return (
+												<FormInput
+													{...property}
+													id={property.name}
+													type={property.type}
+													key={property.name}
+													name={property.title}
+													options={(
+														property.enum ||
+														property.options ||
+														[]
+													).map((o: any) => ({
 														name: o,
 														value: o,
-													}),
-												)}
-											/>
-										);
-									})}
+													}))}
+												/>
+											);
+										})}
 								</Stack>
 							</Stack>
 						))}
 					</Stack>
 				</Stack>
-
-				</FormProvider>
-			</form>
+			</FormProvider>
+		</form>
 	);
 };

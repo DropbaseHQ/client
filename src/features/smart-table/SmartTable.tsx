@@ -1,7 +1,6 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
 	Box,
-	Button,
 	Center,
 	IconButton,
 	Popover,
@@ -17,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { transparentize } from '@chakra-ui/theme-tools';
-import { Info, Move, RotateCw, UploadCloud } from 'react-feather';
+import { Info, Move, RotateCw } from 'react-feather';
 
 import DataEditor, {
 	CompactSelection,
@@ -49,7 +48,7 @@ import { pageStateContextAtom, pageContextAtom, pageStateAtom } from '@/features
 
 import dropdownCellRenderer from './components/cells/SingleSelect';
 
-import { CurrentTableContext, useCurrentTableData, useSaveColumns } from './hooks';
+import { CurrentTableContext, useCurrentTableData } from './hooks';
 
 import {
 	cellEditsAtom,
@@ -63,10 +62,9 @@ import { NavLoader } from '@/components/Loader';
 
 import { appModeAtom } from '@/features/app/atoms';
 import { DEFAULT_PAGE_SIZE } from './constants';
-import { useToast } from '@/lib/chakra-ui';
 import { LabelContainer } from '@/components/LabelContainer';
 import { useEvent } from '@/features/app-preview/hooks';
-import { useGetWebSocketURL } from '../authorization/hooks/useLogin';
+import { WEBSOCKET_URL } from '@/utils/url';
 import { Notification } from '@/features/app-preview/components/Notification';
 import { ACTIONS } from '@/constant';
 import { ComponentsPreview } from '@/features/smart-table/components/ComponentsPreview';
@@ -74,6 +72,7 @@ import { SaveEditsButton } from '@/features/smart-table/components/SaveEditsButt
 import { useGetPage, useOnPageResponse } from '@/features/page';
 import { DeleteRowButton } from '@/features/smart-table/components/DeleteRowButton';
 import { useRenderAddRowModal } from '@/features/smart-table/hooks/useRenderAddRowModal';
+import { SaveColumns } from './components/SaveColumns';
 
 const ALL_CELLS = [
 	DatePickerCell,
@@ -86,7 +85,6 @@ const ALL_CELLS = [
 ];
 
 const UnMemoizedSmartTable = ({ tableName, height }: any) => {
-	const toast = useToast();
 	const theme = useTheme();
 	const { colorMode } = useColorMode();
 
@@ -94,9 +92,7 @@ const UnMemoizedSmartTable = ({ tableName, height }: any) => {
 
 	const { appName, pageName } = useParams();
 
-	const websocketURL = useGetWebSocketURL();
-
-	const { sendJsonMessage } = useWebSocket(websocketURL, {
+	const { sendJsonMessage } = useWebSocket(WEBSOCKET_URL, {
 		share: true,
 	});
 
@@ -159,22 +155,6 @@ const UnMemoizedSmartTable = ({ tableName, height }: any) => {
 		},
 		onError: () => {
 			setButtonTrigger(null);
-		},
-	});
-
-	const mutation = useSaveColumns({
-		onSuccess: () => {
-			toast({
-				title: 'Commited Columns details',
-				status: 'success',
-			});
-		},
-		onError: (err: any) => {
-			toast({
-				title: 'Failed to commit',
-				status: 'error',
-				description: getErrorMessage(err),
-			});
 		},
 	});
 
@@ -1108,18 +1088,6 @@ const UnMemoizedSmartTable = ({ tableName, height }: any) => {
 		}
 	};
 
-	const handleCommitColumns = () => {
-		mutation.mutate({
-			appName,
-			pageName,
-			tableName,
-			columns: header.map((c: any) => ({
-				...(columnDict?.[c] || {}),
-				...c,
-			})),
-		});
-	};
-
 	const highlights: any = cellEdits.map((edit: any) => {
 		return {
 			color: '#e5e5e5',
@@ -1284,21 +1252,12 @@ const UnMemoizedSmartTable = ({ tableName, height }: any) => {
 									}}
 								/>
 							</Tooltip>
-
 							{!isLoading && !isRefetching && !isPreview && !tableIsSynced ? (
-								<Tooltip label="Save columns">
-									<Button
-										variant="outline"
-										colorScheme="gray"
-										leftIcon={<UploadCloud size="14" />}
-										size="sm"
-										flexShrink="0"
-										onClick={handleCommitColumns}
-										isLoading={mutation.isLoading}
-									>
-										Save Columns
-									</Button>
-								</Tooltip>
+								<SaveColumns
+									tableName={tableName}
+									header={header}
+									columnDict={columnDict}
+								/>
 							) : null}
 						</Stack>
 					</Stack>

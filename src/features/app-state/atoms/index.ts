@@ -3,6 +3,7 @@ import { atom } from 'jotai';
 // widget state atom
 export const pageStateAtom = atom({});
 
+// widget context atom
 const basePageContextAtom = atom({});
 
 export function isObject(item: any) {
@@ -38,7 +39,6 @@ const mergeContext = ({ newContext, currentContext }: any) => {
 	return context;
 };
 
-// widget context atom
 export const pageContextAtom = atom(
 	(get) => get(basePageContextAtom),
 	(

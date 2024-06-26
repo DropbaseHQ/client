@@ -68,6 +68,7 @@ export const getErrorMessage = (error: any) => {
 		return error?.response?.data?.result.join(', ');
 	}
 
+	// AZ: fix me
 	const errorMessage =
 		error?.response?.data?.error ||
 		error?.response?.data?.message ||
@@ -84,14 +85,6 @@ export const getErrorMessage = (error: any) => {
 	}
 
 	return errorMessage;
-};
-
-export const isProductionApp = () => {
-	return import.meta.env.VITE_APP_TYPE === 'app';
-};
-
-export const isFreeApp = () => {
-	return !import.meta.env.VITE_APP_TYPE || import.meta.env.VITE_APP_TYPE === 'main-free';
 };
 
 export const invalidResourceName = (

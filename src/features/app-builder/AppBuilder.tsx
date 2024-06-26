@@ -11,8 +11,7 @@ import {
 import { Panel, PanelGroup } from 'react-resizable-panels';
 import { useEffect } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useToast } from '@/lib/chakra-ui';
+import { useParams } from 'react-router-dom';
 import { PanelHandle } from '@/components/Panel';
 
 import { useGetPage } from '@/features/page';
@@ -27,14 +26,12 @@ import { FileContent } from './components/FilesExplorer/FileContent';
 import { useInitializePageState } from '@/features/app-state';
 
 import { PromptModal } from '@/features/ai';
-import { getErrorMessage, isFreeApp } from '@/utils';
+import { getErrorMessage } from '@/utils';
 import { appModeAtom } from '@/features/app/atoms';
 import { BlocksRenderer } from '@/features/app-builder/components/BlocksRenderer';
 
 export const AppBuilder = () => {
 	const { appName, pageName } = useParams();
-	const navigate = useNavigate();
-	const toast = useToast();
 
 	const { isPreview } = useAtomValue(appModeAtom);
 
@@ -42,11 +39,7 @@ export const AppBuilder = () => {
 
 	const theme = useTheme();
 	const setInspectedItem = useSetAtom(inspectedResourceAtom);
-	const {
-		permissions,
-		isLoading: appStateIsLoading,
-		error,
-	} = useGetPage({
+	const { isLoading: appStateIsLoading, error } = useGetPage({
 		appName,
 		pageName,
 	});
@@ -62,17 +55,6 @@ export const AppBuilder = () => {
 			});
 		};
 	}, [setInspectedItem]);
-
-	useEffect(() => {
-		if (!isFreeApp() && !appStateIsLoading && !permissions?.edit) {
-			toast({
-				title: 'Unauthorized',
-				description: 'You do not have permission to edit this page.',
-				status: 'error',
-			});
-			navigate(`/apps/${appName}/${pageName}`);
-		}
-	}, [appStateIsLoading, permissions, appName, navigate, pageName, toast]);
 
 	if (error) {
 		return (
@@ -152,7 +134,7 @@ export const AppBuilder = () => {
 						style={{ cursor: 'auto', pointerEvents: 'none' }}
 						direction="vertical"
 					/>
-					<Panel defaultSize={15} maxSize={15} minSize={15}>
+					<Panel defaultSize={10}>
 						<PropertyPane />
 					</Panel>
 				</PanelGroup>

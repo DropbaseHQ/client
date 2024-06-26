@@ -209,34 +209,37 @@ export const BlocksRenderer = () => {
 					onLayoutChange={handleNewLayout}
 					draggableHandle=".react-grid-drag-handle"
 				>
-					{allBlocks.map((table: any) => {
+					{allBlocks.map((block: any) => {
 						return (
 							<Box
 								data-grid={{
-									x: table?.x || 0,
-									y: table?.y || 0,
-									w: table?.w || 4,
-									h: table?.h || 1,
-									i: table?.name,
+									x: block?.x || 0,
+									y: block?.y || 0,
+									w: block?.w || 4,
+									h: block?.h || 1,
+									i: block?.name,
 									resizeHandles: ['se', 'sw', 'ne', 'nw'],
 								}}
-								key={table.name}
+								key={block.name}
 							>
 								<InspectorContainer
 									flexShrink="0"
 									h="full"
 									w="full"
-									type={table?.block_type === 'widget' ? 'widget' : 'table'}
-									id={table.name}
+									type={block?.block_type === 'widget' ? 'widget' : 'table'}
+									id={block.name}
 								>
-									{table?.block_type === 'widget' ? (
-										<WidgetPreview key={table.name} widgetName={table.name} />
-									) : (
+									{block?.block_type === 'widget' ? (
+										<WidgetPreview key={block.name} widgetName={block.name} />
+									) : null}
+
+									{block?.block_type === 'table' ? (
 										<SmartTable
-											height={containerHeight * (table?.h || 1)}
-											tableName={table.name}
+											height={containerHeight * (block?.h || 1)}
+											tableName={block.name}
 										/>
-									)}
+									) : null}
+									{/* AZ: add chart block here */}
 								</InspectorContainer>
 							</Box>
 						);

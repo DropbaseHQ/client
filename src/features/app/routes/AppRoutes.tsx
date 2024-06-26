@@ -46,8 +46,6 @@ export const AppRoutes = () => {
 		<Routes>
 			<Route index element={<AppBuilder />} />
 			<Route path="studio" element={<AppBuilder />} />
-			<Route path="preview" element={<Navigate to=".." />} />
-			<Route path="editor" element={<Navigate to="../studio" />} />
 		</Routes>
 	);
 };
