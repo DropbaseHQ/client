@@ -113,6 +113,13 @@ export const PromptModal = () => {
 				setPromptError(data.message);
 			}
 		},
+		onError: (error: any) => {
+			toast({
+				status: 'error',
+				title: 'Failed to submit prompt',
+				description: getErrorMessage(error),
+			});
+		},
 	});
 
 	const onSaveFile = (newCode?: any) => {
