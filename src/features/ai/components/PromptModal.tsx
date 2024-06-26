@@ -30,7 +30,6 @@ import { getErrorMessage } from '@/utils';
 import { useToast } from '@/lib/chakra-ui';
 import { TABLE_DATA_QUERY_KEY } from '@/features/smart-table/hooks';
 import { GradientIcon } from './GradientIcon';
-import { on } from 'events';
 
 export const PromptModal = () => {
 	const toast = useToast();
