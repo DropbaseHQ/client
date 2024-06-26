@@ -22,10 +22,12 @@ import {
 } from '@chakra-ui/react';
 import { MoreVertical } from 'react-feather';
 import { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useSetAtom } from 'jotai';
 import { useToast } from '@/lib/chakra-ui';
 import { useDeletePage, useRenamePage } from '@/features/page';
 import { getErrorMessage } from '@/utils';
+import { readWriteLogsAtom } from '@/features/app-builder/atoms';
 
 export const PageTab = (props: any) => {
 	const { isPreview, index, tabIndex, page, pages } = props;
@@ -63,7 +65,6 @@ export const PageTab = (props: any) => {
 
 	const handleChangePageName = (e: any) => {
 		const newName = e.target.value;
-
 		setPageNameEdit(newName);
 	};
 
@@ -96,10 +97,7 @@ export const PageTab = (props: any) => {
 	const handleDeletePage = () => {
 		if (appName && pageName) {
 			deletePageMutation.mutate(
-				{
-					appName,
-					pageName,
-				},
+				{ appName, pageName },
 				{
 					onSuccess: () => {
 						toast({
@@ -129,18 +127,26 @@ export const PageTab = (props: any) => {
 		}
 	};
 
+	const setLogs = useSetAtom(readWriteLogsAtom);
+
+	const handleClicked = () => {
+		setLogs({ logs: [] });
+		if (isPreview) {
+			navigate(pageLink);
+		} else {
+			navigate(`${pageLink}/studio`);
+		}
+	};
+
 	return (
 		<Tab
 			key={page.name}
 			display="flex"
 			alignItems="center"
-			as={Link}
-			to={isPreview ? pageLink : `${pageLink}/studio`}
 			px="3"
 			py="1"
-			_selected={{
-				color: 'blue.500',
-			}}
+			onClick={handleClicked}
+			_selected={{ color: 'blue.500' }}
 		>
 			<Flex align="center" justifyContent="center" h="24px">
 				<Box fontWeight="semibold">{page?.label}</Box>

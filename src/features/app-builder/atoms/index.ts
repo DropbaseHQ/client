@@ -41,7 +41,7 @@ type Logs = {
 	logs: Log[];
 };
 
-const readWriteLogsAtom = atom<Logs>({
+export const readWriteLogsAtom = atom<Logs>({
 	logs: [],
 });
 
@@ -49,7 +49,6 @@ export const logsAtom = atom(
 	(get) => get(readWriteLogsAtom),
 	(get, set, log: Log) => {
 		const currentLogs = get(readWriteLogsAtom).logs;
-
 		set(readWriteLogsAtom, { logs: [{ ...log, time: Date.now() }, ...currentLogs] });
 	},
 );
