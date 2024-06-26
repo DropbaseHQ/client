@@ -20,10 +20,7 @@ import { extractTemplateString } from '@/utils';
 export const WidgetPreview = ({ widgetName }: any) => {
 	const { appName, pageName } = useParams();
 
-	const { widgets } = useGetPage({
-		appName,
-		pageName,
-	});
+	const { widgets } = useGetPage({ appName, pageName });
 
 	const { properties } = useGetPage({ appName, pageName });
 
