@@ -20,6 +20,7 @@ import { WidgetPreview } from '@/features/app-preview/WidgetPreview';
 import { NewWidget } from '@/features/app-preview/components/NewWidget';
 import { Notification } from '@/features/app-preview/components/Notification';
 import { pageContextAtom } from '@/features/app-state';
+import { ChartBlock } from '@/features/chart/ChartBlock';
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -235,6 +236,13 @@ export const BlocksRenderer = () => {
 
 									{block?.block_type === 'table' ? (
 										<SmartTable
+											height={containerHeight * (block?.h || 1)}
+											tableName={block.name}
+										/>
+									) : null}
+
+									{block?.block_type === 'chart' ? (
+										<ChartBlock
 											height={containerHeight * (block?.h || 1)}
 											tableName={block.name}
 										/>

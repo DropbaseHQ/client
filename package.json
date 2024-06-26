@@ -34,6 +34,8 @@
 		"copy-to-clipboard": "^3.3.3",
 		"date-fns": "^2.30.0",
 		"depcheck": "^1.4.7",
+		"echarts": "^5.5.0",
+		"echarts-for-react": "^3.0.2",
 		"framer-motion": "^10.15.1",
 		"jotai": "^2.3.1",
 		"jotai-optics": "^0.3.2",
