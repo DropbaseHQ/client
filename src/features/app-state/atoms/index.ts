@@ -1,17 +1,43 @@
 import { atom } from 'jotai';
 
-export const pageStateContextAtom = atom((get) => {
-	return {
-		state: get(pageStateAtom),
-		context: get(pageContextAtom),
-	};
-});
-
 // widget state atom
 export const pageStateAtom = atom({});
 
 // widget context atom
 const basePageContextAtom = atom({});
+
+export function isObject(item: any) {
+	return item && typeof item === 'object' && !Array.isArray(item);
+}
+
+const mergeContext = ({ newContext, currentContext }: any) => {
+	const context: any = {};
+
+	Object.keys(newContext || {}).forEach((key: any) => {
+		if (key in currentContext) {
+			const currentField = currentContext[key];
+			const newField = newContext[key];
+
+			if (isObject(newField)) {
+				context[key] = {
+					...(context[key] || {}),
+					...mergeContext({
+						newContext: newField,
+						currentContext: currentField,
+					}),
+				};
+			} else if (newField !== null) {
+				context[key] = newField;
+			} else {
+				context[key] = currentField;
+			}
+		} else {
+			context[key] = newContext[key];
+		}
+	});
+
+	return context;
+};
 
 export const pageContextAtom = atom(
 	(get) => get(basePageContextAtom),
@@ -45,35 +71,9 @@ export const pageContextAtom = atom(
 	},
 );
 
-const mergeContext = ({ newContext, currentContext }: any) => {
-	const context: any = {};
-
-	Object.keys(newContext || {}).forEach((key: any) => {
-		if (key in currentContext) {
-			const currentField = currentContext[key];
-			const newField = newContext[key];
-
-			if (isObject(newField)) {
-				context[key] = {
-					...(context[key] || {}),
-					...mergeContext({
-						newContext: newField,
-						currentContext: currentField,
-					}),
-				};
-			} else if (newField !== null) {
-				context[key] = newField;
-			} else {
-				context[key] = currentField;
-			}
-		} else {
-			context[key] = newContext[key];
-		}
-	});
-
-	return context;
-};
-
-export function isObject(item: any) {
-	return item && typeof item === 'object' && !Array.isArray(item);
-}
+export const pageStateContextAtom = atom((get) => {
+	return {
+		state: get(pageStateAtom),
+		context: get(pageContextAtom),
+	};
+});

@@ -37,7 +37,7 @@ export const TableProperties = () => {
 
 	const currentCategories = ['Default'];
 
-	const { files, properties} = useGetPage({ appName, pageName });
+	const { files, properties } = useGetPage({ appName, pageName });
 
 	const mutation = useUpdatePageData({
 		onSuccess: () => {
@@ -60,7 +60,6 @@ export const TableProperties = () => {
 		reset,
 		formState: { isDirty },
 	} = methods;
-
 
 	useEffect(() => {
 		reset(
@@ -210,7 +209,6 @@ export const TableProperties = () => {
 												return null;
 											}
 
-
 											return (
 												<FormInput
 													{...property}
@@ -219,7 +217,8 @@ export const TableProperties = () => {
 													type={property.type}
 													key={property.name}
 													options={(
-														(property.enum || property.options) ||
+														property.enum ||
+														property.options ||
 														[]
 													).map((o: any) => ({
 														name: o,

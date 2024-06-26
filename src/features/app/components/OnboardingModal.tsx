@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
 	Stack,
 	Button,
@@ -21,7 +22,6 @@ import { FormInput } from '@/components/FormInput';
 import { useToast } from '@/lib/chakra-ui';
 import { getErrorMessage } from '@/utils';
 import { useGetWorkspaceApps } from '@/features/app-list/hooks/useGetWorkspaceApps';
-import { useState } from 'react';
 
 const onboard = async (data: any) => {
 	const response = await workerAxios.post<any>(`/workspaces/onboarding`, data);
@@ -142,7 +142,7 @@ export const OnboardingModal = () => {
 								<Stack display={showInfo ? 'contents' : 'none'}>
 									<OrderedList fontSize="sm">
 										<ListItem>
-											Local setup is completed. The workspace's
+											Local setup is completed. The workspace&apos;s
 											properties.json file is updated with owner information,
 											and this form will not be prompted again.
 										</ListItem>

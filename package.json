@@ -5,7 +5,6 @@
 	"type": "module",
 	"scripts": {
 		"start": "vite",
-		"start:dev": "vite --host 0.0.0.0",
 		"prestart": "node pre-built.js",
 		"dev": "vite --port 3030",
 		"build": "tsc && vite build",
@@ -14,7 +13,9 @@
 		"prebuild": "node pre-built.js",
 		"postinstall": "cd .. && husky client/.husky",
 		"prepack": "pinst --disable",
-		"postpack": "pinst --enable"
+		"postpack": "pinst --enable",
+		"format": "yarn prettier -- --write",
+		"prettier": "prettier \"src/**/*.+(js|ts|tsx|json)\""
 	},
 	"dependencies": {
 		"@chakra-ui/pro-theme": "^0.10.0",
