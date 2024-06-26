@@ -1,7 +1,8 @@
 import {
 	Button,
-	ButtonGroup,
 	Center,
+	FormControl,
+	FormErrorMessage,
 	Modal,
 	ModalBody,
 	ModalContent,
@@ -48,11 +49,11 @@ export const PromptModal = () => {
 	const { pageName, appName } = useParams();
 
 	const queryClient = useQueryClient();
+	const [promptError, setPromptError] = useState('');
 
 	const monaco = useMonaco();
 	useMonacoTheme(monaco);
 
-	const [tabIndex, setTabIndex] = useState(0);
 	const [updatedCode, setUpdatedCode] = useState({
 		code: '',
 		prompt: '',
@@ -62,8 +63,6 @@ export const PromptModal = () => {
 
 	const { watch } = methods;
 	const prompt = watch('prompt');
-
-	const isUIPrompt = tabIndex === 0;
 
 	const [{ isOpen }, setPromptMeta] = useAtom(promptAtom);
 
@@ -114,13 +113,17 @@ export const PromptModal = () => {
 
 	const mutation = useSubmitPrompt({
 		onSuccess: (data: any) => {
-			if (isUIPrompt) {
+			if (data.type === 'ui') {
 				toast({
 					status: 'success',
 					title: 'Updated UI',
 				});
+				handleCloseModal(true);
+				queryClient.invalidateQueries(PAGE_FILE_QUERY_KEY);
+			} else if (data.type === 'logic') {
+				setUpdatedCode({ code: data.message, prompt });
 			} else {
-				setUpdatedCode({ code: data, prompt });
+				setPromptError(data.message);
 			}
 		},
 	});
@@ -142,13 +145,7 @@ export const PromptModal = () => {
 				prompt,
 				appName,
 				pageName,
-				type: isUIPrompt ? 'ui' : 'function',
 			});
-
-			if (isUIPrompt) {
-				handleCloseModal(true);
-				queryClient.invalidateQueries(PAGE_FILE_QUERY_KEY);
-			}
 		} catch (e) {
 			//
 		}
@@ -189,9 +186,7 @@ export const PromptModal = () => {
 	return (
 		<Modal size="6xl" isOpen={isOpen} onClose={handleCloseModal}>
 			<ModalOverlay />
-			<ModalContent
-				minW={updatedCode.prompt && updatedCode.code && !isUIPrompt ? '80%' : '10%'}
-			>
+			<ModalContent minW={updatedCode.prompt && updatedCode.code ? '80%' : '10%'}>
 				<form onSubmit={methods.handleSubmit(onSubmit)}>
 					<FormProvider {...methods}>
 						<ModalHeader borderBottomWidth="1px">
@@ -204,35 +199,19 @@ export const PromptModal = () => {
 						</ModalHeader>
 						<ModalBody p="0">
 							<Stack p="6" spacing="4">
-								<ButtonGroup isAttached size="sm" variant="outline">
-									<Button
-										onClick={() => {
-											setTabIndex(0);
-										}}
-										variant={isUIPrompt ? 'solid' : 'outline'}
-									>
-										UI
-									</Button>
-									<Button
-										onClick={() => {
-											setTabIndex(1);
-										}}
-										variant={!isUIPrompt ? 'solid' : 'outline'}
-									>
-										Function
-									</Button>
-								</ButtonGroup>
-
 								<Stack spacing="4">
-									<FormInput
-										autoFocus
-										id="prompt"
-										onKeyDown={handleKeyDown}
-										type="textarea"
-									/>
+									<FormControl isInvalid={!!promptError}>
+										<FormInput
+											autoFocus
+											id="prompt"
+											onKeyDown={handleKeyDown}
+											type="textarea"
+										/>
+										<FormErrorMessage>{promptError}</FormErrorMessage>
+									</FormControl>
 								</Stack>
 
-								{updatedCode.prompt && updatedCode.code && !isUIPrompt ? (
+								{updatedCode.prompt && updatedCode.code ? (
 									<MonacoDiffEditor
 										height="400px"
 										original={originalCode}
@@ -267,8 +246,7 @@ export const PromptModal = () => {
 							</Stack>
 							<ModalFooter mt="2" borderTopWidth="1px" px="6">
 								<Stack direction="row">
-									{!isUIPrompt &&
-									updatedCode.code &&
+									{updatedCode.code &&
 									updatedCode.prompt &&
 									updatedCode.prompt === prompt ? (
 										<Button
@@ -287,9 +265,7 @@ export const PromptModal = () => {
 											colorScheme="blue"
 											type="submit"
 										>
-											{!isUIPrompt &&
-											updatedCode.prompt &&
-											updatedCode.prompt !== prompt
+											{updatedCode.prompt && updatedCode.prompt !== prompt
 												? 'Regenerate Code'
 												: 'Generate Code'}
 										</Button>

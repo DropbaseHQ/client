@@ -152,7 +152,7 @@ export const AppBuilder = () => {
 						style={{ cursor: 'auto', pointerEvents: 'none' }}
 						direction="vertical"
 					/>
-					<Panel defaultSize={15} maxSize={15} minSize={15}>
+					<Panel defaultSize={10}>
 						<PropertyPane />
 					</Panel>
 				</PanelGroup>
