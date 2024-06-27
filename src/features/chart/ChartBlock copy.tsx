@@ -11,7 +11,6 @@ import {
 import { Bar } from 'react-chartjs-2';
 
 export const ChartBlock = ({ chartName }: any) => {
-	console.log('chartName', chartName);
 	ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 	const options = {

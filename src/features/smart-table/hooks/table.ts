@@ -146,7 +146,7 @@ export const useTableData = ({
 			),
 			staleTime: Infinity,
 			onSuccess: (data: any) => {
-				console.log('table data', data);
+				// console.log('table data', data);
 				syncState(data);
 
 				setLogs({

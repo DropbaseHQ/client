@@ -15,15 +15,15 @@ const mergeContext = ({ newContext, currentContext }: any) => {
 
 	Object.keys(newContext || {}).forEach((key: any) => {
 		if (key in currentContext) {
-			const currentField = currentContext[key];
-			const newField = newContext[key];
+			const currentField = currentContext?.[key];
+			const newField = newContext?.[key];
 
 			if (isObject(newField)) {
 				context[key] = {
 					...(context[key] || {}),
 					...mergeContext({
 						newContext: newField,
-						currentContext: currentField,
+						currentContext: currentField || {},
 					}),
 				};
 			} else if (newField !== null) {
@@ -58,7 +58,6 @@ export const pageContextAtom = atom(
 		}
 
 		if (Object.keys(current)?.length === 0 || replace) {
-			console.log('replacing context', allContext);
 			set(basePageContextAtom, allContext);
 			return;
 		}
@@ -67,6 +66,8 @@ export const pageContextAtom = atom(
 			newContext: allContext,
 			currentContext: current,
 		});
+
+		console.log('Updated context', updatedContext);
 
 		set(basePageContextAtom, updatedContext);
 	},

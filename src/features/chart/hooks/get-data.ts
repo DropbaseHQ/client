@@ -55,8 +55,6 @@ export const useChartData = ({ chartName, appName, pageName }: any) => {
 			),
 			staleTime: Infinity,
 			onSuccess: (data: any) => {
-				debugger;
-				// console.log('chart data', data);
 				syncState(data);
 				setLogs({
 					...getLogInfo({ info: data }),

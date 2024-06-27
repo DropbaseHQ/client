@@ -13,13 +13,12 @@ export const ChartBlock = ({ chartName }: any) => {
 	const { appName, pageName } = useParams();
 
 	const pageContext = useAtomValue(pageContextAtom);
-	console.log('pageContext', pageContext);
+	// console.log('pageContext', pageContext);
 
 	const chartContextAtom = useMemo(() => {
 		return focusAtom(pageContextAtom, (optic: any) => optic.prop(chartName));
 	}, [chartName]);
 	const chartContext: any = useAtomValue(chartContextAtom);
-	// console.log('chartContext', chartContext);
 
 	useChartData({ chartName, appName, pageName });
 
@@ -30,20 +29,17 @@ export const ChartBlock = ({ chartName }: any) => {
 
 	const chartOptions = {
 		...chartConfigOptions,
-		// xAxis: {
-		// 	...(chartConfigOptions?.xAxis || {}),
-		// 	data: chartContext?.data.xAxis || [],
-		// },
+		xAxis: {
+			...(chartConfigOptions?.xAxis || {}),
+			data: chartContext?.data?.xAxis || [],
+		},
 		series: [
 			{
-				...(chartConfigOptions?.series?.[0] || {}),
-				// type: chartConfigOptions?.series.type,
+				type: chartConfigOptions?.series?.type,
 				data: chartContext?.data?.data || [],
 			},
 		],
 	};
-
-	// console.log('chartOptions', chartOptions);
 
 	return (
 		<>
