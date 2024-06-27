@@ -37,9 +37,6 @@ export const useGetTable = (tableName: string): any => {
 	};
 };
 
-// @yash-dropbase: do we need to export this?
-export const DATA_FETCHER_QUERY_KEY = 'dataFetchers';
-
 const saveCode = async ({ pageName, appName, fileType, fileName, code }: any) => {
 	const response = await workerAxios.put(`files/`, {
 		page_name: pageName,
@@ -58,7 +55,6 @@ export const useSaveCode = (props: any = {}) => {
 			queryClient.invalidateQueries(TABLE_QUERY_KEY);
 			queryClient.invalidateQueries([TABLE_DATA_QUERY_KEY, variables?.fileName]);
 			queryClient.invalidateQueries(ALL_PAGE_FILES_QUERY_KEY);
-			queryClient.invalidateQueries(DATA_FETCHER_QUERY_KEY);
 			queryClient.invalidateQueries(PAGE_DATA_QUERY_KEY);
 		},
 		...props,

@@ -244,7 +244,7 @@ export const BlocksRenderer = () => {
 									{block?.block_type === 'chart' ? (
 										<ChartBlock
 											height={containerHeight * (block?.h || 1)}
-											tableName={block.name}
+											chartName={block.name}
 										/>
 									) : null}
 									{/* AZ: add chart block here */}

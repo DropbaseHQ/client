@@ -101,6 +101,7 @@ export const useTableData = ({
 		?.filter((t: any) => filesWithCurrentTableAsDependency?.includes(t?.fetcher?.value))
 		?.map((t: any) => t?.name);
 
+	// TODO: delete
 	const depends = files.find((f: any) => f.name === table?.fetcher?.value)?.depends_on || [];
 	const tablesWithNoSelection = depends.filter((name: any) => !hasSelectedRows[name]);
 
@@ -145,6 +146,7 @@ export const useTableData = ({
 			),
 			staleTime: Infinity,
 			onSuccess: (data: any) => {
+				console.log('table data', data);
 				syncState(data);
 
 				setLogs({

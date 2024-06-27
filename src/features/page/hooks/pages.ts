@@ -64,6 +64,9 @@ export const useGetPage = ({ appName, pageName, ...props }: any) => {
 			widgets: allBlocks
 				.filter((b: any) => allProperties[b].block_type === 'widget')
 				.map((b: any) => allProperties[b]),
+			charts: allBlocks
+				.filter((b: any) => allProperties[b].block_type === 'chart')
+				.map((b: any) => allProperties[b]),
 			files: response?.properties?.files || [
 				{
 					title: 'function',

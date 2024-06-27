@@ -58,6 +58,7 @@ export const pageContextAtom = atom(
 		}
 
 		if (Object.keys(current)?.length === 0 || replace) {
+			console.log('replacing context', allContext);
 			set(basePageContextAtom, allContext);
 			return;
 		}
