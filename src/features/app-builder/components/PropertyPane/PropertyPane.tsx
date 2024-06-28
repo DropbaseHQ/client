@@ -10,6 +10,7 @@ import { WidgetProperties } from '@/features/app-builder/components/PropertiesEd
 import './monaco-suggestion-styles.css';
 import { pageStateContextAtom } from '@/features/app-state';
 import { useTemplateCompletion } from '@/components/Editor/hooks/useTemplateCompletion';
+import { ChartProperties } from '../PropertiesEditor/ChartProperties';
 
 const EmptyPane = () => {
 	return (
@@ -70,6 +71,10 @@ export const PropertyPane = () => {
 
 	if (type === 'widget') {
 		component = <WidgetProperties widgetId={id} />;
+	}
+
+	if (type === 'chart') {
+		component = <ChartProperties chartId={id} />;
 	}
 
 	return component;

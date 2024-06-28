@@ -67,8 +67,6 @@ export const pageContextAtom = atom(
 			currentContext: current,
 		});
 
-		console.log('Updated context', updatedContext);
-
 		set(basePageContextAtom, updatedContext);
 	},
 );

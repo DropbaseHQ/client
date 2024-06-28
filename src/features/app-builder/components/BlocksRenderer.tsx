@@ -227,7 +227,7 @@ export const BlocksRenderer = () => {
 									flexShrink="0"
 									h="full"
 									w="full"
-									type={block?.block_type === 'widget' ? 'widget' : 'table'}
+									type={block?.block_type}
 									id={block.name}
 								>
 									{block?.block_type === 'widget' ? (
