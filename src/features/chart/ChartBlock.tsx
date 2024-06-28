@@ -24,14 +24,12 @@ export const ChartBlock = ({ chartName }: any) => {
 	const chartProperties = properties?.[chartName] || {};
 
 	// construct chart options
-	// if (chartContext?.data) {
-	// 	debugger;
+	// if (chartName === 'chart2') {
+	// 	console.log('chartProperties', chartProperties);
+	// 	console.log('chartContext', chartContext);
 	// }
 
-	let chartOptions = {};
-	if (chartContext?.data) {
-		chartOptions = composeOption(chartProperties, chartContext?.data);
-	}
+	const chartOptions = composeOption(chartProperties, chartContext?.data);
 
 	return (
 		<>
